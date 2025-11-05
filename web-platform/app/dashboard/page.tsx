@@ -52,8 +52,16 @@ export default function StoryServerDashboard() {
           .order('created_at', { ascending: false })
           .limit(5);
 
+        // Transform stories to flatten storyteller from array to object
+        const transformedStories = (stories || []).map((story: any) => ({
+          ...story,
+          storyteller: Array.isArray(story.storyteller) && story.storyteller.length > 0
+            ? story.storyteller[0]
+            : story.storyteller
+        }));
+
         setStoriesCount(count || 0);
-        setRecentStoriesData(stories || []);
+        setRecentStoriesData(transformedStories);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching stories:', error);
