@@ -117,7 +117,7 @@ export default function StoriesGalleryPage() {
             .eq('organization_id', '3c2011b9-f80d-4289-b300-0cd383cff479') // PICC Organization ID
             .order('created_at', { ascending: false });
 
-          data = basicResult.data;
+          data = basicResult.data as any;
           error = basicResult.error;
         }
 
