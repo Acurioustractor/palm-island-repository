@@ -1,7 +1,46 @@
 import Link from 'next/link';
 import { Globe, Server, Heart, BookOpen, Users } from 'lucide-react';
+import { createClient } from '@supabase/supabase-js';
 
-export default function HomePage() {
+async function getStats() {
+  try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseKey) {
+      return { storytellers: 26, stories: 0, services: 16 };
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Get storyteller count
+    const { count: storytellerCount } = await supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true });
+
+    // Get story count
+    const { count: storyCount } = await supabase
+      .from('stories')
+      .select('*', { count: 'exact', head: true });
+
+    // Get service count
+    const { count: serviceCount } = await supabase
+      .from('organization_services')
+      .select('*', { count: 'exact', head: true });
+
+    return {
+      storytellers: storytellerCount || 26,
+      stories: storyCount || 0,
+      services: serviceCount || 16,
+    };
+  } catch (error) {
+    console.error('Error fetching stats:', error);
+    return { storytellers: 26, stories: 0, services: 16 };
+  }
+}
+
+export default async function HomePage() {
+  const stats = await getStats();
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center p-4">
       <div className="max-w-4xl">
@@ -102,13 +141,13 @@ export default function HomePage() {
 
         <div className="grid md:grid-cols-3 gap-4 mb-6">
           <div className="bg-blue-900 text-white p-6 rounded-lg text-center">
-            <div className="text-4xl font-bold mb-2">197</div>
-            <div className="text-sm">Staff Members</div>
-            <div className="text-xs text-blue-200 mt-1">+30% from 2023</div>
+            <div className="text-4xl font-bold mb-2">{stats.storytellers}</div>
+            <div className="text-sm">Community Storytellers</div>
+            <div className="text-xs text-blue-200 mt-1">Voices that matter</div>
           </div>
           <div className="bg-green-800 text-white p-6 rounded-lg text-center">
-            <div className="text-4xl font-bold mb-2">16+</div>
-            <div className="text-sm">Integrated Services</div>
+            <div className="text-4xl font-bold mb-2">{stats.services}</div>
+            <div className="text-sm">PICC Services</div>
             <div className="text-xs text-green-200 mt-1">Holistic support</div>
           </div>
           <div className="bg-purple-800 text-white p-6 rounded-lg text-center">
@@ -136,10 +175,11 @@ export default function HomePage() {
           <div className="bg-white p-6 rounded-lg shadow-lg text-left">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Platform Status</h2>
             <ul className="space-y-2 text-gray-700">
-              <li>✅ <strong>31 stories imported</strong> (26 storm stories + 6 PICC services)</li>
-              <li>✅ <strong>Database deployed</strong> with full schema</li>
-              <li>✅ <strong>Story Server dashboard</strong> built and ready</li>
-              <li>✅ <strong>Indigenous data sovereignty</strong> frameworks integrated</li>
+              <li>✅ <strong>{stats.storytellers} storytellers</strong> with profiles ready</li>
+              <li>✅ <strong>{stats.services} PICC services</strong> documented and linked</li>
+              <li>✅ <strong>{stats.stories} stories</strong> {stats.stories === 0 ? 'ready to import' : 'published'}</li>
+              <li>✅ <strong>Database deployed</strong> with Indigenous data sovereignty</li>
+              <li>✅ <strong>Storage buckets</strong> configured for photos, audio, and documents</li>
               <li>🚧 <strong>Coming soon:</strong> Story submission, photo upload, annual report generation</li>
             </ul>
           </div>

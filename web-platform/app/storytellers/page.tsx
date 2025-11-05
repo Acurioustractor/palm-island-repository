@@ -27,52 +27,38 @@ export default function StorytellerGalleryPage() {
       try {
         const supabase = createClient();
 
-        // Fetch all PICC stories with their storytellers
-        const { data: stories, error } = await supabase
-          .from('stories')
-          .select(`
-            id,
-            storyteller:storyteller_id (
-              id,
-              full_name,
-              preferred_name,
-              profile_image_url,
-              bio,
-              location,
-              date_of_birth,
-              created_at
-            )
-          `)
-          .eq('organization_id', '3c2011b9-f80d-4289-b300-0cd383cff479') // PICC only
-          .eq('is_public', true)
-          .not('storyteller_id', 'is', null);
+        // Fetch all storytellers directly from profiles
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('*')
+          .order('full_name');
 
-        if (error) throw error;
+        if (profilesError) throw profilesError;
 
-        // Extract unique storytellers and count their stories
-        const storytellerMap = new Map<string, Storyteller>();
+        // For each storyteller, count their stories
+        const storytellersWithCounts = await Promise.all(
+          (profiles || []).map(async (profile) => {
+            const { count } = await supabase
+              .from('stories')
+              .select('*', { count: 'exact', head: true })
+              .eq('storyteller_id', profile.id);
 
-        stories?.forEach((story: any) => {
-          if (story.storyteller && story.storyteller.id) {
-            const existing = storytellerMap.get(story.storyteller.id);
-            if (existing) {
-              existing.story_count = (existing.story_count || 0) + 1;
-            } else {
-              storytellerMap.set(story.storyteller.id, {
-                ...story.storyteller,
-                story_count: 1,
-              });
-            }
-          }
-        });
-
-        // Convert to array and sort by name
-        const uniqueStorytellers = Array.from(storytellerMap.values()).sort((a, b) =>
-          (a.preferred_name || a.full_name).localeCompare(b.preferred_name || b.full_name)
+            return {
+              id: profile.id,
+              full_name: profile.full_name,
+              preferred_name: profile.preferred_name,
+              profile_image_url: profile.profile_image_url,
+              bio: profile.bio,
+              location: profile.location || 'Palm Island',
+              date_of_birth: profile.date_of_birth,
+              created_at: profile.created_at,
+              story_count: count || 0,
+            };
+          })
         );
 
-        console.log('✅ Successfully fetched storytellers:', uniqueStorytellers.length, 'storytellers');
-        setStorytellers(uniqueStorytellers);
+        console.log('✅ Successfully fetched storytellers:', storytellersWithCounts.length, 'storytellers');
+        setStorytellers(storytellersWithCounts);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching storytellers:', error);
@@ -248,13 +234,12 @@ export default function StorytellerGalleryPage() {
                       </div>
                     </div>
 
-                    {/* TODO: Link to individual storyteller page showing all their stories */}
                     <div className="mt-4">
                       <Link
-                        href={`/stories?storyteller=${storyteller.id}`}
+                        href={`/storytellers/${storyteller.id}`}
                         className="block w-full text-center bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-all"
                       >
-                        View Stories →
+                        View Profile →
                       </Link>
                     </div>
                   </div>
