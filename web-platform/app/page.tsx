@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Globe, Server, Heart, BookOpen, Users } from 'lucide-react';
+import { Globe, Server, Heart, BookOpen, Users, History, Wind, Upload } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 
 async function getStats() {
@@ -90,36 +90,74 @@ export default async function HomePage() {
           </Link>
 
           <Link
-            href="/about"
-            className="group bg-white hover:bg-blue-50 p-8 rounded-xl shadow-xl transition-all transform hover:scale-105 border-2 border-transparent hover:border-blue-500"
+            href="/picc"
+            className="group bg-gradient-to-br from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 p-8 rounded-xl shadow-2xl transition-all transform hover:scale-105 text-white"
           >
             <div className="flex items-center mb-4">
-              <Globe className="w-8 h-8 text-blue-600 mr-3" />
-              <h2 className="text-2xl font-bold text-blue-900">About PICC</h2>
+              <Globe className="w-10 h-10 mr-3" />
+              <h2 className="text-2xl font-bold">About PICC</h2>
             </div>
-            <p className="text-gray-700 mb-4">
-              Learn about our journey from colonial control to community sovereignty.
+            <p className="mb-4 text-green-50">
+              100% community controlled • 197 staff • 16+ services
             </p>
-            <div className="text-blue-600 font-medium group-hover:text-blue-800">
+            <div className="font-bold text-lg">
               Learn More →
             </div>
           </Link>
 
           <Link
-            href="/dashboard"
-            className="group bg-white hover:bg-green-50 p-8 rounded-xl shadow-xl transition-all transform hover:scale-105 border-2 border-transparent hover:border-green-500"
+            href="/history"
+            className="group bg-gradient-to-br from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 p-8 rounded-xl shadow-2xl transition-all transform hover:scale-105 text-white"
           >
             <div className="flex items-center mb-4">
-              <Server className="w-8 h-8 text-green-600 mr-3" />
-              <h2 className="text-2xl font-bold text-green-900">Dashboard</h2>
+              <History className="w-10 h-10 mr-3" />
+              <h2 className="text-2xl font-bold">Our History</h2>
             </div>
-            <p className="text-gray-700 mb-4">
-              Track impact metrics and community data insights.
+            <p className="mb-4 text-orange-50">
+              65,000+ years • Resilience • Self-determination
             </p>
-            <div className="text-green-600 font-medium group-hover:text-green-800">
-              View Dashboard →
+            <div className="font-bold text-lg">
+              Explore Timeline →
             </div>
           </Link>
+        </div>
+
+        {/* Feature Stories Section */}
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">Feature Stories</h2>
+          <div className="grid md:grid-cols-2 gap-6">
+            <Link
+              href="/stories/cyclone-2019"
+              className="group bg-gradient-to-br from-gray-800 to-blue-900 hover:from-gray-900 hover:to-blue-800 p-8 rounded-xl shadow-2xl transition-all transform hover:scale-105 text-white"
+            >
+              <div className="flex items-center mb-4">
+                <Wind className="w-12 h-12 mr-3" />
+                <h2 className="text-3xl font-bold">2019 Cyclone</h2>
+              </div>
+              <p className="mb-4 text-gray-200 text-lg">
+                An immersive story of devastation, response, and community resilience
+              </p>
+              <div className="font-bold text-xl text-blue-300">
+                Experience the Journey →
+              </div>
+            </Link>
+
+            <Link
+              href="/upload"
+              className="group bg-gradient-to-br from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 p-8 rounded-xl shadow-2xl transition-all transform hover:scale-105 text-white"
+            >
+              <div className="flex items-center mb-4">
+                <Upload className="w-12 h-12 mr-3" />
+                <h2 className="text-3xl font-bold">Share Your Story</h2>
+              </div>
+              <p className="mb-4 text-purple-100 text-lg">
+                Upload photos, record voice, or write your story
+              </p>
+              <div className="font-bold text-xl text-pink-300">
+                Start Sharing →
+              </div>
+            </Link>
+          </div>
         </div>
 
         <div className="bg-white p-8 rounded-xl shadow-xl mb-6">
