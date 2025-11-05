@@ -10,7 +10,7 @@ export default function Cyclone2019Page() {
   useEffect(() => {
     function handleScroll() {
       const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight - window Height;
+      const documentHeight = document.documentElement.scrollHeight - windowHeight;
       const scrolled = window.scrollY;
       const progress = scrolled / documentHeight;
       setScrollProgress(progress);
