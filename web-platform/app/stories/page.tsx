@@ -127,7 +127,22 @@ export default function StoriesGalleryPage() {
         }
 
         console.log('✅ Successfully fetched stories:', data?.length || 0, 'stories');
-        setStories(data || []);
+
+        // Transform storyteller from array to object
+        const transformedStories = (data || []).map((story: any) => ({
+          ...story,
+          storyteller: Array.isArray(story.storyteller) && story.storyteller.length > 0
+            ? story.storyteller[0]
+            : story.storyteller,
+          organization: Array.isArray(story.organization) && story.organization.length > 0
+            ? story.organization[0]
+            : story.organization,
+          service: Array.isArray(story.service) && story.service.length > 0
+            ? story.service[0]
+            : story.service
+        }));
+
+        setStories(transformedStories);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching stories:', error);

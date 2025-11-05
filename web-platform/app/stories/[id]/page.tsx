@@ -54,7 +54,15 @@ export default function StoryDetailPage() {
 
         if (error) throw error;
 
-        setStory(data);
+        // Transform storyteller from array to object
+        const transformedData = data ? {
+          ...data,
+          storyteller: Array.isArray(data.storyteller) && data.storyteller.length > 0
+            ? data.storyteller[0]
+            : data.storyteller
+        } : null;
+
+        setStory(transformedData);
         setLoading(false);
       } catch (err: any) {
         console.error('Error fetching story:', err);

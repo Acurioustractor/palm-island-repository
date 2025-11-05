@@ -62,7 +62,15 @@ export default function SearchPage() {
           .limit(20);
 
         if (!storiesError && stories) {
-          const storyResults: SearchResult[] = stories.map((story: any) => ({
+          // Transform storyteller from array to object
+          const transformedStories = stories.map((story: any) => ({
+            ...story,
+            storyteller: Array.isArray(story.storyteller) && story.storyteller.length > 0
+              ? story.storyteller[0]
+              : story.storyteller
+          }));
+
+          const storyResults: SearchResult[] = transformedStories.map((story: any) => ({
             id: story.id,
             type: 'story' as const,
             title: story.title || 'Untitled Story',
