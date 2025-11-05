@@ -52,13 +52,14 @@ export default function StoryServerDashboard() {
           .order('created_at', { ascending: false })
           .limit(5);
 
-        // Transform stories to flatten storyteller from array to object
+        // Transform stories to flatten storyteller from array to single object
+        // Supabase returns foreign key relations as arrays, we need single object
         const transformedStories = (stories || []).map((story: any) => ({
           ...story,
           storyteller: Array.isArray(story.storyteller) && story.storyteller.length > 0
             ? story.storyteller[0]
             : story.storyteller
-        }));
+        })) as Story[];
 
         setStoriesCount(count || 0);
         setRecentStoriesData(transformedStories);
