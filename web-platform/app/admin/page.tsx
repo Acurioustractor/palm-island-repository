@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import {
   Users, BookOpen, Upload, FileText, Search, Settings,
-  TrendingUp, Award, Database, Image as ImageIcon, Play
+  TrendingUp, Award, Database, Image as ImageIcon, Play, Globe
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
