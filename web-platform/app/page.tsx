@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Globe, Server, Heart, BookOpen, Users, History, Wind, Upload } from 'lucide-react';
+import { Globe, Server, Heart, BookOpen, Users, History, Wind, Upload, Search } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 
 async function getStats() {
@@ -51,9 +51,18 @@ export default async function HomePage() {
           <p className="text-2xl text-gray-700 mb-2">
             Manbarra & Bwgcolman Country
           </p>
-          <p className="text-xl text-gray-600 italic">
+          <p className="text-xl text-gray-600 italic mb-8">
             Community-controlled storytelling, impact measurement, and data sovereignty
           </p>
+
+          {/* Search Bar */}
+          <Link
+            href="/search"
+            className="inline-flex items-center gap-3 bg-white px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all border-2 border-gray-200 hover:border-purple-400 max-w-2xl w-full text-left"
+          >
+            <Search className="w-6 h-6 text-gray-400" />
+            <span className="text-gray-500 text-lg flex-1">Search stories, people, topics...</span>
+          </Link>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
