@@ -138,6 +138,20 @@ export default function AdminDashboard() {
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Quick Actions</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             <ActionCard
+              href="/admin/add-person"
+              icon={<Users className="w-12 h-12" />}
+              title="Add New Person"
+              description="Simple form to add people with photos + transcripts"
+              color="from-green-500 to-teal-500"
+            />
+            <ActionCard
+              href="/admin/manage-profiles"
+              icon={<Settings className="w-12 h-12" />}
+              title="Manage Profiles"
+              description="Edit, update, or delete existing profiles"
+              color="from-blue-500 to-cyan-500"
+            />
+            <ActionCard
               href="/admin/import-stories"
               icon={<Database className="w-12 h-12" />}
               title="Import Stories"
@@ -145,39 +159,53 @@ export default function AdminDashboard() {
               color="from-purple-500 to-blue-500"
             />
             <ActionCard
+              href="/admin/import-repos"
+              icon={<Globe className="w-12 h-12" />}
+              title="Import from Repos"
+              description="Pull data from multiple GitHub repositories"
+              color="from-orange-500 to-red-500"
+            />
+            <ActionCard
+              href="/admin/upload-documents"
+              icon={<FileText className="w-12 h-12" />}
+              title="Upload Documents"
+              description="Upload annual reports, PDFs, Word docs"
+              color="from-pink-500 to-purple-500"
+            />
+            <ActionCard
               href="/admin/upload-photos"
               icon={<ImageIcon className="w-12 h-12" />}
               title="Upload Photos"
               description="Add profile photos for storytellers"
-              color="from-blue-500 to-cyan-500"
+              color="from-indigo-500 to-purple-500"
             />
             <ActionCard
               href="/reports/generate"
-              icon={<FileText className="w-12 h-12" />}
+              icon={<TrendingUp className="w-12 h-12" />}
               title="Generate Report"
               description="Create annual reports from data"
-              color="from-green-500 to-teal-500"
+              color="from-green-500 to-emerald-500"
             />
             <ActionCard
               href="/storytellers"
               icon={<Users className="w-12 h-12" />}
-              title="Manage Storytellers"
-              description="View and edit storyteller profiles"
-              color="from-orange-500 to-red-500"
+              title="View Storytellers"
+              description="Browse all storyteller profiles"
+              color="from-cyan-500 to-blue-500"
             />
             <ActionCard
               href="/search"
               icon={<Search className="w-12 h-12" />}
               title="Search Content"
               description="Find stories and storytellers"
-              color="from-pink-500 to-purple-500"
+              color="from-violet-500 to-purple-500"
             />
             <ActionCard
               href="/upload"
               icon={<Upload className="w-12 h-12" />}
               title="Upload Content"
               description="Add photos, text, or voice recordings"
-              color="from-indigo-500 to-blue-500"
+              color="from-rose-500 to-pink-500"
             />
           </div>
         </div>
