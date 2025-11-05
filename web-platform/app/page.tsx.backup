@@ -1,0 +1,229 @@
+import { Search, Book, Camera, Users, Map, ArrowRight, Sparkles } from 'lucide-react'
+import Link from 'next/link'
+
+export default function HomePage() {
+  return (
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <section className="cultural-pattern relative px-4 py-20 text-center">
+        <div className="mx-auto max-w-6xl">
+          <div className="animate-fade-in space-y-8">
+            <h1 className="text-4xl font-bold leading-tight md:text-6xl lg:text-7xl">
+              <span className="palm-text-gradient">Palm Island</span>
+              <br />
+              <span className="text-gray-900">Community Repository</span>
+            </h1>
+            
+            <p className="mx-auto max-w-3xl text-xl text-gray-600 md:text-2xl">
+              <strong>Our Stories</strong> · <strong>Our Sovereignty</strong> · <strong>Our Future</strong>
+            </p>
+            
+            <p className="mx-auto max-w-4xl text-lg text-gray-700 md:text-xl">
+              A world-class AI-powered platform preserving and sharing the rich cultural heritage 
+              of the Palm Island community while maintaining complete Indigenous data sovereignty.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Search Bar Section */}
+      <section className="bg-white px-4 py-12">
+        <div className="mx-auto max-w-4xl">
+          <div className="animate-slide-up space-y-6 text-center">
+            <div className="flex items-center justify-center gap-2 text-orange-600">
+              <Sparkles className="h-6 w-6" />
+              <span className="text-sm font-medium uppercase tracking-wide">AI-Powered Search</span>
+              <Sparkles className="h-6 w-6" />
+            </div>
+            
+            <h2 className="text-2xl font-semibold text-gray-900 md:text-3xl">
+              Search Stories, Photos, History, and More
+            </h2>
+            
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Try searching: 'youth leadership stories 2023' or 'photos of community events'"
+                className="search-bar"
+              />
+              <button className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-orange-500 p-3 text-white transition-colors hover:bg-orange-600">
+                <Search className="h-6 w-6" />
+              </button>
+            </div>
+            
+            <p className="text-sm text-gray-500">
+              Natural language search powered by AI trained on Palm Island knowledge
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Feature Cards Section */}
+      <section className="bg-gray-50 px-4 py-20">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-16 text-center">
+            <h2 className="mb-4 text-3xl font-bold text-gray-900 md:text-4xl">
+              Discover Our Community
+            </h2>
+            <p className="mx-auto max-w-2xl text-lg text-gray-600">
+              Explore stories, photos, and history through our culturally-aware AI platform
+            </p>
+          </div>
+
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {/* Stories */}
+            <Link href="/stories" className="story-card group">
+              <div className="p-8">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100">
+                  <Book className="h-6 w-6 text-orange-600" />
+                </div>
+                <h3 className="mb-2 text-xl font-semibold text-gray-900">Community Stories</h3>
+                <p className="mb-4 text-gray-600">
+                  Discover powerful narratives from community members, elders, and youth leaders.
+                </p>
+                <div className="flex items-center text-orange-600 transition-colors group-hover:text-orange-700">
+                  <span className="text-sm font-medium">Browse Stories</span>
+                  <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </div>
+              </div>
+            </Link>
+
+            {/* Photo Gallery */}
+            <Link href="/gallery" className="story-card group">
+              <div className="p-8">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-red-100">
+                  <Camera className="h-6 w-6 text-red-600" />
+                </div>
+                <h3 className="mb-2 text-xl font-semibold text-gray-900">Photo Gallery</h3>
+                <p className="mb-4 text-gray-600">
+                  Explore our intelligent photo gallery with AI-powered organization and search.
+                </p>
+                <div className="flex items-center text-red-600 transition-colors group-hover:text-red-700">
+                  <span className="text-sm font-medium">View Gallery</span>
+                  <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </div>
+              </div>
+            </Link>
+
+            {/* Community Dashboard */}
+            <Link href="/dashboard" className="story-card group">
+              <div className="p-8">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-yellow-100">
+                  <Users className="h-6 w-6 text-yellow-600" />
+                </div>
+                <h3 className="mb-2 text-xl font-semibold text-gray-900">PICC Dashboard</h3>
+                <p className="mb-4 text-gray-600">
+                  Access annual reports, statistics, and insights about our community services.
+                </p>
+                <div className="flex items-center text-yellow-600 transition-colors group-hover:text-yellow-700">
+                  <span className="text-sm font-medium">View Dashboard</span>
+                  <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </div>
+              </div>
+            </Link>
+
+            {/* Historical Timeline */}
+            <Link href="/history" className="story-card group">
+              <div className="p-8">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
+                  <Map className="h-6 w-6 text-green-600" />
+                </div>
+                <h3 className="mb-2 text-xl font-semibold text-gray-900">Historical Timeline</h3>
+                <p className="mb-4 text-gray-600">
+                  Journey through 60+ years of Palm Island history, from 1957 to today.
+                </p>
+                <div className="flex items-center text-green-600 transition-colors group-hover:text-green-700">
+                  <span className="text-sm font-medium">Explore History</span>
+                  <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </div>
+              </div>
+            </Link>
+
+            {/* Search Hub */}
+            <Link href="/search" className="story-card group">
+              <div className="p-8">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
+                  <Search className="h-6 w-6 text-blue-600" />
+                </div>
+                <h3 className="mb-2 text-xl font-semibold text-gray-900">AI Search Hub</h3>
+                <p className="mb-4 text-gray-600">
+                  Advanced semantic search across all content with natural language queries.
+                </p>
+                <div className="flex items-center text-blue-600 transition-colors group-hover:text-blue-700">
+                  <span className="text-sm font-medium">Start Searching</span>
+                  <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </div>
+              </div>
+            </Link>
+
+            {/* Cultural Protocols */}
+            <div className="story-card group">
+              <div className="p-8">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100">
+                  <Users className="h-6 w-6 text-purple-600" />
+                </div>
+                <h3 className="mb-2 text-xl font-semibold text-gray-900">Cultural Protocols</h3>
+                <p className="mb-4 text-gray-600">
+                  All content respects Indigenous data sovereignty and community-controlled access levels.
+                </p>
+                <div className="flex items-center text-purple-600">
+                  <span className="text-sm font-medium">Community Controlled</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="bg-white px-4 py-16">
+        <div className="mx-auto max-w-6xl">
+          <div className="grid gap-8 text-center md:grid-cols-4">
+            <div className="animate-scale-in">
+              <div className="palm-text-gradient text-4xl font-bold">197</div>
+              <div className="mt-2 text-sm text-gray-600">PICC Staff Members</div>
+            </div>
+            <div className="animate-scale-in">
+              <div className="palm-text-gradient text-4xl font-bold">16+</div>
+              <div className="mt-2 text-sm text-gray-600">Community Services</div>
+            </div>
+            <div className="animate-scale-in">
+              <div className="palm-text-gradient text-4xl font-bold">60+</div>
+              <div className="mt-2 text-sm text-gray-600">Years of History</div>
+            </div>
+            <div className="animate-scale-in">
+              <div className="palm-text-gradient text-4xl font-bold">100%</div>
+              <div className="mt-2 text-sm text-gray-600">Indigenous Data Sovereignty</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Call to Action */}
+      <section className="palm-gradient px-4 py-16 text-white">
+        <div className="mx-auto max-w-4xl text-center">
+          <h2 className="mb-4 text-3xl font-bold">
+            Bwgcolman - Many Tribes, One People
+          </h2>
+          <p className="mb-8 text-xl opacity-90">
+            Join us in preserving and sharing our community's stories for future generations.
+          </p>
+          <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
+            <Link 
+              href="/stories"
+              className="rounded-lg bg-white px-8 py-3 font-semibold text-orange-600 transition-all hover:bg-gray-100 hover:shadow-lg"
+            >
+              Explore Stories
+            </Link>
+            <Link 
+              href="/contribute"
+              className="rounded-lg border-2 border-white px-8 py-3 font-semibold text-white transition-all hover:bg-white hover:text-orange-600"
+            >
+              Share Your Story
+            </Link>
+          </div>
+        </div>
+      </section>
+    </div>
+  )
+}
