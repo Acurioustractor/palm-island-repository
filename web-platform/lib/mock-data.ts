@@ -167,10 +167,10 @@ This circle has changed my life. I've found my voice, my strength, and my sister
       community_role: 'Community Member'
     },
     service: {
-      name: "Women's Healing Service",
+      name: "Women\'s Healing Service",
       slug: 'womens-healing'
     },
-    location_name: 'Women's Centre',
+    location_name: 'Women\'s Centre',
     story_date: '2024-05-08',
     access_level: 'community',
     view_count: 176,
