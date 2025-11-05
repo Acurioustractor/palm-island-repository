@@ -128,7 +128,7 @@ export default function AddPersonPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 text-center">
           <CheckCircle className="w-16 h-16 mx-auto mb-4 text-green-600" />
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Profile Created! 🎉</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Profile Created!</h2>
           <p className="text-gray-600 mb-6">
             {fullName} has been added successfully.
           </p>
