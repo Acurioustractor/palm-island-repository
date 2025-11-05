@@ -140,7 +140,7 @@ export default function StoriesGalleryPage() {
           service: Array.isArray(story.service) && story.service.length > 0
             ? story.service[0]
             : story.service
-        }));
+        })) as any[];
 
         setStories(transformedStories);
         setLoading(false);

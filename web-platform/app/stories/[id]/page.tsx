@@ -60,7 +60,7 @@ export default function StoryDetailPage() {
           storyteller: Array.isArray(data.storyteller) && data.storyteller.length > 0
             ? data.storyteller[0]
             : data.storyteller
-        } : null;
+        } as any : null;
 
         setStory(transformedData);
         setLoading(false);
