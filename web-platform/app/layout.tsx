@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { cn } from '@/lib/utils'
-import Sidebar from '@/components/Sidebar'
 
 export const metadata: Metadata = {
   title: 'Palm Island Community Repository',
@@ -34,39 +33,36 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" className="scroll-smooth">
       <body className={cn('font-sans min-h-screen bg-earth-bg antialiased')}>
-        <Sidebar />
-        <div className="main-content">
-          {/* Cultural Acknowledgment Banner */}
-          <div className="bg-gradient-to-r from-sunset-orange via-coral-warm to-sand-gold px-4 py-2 text-center text-sm text-white">
+        {/* Cultural Acknowledgment Banner */}
+        <div className="bg-gradient-to-r from-sunset-orange via-coral-warm to-sand-gold px-4 py-2 text-center text-sm text-white">
+          <p>
+            We acknowledge the <strong>Manbarra people</strong> as the traditional owners of Palm Island
+            and recognize the <strong>Bwgcolman people</strong> descended from those forcibly relocated to the island.
+            We respect elders past, present, and emerging.
+          </p>
+        </div>
+
+        {/* Main Content */}
+        <main className="flex-1">
+          {children}
+        </main>
+
+        {/* Footer with Data Sovereignty Notice */}
+        <footer className="border-t bg-earth-bg px-4 py-8 text-center text-sm text-earth-medium">
+          <div className="mx-auto max-w-4xl space-y-4">
+            <p className="font-medium text-ocean-deep">
+              © 2024 Palm Island Community Company
+            </p>
             <p>
-              We acknowledge the <strong>Manbarra people</strong> as the traditional owners of Palm Island
-              and recognize the <strong>Bwgcolman people</strong> descended from those forcibly relocated to the island.
-              We respect elders past, present, and emerging.
+              This platform is built on principles of <strong>Indigenous data sovereignty</strong>.
+              All content remains the intellectual property of the Palm Island community.
+              Use requires explicit community permission following cultural protocols.
+            </p>
+            <p className="text-xs">
+              🌊 Our Stories · 🔥 Our Sovereignty · 📚 Our Future
             </p>
           </div>
-
-          {/* Main Content */}
-          <main className="flex-1">
-            {children}
-          </main>
-
-          {/* Footer with Data Sovereignty Notice */}
-          <footer className="border-t bg-earth-bg px-4 py-8 text-center text-sm text-earth-medium">
-            <div className="mx-auto max-w-4xl space-y-4">
-              <p className="font-medium text-ocean-deep">
-                © 2024 Palm Island Community Company
-              </p>
-              <p>
-                This platform is built on principles of <strong>Indigenous data sovereignty</strong>.
-                All content remains the intellectual property of the Palm Island community.
-                Use requires explicit community permission following cultural protocols.
-              </p>
-              <p className="text-xs">
-                🌊 Our Stories · 🔥 Our Sovereignty · 📚 Our Future
-              </p>
-            </div>
-          </footer>
-        </div>
+        </footer>
       </body>
     </html>
   )
