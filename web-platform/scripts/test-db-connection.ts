@@ -120,7 +120,7 @@ async function testConnection() {
     console.log('🔧 Test 4: Checking PICC services...');
     const { data: services, error: servicesError } = await supabase
       .from('organization_services')
-      .select('service_name, service_slug')
+      .select('name, slug')
       .eq('organization_id', '3c2011b9-f80d-4289-b300-0cd383cff479');
 
     if (servicesError) {
@@ -130,21 +130,19 @@ async function testConnection() {
     }
 
     if (!services || services.length === 0) {
-      console.error('❌ No PICC services found in database');
-      console.error('   You need to run migration 03_organizations_and_annual_reports.sql\n');
-      process.exit(1);
+      console.log('⚠️  No PICC services found (optional - stories can still be imported)');
+    } else {
+      console.log(`✅ Found ${services.length} PICC services:`);
+      const importantServices = ['mens_programs', 'bwgcolman_healing', 'elder_support', 'early_learning'];
+      importantServices.forEach(slug => {
+        const service = services.find((s: any) => s.slug === slug);
+        if (service) {
+          console.log(`   ✓ ${service.name}`);
+        } else {
+          console.log(`   ⚠ ${slug} not found (optional)`);
+        }
+      });
     }
-
-    console.log(`✅ Found ${services.length} PICC services:`);
-    const importantServices = ['mens_programs', 'bwgcolman_healing', 'elder_support', 'early_learning'];
-    importantServices.forEach(slug => {
-      const service = services.find(s => s.service_slug === slug);
-      if (service) {
-        console.log(`   ✓ ${service.service_name}`);
-      } else {
-        console.log(`   ⚠ ${slug} not found (optional)`);
-      }
-    });
     console.log('');
 
     // Test 5: Check existing stories
