@@ -3,9 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
-import { ArrowLeft, MapPin, Calendar, BookOpen, Heart, Star, Users } from 'lucide-react';
+import { ArrowLeft, MapPin, Calendar, BookOpen, Heart, Star, Users, Image as ImageIcon } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import AppLayout from '@/components/AppLayout';
+import PhotoGallery from '@/components/profile/PhotoGallery';
+import StoryTimeline from '@/components/profile/StoryTimeline';
+import ProfileStats from '@/components/profile/ProfileStats';
+import ShareProfile from '@/components/profile/ShareProfile';
 
 interface Profile {
   id: string;
@@ -23,7 +27,9 @@ interface Profile {
 interface Story {
   id: string;
   title: string;
-  content: string;
+  summary?: string;
+  content?: string;
+  story_category: string;
   created_at: string;
   media_type?: string;
 }
@@ -34,7 +40,10 @@ export default function StorytellerProfilePage() {
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [stories, setStories] = useState<Story[]>([]);
+  const [photos, setPhotos] = useState<any[]>([]);
+  const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'about' | 'stories' | 'photos'>('about');
 
   useEffect(() => {
     async function fetchProfileAndStories() {
@@ -61,8 +70,24 @@ export default function StorytellerProfilePage() {
 
         if (storiesError) console.error('Error fetching stories:', storiesError);
 
+        // Fetch photos (if table exists)
+        const { data: photosData } = await supabase
+          .from('storyteller_photos')
+          .select('*')
+          .eq('storyteller_id', id)
+          .order('display_order', { ascending: true });
+
+        // Fetch stats (if table exists)
+        const { data: statsData } = await supabase
+          .from('storyteller_stats')
+          .select('*')
+          .eq('storyteller_id', id)
+          .single();
+
         setProfile(profileData);
         setStories(storiesData || []);
+        setPhotos(photosData || []);
+        setStats(statsData);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching profile:', error);
@@ -192,68 +217,127 @@ export default function StorytellerProfilePage() {
                 )}
               </div>
 
-              {/* Biography */}
-              {profile.bio && (
+              {/* Profile Stats */}
+              {stats && (
                 <div className="mb-8">
-                  <h2 className="text-2xl font-bold text-ocean-deep mb-4 flex items-center">
-                    <Users className="w-6 h-6 mr-2 text-coral-warm" />
-                    About {displayName}
-                  </h2>
-                  <div className="prose prose-lg max-w-none">
-                    <p className="text-earth-dark leading-relaxed whitespace-pre-line">
-                      {profile.bio}
-                    </p>
-                  </div>
+                  <ProfileStats
+                    totalStories={stats.total_stories || stories.length}
+                    totalWords={stats.total_words || 0}
+                    firstStoryDate={stats.first_story_date || stories[stories.length - 1]?.created_at}
+                    lastStoryDate={stats.last_story_date || stories[0]?.created_at}
+                    categoryBreakdown={stats.category_breakdown || {}}
+                    averageReadingTime={stats.average_reading_time || 0}
+                  />
                 </div>
               )}
 
-              {/* Stories Section */}
-              <div className="mt-12">
-                <h2 className="text-3xl font-bold text-ocean-deep mb-6 flex items-center">
-                  <BookOpen className="w-8 h-8 mr-3 text-coral-warm" />
-                  Stories from {displayName}
-                </h2>
-
-                {stories.length === 0 ? (
-                  <div className="bg-earth-bg rounded-lg p-8 text-center">
-                    <p className="text-earth-medium text-lg">
-                      No stories shared yet. Check back soon!
-                    </p>
-                  </div>
-                ) : (
-                  <div className="grid md:grid-cols-2 gap-6">
-                    {stories.map((story) => (
-                      <Link
-                        key={story.id}
-                        href={`/stories/${story.id}`}
-                        className="group bg-white border-2 border-coral-200 rounded-xl p-6 hover:shadow-xl hover:border-coral-400 transition-all"
-                      >
-                        <h3 className="text-xl font-bold text-ocean-deep mb-2 group-hover:text-coral-warm">
-                          {story.title || 'Untitled Story'}
-                        </h3>
-                        <p className="text-earth-medium text-sm mb-4 line-clamp-3">
-                          {story.content?.substring(0, 150)}...
-                        </p>
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-500">
-                            {new Date(story.created_at).toLocaleDateString('en-AU', {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric'
-                            })}
-                          </span>
-                          <span className="text-coral-warm font-medium group-hover:text-purple-800">
-                            Read Story →
-                          </span>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                )}
+              {/* Share Profile */}
+              <div className="mb-8 flex justify-end">
+                <ShareProfile
+                  profileId={id}
+                  storytellerName={displayName}
+                />
               </div>
 
+              {/* Tabbed Interface */}
+              <div className="mb-8">
+                <div className="border-b-2 border-earth-bg">
+                  <nav className="flex space-x-8" aria-label="Tabs">
+                    <button
+                      onClick={() => setActiveTab('about')}
+                      className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                        activeTab === 'about'
+                          ? 'border-coral-warm text-coral-warm'
+                          : 'border-transparent text-earth-medium hover:text-ocean-deep hover:border-earth-medium'
+                      }`}
+                    >
+                      About
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('stories')}
+                      className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                        activeTab === 'stories'
+                          ? 'border-coral-warm text-coral-warm'
+                          : 'border-transparent text-earth-medium hover:text-ocean-deep hover:border-earth-medium'
+                      }`}
+                    >
+                      Stories ({stories.length})
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('photos')}
+                      className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                        activeTab === 'photos'
+                          ? 'border-coral-warm text-coral-warm'
+                          : 'border-transparent text-earth-medium hover:text-ocean-deep hover:border-earth-medium'
+                      }`}
+                    >
+                      Photos ({photos.length})
+                    </button>
+                  </nav>
+                </div>
+              </div>
+
+              {/* Tab Content */}
+              {activeTab === 'about' && (
+                <div className="space-y-8">
+                  {/* Biography */}
+                  {profile.bio && (
+                    <div>
+                      <h2 className="text-2xl font-bold text-ocean-deep mb-4 flex items-center">
+                        <Users className="w-6 h-6 mr-2 text-coral-warm" />
+                        About {displayName}
+                      </h2>
+                      <div className="prose prose-lg max-w-none">
+                        <p className="text-earth-dark leading-relaxed whitespace-pre-line">
+                          {profile.bio}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Additional metadata if available */}
+                  {profile.metadata && Object.keys(profile.metadata).length > 0 && (
+                    <div className="grid md:grid-cols-2 gap-6">
+                      {profile.metadata.interests && (
+                        <div className="card-modern p-6">
+                          <h3 className="font-bold text-ocean-deep mb-3">Interests</h3>
+                          <p className="text-earth-medium">{profile.metadata.interests}</p>
+                        </div>
+                      )}
+                      {profile.metadata.achievements && (
+                        <div className="card-modern p-6">
+                          <h3 className="font-bold text-ocean-deep mb-3">Achievements</h3>
+                          <p className="text-earth-medium">{profile.metadata.achievements}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'stories' && (
+                <div>
+                  <StoryTimeline stories={stories} />
+                </div>
+              )}
+
+              {activeTab === 'photos' && (
+                <div>
+                  {photos.length > 0 ? (
+                    <PhotoGallery photos={photos} storytellerName={displayName} />
+                  ) : (
+                    <div className="bg-earth-bg rounded-lg p-12 text-center">
+                      <ImageIcon className="w-16 h-16 mx-auto mb-4 text-earth-medium" />
+                      <p className="text-earth-medium text-lg">
+                        No photos available yet. Check back soon!
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Call to Action */}
-              <div className="mt-12 p-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl text-white text-center">
+              <div className="mt-12 p-8 bg-gradient-to-r from-ocean-deep to-ocean-medium rounded-xl text-white text-center">
                 <Heart className="w-12 h-12 mx-auto mb-4" />
                 <h3 className="text-2xl font-bold mb-2">Share Your Story</h3>
                 <p className="mb-6">
@@ -261,7 +345,7 @@ export default function StorytellerProfilePage() {
                 </p>
                 <Link
                   href="/stories/submit"
-                  className="inline-block bg-white text-purple-900 px-8 py-3 rounded-lg font-bold hover:bg-blue-50 transition-all"
+                  className="inline-block bg-white text-ocean-deep px-8 py-3 rounded-lg font-bold hover:bg-earth-bg transition-all"
                 >
                   Submit Your Story
                 </Link>
