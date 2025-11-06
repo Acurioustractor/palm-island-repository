@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate:pg",
     "db:migrate": "drizzle-kit push:pg",
+    "db:test": "tsx scripts/test-db-connection.ts",
     "import:storm-stories": "tsx scripts/import-storm-stories.ts",
     "ai:train": "python scripts/train_palm_island_llm.py",
     "ai:embed": "python scripts/generate_embeddings.py"
@@ -64,13 +65,15 @@
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",
     "autoprefixer": "^10.4.17",
+    "dotenv": "^16.3.1",
     "drizzle-kit": "^0.20.10",
     "eslint": "^8.56.0",
     "eslint-config-next": "^14.1.0",
     "postcss": "^8.4.33",
     "prettier": "^3.2.4",
     "prettier-plugin-tailwindcss": "^0.5.11",
-    "tailwindcss": "^3.4.1"
+    "tailwindcss": "^3.4.1",
+    "tsx": "^4.7.0"
   },
   "engines": {
     "node": ">=18.0.0",
