@@ -17,7 +17,8 @@ import {
   Globe,
   UserPlus,
   Folder,
-  LogOut
+  LogOut,
+  Sparkles
 } from 'lucide-react';
 
 interface NavItem {
@@ -32,12 +33,14 @@ const navigationItems: NavItem[] = [
   { label: 'Dashboard', href: '/dashboard', icon: Home },
   { label: 'Stories', href: '/stories', icon: BookOpen },
   { label: 'People', href: '/storytellers', icon: Users },
+  { label: 'Documents', href: '/documents', icon: FileText },
+  { label: 'AI Research', href: '/research', icon: Sparkles, badge: 'New' },
   { label: 'Search', href: '/search', icon: Search },
   { label: 'divider', href: '', icon: Home, divider: true },
   { label: 'Admin', href: '/admin', icon: Settings },
   { label: 'Upload', href: '/stories/submit', icon: Upload },
   { label: 'Analytics', href: '/reports/annual/2024', icon: BarChart3 },
-  { label: 'Documents', href: '/admin/upload-documents', icon: FileText },
+  { label: 'Upload Docs', href: '/admin/upload-documents', icon: FileText },
   { label: 'Import', href: '/admin/import-repos', icon: Globe },
   { label: 'Add Person', href: '/admin/add-person', icon: UserPlus },
   { label: 'Manage', href: '/admin/manage-profiles', icon: Folder },
