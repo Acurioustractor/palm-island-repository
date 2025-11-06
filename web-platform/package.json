@@ -12,7 +12,7 @@
     "db:generate": "drizzle-kit generate:pg",
     "db:migrate": "drizzle-kit push:pg",
     "db:test": "tsx scripts/test-db-connection.ts",
-    "import:storm-stories": "tsx scripts/import-storm-stories.ts",
+    "import:storm-stories": "tsx scripts/import-storm-stories-v2.ts",
     "ai:train": "python scripts/train_palm_island_llm.py",
     "ai:embed": "python scripts/generate_embeddings.py"
   },
