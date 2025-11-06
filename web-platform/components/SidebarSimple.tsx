@@ -1,14 +1,10 @@
 'use client';
 
-import React from 'react';
-import Link from 'next/link';
-
 export default function SidebarSimple() {
   return (
     <aside className="sidebar-nav">
-      {/* Logo */}
       <div className="p-6 border-b border-white/10">
-        <Link href="/" className="flex items-center gap-3">
+        <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-coral-warm rounded-lg flex items-center justify-center">
             <span className="text-white font-bold">PI</span>
           </div>
@@ -16,23 +12,22 @@ export default function SidebarSimple() {
             <h2 className="text-white font-bold text-lg">Palm Island</h2>
             <p className="text-white/60 text-xs">Story Server</p>
           </div>
-        </Link>
+        </div>
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 py-6 overflow-y-auto">
-        <Link href="/dashboard" className="sidebar-nav-item">
+        <a href="/dashboard" className="sidebar-nav-item block">
           <span className="font-medium">Dashboard</span>
-        </Link>
-        <Link href="/stories" className="sidebar-nav-item">
+        </a>
+        <a href="/stories" className="sidebar-nav-item block">
           <span className="font-medium">Stories</span>
-        </Link>
-        <Link href="/storytellers" className="sidebar-nav-item">
+        </a>
+        <a href="/storytellers" className="sidebar-nav-item block">
           <span className="font-medium">People</span>
-        </Link>
-        <Link href="/search" className="sidebar-nav-item">
+        </a>
+        <a href="/search" className="sidebar-nav-item block">
           <span className="font-medium">Search</span>
-        </Link>
+        </a>
       </nav>
     </aside>
   );
