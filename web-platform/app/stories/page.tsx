@@ -8,9 +8,8 @@ import { Heart, Calendar, User, MapPin, Search, Filter, Image as ImageIcon, Vide
 interface Story {
   id: string;
   title: string;
-  summary?: string;
   content?: string;
-  story_category: string;
+  category: string;
   emotional_theme?: string;
   created_at: string;
   storyteller?: {
@@ -26,9 +25,8 @@ interface Story {
   };
   service?: {
     id: string;
-    service_name: string;
-    service_color?: string;
-    icon_name?: string;
+    name: string;
+    slug?: string;
   };
   project?: {
     id: string;
@@ -59,9 +57,8 @@ export default function StoriesGalleryPage() {
           .select(`
             id,
             title,
-            summary,
             content,
-            story_category,
+            category,
             created_at,
             storyteller:storyteller_id (
               full_name,
@@ -76,22 +73,11 @@ export default function StoriesGalleryPage() {
             ),
             service:service_id (
               id,
-              service_name,
-              service_color,
-              icon_name
-            ),
-            project:project_id (
-              id,
-              name
-            ),
-            story_media (
-              id,
-              media_type,
-              file_path,
-              supabase_bucket
+              name,
+              slug
             )
           `)
-          .eq('is_public', true)
+          .eq('status', 'published')
           .eq('organization_id', '3c2011b9-f80d-4289-b300-0cd383cff479') // PICC Organization ID
           .order('created_at', { ascending: false });
 
@@ -103,9 +89,8 @@ export default function StoriesGalleryPage() {
             .select(`
               id,
               title,
-              summary,
               content,
-              story_category,
+              category,
               created_at,
               storyteller:storyteller_id (
                 full_name,
@@ -113,7 +98,7 @@ export default function StoriesGalleryPage() {
                 profile_image_url
               )
             `)
-            .eq('is_public', true)
+            .eq('status', 'published')
             .eq('organization_id', '3c2011b9-f80d-4289-b300-0cd383cff479') // PICC Organization ID
             .order('created_at', { ascending: false });
 
@@ -195,21 +180,25 @@ export default function StoriesGalleryPage() {
   };
 
   const filteredStories = stories.filter(story => {
-    const matchesFilter = filter === 'all' || story.story_category === filter;
+    const matchesFilter = filter === 'all' || story.category === filter;
     const matchesSearch = !searchQuery ||
       story.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      story.summary?.toLowerCase().includes(searchQuery.toLowerCase());
+      story.content?.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
   });
 
   const categories = [
     { value: 'all', label: 'All Stories', count: stories.length },
-    { value: 'community', label: 'Community', count: stories.filter(s => s.story_category === 'community').length },
-    { value: 'mens_health', label: "Men's Health", count: stories.filter(s => s.story_category === 'mens_health').length },
-    { value: 'elder_care', label: 'Elder Care', count: stories.filter(s => s.story_category === 'elder_care').length },
-    { value: 'youth', label: 'Youth', count: stories.filter(s => s.story_category === 'youth').length },
-    { value: 'health', label: 'Health', count: stories.filter(s => s.story_category === 'health').length },
-    { value: 'culture', label: 'Culture', count: stories.filter(s => s.story_category === 'culture').length },
+    { value: 'community', label: 'Community', count: stories.filter(s => s.category === 'community').length },
+    { value: 'mens_health', label: "Men's Health", count: stories.filter(s => s.category === 'mens_health').length },
+    { value: 'elder_care', label: 'Elder Care', count: stories.filter(s => s.category === 'elder_care').length },
+    { value: 'youth', label: 'Youth', count: stories.filter(s => s.category === 'youth').length },
+    { value: 'health', label: 'Health', count: stories.filter(s => s.category === 'health').length },
+    { value: 'culture', label: 'Culture', count: stories.filter(s => s.category === 'culture').length },
+    { value: 'housing', label: 'Housing', count: stories.filter(s => s.category === 'housing').length },
+    { value: 'environment', label: 'Environment', count: stories.filter(s => s.category === 'environment').length },
+    { value: 'justice', label: 'Justice', count: stories.filter(s => s.category === 'justice').length },
+    { value: 'education', label: 'Education', count: stories.filter(s => s.category === 'education').length },
   ].filter(cat => cat.count > 0);
 
   if (loading) {
@@ -395,7 +384,7 @@ export default function StoriesGalleryPage() {
                           </span>
                         )}
                         <span className="bg-gray-100 text-gray-700 text-xs font-medium px-2 py-1 rounded">
-                          {getCategoryLabel(story.story_category)}
+                          {getCategoryLabel(story.category)}
                         </span>
                       </div>
 
@@ -403,9 +392,9 @@ export default function StoriesGalleryPage() {
                         {story.title}
                       </h3>
 
-                      {story.summary && (
+                      {story.content && (
                         <p className="text-earth-medium text-sm mb-4 line-clamp-3">
-                          {story.summary}
+                          {story.content.substring(0, 200)}...
                         </p>
                       )}
 
