@@ -50,13 +50,13 @@ export default async function HomePage() {
                 Community-Controlled Platform
               </span>
             </div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-6">
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white">
               Palm Island Story Server
             </h1>
-            <p className="text-xl md:text-2xl text-white/80 mb-4 max-w-3xl">
+            <p className="text-xl md:text-2xl text-white mb-4 max-w-3xl">
               Manbarra & Bwgcolman Country
             </p>
-            <p className="text-lg text-white/70 mb-8 max-w-2xl">
+            <p className="text-lg text-white mb-8 max-w-2xl">
               Preserving our voices, measuring our impact, and maintaining data sovereignty
             </p>
 
@@ -65,9 +65,9 @@ export default async function HomePage() {
               href="/search"
               className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-sm border-2 border-white/20 px-6 py-4 rounded-xl hover:bg-white/20 transition-all max-w-2xl w-full"
             >
-              <Search className="w-5 h-5 text-white/60" />
-              <span className="text-white/60 text-base flex-1">Search stories, people, topics...</span>
-              <ArrowRight className="w-5 h-5 text-white/40" />
+              <Search className="w-5 h-5 text-white" />
+              <span className="text-white text-base flex-1">Search stories, people, topics...</span>
+              <ArrowRight className="w-5 h-5 text-white" />
             </Link>
           </div>
         </div>
@@ -196,10 +196,10 @@ export default async function HomePage() {
                 <div className="h-48 bg-gradient-to-br from-ocean-deep to-ocean-light mb-4 -mx-8 -mt-8 flex items-center justify-center">
                   <BookOpen className="w-16 h-16 text-white/50" />
                 </div>
-                <h3 className="text-xl font-bold text-ocean-deep mb-2">
+                <h3 className="text-xl font-bold text-white mb-2">
                   2019 Cyclone Story
                 </h3>
-                <p className="text-earth-medium mb-4">
+                <p className="text-white mb-4">
                   An immersive story of devastation, response, and community resilience
                 </p>
                 <span className="text-coral-warm font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
