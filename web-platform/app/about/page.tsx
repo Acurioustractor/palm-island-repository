@@ -1,9 +1,8 @@
 'use client';
 
-import React;
-import AppLayout from '@/components/AppLayout';
 import React, { useState } from 'react';
 import { ChevronRight, Users, Heart, TrendingUp, Globe, BookOpen, Target, Star, Building, Phone, Mail, MapPin } from 'lucide-react';
+import AppLayout from '@/components/AppLayout';
 import Link from 'next/link';
 
 export default function AboutPage() {

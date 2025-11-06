@@ -1,10 +1,9 @@
 'use client';
 
-import React;
-import AppLayout from '@/components/AppLayout';
 import React from 'react';
 import Link from 'next/link';
 import { Calendar, Users, Heart, Award, MapPin, BookOpen } from 'lucide-react';
+import AppLayout from '@/components/AppLayout';
 
 export default function HistoryPage() {
   return (

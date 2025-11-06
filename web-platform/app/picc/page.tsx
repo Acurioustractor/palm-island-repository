@@ -1,7 +1,5 @@
 'use client';
 
-import React;
-import AppLayout from '@/components/AppLayout';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';

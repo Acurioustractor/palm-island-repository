@@ -1,10 +1,9 @@
 'use client';
 
-import React;
-import AppLayout from '@/components/AppLayout';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Mail, ArrowLeft, Heart, CheckCircle, Loader } from 'lucide-react';
+import AppLayout from '@/components/AppLayout';
 import { signInWithMagicLink, signIn } from '@/lib/supabase/auth';
 import { useRouter } from 'next/navigation';
 

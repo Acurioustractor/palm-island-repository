@@ -1,10 +1,9 @@
 'use client';
 
-import React;
-import AppLayout from '@/components/AppLayout';
 import React, { useState, useRef, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Camera, Mic, FileText, Upload, X, Check, Loader, Image as ImageIcon } from 'lucide-react';
+import AppLayout from '@/components/AppLayout';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
