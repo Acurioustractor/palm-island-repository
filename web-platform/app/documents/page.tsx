@@ -140,7 +140,7 @@ export default function DocumentsPage() {
   }
 
   return (
-    
+    <>
       <div className="min-h-screen">
         {/* Hero Section */}
         <div className="bg-gradient-to-r from-ocean-deep to-ocean-medium text-white py-12">
@@ -299,6 +299,6 @@ export default function DocumentsPage() {
           }}
         />
       )}
-    
+    </>
   );
 }

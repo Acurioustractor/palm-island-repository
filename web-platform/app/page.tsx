@@ -40,7 +40,7 @@ export default async function HomePage() {
   const stats = await getStats();
 
   return (
-      <div className="min-h-screen">
+    <div className="min-h-screen">
         {/* Hero Section */}
         <div className="bg-gradient-to-r from-ocean-deep to-ocean-medium text-white py-20 px-8">
           <div className="max-w-6xl mx-auto">
@@ -262,6 +262,5 @@ export default async function HomePage() {
           </div>
         </div>
       </div>
-    </div>
   );
 }
