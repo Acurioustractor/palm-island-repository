@@ -2,13 +2,12 @@
 
 import React from 'react';
 import Link from 'next/link';
-import AppLayout from '@/components/AppLayout';
 import SemanticSearch from '@/components/ai/SemanticSearch';
 import { ArrowLeft, Sparkles, Info } from 'lucide-react';
 
 export default function SemanticSearchPage() {
   return (
-    <AppLayout>
+    
       <div className="min-h-screen">
         {/* Navigation */}
         <div className="bg-white shadow-md">
@@ -87,6 +86,6 @@ export default function SemanticSearchPage() {
           </div>
         </div>
       </div>
-    </AppLayout>
+    
   );
 }

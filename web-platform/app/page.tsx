@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { BookOpen, Users, TrendingUp, Search, ArrowRight, Sparkles } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
-import AppLayout from '@/components/AppLayout';
 
 async function getStats() {
   try {
@@ -41,7 +40,6 @@ export default async function HomePage() {
   const stats = await getStats();
 
   return (
-    <AppLayout>
       <div className="min-h-screen">
         {/* Hero Section */}
         <div className="bg-gradient-to-r from-ocean-deep to-ocean-medium text-white py-20 px-8">
@@ -264,6 +262,6 @@ export default async function HomePage() {
           </div>
         </div>
       </div>
-    </AppLayout>
+    </div>
   );
 }

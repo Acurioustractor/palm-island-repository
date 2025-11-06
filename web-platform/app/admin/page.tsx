@@ -8,7 +8,6 @@ import {
   TrendingUp, Award, Database, Image as ImageIcon, Play, Globe
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import AppLayout from '@/components/AppLayout';
 
 interface Stats {
   storytellers: number;
@@ -79,16 +78,16 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <AppLayout>
+      
         <div className="min-h-screen flex items-center justify-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-coral-warm"></div>
         </div>
-      </AppLayout>
+      
     );
   }
 
   return (
-    <AppLayout>
+    
       <div className="min-h-screen">
         {/* Header */}
         <div className="bg-gradient-to-r from-ocean-deep to-ocean-medium text-white py-12 px-8">
@@ -307,7 +306,7 @@ export default function AdminDashboard() {
         </div>
       </div>
       </div>
-    </AppLayout>
+    
   );
 }
 

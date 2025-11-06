@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { User, BookOpen, Calendar, MapPin, Search } from 'lucide-react';
-import AppLayout from '@/components/AppLayout';
 
 interface Storyteller {
   id: string;
@@ -80,19 +79,19 @@ export default function StorytellerGalleryPage() {
 
   if (loading) {
     return (
-      <AppLayout>
+      
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-coral-warm mx-auto mb-4"></div>
             <p className="text-xl text-earth-dark">Loading storytellers...</p>
           </div>
         </div>
-      </AppLayout>
+      
     );
   }
 
   return (
-    <AppLayout>
+    
       <div className="min-h-screen">
         {/* Hero Header */}
         <div className="bg-gradient-to-r from-ocean-deep to-ocean-medium text-white py-16 px-8">
@@ -280,6 +279,6 @@ export default function StorytellerGalleryPage() {
           </div>
         </footer>
       </div>
-    </AppLayout>
+    
   );
 }

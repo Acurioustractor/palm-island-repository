@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import AppLayout from '@/components/AppLayout';
 import { Search, Lightbulb, Quote, MessageSquare, Sparkles, ArrowRight } from 'lucide-react';
 
 export default function ResearchPage() {
@@ -42,7 +41,7 @@ export default function ResearchPage() {
   ];
 
   return (
-    <AppLayout>
+    
       <div className="min-h-screen">
         {/* Hero Section */}
         <div className="bg-gradient-to-r from-ocean-deep to-ocean-medium text-white py-16">
@@ -214,6 +213,6 @@ export default function ResearchPage() {
           </div>
         </div>
       </div>
-    </AppLayout>
+    
   );
 }

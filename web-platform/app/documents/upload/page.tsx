@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import AppLayout from '@/components/AppLayout';
 import DocumentUpload from '@/components/documents/DocumentUpload';
 import { ArrowLeft, Upload } from 'lucide-react';
 import Link from 'next/link';
@@ -18,7 +17,7 @@ export default function DocumentUploadPage() {
   };
 
   return (
-    <AppLayout>
+    
       <div className="min-h-screen">
         {/* Navigation */}
         <div className="bg-white shadow-md">
@@ -119,6 +118,6 @@ export default function DocumentUploadPage() {
           </div>
         </div>
       </div>
-    </AppLayout>
+    
   );
 }

@@ -5,7 +5,6 @@ import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { ArrowLeft, MapPin, Calendar, BookOpen, Heart, Star, Users, Image as ImageIcon } from 'lucide-react';
 import { useParams } from 'next/navigation';
-import AppLayout from '@/components/AppLayout';
 import PhotoGallery from '@/components/profile/PhotoGallery';
 import StoryTimeline from '@/components/profile/StoryTimeline';
 import ProfileStats from '@/components/profile/ProfileStats';
@@ -100,20 +99,20 @@ export default function StorytellerProfilePage() {
 
   if (loading) {
     return (
-      <AppLayout>
+      
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-coral-warm mx-auto mb-4"></div>
             <p className="text-xl text-earth-dark">Loading profile...</p>
           </div>
         </div>
-      </AppLayout>
+      
     );
   }
 
   if (!profile) {
     return (
-      <AppLayout>
+      
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
             <p className="text-xl text-earth-dark mb-4">Storyteller not found</p>
@@ -122,7 +121,7 @@ export default function StorytellerProfilePage() {
             </Link>
           </div>
         </div>
-      </AppLayout>
+      
     );
   }
 
@@ -130,7 +129,7 @@ export default function StorytellerProfilePage() {
   const hasHonorific = profile.is_elder || profile.full_name.toLowerCase().includes('uncle') || profile.full_name.toLowerCase().includes('aunty');
 
   return (
-    <AppLayout>
+    
       <div className="min-h-screen">
         {/* Navigation */}
         <div className="bg-white shadow-md">
@@ -366,6 +365,6 @@ export default function StorytellerProfilePage() {
         </div>
       </footer>
       </div>
-    </AppLayout>
+    
   );
 }

@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { Camera, Server, Users, Heart, Mic, Image, MapPin, TrendingUp, Wifi, Plus } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
-import AppLayout from '@/components/AppLayout';
 
 interface Story {
   id: string;
@@ -136,7 +135,7 @@ export default function StoryServerDashboard() {
   ];
 
   return (
-    <AppLayout>
+    
       <div className="min-h-screen p-4">
         {/* Header */}
         <div className="card-modern shadow-lg p-6 mb-6 max-w-7xl mx-auto">
@@ -493,6 +492,6 @@ export default function StoryServerDashboard() {
         <p className="mt-1">Palm Island Community Company • Manbarra & Bwgcolman Country</p>
       </div>
       </div>
-    </AppLayout>
+    
   );
 }

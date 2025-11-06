@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { ArrowLeft, User, Upload, FileText, CheckCircle, Loader, Camera, Mic } from 'lucide-react';
-import AppLayout from '@/components/AppLayout';
 
 export default function AddPersonPage() {
   const [fullName, setFullName] = useState('');
@@ -104,7 +103,7 @@ export default function AddPersonPage() {
 
   if (success) {
     return (
-      <AppLayout>
+      
         <div className="min-h-screen flex items-center justify-center p-4">
           <div className="max-w-md w-full card-modern shadow-2xl p-8 text-center">
             <CheckCircle className="w-16 h-16 mx-auto mb-4 text-success" />
@@ -134,12 +133,12 @@ export default function AddPersonPage() {
             </div>
           </div>
         </div>
-      </AppLayout>
+      
     );
   }
 
   return (
-    <AppLayout>
+    
       <div className="min-h-screen">
         <div className="bg-gradient-to-r from-ocean-deep to-ocean-medium text-white py-12 px-8">
           <div className="max-w-6xl mx-auto">
@@ -294,6 +293,6 @@ export default function AddPersonPage() {
         </div>
       </div>
       </div>
-    </AppLayout>
+    
   );
 }

@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import AppLayout from '@/components/AppLayout';
 import DocumentCard from '@/components/documents/DocumentCard';
 import { createClient } from '@/lib/supabase/client';
 import { Search, Filter, Grid, List, Upload, FileText, Image as ImageIcon, File, Calendar } from 'lucide-react';
@@ -129,19 +128,19 @@ export default function DocumentsPage() {
 
   if (loading) {
     return (
-      <AppLayout>
+      
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-coral-warm mx-auto mb-4"></div>
             <p className="text-xl text-earth-dark">Loading documents...</p>
           </div>
         </div>
-      </AppLayout>
+      
     );
   }
 
   return (
-    <AppLayout>
+    
       <div className="min-h-screen">
         {/* Hero Section */}
         <div className="bg-gradient-to-r from-ocean-deep to-ocean-medium text-white py-12">
@@ -300,6 +299,6 @@ export default function DocumentsPage() {
           }}
         />
       )}
-    </AppLayout>
+    
   );
 }

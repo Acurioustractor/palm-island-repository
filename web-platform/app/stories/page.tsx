@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { Heart, Calendar, User, MapPin, Search, Filter, Image as ImageIcon, Video, Mic } from 'lucide-react';
-import AppLayout from '@/components/AppLayout';
 
 interface Story {
   id: string;
@@ -215,19 +214,19 @@ export default function StoriesGalleryPage() {
 
   if (loading) {
     return (
-      <AppLayout>
+      
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-coral-warm mx-auto mb-4"></div>
             <p className="text-xl text-earth-dark">Loading stories...</p>
           </div>
         </div>
-      </AppLayout>
+      
     );
   }
 
   return (
-    <AppLayout>
+    
       <div className="min-h-screen">
         {/* Hero Header */}
         <div className="bg-gradient-to-r from-ocean-deep to-ocean-medium text-white py-16 px-8">
@@ -501,6 +500,6 @@ export default function StoriesGalleryPage() {
         </div>
       </footer>
       </div>
-    </AppLayout>
+    
   );
 }

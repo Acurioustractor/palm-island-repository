@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Mail, ArrowLeft, Heart, CheckCircle, User, Phone } from 'lucide-react';
 import { signUp } from '@/lib/supabase/auth';
-import AppLayout from '@/components/AppLayout';
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('');

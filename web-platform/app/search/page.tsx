@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { Search, BookOpen, Users, Loader, X } from 'lucide-react';
-import AppLayout from '@/components/AppLayout';
 
 interface SearchResult {
   id: string;
@@ -130,7 +129,7 @@ export default function SearchPage() {
   }
 
   return (
-    <AppLayout>
+    
       <div className="min-h-screen">
         {/* Hero Section */}
         <div className="bg-gradient-to-r from-ocean-deep to-ocean-medium text-white py-16">
@@ -341,6 +340,6 @@ export default function SearchPage() {
         </div>
       )}
       </div>
-    </AppLayout>
+    
   );
 }
