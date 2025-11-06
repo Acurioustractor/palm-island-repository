@@ -57,7 +57,7 @@ export default function Sidebar() {
       {/* Mobile Menu Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed top-4 left-4 z-50 md:hidden bg-ocean-deep text-white p-3 rounded-lg shadow-lg"
+        className="fixed top-4 left-4 z-[60] md:hidden bg-ocean-deep text-white p-3 rounded-lg shadow-lg hover:bg-ocean-medium transition-colors"
         aria-label="Toggle menu"
       >
         {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}

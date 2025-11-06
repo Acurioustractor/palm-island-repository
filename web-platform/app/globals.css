@@ -154,8 +154,10 @@
 
   /* Main Content Area */
   .main-content {
-    @apply ml-[280px] min-h-screen;
+    @apply ml-0 md:ml-[280px] min-h-screen;
     @apply bg-earth-bg;
+    @apply transition-all duration-300;
+    @apply pt-16 md:pt-0; /* Add top padding on mobile for hamburger button */
   }
 
   /* Stat Card (Dashboard) */
