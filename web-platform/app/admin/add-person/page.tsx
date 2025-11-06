@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { ArrowLeft, User, Upload, FileText, CheckCircle, Loader, Camera, Mic } from 'lucide-react';
+import AppLayout from '@/components/AppLayout';
 
 export default function AddPersonPage() {
   const [fullName, setFullName] = useState('');
@@ -103,53 +104,56 @@ export default function AddPersonPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 text-center">
-          <CheckCircle className="w-16 h-16 mx-auto mb-4 text-green-600" />
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Profile Created!</h2>
-          <p className="text-gray-600 mb-6">{fullName} has been added successfully.</p>
-          <div className="flex flex-col gap-3">
-            <Link href={`/storytellers/${profileId}`} className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg transition-all">
-              View Profile
-            </Link>
-            <button onClick={() => {
-                setSuccess(false);
-                setFullName('');
-                setPreferredName('');
-                setBio('');
-                setTranscript('');
-                setStoryTitle('');
-                setPhotoFile(null);
-                setPhotoPreview(null);
-                setIsElder(false);
-              }}
-              className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-all">
-              Add Another Person
-            </button>
-            <Link href="/admin" className="text-purple-600 hover:text-purple-800 font-medium">
-              Back to Admin
-            </Link>
+      <AppLayout>
+        <div className="min-h-screen flex items-center justify-center p-4">
+          <div className="max-w-md w-full card-modern shadow-2xl p-8 text-center">
+            <CheckCircle className="w-16 h-16 mx-auto mb-4 text-success" />
+            <h2 className="text-3xl font-bold text-ocean-deep mb-2">Profile Created!</h2>
+            <p className="text-earth-medium mb-6">{fullName} has been added successfully.</p>
+            <div className="flex flex-col gap-3">
+              <Link href={`/storytellers/${profileId}`} className="btn-primary text-center">
+                View Profile
+              </Link>
+              <button onClick={() => {
+                  setSuccess(false);
+                  setFullName('');
+                  setPreferredName('');
+                  setBio('');
+                  setTranscript('');
+                  setStoryTitle('');
+                  setPhotoFile(null);
+                  setPhotoPreview(null);
+                  setIsElder(false);
+                }}
+                className="bg-earth-medium hover:bg-earth-dark text-white font-bold py-3 px-6 rounded-lg transition-all">
+                Add Another Person
+              </button>
+              <Link href="/admin" className="text-ocean-medium hover:text-ocean-deep font-medium">
+                Back to Admin
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
+      </AppLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white py-12">
-        <div className="container mx-auto px-4">
-          <Link href="/admin" className="inline-flex items-center text-white/80 hover:text-white mb-4">
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            Back to Admin Dashboard
-          </Link>
-          <h1 className="text-4xl font-bold mb-2">Add New Person</h1>
-          <p className="text-purple-100">Simple form to add community members with photos and stories</p>
+    <AppLayout>
+      <div className="min-h-screen">
+        <div className="bg-gradient-to-r from-ocean-deep to-ocean-medium text-white py-12 px-8">
+          <div className="max-w-6xl mx-auto">
+            <Link href="/admin" className="inline-flex items-center text-white/80 hover:text-white mb-4 transition-colors">
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              Back to Admin Dashboard
+            </Link>
+            <h1 className="text-4xl font-bold mb-2">Add New Person</h1>
+            <p className="text-white/70">Simple form to add community members with photos and stories</p>
+          </div>
         </div>
-      </div>
 
-      <div className="container mx-auto px-4 py-12">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-6xl mx-auto px-8 py-12">
+          <div className="max-w-3xl mx-auto">
           <form onSubmit={handleSubmit} className="space-y-8">
             {error && (
               <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4">
@@ -157,37 +161,37 @@ export default function AddPersonPage() {
               </div>
             )}
 
-            <div className="bg-white rounded-xl shadow-lg p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-                <User className="w-6 h-6 mr-2 text-purple-600" />
+            <div className="card-modern">
+              <h2 className="text-2xl font-bold text-ocean-deep mb-6 flex items-center">
+                <User className="w-6 h-6 mr-2 text-coral-warm" />
                 Basic Information
               </h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Full Name <span className="text-red-500">*</span>
+                  <label className="block text-sm font-medium text-earth-dark mb-2">
+                    Full Name <span className="text-error">*</span>
                   </label>
                   <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)}
                     placeholder="Uncle Frank Daniel Landers" required
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-lg" />
-                  <p className="text-sm text-gray-500 mt-1">Include honorifics like Uncle or Aunty if appropriate</p>
+                    className="input-field" />
+                  <p className="text-sm text-earth-medium mt-1">Include honorifics like Uncle or Aunty if appropriate</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Preferred Name</label>
+                  <label className="block text-sm font-medium text-earth-dark mb-2">Preferred Name</label>
                   <input type="text" value={preferredName} onChange={(e) => setPreferredName(e.target.value)}
                     placeholder="Uncle Frank (optional - defaults to full name)"
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" />
+                    className="input-field" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                  <label className="block text-sm font-medium text-earth-dark mb-2">Location</label>
                   <input type="text" value={location} onChange={(e) => setLocation(e.target.value)}
                     placeholder="Palm Island"
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" />
+                    className="input-field" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
+                  <label className="block text-sm font-medium text-earth-dark mb-2">Type</label>
                   <select value={storytellerType} onChange={(e) => setStorytellerType(e.target.value)}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                    className="input-field">
                     <option value="community_member">Community Member</option>
                     <option value="elder">Elder</option>
                     <option value="service_provider">Service Provider</option>
@@ -198,17 +202,17 @@ export default function AddPersonPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <input type="checkbox" id="isElder" checked={isElder} onChange={(e) => setIsElder(e.target.checked)}
-                    className="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                  <label htmlFor="isElder" className="text-sm font-medium text-gray-700">
+                    className="w-5 h-5 text-ocean-medium border-earth-light rounded focus:ring-ocean-medium" />
+                  <label htmlFor="isElder" className="text-sm font-medium text-earth-dark">
                     Mark as Elder (shows Elder badge on profile)
                   </label>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-lg p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-                <Camera className="w-6 h-6 mr-2 text-blue-600" />
+            <div className="card-modern">
+              <h2 className="text-2xl font-bold text-ocean-deep mb-6 flex items-center">
+                <Camera className="w-6 h-6 mr-2 text-ocean-medium" />
                 Profile Photo
               </h2>
               <div className="space-y-4">
@@ -216,50 +220,50 @@ export default function AddPersonPage() {
                   <div className="text-center">
                     <img src={photoPreview} alt="Preview" className="w-48 h-48 rounded-full object-cover mx-auto mb-4 shadow-lg" />
                     <button type="button" onClick={() => { setPhotoFile(null); setPhotoPreview(null); }}
-                      className="text-red-600 hover:text-red-800 font-medium">
+                      className="text-error hover:text-red-800 font-medium">
                       Remove Photo
                     </button>
                   </div>
                 ) : (
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-purple-400 transition-all">
-                    <Camera className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                  <div className="border-2 border-dashed border-earth-light rounded-lg p-8 text-center hover:border-ocean-medium transition-all">
+                    <Camera className="w-12 h-12 mx-auto mb-4 text-earth-medium" />
                     <input type="file" onChange={handlePhotoSelect} accept="image/*"
-                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100" />
-                    <p className="text-sm text-gray-500 mt-2">JPG, PNG, or GIF - Max 5MB</p>
+                      className="block w-full text-sm text-earth-medium file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-ocean-light/10 file:text-ocean-deep hover:file:bg-ocean-light/20" />
+                    <p className="text-sm text-earth-medium mt-2">JPG, PNG, or GIF - Max 5MB</p>
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-lg p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-                <FileText className="w-6 h-6 mr-2 text-green-600" />
+            <div className="card-modern">
+              <h2 className="text-2xl font-bold text-ocean-deep mb-6 flex items-center">
+                <FileText className="w-6 h-6 mr-2 text-success" />
                 Biography
               </h2>
               <textarea value={bio} onChange={(e) => setBio(e.target.value)}
                 placeholder="Tell us about this person... (optional)" rows={6}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" />
-              <p className="text-sm text-gray-500 mt-2">{bio.length} characters</p>
+                className="input-field" />
+              <p className="text-sm text-earth-medium mt-2">{bio.length} characters</p>
             </div>
 
-            <div className="bg-white rounded-xl shadow-lg p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-                <Mic className="w-6 h-6 mr-2 text-orange-600" />
+            <div className="card-modern">
+              <h2 className="text-2xl font-bold text-ocean-deep mb-6 flex items-center">
+                <Mic className="w-6 h-6 mr-2 text-sunset-orange" />
                 Their Story / Transcript
               </h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Story Title (optional)</label>
+                  <label className="block text-sm font-medium text-earth-dark mb-2">Story Title (optional)</label>
                   <input type="text" value={storyTitle} onChange={(e) => setStoryTitle(e.target.value)}
                     placeholder="e.g., Uncle Frank Story"
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" />
+                    className="input-field" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Transcript / Story Content</label>
+                  <label className="block text-sm font-medium text-earth-dark mb-2">Transcript / Story Content</label>
                   <textarea value={transcript} onChange={(e) => setTranscript(e.target.value)}
                     placeholder="Paste transcript or story here... (optional - you can add this later)" rows={12}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono text-sm" />
-                  <p className="text-sm text-gray-500 mt-2">
+                    className="input-field font-mono text-sm" />
+                  <p className="text-sm text-earth-medium mt-2">
                     {transcript.length} characters
                     {transcript && ` - ${Math.ceil(transcript.length / 250)} min read`}
                   </p>
@@ -267,9 +271,9 @@ export default function AddPersonPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-lg p-8">
+            <div className="card-modern">
               <button type="submit" disabled={!fullName || uploading}
-                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-4 px-6 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-lg">
+                className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-lg">
                 {uploading ? (
                   <>
                     <Loader className="w-6 h-6 mr-2 animate-spin" />
@@ -282,13 +286,14 @@ export default function AddPersonPage() {
                   </>
                 )}
               </button>
-              <p className="text-sm text-gray-500 text-center mt-4">
+              <p className="text-sm text-earth-medium text-center mt-4">
                 Only the name is required. You can add photo, bio, and story later.
               </p>
             </div>
           </form>
         </div>
       </div>
-    </div>
+      </div>
+    </AppLayout>
   );
 }

@@ -8,6 +8,7 @@ import {
   TrendingUp, Award, Database, Image as ImageIcon, Play, Globe
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import AppLayout from '@/components/AppLayout';
 
 interface Stats {
   storytellers: number;
@@ -78,143 +79,146 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-600"></div>
-      </div>
+      <AppLayout>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-coral-warm"></div>
+        </div>
+      </AppLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white py-12">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-4xl font-bold mb-2">Admin Dashboard</h1>
-              <p className="text-purple-100">Welcome back, {user?.email}</p>
+    <AppLayout>
+      <div className="min-h-screen">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-ocean-deep to-ocean-medium text-white py-12 px-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-4xl font-bold mb-2">Admin Dashboard</h1>
+                <p className="text-white/70">Welcome back, {user?.email}</p>
+              </div>
+              <Link
+                href="/"
+                className="bg-white/20 hover:bg-white/30 px-6 py-3 rounded-lg font-medium transition-all"
+              >
+                View Site →
+              </Link>
             </div>
-            <Link
-              href="/"
-              className="bg-white/20 hover:bg-white/30 px-6 py-3 rounded-lg font-medium transition-all"
-            >
-              View Site →
-            </Link>
           </div>
         </div>
-      </div>
 
-      {/* Stats */}
-      <div className="container mx-auto px-4 py-8">
+        {/* Stats */}
+        <div className="max-w-6xl mx-auto px-8 py-8">
         <div className="grid md:grid-cols-4 gap-6 mb-8">
           <StatCard
             icon={<Users className="w-8 h-8" />}
             number={stats?.storytellers || 0}
             label="Storytellers"
-            color="bg-purple-500"
+            color="bg-ocean-deep"
           />
           <StatCard
             icon={<BookOpen className="w-8 h-8" />}
             number={stats?.stories || 0}
             label="Total Stories"
-            color="bg-blue-500"
+            color="bg-ocean-medium"
           />
           <StatCard
             icon={<TrendingUp className="w-8 h-8" />}
             number={stats?.storiesThisMonth || 0}
             label="Stories This Month"
-            color="bg-green-500"
+            color="bg-coral-warm"
           />
           <StatCard
             icon={<Award className="w-8 h-8" />}
             number={stats?.services || 0}
             label="PICC Services"
-            color="bg-orange-500"
+            color="bg-sunset-orange"
           />
         </div>
 
         {/* Quick Actions */}
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Quick Actions</h2>
+          <h2 className="text-2xl font-bold text-ocean-deep mb-4">Quick Actions</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             <ActionCard
               href="/admin/add-person"
               icon={<Users className="w-12 h-12" />}
               title="Add New Person"
               description="Simple form to add people with photos + transcripts"
-              color="from-green-500 to-teal-500"
+              color="from-coral-warm to-sunset-orange"
             />
             <ActionCard
               href="/admin/manage-profiles"
               icon={<Settings className="w-12 h-12" />}
               title="Manage Profiles"
               description="Edit, update, or delete existing profiles"
-              color="from-blue-500 to-cyan-500"
+              color="from-ocean-medium to-ocean-light"
             />
             <ActionCard
               href="/admin/import-stories"
               icon={<Database className="w-12 h-12" />}
               title="Import Stories"
               description="Import stories from transcript JSON files"
-              color="from-purple-500 to-blue-500"
+              color="from-ocean-deep to-ocean-medium"
             />
             <ActionCard
               href="/admin/import-repos"
               icon={<Globe className="w-12 h-12" />}
               title="Import from Repos"
               description="Pull data from multiple GitHub repositories"
-              color="from-orange-500 to-red-500"
+              color="from-sunset-orange to-sand-gold"
             />
             <ActionCard
               href="/admin/upload-documents"
               icon={<FileText className="w-12 h-12" />}
               title="Upload Documents"
               description="Upload annual reports, PDFs, Word docs"
-              color="from-pink-500 to-purple-500"
+              color="from-coral-warm to-coral-warm"
             />
             <ActionCard
               href="/admin/upload-photos"
               icon={<ImageIcon className="w-12 h-12" />}
               title="Upload Photos"
               description="Add profile photos for storytellers"
-              color="from-indigo-500 to-purple-500"
+              color="from-ocean-medium to-ocean-deep"
             />
             <ActionCard
               href="/reports/generate"
               icon={<TrendingUp className="w-12 h-12" />}
               title="Generate Report"
               description="Create annual reports from data"
-              color="from-green-500 to-emerald-500"
+              color="from-sand-gold to-sunset-orange"
             />
             <ActionCard
               href="/storytellers"
               icon={<Users className="w-12 h-12" />}
               title="View Storytellers"
               description="Browse all storyteller profiles"
-              color="from-cyan-500 to-blue-500"
+              color="from-ocean-light to-ocean-medium"
             />
             <ActionCard
               href="/search"
               icon={<Search className="w-12 h-12" />}
               title="Search Content"
               description="Find stories and storytellers"
-              color="from-violet-500 to-purple-500"
+              color="from-ocean-deep to-ocean-light"
             />
             <ActionCard
               href="/upload"
               icon={<Upload className="w-12 h-12" />}
               title="Upload Content"
               description="Add photos, text, or voice recordings"
-              color="from-rose-500 to-pink-500"
+              color="from-coral-warm to-sunset-orange"
             />
           </div>
         </div>
 
         {/* Data Management */}
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-              <Database className="w-6 h-6 mr-2 text-purple-600" />
+          <div className="card-modern">
+            <h3 className="text-xl font-bold text-ocean-deep mb-4 flex items-center">
+              <Database className="w-6 h-6 mr-2 text-ocean-medium" />
               Database Status
             </h3>
             <div className="space-y-3">
@@ -230,9 +234,9 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-              <Play className="w-6 h-6 mr-2 text-blue-600" />
+          <div className="card-modern">
+            <h3 className="text-xl font-bold text-ocean-deep mb-4 flex items-center">
+              <Play className="w-6 h-6 mr-2 text-coral-warm" />
               Quick Start Guide
             </h3>
             <div className="space-y-3">
@@ -246,8 +250,8 @@ export default function AdminDashboard() {
         </div>
 
         {/* Recent Activity */}
-        <div className="mt-8 bg-white rounded-xl shadow-lg p-6">
-          <h3 className="text-xl font-bold text-gray-900 mb-4">
+        <div className="mt-8 card-modern">
+          <h3 className="text-xl font-bold text-ocean-deep mb-4">
             Platform Features
           </h3>
           <div className="grid md:grid-cols-2 gap-4">
@@ -302,7 +306,8 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </AppLayout>
   );
 }
 
@@ -346,14 +351,14 @@ function StatusRow({ label, value, status }: {
   status: 'healthy' | 'warning' | 'error';
 }) {
   const colors = {
-    healthy: 'text-green-600',
-    warning: 'text-yellow-600',
-    error: 'text-red-600',
+    healthy: 'text-success',
+    warning: 'text-warning',
+    error: 'text-error',
   };
 
   return (
-    <div className="flex justify-between items-center py-2 border-b border-gray-100">
-      <span className="text-gray-700">{label}</span>
+    <div className="flex justify-between items-center py-2 border-b border-earth-light">
+      <span className="text-earth-dark">{label}</span>
       <span className={`font-bold ${colors[status]}`}>{value}</span>
     </div>
   );
@@ -367,11 +372,11 @@ function GuideStep({ number, text, done }: {
   return (
     <div className="flex items-center gap-3">
       <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
-        done ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
+        done ? 'bg-coral-warm text-white' : 'bg-earth-light text-earth-medium'
       }`}>
         {done ? '✓' : number}
       </div>
-      <span className={done ? 'text-gray-500 line-through' : 'text-gray-700'}>{text}</span>
+      <span className={done ? 'text-earth-medium line-through' : 'text-earth-dark'}>{text}</span>
     </div>
   );
 }
@@ -383,20 +388,20 @@ function FeatureItem({ icon, title, description, status }: {
   status: string;
 }) {
   return (
-    <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+    <div className="flex items-start gap-3 p-3 bg-earth-bg rounded-lg">
       <div className="text-2xl">{icon}</div>
       <div className="flex-1">
         <div className="flex justify-between items-start mb-1">
-          <h4 className="font-bold text-gray-900">{title}</h4>
+          <h4 className="font-bold text-ocean-deep">{title}</h4>
           <span className={`text-xs px-2 py-1 rounded ${
             status === 'Live'
               ? 'bg-green-100 text-green-700'
-              : 'bg-blue-100 text-blue-700'
+              : 'bg-ocean-light/20 text-ocean-medium'
           }`}>
             {status}
           </span>
         </div>
-        <p className="text-sm text-gray-600">{description}</p>
+        <p className="text-sm text-earth-medium">{description}</p>
       </div>
     </div>
   );
