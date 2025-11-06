@@ -60,7 +60,7 @@ export default function Sidebar() {
       {/* Mobile Menu Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed top-4 left-4 z-[60] md:hidden bg-ocean-deep text-white p-3 rounded-lg shadow-lg hover:bg-ocean-medium transition-colors"
+        className="fixed top-4 left-4 z-[60] md:hidden bg-white text-[rgb(var(--text-primary))] p-3 rounded-lg shadow-lg hover:bg-[rgb(var(--background-secondary))] transition-colors border border-[rgb(var(--border))]"
         aria-label="Toggle menu"
       >
         {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -69,7 +69,7 @@ export default function Sidebar() {
       {/* Overlay for mobile */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          className="fixed inset-0 bg-black/20 z-40 md:hidden backdrop-blur-sm"
           onClick={() => setIsOpen(false)}
         />
       )}
@@ -84,26 +84,26 @@ export default function Sidebar() {
         `}
       >
         {/* Logo */}
-        <div className="p-6 border-b border-white/10">
+        <div className="p-6 border-b border-[rgb(var(--border))]">
           <Link href="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-coral-warm rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-[rgb(var(--primary))] to-[rgb(var(--accent))] rounded-xl flex items-center justify-center shadow-md">
               <BookOpen className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h2 className="text-white font-bold text-lg">Palm Island</h2>
-              <p className="text-white/60 text-xs">Story Server</p>
+              <h2 className="text-[rgb(var(--text-primary))] font-bold text-lg">Palm Island</h2>
+              <p className="text-[rgb(var(--text-secondary))] text-xs">Story Server</p>
             </div>
           </Link>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 py-6 overflow-y-auto">
+        <nav className="flex-1 py-4 overflow-y-auto">
           {navigationItems.map((item, index) => {
             if (item.divider) {
               return (
                 <div
                   key={`divider-${index}`}
-                  className="my-4 mx-6 border-t border-white/10"
+                  className="my-2 mx-4 border-t border-[rgb(var(--border))]"
                 />
               );
             }
@@ -115,16 +115,13 @@ export default function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`
-                  sidebar-nav-item
-                  ${active ? 'active' : ''}
-                `}
+                className={`sidebar-nav-item ${active ? 'active' : ''}`}
                 onClick={() => setIsOpen(false)}
               >
                 <Icon className="w-5 h-5" />
-                <span className="font-medium">{item.label}</span>
+                <span className="font-medium text-sm">{item.label}</span>
                 {item.badge && (
-                  <span className="ml-auto bg-coral-warm text-white text-xs px-2 py-0.5 rounded-full">
+                  <span className="ml-auto bg-gradient-to-r from-[rgb(var(--accent))] to-[rgb(var(--primary))] text-white text-xs px-2 py-0.5 rounded-full font-semibold">
                     {item.badge}
                   </span>
                 )}
@@ -134,19 +131,19 @@ export default function Sidebar() {
         </nav>
 
         {/* User Section */}
-        <div className="p-6 border-t border-white/10">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-coral-warm/20 rounded-full flex items-center justify-center">
-              <span className="text-white font-semibold">A</span>
+        <div className="p-4 border-t border-[rgb(var(--border))]">
+          <div className="flex items-center gap-3 mb-3 p-2 rounded-lg hover:bg-white transition-colors">
+            <div className="w-10 h-10 bg-gradient-to-br from-[rgb(var(--primary))] to-[rgb(var(--accent))] rounded-full flex items-center justify-center">
+              <span className="text-white font-semibold text-sm">A</span>
             </div>
             <div className="flex-1">
-              <p className="text-white text-sm font-medium">Admin User</p>
-              <p className="text-white/60 text-xs">admin@palmisland.org</p>
+              <p className="text-[rgb(var(--text-primary))] text-sm font-medium">Admin User</p>
+              <p className="text-[rgb(var(--text-tertiary))] text-xs">admin@palmisland.org</p>
             </div>
           </div>
-          <button className="w-full flex items-center gap-2 px-4 py-2 text-white/70 hover:text-white hover:bg-white/5 rounded-lg transition-all">
+          <button className="w-full flex items-center gap-2 px-3 py-2 text-[rgb(var(--text-secondary))] hover:text-[rgb(var(--text-primary))] hover:bg-white rounded-lg transition-all text-sm">
             <LogOut className="w-4 h-4" />
-            <span className="text-sm">Logout</span>
+            <span>Logout</span>
           </button>
         </div>
       </aside>
