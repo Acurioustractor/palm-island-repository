@@ -32,7 +32,7 @@ export default function ResearchPage() {
     },
     {
       title: 'Research Assistant',
-      description: 'Chat with an AI assistant to explore the archive. Ask questions, get summaries, and discover connections.',
+      description: 'Chat with an intelligent assistant to explore the archive. Ask questions, get summaries, and discover connections.',
       icon: MessageSquare,
       href: '/research/assistant',
       color: 'from-green-500 to-teal-500',
@@ -49,11 +49,11 @@ export default function ResearchPage() {
             <div className="flex items-center gap-3 mb-4">
               <Sparkles className="w-12 h-12 text-coral-warm" />
               <h1 className="text-4xl md:text-5xl font-bold">
-                AI-Powered Analysis
+                Advanced Analysis
               </h1>
             </div>
             <p className="text-xl text-white max-w-3xl mb-8">
-              Explore the Palm Island Story Archive with powerful AI tools. Search by meaning,
+              Explore the Palm Island Story Archive with powerful analysis tools. Search by meaning,
               discover themes, find quotes, and chat with an intelligent research assistant.
             </p>
             <div className="flex flex-wrap gap-4">
@@ -82,7 +82,7 @@ export default function ResearchPage() {
               Research Tools
             </h2>
             <p className="text-lg text-earth-medium max-w-3xl">
-              Choose from our suite of AI-powered tools to explore the archive in new ways.
+              Choose from our suite of advanced tools to explore the archive in new ways.
               Each tool offers unique insights into the stories and documents.
             </p>
           </div>
@@ -157,7 +157,7 @@ export default function ResearchPage() {
                   Understanding Content
                 </h3>
                 <p className="text-earth-medium">
-                  AI reads and understands the meaning of every story and document in the archive
+                  Advanced analysis reads and understands the meaning of every story and document in the archive
                 </p>
               </div>
               <div className="text-center">
@@ -190,7 +190,7 @@ export default function ResearchPage() {
         <div className="max-w-4xl mx-auto px-8 py-16">
           <div className="card-modern p-8 bg-gradient-to-br from-ocean-deep/5 to-coral-warm/5">
             <h3 className="text-2xl font-bold text-ocean-deep mb-4">
-              Privacy & Ethical AI
+              Privacy & Ethics
             </h3>
             <div className="space-y-3 text-earth-dark">
               <p className="flex items-start gap-3">
@@ -199,7 +199,7 @@ export default function ResearchPage() {
               </p>
               <p className="flex items-start gap-3">
                 <span className="text-coral-warm text-xl">•</span>
-                <span>AI tools respect the same access permissions as the regular archive</span>
+                <span>Analysis tools respect the same access permissions as the regular archive</span>
               </p>
               <p className="flex items-start gap-3">
                 <span className="text-coral-warm text-xl">•</span>
