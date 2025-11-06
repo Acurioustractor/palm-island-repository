@@ -1,43 +1,8 @@
 import Link from 'next/link';
 import { BookOpen, Users, TrendingUp, Search, ArrowRight, Sparkles } from 'lucide-react';
-import { createClient } from '@supabase/supabase-js';
 
-async function getStats() {
-  try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || !supabaseKey) {
-      return { storytellers: 26, stories: 0, services: 16 };
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    const { count: storytellerCount } = await supabase
-      .from('profiles')
-      .select('*', { count: 'exact', head: true });
-
-    const { count: storyCount } = await supabase
-      .from('stories')
-      .select('*', { count: 'exact', head: true });
-
-    const { count: serviceCount } = await supabase
-      .from('organization_services')
-      .select('*', { count: 'exact', head: true });
-
-    return {
-      storytellers: storytellerCount || 26,
-      stories: storyCount || 0,
-      services: serviceCount || 16,
-    };
-  } catch (error) {
-    console.error('Error fetching stats:', error);
-    return { storytellers: 26, stories: 0, services: 16 };
-  }
-}
-
-export default async function HomePage() {
-  const stats = await getStats();
+export default function HomePage() {
+  const stats = { storytellers: 26, stories: 0, services: 16 };
 
   return (
     <div className="min-h-screen">
