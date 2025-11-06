@@ -34,7 +34,7 @@ const navigationItems: NavItem[] = [
   { label: 'Stories', href: '/stories', icon: BookOpen },
   { label: 'People', href: '/storytellers', icon: Users },
   { label: 'Documents', href: '/documents', icon: FileText },
-  { label: 'AI Research', href: '/research', icon: Sparkles, badge: 'New' },
+  { label: 'Analysis', href: '/research', icon: Sparkles, badge: 'New' },
   { label: 'Search', href: '/search', icon: Search },
   { label: 'divider', href: '', icon: Home, divider: true },
   { label: 'Admin', href: '/admin', icon: Settings },

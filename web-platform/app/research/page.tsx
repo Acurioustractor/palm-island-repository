@@ -49,10 +49,10 @@ export default function ResearchPage() {
             <div className="flex items-center gap-3 mb-4">
               <Sparkles className="w-12 h-12 text-coral-warm" />
               <h1 className="text-4xl md:text-5xl font-bold">
-                AI-Powered Research
+                AI-Powered Analysis
               </h1>
             </div>
-            <p className="text-xl text-white/90 max-w-3xl mb-8">
+            <p className="text-xl text-white max-w-3xl mb-8">
               Explore the Palm Island Story Archive with powerful AI tools. Search by meaning,
               discover themes, find quotes, and chat with an intelligent research assistant.
             </p>
@@ -146,7 +146,7 @@ export default function ResearchPage() {
         <div className="bg-earth-bg py-16">
           <div className="max-w-7xl mx-auto px-8">
             <h2 className="text-3xl font-bold text-ocean-deep mb-8 text-center">
-              How AI Research Works
+              How Analysis Works
             </h2>
             <div className="grid md:grid-cols-3 gap-8">
               <div className="text-center">
