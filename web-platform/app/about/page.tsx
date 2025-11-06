@@ -1,5 +1,7 @@
 'use client';
 
+import React;
+import AppLayout from '@/components/AppLayout';
 import React, { useState } from 'react';
 import { ChevronRight, Users, Heart, TrendingUp, Globe, BookOpen, Target, Star, Building, Phone, Mail, MapPin } from 'lucide-react';
 import Link from 'next/link';
@@ -306,23 +308,23 @@ export default function AboutPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-lg border-t-4 border-blue-600">
+        <div className="bg-white p-6 rounded-lg shadow-lg border-t-4 border-ocean-600">
           <h3 className="text-xl font-bold text-blue-900 mb-3">Our Philosophy</h3>
-          <p className="text-gray-700">
+          <p className="text-earth-dark">
             We operate from abundance, not deficit. Every Palm Islander carries strengths, knowledge, and potential.
             Our role is to create conditions where these gifts flourish.
           </p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow-lg border-t-4 border-green-600">
           <h3 className="text-xl font-bold text-green-900 mb-3">Our Method</h3>
-          <p className="text-gray-700">
+          <p className="text-earth-dark">
             Integrated services that wrap around families like a warm embrace. No wrong door, no gaps to fall through—just
             seamless support that honors the complexity of human need.
           </p>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow-lg border-t-4 border-purple-600">
+        <div className="bg-white p-6 rounded-lg shadow-lg border-t-4 border-coral-600">
           <h3 className="text-xl font-bold text-purple-900 mb-3">Our Promise</h3>
-          <p className="text-gray-700">
+          <p className="text-earth-dark">
             Every decision, every service, every innovation emerges from and returns to community. This is sovereignty
             in practice—Palm Islanders determining Palm Island futures.
           </p>
@@ -335,8 +337,8 @@ export default function AboutPage() {
           {impactMetrics.map((metric, idx) => (
             <div key={idx} className="text-center">
               <div className="text-3xl font-bold text-blue-700">{metric.metric}</div>
-              <div className="text-sm font-medium text-gray-700">{metric.label}</div>
-              <div className="text-xs text-gray-600 mt-1">{metric.growth || metric.sustained || metric.impact || metric.detail || metric.significance}</div>
+              <div className="text-sm font-medium text-earth-dark">{metric.label}</div>
+              <div className="text-xs text-earth-medium mt-1">{metric.growth || metric.sustained || metric.impact || metric.detail || metric.significance}</div>
             </div>
           ))}
         </div>
@@ -349,7 +351,7 @@ export default function AboutPage() {
       <h2 className="text-3xl font-bold text-blue-900 mb-6">From Colonial Control to Community Sovereignty</h2>
 
       <div className="bg-white p-6 rounded-lg shadow-lg">
-        <p className="text-lg text-gray-700 leading-relaxed mb-6">
+        <p className="text-lg text-earth-dark leading-relaxed mb-6">
           The journey of Palm Island Community Company cannot be separated from the journey of Palm Island itself—a
           story of resilience that transforms historical trauma into contemporary triumph. Each milestone below
           represents not just an event, but a reclamation of power, dignity, and self-determination.
@@ -360,7 +362,7 @@ export default function AboutPage() {
         {historicalJourney.map((era, idx) => (
           <div key={idx} className="mb-8 flex">
             <div className="flex flex-col items-center mr-4">
-              <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
+              <div className="w-12 h-12 bg-ocean-medium rounded-full flex items-center justify-center text-white font-bold">
                 {idx + 1}
               </div>
               {idx < historicalJourney.length - 1 && (
@@ -370,12 +372,12 @@ export default function AboutPage() {
             <div className="flex-1 bg-white p-6 rounded-lg shadow-lg">
               <div className="flex justify-between items-start mb-2">
                 <h3 className="text-xl font-bold text-blue-900">{era.era}</h3>
-                <span className="text-sm font-medium bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
+                <span className="text-sm font-medium bg-blue-100 text-ocean-deep px-3 py-1 rounded-full">
                   {era.period}
                 </span>
               </div>
-              <p className="text-gray-700 mb-2">{era.description}</p>
-              <p className="text-sm italic text-gray-600">
+              <p className="text-earth-dark mb-2">{era.description}</p>
+              <p className="text-sm italic text-earth-medium">
                 <strong>Significance:</strong> {era.significance}
               </p>
             </div>
@@ -385,7 +387,7 @@ export default function AboutPage() {
 
       <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-lg border-l-4 border-green-600">
         <h3 className="text-xl font-bold text-gray-800 mb-3">The Transformation Continues</h3>
-        <p className="text-gray-700">
+        <p className="text-earth-dark">
           Today, PICC stands as the institutional embodiment of Palm Island's resilience. From a single employee
           in 2007 to nearly 200 staff in 2024, from government control to community ownership, from service
           recipient to service provider—this is what self-determination looks like in practice.
@@ -403,7 +405,7 @@ export default function AboutPage() {
       <h2 className="text-3xl font-bold text-blue-900 mb-6">The Architects of Transformation</h2>
 
       <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
-        <p className="text-lg text-gray-700 leading-relaxed">
+        <p className="text-lg text-earth-dark leading-relaxed">
           Behind every statistic is a story. Behind every service is a servant leader. These are the people who
           transform vision into reality, who carry both the weight of history and the hope of the future.
         </p>
@@ -415,15 +417,15 @@ export default function AboutPage() {
           <div className="flex-1">
             <h3 className="text-2xl font-bold text-purple-900 mb-2">{leadership.name}</h3>
             <p className="text-lg font-medium text-purple-700 mb-4">{leadership.position}</p>
-            <p className="text-gray-700 mb-4">{leadership.bio}</p>
-            <p className="italic text-lg text-purple-800 mb-4">"{leadership.vision}"</p>
+            <p className="text-earth-dark mb-4">{leadership.bio}</p>
+            <p className="italic text-lg text-ocean-deep mb-4">"{leadership.vision}"</p>
             <div className="mt-4">
               <h4 className="font-bold text-gray-800 mb-2">Transformational Achievements:</h4>
               <ul className="space-y-1">
                 {leadership.achievements.map((achievement, idx) => (
                   <li key={idx} className="flex items-start">
-                    <ChevronRight className="h-4 w-4 text-purple-600 mt-0.5 mr-2 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">{achievement}</span>
+                    <ChevronRight className="h-4 w-4 text-coral-warm mt-0.5 mr-2 flex-shrink-0" />
+                    <span className="text-sm text-earth-dark">{achievement}</span>
                   </li>
                 ))}
               </ul>
@@ -433,20 +435,20 @@ export default function AboutPage() {
       </div>
 
       {/* Board Members Grid */}
-      <h3 className="text-2xl font-bold text-blue-800 mb-4">Board of Directors: Guardians of Community Vision</h3>
+      <h3 className="text-2xl font-bold text-ocean-deep mb-4">Board of Directors: Guardians of Community Vision</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {boardMembers.map((member, idx) => (
           <div
             key={idx}
-            className="bg-white p-6 rounded-lg shadow-lg border-l-4 border-blue-500 hover:shadow-xl transition-all cursor-pointer"
+            className="bg-white p-6 rounded-lg shadow-lg border-l-4 border-ocean-500 hover:shadow-xl transition-all cursor-pointer"
             onClick={() => setSelectedPerson(selectedPerson?.name === member.name ? null : member)}
           >
             <h4 className="text-lg font-bold text-blue-900">{member.name}</h4>
             <p className="text-sm font-medium text-blue-700 mb-2">{member.position}</p>
-            <p className="text-sm text-gray-700 mb-2">{member.bio}</p>
+            <p className="text-sm text-earth-dark mb-2">{member.bio}</p>
             {selectedPerson?.name === member.name && (
               <div className="mt-4 pt-4 border-t border-gray-200">
-                <p className="text-sm italic text-gray-600">
+                <p className="text-sm italic text-earth-medium">
                   <strong>Vision:</strong> "{member.vision}"
                 </p>
               </div>
@@ -462,7 +464,7 @@ export default function AboutPage() {
       <h2 className="text-3xl font-bold text-blue-900 mb-6">An Ecosystem of Care & Capability</h2>
 
       <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
-        <p className="text-lg text-gray-700 leading-relaxed">
+        <p className="text-lg text-earth-dark leading-relaxed">
           PICC's services form an interconnected web of support that recognizes the wholeness of human experience.
           From birth to elder years, from crisis to celebration, from healing to economic empowerment—we meet our
           community wherever they are on their journey.
@@ -471,7 +473,7 @@ export default function AboutPage() {
 
       {Object.entries(services).map(([category, categoryServices]) => (
         <div key={category} className="mb-8">
-          <h3 className="text-2xl font-bold text-blue-800 mb-4 pb-2 border-b-2 border-blue-200">
+          <h3 className="text-2xl font-bold text-ocean-deep mb-4 pb-2 border-b-2 border-ocean-200">
             {category}
           </h3>
           <div className="grid grid-cols-1 gap-4">
@@ -487,7 +489,7 @@ export default function AboutPage() {
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <h4 className="text-xl font-bold text-blue-900">{service.name}</h4>
-                      <p className="text-sm font-medium text-blue-600 italic">{service.tagline}</p>
+                      <p className="text-sm font-medium text-ocean-medium italic">{service.tagline}</p>
                     </div>
                     <ChevronRight
                       className={`h-5 w-5 text-blue-500 transition-transform ${
@@ -495,7 +497,7 @@ export default function AboutPage() {
                       }`}
                     />
                   </div>
-                  <p className="text-gray-700 mt-2">{service.description}</p>
+                  <p className="text-earth-dark mt-2">{service.description}</p>
 
                   {expandedService === `${category}-${idx}` && (
                     <div className="mt-4 pt-4 border-t border-gray-200 space-y-3">
@@ -504,13 +506,13 @@ export default function AboutPage() {
                           {Object.entries(service.stats).map(([key, value]) => (
                             <div key={key} className="text-center">
                               <div className="text-2xl font-bold text-blue-700">{value as string}</div>
-                              <div className="text-xs text-gray-600 capitalize">{key}</div>
+                              <div className="text-xs text-earth-medium capitalize">{key}</div>
                             </div>
                           ))}
                         </div>
                       )}
                       {service.contact && (
-                        <div className="flex items-center text-sm text-gray-600">
+                        <div className="flex items-center text-sm text-earth-medium">
                           <Phone className="h-4 w-4 mr-2" />
                           {service.contact}
                         </div>
@@ -539,7 +541,7 @@ export default function AboutPage() {
                 <div className="text-lg font-medium text-gray-800">{metric.label}</div>
               </div>
             </div>
-            <div className="text-sm text-gray-700 italic mt-3 pt-3 border-t border-gray-200">
+            <div className="text-sm text-earth-dark italic mt-3 pt-3 border-t border-gray-200">
               {metric.narrative}
             </div>
           </div>
@@ -558,16 +560,16 @@ export default function AboutPage() {
             <h3 className="text-xl font-bold">{theme}</h3>
           </div>
           <div className="p-6">
-            <p className="text-gray-700 mb-4">{details.description}</p>
+            <p className="text-earth-dark mb-4">{details.description}</p>
             <div className="bg-blue-50 p-4 rounded">
-              <p className="text-sm text-gray-700">{details.impact}</p>
+              <p className="text-sm text-earth-dark">{details.impact}</p>
             </div>
           </div>
         </div>
       ))}
 
       <div className="mt-6 text-center">
-        <Link href="/stories/submit" className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-bold text-lg transition-all transform hover:scale-105 shadow-lg">
+        <Link href="/stories/submit" className="inline-block bg-ocean-medium hover:bg-ocean-deep text-white px-8 py-4 rounded-lg font-bold text-lg transition-all transform hover:scale-105 shadow-lg">
           Share Your Story
         </Link>
       </div>
@@ -589,7 +591,7 @@ export default function AboutPage() {
             </div>
           </div>
           <div className="p-6">
-            <p className="text-gray-700 mb-4">{initiative.vision}</p>
+            <p className="text-earth-dark mb-4">{initiative.vision}</p>
           </div>
         </div>
       ))}
@@ -598,17 +600,17 @@ export default function AboutPage() {
         <h3 className="text-xl font-bold text-gray-800 mb-4">Contact PICC</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex items-center">
-            <Phone className="h-5 w-5 text-blue-600 mr-3" />
+            <Phone className="h-5 w-5 text-ocean-medium mr-3" />
             <div>
               <div className="font-medium">Phone</div>
-              <div className="text-sm text-gray-600">(07) 4421 4300</div>
+              <div className="text-sm text-earth-medium">(07) 4421 4300</div>
             </div>
           </div>
           <div className="flex items-center">
-            <Mail className="h-5 w-5 text-blue-600 mr-3" />
+            <Mail className="h-5 w-5 text-ocean-medium mr-3" />
             <div>
               <div className="font-medium">Email</div>
-              <div className="text-sm text-gray-600">recruitment@picc.com.au</div>
+              <div className="text-sm text-earth-medium">recruitment@picc.com.au</div>
             </div>
           </div>
         </div>
@@ -630,7 +632,7 @@ export default function AboutPage() {
               <Link href="/" className="bg-white text-blue-900 px-4 py-2 rounded-lg font-medium hover:bg-blue-50 transition-all">
                 Home
               </Link>
-              <Link href="/dashboard" className="bg-blue-800 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-all">
+              <Link href="/dashboard" className="bg-blue-800 text-white px-4 py-2 rounded-lg font-medium hover:bg-ocean-deep transition-all">
                 Story Dashboard
               </Link>
             </div>
@@ -650,8 +652,8 @@ export default function AboutPage() {
                   onClick={() => setActiveSection(section.id)}
                   className={`flex items-center px-4 py-3 text-sm font-medium whitespace-nowrap transition-all ${
                     activeSection === section.id
-                      ? 'text-blue-800 border-b-3 border-blue-800 bg-blue-50'
-                      : 'text-gray-600 hover:text-blue-800 hover:bg-gray-50'
+                      ? 'text-ocean-deep border-b-3 border-ocean-800 bg-blue-50'
+                      : 'text-earth-medium hover:text-ocean-deep hover:bg-gray-50'
                   }`}
                 >
                   <Icon className="h-4 w-4 mr-2" />

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Camera, Server, Users, Heart, Mic, Image, MapPin, TrendingUp, Wifi, Plus } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
+import AppLayout from '@/components/AppLayout';
 
 interface Story {
   id: string;
@@ -135,18 +136,19 @@ export default function StoryServerDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 p-4">
-      {/* Header */}
-      <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-3xl font-bold text-blue-900">Palm Island Story Server</h1>
-            <p className="text-gray-600">Community-Driven Impact Measurement & Storytelling</p>
-          </div>
+    <AppLayout>
+      <div className="min-h-screen p-4">
+        {/* Header */}
+        <div className="card-modern shadow-lg p-6 mb-6 max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-3xl font-bold text-ocean-deep">Palm Island Story Server</h1>
+              <p className="text-earth-medium">Community-Driven Impact Measurement & Storytelling</p>
+            </div>
           <div className="flex items-center space-x-3">
             <Link
               href="/stories/submit"
-              className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-all transform hover:scale-105 shadow-lg"
+              className="flex items-center space-x-2 bg-coral-warm hover:bg-ocean-medium text-white px-6 py-3 rounded-lg font-medium transition-all transform hover:scale-105 shadow-lg"
             >
               <Plus className="w-5 h-5" />
               <span>Share Your Story</span>
@@ -162,7 +164,7 @@ export default function StoryServerDashboard() {
           {Object.entries(kioskStats).map(([key, value], index) => (
             <div key={index} className="text-center p-3 bg-blue-50 rounded-lg">
               <div className="text-xl font-bold text-blue-800">{value}</div>
-              <div className="text-xs text-gray-600 capitalize">{key.replace(/([A-Z])/g, ' $1')}</div>
+              <div className="text-xs text-earth-medium capitalize">{key.replace(/([A-Z])/g, ' $1')}</div>
             </div>
           ))}
         </div>
@@ -176,7 +178,7 @@ export default function StoryServerDashboard() {
             onClick={() => setActiveView(id)}
             className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all ${
               activeView === id
-                ? 'bg-blue-600 text-white shadow-lg'
+                ? 'bg-coral-warm text-white shadow-lg'
                 : 'bg-white text-gray-700 hover:bg-blue-50'
             }`}
           >
@@ -190,7 +192,7 @@ export default function StoryServerDashboard() {
       <div className="bg-white rounded-xl shadow-lg p-6">
         {activeView === 'overview' && (
           <div>
-            <h2 className="text-2xl font-bold text-blue-900 mb-4">Community-Owned Digital Infrastructure</h2>
+            <h2 className="text-2xl font-bold text-ocean-deep mb-4">Community-Owned Digital Infrastructure</h2>
 
             <div className="grid md:grid-cols-2 gap-6 mb-6">
               <div className="bg-gradient-to-r from-blue-500 to-teal-500 text-white p-6 rounded-lg">
@@ -209,7 +211,7 @@ export default function StoryServerDashboard() {
 
               <div className="bg-gray-50 p-6 rounded-lg">
                 <h3 className="text-xl font-bold mb-2 text-gray-800">Key Principles</h3>
-                <ul className="space-y-2 text-gray-600">
+                <ul className="space-y-2 text-earth-medium">
                   <li>• <strong>Data Sovereignty:</strong> Community owns all content</li>
                   <li>• <strong>Youth Leadership:</strong> Built by young Palm Islanders</li>
                   <li>• <strong>Cultural Pride:</strong> Celebrates Manbarra & Bwgcolman stories</li>
@@ -221,17 +223,17 @@ export default function StoryServerDashboard() {
             <div className="grid md:grid-cols-3 gap-4">
               <div className="text-center p-4 bg-green-50 rounded-lg">
                 <div className="text-2xl font-bold text-green-800">197</div>
-                <div className="text-sm text-gray-600">PICC Staff Members</div>
+                <div className="text-sm text-earth-medium">PICC Staff Members</div>
                 <div className="text-xs text-green-600">+30% from last year</div>
               </div>
               <div className="text-center p-4 bg-purple-50 rounded-lg">
                 <div className="text-2xl font-bold text-purple-800">80%+</div>
-                <div className="text-sm text-gray-600">Aboriginal Staff</div>
-                <div className="text-xs text-purple-600">Community-controlled</div>
+                <div className="text-sm text-earth-medium">Aboriginal Staff</div>
+                <div className="text-xs text-coral-warm">Community-controlled</div>
               </div>
               <div className="text-center p-4 bg-orange-50 rounded-lg">
                 <div className="text-2xl font-bold text-orange-800">16+</div>
-                <div className="text-sm text-gray-600">Services Provided</div>
+                <div className="text-sm text-earth-medium">Services Provided</div>
                 <div className="text-xs text-orange-600">Growing annually</div>
               </div>
             </div>
@@ -240,7 +242,7 @@ export default function StoryServerDashboard() {
 
         {activeView === 'kiosk' && (
           <div>
-            <h2 className="text-2xl font-bold text-blue-900 mb-4">Story Collection Hub</h2>
+            <h2 className="text-2xl font-bold text-ocean-deep mb-4">Story Collection Hub</h2>
 
             <div className="grid md:grid-cols-2 gap-6">
               <div>
@@ -260,11 +262,11 @@ export default function StoryServerDashboard() {
                     </button>
 
                     <div className="grid grid-cols-2 gap-2">
-                      <button className="p-2 bg-blue-700 rounded-lg hover:bg-blue-600 transition-all">
+                      <button className="p-2 bg-ocean-medium rounded-lg hover:bg-coral-warm transition-all">
                         <Image className="w-4 h-4 mx-auto mb-1" />
                         <div className="text-xs">Upload Photo</div>
                       </button>
-                      <button className="p-2 bg-blue-700 rounded-lg hover:bg-blue-600 transition-all">
+                      <button className="p-2 bg-ocean-medium rounded-lg hover:bg-coral-warm transition-all">
                         <Mic className="w-4 h-4 mx-auto mb-1" />
                         <div className="text-xs">Record Audio</div>
                       </button>
@@ -299,7 +301,7 @@ export default function StoryServerDashboard() {
                       <div className="flex items-start justify-between">
                         <div>
                           <div className="font-medium text-blue-800">{story.title}</div>
-                          <div className="text-sm text-gray-600">by {story.author} • {story.location}</div>
+                          <div className="text-sm text-earth-medium">by {story.author} • {story.location}</div>
                           <div className="text-xs text-gray-500 mt-1">
                             <span className="bg-pink-100 text-pink-700 px-2 py-1 rounded-full">{story.emotion}</span>
                             <span className="ml-2">{story.timestamp}</span>
@@ -321,26 +323,26 @@ export default function StoryServerDashboard() {
 
         {activeView === 'stories' && (
           <div>
-            <h2 className="text-2xl font-bold text-blue-900 mb-4">Community Stories Archive</h2>
+            <h2 className="text-2xl font-bold text-ocean-deep mb-4">Community Stories Archive</h2>
 
             <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-6 rounded-lg mb-6">
               <h3 className="text-lg font-bold text-purple-800 mb-2">Story Themes</h3>
               <div className="grid md:grid-cols-4 gap-4">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-pink-600">Hope & Aspiration</div>
-                  <div className="text-sm text-gray-600">Youth dreams, career paths, cultural leadership</div>
+                  <div className="text-sm text-earth-medium">Youth dreams, career paths, cultural leadership</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-600">Pride & Achievement</div>
-                  <div className="text-sm text-gray-600">PICC growth, service excellence, innovation</div>
+                  <div className="text-2xl font-bold text-coral-warm">Pride & Achievement</div>
+                  <div className="text-sm text-earth-medium">PICC growth, service excellence, innovation</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">Connection & Belonging</div>
-                  <div className="text-sm text-gray-600">"No place like home", family bonds, community</div>
+                  <div className="text-2xl font-bold text-ocean-medium">Connection & Belonging</div>
+                  <div className="text-sm text-earth-medium">"No place like home", family bonds, community</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-green-600">Resilience & Growth</div>
-                  <div className="text-sm text-gray-600">Storm recovery, cultural innovation, leadership</div>
+                  <div className="text-sm text-earth-medium">Storm recovery, cultural innovation, leadership</div>
                 </div>
               </div>
             </div>
@@ -352,7 +354,7 @@ export default function StoryServerDashboard() {
                   February 2024 floods documented through community voices. Stories from Men's Group,
                   Elders, Playgroup staff, and individuals showing resilience in face of unprecedented weather.
                 </p>
-                <div className="text-xs text-blue-600">Category: Storm Recovery • Evidence for advocacy</div>
+                <div className="text-xs text-ocean-medium">Category: Storm Recovery • Evidence for advocacy</div>
               </div>
 
               <div className="bg-green-50 p-4 rounded-lg">
@@ -369,7 +371,7 @@ export default function StoryServerDashboard() {
 
         {activeView === 'youth' && (
           <div>
-            <h2 className="text-2xl font-bold text-blue-900 mb-4">Youth Tech Hub</h2>
+            <h2 className="text-2xl font-bold text-ocean-deep mb-4">Youth Tech Hub</h2>
 
             <div className="grid md:grid-cols-2 gap-6 mb-6">
               <div className="bg-gradient-to-r from-orange-400 to-red-500 text-white p-6 rounded-lg">
@@ -390,7 +392,7 @@ export default function StoryServerDashboard() {
                     <div key={index} className="flex items-center justify-between">
                       <div>
                         <div className="font-medium">{skill.skill}</div>
-                        <div className="text-sm text-gray-600">{skill.participants} participants</div>
+                        <div className="text-sm text-earth-medium">{skill.participants} participants</div>
                       </div>
                       <div className={`px-2 py-1 rounded-full text-xs ${
                         skill.level === 'Advanced' ? 'bg-green-100 text-green-700' :
@@ -419,13 +421,13 @@ export default function StoryServerDashboard() {
 
         {activeView === 'impact' && (
           <div>
-            <h2 className="text-2xl font-bold text-blue-900 mb-4">Community Impact Dashboard</h2>
+            <h2 className="text-2xl font-bold text-ocean-deep mb-4">Community Impact Dashboard</h2>
 
             <div className="grid md:grid-cols-4 gap-4 mb-6">
               {communityImpact.map((metric, index) => (
                 <div key={index} className="bg-white border border-gray-200 p-4 rounded-lg">
                   <div className="text-2xl font-bold text-blue-800">{metric.value}</div>
-                  <div className="text-sm text-gray-600">{metric.metric}</div>
+                  <div className="text-sm text-earth-medium">{metric.metric}</div>
                   <div className="text-xs text-green-600 font-medium">{metric.change}</div>
                 </div>
               ))}
@@ -486,10 +488,11 @@ export default function StoryServerDashboard() {
       </div>
 
       {/* Footer */}
-      <div className="mt-6 text-center text-gray-600 text-sm">
+      <div className="mt-6 text-center text-earth-medium text-sm">
         <p>Built by Palm Island youth • Data sovereignty maintained • Stories owned by community</p>
         <p className="mt-1">Palm Island Community Company • Manbarra & Bwgcolman Country</p>
       </div>
-    </div>
+      </div>
+    </AppLayout>
   );
 }

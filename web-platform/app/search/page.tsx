@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { Search, BookOpen, Users, Loader, X } from 'lucide-react';
+import AppLayout from '@/components/AppLayout';
 
 interface SearchResult {
   id: string;
@@ -119,7 +120,7 @@ export default function SearchPage() {
 
     return parts.map((part, i) =>
       regex.test(part) ? (
-        <mark key={i} className="bg-yellow-200 text-gray-900 px-1 rounded">
+        <mark key={i} className="bg-yellow-200 text-ocean-deep px-1 rounded">
           {part}
         </mark>
       ) : (
@@ -129,9 +130,10 @@ export default function SearchPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white py-16">
+    <AppLayout>
+      <div className="min-h-screen">
+        {/* Hero Section */}
+        <div className="bg-gradient-to-r from-ocean-deep to-ocean-medium text-white py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-5xl font-bold mb-4 text-center">
@@ -149,7 +151,7 @@ export default function SearchPage() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search for stories, people, topics..."
-                className="w-full pl-14 pr-14 py-4 rounded-xl text-lg text-gray-900 focus:ring-4 focus:ring-purple-300 outline-none shadow-2xl"
+                className="w-full pl-14 pr-14 py-4 rounded-xl text-lg text-ocean-deep focus:ring-4 focus:ring-purple-300 outline-none shadow-2xl"
                 autoFocus
               />
               {query && (
@@ -158,7 +160,7 @@ export default function SearchPage() {
                     setQuery('');
                     setResults([]);
                   }}
-                  className="absolute right-4 top-4 text-gray-400 hover:text-gray-600"
+                  className="absolute right-4 top-4 text-gray-400 hover:text-earth-medium"
                 >
                   <X className="h-6 w-6" />
                 </button>
@@ -171,7 +173,7 @@ export default function SearchPage() {
                 onClick={() => setSearchType('all')}
                 className={`px-6 py-2 rounded-lg font-medium transition-all ${
                   searchType === 'all'
-                    ? 'bg-white text-purple-600 shadow-lg'
+                    ? 'bg-white text-coral-warm shadow-lg'
                     : 'bg-purple-500/50 text-white hover:bg-purple-500'
                 }`}
               >
@@ -181,7 +183,7 @@ export default function SearchPage() {
                 onClick={() => setSearchType('stories')}
                 className={`px-6 py-2 rounded-lg font-medium transition-all flex items-center ${
                   searchType === 'stories'
-                    ? 'bg-white text-purple-600 shadow-lg'
+                    ? 'bg-white text-coral-warm shadow-lg'
                     : 'bg-purple-500/50 text-white hover:bg-purple-500'
                 }`}
               >
@@ -192,7 +194,7 @@ export default function SearchPage() {
                 onClick={() => setSearchType('storytellers')}
                 className={`px-6 py-2 rounded-lg font-medium transition-all flex items-center ${
                   searchType === 'storytellers'
-                    ? 'bg-white text-purple-600 shadow-lg'
+                    ? 'bg-white text-coral-warm shadow-lg'
                     : 'bg-purple-500/50 text-white hover:bg-purple-500'
                 }`}
               >
@@ -209,13 +211,13 @@ export default function SearchPage() {
         <div className="max-w-4xl mx-auto">
           {loading ? (
             <div className="text-center py-12">
-              <Loader className="w-12 h-12 mx-auto animate-spin text-purple-600 mb-4" />
-              <p className="text-gray-600 text-lg">Searching...</p>
+              <Loader className="w-12 h-12 mx-auto animate-spin text-coral-warm mb-4" />
+              <p className="text-earth-medium text-lg">Searching...</p>
             </div>
           ) : query.length < 2 ? (
             <div className="text-center py-12">
               <Search className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-              <p className="text-gray-600 text-lg">
+              <p className="text-earth-medium text-lg">
                 Enter at least 2 characters to search
               </p>
               <p className="text-gray-500 mt-2">
@@ -225,7 +227,7 @@ export default function SearchPage() {
           ) : results.length === 0 ? (
             <div className="text-center py-12">
               <div className="bg-white rounded-xl shadow-lg p-12">
-                <p className="text-gray-700 text-xl mb-2">
+                <p className="text-earth-dark text-xl mb-2">
                   No results found for "<strong>{query}</strong>"
                 </p>
                 <p className="text-gray-500">
@@ -236,7 +238,7 @@ export default function SearchPage() {
           ) : (
             <>
               <div className="mb-6">
-                <p className="text-gray-700 text-lg">
+                <p className="text-earth-dark text-lg">
                   Found <strong>{results.length}</strong> result{results.length !== 1 ? 's' : ''} for "
                   <strong>{query}</strong>"
                 </p>
@@ -269,9 +271,9 @@ export default function SearchPage() {
                               : 'bg-blue-100'
                           }`}>
                             {result.type === 'story' ? (
-                              <BookOpen className="w-8 h-8 text-purple-600" />
+                              <BookOpen className="w-8 h-8 text-coral-warm" />
                             ) : (
-                              <Users className="w-8 h-8 text-blue-600" />
+                              <Users className="w-8 h-8 text-ocean-medium" />
                             )}
                           </div>
                         )}
@@ -289,17 +291,17 @@ export default function SearchPage() {
                           </span>
                         </div>
 
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">
+                        <h3 className="text-xl font-bold text-ocean-deep mb-2">
                           {highlightText(result.title, query)}
                         </h3>
 
                         {result.author && (
-                          <p className="text-sm text-gray-600 mb-2">
+                          <p className="text-sm text-earth-medium mb-2">
                             by {result.author}
                           </p>
                         )}
 
-                        <p className="text-gray-700 line-clamp-2">
+                        <p className="text-earth-dark line-clamp-2">
                           {highlightText(result.content, query)}
                         </p>
                       </div>
@@ -307,7 +309,7 @@ export default function SearchPage() {
                       {/* Arrow */}
                       <div className="flex-shrink-0 self-center">
                         <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center group-hover:bg-purple-200">
-                          <span className="text-purple-600 font-bold">→</span>
+                          <span className="text-coral-warm font-bold">→</span>
                         </div>
                       </div>
                     </div>
@@ -324,10 +326,10 @@ export default function SearchPage() {
         <div className="container mx-auto px-4 pb-16">
           <div className="max-w-4xl mx-auto">
             <div className="bg-white rounded-xl shadow-lg p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              <h2 className="text-2xl font-bold text-ocean-deep mb-4">
                 Search Tips
               </h2>
-              <ul className="space-y-2 text-gray-700">
+              <ul className="space-y-2 text-earth-dark">
                 <li>• Search by name to find specific storytellers</li>
                 <li>• Use keywords to find stories about topics that interest you</li>
                 <li>• Try searching for "cyclone", "family", "culture", etc.</li>
@@ -338,6 +340,7 @@ export default function SearchPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </AppLayout>
   );
 }

@@ -1,5 +1,7 @@
 'use client';
 
+import React;
+import AppLayout from '@/components/AppLayout';
 import React, { useState, useRef, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Camera, Mic, FileText, Upload, X, Check, Loader, Image as ImageIcon } from 'lucide-react';
@@ -32,7 +34,7 @@ export default function UploadPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center">
-        <Loader className="w-12 h-12 text-purple-600 animate-spin" />
+        <Loader className="w-12 h-12 text-coral-warm animate-spin" />
       </div>
     );
   }
@@ -54,8 +56,8 @@ export default function UploadPage() {
             onClick={() => setMode('photo')}
             className={`p-6 rounded-xl transition-all transform hover:scale-105 ${
               mode === 'photo'
-                ? 'bg-purple-600 text-white shadow-2xl'
-                : 'bg-white text-gray-700 shadow-lg hover:shadow-xl'
+                ? 'bg-coral-warm text-white shadow-2xl'
+                : 'bg-white text-earth-dark shadow-lg hover:shadow-xl'
             }`}
           >
             <Camera className="w-8 h-8 mx-auto mb-2" />
@@ -67,8 +69,8 @@ export default function UploadPage() {
             onClick={() => setMode('text')}
             className={`p-6 rounded-xl transition-all transform hover:scale-105 ${
               mode === 'text'
-                ? 'bg-purple-600 text-white shadow-2xl'
-                : 'bg-white text-gray-700 shadow-lg hover:shadow-xl'
+                ? 'bg-coral-warm text-white shadow-2xl'
+                : 'bg-white text-earth-dark shadow-lg hover:shadow-xl'
             }`}
           >
             <FileText className="w-8 h-8 mx-auto mb-2" />
@@ -80,8 +82,8 @@ export default function UploadPage() {
             onClick={() => setMode('voice')}
             className={`p-6 rounded-xl transition-all transform hover:scale-105 ${
               mode === 'voice'
-                ? 'bg-purple-600 text-white shadow-2xl'
-                : 'bg-white text-gray-700 shadow-lg hover:shadow-xl'
+                ? 'bg-coral-warm text-white shadow-2xl'
+                : 'bg-white text-earth-dark shadow-lg hover:shadow-xl'
             }`}
           >
             <Mic className="w-8 h-8 mx-auto mb-2" />
@@ -207,16 +209,16 @@ function PhotoUploadForm({ user }: { user: any }) {
         <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
           <Check className="w-10 h-10 text-green-600" />
         </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Photos Uploaded!</h2>
-        <p className="text-gray-600">Redirecting to your profile...</p>
+        <h2 className="text-2xl font-bold text-ocean-deep mb-2">Photos Uploaded!</h2>
+        <p className="text-earth-medium">Redirecting to your profile...</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900 flex items-center">
-        <Camera className="w-6 h-6 mr-2 text-purple-600" />
+      <h2 className="text-2xl font-bold text-ocean-deep flex items-center">
+        <Camera className="w-6 h-6 mr-2 text-coral-warm" />
         Upload Photos
       </h2>
 
@@ -227,19 +229,19 @@ function PhotoUploadForm({ user }: { user: any }) {
         onDrop={handleDrop}
         className={`border-4 border-dashed rounded-xl p-12 text-center transition-all ${
           isDragging
-            ? 'border-purple-600 bg-purple-50'
+            ? 'border-coral-600 bg-purple-50'
             : 'border-gray-300 bg-gray-50 hover:bg-gray-100'
         }`}
       >
         <ImageIcon className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-        <p className="text-lg font-medium text-gray-700 mb-2">
+        <p className="text-lg font-medium text-earth-dark mb-2">
           Drag and drop photos here
         </p>
         <p className="text-sm text-gray-500 mb-4">or</p>
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-lg transition-all"
+          className="bg-coral-warm hover:bg-ocean-medium text-white font-bold py-3 px-8 rounded-lg transition-all"
         >
           Choose Files
         </button>
@@ -276,7 +278,7 @@ function PhotoUploadForm({ user }: { user: any }) {
 
       {/* Caption */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-earth-dark mb-2">
           Caption (Optional)
         </label>
         <textarea
@@ -353,21 +355,21 @@ function TextStoryForm({ user }: { user: any }) {
         <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
           <Check className="w-10 h-10 text-green-600" />
         </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Story Published!</h2>
-        <p className="text-gray-600">Redirecting to your profile...</p>
+        <h2 className="text-2xl font-bold text-ocean-deep mb-2">Story Published!</h2>
+        <p className="text-earth-medium">Redirecting to your profile...</p>
       </div>
     );
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900 flex items-center">
-        <FileText className="w-6 h-6 mr-2 text-purple-600" />
+      <h2 className="text-2xl font-bold text-ocean-deep flex items-center">
+        <FileText className="w-6 h-6 mr-2 text-coral-warm" />
         Write Your Story
       </h2>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-earth-dark mb-2">
           Story Title <span className="text-red-500">*</span>
         </label>
         <input
@@ -381,7 +383,7 @@ function TextStoryForm({ user }: { user: any }) {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-earth-dark mb-2">
           Your Story <span className="text-red-500">*</span>
         </label>
         <textarea
@@ -509,16 +511,16 @@ function VoiceRecordingForm({ user }: { user: any }) {
         <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
           <Check className="w-10 h-10 text-green-600" />
         </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Recording Uploaded!</h2>
-        <p className="text-gray-600">Redirecting to your profile...</p>
+        <h2 className="text-2xl font-bold text-ocean-deep mb-2">Recording Uploaded!</h2>
+        <p className="text-earth-medium">Redirecting to your profile...</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900 flex items-center">
-        <Mic className="w-6 h-6 mr-2 text-purple-600" />
+      <h2 className="text-2xl font-bold text-ocean-deep flex items-center">
+        <Mic className="w-6 h-6 mr-2 text-coral-warm" />
         Record Your Voice
       </h2>
 
@@ -529,7 +531,7 @@ function VoiceRecordingForm({ user }: { user: any }) {
             <div className={`mx-auto w-32 h-32 rounded-full flex items-center justify-center mb-6 ${
               recording
                 ? 'bg-red-500 animate-pulse'
-                : 'bg-purple-600'
+                : 'bg-coral-warm'
             }`}>
               <Mic className="w-16 h-16 text-white" />
             </div>
@@ -537,13 +539,13 @@ function VoiceRecordingForm({ user }: { user: any }) {
             {!recording ? (
               <button
                 onClick={startRecording}
-                className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-8 rounded-lg transition-all transform hover:scale-105 shadow-lg"
+                className="bg-coral-warm hover:bg-ocean-medium text-white font-bold py-4 px-8 rounded-lg transition-all transform hover:scale-105 shadow-lg"
               >
                 Start Recording
               </button>
             ) : (
               <>
-                <p className="text-xl font-bold text-gray-900 mb-4">Recording...</p>
+                <p className="text-xl font-bold text-ocean-deep mb-4">Recording...</p>
                 <button
                   onClick={stopRecording}
                   className="bg-red-500 hover:bg-red-600 text-white font-bold py-4 px-8 rounded-lg transition-all transform hover:scale-105 shadow-lg"
@@ -556,14 +558,14 @@ function VoiceRecordingForm({ user }: { user: any }) {
         ) : (
           <>
             <Check className="w-16 h-16 mx-auto mb-4 text-green-600" />
-            <p className="text-xl font-bold text-gray-900 mb-4">Recording Complete!</p>
+            <p className="text-xl font-bold text-ocean-deep mb-4">Recording Complete!</p>
             <audio src={audioUrl!} controls className="w-full mb-4" />
             <button
               onClick={() => {
                 setAudioBlob(null);
                 setAudioUrl(null);
               }}
-              className="text-purple-600 hover:text-purple-800 font-medium"
+              className="text-coral-warm hover:text-ocean-deep font-medium"
             >
               Record Again
             </button>
@@ -575,7 +577,7 @@ function VoiceRecordingForm({ user }: { user: any }) {
       {audioBlob && (
         <>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-earth-dark mb-2">
               Recording Title <span className="text-red-500">*</span>
             </label>
             <input

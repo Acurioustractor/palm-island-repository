@@ -1,5 +1,7 @@
 'use client';
 
+import React;
+import AppLayout from '@/components/AppLayout';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
@@ -116,11 +118,11 @@ export default function PICCPage() {
       {/* Story Section */}
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto mb-16">
-          <h2 className="text-4xl font-bold text-center mb-8 text-gray-900">
+          <h2 className="text-4xl font-bold text-center mb-8 text-ocean-deep">
             Our Story: From Dependence to Self-Determination
           </h2>
 
-          <div className="space-y-6 text-lg text-gray-700">
+          <div className="space-y-6 text-lg text-earth-dark">
             <p className="leading-relaxed">
               For over a century, Palm Island was controlled by external governments and NGOs who claimed to "help" but really
               perpetuated dependence. Services were fragmented. Consultants cost $40k-115k annually. Outcomes were poor.
@@ -181,13 +183,13 @@ export default function PICCPage() {
 
         {/* Services Grid */}
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-12 text-gray-900">
+          <h2 className="text-4xl font-bold text-center mb-12 text-ocean-deep">
             Our Services: Holistic, Integrated, Community-Led
           </h2>
 
           {loading ? (
             <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-600 mx-auto"></div>
+              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-coral-600 mx-auto"></div>
             </div>
           ) : (
             <div className="space-y-12">
@@ -209,13 +211,13 @@ export default function PICCPage() {
                         {categoryServices.map((service) => (
                           <div
                             key={service.id}
-                            className="border-2 border-gray-200 rounded-lg p-6 hover:border-purple-400 hover:shadow-lg transition-all"
+                            className="border-2 border-gray-200 rounded-lg p-6 hover:border-coral-400 hover:shadow-lg transition-all"
                           >
-                            <h4 className="text-xl font-bold text-gray-900 mb-2">
+                            <h4 className="text-xl font-bold text-ocean-deep mb-2">
                               {service.name}
                             </h4>
                             {service.description && (
-                              <p className="text-gray-600 text-sm">
+                              <p className="text-earth-medium text-sm">
                                 {service.description}
                               </p>
                             )}
@@ -285,10 +287,10 @@ export default function PICCPage() {
 
         {/* Call to Action */}
         <div className="max-w-4xl mx-auto mt-16 text-center">
-          <h2 className="text-4xl font-bold mb-6 text-gray-900">
+          <h2 className="text-4xl font-bold mb-6 text-ocean-deep">
             Be Part of Our Story
           </h2>
-          <p className="text-xl text-gray-700 mb-8">
+          <p className="text-xl text-earth-dark mb-8">
             PICC is more than an organization—it's a movement toward Indigenous self-determination.
             Share your story, connect with services, and help build our community's future.
           </p>
@@ -301,7 +303,7 @@ export default function PICCPage() {
             </Link>
             <Link
               href="/storytellers"
-              className="bg-white border-2 border-purple-600 text-purple-900 px-8 py-4 rounded-lg font-bold text-lg hover:bg-purple-50 transition-all"
+              className="bg-white border-2 border-coral-600 text-purple-900 px-8 py-4 rounded-lg font-bold text-lg hover:bg-purple-50 transition-all"
             >
               Read Community Stories
             </Link>

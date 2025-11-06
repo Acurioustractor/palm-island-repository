@@ -1,5 +1,7 @@
 'use client';
 
+import React;
+import AppLayout from '@/components/AppLayout';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Mail, ArrowLeft, Heart, CheckCircle, User, Phone } from 'lucide-react';
@@ -46,16 +48,16 @@ export default function SignUpPage() {
               </div>
             </div>
 
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Welcome to the Community! 🎉</h2>
-            <p className="text-lg text-gray-600 mb-6">
+            <h2 className="text-3xl font-bold text-ocean-deep mb-4">Welcome to the Community! 🎉</h2>
+            <p className="text-lg text-earth-medium mb-6">
               Check your email at <strong>{email}</strong>
             </p>
-            <p className="text-gray-600 mb-8">
+            <p className="text-earth-medium mb-8">
               Click the magic link we sent you to complete your registration and start sharing your story!
             </p>
 
-            <div className="bg-purple-50 border-2 border-purple-200 rounded-lg p-4 mb-6">
-              <p className="text-sm text-purple-800">
+            <div className="bg-purple-50 border-2 border-coral-200 rounded-lg p-4 mb-6">
+              <p className="text-sm text-ocean-deep">
                 <strong>🌟 What you can do:</strong><br />
                 • Share your stories<br />
                 • Upload photos and voice recordings<br />
@@ -66,7 +68,7 @@ export default function SignUpPage() {
 
             <Link
               href="/"
-              className="inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-lg transition-all"
+              className="inline-block bg-coral-warm hover:bg-ocean-medium text-white font-bold py-3 px-8 rounded-lg transition-all"
             >
               Go to Homepage
             </Link>
@@ -82,7 +84,7 @@ export default function SignUpPage() {
         {/* Back to Home */}
         <Link
           href="/"
-          className="inline-flex items-center text-purple-600 hover:text-purple-800 font-medium mb-6"
+          className="inline-flex items-center text-coral-warm hover:text-ocean-deep font-medium mb-6"
         >
           <ArrowLeft className="w-5 h-5 mr-2" />
           Back to Home
@@ -110,7 +112,7 @@ export default function SignUpPage() {
             {/* Sign Up Form */}
             <form onSubmit={handleSignUp} className="space-y-6">
               <div>
-                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="fullName" className="block text-sm font-medium text-earth-dark mb-2">
                   Full Name <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
@@ -128,7 +130,7 @@ export default function SignUpPage() {
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="email" className="block text-sm font-medium text-earth-dark mb-2">
                   Email Address <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
@@ -149,7 +151,7 @@ export default function SignUpPage() {
               </div>
 
               <div>
-                <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="phoneNumber" className="block text-sm font-medium text-earth-dark mb-2">
                   Phone Number <span className="text-gray-400">(Optional)</span>
                 </label>
                 <div className="relative">
@@ -179,9 +181,9 @@ export default function SignUpPage() {
 
             {/* Sign In Link */}
             <div className="mt-8 text-center">
-              <p className="text-gray-600">
+              <p className="text-earth-medium">
                 Already have an account?{' '}
-                <Link href="/login" className="text-purple-600 hover:text-purple-800 font-bold">
+                <Link href="/login" className="text-coral-warm hover:text-ocean-deep font-bold">
                   Sign In Here
                 </Link>
               </p>
@@ -189,7 +191,7 @@ export default function SignUpPage() {
 
             {/* Info Box */}
             <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-              <p className="text-sm text-blue-800">
+              <p className="text-sm text-ocean-deep">
                 <strong>🔒 Your Privacy Matters</strong><br />
                 Your data is stored securely and you control who sees your stories.
                 We follow Indigenous data sovereignty principles - you own your data.
@@ -199,7 +201,7 @@ export default function SignUpPage() {
         </div>
 
         {/* Community Message */}
-        <div className="mt-6 text-center text-gray-600">
+        <div className="mt-6 text-center text-earth-medium">
           <p className="text-sm italic">
             Manbarra & Bwgcolman Country • Palm Island Community
           </p>

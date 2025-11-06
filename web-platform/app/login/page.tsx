@@ -1,5 +1,7 @@
 'use client';
 
+import React;
+import AppLayout from '@/components/AppLayout';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Mail, ArrowLeft, Heart, CheckCircle, Loader } from 'lucide-react';
@@ -58,16 +60,16 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Check Your Email!</h2>
-            <p className="text-lg text-gray-600 mb-6">
+            <h2 className="text-3xl font-bold text-ocean-deep mb-4">Check Your Email!</h2>
+            <p className="text-lg text-earth-medium mb-6">
               We've sent a magic link to <strong>{email}</strong>
             </p>
-            <p className="text-gray-600 mb-8">
+            <p className="text-earth-medium mb-8">
               Click the link in the email to sign in. No password needed!
             </p>
 
-            <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mb-6">
-              <p className="text-sm text-blue-800">
+            <div className="bg-blue-50 border-2 border-ocean-200 rounded-lg p-4 mb-6">
+              <p className="text-sm text-ocean-deep">
                 <strong>📧 Didn't receive the email?</strong><br />
                 Check your spam folder or wait a minute and try again.
               </p>
@@ -78,7 +80,7 @@ export default function LoginPage() {
                 setMagicLinkSent(false);
                 setEmail('');
               }}
-              className="text-purple-600 hover:text-purple-800 font-medium"
+              className="text-coral-warm hover:text-ocean-deep font-medium"
             >
               ← Try a different email
             </button>
@@ -94,7 +96,7 @@ export default function LoginPage() {
         {/* Back to Home */}
         <Link
           href="/"
-          className="inline-flex items-center text-purple-600 hover:text-purple-800 font-medium mb-6"
+          className="inline-flex items-center text-coral-warm hover:text-ocean-deep font-medium mb-6"
         >
           <ArrowLeft className="w-5 h-5 mr-2" />
           Back to Home
@@ -123,7 +125,7 @@ export default function LoginPage() {
             {!usePassword ? (
               <form onSubmit={handleMagicLink} className="space-y-6">
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="email" className="block text-sm font-medium text-earth-dark mb-2">
                     Email Address
                   </label>
                   <div className="relative">
@@ -173,7 +175,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setUsePassword(true)}
-                  className="w-full bg-white border-2 border-gray-300 text-gray-700 font-medium py-3 px-6 rounded-lg hover:bg-gray-50 transition-all"
+                  className="w-full bg-white border-2 border-gray-300 text-earth-dark font-medium py-3 px-6 rounded-lg hover:bg-gray-50 transition-all"
                 >
                   Sign in with Password Instead
                 </button>
@@ -182,7 +184,7 @@ export default function LoginPage() {
               /* Password Login Form */
               <form onSubmit={handlePasswordLogin} className="space-y-6">
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="email" className="block text-sm font-medium text-earth-dark mb-2">
                     Email Address
                   </label>
                   <input
@@ -197,7 +199,7 @@ export default function LoginPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="password" className="block text-sm font-medium text-earth-dark mb-2">
                     Password
                   </label>
                   <input
@@ -222,7 +224,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setUsePassword(false)}
-                  className="w-full text-purple-600 hover:text-purple-800 font-medium"
+                  className="w-full text-coral-warm hover:text-ocean-deep font-medium"
                 >
                   ← Use Magic Link Instead (Easier!)
                 </button>
@@ -231,9 +233,9 @@ export default function LoginPage() {
 
             {/* Sign Up Link */}
             <div className="mt-8 text-center">
-              <p className="text-gray-600">
+              <p className="text-earth-medium">
                 Don't have an account?{' '}
-                <Link href="/signup" className="text-purple-600 hover:text-purple-800 font-bold">
+                <Link href="/signup" className="text-coral-warm hover:text-ocean-deep font-bold">
                   Sign Up Here
                 </Link>
               </p>
@@ -241,7 +243,7 @@ export default function LoginPage() {
 
             {/* Help Text */}
             <div className="mt-6 p-4 bg-purple-50 rounded-lg">
-              <p className="text-sm text-purple-800">
+              <p className="text-sm text-ocean-deep">
                 <strong>🎯 First time here?</strong><br />
                 Magic links are the easiest way to sign in - no password to remember!
                 Just enter your email and click the link we send you.
@@ -251,7 +253,7 @@ export default function LoginPage() {
         </div>
 
         {/* Community Message */}
-        <div className="mt-6 text-center text-gray-600">
+        <div className="mt-6 text-center text-earth-medium">
           <p className="text-sm italic">
             Manbarra & Bwgcolman Country • Palm Island Community
           </p>
