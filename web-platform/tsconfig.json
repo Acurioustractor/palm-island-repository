@@ -36,6 +36,7 @@
     "node_modules",
     ".next",
     "import-stories.ts",
-    "test-supabase-connection.ts"
+    "test-supabase-connection.ts",
+    "lib/empathy-ledger/**/*"
   ]
 }
