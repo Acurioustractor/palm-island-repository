@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate:pg",
     "db:migrate": "drizzle-kit push:pg",
+    "import:storm-stories": "tsx scripts/import-storm-stories.ts",
     "ai:train": "python scripts/train_palm_island_llm.py",
     "ai:embed": "python scripts/generate_embeddings.py"
   },
