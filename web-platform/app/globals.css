@@ -110,8 +110,15 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply text-[rgb(var(--text-primary))] font-semibold;
+    @apply font-semibold;
+    color: inherit; /* Allow headings to inherit parent text color */
     letter-spacing: -0.02em;
+  }
+
+  /* Default text color for headings when not inheriting */
+  h1:not([class*="text-"]), h2:not([class*="text-"]), h3:not([class*="text-"]),
+  h4:not([class*="text-"]), h5:not([class*="text-"]), h6:not([class*="text-"]) {
+    @apply text-[rgb(var(--text-primary))];
   }
 
   h1 { @apply text-4xl md:text-5xl; font-weight: 700; }
