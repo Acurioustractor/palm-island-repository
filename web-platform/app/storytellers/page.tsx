@@ -22,6 +22,9 @@ export default function StorytellerGalleryPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Get PICC organization ID from environment variable
+  const PICC_ORG_ID = process.env.NEXT_PUBLIC_PICC_ORGANIZATION_ID || '3c2011b9-f80d-4289-b300-0cd383cff479';
+
   useEffect(() => {
     async function fetchStorytellers() {
       try {
@@ -43,7 +46,7 @@ export default function StorytellerGalleryPage() {
               created_at
             )
           `)
-          .eq('organization_id', '3c2011b9-f80d-4289-b300-0cd383cff479') // PICC only
+          .eq('organization_id', PICC_ORG_ID)
           .eq('is_public', true)
           .not('storyteller_id', 'is', null);
 

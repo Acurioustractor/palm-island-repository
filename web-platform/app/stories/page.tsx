@@ -48,6 +48,9 @@ export default function StoriesGalleryPage() {
   const [filter, setFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Get PICC organization ID from environment variable
+  const PICC_ORG_ID = process.env.NEXT_PUBLIC_PICC_ORGANIZATION_ID || '3c2011b9-f80d-4289-b300-0cd383cff479';
+
   useEffect(() => {
     async function fetchStories() {
       try {
@@ -92,7 +95,7 @@ export default function StoriesGalleryPage() {
             )
           `)
           .eq('is_public', true)
-          .eq('organization_id', '3c2011b9-f80d-4289-b300-0cd383cff479') // PICC Organization ID
+          .eq('organization_id', PICC_ORG_ID)
           .order('created_at', { ascending: false });
 
         // If query fails (likely due to missing columns), fall back to minimal query
@@ -114,7 +117,7 @@ export default function StoriesGalleryPage() {
               )
             `)
             .eq('is_public', true)
-            .eq('organization_id', '3c2011b9-f80d-4289-b300-0cd383cff479') // PICC Organization ID
+            .eq('organization_id', PICC_ORG_ID)
             .order('created_at', { ascending: false });
 
           data = basicResult.data;
