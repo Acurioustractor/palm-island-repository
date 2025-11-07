@@ -12,6 +12,8 @@ interface Storyteller {
   profile_image_url?: string;
   bio?: string;
   location?: string;
+  traditional_country?: string;
+  language_group?: string;
   date_of_birth?: string;
   storyteller_type?: string;
   is_elder?: boolean;
@@ -47,6 +49,8 @@ export default function StorytellerGalleryPage() {
               profile_image_url,
               bio,
               location,
+              traditional_country,
+              language_group,
               date_of_birth,
               storyteller_type,
               is_elder,
@@ -290,6 +294,21 @@ export default function StorytellerGalleryPage() {
                       </div>
                     )}
 
+                    {(storyteller.traditional_country || storyteller.language_group) && (
+                      <div className="mb-3 p-2 bg-palm-50 rounded-lg border border-palm-200">
+                        {storyteller.traditional_country && (
+                          <div className="text-xs text-palm-800 mb-1">
+                            <span className="font-medium">Country:</span> {storyteller.traditional_country}
+                          </div>
+                        )}
+                        {storyteller.language_group && (
+                          <div className="text-xs text-palm-800">
+                            <span className="font-medium">Language:</span> {storyteller.language_group}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     {storyteller.bio && (
                       <p className="text-gray-600 text-sm mb-4 line-clamp-3">
                         {storyteller.bio}
@@ -306,13 +325,12 @@ export default function StorytellerGalleryPage() {
                       </div>
                     </div>
 
-                    {/* TODO: Link to individual storyteller page showing all their stories */}
                     <div className="mt-4">
                       <Link
-                        href={`/stories?storyteller=${storyteller.id}`}
+                        href={`/storytellers/${storyteller.id}`}
                         className="block w-full text-center bg-palm-600 hover:bg-palm-700 text-white font-medium py-2 px-4 rounded-lg transition-all"
                       >
-                        View Stories →
+                        View Profile →
                       </Link>
                     </div>
                   </div>
