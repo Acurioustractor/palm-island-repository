@@ -20,7 +20,7 @@ export default function HomePage() {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Link
             href="/stories"
-            className="group bg-gradient-to-br from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 p-8 rounded-xl shadow-2xl transition-all transform hover:scale-105 text-white"
+            className="group bg-gradient-to-br from-palm-400 to-palm-600 hover:from-palm-500 hover:to-palm-700 p-8 rounded-xl shadow-2xl transition-all transform hover:scale-105 text-white"
           >
             <div className="flex items-center mb-4">
               <BookOpen className="w-10 h-10 mr-3" />
@@ -36,7 +36,7 @@ export default function HomePage() {
 
           <Link
             href="/storytellers"
-            className="group bg-gradient-to-br from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 p-8 rounded-xl shadow-2xl transition-all transform hover:scale-105 text-white"
+            className="group bg-gradient-to-br from-palm-500 to-palm-700 hover:from-palm-600 hover:to-palm-800 p-8 rounded-xl shadow-2xl transition-all transform hover:scale-105 text-white"
           >
             <div className="flex items-center mb-4">
               <Users className="w-10 h-10 mr-3" />
@@ -85,7 +85,7 @@ export default function HomePage() {
 
         <div className="bg-white p-8 rounded-xl shadow-xl mb-6">
           <div className="flex items-center mb-4">
-            <Heart className="w-6 h-6 text-purple-600 mr-3" />
+            <Heart className="w-6 h-6 text-palm-600 mr-3" />
             <h2 className="text-2xl font-bold text-gray-800">Share Your Story</h2>
           </div>
           <p className="text-gray-700 mb-4">
@@ -94,7 +94,7 @@ export default function HomePage() {
           </p>
           <Link
             href="/stories/submit"
-            className="inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg transition-all"
+            className="inline-block bg-palm-600 hover:bg-palm-700 text-white font-bold py-3 px-6 rounded-lg transition-all"
           >
             Submit Your Story
           </Link>
@@ -111,25 +111,25 @@ export default function HomePage() {
             <div className="text-sm">Integrated Services</div>
             <div className="text-xs text-green-200 mt-1">Holistic support</div>
           </div>
-          <div className="bg-purple-800 text-white p-6 rounded-lg text-center">
+          <div className="bg-palm-800 text-white p-6 rounded-lg text-center">
             <div className="text-4xl font-bold mb-2">100%</div>
             <div className="text-sm">Community Controlled</div>
-            <div className="text-xs text-purple-200 mt-1">Since 2021</div>
+            <div className="text-xs text-palm-200 mt-1">Since 2021</div>
           </div>
         </div>
 
         <div className="space-y-4">
           <Link
             href="/about#stories"
-            className="block bg-gradient-to-r from-pink-50 to-purple-50 p-6 rounded-lg hover:shadow-lg transition-all"
+            className="block bg-gradient-to-r from-palm-50 to-palm-100 p-6 rounded-lg hover:shadow-lg transition-all"
           >
             <div className="flex items-center">
-              <BookOpen className="w-6 h-6 text-pink-600 mr-3" />
+              <BookOpen className="w-6 h-6 text-palm-700 mr-3" />
               <div className="flex-1">
-                <h3 className="text-lg font-bold text-pink-900">Community Stories</h3>
+                <h3 className="text-lg font-bold text-palm-900">Community Stories</h3>
                 <p className="text-sm text-gray-700">Read stories of hope, resilience, and transformation from Palm Islanders</p>
               </div>
-              <span className="text-pink-600 font-medium">Read Stories →</span>
+              <span className="text-palm-700 font-medium">Read Stories →</span>
             </div>
           </Link>
 
@@ -144,8 +144,8 @@ export default function HomePage() {
             </ul>
           </div>
 
-          <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-6 rounded-lg text-left">
-            <h3 className="text-lg font-bold text-purple-800 mb-2">About This Platform</h3>
+          <div className="bg-gradient-to-r from-palm-50 to-blue-50 p-6 rounded-lg text-left">
+            <h3 className="text-lg font-bold text-palm-800 mb-2">About This Platform</h3>
             <p className="text-gray-700 text-sm">
               Built by and for Palm Island community, this platform enables community-controlled impact
               measurement, eliminates dependence on external consultants ($40k-115k annual savings), and

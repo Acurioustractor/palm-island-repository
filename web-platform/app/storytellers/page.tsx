@@ -108,7 +108,7 @@ export default function StorytellerGalleryPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50">
       {/* Hero Header */}
-      <div className="bg-gradient-to-r from-purple-900 to-blue-800 text-white py-16">
+      <div className="bg-gradient-to-r from-palm-800 to-palm-700 text-white py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-5xl md:text-6xl font-bold mb-4">Community Storytellers</h1>
@@ -122,13 +122,13 @@ export default function StorytellerGalleryPage() {
             <div className="mt-8 flex justify-center gap-4">
               <Link
                 href="/stories"
-                className="bg-white text-purple-900 px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-50 transition-all transform hover:scale-105 shadow-xl"
+                className="bg-white text-palm-900 px-8 py-4 rounded-lg font-bold text-lg hover:bg-palm-50 transition-all transform hover:scale-105 shadow-xl"
               >
                 View Stories
               </Link>
               <Link
                 href="/"
-                className="bg-purple-800 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-purple-700 transition-all"
+                className="bg-palm-900 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-palm-800 transition-all"
               >
                 Back to Home
               </Link>
@@ -177,7 +177,7 @@ export default function StorytellerGalleryPage() {
                   placeholder="Search storytellers by name or location..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-palm-500 focus:border-transparent"
                 />
               </div>
             </div>
@@ -195,10 +195,10 @@ export default function StorytellerGalleryPage() {
               {filteredStorytellers.map((storyteller) => (
                 <div
                   key={storyteller.id}
-                  className="group bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all transform hover:scale-105 border-2 border-purple-200 hover:border-purple-400"
+                  className="group bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all transform hover:scale-105 border-2 border-palm-200 hover:border-palm-400"
                 >
                   {/* Profile Photo or Avatar */}
-                  <div className="h-64 relative overflow-hidden bg-gradient-to-br from-purple-100 to-blue-100">
+                  <div className="h-64 relative overflow-hidden bg-gradient-to-br from-palm-100 to-palm-50">
                     {storyteller.profile_image_url ? (
                       <img
                         src={storyteller.profile_image_url}
@@ -207,7 +207,7 @@ export default function StorytellerGalleryPage() {
                       />
                     ) : (
                       <div className="h-full flex items-center justify-center">
-                        <div className="h-32 w-32 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white font-bold text-5xl shadow-2xl">
+                        <div className="h-32 w-32 rounded-full bg-gradient-to-br from-palm-500 to-palm-700 flex items-center justify-center text-white font-bold text-5xl shadow-2xl">
                           {(storyteller.preferred_name || storyteller.full_name)
                             .split(' ')
                             .map(n => n[0])
@@ -255,7 +255,7 @@ export default function StorytellerGalleryPage() {
                     <div className="mt-4">
                       <Link
                         href={`/stories?storyteller=${storyteller.id}`}
-                        className="block w-full text-center bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-all"
+                        className="block w-full text-center bg-palm-600 hover:bg-palm-700 text-white font-medium py-2 px-4 rounded-lg transition-all"
                       >
                         View Stories →
                       </Link>
@@ -268,7 +268,7 @@ export default function StorytellerGalleryPage() {
         </div>
 
         {/* CTA Section */}
-        <div className="max-w-4xl mx-auto mt-12 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl shadow-2xl p-8 text-center">
+        <div className="max-w-4xl mx-auto mt-12 bg-gradient-to-r from-palm-600 to-palm-700 text-white rounded-xl shadow-2xl p-8 text-center">
           <h2 className="text-3xl font-bold mb-4">Become a Storyteller</h2>
           <p className="text-lg mb-6">
             Every Palm Islander has a story worth sharing. Join our community of storytellers
@@ -276,7 +276,7 @@ export default function StorytellerGalleryPage() {
           </p>
           <Link
             href="/stories/submit"
-            className="inline-block bg-white text-purple-900 px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-50 transition-all transform hover:scale-105 shadow-xl"
+            className="inline-block bg-white text-palm-900 px-8 py-4 rounded-lg font-bold text-lg hover:bg-palm-50 transition-all transform hover:scale-105 shadow-xl"
           >
             Share Your Story Now
           </Link>
