@@ -20,53 +20,56 @@ export type ProfileVisibility = 'public' | 'community' | 'private';
 export interface Profile {
   id: string;
   user_id: string;
-  
+  organization_id?: string;
+
   // Identity
   full_name: string;
   preferred_name?: string;
   community_role?: string;
-  
+  profile_image_url?: string;
+
   // Contact
   email?: string;
   phone?: string;
-  
+
   // Demographics
   age_range?: string;
   gender?: string;
   indigenous_status: string;
-  
+  date_of_birth?: string;
+
   // Location
   location: string;
   traditional_country?: string;
   language_group?: string;
-  
+
   // Storyteller Status
   storyteller_type: StorytellerType;
   is_elder: boolean;
   is_cultural_advisor: boolean;
   is_service_provider: boolean;
-  
+
   // Bio
   bio?: string;
   expertise_areas?: string[];
   languages_spoken?: string[];
-  
+
   // Engagement
   stories_contributed: number;
   last_story_date?: string;
   engagement_score: number;
-  
+
   // Cultural Permissions
   can_share_traditional_knowledge: boolean;
   face_recognition_consent: boolean;
   face_recognition_consent_date?: string;
   photo_consent_contexts?: string[];
-  
+
   // Privacy
   profile_visibility: ProfileVisibility;
   show_in_directory: boolean;
   allow_messages: boolean;
-  
+
   // Timestamps
   created_at: string;
   updated_at: string;
