@@ -13,6 +13,10 @@ interface Storyteller {
   bio?: string;
   location?: string;
   date_of_birth?: string;
+  storyteller_type?: string;
+  is_elder?: boolean;
+  is_cultural_advisor?: boolean;
+  is_service_provider?: boolean;
   created_at: string;
   story_count?: number;
 }
@@ -21,6 +25,7 @@ export default function StorytellerGalleryPage() {
   const [storytellers, setStorytellers] = useState<Storyteller[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [typeFilter, setTypeFilter] = useState<string>('all');
 
   // Get PICC organization ID from environment variable
   const PICC_ORG_ID = process.env.NEXT_PUBLIC_PICC_ORGANIZATION_ID || '3c2011b9-f80d-4289-b300-0cd383cff479';
@@ -43,6 +48,10 @@ export default function StorytellerGalleryPage() {
               bio,
               location,
               date_of_birth,
+              storyteller_type,
+              is_elder,
+              is_cultural_advisor,
+              is_service_provider,
               created_at
             )
           `)
@@ -91,7 +100,14 @@ export default function StorytellerGalleryPage() {
       storyteller.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       storyteller.preferred_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       storyteller.location?.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesSearch;
+
+    const matchesType = typeFilter === 'all' ||
+      (typeFilter === 'elder' && storyteller.is_elder) ||
+      (typeFilter === 'cultural_advisor' && storyteller.is_cultural_advisor) ||
+      (typeFilter === 'service_provider' && storyteller.is_service_provider) ||
+      (typeFilter === storyteller.storyteller_type);
+
+    return matchesSearch && matchesType;
   });
 
   if (loading) {
@@ -165,7 +181,7 @@ export default function StorytellerGalleryPage() {
         </div>
       </div>
 
-      {/* Search */}
+      {/* Search and Filter */}
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto mb-8">
           <div className="bg-white rounded-xl shadow-lg p-6">
@@ -177,10 +193,31 @@ export default function StorytellerGalleryPage() {
                   placeholder="Search storytellers by name or location..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  aria-label="Search storytellers"
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-palm-500 focus:border-transparent"
                 />
               </div>
+              <div className="md:w-64">
+                <select
+                  value={typeFilter}
+                  onChange={(e) => setTypeFilter(e.target.value)}
+                  aria-label="Filter by storyteller type"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-palm-500 focus:border-transparent bg-white"
+                >
+                  <option value="all">All Storytellers</option>
+                  <option value="elder">Elders</option>
+                  <option value="cultural_advisor">Cultural Advisors</option>
+                  <option value="youth">Youth</option>
+                  <option value="service_provider">Service Providers</option>
+                  <option value="community_member">Community Members</option>
+                </select>
+              </div>
             </div>
+            {(searchQuery || typeFilter !== 'all') && (
+              <div className="mt-4 text-sm text-gray-600">
+                Showing {filteredStorytellers.length} of {storytellers.length} storytellers
+              </div>
+            )}
           </div>
         </div>
 
@@ -220,6 +257,24 @@ export default function StorytellerGalleryPage() {
                   </div>
 
                   <div className="p-6">
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {storyteller.is_elder && (
+                        <span className="px-2 py-1 bg-palm-800 text-white rounded-full text-xs font-medium">
+                          Elder
+                        </span>
+                      )}
+                      {storyteller.is_cultural_advisor && (
+                        <span className="px-2 py-1 bg-palm-700 text-white rounded-full text-xs font-medium">
+                          Cultural Advisor
+                        </span>
+                      )}
+                      {storyteller.is_service_provider && (
+                        <span className="px-2 py-1 bg-blue-600 text-white rounded-full text-xs font-medium">
+                          Service Provider
+                        </span>
+                      )}
+                    </div>
+
                     <h3 className="text-2xl font-bold text-gray-900 mb-1">
                       {storyteller.preferred_name || storyteller.full_name}
                     </h3>
