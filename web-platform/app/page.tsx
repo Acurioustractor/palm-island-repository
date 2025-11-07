@@ -26,7 +26,7 @@ export default function HomePage() {
               <BookOpen className="w-10 h-10 mr-3" />
               <h2 className="text-2xl font-bold">Stories</h2>
             </div>
-            <p className="mb-4 text-pink-50">
+            <p className="mb-4 text-white">
               Read powerful stories of resilience, hope, and transformation.
             </p>
             <div className="font-bold text-lg">
@@ -42,7 +42,7 @@ export default function HomePage() {
               <Users className="w-10 h-10 mr-3" />
               <h2 className="text-2xl font-bold">Storytellers</h2>
             </div>
-            <p className="mb-4 text-purple-50">
+            <p className="mb-4 text-white">
               Meet the voices of our community and their journeys.
             </p>
             <div className="font-bold text-lg">

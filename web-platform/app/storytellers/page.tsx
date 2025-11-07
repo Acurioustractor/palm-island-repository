@@ -139,7 +139,7 @@ export default function StorytellerGalleryPage() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
             <div className="text-center">
-              <div className="text-3xl font-bold text-purple-600">{storytellers.length}</div>
+              <div className="text-3xl font-bold text-purple-700">{storytellers.length}</div>
               <div className="text-sm text-gray-600">Active Storytellers</div>
             </div>
             <div className="text-center">
@@ -239,7 +239,7 @@ export default function StorytellerGalleryPage() {
                     )}
 
                     <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                      <div className="flex items-center text-purple-600">
+                      <div className="flex items-center text-purple-700">
                         <BookOpen className="h-5 w-5 mr-2" />
                         <span className="font-bold text-lg">{storyteller.story_count}</span>
                         <span className="text-sm ml-1 text-gray-600">
