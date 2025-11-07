@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
-import { User, BookOpen, Calendar, MapPin, Search } from 'lucide-react';
+import { User, BookOpen, Calendar, MapPin, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface Storyteller {
   id: string;
@@ -28,6 +28,8 @@ export default function StorytellerGalleryPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 12; // 12 storytellers per page (fits nicely in 3-column grid)
 
   // Get PICC organization ID from environment variable
   const PICC_ORG_ID = process.env.NEXT_PUBLIC_PICC_ORGANIZATION_ID || '3c2011b9-f80d-4289-b300-0cd383cff479';
@@ -113,6 +115,17 @@ export default function StorytellerGalleryPage() {
 
     return matchesSearch && matchesType;
   });
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredStorytellers.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedStorytellers = filteredStorytellers.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, typeFilter]);
 
   if (loading) {
     return (
@@ -217,11 +230,17 @@ export default function StorytellerGalleryPage() {
                 </select>
               </div>
             </div>
-            {(searchQuery || typeFilter !== 'all') && (
-              <div className="mt-4 text-sm text-gray-600">
-                Showing {filteredStorytellers.length} of {storytellers.length} storytellers
+            <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
+              <div>
+                Showing {filteredStorytellers.length === 0 ? 0 : startIndex + 1}-{Math.min(endIndex, filteredStorytellers.length)} of {filteredStorytellers.length} storytellers
+                {(searchQuery || typeFilter !== 'all') && ` (filtered from ${storytellers.length} total)`}
               </div>
-            )}
+              {totalPages > 1 && (
+                <div className="text-gray-500">
+                  Page {currentPage} of {totalPages}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -233,7 +252,7 @@ export default function StorytellerGalleryPage() {
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredStorytellers.map((storyteller) => (
+              {paginatedStorytellers.map((storyteller) => (
                 <div
                   key={storyteller.id}
                   className="group bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all transform hover:scale-105 border-2 border-palm-200 hover:border-palm-400"
@@ -336,6 +355,61 @@ export default function StorytellerGalleryPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="mt-8 flex items-center justify-center gap-2">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="flex items-center gap-2 px-4 py-2 border-2 border-palm-300 text-palm-700 rounded-lg hover:bg-palm-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronLeft className="h-5 w-5" />
+                Previous
+              </button>
+
+              <div className="flex gap-2">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => {
+                  // Show first page, last page, current page, and pages around current
+                  const showPage = page === 1 ||
+                                  page === totalPages ||
+                                  Math.abs(page - currentPage) <= 1;
+
+                  const showEllipsis = (page === 2 && currentPage > 3) ||
+                                      (page === totalPages - 1 && currentPage < totalPages - 2);
+
+                  if (showEllipsis) {
+                    return <span key={page} className="px-2 text-gray-400">...</span>;
+                  }
+
+                  if (!showPage) return null;
+
+                  return (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                        currentPage === page
+                          ? 'bg-palm-600 text-white'
+                          : 'border-2 border-palm-300 text-palm-700 hover:bg-palm-50'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                className="flex items-center gap-2 px-4 py-2 border-2 border-palm-300 text-palm-700 rounded-lg hover:bg-palm-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Next
+                <ChevronRight className="h-5 w-5" />
+              </button>
             </div>
           )}
         </div>
