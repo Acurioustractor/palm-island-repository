@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
-import { Users, BookOpen, Search, Filter } from 'lucide-react';
+import { Users, BookOpen, Search, Filter, UserPlus } from 'lucide-react';
 import Breadcrumbs from '@/components/wiki/Breadcrumbs';
 
 interface Person {
@@ -117,14 +117,23 @@ export default function PeoplePage() {
       <Breadcrumbs items={breadcrumbs} className="mb-6" />
 
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4 flex items-center gap-3">
-          <Users className="h-10 w-10 text-purple-600" />
-          Community Storytellers
-        </h1>
-        <p className="text-xl text-gray-600">
-          Meet the voices sharing knowledge, experience, and vision
-        </p>
+      <div className="mb-8 flex items-start justify-between gap-6">
+        <div>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+            <Users className="h-10 w-10 text-purple-600" />
+            Community Storytellers
+          </h1>
+          <p className="text-xl text-gray-600">
+            Meet the voices sharing knowledge, experience, and vision
+          </p>
+        </div>
+        <Link
+          href="/wiki/people/add"
+          className="flex items-center gap-2 px-6 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors font-semibold shadow-sm whitespace-nowrap"
+        >
+          <UserPlus className="h-5 w-5" />
+          Add Person
+        </Link>
       </div>
 
       {/* Search and Filter */}
