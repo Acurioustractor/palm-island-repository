@@ -34,7 +34,6 @@ def get_all_stories(limit: int = 1000):
 
     response = client.table('stories') \
         .select('id, title, content, story_type, created_at') \
-        .eq('visibility', 'public') \
         .limit(limit) \
         .execute()
 

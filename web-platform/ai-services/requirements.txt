@@ -3,9 +3,10 @@ fastapi==0.104.1
 uvicorn[standard]==0.24.0
 python-multipart==0.0.6
 
-# AI/ML Core
-sentence-transformers==2.2.2
-torch==2.1.0
+# AI/ML Core - Updated for compatibility
+sentence-transformers>=2.2.2
+torch>=2.1.0
+transformers>=4.35.0
 
 # Vector Database
 qdrant-client==1.7.0
@@ -15,5 +16,5 @@ supabase==2.0.3
 python-dotenv==1.0.0
 
 # Utilities
-numpy==1.24.3
+numpy>=1.24.3
 pydantic==2.5.0
