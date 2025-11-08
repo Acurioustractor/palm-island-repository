@@ -10,6 +10,7 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "check-env": "node scripts/check-env.js",
+    "review-db": "node scripts/review-database.js",
     "predev": "npm run check-env",
     "db:generate": "drizzle-kit generate:pg",
     "db:migrate": "drizzle-kit push:pg",
