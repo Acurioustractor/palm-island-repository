@@ -382,3 +382,49 @@
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, #ff5722, #ff9800);
 }
+
+/* Performance optimizations */
+
+/* Content visibility for off-screen content */
+.story-card,
+.card-interactive {
+  content-visibility: auto;
+  contain-intrinsic-size: 400px;
+}
+
+/* Will-change for animated elements */
+.animate-float,
+.animate-pulse-glow,
+.animate-shimmer {
+  will-change: transform, opacity;
+}
+
+/* GPU acceleration for transforms */
+.transform,
+.hover\:scale-105:hover,
+.hover\:-translate-y-1:hover {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Smooth scrolling with performance */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Font display optimization */
+@font-face {
+  font-display: swap;
+}
+
+/* Lazy load images with blur-up effect */
+img[loading="lazy"] {
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+img[loading="lazy"].loaded {
+  opacity: 1;
+}

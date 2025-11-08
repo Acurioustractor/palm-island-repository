@@ -7,6 +7,7 @@ import { useParams } from 'next/navigation';
 import { Heart, Calendar, User, MapPin, ArrowLeft, Share2, BookOpen, Crown, Mic } from 'lucide-react';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import ManbarraGreeting from '@/components/ManbarraGreeting';
+import SkeletonStoryDetail from '@/components/SkeletonStoryDetail';
 
 interface Story {
   id: string;
@@ -146,14 +147,7 @@ export default function StoryDetailPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center">
-        <div className="text-center animate-fade-in">
-          <div className="loading-spinner mx-auto mb-4"></div>
-          <p className="text-xl text-gray-700">Listening to community voices...</p>
-        </div>
-      </div>
-    );
+    return <SkeletonStoryDetail />;
   }
 
   if (error || !story) {

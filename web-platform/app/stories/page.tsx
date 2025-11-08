@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Heart, Calendar, User, MapPin, Search, Filter, Image as ImageIcon, Video, Mic, BookOpen } from 'lucide-react';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import ManbarraGreeting from '@/components/ManbarraGreeting';
+import SkeletonCard from '@/components/SkeletonCard';
 
 interface Story {
   id: string;
@@ -241,10 +242,26 @@ export default function StoriesGalleryPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-xl text-gray-700">Loading stories...</p>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50">
+        {/* Hero Header */}
+        <div className="bg-gradient-to-r from-blue-900 to-teal-800 text-white py-16">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto text-center">
+              <div className="h-12 bg-white/20 rounded w-64 mx-auto mb-4 animate-pulse" />
+              <div className="h-8 bg-white/10 rounded w-96 mx-auto mb-6 animate-pulse" />
+            </div>
+          </div>
+        </div>
+
+        {/* Skeleton Cards */}
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <SkeletonCard key={i} />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     );
