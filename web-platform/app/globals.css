@@ -55,6 +55,36 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-size: 18px; /* Elder-friendly base size, not 16px */
+  }
+
+  /* Fluid Typography - Scales smoothly across devices */
+  h1 {
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    line-height: 1.1;
+    font-weight: 800;
+  }
+
+  h2 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.2;
+    font-weight: 700;
+  }
+
+  h3 {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    line-height: 1.3;
+    font-weight: 700;
+  }
+
+  p {
+    font-size: clamp(1.125rem, 2vw, 1.25rem);
+    line-height: 1.7;
+  }
+
+  /* Focus-visible styles - Beautiful and obvious */
+  *:focus-visible {
+    @apply outline-none ring-4 ring-palm-400 ring-offset-4 ring-offset-white;
   }
 }
 
@@ -81,6 +111,63 @@
   
   .search-bar {
     @apply w-full rounded-full border-2 border-gray-200 bg-white px-6 py-4 text-lg shadow-lg transition-all duration-300 focus:border-orange-400 focus:outline-none focus:ring-4 focus:ring-orange-100;
+  }
+
+  /* Enhanced Button Interactions */
+  .btn-primary {
+    @apply bg-palm-600 hover:bg-palm-700 text-white font-bold py-3 px-6 rounded-lg
+           transition-all duration-300 transform hover:scale-105 hover:shadow-xl;
+  }
+
+  .btn-secondary {
+    @apply border-2 border-palm-300 text-palm-700 hover:bg-palm-50 font-medium
+           py-2 px-4 rounded-lg transition-all duration-300;
+  }
+
+  /* Enhanced Card Interactions */
+  .card-interactive {
+    @apply relative overflow-hidden rounded-xl bg-white shadow-lg
+           transition-all duration-300 hover:shadow-2xl hover:-translate-y-1
+           border-2 border-palm-200 hover:border-palm-400;
+  }
+
+  .card-interactive::after {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-palm-400/0 via-palm-400/5 to-palm-400/0
+           transform -translate-x-full transition-transform duration-700;
+  }
+
+  .card-interactive:hover::after {
+    @apply translate-x-full;
+  }
+
+  /* Skip to Content Link - Accessibility */
+  .skip-to-content {
+    @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4
+           focus:z-50 focus:px-6 focus:py-3 focus:bg-palm-600 focus:text-white
+           focus:rounded-lg focus:font-bold focus:shadow-2xl;
+  }
+
+  /* Loading State with Cultural Respect */
+  .loading-spinner {
+    @apply inline-block h-12 w-12 animate-spin rounded-full border-4
+           border-palm-200 border-t-palm-600;
+  }
+
+  .loading-dots {
+    @apply flex items-center justify-center space-x-2;
+  }
+
+  .loading-dots .dot {
+    @apply h-3 w-3 rounded-full bg-palm-600 animate-pulse;
+  }
+
+  .loading-dots .dot:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  .loading-dots .dot:nth-child(3) {
+    animation-delay: 0.4s;
   }
 }
 
