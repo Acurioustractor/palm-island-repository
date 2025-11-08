@@ -106,13 +106,13 @@ export function EnhancedProfileEditor({
   return (
     <div className="max-w-5xl mx-auto bg-white rounded-lg shadow-lg">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-teal-600">
+      <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-stone-100 to-amber-50">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-white">Edit Profile</h2>
+          <h2 className="text-2xl font-bold text-stone-800">Edit Profile</h2>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowPreview(!showPreview)}
-              className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-all"
+              className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-stone-100 text-stone-800 border border-stone-300 rounded-lg transition-all"
             >
               <Eye className="h-4 w-4" />
               {showPreview ? 'Hide' : 'Show'} Preview
@@ -146,7 +146,7 @@ export function EnhancedProfileEditor({
                     w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all
                     ${
                       activeTab === tab.id
-                        ? 'bg-blue-600 text-white font-medium'
+                        ? 'bg-amber-600 text-white font-medium'
                         : 'text-gray-700 hover:bg-gray-100'
                     }
                   `}
@@ -185,7 +185,7 @@ export function EnhancedProfileEditor({
                       </div>
                     )}
                   </div>
-                  <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                  <button className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors">
                     Upload Photo
                   </button>
                 </div>
@@ -200,7 +200,7 @@ export function EnhancedProfileEditor({
                   type="text"
                   value={formData.full_name}
                   onChange={(e) => updateField('full_name', e.target.value)}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-transparent ${
                     errors.full_name ? 'border-red-500' : 'border-gray-300'
                   }`}
                 />
@@ -219,7 +219,7 @@ export function EnhancedProfileEditor({
                   value={formData.preferred_name || ''}
                   onChange={(e) => updateField('preferred_name', e.target.value)}
                   placeholder="How you'd like to be called"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-transparent"
                 />
               </div>
 
@@ -232,7 +232,7 @@ export function EnhancedProfileEditor({
                   type="text"
                   value={formData.location}
                   onChange={(e) => updateField('location', e.target.value)}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-transparent ${
                     errors.location ? 'border-red-500' : 'border-gray-300'
                   }`}
                 />
@@ -251,7 +251,7 @@ export function EnhancedProfileEditor({
                   value={formData.traditional_country || ''}
                   onChange={(e) => updateField('traditional_country', e.target.value)}
                   placeholder="e.g., Manbarra Country"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-transparent"
                 />
               </div>
 
@@ -264,7 +264,7 @@ export function EnhancedProfileEditor({
                   type="text"
                   value={formData.language_group || ''}
                   onChange={(e) => updateField('language_group', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-transparent"
                 />
               </div>
             </div>
@@ -286,7 +286,7 @@ export function EnhancedProfileEditor({
                   maxLength={280}
                   rows={3}
                   placeholder="A brief introduction..."
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-transparent resize-none"
                 />
                 <div className="mt-1 text-xs text-gray-600 text-right">
                   {(formData.bio_short || '').length}/280
@@ -306,7 +306,7 @@ export function EnhancedProfileEditor({
                   onChange={(e) => updateField('bio_long', e.target.value)}
                   rows={12}
                   placeholder="Tell your story... You can use wiki-style links like [[Women's Health Service]]"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none font-mono text-sm"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-transparent resize-none font-mono text-sm"
                 />
               </div>
             </div>
@@ -430,7 +430,7 @@ export function EnhancedProfileEditor({
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center gap-2 px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isSaving ? (
               <>
@@ -506,12 +506,12 @@ function ArrayFieldEditor({
               }
             }}
             placeholder={placeholder}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-transparent"
           />
           <button
             onClick={handleAdd}
             disabled={!inputValue.trim()}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <Plus className="h-5 w-5" />
           </button>

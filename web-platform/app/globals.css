@@ -58,29 +58,29 @@
   }
 }
 
-/* Custom styles for Palm Island theme */
+/* Custom styles for Palm Island theme - Refined earth tones */
 @layer components {
   .palm-gradient {
-    @apply bg-gradient-to-br from-orange-400 via-red-500 to-yellow-500;
+    @apply bg-gradient-to-br from-stone-100 via-amber-50 to-orange-50;
   }
-  
+
   .palm-text-gradient {
-    @apply bg-gradient-to-r from-orange-600 via-red-600 to-yellow-600 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-stone-700 via-amber-700 to-orange-700 bg-clip-text text-transparent;
   }
-  
+
   .cultural-pattern {
-    background-image: 
-      radial-gradient(circle at 25% 25%, rgba(255, 165, 0, 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 75% 75%, rgba(255, 69, 0, 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 75% 25%, rgba(255, 215, 0, 0.1) 0%, transparent 50%);
+    background-image:
+      radial-gradient(circle at 25% 25%, rgba(120, 80, 50, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 75% 75%, rgba(180, 130, 80, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 75% 25%, rgba(210, 180, 140, 0.03) 0%, transparent 50%);
   }
-  
+
   .story-card {
-    @apply relative overflow-hidden rounded-xl bg-white shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-1;
+    @apply relative overflow-hidden rounded-xl bg-white shadow-sm border border-stone-200 transition-all duration-300 hover:shadow-md hover:border-stone-300 hover:-translate-y-0.5;
   }
-  
+
   .search-bar {
-    @apply w-full rounded-full border-2 border-gray-200 bg-white px-6 py-4 text-lg shadow-lg transition-all duration-300 focus:border-orange-400 focus:outline-none focus:ring-4 focus:ring-orange-100;
+    @apply w-full rounded-full border-2 border-stone-200 bg-white px-6 py-4 text-lg shadow-sm transition-all duration-300 focus:border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-100;
   }
 }
 
@@ -141,21 +141,21 @@
   }
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar - Subtle earth tones */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #fafaf9;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #ff6b35, #f7931e);
+  background: linear-gradient(180deg, #d6d3d1, #a8a29e);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #ff5722, #ff9800);
+  background: linear-gradient(180deg, #a8a29e, #78716c);
 }
