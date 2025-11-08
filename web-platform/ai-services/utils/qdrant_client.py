@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 COLLECTION_NAME = "palm_island_stories"
-EMBEDDING_DIMENSION = int(os.getenv("EMBEDDING_DIMENSION", "384"))
+EMBEDDING_DIMENSION = int(os.getenv("EMBEDDING_DIMENSION", "768"))
 
 def get_qdrant_client() -> QdrantClient:
     """Create and return Qdrant client"""
