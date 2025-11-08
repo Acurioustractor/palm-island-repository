@@ -87,6 +87,67 @@ git config pull.ff only
 git pull origin <branch-name>
 ```
 
+### Scenario 4: Untracked Files Would Be Overwritten
+
+**Error Message:**
+```
+error: The following untracked working tree files would be overwritten by merge:
+        NEXT_STEPS_AI.md
+        SEMANTIC_SEARCH_SUCCESS.md
+Please move or remove them before you merge.
+Aborting
+```
+
+This occurs when:
+- You have untracked files in your working directory
+- The remote branch contains files with the same names
+- Git would need to overwrite your local files to complete the merge
+
+**Solution A: Remove Untracked Files (if they're the same as remote)**
+
+```bash
+# First, check if local files are identical to remote versions
+git show origin/<branch-name>:<filename> > /tmp/remote_file.txt
+diff -q <filename> /tmp/remote_file.txt
+
+# If identical (no output), safely remove them
+rm <filename>
+
+# Complete the pull
+git pull origin <branch-name>
+```
+
+**Solution B: Move Files to Backup (if you want to keep local versions)**
+
+```bash
+# Create backup directory
+mkdir -p ~/git-backups/$(date +%Y%m%d)
+
+# Move the conflicting files
+mv NEXT_STEPS_AI.md ~/git-backups/$(date +%Y%m%d)/
+mv SEMANTIC_SEARCH_SUCCESS.md ~/git-backups/$(date +%Y%m%d)/
+
+# Complete the pull
+git pull origin <branch-name>
+
+# Compare backed up files with pulled versions if needed
+diff ~/git-backups/$(date +%Y%m%d)/NEXT_STEPS_AI.md NEXT_STEPS_AI.md
+```
+
+**Solution C: Restore from Git First (if files should already be tracked)**
+
+Sometimes files appear "untracked" but they're actually already in the repository. This can happen if:
+- You manually edited/deleted tracked files
+- Your working directory is in an inconsistent state
+
+```bash
+# Restore the files from your current branch
+git restore <filename>
+
+# Now pull should work
+git pull origin <branch-name>
+```
+
 ## Best Practices
 
 ### 1. Regular Synchronization
@@ -172,10 +233,16 @@ git stash pop
 | Local ahead and behind | `git pull --rebase` | Rebase local on remote |
 | Want to see differences | `git fetch && git log origin/<branch>` | Compare without changing |
 | Save work before pulling | `git stash && git pull` | Stash, pull, pop |
+| Untracked files would be overwritten | `git restore <file> && git pull` | Restore tracked files, then pull |
+| Untracked files (keep backup) | `mv <file> ~/backup/ && git pull` | Backup files, then pull |
 
 ## Resolution for This Repository
 
-For the Palm Island repository, the divergent branch issue was resolved by:
+For the Palm Island repository, we encountered and resolved two related issues:
+
+### Issue 1: Divergent Branches
+
+The divergent branch issue was resolved by:
 
 1. Configuring merge strategy:
    ```bash
@@ -193,6 +260,36 @@ For the Palm Island repository, the divergent branch issue was resolved by:
    ```
 
 This brought the local branch from commit `ba7a1ee` (initial commit) to `9abaaa6` (latest remote commit), synchronizing 27 commits worth of changes.
+
+### Issue 2: Untracked Files Would Be Overwritten
+
+After resolving the divergent branches, a second pull attempt failed with:
+```
+error: The following untracked working tree files would be overwritten by merge:
+        NEXT_STEPS_AI.md
+        SEMANTIC_SEARCH_SUCCESS.md
+```
+
+This was resolved by:
+
+1. Checking if local files matched remote:
+   ```bash
+   git show origin/claude/repo-review-011CUuHcsYJgU4VfdKJVrJUV:NEXT_STEPS_AI.md > /tmp/remote_next_steps.md
+   diff -q NEXT_STEPS_AI.md /tmp/remote_next_steps.md  # No differences
+   ```
+
+2. Restoring files from git (they were already tracked):
+   ```bash
+   git restore NEXT_STEPS_AI.md SEMANTIC_SEARCH_SUCCESS.md
+   ```
+
+3. Completing the pull:
+   ```bash
+   git pull origin claude/repo-review-011CUuHcsYJgU4VfdKJVrJUV
+   # Already up to date
+   ```
+
+The files appeared "untracked" due to working directory inconsistency, but were actually already committed in the repository.
 
 ## Additional Resources
 
