@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
-import { Heart, Calendar, User, MapPin, Search, Filter, Image as ImageIcon, Video, Mic } from 'lucide-react';
+import { Heart, Calendar, User, MapPin, Search, Filter, Image as ImageIcon, Video, Mic, Sparkles } from 'lucide-react';
+import SemanticSearch from '@/components/SemanticSearch';
 
 interface Story {
   id: string;
@@ -47,6 +48,7 @@ export default function StoriesGalleryPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchMode, setSearchMode] = useState<'keyword' | 'semantic'>('keyword');
 
   // Get PICC organization ID from environment variable
   const PICC_ORG_ID = process.env.NEXT_PUBLIC_PICC_ORGANIZATION_ID || '3c2011b9-f80d-4289-b300-0cd383cff479';
@@ -277,49 +279,86 @@ export default function StoriesGalleryPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto mb-8">
           <div className="bg-white rounded-xl shadow-lg p-6">
-            <div className="flex flex-col md:flex-row gap-4 mb-6">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search stories..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
+            {/* Search Mode Toggle */}
+            <div className="flex gap-2 mb-6 border-b border-gray-200">
+              <button
+                onClick={() => setSearchMode('keyword')}
+                className={`flex items-center gap-2 px-4 py-3 font-medium transition-all border-b-2 ${
+                  searchMode === 'keyword'
+                    ? 'border-palm-600 text-palm-700'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Search className="h-5 w-5" />
+                Keyword Search
+              </button>
+              <button
+                onClick={() => setSearchMode('semantic')}
+                className={`flex items-center gap-2 px-4 py-3 font-medium transition-all border-b-2 ${
+                  searchMode === 'semantic'
+                    ? 'border-palm-600 text-palm-700'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Sparkles className="h-5 w-5" />
+                AI Semantic Search
+                <span className="px-2 py-0.5 bg-palm-100 text-palm-700 text-xs rounded-full font-semibold">
+                  NEW
+                </span>
+              </button>
             </div>
 
-            <div className="flex items-center gap-2 mb-4">
-              <Filter className="h-5 w-5 text-gray-600" />
-              <span className="font-medium text-gray-700">Filter by category:</span>
-            </div>
+            {/* Conditional Rendering Based on Search Mode */}
+            {searchMode === 'keyword' ? (
+              <>
+                <div className="flex flex-col md:flex-row gap-4 mb-6">
+                  <div className="flex-1 relative">
+                    <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Search stories by title or summary..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-palm-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
 
-            <div className="flex flex-wrap gap-2">
-              {categories.map(cat => (
-                <button
-                  key={cat.value}
-                  onClick={() => setFilter(cat.value)}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                    filter === cat.value
-                      ? 'bg-blue-600 text-white shadow-lg'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {cat.label} ({cat.count})
-                </button>
-              ))}
-            </div>
+                <div className="flex items-center gap-2 mb-4">
+                  <Filter className="h-5 w-5 text-gray-600" />
+                  <span className="font-medium text-gray-700">Filter by category:</span>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {categories.map(cat => (
+                    <button
+                      key={cat.value}
+                      onClick={() => setFilter(cat.value)}
+                      className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                        filter === cat.value
+                          ? 'bg-palm-600 text-white shadow-lg'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      {cat.label} ({cat.count})
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <SemanticSearch />
+            )}
           </div>
         </div>
 
-        {/* Stories Grid */}
-        <div className="max-w-6xl mx-auto">
-          {filteredStories.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-xl shadow-lg">
-              <p className="text-xl text-gray-600">No stories found. Try adjusting your filters.</p>
-            </div>
-          ) : (
+        {/* Stories Grid - Only show in keyword mode */}
+        {searchMode === 'keyword' && (
+          <div className="max-w-6xl mx-auto">
+            {filteredStories.length === 0 ? (
+              <div className="text-center py-12 bg-white rounded-xl shadow-lg">
+                <p className="text-xl text-gray-600">No stories found. Try adjusting your filters.</p>
+              </div>
+            ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredStories.map((story) => {
                 const emotionTheme = story.emotional_theme || 'resilience';
@@ -455,8 +494,9 @@ export default function StoriesGalleryPage() {
                 );
               })}
             </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
 
         {/* CTA Section */}
         <div className="max-w-4xl mx-auto mt-12 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl shadow-2xl p-8 text-center">
