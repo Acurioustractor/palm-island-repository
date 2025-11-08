@@ -1,0 +1,50 @@
+[
+  {
+    "title": "Story Title Here",
+    "storyteller_name": "Aunty Rose Johnson",
+    "storyteller_email": "aunty.rose@picc.com.au",
+    "storyteller_bio": "Elder and traditional healer from Palm Island",
+    "content": "The full story content goes here. This is where the elder shares their knowledge, experiences, and wisdom. Can be multiple paragraphs.\n\nSecond paragraph here...\n\nThird paragraph with more details...",
+    "summary": "A brief 1-2 sentence summary of what this story is about",
+    "story_date": "2023-06-15",
+    "story_category": "elder_care",
+    "emotional_theme": "healing",
+    "cultural_sensitivity_level": "high",
+    "elder_approval_given": true,
+    "access_level": "community",
+    "location": "Palm Island",
+    "traditional_knowledge": true,
+    "language_used": "English and Traditional Language",
+    "tags": ["healing", "traditional knowledge", "medicine", "elder wisdom"]
+  },
+  {
+    "title": "Another Story Title",
+    "storyteller_name": "Uncle Joe Thaiday",
+    "storyteller_email": "uncle.joe@picc.com.au",
+    "content": "Story content here...\n\nMore content...",
+    "summary": "Uncle Joe's memories of childhood on Palm Island",
+    "story_date": "2023-08-20",
+    "story_category": "elder_care",
+    "emotional_theme": "connection_belonging",
+    "cultural_sensitivity_level": "medium",
+    "elder_approval_given": true,
+    "access_level": "public",
+    "location": "Palm Island",
+    "traditional_knowledge": false,
+    "tags": ["childhood", "memories", "community history"]
+  },
+  {
+    "title": "COPY THIS TEMPLATE FOR EACH OF YOUR 8 STORIES",
+    "storyteller_name": "Elder Name",
+    "storyteller_email": "elder@picc.com.au",
+    "content": "Full story text...",
+    "summary": "Brief summary",
+    "story_date": "2024-01-01",
+    "story_category": "elder_care",
+    "emotional_theme": "healing",
+    "cultural_sensitivity_level": "medium",
+    "elder_approval_given": true,
+    "access_level": "public",
+    "location": "Palm Island"
+  }
+]
