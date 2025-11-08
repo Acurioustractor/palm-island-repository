@@ -53,6 +53,7 @@ export default function StoriesGalleryPage() {
   const [sortBy, setSortBy] = useState<string>('newest');
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const searchInputRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     async function fetchStories() {
@@ -142,6 +143,22 @@ export default function StoriesGalleryPage() {
     }
 
     fetchStories();
+  }, []);
+
+  // Keyboard shortcut: "/" to focus search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
+        // Only if not in an input already
+        if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+          e.preventDefault();
+          searchInputRef.current?.focus();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const emotionColors: Record<string, { bg: string; text: string; border: string }> = {
@@ -326,15 +343,20 @@ export default function StoriesGalleryPage() {
             {/* Search Bar */}
             <div className="flex flex-col md:flex-row gap-4 mb-6">
               <div className="flex-1 relative">
-                <Search className="absolute left-4 top-4 h-5 w-5 text-gray-400" />
+                <Search className="absolute left-4 top-4 h-5 w-5 text-gray-400" aria-hidden="true" />
                 <input
+                  ref={searchInputRef}
                   type="text"
-                  placeholder="Search by title, story, or storyteller..."
+                  placeholder="Search by title, story, or storyteller... (Press / to focus)"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="search-bar"
                   aria-label="Search stories"
+                  aria-describedby="search-hint"
                 />
+                <span id="search-hint" className="sr-only">
+                  Press forward slash to focus search. Type to filter stories by title, content, or storyteller name.
+                </span>
               </div>
               <div className="flex gap-2">
                 <select

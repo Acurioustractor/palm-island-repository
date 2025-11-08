@@ -280,6 +280,90 @@
   }
 }
 
+/* Dyslexia-Friendly Mode */
+@import url('https://fonts.googleapis.com/css2?family=OpenDyslexic&display=swap');
+
+.dyslexia-mode {
+  font-family: 'OpenDyslexic', sans-serif !important;
+}
+
+.dyslexia-mode * {
+  font-family: 'OpenDyslexic', sans-serif !important;
+  letter-spacing: 0.12em !important;
+  word-spacing: 0.16em !important;
+  line-height: 1.8 !important;
+}
+
+/* High Contrast Mode */
+.high-contrast {
+  filter: contrast(1.2);
+}
+
+.high-contrast .text-gray-600,
+.high-contrast .text-gray-700 {
+  @apply text-gray-900 !important;
+}
+
+.high-contrast .text-white\/80,
+.high-contrast .text-white\/90 {
+  @apply text-white !important;
+}
+
+.high-contrast button,
+.high-contrast a {
+  @apply font-bold !important;
+}
+
+/* Reduced Motion Mode */
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Larger Text Mode */
+.larger-text {
+  font-size: 120% !important;
+}
+
+.larger-text h1 {
+  font-size: clamp(3rem, 6vw, 5.4rem) !important;
+}
+
+.larger-text h2 {
+  font-size: clamp(2.4rem, 4.8vw, 3.6rem) !important;
+}
+
+.larger-text h3 {
+  font-size: clamp(1.8rem, 3.6vw, 2.4rem) !important;
+}
+
+.larger-text p {
+  font-size: clamp(1.35rem, 2.4vw, 1.5rem) !important;
+}
+
+/* Enhanced Keyboard Navigation Visibility */
+.keyboard-nav-visible *:focus-visible {
+  @apply outline-4 outline-offset-4 outline-palm-600 !important;
+  box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.5) !important;
+}
+
+/* Screen Reader Only Focusable */
+.sr-only-focusable:not(:focus):not(:focus-within) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
