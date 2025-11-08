@@ -103,8 +103,8 @@ export function TableOfContents({ content, sticky = true, className = '' }: Tabl
               <button
                 onClick={() => scrollToHeading(item.id)}
                 className={`
-                  text-left w-full text-sm transition-colors hover:text-blue-600
-                  ${isActive ? 'text-blue-600 font-medium' : 'text-gray-600'}
+                  text-left w-full text-sm transition-colors hover:text-amber-700
+                  ${isActive ? 'text-amber-700 font-medium' : 'text-gray-600'}
                 `}
               >
                 {item.text}

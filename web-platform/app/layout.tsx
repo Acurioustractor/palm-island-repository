@@ -19,7 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <WikiNavigation />
-        <main className="lg:ml-72 min-h-screen bg-gradient-to-br from-blue-50 to-teal-50">
+        <main className="lg:ml-72 min-h-screen bg-gradient-to-br from-stone-50 via-amber-50/30 to-orange-50/20">
           {children}
         </main>
       </body>
