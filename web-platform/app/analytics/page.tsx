@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { BarChart3, TrendingUp, Users, BookOpen, Heart, Eye } from 'lucide-react';
+import { BarChart3, TrendingUp, Users, BookOpen, Heart, Eye, Award, Sparkles, Globe } from 'lucide-react';
 import Breadcrumbs from '@/components/wiki/Breadcrumbs';
+import Link from 'next/link';
 
 export default function AnalyticsPage() {
   const [stats, setStats] = useState({
@@ -11,7 +12,11 @@ export default function AnalyticsPage() {
     totalStorytellers: 0,
     totalViews: 0,
     storiesThisMonth: 0,
+    elderStories: 0,
+    traditionalKnowledge: 0,
     categoryCounts: [] as any[],
+    serviceCounts: [] as any[],
+    topStorytellers: [] as any[],
     recentActivity: [] as any[],
   });
   const [loading, setLoading] = useState(true);
@@ -59,6 +64,86 @@ export default function AnalyticsPage() {
         .map(([category, count]) => ({ category, count }))
         .sort((a, b) => (b.count as number) - (a.count as number));
 
+      // Elder stories and traditional knowledge
+      const { data: allStoriesWithDetails } = await supabase
+        .from('stories')
+        .select(`
+          id,
+          traditional_knowledge,
+          storyteller:storyteller_id (
+            is_elder
+          )
+        `)
+        .eq('is_public', true);
+
+      const elderStories = allStoriesWithDetails?.filter(s => s.storyteller?.is_elder).length || 0;
+      const traditionalKnowledge = allStoriesWithDetails?.filter(s => s.traditional_knowledge).length || 0;
+
+      // Service breakdown
+      const { data: storiesWithService } = await supabase
+        .from('stories')
+        .select(`
+          id,
+          service:service_id (
+            id,
+            service_name
+          )
+        `)
+        .eq('is_public', true)
+        .not('service_id', 'is', null);
+
+      const serviceMap = new Map<string, { name: string; count: number }>();
+      storiesWithService?.forEach((story: any) => {
+        if (story.service) {
+          const existing = serviceMap.get(story.service.id);
+          if (existing) {
+            existing.count++;
+          } else {
+            serviceMap.set(story.service.id, {
+              name: story.service.service_name,
+              count: 1,
+            });
+          }
+        }
+      });
+
+      const serviceCounts = Array.from(serviceMap.values())
+        .sort((a, b) => b.count - a.count);
+
+      // Top storytellers (leaderboard)
+      const { data: storiesWithStorytellers } = await supabase
+        .from('stories')
+        .select(`
+          id,
+          storyteller:storyteller_id (
+            id,
+            preferred_name,
+            full_name
+          )
+        `)
+        .eq('is_public', true)
+        .not('storyteller_id', 'is', null);
+
+      const storytellerMap = new Map<string, { id: string; name: string; count: number }>();
+      storiesWithStorytellers?.forEach((story: any) => {
+        if (story.storyteller) {
+          const existing = storytellerMap.get(story.storyteller.id);
+          if (existing) {
+            existing.count++;
+          } else {
+            storytellerMap.set(story.storyteller.id, {
+              id: story.storyteller.id,
+              name: story.storyteller.preferred_name || story.storyteller.full_name,
+              count: 1,
+            });
+          }
+        }
+      });
+
+      const topStorytellers = Array.from(storytellerMap.values())
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 10);
+
       // Recent activity
       const { data: recentStories } = await supabase
         .from('stories')
@@ -80,7 +165,11 @@ export default function AnalyticsPage() {
         totalStorytellers: uniqueStorytellers.size,
         totalViews: 0, // Would need analytics table
         storiesThisMonth: monthCount || 0,
+        elderStories,
+        traditionalKnowledge,
         categoryCounts,
+        serviceCounts,
+        topStorytellers,
         recentActivity: recentStories || [],
       });
 
@@ -122,7 +211,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <BookOpen className="h-8 w-8" />
@@ -149,18 +238,39 @@ export default function AnalyticsPage() {
           <div className="text-4xl font-bold mb-1">{stats.storiesThisMonth}</div>
           <div className="text-green-100">This Month</div>
         </div>
+      </div>
 
-        <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-6 text-white shadow-lg">
+      {/* Cultural Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl p-6 text-white shadow-lg">
           <div className="flex items-center justify-between mb-4">
-            <Eye className="h-8 w-8" />
+            <Award className="h-8 w-8" />
+            <Globe className="h-6 w-6 opacity-75" />
+          </div>
+          <div className="text-4xl font-bold mb-1">{stats.elderStories}</div>
+          <div className="text-amber-100">Elder Stories</div>
+        </div>
+
+        <div className="bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl p-6 text-white shadow-lg">
+          <div className="flex items-center justify-between mb-4">
+            <Sparkles className="h-8 w-8" />
+            <Globe className="h-6 w-6 opacity-75" />
+          </div>
+          <div className="text-4xl font-bold mb-1">{stats.traditionalKnowledge}</div>
+          <div className="text-teal-100">Traditional Knowledge</div>
+        </div>
+
+        <div className="bg-gradient-to-br from-rose-500 to-rose-600 rounded-xl p-6 text-white shadow-lg">
+          <div className="flex items-center justify-between mb-4">
+            <Heart className="h-8 w-8" />
             <TrendingUp className="h-6 w-6 opacity-75" />
           </div>
-          <div className="text-4xl font-bold mb-1">{stats.totalViews || 'N/A'}</div>
-          <div className="text-orange-100">Total Views</div>
+          <div className="text-4xl font-bold mb-1">{stats.serviceCounts.length}</div>
+          <div className="text-rose-100">Active Services</div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         {/* Category Breakdown */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Stories by Category</h2>
@@ -224,8 +334,80 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
+      {/* Service Breakdown & Top Storytellers */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        {/* Service Breakdown */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">Stories by Service</h2>
+            <Link href="/wiki/services" className="text-sm text-rose-600 hover:text-rose-700 font-medium">
+              View all →
+            </Link>
+          </div>
+          {stats.serviceCounts.length > 0 ? (
+            <div className="space-y-4">
+              {stats.serviceCounts.slice(0, 8).map((service: any, idx) => {
+                const percentage = (service.count / stats.totalStories) * 100;
+                return (
+                  <div key={idx}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-gray-900 truncate">
+                        {service.name}
+                      </span>
+                      <span className="text-sm text-gray-600 ml-2">{service.count}</span>
+                    </div>
+                    <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-rose-500 to-pink-500"
+                        style={{ width: `${percentage}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-gray-500 text-center py-8">No service data available</p>
+          )}
+        </div>
+
+        {/* Top Storytellers */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">Top Contributors</h2>
+            <Link href="/wiki/people" className="text-sm text-purple-600 hover:text-purple-700 font-medium">
+              View all →
+            </Link>
+          </div>
+          <div className="space-y-3">
+            {stats.topStorytellers.map((storyteller: any, idx) => (
+              <Link
+                key={storyteller.id}
+                href={`/wiki/people/${storyteller.id}`}
+                className="flex items-center gap-3 p-3 rounded-lg hover:bg-purple-50 transition-colors group"
+              >
+                <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                  {idx + 1}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-gray-900 truncate group-hover:text-purple-700">
+                    {storyteller.name}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {storyteller.count} {storyteller.count === 1 ? 'story' : 'stories'}
+                  </div>
+                </div>
+                <Award className={`h-5 w-5 flex-shrink-0 ${
+                  idx === 0 ? 'text-amber-500' : idx === 1 ? 'text-gray-400' : idx === 2 ? 'text-amber-700' : 'text-gray-300'
+                }`} />
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* Growth Insights */}
-      <div className="mt-8 bg-gradient-to-br from-blue-50 to-teal-50 rounded-xl border-2 border-blue-200 p-6">
+      <div className="bg-gradient-to-br from-blue-50 to-teal-50 rounded-xl border-2 border-blue-200 p-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
           <TrendingUp className="h-6 w-6 text-blue-600" />
           Community Growth
