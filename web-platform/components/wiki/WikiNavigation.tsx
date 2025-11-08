@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import {
   BookOpen, Users, MapPin, Clock, Tag, TrendingUp,
   BarChart3, Settings, Search, Menu, X, Home,
-  Globe, Heart, Sparkles, ChevronRight, ChevronDown
+  Globe, Heart, Sparkles, ChevronRight, ChevronDown, Lightbulb
 } from 'lucide-react';
 
 interface NavItem {
@@ -51,6 +51,13 @@ export function WikiNavigation() {
       { label: 'Culture & Language', href: '/wiki/culture', icon: Globe },
       { label: 'Services & Programs', href: '/wiki/services', icon: Heart },
       { label: 'Achievements', href: '/wiki/achievements', icon: Sparkles },
+    ],
+    innovation: [
+      { label: 'Overview', href: '/wiki/innovation', icon: Lightbulb },
+      { label: 'Elders Trip', href: '/wiki/innovation/elders-trip', icon: Users },
+      { label: 'Photo Studio', href: '/wiki/innovation/photo-studio', icon: Sparkles },
+      { label: 'Local Server', href: '/wiki/innovation/local-server', icon: BarChart3 },
+      { label: 'Storm Recovery', href: '/wiki/innovation/storm-recovery', icon: Heart },
     ],
     insights: [
       { label: 'Dashboard', href: '/analytics', icon: BarChart3 },
@@ -226,6 +233,45 @@ export function WikiNavigation() {
                       ${
                         isActive(item.href)
                           ? 'bg-green-50 text-green-700 font-medium'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }
+                    `}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    <span>{item.label}</span>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Innovation Section */}
+          <div>
+            <button
+              onClick={() => toggleSection('innovation')}
+              className="flex items-center justify-between w-full px-4 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50 rounded-lg transition-all"
+            >
+              <span className="flex items-center gap-2">
+                <Lightbulb className="h-5 w-5 text-amber-600" />
+                Innovation
+              </span>
+              {expandedSections.has('innovation') ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
+            </button>
+            {expandedSections.has('innovation') && (
+              <div className="ml-4 mt-2 space-y-1">
+                {mainNavigation.innovation.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`
+                      flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all
+                      ${
+                        isActive(item.href)
+                          ? 'bg-amber-50 text-amber-700 font-medium'
                           : 'text-gray-700 hover:bg-gray-50'
                       }
                     `}
