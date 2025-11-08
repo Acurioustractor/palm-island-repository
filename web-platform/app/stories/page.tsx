@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { Heart, Calendar, User, MapPin, Search, Filter, Image as ImageIcon, Video, Mic, BookOpen } from 'lucide-react';
 import Breadcrumbs from '@/components/Breadcrumbs';
+import ManbarraGreeting from '@/components/ManbarraGreeting';
 
 interface Story {
   id: string;
@@ -235,9 +236,21 @@ export default function StoriesGalleryPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50">
       {/* Hero Header */}
-      <div className="bg-gradient-to-r from-blue-900 to-teal-800 text-white py-16">
-        <div className="container mx-auto px-4">
+      <div className="bg-gradient-to-r from-blue-900 to-teal-800 text-white py-16 relative overflow-hidden">
+        {/* Cultural pattern overlay */}
+        <div className="absolute inset-0 opacity-5" style={{
+          backgroundImage: 'radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.3) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.3) 0%, transparent 50%)'
+        }} />
+
+        <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
+            {/* Manbarra Story Greeting */}
+            <div className="mb-6 inline-block">
+              <div className="bg-white/10 backdrop-blur-sm rounded-full px-6 py-3 border border-white/20">
+                <ManbarraGreeting phrase="story" showTranslation={true} />
+              </div>
+            </div>
+
             <h1 className="text-5xl md:text-6xl font-bold mb-4">Community Stories</h1>
             <p className="text-xl md:text-2xl mb-6">
               Every voice matters. Every story shapes our future.

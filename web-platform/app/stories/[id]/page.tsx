@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Heart, Calendar, User, MapPin, ArrowLeft, Share2, BookOpen, Crown, Mic } from 'lucide-react';
 import Breadcrumbs from '@/components/Breadcrumbs';
+import ManbarraGreeting from '@/components/ManbarraGreeting';
 
 interface Story {
   id: string;
@@ -415,7 +416,13 @@ export default function StoryDetailPage() {
 
             {/* Share Section */}
             <div className="bg-white rounded-2xl shadow-lg p-8 text-center border-2 border-gray-100">
-              <Heart className="w-12 h-12 text-palm-600 mx-auto mb-4" />
+              <Heart className="w-12 h-12 text-palm-600 mx-auto mb-4 animate-float" />
+
+              {/* Thank you in Manbarra */}
+              <div className="mb-4">
+                <ManbarraGreeting phrase="thankyou" showTranslation={true} />
+              </div>
+
               <h3 className="text-2xl font-bold text-gray-900 mb-2">Share This Story</h3>
               <p className="text-gray-600 mb-6">
                 Help amplify community voices and celebrate Palm Island's resilience

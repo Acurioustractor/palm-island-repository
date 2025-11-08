@@ -1,5 +1,8 @@
 import Link from 'next/link';
 import { Globe, Server, Heart, BookOpen, Users } from 'lucide-react';
+import ManbarraGreeting from '@/components/ManbarraGreeting';
+import ScrollReveal from '@/components/ScrollReveal';
+import CulturalPattern from '@/components/CulturalPattern';
 
 export default function HomePage() {
   return (
@@ -9,10 +12,19 @@ export default function HomePage() {
         Skip to main content
       </a>
 
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center p-4">
-        <div className="max-w-4xl">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center p-4 relative overflow-hidden">
+        {/* Cultural Pattern Decorations */}
+        <CulturalPattern variant="dots" position="top-right" opacity={0.03} />
+        <CulturalPattern variant="circles" position="bottom-left" opacity={0.03} />
+
+        <div className="max-w-4xl relative z-10">
           <main id="main-content">
             <div className="text-center mb-12 animate-fade-in">
+              {/* Manbarra Welcome Greeting */}
+              <div className="mb-6 animate-float">
+                <ManbarraGreeting phrase="welcome" />
+              </div>
+
               <h1 className="font-bold text-blue-900 mb-4">
                 Palm Island Community Repository
               </h1>
@@ -94,25 +106,28 @@ export default function HomePage() {
               </Link>
             </div>
 
-            <div className="bg-white p-8 rounded-xl shadow-xl mb-6 border-2 border-palm-100 hover:border-palm-300 transition-all duration-300 animate-fade-in">
-              <div className="flex items-center mb-4">
-                <Heart className="w-6 h-6 text-palm-600 mr-3 animate-pulse" />
-                <h2 className="text-2xl font-bold text-gray-800">Share Your Story</h2>
+            <ScrollReveal direction="up" delay={200}>
+              <div className="bg-white p-8 rounded-xl shadow-xl mb-6 border-2 border-palm-100 hover:border-palm-300 transition-all duration-300">
+                <div className="flex items-center mb-4">
+                  <Heart className="w-6 h-6 text-palm-600 mr-3 animate-pulse" />
+                  <h2 className="text-2xl font-bold text-gray-800">Share Your Story</h2>
+                </div>
+                <p className="text-gray-700 mb-4">
+                  Every Palm Islander has a story. Your voice matters. Share your experiences, wisdom, and vision
+                  for our community's future.
+                </p>
+                <Link
+                  href="/stories/submit"
+                  prefetch={true}
+                  className="inline-block bg-palm-600 hover:bg-palm-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg animate-pulse-glow"
+                >
+                  Submit Your Story
+                </Link>
               </div>
-              <p className="text-gray-700 mb-4">
-                Every Palm Islander has a story. Your voice matters. Share your experiences, wisdom, and vision
-                for our community's future.
-              </p>
-              <Link
-                href="/stories/submit"
-                prefetch={true}
-                className="inline-block bg-palm-600 hover:bg-palm-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
-              >
-                Submit Your Story
-              </Link>
-            </div>
+            </ScrollReveal>
 
-            <div className="grid md:grid-cols-3 gap-4 mb-6 animate-slide-up">
+            <ScrollReveal direction="up" delay={300}>
+              <div className="grid md:grid-cols-3 gap-4 mb-6">
               <div className="bg-blue-900 text-white p-6 rounded-lg text-center transform transition-all duration-300 hover:scale-105 hover:shadow-xl">
                 <div className="text-4xl font-bold mb-2">197</div>
                 <div className="text-sm">Staff Members</div>
@@ -128,9 +143,11 @@ export default function HomePage() {
                 <div className="text-sm">Community Controlled</div>
                 <div className="text-xs text-palm-200 mt-1">Since 2021</div>
               </div>
-            </div>
+              </div>
+            </ScrollReveal>
 
-            <div className="space-y-4 animate-fade-in">
+            <ScrollReveal direction="up" delay={400}>
+              <div className="space-y-4">
               <Link
                 href="/about#stories"
                 prefetch={true}
@@ -168,7 +185,8 @@ export default function HomePage() {
                   Manbarra & Bwgcolman Country • PICC: 197 staff, 16+ services, 100% community controlled
                 </p>
               </div>
-            </div>
+              </div>
+            </ScrollReveal>
           </main>
         </div>
       </div>
