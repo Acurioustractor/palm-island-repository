@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Heart, Calendar, User, MapPin, ArrowLeft, Share2, BookOpen, Crown, Mic } from 'lucide-react';
+import Breadcrumbs from '@/components/Breadcrumbs';
 
 interface Story {
   id: string;
@@ -164,6 +165,7 @@ export default function StoryDetailPage() {
           </p>
           <Link
             href="/stories"
+            prefetch={true}
             className="btn-primary"
           >
             View All Stories
@@ -221,6 +223,7 @@ export default function StoryDetailPage() {
                 {/* Back button */}
                 <Link
                   href="/stories"
+                  prefetch={true}
                   className="inline-flex items-center text-white/80 hover:text-white transition-colors mb-6 group"
                 >
                   <ArrowLeft className="h-5 w-5 mr-2 transition-transform group-hover:-translate-x-1" />
@@ -280,6 +283,16 @@ export default function StoryDetailPage() {
         {/* Story Content */}
         <article className="container mx-auto px-4 pb-16" id="story-content">
           <div className="max-w-4xl mx-auto">
+            {/* Breadcrumb Navigation */}
+            {story && (
+              <Breadcrumbs
+                items={[
+                  { label: 'Stories', href: '/stories', icon: BookOpen },
+                  { label: story.title }
+                ]}
+                className="pt-6"
+              />
+            )}
             {/* Audio Player for Elder Stories */}
             {story.audio_url && story.storyteller?.is_elder && (
               <div className="mb-12 bg-palm-50 border-2 border-palm-200 rounded-xl p-6 animate-fade-in">
@@ -376,6 +389,7 @@ export default function StoryDetailPage() {
                     )}
                     <Link
                       href={`/storytellers/${story.storyteller.id}`}
+                      prefetch={true}
                       className="text-palm-600 hover:text-palm-700 font-medium inline-flex items-center group"
                     >
                       View all stories by {story.storyteller.preferred_name || story.storyteller.full_name}
@@ -392,6 +406,7 @@ export default function StoryDetailPage() {
               <p className="text-gray-700 mb-4">Discover more stories from our community voices.</p>
               <Link
                 href={`/storytellers/${story.storyteller?.id || ''}`}
+                prefetch={true}
                 className="btn-primary inline-block"
               >
                 View More Stories
@@ -412,6 +427,7 @@ export default function StoryDetailPage() {
                 </button>
                 <Link
                   href="/stories/submit"
+                  prefetch={true}
                   className="btn-secondary inline-flex items-center"
                 >
                   <Heart className="h-5 w-5 mr-2" />
@@ -424,6 +440,7 @@ export default function StoryDetailPage() {
             <div className="mt-12 text-center">
               <Link
                 href="/stories"
+                prefetch={true}
                 className="text-palm-600 hover:text-palm-700 font-medium text-lg inline-flex items-center group"
               >
                 <span className="transition-transform group-hover:-translate-x-1">←</span>

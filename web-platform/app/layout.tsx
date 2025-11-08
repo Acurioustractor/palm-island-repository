@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { cn } from '@/lib/utils'
+import MobileNav from '@/components/MobileNav'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -35,11 +36,11 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body className={cn(inter.className, 'min-h-screen bg-background antialiased')}>
+      <body className={cn(inter.className, 'min-h-screen bg-background antialiased pb-16 md:pb-0')}>
         {/* Cultural Acknowledgment Banner */}
-        <div className="bg-gradient-to-r from-orange-800 via-red-800 to-yellow-800 px-4 py-2 text-center text-sm text-white">
+        <div className="bg-gradient-to-r from-palm-800 via-palm-700 to-palm-600 px-4 py-2 text-center text-sm text-white">
           <p>
-            We acknowledge the <strong>Manbarra people</strong> as the traditional owners of Palm Island 
+            We acknowledge the <strong>Manbarra people</strong> as the traditional owners of Palm Island
             and recognize the <strong>Bwgcolman people</strong> descended from those forcibly relocated to the island.
             We respect elders past, present, and emerging.
           </p>
@@ -50,6 +51,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
           {children}
         </main>
 
+        {/* Mobile Navigation */}
+        <MobileNav />
+
         {/* Footer with Data Sovereignty Notice */}
         <footer className="border-t bg-gray-50 px-4 py-8 text-center text-sm text-gray-600">
           <div className="mx-auto max-w-4xl space-y-4">
@@ -57,8 +61,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
               © 2024 Palm Island Community Company
             </p>
             <p>
-              This platform is built on principles of <strong>Indigenous data sovereignty</strong>. 
-              All content remains the intellectual property of the Palm Island community. 
+              This platform is built on principles of <strong>Indigenous data sovereignty</strong>.
+              All content remains the intellectual property of the Palm Island community.
               Use requires explicit community permission following cultural protocols.
             </p>
             <p className="text-xs">

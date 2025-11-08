@@ -27,6 +27,7 @@ export default function HomePage() {
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 animate-slide-up">
               <Link
                 href="/stories"
+                prefetch={true}
                 className="group bg-gradient-to-br from-palm-400 to-palm-600 hover:from-palm-500 hover:to-palm-700 p-8 rounded-xl shadow-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-palm-200/50 text-white"
               >
                 <div className="flex items-center mb-4">
@@ -43,6 +44,7 @@ export default function HomePage() {
 
               <Link
                 href="/storytellers"
+                prefetch={true}
                 className="group bg-gradient-to-br from-palm-500 to-palm-700 hover:from-palm-600 hover:to-palm-800 p-8 rounded-xl shadow-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-palm-200/50 text-white"
               >
                 <div className="flex items-center mb-4">
@@ -59,6 +61,7 @@ export default function HomePage() {
 
               <Link
                 href="/about"
+                prefetch={true}
                 className="group bg-white hover:bg-blue-50 p-8 rounded-xl shadow-xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl border-2 border-transparent hover:border-blue-500"
               >
                 <div className="flex items-center mb-4">
@@ -75,6 +78,7 @@ export default function HomePage() {
 
               <Link
                 href="/dashboard"
+                prefetch={true}
                 className="group bg-white hover:bg-green-50 p-8 rounded-xl shadow-xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl border-2 border-transparent hover:border-green-500"
               >
                 <div className="flex items-center mb-4">
@@ -101,6 +105,7 @@ export default function HomePage() {
               </p>
               <Link
                 href="/stories/submit"
+                prefetch={true}
                 className="inline-block bg-palm-600 hover:bg-palm-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
               >
                 Submit Your Story
@@ -128,6 +133,7 @@ export default function HomePage() {
             <div className="space-y-4 animate-fade-in">
               <Link
                 href="/about#stories"
+                prefetch={true}
                 className="block bg-gradient-to-r from-palm-50 to-palm-100 p-6 rounded-lg hover:shadow-lg transition-all duration-300 border-2 border-transparent hover:border-palm-200"
               >
                 <div className="flex items-center">

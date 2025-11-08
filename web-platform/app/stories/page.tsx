@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
-import { Heart, Calendar, User, MapPin, Search, Filter, Image as ImageIcon, Video, Mic } from 'lucide-react';
+import { Heart, Calendar, User, MapPin, Search, Filter, Image as ImageIcon, Video, Mic, BookOpen } from 'lucide-react';
+import Breadcrumbs from '@/components/Breadcrumbs';
 
 interface Story {
   id: string;
@@ -46,7 +47,11 @@ export default function StoriesGalleryPage() {
   const [stories, setStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');
+  const [emotionFilter, setEmotionFilter] = useState<string>('all');
+  const [mediaFilter, setMediaFilter] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<string>('newest');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     async function fetchStories() {
@@ -179,13 +184,32 @@ export default function StoriesGalleryPage() {
     return labels[category] || category;
   };
 
-  const filteredStories = stories.filter(story => {
-    const matchesFilter = filter === 'all' || story.story_category === filter;
-    const matchesSearch = !searchQuery ||
-      story.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      story.summary?.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesFilter && matchesSearch;
-  });
+  const filteredStories = stories
+    .filter(story => {
+      const matchesFilter = filter === 'all' || story.story_category === filter;
+      const matchesEmotion = emotionFilter === 'all' || story.emotional_theme === emotionFilter;
+      const matchesMedia = mediaFilter === 'all' ||
+        (mediaFilter === 'with_media' && story.story_media && story.story_media.length > 0) ||
+        (mediaFilter === 'with_audio' && story.story_media?.some(m => m.media_type === 'audio')) ||
+        (mediaFilter === 'with_video' && story.story_media?.some(m => m.media_type === 'video')) ||
+        (mediaFilter === 'with_photo' && story.story_media?.some(m => m.media_type === 'photo'));
+      const matchesSearch = !searchQuery ||
+        story.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        story.summary?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        story.storyteller?.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        story.storyteller?.preferred_name?.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesFilter && matchesEmotion && matchesMedia && matchesSearch;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'newest') {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      } else if (sortBy === 'oldest') {
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      } else if (sortBy === 'title') {
+        return a.title.localeCompare(b.title);
+      }
+      return 0;
+    });
 
   const categories = [
     { value: 'all', label: 'All Stories', count: stories.length },
@@ -225,18 +249,21 @@ export default function StoriesGalleryPage() {
             <div className="mt-8 flex justify-center gap-4 flex-wrap">
               <Link
                 href="/stories/submit"
+                prefetch={true}
                 className="bg-white text-blue-900 px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-50 transition-all transform hover:scale-105 shadow-xl"
               >
                 Share Your Story
               </Link>
               <Link
                 href="/storytellers"
+                prefetch={true}
                 className="bg-purple-600 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-purple-700 transition-all transform hover:scale-105 shadow-xl"
               >
                 View Storytellers
               </Link>
               <Link
                 href="/"
+                prefetch={true}
                 className="bg-blue-800 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-700 transition-all"
               >
                 Back to Home
@@ -272,41 +299,229 @@ export default function StoriesGalleryPage() {
 
       {/* Search and Filter */}
       <div className="container mx-auto px-4 py-8">
+        <div className="max-w-6xl mx-auto">
+          {/* Breadcrumb Navigation */}
+          <Breadcrumbs
+            items={[
+              { label: 'Stories', icon: BookOpen }
+            ]}
+          />
+        </div>
+
         <div className="max-w-6xl mx-auto mb-8">
           <div className="bg-white rounded-xl shadow-lg p-6">
+            {/* Search Bar */}
             <div className="flex flex-col md:flex-row gap-4 mb-6">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <Search className="absolute left-4 top-4 h-5 w-5 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search stories..."
+                  placeholder="Search by title, story, or storyteller..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="search-bar"
+                  aria-label="Search stories"
                 />
+              </div>
+              <div className="flex gap-2">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-4 focus:ring-palm-100 focus:border-palm-400 transition-all font-medium"
+                  aria-label="Sort stories"
+                >
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                  <option value="title">By Title</option>
+                </select>
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className={`px-4 py-3 rounded-lg font-medium transition-all flex items-center gap-2 ${
+                    showFilters ? 'bg-palm-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                  aria-label="Toggle filters"
+                  aria-expanded={showFilters}
+                >
+                  <Filter className="h-5 w-5" />
+                  Filters
+                </button>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 mb-4">
-              <Filter className="h-5 w-5 text-gray-600" />
-              <span className="font-medium text-gray-700">Filter by category:</span>
-            </div>
+            {/* Filter Panels */}
+            {showFilters && (
+              <div className="space-y-6 mb-6 animate-slide-up">
+                {/* Category Filter */}
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <BookOpen className="h-5 w-5 text-palm-600" />
+                    <span className="font-bold text-gray-900">Category</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {categories.map(cat => (
+                      <button
+                        key={cat.value}
+                        onClick={() => setFilter(cat.value)}
+                        className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                          filter === cat.value
+                            ? 'bg-palm-600 text-white shadow-lg scale-105'
+                            : 'bg-gray-100 text-gray-700 hover:bg-palm-50 hover:text-palm-700'
+                        }`}
+                      >
+                        {cat.label} ({cat.count})
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-            <div className="flex flex-wrap gap-2">
-              {categories.map(cat => (
-                <button
-                  key={cat.value}
-                  onClick={() => setFilter(cat.value)}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                    filter === cat.value
-                      ? 'bg-blue-600 text-white shadow-lg'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {cat.label} ({cat.count})
-                </button>
-              ))}
-            </div>
+                {/* Emotional Theme Filter */}
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Heart className="h-5 w-5 text-palm-600" />
+                    <span className="font-bold text-gray-900">Emotional Theme</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => setEmotionFilter('all')}
+                      className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                        emotionFilter === 'all'
+                          ? 'bg-palm-600 text-white shadow-lg scale-105'
+                          : 'bg-gray-100 text-gray-700 hover:bg-palm-50 hover:text-palm-700'
+                      }`}
+                    >
+                      All Themes
+                    </button>
+                    {['hope_aspiration', 'pride_accomplishment', 'connection_belonging', 'resilience', 'healing', 'empowerment', 'innovation'].map(theme => {
+                      const count = stories.filter(s => s.emotional_theme === theme).length;
+                      if (count === 0) return null;
+                      return (
+                        <button
+                          key={theme}
+                          onClick={() => setEmotionFilter(theme)}
+                          className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                            emotionFilter === theme
+                              ? 'bg-palm-600 text-white shadow-lg scale-105'
+                              : 'bg-gray-100 text-gray-700 hover:bg-palm-50 hover:text-palm-700'
+                          }`}
+                        >
+                          {getEmotionLabel(theme)} ({count})
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Media Type Filter */}
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <ImageIcon className="h-5 w-5 text-palm-600" />
+                    <span className="font-bold text-gray-900">Media Type</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => setMediaFilter('all')}
+                      className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                        mediaFilter === 'all'
+                          ? 'bg-palm-600 text-white shadow-lg scale-105'
+                          : 'bg-gray-100 text-gray-700 hover:bg-palm-50 hover:text-palm-700'
+                      }`}
+                    >
+                      All Media
+                    </button>
+                    <button
+                      onClick={() => setMediaFilter('with_media')}
+                      className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                        mediaFilter === 'with_media'
+                          ? 'bg-palm-600 text-white shadow-lg scale-105'
+                          : 'bg-gray-100 text-gray-700 hover:bg-palm-50 hover:text-palm-700'
+                      }`}
+                    >
+                      Has Media ({stories.filter(s => s.story_media && s.story_media.length > 0).length})
+                    </button>
+                    <button
+                      onClick={() => setMediaFilter('with_photo')}
+                      className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                        mediaFilter === 'with_photo'
+                          ? 'bg-palm-600 text-white shadow-lg scale-105'
+                          : 'bg-gray-100 text-gray-700 hover:bg-palm-50 hover:text-palm-700'
+                      }`}
+                    >
+                      <ImageIcon className="inline h-4 w-4 mr-1" />
+                      Photos ({stories.filter(s => s.story_media?.some(m => m.media_type === 'photo')).length})
+                    </button>
+                    <button
+                      onClick={() => setMediaFilter('with_audio')}
+                      className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                        mediaFilter === 'with_audio'
+                          ? 'bg-palm-600 text-white shadow-lg scale-105'
+                          : 'bg-gray-100 text-gray-700 hover:bg-palm-50 hover:text-palm-700'
+                      }`}
+                    >
+                      <Mic className="inline h-4 w-4 mr-1" />
+                      Audio ({stories.filter(s => s.story_media?.some(m => m.media_type === 'audio')).length})
+                    </button>
+                    <button
+                      onClick={() => setMediaFilter('with_video')}
+                      className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                        mediaFilter === 'with_video'
+                          ? 'bg-palm-600 text-white shadow-lg scale-105'
+                          : 'bg-gray-100 text-gray-700 hover:bg-palm-50 hover:text-palm-700'
+                      }`}
+                    >
+                      <Video className="inline h-4 w-4 mr-1" />
+                      Videos ({stories.filter(s => s.story_media?.some(m => m.media_type === 'video')).length})
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Active Filters Summary */}
+            {(filter !== 'all' || emotionFilter !== 'all' || mediaFilter !== 'all' || searchQuery) && (
+              <div className="mb-4 p-4 bg-palm-50 rounded-lg border-2 border-palm-200">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-medium text-palm-900">Active filters:</span>
+                    {filter !== 'all' && (
+                      <span className="px-3 py-1 bg-palm-600 text-white rounded-full text-sm font-medium">
+                        {getCategoryLabel(filter)}
+                      </span>
+                    )}
+                    {emotionFilter !== 'all' && (
+                      <span className="px-3 py-1 bg-palm-600 text-white rounded-full text-sm font-medium">
+                        {getEmotionLabel(emotionFilter)}
+                      </span>
+                    )}
+                    {mediaFilter !== 'all' && (
+                      <span className="px-3 py-1 bg-palm-600 text-white rounded-full text-sm font-medium">
+                        {mediaFilter === 'with_media' ? 'Has Media' :
+                         mediaFilter === 'with_photo' ? 'Photos' :
+                         mediaFilter === 'with_audio' ? 'Audio' : 'Videos'}
+                      </span>
+                    )}
+                    {searchQuery && (
+                      <span className="px-3 py-1 bg-palm-600 text-white rounded-full text-sm font-medium">
+                        Search: "{searchQuery}"
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => {
+                      setFilter('all');
+                      setEmotionFilter('all');
+                      setMediaFilter('all');
+                      setSearchQuery('');
+                    }}
+                    className="px-4 py-2 text-palm-700 hover:text-palm-900 font-medium text-sm underline"
+                  >
+                    Clear all filters
+                  </button>
+                </div>
+                <p className="text-sm text-palm-700 mt-2">
+                  Showing <strong>{filteredStories.length}</strong> of <strong>{stories.length}</strong> stories
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -326,6 +541,7 @@ export default function StoriesGalleryPage() {
                   <Link
                     key={story.id}
                     href={`/stories/${story.id}`}
+                    prefetch={true}
                     className={`group bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all transform hover:scale-105 border-2 ${colors.border}`}
                   >
                     {/* Story Image - Shows story photo or beautiful gradient */}
@@ -464,6 +680,7 @@ export default function StoriesGalleryPage() {
           </p>
           <Link
             href="/stories/submit"
+            prefetch={true}
             className="inline-block bg-white text-blue-900 px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-50 transition-all transform hover:scale-105 shadow-xl"
           >
             Share Your Story Now
