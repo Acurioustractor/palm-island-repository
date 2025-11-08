@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import { Users, BookOpen, ArrowLeft, Edit2, MapPin, Globe, Heart } from 'lucide-react';
 import Breadcrumbs from '@/components/wiki/Breadcrumbs';
 import { EnhancedProfileEditor } from '@/components/wiki/EnhancedProfileEditor';
+import { ProfilePhotoUpload } from '@/components/wiki/ProfilePhotoUpload';
 
 interface Profile {
   id: string;
@@ -98,6 +99,11 @@ export default function PersonProfilePage() {
     }
   };
 
+  const handlePhotoUpdate = (newUrl: string) => {
+    // Update the local state with new photo URL
+    setProfile(prev => prev ? { ...prev, profile_image_url: newUrl } : null);
+  };
+
   const breadcrumbs = [
     { label: 'Wiki', href: '/wiki' },
     { label: 'People', href: '/wiki/people' },
@@ -152,6 +158,17 @@ export default function PersonProfilePage() {
           </button>
         </div>
 
+        {/* Profile Photo Upload Section */}
+        <div className="bg-white rounded-xl border border-stone-300 shadow-sm p-6 mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Profile Photo</h2>
+          <ProfilePhotoUpload
+            profileId={profile.id}
+            currentPhotoUrl={profile.profile_image_url}
+            onPhotoUpdate={handlePhotoUpdate}
+          />
+        </div>
+
+        {/* Profile Details Editor */}
         <EnhancedProfileEditor
           profile={profile}
           onSave={handleProfileUpdate}
