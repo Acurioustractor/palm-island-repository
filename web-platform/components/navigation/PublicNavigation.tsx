@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, Mic } from 'lucide-react';
+import { UserMenu } from '@/components/auth/UserMenu';
 
 export function PublicNavigation() {
   const pathname = usePathname();
@@ -64,6 +65,9 @@ export function PublicNavigation() {
               <Mic className="h-4 w-4" />
               <span>Share Your Voice</span>
             </Link>
+
+            {/* User Menu */}
+            <UserMenu />
           </div>
 
           {/* Mobile Menu Button */}
@@ -112,6 +116,11 @@ export function PublicNavigation() {
               <Mic className="h-4 w-4" />
               <span>Share Your Voice</span>
             </Link>
+
+            {/* Mobile User Menu */}
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <UserMenu />
+            </div>
           </div>
         </div>
       )}
