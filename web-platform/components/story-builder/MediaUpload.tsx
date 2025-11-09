@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { createClientSupabase } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Upload, X, Image as ImageIcon, Video as VideoIcon, Loader2, CheckCircle } from 'lucide-react';
 
 interface MediaUploadProps {
@@ -17,7 +17,7 @@ export function MediaUpload({ onUpload, accept = 'both', label, currentUrl }: Me
   const [preview, setPreview] = useState<string | null>(currentUrl || null);
   const [fileType, setFileType] = useState<'image' | 'video' | null>(null);
 
-  const supabase = createClientSupabase();
+  const supabase = createClient();
 
   const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
