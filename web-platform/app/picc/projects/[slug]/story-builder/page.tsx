@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { createClientSupabase } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import {
   ArrowLeft, Plus, Save, Eye, Trash2, GripVertical,
   Type, Quote, Image as ImageIcon, Video, Layout, Mountain,
@@ -30,7 +30,7 @@ interface Section {
 
 export default function StoryBuilderPage({ params }: { params: { slug: string } }) {
   const router = useRouter();
-  const supabase = createClientSupabase();
+  const supabase = createClient();
 
   const [storyId, setStoryId] = useState<string | null>(null);
   const [storyTitle, setStoryTitle] = useState('');
