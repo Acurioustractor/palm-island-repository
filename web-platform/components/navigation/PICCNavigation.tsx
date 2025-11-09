@@ -93,10 +93,10 @@ export function PICCNavigation() {
       title: 'Content Studio',
       icon: Lightbulb,
       items: [
-        { label: 'Social Export', href: '/picc/social-export', icon: Lightbulb, description: 'Social media content' },
-        { label: 'Newsletter', href: '/picc/newsletter', icon: Mail, description: 'Newsletter builder' },
-        { label: 'Reports', href: '/picc/report-generator', icon: FileText, description: 'Generate reports' },
-        { label: 'Media Library', href: '/picc/content-studio', icon: Folder, description: 'Content assets' },
+        { label: 'Export Studio', href: '/picc/content-studio', icon: Download, description: 'Social media exports' },
+        { label: 'Newsletter Builder', href: '/picc/newsletter', icon: Mail, description: 'Create newsletters' },
+        { label: 'Quote Cards', href: '/picc/quote-cards', icon: Image, description: 'Generate quote images' },
+        { label: 'Report Generator', href: '/picc/report-generator', icon: FileText, description: 'Funder reports' },
       ],
     },
     projects: {

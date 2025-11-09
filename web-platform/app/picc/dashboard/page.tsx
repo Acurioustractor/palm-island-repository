@@ -153,21 +153,24 @@ export default async function PICCDashboard() {
             </div>
           </Link>
 
-          <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-xl shadow-md border border-gray-300">
+          <Link
+            href="/picc/content-studio"
+            className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg border border-gray-200 hover:border-purple-300 transition-all group"
+          >
             <div className="flex items-center gap-4 mb-4">
-              <div className="p-3 bg-gray-200 rounded-lg">
-                <FileText className="w-6 h-6 text-gray-600" />
+              <div className="p-3 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
+                <FileText className="w-6 h-6 text-purple-600" />
               </div>
               <h3 className="text-lg font-bold text-gray-900">Content Studio</h3>
             </div>
             <p className="text-gray-600 text-sm mb-4">
-              Social media export and newsletter tools
+              Export stories to social media and create shareable content
             </p>
-            <div className="flex items-center gap-2 text-gray-500 font-medium">
-              <AlertCircle className="w-4 h-4" />
-              <span className="text-sm">Coming in Phase 2</span>
+            <div className="flex items-center gap-2 text-purple-600 font-semibold group-hover:gap-3 transition-all">
+              <span>Create Content</span>
+              <ArrowRight className="w-4 h-4" />
             </div>
-          </div>
+          </Link>
       </div>
 
       {/* Pending Review */}
