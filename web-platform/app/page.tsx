@@ -1,162 +1,267 @@
 import Link from 'next/link';
-import { Globe, Server, Heart, BookOpen, Users } from 'lucide-react';
+import { Users, Globe, Building2, ArrowRight, Heart, BookOpen, TrendingUp, Mic } from 'lucide-react';
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center p-4">
-      <div className="max-w-4xl">
-        <div className="text-center mb-12">
-          <h1 className="text-6xl font-bold text-blue-900 mb-4">
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <section className="relative bg-gradient-to-br from-blue-900 via-teal-800 to-blue-900 text-white py-20 lg:py-32">
+        <div className="absolute inset-0 bg-black/20"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6">
             Palm Island Community Repository
           </h1>
-          <p className="text-2xl text-gray-700 mb-2">
+          <p className="text-xl md:text-2xl mb-4 text-blue-100">
             Manbarra & Bwgcolman Country
           </p>
-          <p className="text-xl text-gray-600 italic">
+          <p className="text-lg md:text-xl max-w-3xl mx-auto text-blue-50 mb-12">
             Community-controlled storytelling, impact measurement, and data sovereignty
           </p>
-        </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Link
-            href="/stories"
-            className="group bg-gradient-to-br from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 p-8 rounded-xl shadow-2xl transition-all transform hover:scale-105 text-white"
-          >
-            <div className="flex items-center mb-4">
-              <BookOpen className="w-10 h-10 mr-3" />
-              <h2 className="text-2xl font-bold">Stories</h2>
-            </div>
-            <p className="mb-4 text-pink-50">
-              Read powerful stories of resilience, hope, and transformation.
-            </p>
-            <div className="font-bold text-lg">
-              View Stories →
-            </div>
-          </Link>
+          {/* Three Audience Pathways */}
+          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto mt-16">
+            {/* Community Members */}
+            <Link
+              href="/community"
+              className="group bg-white/10 backdrop-blur-sm hover:bg-white/20 border-2 border-white/30 hover:border-white p-8 rounded-xl transition-all transform hover:scale-105"
+            >
+              <div className="flex justify-center mb-4">
+                <div className="p-3 bg-white/20 rounded-full">
+                  <Users className="w-8 h-8" />
+                </div>
+              </div>
+              <h2 className="text-2xl font-bold mb-3">Palm Island Community</h2>
+              <p className="text-blue-50 mb-6 text-sm">
+                Read stories, share your voice, and celebrate our community
+              </p>
+              <div className="flex items-center justify-center gap-2 text-white font-semibold">
+                <span>Explore Stories</span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
 
-          <Link
-            href="/storytellers"
-            className="group bg-gradient-to-br from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 p-8 rounded-xl shadow-2xl transition-all transform hover:scale-105 text-white"
-          >
-            <div className="flex items-center mb-4">
-              <Users className="w-10 h-10 mr-3" />
-              <h2 className="text-2xl font-bold">Storytellers</h2>
-            </div>
-            <p className="mb-4 text-purple-50">
-              Meet the voices of our community and their journeys.
-            </p>
-            <div className="font-bold text-lg">
-              View Storytellers →
-            </div>
-          </Link>
+            {/* PICC Staff */}
+            <Link
+              href="/picc/dashboard"
+              className="group bg-white/10 backdrop-blur-sm hover:bg-white/20 border-2 border-white/30 hover:border-white p-8 rounded-xl transition-all transform hover:scale-105"
+            >
+              <div className="flex justify-center mb-4">
+                <div className="p-3 bg-white/20 rounded-full">
+                  <Building2 className="w-8 h-8" />
+                </div>
+              </div>
+              <h2 className="text-2xl font-bold mb-3">PICC Staff & Supporters</h2>
+              <p className="text-blue-50 mb-6 text-sm">
+                Manage content, analytics, and community engagement
+              </p>
+              <div className="flex items-center justify-center gap-2 text-white font-semibold">
+                <span>Access Dashboard</span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
 
-          <Link
-            href="/about"
-            className="group bg-white hover:bg-blue-50 p-8 rounded-xl shadow-xl transition-all transform hover:scale-105 border-2 border-transparent hover:border-blue-500"
-          >
-            <div className="flex items-center mb-4">
-              <Globe className="w-8 h-8 text-blue-600 mr-3" />
-              <h2 className="text-2xl font-bold text-blue-900">About PICC</h2>
-            </div>
-            <p className="text-gray-700 mb-4">
-              Learn about our journey from colonial control to community sovereignty.
-            </p>
-            <div className="text-blue-600 font-medium group-hover:text-blue-800">
-              Learn More →
-            </div>
-          </Link>
-
-          <Link
-            href="/dashboard"
-            className="group bg-white hover:bg-green-50 p-8 rounded-xl shadow-xl transition-all transform hover:scale-105 border-2 border-transparent hover:border-green-500"
-          >
-            <div className="flex items-center mb-4">
-              <Server className="w-8 h-8 text-green-600 mr-3" />
-              <h2 className="text-2xl font-bold text-green-900">Dashboard</h2>
-            </div>
-            <p className="text-gray-700 mb-4">
-              Track impact metrics and community data insights.
-            </p>
-            <div className="text-green-600 font-medium group-hover:text-green-800">
-              View Dashboard →
-            </div>
-          </Link>
-        </div>
-
-        <div className="bg-white p-8 rounded-xl shadow-xl mb-6">
-          <div className="flex items-center mb-4">
-            <Heart className="w-6 h-6 text-purple-600 mr-3" />
-            <h2 className="text-2xl font-bold text-gray-800">Share Your Story</h2>
+            {/* Broader Community */}
+            <Link
+              href="/impact"
+              className="group bg-white/10 backdrop-blur-sm hover:bg-white/20 border-2 border-white/30 hover:border-white p-8 rounded-xl transition-all transform hover:scale-105"
+            >
+              <div className="flex justify-center mb-4">
+                <div className="p-3 bg-white/20 rounded-full">
+                  <Globe className="w-8 h-8" />
+                </div>
+              </div>
+              <h2 className="text-2xl font-bold mb-3">Friends & Supporters</h2>
+              <p className="text-blue-50 mb-6 text-sm">
+                See our impact, stay connected, and support our work
+              </p>
+              <div className="flex items-center justify-center gap-2 text-white font-semibold">
+                <span>See Our Impact</span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
           </div>
-          <p className="text-gray-700 mb-4">
-            Every Palm Islander has a story. Your voice matters. Share your experiences, wisdom, and vision
-            for our community's future.
+        </div>
+      </section>
+
+      {/* Impact Numbers */}
+      <section className="py-12 bg-gray-50 border-y border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="text-center">
+              <div className="text-4xl md:text-5xl font-bold text-blue-900 mb-2">197</div>
+              <div className="text-sm text-gray-600">Staff Members</div>
+              <div className="text-xs text-green-600 mt-1">+30% from 2023</div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl md:text-5xl font-bold text-teal-900 mb-2">16+</div>
+              <div className="text-sm text-gray-600">Integrated Services</div>
+              <div className="text-xs text-gray-500 mt-1">Holistic support</div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl md:text-5xl font-bold text-purple-900 mb-2">100%</div>
+              <div className="text-sm text-gray-600">Community Controlled</div>
+              <div className="text-xs text-purple-600 mt-1">Since 2021</div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl md:text-5xl font-bold text-pink-900 mb-2">31+</div>
+              <div className="text-sm text-gray-600">Stories Shared</div>
+              <div className="text-xs text-gray-500 mt-1">And growing</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Stories */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Community Stories
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Voices from Palm Island sharing experiences, wisdom, and vision for our future
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 mb-12">
+            {/* Story Card 1 */}
+            <div className="bg-gradient-to-br from-pink-50 to-purple-50 p-8 rounded-xl border border-pink-100 hover:shadow-lg transition-all">
+              <div className="flex items-center gap-2 mb-4">
+                <BookOpen className="w-5 h-5 text-pink-600" />
+                <span className="text-sm font-semibold text-pink-900">Community Voice</span>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">
+                Stories of Resilience & Hope
+              </h3>
+              <p className="text-gray-700 mb-6">
+                Read powerful stories from our community members about overcoming challenges,
+                celebrating culture, and building a stronger future together.
+              </p>
+              <Link
+                href="/stories"
+                className="inline-flex items-center gap-2 text-pink-700 font-semibold hover:text-pink-900 transition-colors"
+              >
+                <span>Read Stories</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            {/* Share Your Voice CTA */}
+            <div className="bg-gradient-to-br from-blue-50 to-teal-50 p-8 rounded-xl border border-blue-100 hover:shadow-lg transition-all">
+              <div className="flex items-center gap-2 mb-4">
+                <Mic className="w-5 h-5 text-blue-600" />
+                <span className="text-sm font-semibold text-blue-900">Your Voice Matters</span>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">
+                Share Your Story
+              </h3>
+              <p className="text-gray-700 mb-6">
+                Every Palm Islander has a story. Share your experiences through text, voice
+                recording, or video. Your story can inspire and strengthen our community.
+              </p>
+              <Link
+                href="/share-voice"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all"
+              >
+                <Mic className="w-4 h-4" />
+                <span>Share Your Voice</span>
+              </Link>
+            </div>
+          </div>
+
+          {/* View All Stories Button */}
+          <div className="text-center">
+            <Link
+              href="/stories"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-semibold rounded-lg transition-all"
+            >
+              <span>View All Stories</span>
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* About PICC */}
+      <section className="py-16 bg-gradient-to-br from-gray-50 to-blue-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                About Palm Island Community Company
+              </h2>
+              <p className="text-lg text-gray-700 mb-6">
+                PICC is a community-controlled organization providing essential services and
+                support to the people of Palm Island (Manbarra & Bwgcolman Country).
+              </p>
+              <p className="text-gray-700 mb-8">
+                From colonial control to community sovereignty, our journey represents
+                Indigenous self-determination at scale. We prove that community-controlled
+                services work, eliminating dependence on external consultants and keeping
+                resources within our community.
+              </p>
+              <Link
+                href="/about"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all"
+              >
+                <span>Learn More About PICC</span>
+                <ArrowRight className="w-5 h-5" />
+              </Link>
+            </div>
+
+            <div className="space-y-4">
+              <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-600">
+                <div className="flex items-center gap-3 mb-2">
+                  <Heart className="w-6 h-6 text-blue-600" />
+                  <h3 className="font-bold text-gray-900">Community Controlled</h3>
+                </div>
+                <p className="text-sm text-gray-700">
+                  100% Indigenous-led governance ensuring culturally appropriate services
+                </p>
+              </div>
+
+              <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-teal-600">
+                <div className="flex items-center gap-3 mb-2">
+                  <TrendingUp className="w-6 h-6 text-teal-600" />
+                  <h3 className="font-bold text-gray-900">Growing Impact</h3>
+                </div>
+                <p className="text-sm text-gray-700">
+                  197 staff members (+30% from 2023) providing 16+ integrated services
+                </p>
+              </div>
+
+              <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-purple-600">
+                <div className="flex items-center gap-3 mb-2">
+                  <Globe className="w-6 h-6 text-purple-600" />
+                  <h3 className="font-bold text-gray-900">Data Sovereignty</h3>
+                </div>
+                <p className="text-sm text-gray-700">
+                  Community-owned data and storytelling infrastructure proving innovation at scale
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Newsletter Signup */}
+      <section className="py-16 bg-blue-900 text-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            Stay Connected with Our Journey
+          </h2>
+          <p className="text-lg text-blue-100 mb-8">
+            Subscribe to receive updates about community stories, PICC achievements, and our ongoing work
           </p>
           <Link
-            href="/stories/submit"
-            className="inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg transition-all"
+            href="/subscribe"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-white text-blue-900 hover:bg-blue-50 font-semibold rounded-lg shadow-lg transition-all"
           >
-            Submit Your Story
+            <span>Subscribe to Updates</span>
+            <ArrowRight className="w-5 h-5" />
           </Link>
         </div>
-
-        <div className="grid md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-blue-900 text-white p-6 rounded-lg text-center">
-            <div className="text-4xl font-bold mb-2">197</div>
-            <div className="text-sm">Staff Members</div>
-            <div className="text-xs text-blue-200 mt-1">+30% from 2023</div>
-          </div>
-          <div className="bg-green-800 text-white p-6 rounded-lg text-center">
-            <div className="text-4xl font-bold mb-2">16+</div>
-            <div className="text-sm">Integrated Services</div>
-            <div className="text-xs text-green-200 mt-1">Holistic support</div>
-          </div>
-          <div className="bg-purple-800 text-white p-6 rounded-lg text-center">
-            <div className="text-4xl font-bold mb-2">100%</div>
-            <div className="text-sm">Community Controlled</div>
-            <div className="text-xs text-purple-200 mt-1">Since 2021</div>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <Link
-            href="/about#stories"
-            className="block bg-gradient-to-r from-pink-50 to-purple-50 p-6 rounded-lg hover:shadow-lg transition-all"
-          >
-            <div className="flex items-center">
-              <BookOpen className="w-6 h-6 text-pink-600 mr-3" />
-              <div className="flex-1">
-                <h3 className="text-lg font-bold text-pink-900">Community Stories</h3>
-                <p className="text-sm text-gray-700">Read stories of hope, resilience, and transformation from Palm Islanders</p>
-              </div>
-              <span className="text-pink-600 font-medium">Read Stories →</span>
-            </div>
-          </Link>
-
-          <div className="bg-white p-6 rounded-lg shadow-lg text-left">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Platform Status</h2>
-            <ul className="space-y-2 text-gray-700">
-              <li>✅ <strong>31 stories imported</strong> (26 storm stories + 6 PICC services)</li>
-              <li>✅ <strong>Database deployed</strong> with full schema</li>
-              <li>✅ <strong>Story Server dashboard</strong> built and ready</li>
-              <li>✅ <strong>Indigenous data sovereignty</strong> frameworks integrated</li>
-              <li>🚧 <strong>Coming soon:</strong> Story submission, photo upload, annual report generation</li>
-            </ul>
-          </div>
-
-          <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-6 rounded-lg text-left">
-            <h3 className="text-lg font-bold text-purple-800 mb-2">About This Platform</h3>
-            <p className="text-gray-700 text-sm">
-              Built by and for Palm Island community, this platform enables community-controlled impact
-              measurement, eliminates dependence on external consultants ($40k-115k annual savings), and
-              proves that Indigenous self-determination works at scale.
-            </p>
-            <p className="text-gray-600 text-xs mt-2 italic">
-              Manbarra & Bwgcolman Country • PICC: 197 staff, 16+ services, 100% community controlled
-            </p>
-          </div>
-        </div>
-      </div>
+      </section>
     </div>
-  )
+  );
 }

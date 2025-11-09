@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import WikiNavigation from '@/components/wiki/WikiNavigation';
+import { PublicNavigation } from '@/components/navigation/PublicNavigation';
+import { PublicFooter } from '@/components/navigation/PublicFooter';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -18,10 +19,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <WikiNavigation />
-        <main className="lg:ml-72 min-h-screen bg-gradient-to-br from-stone-50 via-amber-50/30 to-orange-50/20">
+        <PublicNavigation />
+        <main className="min-h-screen">
           {children}
         </main>
+        <PublicFooter />
       </body>
     </html>
   );
