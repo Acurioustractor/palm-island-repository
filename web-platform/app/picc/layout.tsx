@@ -8,7 +8,7 @@ export default function PICCLayout({
   return (
     <>
       <PICCNavigation />
-      <div className="lg:ml-72 min-h-screen bg-gray-50">
+      <div className="lg:ml-80 min-h-screen bg-gray-50">
         {children}
       </div>
     </>
