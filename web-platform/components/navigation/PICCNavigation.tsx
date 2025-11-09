@@ -8,7 +8,7 @@ import {
   BarChart3, Settings, Menu, X, Home, Clock, Search,
   Mic, TrendingUp, Lightbulb, ChevronRight, ChevronDown,
   Plus, Edit, Archive, Eye, Upload, Download, Folder,
-  Target, Award, MessageSquare, Bell, Shield, Database, Heart
+  Target, Award, MessageSquare, Bell, Shield, Database, Heart, Building2
 } from 'lucide-react';
 
 interface NavItem {
@@ -99,6 +99,19 @@ export function PICCNavigation() {
         { label: 'Media Library', href: '/picc/content-studio', icon: Folder, description: 'Content assets' },
       ],
     },
+    projects: {
+      title: 'Innovation Projects',
+      icon: Lightbulb,
+      items: [
+        { label: 'All Projects', href: '/picc/projects', icon: Folder, description: 'View all projects' },
+        { label: 'Photo Studio', href: '/picc/projects/photo-studio', icon: Image, description: 'On-Country photography' },
+        { label: 'The Station', href: '/picc/projects/the-station', icon: Building2, description: 'Community hub' },
+        { label: 'Elders Trips', href: '/picc/projects/elders-trips', icon: Users, description: 'Cultural connection' },
+        { label: 'On-Country Server', href: '/picc/projects/on-country-server', icon: Database, description: 'Data sovereignty' },
+        { label: 'Annual Reports', href: '/picc/projects/annual-report', icon: FileText, description: 'Automated reporting' },
+        { label: 'Add New Project', href: '/picc/projects/new', icon: Plus, description: 'Create project' },
+      ],
+    },
     knowledge: {
       title: 'Knowledge Base',
       icon: Database,
@@ -131,6 +144,7 @@ export function PICCNavigation() {
     media: 'pink',
     analytics: 'green',
     content: 'amber',
+    projects: 'orange',
     knowledge: 'indigo',
     settings: 'gray',
   };
