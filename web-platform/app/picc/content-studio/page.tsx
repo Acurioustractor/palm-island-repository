@@ -14,10 +14,7 @@ interface Story {
   content?: string;
   story_category: string;
   created_at: string;
-  storyteller?: {
-    preferred_name?: string;
-    full_name?: string;
-  };
+  storyteller_id?: string;
 }
 
 export default function ContentStudioPage() {
@@ -32,24 +29,21 @@ export default function ContentStudioPage() {
 
   const loadStories = async () => {
     const supabase = createClient();
+
+    // Simplified query without join - just get the stories
     const { data, error } = await supabase
       .from('stories')
-      .select(`
-        id,
-        title,
-        summary,
-        content,
-        story_category,
-        created_at,
-        storyteller:storyteller_id (
-          preferred_name,
-          full_name
-        )
-      `)
+      .select('id, title, summary, content, story_category, created_at, storyteller_id')
       .eq('status', 'published')
       .eq('is_public', true)
       .order('created_at', { ascending: false })
       .limit(50);
+
+    if (error) {
+      console.error('Error loading stories:', error);
+      setLoading(false);
+      return;
+    }
 
     if (data) {
       setStories(data as any);
@@ -68,9 +62,9 @@ export default function ContentStudioPage() {
   };
 
   const getStorytellerName = (story: Story) => {
-    return story.storyteller?.preferred_name ||
-           story.storyteller?.full_name ||
-           'Community Voice';
+    // For now, all stories show as Community Voice
+    // Could enhance this later to fetch storyteller names
+    return 'Community Voice';
   };
 
   // Export formats
