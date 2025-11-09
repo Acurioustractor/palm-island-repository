@@ -30,8 +30,8 @@ export default function LoginPage() {
         return;
       }
 
-      // Success! Redirect to PICC dashboard
-      router.push('/picc');
+      // Success! Redirect to projects page
+      router.push('/picc/projects/photo-studio');
       router.refresh();
     } catch (err: any) {
       setError(err.message || 'An error occurred');
