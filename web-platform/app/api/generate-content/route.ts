@@ -159,8 +159,8 @@ Generate a ${platform} post that:
 Return ONLY the social media post text, ready to copy and paste. No explanations or meta-commentary.`;
 
     const message = await anthropic.messages.create({
-      model: 'claude-3-sonnet-20240229',
-      max_tokens: 1024,
+      model: 'claude-sonnet-4-5',
+      max_tokens: 2048,
       messages: [
         {
           role: 'user',
