@@ -326,6 +326,15 @@ export function WikiNavigation() {
 
         {/* Footer */}
         <div className="mt-auto p-4 border-t border-gray-200 bg-gray-50">
+          {/* Share Your Voice CTA Button */}
+          <Link
+            href="/share-voice"
+            className="flex items-center justify-center gap-2 w-full mb-4 px-4 py-3 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all group"
+          >
+            <Mic className="h-5 w-5 group-hover:scale-110 transition-transform" />
+            <span>Share Your Voice</span>
+          </Link>
+
           <div className="text-xs text-gray-600 text-center">
             <p className="font-medium mb-1">Manbarra & Bwgcolman Country</p>
             <p className="italic">Community-controlled knowledge</p>
