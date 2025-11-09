@@ -435,6 +435,13 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             <h3 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h3>
             <div className="space-y-2">
               <Link
+                href={`/picc/projects/${project.slug}/story-builder`}
+                className="w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all text-sm text-left flex items-center gap-2"
+              >
+                <BookOpen className="w-4 h-4" />
+                <span>Build Immersive Story</span>
+              </Link>
+              <Link
                 href={`/picc/projects/${project.slug}/updates/new`}
                 className="w-full px-4 py-2 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 font-medium rounded-lg transition-all text-sm text-left flex items-center gap-2"
               >
