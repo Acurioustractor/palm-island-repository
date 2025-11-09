@@ -49,8 +49,9 @@ export default async function PICCDashboard() {
         <h1 className="text-3xl font-bold text-gray-900">Dashboard Overview</h1>
         <p className="text-gray-600 mt-1">Manage content, analytics, and community engagement</p>
       </div>
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-600">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-blue-100 rounded-lg">
@@ -110,10 +111,10 @@ export default async function PICCDashboard() {
               Community controlled
             </div>
           </div>
-        </div>
+      </div>
 
-        {/* Quick Actions */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
+      {/* Quick Actions */}
+      <div className="grid md:grid-cols-3 gap-6 mb-8">
           <Link
             href="/admin/storytellers"
             className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg border border-gray-200 hover:border-blue-300 transition-all group"
@@ -167,11 +168,11 @@ export default async function PICCDashboard() {
               <span className="text-sm">Coming in Phase 2</span>
             </div>
           </div>
-        </div>
+      </div>
 
-        {/* Pending Review */}
-        {submittedStories && submittedStories > 0 && (
-          <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200 mb-8">
+      {/* Pending Review */}
+      {submittedStories && submittedStories > 0 && (
+        <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200 mb-8">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <Clock className="w-6 h-6 text-amber-600" />
@@ -216,43 +217,42 @@ export default async function PICCDashboard() {
             ) : (
               <p className="text-gray-600 text-center py-8">No submissions pending review</p>
             )}
-          </div>
-        )}
+        </div>
+      )}
 
-        {/* Phase 2 Preview */}
-        <div className="bg-gradient-to-r from-blue-900 to-purple-900 text-white p-8 rounded-xl shadow-lg">
-          <h2 className="text-2xl font-bold mb-4">Coming Soon: Phase 2 Features</h2>
-          <p className="text-blue-100 mb-6">
-            Enhanced tools for content management, social media, and community engagement
-          </p>
-          <div className="grid md:grid-cols-3 gap-6">
-            <div>
-              <div className="font-semibold mb-2 flex items-center gap-2">
-                <FileText className="w-5 h-5" />
-                Content Studio
-              </div>
-              <p className="text-sm text-blue-200">
-                Export stories to social media, create quote cards, generate newsletters
-              </p>
+      {/* Phase 2 Preview */}
+      <div className="bg-gradient-to-r from-blue-900 to-purple-900 text-white p-8 rounded-xl shadow-lg">
+        <h2 className="text-2xl font-bold mb-4">Coming Soon: Phase 2 Features</h2>
+        <p className="text-blue-100 mb-6">
+          Enhanced tools for content management, social media, and community engagement
+        </p>
+        <div className="grid md:grid-cols-3 gap-6">
+          <div>
+            <div className="font-semibold mb-2 flex items-center gap-2">
+              <FileText className="w-5 h-5" />
+              Content Studio
             </div>
-            <div>
-              <div className="font-semibold mb-2 flex items-center gap-2">
-                <Mic className="w-5 h-5" />
-                Newsletter Builder
-              </div>
-              <p className="text-sm text-blue-200">
-                Create and send newsletters with story highlights and impact metrics
-              </p>
+            <p className="text-sm text-blue-200">
+              Export stories to social media, create quote cards, generate newsletters
+            </p>
+          </div>
+          <div>
+            <div className="font-semibold mb-2 flex items-center gap-2">
+              <Mic className="w-5 h-5" />
+              Newsletter Builder
             </div>
-            <div>
-              <div className="font-semibold mb-2 flex items-center gap-2">
-                <BarChart3 className="w-5 h-5" />
-                Advanced Analytics
-              </div>
-              <p className="text-sm text-blue-200">
-                Detailed insights, custom reports, and funder-ready exports
-              </p>
+            <p className="text-sm text-blue-200">
+              Create and send newsletters with story highlights and impact metrics
+            </p>
+          </div>
+          <div>
+            <div className="font-semibold mb-2 flex items-center gap-2">
+              <BarChart3 className="w-5 h-5" />
+              Advanced Analytics
             </div>
+            <p className="text-sm text-blue-200">
+              Detailed insights, custom reports, and funder-ready exports
+            </p>
           </div>
         </div>
       </div>
