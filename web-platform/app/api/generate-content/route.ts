@@ -1,6 +1,11 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { NextRequest, NextResponse } from 'next/server';
 
+// Determine which LLM provider to use (ollama for local testing, anthropic for production)
+const LLM_PROVIDER = process.env.LLM_PROVIDER || 'ollama';
+const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
+const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'llama3.1:8b';
+
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
@@ -59,6 +64,11 @@ Generate social media content that sounds like it was written by someone who act
 
 export async function POST(request: NextRequest) {
   try {
+    console.log(`[Content Generation] Using ${LLM_PROVIDER} provider`);
+    if (LLM_PROVIDER === 'ollama') {
+      console.log(`[Ollama] URL: ${OLLAMA_BASE_URL}, Model: ${OLLAMA_MODEL}`);
+    }
+
     const { story, platform } = await request.json();
 
     if (!story || !story.title || !story.content) {
@@ -158,25 +168,60 @@ Generate a ${platform} post that:
 
 Return ONLY the social media post text, ready to copy and paste. No explanations or meta-commentary.`;
 
-    const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5',
-      max_tokens: 2048,
-      messages: [
-        {
-          role: 'user',
-          content: prompt
-        }
-      ]
-    });
+    let content = '';
 
-    const content = message.content[0].type === 'text' ? message.content[0].text : '';
+    // Use Ollama for local testing or Anthropic for production
+    if (LLM_PROVIDER === 'ollama') {
+      // Call Ollama API (local model)
+      const ollamaResponse = await fetch(`${OLLAMA_BASE_URL}/api/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: OLLAMA_MODEL,
+          prompt: prompt,
+          stream: false,
+          options: {
+            temperature: 0.7,
+            top_p: 0.9,
+          }
+        })
+      });
+
+      if (!ollamaResponse.ok) {
+        throw new Error(`Ollama API error: ${ollamaResponse.statusText}`);
+      }
+
+      const ollamaData = await ollamaResponse.json();
+      content = ollamaData.response || '';
+
+    } else {
+      // Call Anthropic API (Claude)
+      const message = await anthropic.messages.create({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 2048,
+        messages: [
+          {
+            role: 'user',
+            content: prompt
+          }
+        ]
+      });
+
+      content = message.content[0].type === 'text' ? message.content[0].text : '';
+    }
 
     return NextResponse.json({ content, suggestion: null });
 
   } catch (error: any) {
-    console.error('Error generating content:', error);
+    console.error(`Error generating content (${LLM_PROVIDER}):`, error);
     return NextResponse.json(
-      { error: error.message || 'Failed to generate content' },
+      {
+        error: error.message || 'Failed to generate content',
+        provider: LLM_PROVIDER,
+        details: LLM_PROVIDER === 'ollama'
+          ? `Make sure Ollama is running at ${OLLAMA_BASE_URL} with model ${OLLAMA_MODEL}`
+          : 'Check your Anthropic API key'
+      },
       { status: 500 }
     );
   }
