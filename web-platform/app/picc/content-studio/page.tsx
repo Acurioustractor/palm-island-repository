@@ -43,10 +43,23 @@ export default function ContentStudioPage() {
   });
   const [editingPlatform, setEditingPlatform] = useState<string | null>(null);
   const [editedContent, setEditedContent] = useState<string>('');
+  const [aiProvider, setAiProvider] = useState<string>('Loading...');
 
   useEffect(() => {
     loadStories();
+    checkAIProvider();
   }, []);
+
+  const checkAIProvider = async () => {
+    try {
+      const response = await fetch('/api/ai-provider');
+      const data = await response.json();
+      setAiProvider(data.provider === 'ollama' ? 'Ollama (Local)' : 'Claude Sonnet 4.5 (Cloud)');
+    } catch (error) {
+      console.error('Error checking AI provider:', error);
+      setAiProvider('Unknown');
+    }
+  };
 
   useEffect(() => {
     // Reset generated content when story changes
@@ -168,6 +181,9 @@ export default function ContentStudioPage() {
           <h1 className="text-3xl font-bold text-gray-900">Content Studio</h1>
           <span className="px-3 py-1 bg-purple-100 text-purple-700 text-sm font-medium rounded-full">
             AI-Powered
+          </span>
+          <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+            {aiProvider}
           </span>
         </div>
         <p className="text-gray-600">
