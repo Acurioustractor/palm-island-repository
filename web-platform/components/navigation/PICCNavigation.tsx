@@ -49,10 +49,10 @@ export function PICCNavigation() {
       title: 'Story Management',
       icon: BookOpen,
       items: [
-        { label: 'All Stories', href: '/admin/storytellers', icon: BookOpen, description: 'View all stories' },
-        { label: 'Create New', href: '/share-voice', icon: Plus, description: 'Add new story' },
+        { label: 'All Stories', href: '/picc/admin/storytellers', icon: BookOpen, description: 'View all stories' },
+        { label: 'Create New', href: '/picc/create', icon: Plus, description: 'Add new story' },
         { label: 'Pending Review', href: '/picc/submissions', icon: Clock, description: 'Review submissions', badge: '0' },
-        { label: 'Published', href: '/stories', icon: Eye, description: 'View published stories' },
+        { label: 'Published', href: '/picc/published', icon: Eye, description: 'View published stories' },
         { label: 'Drafts', href: '/picc/drafts', icon: Edit, description: 'Manage drafts' },
         { label: 'Archived', href: '/picc/archived', icon: Archive, description: 'Archived stories' },
       ],
@@ -61,9 +61,9 @@ export function PICCNavigation() {
       title: 'Community',
       icon: Users,
       items: [
-        { label: 'Storytellers', href: '/storytellers', icon: Users, description: 'All storytellers' },
+        { label: 'Storytellers', href: '/picc/storytellers', icon: Users, description: 'All storytellers' },
         { label: 'Community Voice', href: '/picc/community-voice', icon: Mic, description: 'Anonymous stories' },
-        { label: 'Upload Photos', href: '/admin/upload-photos', icon: Upload, description: 'Profile photos' },
+        { label: 'Upload Photos', href: '/picc/admin/upload-photos', icon: Upload, description: 'Profile photos' },
         { label: 'Permissions', href: '/picc/permissions', icon: Shield, description: 'Cultural protocols' },
       ],
     },
@@ -82,10 +82,10 @@ export function PICCNavigation() {
       title: 'Analytics & Insights',
       icon: BarChart3,
       items: [
-        { label: 'Overview', href: '/analytics', icon: BarChart3, description: 'Key metrics' },
-        { label: 'Story Analytics', href: '/insights/patterns', icon: TrendingUp, description: 'Story insights' },
-        { label: 'Impact Dashboard', href: '/insights/impact', icon: Target, description: 'Impact analysis' },
-        { label: 'Timeline View', href: '/insights/timeline', icon: Clock, description: 'Timeline analysis' },
+        { label: 'Overview', href: '/picc/analytics', icon: BarChart3, description: 'Key metrics' },
+        { label: 'Story Analytics', href: '/picc/insights/patterns', icon: TrendingUp, description: 'Story insights' },
+        { label: 'Impact Dashboard', href: '/picc/insights/impact', icon: Target, description: 'Impact analysis' },
+        { label: 'Timeline View', href: '/picc/insights/timeline', icon: Clock, description: 'Timeline analysis' },
         { label: 'Export Reports', href: '/picc/reports', icon: Download, description: 'Download reports' },
       ],
     },
@@ -192,7 +192,7 @@ export function PICCNavigation() {
             </span>
           </Link>
           <Link
-            href="/share-voice"
+            href="/picc/create"
             className="flex items-center gap-2 w-full px-4 py-2 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white rounded-lg transition-all text-sm font-semibold"
           >
             <Plus className="h-4 w-4" />
