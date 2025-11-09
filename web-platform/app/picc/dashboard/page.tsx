@@ -171,7 +171,7 @@ export default async function PICCDashboard() {
       </div>
 
       {/* Pending Review */}
-      {submittedStories && submittedStories > 0 && (
+      {(submittedStories ?? 0) > 0 && (
         <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200 mb-8">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
