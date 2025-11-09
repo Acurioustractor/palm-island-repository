@@ -30,6 +30,8 @@ export default function ContentStudioPage() {
   const loadStories = async () => {
     const supabase = createClient();
 
+    console.log('Loading stories...');
+
     // Simplified query without join - just get the stories
     const { data, error } = await supabase
       .from('stories')
@@ -41,9 +43,13 @@ export default function ContentStudioPage() {
 
     if (error) {
       console.error('Error loading stories:', error);
+      alert(`Error loading stories: ${error.message}`);
       setLoading(false);
       return;
     }
+
+    console.log('Stories loaded:', data?.length || 0, 'stories');
+    console.log('First story:', data?.[0]);
 
     if (data) {
       setStories(data as any);
