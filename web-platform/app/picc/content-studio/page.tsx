@@ -11,7 +11,6 @@ interface Story {
   id: string;
   title: string;
   content?: string;
-  story_category: string;
   created_at: string;
   storyteller_id?: string;
 }
@@ -34,7 +33,7 @@ export default function ContentStudioPage() {
     // Simplified query without join - just get the stories
     const { data, error } = await supabase
       .from('stories')
-      .select('id, title, content, story_category, created_at, storyteller_id')
+      .select('id, title, content, created_at, storyteller_id')
       .eq('status', 'published')
       .eq('is_public', true)
       .order('created_at', { ascending: false })
