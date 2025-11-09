@@ -50,10 +50,10 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
   // Map of project slugs to their immersive story URLs
   const storyUrls: Record<string, string> = {
-    'photo-studio': '/stories/photo-studio-journey',
+    'photo-studio': '/immersive-stories/photo-studio-journey',
     // Add more stories as they're created
-    // 'the-station': '/stories/the-station-story',
-    // 'elders-trips': '/stories/elders-journey',
+    // 'the-station': '/immersive-stories/the-station-story',
+    // 'elders-trips': '/immersive-stories/elders-journey',
   };
 
   const storyUrl = storyUrls[project.slug];

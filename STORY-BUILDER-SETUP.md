@@ -79,8 +79,8 @@ Test the setup:
 10. Click "Preview" to see the live story
 
 **Viewing a Story:**
-- Saved stories appear at: `/stories/[project-slug]-story`
-- Example: `/stories/photo-studio-story`
+- Saved stories appear at: `/immersive-stories/[project-slug]-story`
+- Example: `/immersive-stories/photo-studio-story`
 - Click "View Immersive Story" card on project page
 
 ## Features

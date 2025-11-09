@@ -360,7 +360,7 @@ export default function StoryBuilderPage({ params }: { params: { slug: string } 
       return;
     }
     const slug = `${params.slug}-story`;
-    window.open(`/stories/${slug}`, '_blank');
+    window.open(`/immersive-stories/${slug}`, '_blank');
   };
 
   const getSectionIcon = (type: string) => {
