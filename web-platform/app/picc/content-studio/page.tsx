@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import {
-  FileText, Copy, Check, Download, Instagram, Facebook,
-  Linkedin, Twitter, Image as ImageIcon, Mail, Sparkles
+  FileText, Copy, Check, Instagram, Facebook,
+  Linkedin, Twitter, Sparkles, RefreshCw, Edit2, AlertCircle
 } from 'lucide-react';
 
 interface Story {
@@ -15,28 +15,56 @@ interface Story {
   storyteller_id?: string;
 }
 
+interface GeneratedContent {
+  instagram?: string;
+  facebook?: string;
+  linkedin?: string;
+  twitter?: string;
+}
+
+interface GeneratingState {
+  instagram: boolean;
+  facebook: boolean;
+  linkedin: boolean;
+  twitter: boolean;
+}
+
 export default function ContentStudioPage() {
   const [stories, setStories] = useState<Story[]>([]);
   const [selectedStory, setSelectedStory] = useState<Story | null>(null);
   const [loading, setLoading] = useState(true);
   const [copiedFormat, setCopiedFormat] = useState<string | null>(null);
+  const [generatedContent, setGeneratedContent] = useState<GeneratedContent>({});
+  const [generating, setGenerating] = useState<GeneratingState>({
+    instagram: false,
+    facebook: false,
+    linkedin: false,
+    twitter: false
+  });
+  const [editingPlatform, setEditingPlatform] = useState<string | null>(null);
+  const [editedContent, setEditedContent] = useState<string>('');
 
   useEffect(() => {
     loadStories();
   }, []);
 
+  useEffect(() => {
+    // Reset generated content when story changes
+    if (selectedStory) {
+      setGeneratedContent({});
+      setEditingPlatform(null);
+    }
+  }, [selectedStory?.id]);
+
   const loadStories = async () => {
     const supabase = createClient();
 
-    console.log('Loading stories...');
-
-    // Simplified query without join - just get the stories
     const { data, error } = await supabase
       .from('stories')
       .select('id, title, content, created_at, storyteller_id')
       .eq('status', 'published')
       .eq('is_public', true)
-      .order('created_at', { ascending: false })
+      .order('created_at', { ascending: false})
       .limit(50);
 
     if (error) {
@@ -46,13 +74,50 @@ export default function ContentStudioPage() {
       return;
     }
 
-    console.log('Stories loaded:', data?.length || 0, 'stories');
-    console.log('First story:', data?.[0]);
-
     if (data) {
       setStories(data as any);
     }
     setLoading(false);
+  };
+
+  const generateContent = async (platform: string, regenerate: boolean = false) => {
+    if (!selectedStory) return;
+
+    setGenerating(prev => ({ ...prev, [platform]: true }));
+
+    try {
+      const response = await fetch('/api/generate-content', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          story: selectedStory,
+          platform
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        alert(`Error: ${data.error}`);
+        return;
+      }
+
+      setGeneratedContent(prev => ({
+        ...prev,
+        [platform]: data.content
+      }));
+
+      if (data.suggestion === 'skip') {
+        // Show warning for fragments
+        console.log('Fragment detected - showing skip recommendation');
+      }
+
+    } catch (error: any) {
+      console.error('Generation error:', error);
+      alert('Failed to generate content. Please try again.');
+    } finally {
+      setGenerating(prev => ({ ...prev, [platform]: false }));
+    }
   };
 
   const copyToClipboard = async (text: string, format: string) => {
@@ -65,91 +130,22 @@ export default function ContentStudioPage() {
     }
   };
 
-  const getStorytellerName = (story: Story) => {
-    // For now, all stories show as Community Voice
-    // Could enhance this later to fetch storyteller names
-    return 'Community Voice';
+  const startEditing = (platform: string, content: string) => {
+    setEditingPlatform(platform);
+    setEditedContent(content);
   };
 
-  // Export formats
-  const generateInstagramCaption = (story: Story) => {
-    const storyteller = getStorytellerName(story);
-    const excerpt = story.content?.slice(0, 200) || '';
-
-    return `✨ ${story.title}
-
-${excerpt}${excerpt.length >= 200 ? '...' : ''}
-
-Shared by: ${storyteller}
-
-Read the full story on our website 🔗 (link in bio)
-
-#PalmIsland #CommunityStories #IndigenousVoices #Empowerment #CommunityLed #FirstNations`;
+  const saveEdit = (platform: string) => {
+    setGeneratedContent(prev => ({
+      ...prev,
+      [platform]: editedContent
+    }));
+    setEditingPlatform(null);
   };
 
-  const generateFacebookPost = (story: Story) => {
-    const storyteller = getStorytellerName(story);
-    const excerpt = story.content?.slice(0, 300) || '';
-
-    return `${story.title}
-
-${excerpt}${excerpt.length >= 300 ? '...' : ''}
-
-This story was shared by ${storyteller} as part of our community-controlled storytelling platform.
-
-👉 Read the full story: [INSERT LINK]
-
-#PalmIslandCommunity #IndigenousStories #CommunityVoices`;
-  };
-
-  const generateLinkedInPost = (story: Story) => {
-    const storyteller = getStorytellerName(story);
-    const excerpt = story.content?.slice(0, 400) || '';
-
-    return `${story.title}
-
-${excerpt}${excerpt.length >= 400 ? '...' : ''}
-
-This powerful story comes from ${storyteller}, highlighting the incredible work happening in Palm Island Community through community-controlled storytelling and data sovereignty.
-
-Our platform enables community members to share their stories on their own terms, maintaining full control over their narratives and data.
-
-Read more: [INSERT LINK]
-
-#CommunityEmpowerment #DataSovereignty #IndigenousLeadership #SocialImpact`;
-  };
-
-  const generateTwitterThread = (story: Story) => {
-    const storyteller = getStorytellerName(story);
-    const excerpt = story.content?.slice(0, 200) || '';
-
-    return `🧵 ${story.title}
-
-1/ ${excerpt}${excerpt.length >= 200 ? '...' : ''}
-
-2/ Shared by ${storyteller} through our community-controlled platform, ensuring Palm Island stories are told with full data sovereignty.
-
-3/ Read the full story: [INSERT LINK]
-
-#PalmIsland #IndigenousVoices`;
-  };
-
-  const generateEmailNewsletter = (story: Story) => {
-    const storyteller = getStorytellerName(story);
-    const excerpt = story.content?.slice(0, 300) || '';
-
-    return `📖 Featured Story: ${story.title}
-
-${excerpt}${excerpt.length >= 300 ? '...' : ''}
-
-This story was shared by ${storyteller}.
-
-[Read Full Story Button → INSERT LINK]
-
----
-
-Palm Island Community Repository
-Community-controlled storytelling | Data sovereignty | Empowerment`;
+  const cancelEdit = () => {
+    setEditingPlatform(null);
+    setEditedContent('');
   };
 
   if (loading) {
@@ -170,9 +166,12 @@ Community-controlled storytelling | Data sovereignty | Empowerment`;
         <div className="flex items-center gap-3 mb-2">
           <Sparkles className="w-8 h-8 text-purple-600" />
           <h1 className="text-3xl font-bold text-gray-900">Content Studio</h1>
+          <span className="px-3 py-1 bg-purple-100 text-purple-700 text-sm font-medium rounded-full">
+            AI-Powered
+          </span>
         </div>
         <p className="text-gray-600">
-          Export stories to social media, create shareable content, and amplify community voices
+          Generate authentic social media content using AI trained on PICC's voice
         </p>
       </div>
 
@@ -200,7 +199,7 @@ Community-controlled storytelling | Data sovereignty | Empowerment`;
                       {story.title}
                     </div>
                     <div className="text-xs text-gray-600">
-                      {getStorytellerName(story)}
+                      Community Voice
                     </div>
                   </button>
                 ))}
@@ -209,14 +208,14 @@ Community-controlled storytelling | Data sovereignty | Empowerment`;
           </div>
         </div>
 
-        {/* Export Formats */}
+        {/* AI Generation Area */}
         <div className="lg:col-span-2">
           {!selectedStory ? (
             <div className="bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 p-12 text-center">
               <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-gray-600 mb-2">Select a Story</h3>
               <p className="text-gray-500">
-                Choose a story from the list to see export options
+                Choose a story to generate AI-powered social media content
               </p>
             </div>
           ) : (
@@ -227,80 +226,90 @@ Community-controlled storytelling | Data sovereignty | Empowerment`;
                   {selectedStory.title}
                 </h2>
                 <p className="text-sm text-gray-600 mb-4">
-                  By {getStorytellerName(selectedStory)}
+                  By Community Voice
                 </p>
                 {selectedStory.content && (
                   <p className="text-gray-700 line-clamp-3">{selectedStory.content}</p>
                 )}
               </div>
 
-              {/* Export Options */}
+              {/* Platform Generators */}
               <div className="grid md:grid-cols-2 gap-4">
-                {/* Instagram */}
-                <ExportCard
+                <AIExportCard
                   icon={<Instagram className="w-5 h-5" />}
-                  title="Instagram Caption"
+                  title="Instagram"
+                  platform="instagram"
                   color="pink"
-                  content={generateInstagramCaption(selectedStory)}
-                  onCopy={() => copyToClipboard(generateInstagramCaption(selectedStory), 'instagram')}
+                  content={generatedContent.instagram}
+                  generating={generating.instagram}
+                  onGenerate={() => generateContent('instagram')}
+                  onRegenerate={() => generateContent('instagram', true)}
+                  onCopy={() => copyToClipboard(generatedContent.instagram!, 'instagram')}
                   copied={copiedFormat === 'instagram'}
+                  isEditing={editingPlatform === 'instagram'}
+                  editedContent={editedContent}
+                  onEdit={() => startEditing('instagram', generatedContent.instagram!)}
+                  onSaveEdit={() => saveEdit('instagram')}
+                  onCancelEdit={cancelEdit}
+                  onEditChange={setEditedContent}
                 />
 
-                {/* Facebook */}
-                <ExportCard
+                <AIExportCard
                   icon={<Facebook className="w-5 h-5" />}
-                  title="Facebook Post"
+                  title="Facebook"
+                  platform="facebook"
                   color="blue"
-                  content={generateFacebookPost(selectedStory)}
-                  onCopy={() => copyToClipboard(generateFacebookPost(selectedStory), 'facebook')}
+                  content={generatedContent.facebook}
+                  generating={generating.facebook}
+                  onGenerate={() => generateContent('facebook')}
+                  onRegenerate={() => generateContent('facebook', true)}
+                  onCopy={() => copyToClipboard(generatedContent.facebook!, 'facebook')}
                   copied={copiedFormat === 'facebook'}
+                  isEditing={editingPlatform === 'facebook'}
+                  editedContent={editedContent}
+                  onEdit={() => startEditing('facebook', generatedContent.facebook!)}
+                  onSaveEdit={() => saveEdit('facebook')}
+                  onCancelEdit={cancelEdit}
+                  onEditChange={setEditedContent}
                 />
 
-                {/* LinkedIn */}
-                <ExportCard
+                <AIExportCard
                   icon={<Linkedin className="w-5 h-5" />}
-                  title="LinkedIn Post"
+                  title="LinkedIn"
+                  platform="linkedin"
                   color="sky"
-                  content={generateLinkedInPost(selectedStory)}
-                  onCopy={() => copyToClipboard(generateLinkedInPost(selectedStory), 'linkedin')}
+                  content={generatedContent.linkedin}
+                  generating={generating.linkedin}
+                  onGenerate={() => generateContent('linkedin')}
+                  onRegenerate={() => generateContent('linkedin', true)}
+                  onCopy={() => copyToClipboard(generatedContent.linkedin!, 'linkedin')}
                   copied={copiedFormat === 'linkedin'}
+                  isEditing={editingPlatform === 'linkedin'}
+                  editedContent={editedContent}
+                  onEdit={() => startEditing('linkedin', generatedContent.linkedin!)}
+                  onSaveEdit={() => saveEdit('linkedin')}
+                  onCancelEdit={cancelEdit}
+                  onEditChange={setEditedContent}
                 />
 
-                {/* Twitter */}
-                <ExportCard
+                <AIExportCard
                   icon={<Twitter className="w-5 h-5" />}
-                  title="Twitter Thread"
+                  title="Twitter/X"
+                  platform="twitter"
                   color="blue"
-                  content={generateTwitterThread(selectedStory)}
-                  onCopy={() => copyToClipboard(generateTwitterThread(selectedStory), 'twitter')}
+                  content={generatedContent.twitter}
+                  generating={generating.twitter}
+                  onGenerate={() => generateContent('twitter')}
+                  onRegenerate={() => generateContent('twitter', true)}
+                  onCopy={() => copyToClipboard(generatedContent.twitter!, 'twitter')}
                   copied={copiedFormat === 'twitter'}
+                  isEditing={editingPlatform === 'twitter'}
+                  editedContent={editedContent}
+                  onEdit={() => startEditing('twitter', generatedContent.twitter!)}
+                  onSaveEdit={() => saveEdit('twitter')}
+                  onCancelEdit={cancelEdit}
+                  onEditChange={setEditedContent}
                 />
-
-                {/* Email Newsletter */}
-                <ExportCard
-                  icon={<Mail className="w-5 h-5" />}
-                  title="Email Newsletter"
-                  color="purple"
-                  content={generateEmailNewsletter(selectedStory)}
-                  onCopy={() => copyToClipboard(generateEmailNewsletter(selectedStory), 'email')}
-                  copied={copiedFormat === 'email'}
-                />
-
-                {/* Quote Card - Coming Soon */}
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border-2 border-dashed border-gray-300 p-6">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="p-2 bg-gray-200 rounded-lg">
-                      <ImageIcon className="w-5 h-5 text-gray-600" />
-                    </div>
-                    <h3 className="font-bold text-gray-900">Quote Card Generator</h3>
-                  </div>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Create shareable quote images
-                  </p>
-                  <div className="text-xs text-gray-500 font-medium">
-                    Coming soon...
-                  </div>
-                </div>
               </div>
             </div>
           )}
@@ -310,22 +319,50 @@ Community-controlled storytelling | Data sovereignty | Empowerment`;
   );
 }
 
-interface ExportCardProps {
+interface AIExportCardProps {
   icon: React.ReactNode;
   title: string;
-  color: 'pink' | 'blue' | 'sky' | 'purple';
-  content: string;
+  platform: string;
+  color: 'pink' | 'blue' | 'sky';
+  content?: string;
+  generating: boolean;
+  onGenerate: () => void;
+  onRegenerate: () => void;
   onCopy: () => void;
   copied: boolean;
+  isEditing: boolean;
+  editedContent: string;
+  onEdit: () => void;
+  onSaveEdit: () => void;
+  onCancelEdit: () => void;
+  onEditChange: (value: string) => void;
 }
 
-function ExportCard({ icon, title, color, content, onCopy, copied }: ExportCardProps) {
+function AIExportCard({
+  icon,
+  title,
+  platform,
+  color,
+  content,
+  generating,
+  onGenerate,
+  onRegenerate,
+  onCopy,
+  copied,
+  isEditing,
+  editedContent,
+  onEdit,
+  onSaveEdit,
+  onCancelEdit,
+  onEditChange
+}: AIExportCardProps) {
   const colorClasses = {
-    pink: 'bg-pink-100 text-pink-700 hover:bg-pink-200',
-    blue: 'bg-blue-100 text-blue-700 hover:bg-blue-200',
-    sky: 'bg-sky-100 text-sky-700 hover:bg-sky-200',
-    purple: 'bg-purple-100 text-purple-700 hover:bg-purple-200',
+    pink: 'bg-pink-100 text-pink-700',
+    blue: 'bg-blue-100 text-blue-700',
+    sky: 'bg-sky-100 text-sky-700',
   };
+
+  const isFragment = content?.includes('[RECOMMENDATION: Skip social media');
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
@@ -335,22 +372,97 @@ function ExportCard({ icon, title, color, content, onCopy, copied }: ExportCardP
             {icon}
             <h3 className="font-bold">{title}</h3>
           </div>
-          <button
-            onClick={onCopy}
-            className="p-2 bg-white rounded-md hover:bg-gray-50 transition-colors"
-          >
-            {copied ? (
-              <Check className="w-4 h-4 text-green-600" />
-            ) : (
-              <Copy className="w-4 h-4 text-gray-600" />
-            )}
-          </button>
+          {content && !isEditing && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={onEdit}
+                className="p-2 bg-white rounded-md hover:bg-gray-50 transition-colors"
+                title="Edit"
+              >
+                <Edit2 className="w-4 h-4 text-gray-600" />
+              </button>
+              <button
+                onClick={onRegenerate}
+                className="p-2 bg-white rounded-md hover:bg-gray-50 transition-colors"
+                disabled={generating}
+                title="Regenerate"
+              >
+                <RefreshCw className={`w-4 h-4 text-gray-600 ${generating ? 'animate-spin' : ''}`} />
+              </button>
+              <button
+                onClick={onCopy}
+                className="p-2 bg-white rounded-md hover:bg-gray-50 transition-colors"
+                title="Copy"
+              >
+                {copied ? (
+                  <Check className="w-4 h-4 text-green-600" />
+                ) : (
+                  <Copy className="w-4 h-4 text-gray-600" />
+                )}
+              </button>
+            </div>
+          )}
         </div>
       </div>
+
       <div className="p-4">
-        <div className="text-sm text-gray-700 whitespace-pre-wrap max-h-48 overflow-y-auto bg-gray-50 rounded p-3">
-          {content}
-        </div>
+        {!content && !generating && (
+          <button
+            onClick={onGenerate}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium rounded-lg transition-all"
+          >
+            <Sparkles className="w-4 h-4" />
+            Generate with AI
+          </button>
+        )}
+
+        {generating && (
+          <div className="flex items-center justify-center gap-3 py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+            <p className="text-gray-600">AI is writing...</p>
+          </div>
+        )}
+
+        {content && !generating && (
+          <>
+            {isFragment && (
+              <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2">
+                <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-amber-800">
+                  This appears to be a brief fragment. Consider skipping social media or combining with other stories.
+                </p>
+              </div>
+            )}
+
+            {isEditing ? (
+              <div className="space-y-3">
+                <textarea
+                  value={editedContent}
+                  onChange={(e) => onEditChange(e.target.value)}
+                  className="w-full h-48 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm font-mono"
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={onSaveEdit}
+                    className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={onCancelEdit}
+                    className="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="text-sm text-gray-700 whitespace-pre-wrap max-h-96 overflow-y-auto bg-gray-50 rounded-lg p-4 border border-gray-200">
+                {content}
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   );
