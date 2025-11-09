@@ -116,7 +116,7 @@ export default async function PICCDashboard() {
       {/* Quick Actions */}
       <div className="grid md:grid-cols-3 gap-6 mb-8">
           <Link
-            href="/admin/storytellers"
+            href="/picc/admin/storytellers"
             className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg border border-gray-200 hover:border-blue-300 transition-all group"
           >
             <div className="flex items-center gap-4 mb-4">
@@ -135,7 +135,7 @@ export default async function PICCDashboard() {
           </Link>
 
           <Link
-            href="/analytics"
+            href="/picc/analytics"
             className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg border border-gray-200 hover:border-teal-300 transition-all group"
           >
             <div className="flex items-center gap-4 mb-4">
@@ -179,7 +179,7 @@ export default async function PICCDashboard() {
                 <h2 className="text-xl font-bold text-gray-900">Pending Review</h2>
               </div>
               <Link
-                href="/admin/storytellers"
+                href="/picc/admin/storytellers"
                 className="text-blue-600 hover:text-blue-700 font-semibold text-sm"
               >
                 View All →
