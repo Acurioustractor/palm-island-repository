@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import {
   BookOpen, Users, MapPin, Clock, Tag, TrendingUp,
   BarChart3, Settings, Search, Menu, X, Home,
-  Globe, Heart, Sparkles, ChevronRight, ChevronDown, Lightbulb
+  Globe, Heart, Sparkles, ChevronRight, ChevronDown, Lightbulb, Mic
 } from 'lucide-react';
 
 interface NavItem {
@@ -42,7 +42,7 @@ export function WikiNavigation() {
       { label: 'Topics', href: '/wiki/topics', icon: Globe },
     ],
     contribute: [
-      { label: 'Share Story', href: '/stories/submit', icon: Heart },
+      { label: 'Share Your Voice', href: '/share-voice', icon: Mic },
       { label: 'Edit Profile', href: '/profile/edit', icon: Users },
       { label: 'Upload Media', href: '/media/upload', icon: Sparkles },
     ],
