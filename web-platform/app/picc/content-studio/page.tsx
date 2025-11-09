@@ -10,7 +10,6 @@ import {
 interface Story {
   id: string;
   title: string;
-  summary?: string;
   content?: string;
   story_category: string;
   created_at: string;
@@ -35,7 +34,7 @@ export default function ContentStudioPage() {
     // Simplified query without join - just get the stories
     const { data, error } = await supabase
       .from('stories')
-      .select('id, title, summary, content, story_category, created_at, storyteller_id')
+      .select('id, title, content, story_category, created_at, storyteller_id')
       .eq('status', 'published')
       .eq('is_public', true)
       .order('created_at', { ascending: false })
@@ -76,11 +75,11 @@ export default function ContentStudioPage() {
   // Export formats
   const generateInstagramCaption = (story: Story) => {
     const storyteller = getStorytellerName(story);
-    const excerpt = story.summary || story.content?.slice(0, 200) + '...';
+    const excerpt = story.content?.slice(0, 200) || '';
 
     return `✨ ${story.title}
 
-${excerpt}
+${excerpt}${excerpt.length >= 200 ? '...' : ''}
 
 Shared by: ${storyteller}
 
@@ -91,11 +90,11 @@ Read the full story on our website 🔗 (link in bio)
 
   const generateFacebookPost = (story: Story) => {
     const storyteller = getStorytellerName(story);
-    const excerpt = story.summary || story.content?.slice(0, 300) + '...';
+    const excerpt = story.content?.slice(0, 300) || '';
 
     return `${story.title}
 
-${excerpt}
+${excerpt}${excerpt.length >= 300 ? '...' : ''}
 
 This story was shared by ${storyteller} as part of our community-controlled storytelling platform.
 
@@ -106,11 +105,11 @@ This story was shared by ${storyteller} as part of our community-controlled stor
 
   const generateLinkedInPost = (story: Story) => {
     const storyteller = getStorytellerName(story);
-    const excerpt = story.summary || story.content?.slice(0, 400) + '...';
+    const excerpt = story.content?.slice(0, 400) || '';
 
     return `${story.title}
 
-${excerpt}
+${excerpt}${excerpt.length >= 400 ? '...' : ''}
 
 This powerful story comes from ${storyteller}, highlighting the incredible work happening in Palm Island Community through community-controlled storytelling and data sovereignty.
 
@@ -123,7 +122,7 @@ Read more: [INSERT LINK]
 
   const generateTwitterThread = (story: Story) => {
     const storyteller = getStorytellerName(story);
-    const excerpt = story.content?.slice(0, 200) || story.summary?.slice(0, 200) || '';
+    const excerpt = story.content?.slice(0, 200) || '';
 
     return `🧵 ${story.title}
 
@@ -138,11 +137,11 @@ Read more: [INSERT LINK]
 
   const generateEmailNewsletter = (story: Story) => {
     const storyteller = getStorytellerName(story);
-    const excerpt = story.summary || story.content?.slice(0, 300) + '...';
+    const excerpt = story.content?.slice(0, 300) || '';
 
     return `📖 Featured Story: ${story.title}
 
-${excerpt}
+${excerpt}${excerpt.length >= 300 ? '...' : ''}
 
 This story was shared by ${storyteller}.
 
@@ -231,8 +230,8 @@ Community-controlled storytelling | Data sovereignty | Empowerment`;
                 <p className="text-sm text-gray-600 mb-4">
                   By {getStorytellerName(selectedStory)}
                 </p>
-                {selectedStory.summary && (
-                  <p className="text-gray-700">{selectedStory.summary}</p>
+                {selectedStory.content && (
+                  <p className="text-gray-700 line-clamp-3">{selectedStory.content}</p>
                 )}
               </div>
 
