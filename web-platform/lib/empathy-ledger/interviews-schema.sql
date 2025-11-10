@@ -82,6 +82,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Drop trigger if it exists to avoid conflicts
+DROP TRIGGER IF EXISTS interviews_updated_at ON interviews;
+
 CREATE TRIGGER interviews_updated_at
   BEFORE UPDATE ON interviews
   FOR EACH ROW

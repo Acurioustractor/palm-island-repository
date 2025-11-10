@@ -97,6 +97,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Drop trigger if it exists to avoid conflicts
+DROP TRIGGER IF EXISTS media_files_updated_at ON media_files;
+
 CREATE TRIGGER media_files_updated_at
   BEFORE UPDATE ON media_files
   FOR EACH ROW
