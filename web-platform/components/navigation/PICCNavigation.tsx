@@ -49,7 +49,6 @@ export function PICCNavigation() {
       title: 'Story Management',
       icon: BookOpen,
       items: [
-        { label: 'All Stories', href: '/picc/admin/storytellers', icon: BookOpen, description: 'View all stories' },
         { label: 'Create New', href: '/picc/create', icon: Plus, description: 'Add new story' },
         { label: 'Pending Review', href: '/picc/submissions', icon: Clock, description: 'Review submissions', badge: '0' },
         { label: 'Published', href: '/picc/published', icon: Eye, description: 'View published stories' },
