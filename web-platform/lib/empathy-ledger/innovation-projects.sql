@@ -53,7 +53,7 @@ Key Features:
 • Youth Hub - Safe space for young people to learn and create
 
 The Station operates on the principle that innovation happens at the intersection of tradition and technology. It''s designed and run by community members, ensuring cultural safety and community ownership.',
-    'active',
+    'in_progress',
     'infrastructure',
     '2023-06-01',
     ARRAY['education', 'culture', 'employment', 'innovation'],
@@ -100,7 +100,7 @@ Impact:
 • Youth gain direct learning from knowledge holders
 • Cultural knowledge is preserved for future generations
 • Community strengthens through shared cultural experiences',
-    'active',
+    'in_progress',
     'program',
     '2023-03-01',
     ARRAY['culture', 'health', 'education', 'elders'],
@@ -206,7 +206,7 @@ Target Outputs:
 • Impact summaries for community
 • Social media content throughout the year
 • Evidence base for future funding applications',
-    'active',
+    'in_progress',
     'system',
     '2023-09-01',
     ARRAY['innovation', 'governance'],
