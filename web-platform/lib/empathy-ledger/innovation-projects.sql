@@ -15,9 +15,9 @@ BEGIN
 
   IF admin_profile_id IS NULL THEN
     INSERT INTO profiles (
-      tenant_id, full_name, email, storyteller_type, primary_organization_id
+      full_name, email, storyteller_type
     ) VALUES (
-      picc_tenant_id, 'PICC Admin', 'admin@picc.org', 'service_provider', picc_org_id
+      'PICC Admin', 'admin@picc.org', 'service_provider'
     ) RETURNING id INTO admin_profile_id;
   END IF;
 
@@ -26,8 +26,6 @@ BEGIN
   -- ============================================================================
 
   INSERT INTO projects (
-    tenant_id,
-    organization_id,
     slug,
     name,
     tagline,
@@ -41,8 +39,6 @@ BEGIN
     project_lead,
     created_by
   ) VALUES (
-    picc_tenant_id,
-    picc_org_id,
     'the-station',
     'The Station',
     'Community hub connecting culture, learning, and innovation',
@@ -72,8 +68,6 @@ The Station operates on the principle that innovation happens at the intersectio
   -- ============================================================================
 
   INSERT INTO projects (
-    tenant_id,
-    organization_id,
     slug,
     name,
     tagline,
@@ -87,8 +81,6 @@ The Station operates on the principle that innovation happens at the intersectio
     project_lead,
     created_by
   ) VALUES (
-    picc_tenant_id,
-    picc_org_id,
     'elders-trips',
     'Elders Trips',
     'Connecting Elders with Country and sharing cultural knowledge',
@@ -123,8 +115,6 @@ Impact:
   -- ============================================================================
 
   INSERT INTO projects (
-    tenant_id,
-    organization_id,
     slug,
     name,
     tagline,
@@ -138,8 +128,6 @@ Impact:
     project_lead,
     created_by
   ) VALUES (
-    picc_tenant_id,
-    picc_org_id,
     'on-country-server',
     'On-Country Server',
     'Community-controlled data storage and digital infrastructure',
@@ -178,8 +166,6 @@ This project is about more than technology - it''s about self-determination and 
   -- ============================================================================
 
   INSERT INTO projects (
-    tenant_id,
-    organization_id,
     slug,
     name,
     tagline,
@@ -193,8 +179,6 @@ This project is about more than technology - it''s about self-determination and 
     project_lead,
     created_by
   ) VALUES (
-    picc_tenant_id,
-    picc_org_id,
     'annual-report',
     'Automated Annual Reports',
     'Generate funder reports from real community stories',
