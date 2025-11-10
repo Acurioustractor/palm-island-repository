@@ -101,7 +101,7 @@ Impact:
 • Cultural knowledge is preserved for future generations
 • Community strengthens through shared cultural experiences',
     'in_progress',
-    'program',
+    'cultural',
     '2023-03-01',
     ARRAY['culture', 'health', 'education', 'elders'],
     true,
@@ -207,7 +207,7 @@ Target Outputs:
 • Social media content throughout the year
 • Evidence base for future funding applications',
     'in_progress',
-    'system',
+    'innovation',
     '2023-09-01',
     ARRAY['innovation', 'governance'],
     true,
