@@ -1,0 +1,91 @@
+/**
+ * Print Styles for Annual Report
+ * Optimized for PDF export via browser print
+ */
+
+@media print {
+  /* Remove margins and backgrounds */
+  @page {
+    margin: 1.5cm;
+    size: A4 portrait;
+  }
+
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* Hide interactive elements */
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Ensure white backgrounds for content blocks */
+  .bg-white {
+    background-color: white !important;
+  }
+
+  /* Preserve gradient backgrounds for headers and special sections */
+  .bg-gradient-to-r,
+  .bg-gradient-to-br {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* Page break controls */
+  .print\:page-break-before {
+    page-break-before: always;
+  }
+
+  .print\:page-break-after {
+    page-break-after: always;
+  }
+
+  .print\:page-break-inside-avoid {
+    page-break-inside: avoid;
+  }
+
+  /* Ensure charts and graphs don't break across pages */
+  .bg-white.rounded-xl {
+    page-break-inside: avoid;
+  }
+
+  /* Optimize text for print */
+  body {
+    font-size: 11pt;
+    line-height: 1.4;
+  }
+
+  h1 {
+    font-size: 24pt;
+  }
+
+  h2 {
+    font-size: 18pt;
+    page-break-after: avoid;
+  }
+
+  h3 {
+    font-size: 14pt;
+    page-break-after: avoid;
+  }
+
+  /* Remove shadows for cleaner print */
+  .shadow-xl,
+  .shadow-2xl,
+  .shadow-lg {
+    box-shadow: none !important;
+    border: 1px solid #e5e7eb;
+  }
+
+  /* Ensure links are visible */
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* Remove unnecessary padding/margins */
+  .container {
+    max-width: 100%;
+  }
+}
