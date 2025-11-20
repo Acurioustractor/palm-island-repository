@@ -53,7 +53,14 @@ export default function StoryServerDashboard() {
           .limit(5);
 
         setStoriesCount(count || 0);
-        setRecentStoriesData(stories || []);
+
+        // Transform data to handle Supabase join arrays
+        const transformedStories = (stories || []).map(story => ({
+          ...story,
+          storyteller: Array.isArray(story.storyteller) ? story.storyteller[0] : story.storyteller,
+        }));
+
+        setRecentStoriesData(transformedStories);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching stories:', error);

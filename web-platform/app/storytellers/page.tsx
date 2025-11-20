@@ -53,13 +53,16 @@ export default function StorytellerGalleryPage() {
         const storytellerMap = new Map<string, Storyteller>();
 
         stories?.forEach((story: any) => {
-          if (story.storyteller && story.storyteller.id) {
-            const existing = storytellerMap.get(story.storyteller.id);
+          // Transform storyteller array to object
+          const storyteller = Array.isArray(story.storyteller) ? story.storyteller[0] : story.storyteller;
+
+          if (storyteller && storyteller.id) {
+            const existing = storytellerMap.get(storyteller.id);
             if (existing) {
               existing.story_count = (existing.story_count || 0) + 1;
             } else {
-              storytellerMap.set(story.storyteller.id, {
-                ...story.storyteller,
+              storytellerMap.set(storyteller.id, {
+                ...storyteller,
                 story_count: 1,
               });
             }

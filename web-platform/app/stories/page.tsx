@@ -127,7 +127,17 @@ export default function StoriesGalleryPage() {
         }
 
         console.log('✅ Successfully fetched stories:', data?.length || 0, 'stories');
-        setStories(data || []);
+
+        // Transform data to handle Supabase join arrays
+        const transformedStories = (data || []).map(story => ({
+          ...story,
+          storyteller: Array.isArray(story.storyteller) ? story.storyteller[0] : story.storyteller,
+          organization: Array.isArray(story.organization) ? story.organization[0] : story.organization,
+          service: Array.isArray(story.service) ? story.service[0] : story.service,
+          project: Array.isArray(story.project) ? story.project[0] : story.project,
+        }));
+
+        setStories(transformedStories);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching stories:', error);

@@ -54,7 +54,13 @@ export default function StoryDetailPage() {
 
         if (error) throw error;
 
-        setStory(data);
+        // Transform data to handle Supabase join arrays
+        const transformedStory = data ? {
+          ...data,
+          storyteller: Array.isArray(data.storyteller) ? data.storyteller[0] : data.storyteller,
+        } : null;
+
+        setStory(transformedStory);
         setLoading(false);
       } catch (err: any) {
         console.error('Error fetching story:', err);
