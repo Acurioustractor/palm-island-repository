@@ -80,10 +80,6 @@ export default function StoriesGalleryPage() {
               service_color,
               icon_name
             ),
-            project:project_id (
-              id,
-              name
-            ),
             story_media (
               id,
               media_type,
@@ -91,8 +87,9 @@ export default function StoriesGalleryPage() {
               supabase_bucket
             )
           `)
-          .eq('is_public', true)
-          .eq('organization_id', '3c2011b9-f80d-4289-b300-0cd383cff479') // PICC Organization ID
+          // TEMPORARILY REMOVED FILTERS FOR DEBUGGING
+          // .eq('is_public', true)
+          // .eq('organization_id', '3c2011b9-f80d-4289-b300-0cd383cff479') // PICC Organization ID
           .order('created_at', { ascending: false });
 
         // If query fails (likely due to missing columns), fall back to minimal query
@@ -113,8 +110,9 @@ export default function StoriesGalleryPage() {
                 profile_image_url
               )
             `)
-            .eq('is_public', true)
-            .eq('organization_id', '3c2011b9-f80d-4289-b300-0cd383cff479') // PICC Organization ID
+            // TEMPORARILY REMOVED FILTERS FOR DEBUGGING
+            // .eq('is_public', true)
+            // .eq('organization_id', '3c2011b9-f80d-4289-b300-0cd383cff479') // PICC Organization ID
             .order('created_at', { ascending: false });
 
           data = basicResult.data;
@@ -134,7 +132,6 @@ export default function StoriesGalleryPage() {
           storyteller: Array.isArray(story.storyteller) ? story.storyteller[0] : story.storyteller,
           organization: Array.isArray(story.organization) ? story.organization[0] : story.organization,
           service: Array.isArray(story.service) ? story.service[0] : story.service,
-          project: Array.isArray(story.project) ? story.project[0] : story.project,
         }));
 
         setStories(transformedStories);
