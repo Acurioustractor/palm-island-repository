@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Camera, Server, Users, Heart, Mic, Image, MapPin, TrendingUp, Wifi, Plus } from 'lucide-react';
+import { Camera, Server, Users, Heart, Mic, Image, MapPin, TrendingUp, Wifi, Plus, FileText } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 
@@ -142,6 +142,13 @@ export default function StoryServerDashboard() {
             <p className="text-gray-600">Community-Driven Impact Measurement & Storytelling</p>
           </div>
           <div className="flex items-center space-x-3">
+            <Link
+              href="/reports/annual"
+              className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-all transform hover:scale-105 shadow-lg"
+            >
+              <FileText className="w-5 h-5" />
+              <span>Annual Report</span>
+            </Link>
             <Link
               href="/stories/submit"
               className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-all transform hover:scale-105 shadow-lg"
