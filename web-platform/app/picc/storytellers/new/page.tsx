@@ -88,9 +88,7 @@ export default function NewStorytellerPage() {
           email: formData.email || null,
           phone: formData.phone || null,
           traditional_country: formData.traditional_country || null,
-          language_group: formData.language_group || null,
-          tenant_id: '9c4e5de2-d80a-4e0b-8a89-1bbf09485532',
-          primary_organization_id: '3c2011b9-f80d-4289-b300-0cd383cff479'
+          language_group: formData.language_group || null
         })
         .select()
         .single();

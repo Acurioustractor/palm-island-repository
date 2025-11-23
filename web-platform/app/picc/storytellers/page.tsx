@@ -9,13 +9,11 @@ interface Storyteller {
   id: string;
   full_name: string;
   preferred_name?: string;
-  profile_image_url?: string;
   bio?: string;
   storyteller_type: string;
   is_elder: boolean;
   location?: string;
   stories_contributed: number;
-  interviews_completed: number;
   created_at: string;
 }
 
@@ -35,7 +33,7 @@ export default function StorytellerManagementPage() {
 
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, full_name, preferred_name, profile_image_url, bio, storyteller_type, is_elder, location, stories_contributed, interviews_completed, created_at')
+        .select('id, full_name, preferred_name, bio, storyteller_type, is_elder, location, stories_contributed, created_at')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -133,9 +131,9 @@ export default function StorytellerManagementPage() {
         </div>
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="text-2xl font-bold text-gray-900">
-            {storytellers.reduce((sum, s) => sum + (s.interviews_completed || 0), 0)}
+            {storytellers.filter(s => s.stories_contributed > 0).length}
           </div>
-          <div className="text-sm text-gray-600">Interviews Recorded</div>
+          <div className="text-sm text-gray-600">Active Storytellers</div>
         </div>
       </div>
 
@@ -166,17 +164,9 @@ export default function StorytellerManagementPage() {
             >
               {/* Profile Image */}
               <div className="h-48 bg-gradient-to-br from-blue-500 to-purple-600 relative">
-                {storyteller.profile_image_url ? (
-                  <img
-                    src={storyteller.profile_image_url}
-                    alt={storyteller.full_name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center h-full">
-                    <User className="w-24 h-24 text-white opacity-50" />
-                  </div>
-                )}
+                <div className="flex items-center justify-center h-full">
+                  <User className="w-24 h-24 text-white opacity-50" />
+                </div>
                 {storyteller.is_elder && (
                   <span className="absolute top-2 right-2 px-3 py-1 bg-yellow-500 text-white text-xs font-semibold rounded-full">
                     Elder
@@ -209,14 +199,10 @@ export default function StorytellerManagementPage() {
                 )}
 
                 {/* Stats */}
-                <div className="grid grid-cols-2 gap-2 mb-4 text-center">
-                  <div className="bg-gray-50 rounded p-2">
-                    <div className="text-lg font-bold text-gray-900">{storyteller.stories_contributed}</div>
+                <div className="flex items-center justify-center gap-2 mb-4 text-center">
+                  <div className="bg-gray-50 rounded p-2 flex-1">
+                    <div className="text-lg font-bold text-gray-900">{storyteller.stories_contributed || 0}</div>
                     <div className="text-xs text-gray-600">Stories</div>
-                  </div>
-                  <div className="bg-gray-50 rounded p-2">
-                    <div className="text-lg font-bold text-gray-900">{storyteller.interviews_completed || 0}</div>
-                    <div className="text-xs text-gray-600">Interviews</div>
                   </div>
                 </div>
 
