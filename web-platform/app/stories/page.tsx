@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
-import { Heart, Calendar, User, MapPin, Search, Filter, Image as ImageIcon, Video, Mic } from 'lucide-react';
+import { Heart, Calendar, User, MapPin, Search, Filter, Image as ImageIcon, Video, Mic, FileText, Plus } from 'lucide-react';
 
 interface Story {
   id: string;
@@ -225,9 +225,17 @@ export default function StoriesGalleryPage() {
             <div className="mt-8 flex justify-center gap-4 flex-wrap">
               <Link
                 href="/stories/submit"
-                className="bg-white text-blue-900 px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-50 transition-all transform hover:scale-105 shadow-xl"
+                className="bg-white text-blue-900 px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-50 transition-all transform hover:scale-105 shadow-xl flex items-center gap-2"
               >
+                <Plus className="w-5 h-5" />
                 Share Your Story
+              </Link>
+              <Link
+                href="/stories/import-transcript"
+                className="bg-orange-500 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-orange-600 transition-all transform hover:scale-105 shadow-xl flex items-center gap-2"
+              >
+                <FileText className="w-5 h-5" />
+                Import Transcript
               </Link>
               <Link
                 href="/storytellers"
