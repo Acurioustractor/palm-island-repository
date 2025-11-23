@@ -100,14 +100,6 @@ export default function StorytellerInterviewsPage() {
 
       if (error) throw error;
 
-      // Update storyteller's interview count
-      await supabase
-        .from('profiles')
-        .update({
-          interviews_completed: interviews.length + 1
-        })
-        .eq('id', storytellerId);
-
       alert('Interview added successfully!');
       setShowAddForm(false);
       setNewInterview({
@@ -136,14 +128,6 @@ export default function StorytellerInterviewsPage() {
         .eq('id', interviewId);
 
       if (error) throw error;
-
-      // Update count
-      await supabase
-        .from('profiles')
-        .update({
-          interviews_completed: Math.max(0, interviews.length - 1)
-        })
-        .eq('id', storytellerId);
 
       alert('Interview deleted');
       loadData();
