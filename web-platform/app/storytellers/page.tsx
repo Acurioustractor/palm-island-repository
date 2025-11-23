@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
-import { User, BookOpen, Calendar, MapPin, Search } from 'lucide-react';
+import { User, BookOpen, Calendar, MapPin, Search, UserPlus } from 'lucide-react';
 
 interface Storyteller {
   id: string;
@@ -116,7 +116,14 @@ export default function StorytellerGalleryPage() {
               Manbarra & Bwgcolman Country • Palm Island
             </p>
 
-            <div className="mt-8 flex justify-center gap-4">
+            <div className="mt-8 flex flex-wrap justify-center gap-4">
+              <Link
+                href="/storytellers/add"
+                className="bg-teal-500 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-teal-600 transition-all transform hover:scale-105 shadow-xl flex items-center gap-2"
+              >
+                <UserPlus className="w-5 h-5" />
+                Add Storyteller
+              </Link>
               <Link
                 href="/stories"
                 className="bg-white text-purple-900 px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-50 transition-all transform hover:scale-105 shadow-xl"
@@ -177,6 +184,13 @@ export default function StorytellerGalleryPage() {
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 />
               </div>
+              <Link
+                href="/storytellers/add"
+                className="flex items-center justify-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-lg font-medium transition-all"
+              >
+                <UserPlus className="w-4 h-4" />
+                Add New
+              </Link>
             </div>
           </div>
         </div>
