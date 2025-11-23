@@ -15,6 +15,7 @@ interface Storyteller {
   location?: string;
   stories_contributed: number;
   created_at: string;
+  profile_image_url?: string;
 }
 
 export default function StorytellerManagementPage() {
@@ -33,7 +34,7 @@ export default function StorytellerManagementPage() {
 
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, full_name, preferred_name, bio, storyteller_type, is_elder, location, stories_contributed, created_at')
+        .select('id, full_name, preferred_name, bio, storyteller_type, is_elder, location, stories_contributed, created_at, profile_image_url')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -164,9 +165,17 @@ export default function StorytellerManagementPage() {
             >
               {/* Profile Image */}
               <div className="h-48 bg-gradient-to-br from-blue-500 to-purple-600 relative">
-                <div className="flex items-center justify-center h-full">
-                  <User className="w-24 h-24 text-white opacity-50" />
-                </div>
+                {storyteller.profile_image_url ? (
+                  <img
+                    src={storyteller.profile_image_url}
+                    alt={storyteller.full_name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <User className="w-24 h-24 text-white opacity-50" />
+                  </div>
+                )}
                 {storyteller.is_elder && (
                   <span className="absolute top-2 right-2 px-3 py-1 bg-yellow-500 text-white text-xs font-semibold rounded-full">
                     Elder
