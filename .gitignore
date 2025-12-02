@@ -23,6 +23,7 @@ out/
 *.swo
 *~
 .DS_Store
+._*
 
 # Logs
 logs/
@@ -37,3 +38,8 @@ logs/
 tmp/
 temp/
 *.tmp
+
+# Python virtual environment
+venv/
+*.pyc
+__pycache__/
