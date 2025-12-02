@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import React, { useEffect, useState, useMemo } from 'react';
+import { createClient } from '@/lib/supabase/client';
 import { ArrowLeft, Film, Search, Play } from 'lucide-react';
 import Link from 'next/link';
 
@@ -15,7 +15,7 @@ interface MediaFile {
 }
 
 export default function MediaVideosPage() {
-  const supabase = createClientComponentClient();
+  const supabase = useMemo(() => createClient(), []);
   const [videos, setVideos] = useState<MediaFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');

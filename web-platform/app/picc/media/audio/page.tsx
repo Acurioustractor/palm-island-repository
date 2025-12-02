@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import React, { useEffect, useState, useMemo } from 'react';
+import { createClient } from '@/lib/supabase/client';
 import { ArrowLeft, Mic, Search, Play, Pause } from 'lucide-react';
 import Link from 'next/link';
 
@@ -15,7 +15,7 @@ interface MediaFile {
 }
 
 export default function MediaAudioPage() {
-  const supabase = createClientComponentClient();
+  const supabase = useMemo(() => createClient(), []);
   const [audioFiles, setAudioFiles] = useState<MediaFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
