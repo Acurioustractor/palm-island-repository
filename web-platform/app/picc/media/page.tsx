@@ -1,331 +1,290 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import { Image as ImageIcon, Film, Music, Folder, Upload, Search, Filter, Download, Trash2, Eye } from 'lucide-react';
+import {
+  Image as ImageIcon,
+  Folder,
+  FolderOpen,
+  Sparkles,
+  Upload,
+  Grid,
+  LayoutGrid,
+  ArrowRight,
+  TrendingUp
+} from 'lucide-react';
 import Link from 'next/link';
 
-interface MediaFile {
-  name: string;
-  bucket: string;
-  size: number;
-  created_at: string;
-  updated_at: string;
-  publicUrl: string;
-  type: 'image' | 'video' | 'audio' | 'other';
+interface QuickStat {
+  label: string;
+  value: string | number;
+  icon: React.ReactNode;
+  color: string;
 }
 
 export default function MediaLibraryPage() {
-  const [media, setMedia] = useState<MediaFile[]>([]);
+  const [stats, setStats] = useState({
+    totalPhotos: 0,
+    collections: 0,
+    smartFolders: 6,
+    recentUploads: 0
+  });
   const [loading, setLoading] = useState(true);
-  const [filterBucket, setFilterBucket] = useState<string>('all');
-  const [filterType, setFilterType] = useState<string>('all');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    loadMedia();
+    loadStats();
   }, []);
 
-  const loadMedia = async () => {
+  const loadStats = async () => {
     try {
-      const supabase = createClient();
-      const allMedia: MediaFile[] = [];
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-      // Load from all buckets
-      const buckets = ['story-images', 'profile-images', 'story-media'];
-
-      for (const bucket of buckets) {
-        const { data: files, error } = await supabase
-          .storage
-          .from(bucket)
-          .list('', {
-            limit: 1000,
-            sortBy: { column: 'created_at', order: 'desc' }
-          });
-
-        if (error) {
-          console.error(`Error loading ${bucket}:`, error);
-          continue;
+      // Get total photos count
+      const photosResponse = await fetch(
+        `${supabaseUrl}/rest/v1/media_files?select=id&deleted_at=is.null&limit=1`,
+        {
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+            'Prefer': 'count=exact'
+          },
+          signal: AbortSignal.timeout(5000),
         }
+      );
+      const photosCount = photosResponse.headers.get('content-range')?.split('/')[1] || '0';
 
-        if (files) {
-          for (const file of files) {
-            // Skip folders
-            if (!file.name) continue;
-
-            const { data: { publicUrl } } = supabase
-              .storage
-              .from(bucket)
-              .getPublicUrl(file.name);
-
-            const type = getFileType(file.name);
-
-            allMedia.push({
-              name: file.name,
-              bucket,
-              size: file.metadata?.size || 0,
-              created_at: file.created_at || '',
-              updated_at: file.updated_at || '',
-              publicUrl,
-              type
-            });
-          }
+      // Get collections count
+      const collectionsResponse = await fetch(
+        `${supabaseUrl}/rest/v1/photo_collections?select=id&limit=1`,
+        {
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+            'Prefer': 'count=exact'
+          },
+          signal: AbortSignal.timeout(5000),
         }
-      }
+      );
+      const collectionsCount = collectionsResponse.headers.get('content-range')?.split('/')[1] || '0';
 
-      setMedia(allMedia);
+      // Get recent uploads (last 7 days)
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      const recentResponse = await fetch(
+        `${supabaseUrl}/rest/v1/media_files?select=id&deleted_at=is.null&created_at=gte.${sevenDaysAgo.toISOString()}&limit=1`,
+        {
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+            'Prefer': 'count=exact'
+          },
+          signal: AbortSignal.timeout(5000),
+        }
+      );
+      const recentCount = recentResponse.headers.get('content-range')?.split('/')[1] || '0';
+
+      setStats({
+        totalPhotos: parseInt(photosCount),
+        collections: parseInt(collectionsCount),
+        smartFolders: 6,
+        recentUploads: parseInt(recentCount)
+      });
     } catch (error) {
-      console.error('Error loading media:', error);
+      console.error('Error loading stats:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const getFileType = (filename: string): 'image' | 'video' | 'audio' | 'other' => {
-    const ext = filename.split('.').pop()?.toLowerCase();
-    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'heic'].includes(ext || '')) return 'image';
-    if (['mp4', 'mov', 'avi', 'webm'].includes(ext || '')) return 'video';
-    if (['mp3', 'wav', 'ogg', 'm4a'].includes(ext || '')) return 'audio';
-    return 'other';
-  };
-
-  const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
-  };
-
-  const filteredMedia = media.filter(file => {
-    const matchesBucket = filterBucket === 'all' || file.bucket === filterBucket;
-    const matchesType = filterType === 'all' || file.type === filterType;
-    const matchesSearch = file.name.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesBucket && matchesType && matchesSearch;
-  });
-
-  const toggleFileSelection = (filename: string) => {
-    const newSelected = new Set(selectedFiles);
-    if (newSelected.has(filename)) {
-      newSelected.delete(filename);
-    } else {
-      newSelected.add(filename);
+  const quickStats: QuickStat[] = [
+    {
+      label: 'Total Photos',
+      value: loading ? '...' : stats.totalPhotos.toLocaleString(),
+      icon: <ImageIcon className="w-5 h-5" />,
+      color: 'bg-blue-50 text-blue-600 border-blue-200'
+    },
+    {
+      label: 'Collections',
+      value: loading ? '...' : stats.collections,
+      icon: <Folder className="w-5 h-5" />,
+      color: 'bg-purple-50 text-purple-600 border-purple-200'
+    },
+    {
+      label: 'Smart Folders',
+      value: stats.smartFolders,
+      icon: <Sparkles className="w-5 h-5" />,
+      color: 'bg-amber-50 text-amber-600 border-amber-200'
+    },
+    {
+      label: 'Recent (7 days)',
+      value: loading ? '...' : stats.recentUploads,
+      icon: <TrendingUp className="w-5 h-5" />,
+      color: 'bg-green-50 text-green-600 border-green-200'
     }
-    setSelectedFiles(newSelected);
-  };
+  ];
 
-  const getBucketLabel = (bucket: string): string => {
-    switch (bucket) {
-      case 'story-images': return 'Story Images';
-      case 'profile-images': return 'Profile Photos';
-      case 'story-media': return 'Immersive Story Media';
-      default: return bucket;
+  const mainFeatures = [
+    {
+      title: 'Photo Gallery',
+      description: 'Browse, search, and manage all photos with tags, metadata, and bulk actions',
+      href: '/picc/media/gallery',
+      icon: <Grid className="w-8 h-8" />,
+      color: 'bg-blue-50 border-blue-200 hover:bg-blue-100',
+      iconColor: 'text-blue-600',
+      stats: `${stats.totalPhotos.toLocaleString()} photos`
+    },
+    {
+      title: 'Collections',
+      description: 'Create and manage custom photo albums for events, projects, and themes',
+      href: '/picc/media/collections',
+      icon: <FolderOpen className="w-8 h-8" />,
+      color: 'bg-purple-50 border-purple-200 hover:bg-purple-100',
+      iconColor: 'text-purple-600',
+      stats: `${stats.collections} collections`
+    },
+    {
+      title: 'Smart Folders',
+      description: 'Dynamic collections that automatically organize photos by tags, dates, and quality',
+      href: '/picc/media/smart-folders',
+      icon: <Sparkles className="w-8 h-8" />,
+      color: 'bg-amber-50 border-amber-200 hover:bg-amber-100',
+      iconColor: 'text-amber-600',
+      stats: '6 smart folders'
+    },
+    {
+      title: 'Upload Photos',
+      description: 'Add new photos with automatic tagging, metadata extraction, and organization',
+      href: '/picc/media/upload',
+      icon: <Upload className="w-8 h-8" />,
+      color: 'bg-green-50 border-green-200 hover:bg-green-100',
+      iconColor: 'text-green-600',
+      stats: 'Drag & drop supported'
     }
-  };
-
-  const getBucketColor = (bucket: string): string => {
-    switch (bucket) {
-      case 'story-images': return 'bg-purple-100 text-purple-700';
-      case 'profile-images': return 'bg-blue-100 text-blue-700';
-      case 'story-media': return 'bg-green-100 text-green-700';
-      default: return 'bg-gray-100 text-gray-700';
-    }
-  };
-
-  const stats = {
-    total: media.length,
-    images: media.filter(f => f.type === 'image').length,
-    videos: media.filter(f => f.type === 'video').length,
-    audio: media.filter(f => f.type === 'audio').length,
-    totalSize: media.reduce((sum, f) => sum + f.size, 0)
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading media library...</p>
-        </div>
-      </div>
-    );
-  }
+  ];
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <Folder className="w-8 h-8 text-blue-600" />
-            <h1 className="text-3xl font-bold text-gray-900">Media Library</h1>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <LayoutGrid className="w-10 h-10 text-blue-600" />
+            <h1 className="text-4xl font-bold text-gray-900">Media Library</h1>
           </div>
-          <Link
-            href="/picc/media/upload"
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <Upload className="w-5 h-5" />
-            Upload Media
-          </Link>
-        </div>
-        <p className="text-gray-600">
-          Browse and manage all media files (photos, videos, audio)
-        </p>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
-          <div className="text-sm text-gray-600">Total Files</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="text-2xl font-bold text-gray-900">{stats.images}</div>
-          <div className="text-sm text-gray-600">Images</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="text-2xl font-bold text-gray-900">{stats.videos}</div>
-          <div className="text-sm text-gray-600">Videos</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="text-2xl font-bold text-gray-900">{stats.audio}</div>
-          <div className="text-sm text-gray-600">Audio</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="text-2xl font-bold text-gray-900">{formatFileSize(stats.totalSize)}</div>
-          <div className="text-sm text-gray-600">Total Size</div>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="mb-6 flex flex-wrap gap-4">
-        <div className="flex-1 min-w-[200px] relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search files..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-
-        <select
-          value={filterBucket}
-          onChange={(e) => setFilterBucket(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="all">All Buckets</option>
-          <option value="story-images">Story Images</option>
-          <option value="profile-images">Profile Photos</option>
-          <option value="story-media">Immersive Story Media</option>
-        </select>
-
-        <select
-          value={filterType}
-          onChange={(e) => setFilterType(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="all">All Types</option>
-          <option value="image">Images</option>
-          <option value="video">Videos</option>
-          <option value="audio">Audio</option>
-        </select>
-      </div>
-
-      {/* Media Grid */}
-      {filteredMedia.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-          <Folder className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No media files found</h3>
-          <p className="text-gray-600 mb-4">
-            {searchTerm || filterBucket !== 'all' || filterType !== 'all'
-              ? 'Try adjusting your filters'
-              : 'Upload your first media file to get started'}
+          <p className="text-lg text-gray-600">
+            Organize, browse, and manage your photo collection with Collections and Smart Folders
           </p>
-          <Link
-            href="/picc/media/upload"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            <Upload className="w-5 h-5" />
-            Upload Media
-          </Link>
         </div>
-      ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filteredMedia.map((file) => (
+
+        {/* Quick Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          {quickStats.map((stat, index) => (
             <div
-              key={`${file.bucket}-${file.name}`}
-              className="bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow overflow-hidden"
+              key={index}
+              className={`p-4 rounded-xl border-2 ${stat.color} transition-all`}
             >
-              {/* Preview */}
-              <div className="h-48 bg-gray-100 relative flex items-center justify-center">
-                {file.type === 'image' ? (
-                  <img
-                    src={file.publicUrl}
-                    alt={file.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : file.type === 'video' ? (
-                  <div className="flex flex-col items-center justify-center h-full bg-gradient-to-br from-purple-500 to-pink-600">
-                    <Film className="w-16 h-16 text-white opacity-75 mb-2" />
-                    <span className="text-xs text-white font-medium">Video File</span>
-                  </div>
-                ) : file.type === 'audio' ? (
-                  <div className="flex flex-col items-center justify-center h-full bg-gradient-to-br from-blue-500 to-teal-600">
-                    <Music className="w-16 h-16 text-white opacity-75 mb-2" />
-                    <span className="text-xs text-white font-medium">Audio File</span>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center h-full bg-gray-300">
-                    <Folder className="w-16 h-16 text-gray-500 opacity-75 mb-2" />
-                    <span className="text-xs text-gray-600 font-medium">Other File</span>
-                  </div>
-                )}
-
-                {/* Bucket badge */}
-                <span className={`absolute top-2 right-2 px-2 py-1 text-xs font-medium rounded ${getBucketColor(file.bucket)}`}>
-                  {getBucketLabel(file.bucket).replace(' Images', '').replace(' Photos', '').replace(' Media', '')}
-                </span>
+              <div className="flex items-center gap-2 mb-2">
+                {stat.icon}
+                <span className="text-sm font-medium">{stat.label}</span>
               </div>
-
-              {/* Info */}
-              <div className="p-3">
-                <h3 className="text-sm font-medium text-gray-900 truncate mb-1" title={file.name}>
-                  {file.name}
-                </h3>
-
-                <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
-                  <span>{formatFileSize(file.size)}</span>
-                  <span>{new Date(file.created_at).toLocaleDateString()}</span>
-                </div>
-
-                {/* Actions */}
-                <div className="flex gap-2">
-                  <a
-                    href={file.publicUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors text-xs"
-                  >
-                    <Eye className="w-3 h-3" />
-                    View
-                  </a>
-                  <a
-                    href={file.publicUrl}
-                    download
-                    className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-green-50 text-green-700 rounded hover:bg-green-100 transition-colors text-xs"
-                  >
-                    <Download className="w-3 h-3" />
-                    Download
-                  </a>
-                </div>
+              <div className="text-3xl font-bold">
+                {stat.value}
               </div>
             </div>
           ))}
         </div>
-      )}
+
+        {/* Main Features Grid */}
+        <div className="grid md:grid-cols-2 gap-6">
+          {mainFeatures.map((feature, index) => (
+            <Link
+              key={index}
+              href={feature.href}
+              className={`group block p-6 rounded-xl border-2 ${feature.color} transition-all hover:shadow-lg`}
+            >
+              <div className="flex items-start gap-4">
+                <div className={`p-4 rounded-lg bg-white border-2 ${feature.color.split(' ')[1]} ${feature.iconColor}`}>
+                  {feature.icon}
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between mb-2">
+                    <h2 className="text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                      {feature.title}
+                    </h2>
+                    <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
+                  </div>
+                  <p className="text-gray-600 mb-3">
+                    {feature.description}
+                  </p>
+                  <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${feature.color}`}>
+                    {feature.stats}
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {/* Quick Actions */}
+        <div className="mt-8 p-6 bg-white rounded-xl border-2 border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/picc/media/gallery"
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <Grid className="w-4 h-4" />
+              Browse All Photos
+            </Link>
+            <Link
+              href="/picc/media/upload"
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            >
+              <Upload className="w-4 h-4" />
+              Upload Photos
+            </Link>
+            <Link
+              href="/picc/media/collections"
+              className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+            >
+              <Folder className="w-4 h-4" />
+              Manage Collections
+            </Link>
+            <Link
+              href="/picc/media/smart-folders"
+              className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
+            >
+              <Sparkles className="w-4 h-4" />
+              View Smart Folders
+            </Link>
+          </div>
+        </div>
+
+        {/* Info Cards */}
+        <div className="mt-8 grid md:grid-cols-3 gap-6">
+          <div className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border-2 border-blue-200">
+            <Grid className="w-8 h-8 text-blue-600 mb-3" />
+            <h3 className="font-semibold text-gray-900 mb-2">Gallery</h3>
+            <p className="text-sm text-gray-700">
+              Search, filter, and browse all photos with advanced metadata and bulk operations
+            </p>
+          </div>
+          <div className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border-2 border-purple-200">
+            <FolderOpen className="w-8 h-8 text-purple-600 mb-3" />
+            <h3 className="font-semibold text-gray-900 mb-2">Collections</h3>
+            <p className="text-sm text-gray-700">
+              Manually curated photo albums for specific events, projects, or themes
+            </p>
+          </div>
+          <div className="p-6 bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl border-2 border-amber-200">
+            <Sparkles className="w-8 h-8 text-amber-600 mb-3" />
+            <h3 className="font-semibold text-gray-900 mb-2">Smart Folders</h3>
+            <p className="text-sm text-gray-700">
+              Auto-updating dynamic collections based on tags, dates, quality, and other criteria
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
