@@ -71,10 +71,14 @@ export function PICCNavigation() {
       icon: Image,
       items: [
         { label: 'All Media', href: '/picc/media', icon: Folder, description: 'Browse all media' },
+        { label: 'Photo Gallery', href: '/picc/media/gallery', icon: Image, description: 'Browse photos' },
+        { label: 'Collections', href: '/picc/media/collections', icon: Folder, description: 'Photo collections' },
+        { label: 'Smart Folders', href: '/picc/media/smart-folders', icon: Target, description: 'Auto-organized photos' },
         { label: 'Images', href: '/picc/media/images', icon: Image, description: 'Story images' },
         { label: 'Videos', href: '/picc/media/videos', icon: FileText, description: 'Video content' },
         { label: 'Audio', href: '/picc/media/audio', icon: Mic, description: 'Voice recordings' },
         { label: 'Upload', href: '/picc/media/upload', icon: Upload, description: 'Upload new media' },
+        { label: 'Bulk Upload', href: '/picc/media/upload-bulk', icon: Upload, description: 'Bulk import photos' },
       ],
     },
     analytics: {
@@ -111,6 +115,16 @@ export function PICCNavigation() {
         { label: 'Add New Project', href: '/picc/projects/new', icon: Plus, description: 'Create project' },
       ],
     },
+    imports: {
+      title: 'Import & Data',
+      icon: Download,
+      items: [
+        { label: 'Import Stories', href: '/import', icon: Download, description: 'Bulk import stories' },
+        { label: 'Import Transcripts', href: '/stories/import-transcript', icon: FileText, description: 'Import interview transcripts' },
+        { label: 'Storytellers', href: '/storytellers/add', icon: Users, description: 'Add storytellers' },
+        { label: 'Bulk Photo Upload', href: '/picc/media/upload-bulk', icon: Upload, description: 'Bulk photo import' },
+      ],
+    },
     knowledge: {
       title: 'Knowledge Base',
       icon: Database,
@@ -144,6 +158,7 @@ export function PICCNavigation() {
     analytics: 'green',
     content: 'amber',
     projects: 'orange',
+    imports: 'cyan',
     knowledge: 'indigo',
     settings: 'gray',
   };
