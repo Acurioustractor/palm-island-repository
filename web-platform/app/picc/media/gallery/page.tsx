@@ -504,6 +504,24 @@ export default function MediaGalleryPage() {
             Upload Photos
           </Link>
         </div>
+
+        {/* Pagination Info Banner */}
+        {media.length > 0 && (
+          <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-blue-900 font-medium">
+                  📸 Showing {media.length} photos (Page 1)
+                </p>
+                <p className="text-blue-700 text-sm mt-1">
+                  <strong>Total in database:</strong> 1,214 photos •
+                  <strong> Loading:</strong> 200 photos per page •
+                  <strong> Scroll down</strong> to load more automatically
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Filters */}
