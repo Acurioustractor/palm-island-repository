@@ -1,0 +1,1 @@
+../supabase/database.types.ts

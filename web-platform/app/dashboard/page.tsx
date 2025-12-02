@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Camera, Server, Users, Heart, Mic, Image, MapPin, TrendingUp, Wifi, Plus } from 'lucide-react';
+import { Camera, Server, Users, Heart, Mic, Image, MapPin, TrendingUp, Wifi, Plus, FileText, UserPlus, FolderOpen } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 
@@ -135,14 +135,41 @@ export default function StoryServerDashboard() {
             <p className="text-gray-600">Community-Driven Impact Measurement & Storytelling</p>
           </div>
           <div className="flex items-center space-x-3">
-            <Link
-              href="/stories/submit"
-              className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-all transform hover:scale-105 shadow-lg"
-            >
-              <Plus className="w-5 h-5" />
-              <span>Share Your Story</span>
-            </Link>
-            <div className="flex items-center space-x-2 bg-green-100 px-4 py-2 rounded-full">
+            <div className="flex items-center space-x-2">
+              <Link
+                href="/stories/submit"
+                className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-lg"
+                title="Share Your Story"
+              >
+                <Plus className="w-4 h-4" />
+                <span className="hidden md:inline">Story</span>
+              </Link>
+              <Link
+                href="/stories/import-transcript"
+                className="flex items-center space-x-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-lg"
+                title="Import Transcript"
+              >
+                <FileText className="w-4 h-4" />
+                <span className="hidden md:inline">Transcript</span>
+              </Link>
+              <Link
+                href="/storytellers/add"
+                className="flex items-center space-x-2 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-lg"
+                title="Add Storyteller"
+              >
+                <UserPlus className="w-4 h-4" />
+                <span className="hidden md:inline">Person</span>
+              </Link>
+              <Link
+                href="/import"
+                className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-lg"
+                title="All Import Options"
+              >
+                <FolderOpen className="w-4 h-4" />
+                <span className="hidden md:inline">More</span>
+              </Link>
+            </div>
+            <div className="hidden lg:flex items-center space-x-2 bg-green-100 px-4 py-2 rounded-full">
               <Wifi className="w-4 h-4 text-green-600" />
               <span className="text-green-800 font-medium">Live & Community-Controlled</span>
             </div>
