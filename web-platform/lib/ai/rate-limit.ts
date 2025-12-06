@@ -57,6 +57,18 @@ class RateLimiter {
       windowMs: 60 * 1000,
       maxRequests: 30,
       blockDurationMs: 60 * 1000
+    },
+    // Chat assistant (moderate use)
+    chat: {
+      windowMs: 60 * 1000,
+      maxRequests: 30,          // 30 per minute
+      blockDurationMs: 60 * 1000
+    },
+    // Transcription (expensive)
+    transcription: {
+      windowMs: 60 * 1000,
+      maxRequests: 5,           // 5 per minute
+      blockDurationMs: 180 * 1000
     }
   };
 
@@ -298,4 +310,34 @@ if (typeof setInterval !== 'undefined') {
   setInterval(() => {
     rateLimiter.cleanup();
   }, 10 * 60 * 1000);
+}
+
+/**
+ * Rate limit types enum for convenience
+ */
+export enum RateLimitType {
+  AI = 'ai',
+  VISION = 'vision',
+  PDF = 'pdf',
+  QUERY = 'query',
+  GRAPH = 'graph',
+  CHAT = 'chat',
+  TRANSCRIPTION = 'transcription'
+}
+
+/**
+ * Simple rate limit helper for API routes
+ */
+export async function rateLimit(
+  request: Request,
+  type: RateLimitType | string = RateLimitType.AI
+): Promise<{ success: boolean; remaining: number; retryAfter?: number }> {
+  const clientId = getClientId(request);
+  const result = rateLimiter.check(clientId, type);
+
+  return {
+    success: result.allowed,
+    remaining: result.remaining,
+    retryAfter: result.retryAfter
+  };
 }

@@ -1,5 +1,6 @@
 import { PublicNavigation } from '@/components/navigation/PublicNavigation';
 import { PublicFooter } from '@/components/navigation/PublicFooter';
+import ChatWidget from '@/components/chat/ChatWidget';
 
 export default function PublicPagesLayout({
   children,
@@ -13,6 +14,7 @@ export default function PublicPagesLayout({
         {children}
       </main>
       <PublicFooter />
+      <ChatWidget />
     </>
   );
 }
