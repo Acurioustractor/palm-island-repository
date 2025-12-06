@@ -8,18 +8,14 @@ export function PublicFooter() {
   return (
     <footer className="bg-gray-900 text-gray-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* About */}
-          <div className="col-span-1 md:col-span-2">
-            <h3 className="text-white text-lg font-bold mb-4">
-              Palm Island Community Company
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+          {/* About PICC */}
+          <div>
+            <h3 className="text-white text-sm font-semibold mb-4 uppercase tracking-wider">
+              About PICC
             </h3>
-            <p className="text-sm text-gray-400 mb-4">
-              PICC is a community-controlled organization providing essential services
-              and support to the people of Palm Island (Manbarra & Bwgcolman Country).
-            </p>
-            <p className="text-sm text-gray-400">
-              Community-controlled storytelling, impact measurement, and data sovereignty.
+            <p className="text-sm text-gray-400 leading-relaxed">
+              Community-controlled organization serving Palm Island (Manbarra & Bwgcolman Country).
             </p>
           </div>
 
@@ -35,18 +31,37 @@ export function PublicFooter() {
                 </Link>
               </li>
               <li>
-                <Link href="/storytellers" className="text-sm hover:text-white transition-colors">
-                  Storytellers
-                </Link>
-              </li>
-              <li>
                 <Link href="/about" className="text-sm hover:text-white transition-colors">
-                  About PICC
+                  About
                 </Link>
               </li>
               <li>
                 <Link href="/impact" className="text-sm hover:text-white transition-colors">
-                  Our Impact
+                  Impact
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Resources (NEW) */}
+          <div>
+            <h3 className="text-white text-sm font-semibold mb-4 uppercase tracking-wider">
+              Resources
+            </h3>
+            <ul className="space-y-2">
+              <li>
+                <Link href="/annual-reports" className="text-sm hover:text-white transition-colors">
+                  Annual Reports
+                </Link>
+              </li>
+              <li>
+                <Link href="/chat" className="text-sm hover:text-white transition-colors">
+                  Ask AI
+                </Link>
+              </li>
+              <li>
+                <Link href="/wiki/stories" className="text-sm hover:text-white transition-colors">
+                  Knowledge Base
                 </Link>
               </li>
             </ul>
@@ -60,49 +75,83 @@ export function PublicFooter() {
             <ul className="space-y-2">
               <li>
                 <Link href="/share-voice" className="text-sm hover:text-white transition-colors">
-                  Share Your Voice
+                  Share Voice
                 </Link>
               </li>
               <li>
                 <Link href="/community" className="text-sm hover:text-white transition-colors">
-                  Community Hub
+                  Community
                 </Link>
               </li>
               <li>
                 <Link href="/subscribe" className="text-sm hover:text-white transition-colors">
-                  Subscribe to Updates
+                  Subscribe
                 </Link>
               </li>
               <li>
                 <Link href="/contact" className="text-sm hover:text-white transition-colors">
-                  Contact Us
+                  Contact
                 </Link>
               </li>
             </ul>
           </div>
+
+          {/* Connect */}
+          <div>
+            <h3 className="text-white text-sm font-semibold mb-4 uppercase tracking-wider">
+              Connect
+            </h3>
+            <ul className="space-y-2">
+              <li>
+                <a
+                  href="mailto:info@picc.com.au"
+                  className="text-sm hover:text-white transition-colors inline-flex items-center gap-2"
+                >
+                  <Mail className="h-4 w-4" />
+                  Email
+                </a>
+              </li>
+            </ul>
+            <div className="flex space-x-3 mt-4">
+              <a
+                href="https://facebook.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-500 hover:text-white transition-colors"
+                aria-label="Facebook"
+              >
+                <Facebook className="h-5 w-5" />
+              </a>
+              <a
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-500 hover:text-white transition-colors"
+                aria-label="Instagram"
+              >
+                <Instagram className="h-5 w-5" />
+              </a>
+              <a
+                href="https://linkedin.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-500 hover:text-white transition-colors"
+                aria-label="LinkedIn"
+              >
+                <Linkedin className="h-5 w-5" />
+              </a>
+            </div>
+          </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-8 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center">
+        <div className="mt-12 pt-8 border-t border-gray-800 text-center">
           <p className="text-sm text-gray-500">
             © {new Date().getFullYear()} Palm Island Community Company. All rights reserved.
           </p>
-
-          {/* Social Links (placeholder - add real links when available) */}
-          <div className="flex space-x-4 mt-4 md:mt-0">
-            <a href="#" className="text-gray-500 hover:text-white transition-colors" aria-label="Facebook">
-              <Facebook className="h-5 w-5" />
-            </a>
-            <a href="#" className="text-gray-500 hover:text-white transition-colors" aria-label="Instagram">
-              <Instagram className="h-5 w-5" />
-            </a>
-            <a href="#" className="text-gray-500 hover:text-white transition-colors" aria-label="LinkedIn">
-              <Linkedin className="h-5 w-5" />
-            </a>
-            <a href="mailto:info@picc.com.au" className="text-gray-500 hover:text-white transition-colors" aria-label="Email">
-              <Mail className="h-5 w-5" />
-            </a>
-          </div>
+          <p className="text-xs text-gray-600 mt-2">
+            Manbarra & Bwgcolman Country
+          </p>
         </div>
       </div>
     </footer>

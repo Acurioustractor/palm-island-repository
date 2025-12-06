@@ -3,16 +3,17 @@ import { updateSession } from '@/lib/supabase/middleware'
 
 // Routes that require authentication
 const PROTECTED_ROUTES = [
-  '/picc',
   '/picc/admin',
   '/picc/content-studio',
   '/picc/projects',
   '/picc/storytellers',
-  '/picc/media',
+  '/picc/media/upload',
+  '/picc/media/import',
   '/picc/reports',
   '/picc/settings',
   '/picc/team',
   '/picc/permissions',
+  '/picc/dashboard',
 ]
 
 // Routes that should redirect to dashboard if already authenticated
@@ -31,6 +32,10 @@ const PUBLIC_ROUTES = [
   '/share-voice',
   '/subscribe',
   '/wiki',
+  '/annual-reports',
+  '/picc/knowledge',
+  '/picc/media/gallery',
+  '/picc/media/collections',
 ]
 
 export async function middleware(request: NextRequest) {

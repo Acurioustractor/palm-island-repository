@@ -80,7 +80,64 @@ export async function textSearch(
 }
 
 /**
- * Hybrid search combining full-text and knowledge base
+ * Vector search over content chunks using embeddings
+ */
+export async function vectorSearch(
+  query: string,
+  options: SearchOptions = {}
+): Promise<SearchResult[]> {
+  const {
+    limit = 10,
+    threshold = 0.7
+  } = options
+
+  try {
+    // Generate embedding for the query
+    const queryEmbedding = await generateEmbeddings([query], {
+      provider: 'voyage',
+      model: 'voyage-3-lite'
+    })
+
+    if (!queryEmbedding || queryEmbedding.length === 0) {
+      console.warn('Failed to generate query embedding, falling back to text search')
+      return textSearch(query, options)
+    }
+
+    const supabase = getSupabase()
+
+    // Use the hybrid_search_chunks function for best results
+    const { data, error } = await supabase
+      .rpc('hybrid_search_chunks', {
+        query_text: query,
+        query_embedding: queryEmbedding[0],
+        match_count: limit,
+        vector_weight: 0.7,
+        keyword_weight: 0.3
+      })
+
+    if (error) {
+      console.error('Vector search error:', error)
+      // Fallback to text search
+      return textSearch(query, options)
+    }
+
+    return (data || []).map((row: any) => ({
+      id: row.id,
+      chunkText: row.chunk_text,
+      score: row.hybrid_score,
+      sourceUrl: row.source_url,
+      sourceTitle: row.source_title,
+      metadata: row.metadata
+    }))
+  } catch (error) {
+    console.error('Vector search exception:', error)
+    // Fallback to text search
+    return textSearch(query, options)
+  }
+}
+
+/**
+ * Hybrid search combining vector embeddings and full-text search
  */
 export async function hybridSearch(
   query: string,
@@ -94,13 +151,13 @@ export async function hybridSearch(
     includeKnowledgeBase = true
   } = options
 
-  const supabase = getSupabase()
+  // Try vector search first (falls back to text if embeddings not available)
+  const chunkResults = await vectorSearch(query, options)
 
-  // Parallel search
-  const [chunkResults, knowledgeResults] = await Promise.all([
-    textSearch(query, options),
-    includeKnowledgeBase ? searchKnowledgeBase(query, limit) : Promise.resolve([])
-  ])
+  // Search knowledge base with vector embeddings if available
+  const knowledgeResults = includeKnowledgeBase
+    ? await searchKnowledgeBaseVector(query, limit)
+    : []
 
   return {
     chunks: chunkResults,
@@ -109,7 +166,50 @@ export async function hybridSearch(
 }
 
 /**
- * Search the knowledge base (existing knowledge_entries table)
+ * Search the knowledge base using vector embeddings
+ */
+async function searchKnowledgeBaseVector(
+  query: string,
+  limit: number = 10
+): Promise<any[]> {
+  try {
+    // Generate embedding for the query (OpenAI for 1536-dim)
+    const queryEmbedding = await generateEmbeddings([query], {
+      provider: 'openai',
+      model: 'text-embedding-3-small'
+    })
+
+    if (!queryEmbedding || queryEmbedding.length === 0) {
+      console.warn('Failed to generate query embedding for knowledge base, falling back to text search')
+      return searchKnowledgeBase(query, limit)
+    }
+
+    const supabase = getSupabase()
+
+    // Use the match_knowledge_entries function
+    const { data, error } = await supabase
+      .rpc('match_knowledge_entries', {
+        query_embedding: queryEmbedding[0],
+        match_count: limit,
+        match_threshold: 0.7
+      })
+
+    if (error) {
+      console.error('Knowledge base vector search error:', error)
+      // Fallback to text search
+      return searchKnowledgeBase(query, limit)
+    }
+
+    return data || []
+  } catch (error) {
+    console.error('Knowledge base vector search exception:', error)
+    // Fallback to text search
+    return searchKnowledgeBase(query, limit)
+  }
+}
+
+/**
+ * Search the knowledge base (existing knowledge_entries table) using text search
  */
 async function searchKnowledgeBase(
   query: string,

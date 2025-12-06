@@ -1,48 +1,94 @@
 # Palm Island Community Repository
-## *Preserving Our Stories, Building Our Future*
 
-### Vision
-A community-led digital repository that empowers Palm Island community to:
-- Create automated annual reports without external intermediaries
-- Preserve and share elder stories and cultural knowledge
-- Maintain sovereignty over community data and narratives
-- Build strength for the future through connection to our history
+**Preserving Our Stories, Building Our Future**
 
-### Cultural Protocols & Data Sovereignty
-This repository is built on the principle of **Indigenous Data Sovereignty** - the right of Indigenous peoples to control data about their communities, cultures, and territories.
+Community-controlled storytelling, impact measurement, and data sovereignty platform for Palm Island Community Company (PICC).
 
-#### Core Principles:
+## Cultural Protocols & Data Sovereignty
+
+This repository is built on **Indigenous Data Sovereignty** - the right of Indigenous peoples to control data about their communities, cultures, and territories.
+
+### Core Principles
 - **Community Ownership**: All content is owned and controlled by the Palm Island community
 - **Cultural Sensitivity**: Proper protocols for sharing stories, especially elder knowledge
-- **Permission-Based Access**: Different levels of access based on community roles and relationships
+- **Permission-Based Access**: Different levels of access based on community roles
 - **Attribution & Respect**: Proper acknowledgment of storytellers and knowledge holders
-- **Secure Storage**: Community data stored securely with Indigenous authority
-
-### Repository Structure
-```
-Palm Island Repository/
-├── 📁 community-stories/           # Current community narratives
-├── 📁 elder-stories/              # Elder knowledge and wisdom
-├── 📁 historical-archives/        # Archival history and documentation
-├── 📁 annual-reports/             # Generated reports and templates
-├── 📁 media-assets/               # Photos, videos, audio files
-├── 📁 templates/                  # Easy-to-use content templates
-├── 📁 automation/                 # Report generation tools
-└── 📁 documentation/              # User guides and protocols
-```
-
-### Getting Started
-1. **Adding Stories**: Use templates in `templates/` folder
-2. **Managing Media**: Organize photos/videos in `media-assets/`
-3. **Generating Reports**: Use automation tools in `annual-reports/`
-4. **Cultural Protocols**: Always check `documentation/cultural-protocols.md`
-
-### Community Values
-- **Simplicity**: Easy to use for all community members
-- **Beauty**: Elegant presentation that honors our stories
-- **Accessibility**: Everyone can contribute regardless of technical skill
-- **Sustainability**: Reduces dependency on external consultants
-- **Empowerment**: Community maintains full control
 
 ---
+
+## Quick Start
+
+```bash
+cd web-platform
+npm install
+cp .env.local.example .env.local  # Configure your environment
+npm run dev                        # Starts on http://localhost:3000
+```
+
+For port 4000: `PORT=4000 npm run dev`
+
+## Project Structure
+
+```
+palm-island-repository/
+├── web-platform/          # Next.js 14 application
+│   ├── app/               # App router pages
+│   │   ├── (public)/      # Public-facing pages
+│   │   ├── api/           # API routes
+│   │   ├── picc/          # Admin dashboard
+│   │   └── wiki/          # Knowledge base
+│   ├── components/        # React components
+│   ├── lib/               # Utilities and services
+│   └── scripts/           # Database and utility scripts
+├── docs/                  # Documentation
+│   ├── setup/             # Installation guides
+│   ├── architecture/      # System architecture
+│   ├── guides/            # User and developer guides
+│   └── archive/           # Historical documentation
+├── annual-reports/        # Annual report templates
+└── templates/             # Service templates
+```
+
+## Git Workflow
+
+| Branch | Purpose | Deploys To |
+|--------|---------|------------|
+| `main` | Production-ready code | Production |
+| `develop` | Integration & testing | Staging |
+| `feature/*` | New features | Local |
+| `fix/*` | Bug fixes | Local |
+
+### Development Flow
+1. Create branch from `develop`: `git checkout -b feature/my-feature develop`
+2. Make changes, commit, push
+3. Create PR to `develop` for testing
+4. Merge `develop` → `main` for production release
+
+## Tech Stack
+
+- **Framework**: Next.js 14 (App Router)
+- **Database**: Supabase (PostgreSQL + Auth + Storage)
+- **Styling**: Tailwind CSS
+- **AI**: OpenAI GPT-4, Vector embeddings
+- **Deployment**: Vercel
+
+## Key Features
+
+- **Community Stories**: First-person narratives from Palm Islanders
+- **Annual Reports**: 15 years of interactive reports with AI search
+- **Knowledge Wiki**: Comprehensive knowledge base
+- **Media Management**: Photos, videos, and audio collections
+- **AI Assistant**: Context-aware Q&A about PICC
+
+## Documentation
+
+- [Setup Guide](docs/setup/SETUP.md)
+- [Architecture](docs/architecture/OVERVIEW.md)
+- [Contributing](CONTRIBUTING.md)
+- [Historical Docs](docs/archive/) - Previous documentation archive
+
+---
+
 *"Our stories are our strength. Our data is our sovereignty."*
+
+© Palm Island Community Company

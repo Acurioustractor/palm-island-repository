@@ -18,7 +18,7 @@ interface Story {
   title: string;
   summary?: string;
   content?: string;
-  story_category: string;
+  category?: string;
   emotional_theme?: string;
   created_at: string;
   story_date?: string;
@@ -42,7 +42,7 @@ interface Story {
   };
   service?: {
     id: string;
-    service_name: string;
+    name: string;
     service_color?: string;
   };
   story_media?: Array<{
@@ -83,7 +83,7 @@ export default function StoryDetailPage() {
             ),
             service:service_id (
               id,
-              service_name,
+              name,
               service_color
             ),
             story_media (
@@ -102,7 +102,7 @@ export default function StoryDetailPage() {
         setStory(data);
 
         // Fetch related stories (same category)
-        if (data.story_category) {
+        if (data.category) {
           const { data: related } = await supabase
             .from('stories')
             .select(`
@@ -115,7 +115,7 @@ export default function StoryDetailPage() {
                 full_name
               )
             `)
-            .eq('story_category', data.story_category)
+            .eq('category', data.category)
             .neq('id', params.id)
             .eq('is_public', true)
             .limit(6);
@@ -173,7 +173,7 @@ export default function StoryDetailPage() {
 
   const breadcrumbs = [
     { label: 'Stories', href: '/stories', icon: BookOpen },
-    { label: getCategoryLabel(story.story_category), href: `/wiki/categories/${story.story_category}` },
+    { label: getCategoryLabel(story.category || ''), href: `/wiki/categories/${story.category}` },
     { label: story.title, href: `/stories/${story.id}` },
   ];
 
@@ -182,7 +182,7 @@ export default function StoryDetailPage() {
     date_shared: story.created_at,
     story_date: story.story_date,
     location: story.location,
-    categories: [getCategoryLabel(story.story_category)],
+    categories: story.category ? [getCategoryLabel(story.category)] : [],
     services: story.service ? [story.service] : [],
     people_affected: story.people_affected,
     views: story.views || 0,
@@ -341,6 +341,7 @@ function getCategoryLabel(category: string): string {
     justice: 'Justice',
     environment: 'Environment',
     family_support: 'Family Support',
+    economic_development: 'Economic Development',
   };
   return labels[category] || category;
 }

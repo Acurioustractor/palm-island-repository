@@ -1,0 +1,619 @@
+/**
+ * Story Helper Functions
+ * Frontend utilities for fetching intelligently placed stories
+ * Uses server-side Supabase client with Next.js caching
+ */
+
+import { createClient } from '@/lib/supabase/client';
+import { unstable_cache } from 'next/cache';
+import { canDisplayPublicly } from './cultural-protocols';
+import type { Story, PageStoryQuery } from './types';
+
+/**
+ * Get stories for a specific page section
+ * Uses intelligent placement data from auto-assignment
+ */
+export async function getPageStories(query: PageStoryQuery): Promise<Story[]> {
+  const supabase = createClient();
+
+  const { pageContext, pageSection, limit = 10, offset = 0 } = query;
+
+  let queryBuilder = supabase
+    .from('stories')
+    .select(`
+      *,
+      storyteller:storyteller_id (
+        id,
+        full_name,
+        preferred_name,
+        is_elder,
+        is_cultural_advisor
+      )
+    `)
+    .eq('page_context', pageContext)
+    .eq('is_public', true)
+    .order('display_order', { ascending: true });
+
+  if (pageSection) {
+    queryBuilder = queryBuilder.eq('page_section', pageSection);
+  }
+
+  const { data, error } = await queryBuilder
+    .range(offset, offset + limit - 1);
+
+  if (error) {
+    console.error('[getPageStories] Error:', error);
+    return [];
+  }
+
+  // Apply cultural protocol checks as final safety layer
+  const safeStories = (data || []).filter(story => {
+    const check = canDisplayPublicly(story);
+    if (!check.allowed) {
+      console.warn(`[getPageStories] Story ${story.id} filtered:`, check.reason);
+      return false;
+    }
+    return true;
+  });
+
+  return safeStories as Story[];
+}
+
+/**
+ * Get stories for a specific page section (cached version)
+ * Revalidates every 5 minutes
+ */
+export const getPageStoriesCached = unstable_cache(
+  async (query: PageStoryQuery) => getPageStories(query),
+  ['page-stories'],
+  {
+    revalidate: 300, // 5 minutes
+    tags: ['stories']
+  }
+);
+
+/**
+ * Get featured stories across all pages
+ * High-quality stories marked as featured
+ */
+export async function getFeaturedStories(limit: number = 6): Promise<Story[]> {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('stories')
+    .select(`
+      *,
+      storyteller:storyteller_id (
+        id,
+        full_name,
+        preferred_name,
+        is_elder,
+        is_cultural_advisor
+      ),
+      story_media (
+        id,
+        media_url,
+        media_type,
+        caption
+      )
+    `)
+    .eq('is_featured', true)
+    .eq('is_public', true)
+    .order('total_score', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('[getFeaturedStories] Error:', error);
+    return [];
+  }
+
+  return (data || []) as Story[];
+}
+
+/**
+ * Get similar stories using vector search
+ * Uses the match_stories() database function
+ */
+export async function getSimilarStories(
+  storyId: string,
+  limit: number = 5
+): Promise<Story[]> {
+  const supabase = createClient();
+
+  // Use the database function for similarity search
+  const { data, error } = await supabase.rpc('get_similar_stories', {
+    source_story_id: storyId,
+    match_count: limit,
+    match_threshold: 0.7
+  });
+
+  if (error) {
+    console.error('[getSimilarStories] Error:', error);
+    return [];
+  }
+
+  // Fetch full story details for the similar stories
+  if (!data || data.length === 0) return [];
+
+  const storyIds = data.map((s: any) => s.id);
+
+  const { data: stories, error: fetchError } = await supabase
+    .from('stories')
+    .select(`
+      *,
+      storyteller:storyteller_id (
+        id,
+        full_name,
+        preferred_name,
+        is_elder,
+        is_cultural_advisor
+      ),
+      story_media (
+        id,
+        media_url,
+        media_type,
+        caption
+      )
+    `)
+    .in('id', storyIds)
+    .eq('is_public', true);
+
+  if (fetchError) {
+    console.error('[getSimilarStories] Fetch error:', fetchError);
+    return [];
+  }
+
+  // Sort by similarity score from the RPC call
+  const sortedStories = (stories || []).sort((a, b) => {
+    const aIndex = storyIds.indexOf(a.id);
+    const bIndex = storyIds.indexOf(b.id);
+    return aIndex - bIndex;
+  });
+
+  return sortedStories as Story[];
+}
+
+/**
+ * Get trending stories based on engagement
+ * Stories with high engagement in recent timeframe
+ */
+export async function getTrendingStories(
+  timeframeDays: number = 30,
+  limit: number = 6
+): Promise<Story[]> {
+  const supabase = createClient();
+
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - timeframeDays);
+
+  const { data, error } = await supabase
+    .from('stories')
+    .select(`
+      *,
+      storyteller:storyteller_id (
+        id,
+        full_name,
+        preferred_name,
+        is_elder,
+        is_cultural_advisor
+      ),
+      story_media (
+        id,
+        media_url,
+        media_type,
+        caption
+      )
+    `)
+    .eq('is_public', true)
+    .gte('created_at', cutoffDate.toISOString())
+    .order('engagement_score', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('[getTrendingStories] Error:', error);
+    return [];
+  }
+
+  return (data || []) as Story[];
+}
+
+/**
+ * Get elder stories
+ * Stories from elders and cultural advisors
+ */
+export async function getElderStories(limit: number = 6): Promise<Story[]> {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('stories')
+    .select(`
+      *,
+      storyteller:storyteller_id!inner (
+        id,
+        full_name,
+        preferred_name,
+        is_elder,
+        is_cultural_advisor
+      ),
+      story_media (
+        id,
+        media_url,
+        media_type,
+        caption
+      )
+    `)
+    .eq('is_public', true)
+    .eq('storyteller.is_elder', true)
+    .order('cultural_score', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('[getElderStories] Error:', error);
+    return [];
+  }
+
+  return (data || []) as Story[];
+}
+
+/**
+ * Get stories by type
+ * Filter by story_type field
+ */
+export async function getStoriesByType(
+  storyType: string,
+  limit: number = 10
+): Promise<Story[]> {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('stories')
+    .select(`
+      *,
+      storyteller:storyteller_id (
+        id,
+        full_name,
+        preferred_name,
+        is_elder,
+        is_cultural_advisor
+      ),
+      story_media (
+        id,
+        media_url,
+        media_type,
+        caption
+      )
+    `)
+    .eq('is_public', true)
+    .eq('story_type', storyType)
+    .order('total_score', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('[getStoriesByType] Error:', error);
+    return [];
+  }
+
+  return (data || []) as Story[];
+}
+
+/**
+ * Get stories by emotional theme
+ * Uses existing emotional_theme field
+ */
+export async function getStoriesByEmotion(
+  emotionalTheme: string,
+  limit: number = 10
+): Promise<Story[]> {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('stories')
+    .select(`
+      *,
+      storyteller:storyteller_id (
+        id,
+        full_name,
+        preferred_name,
+        is_elder,
+        is_cultural_advisor
+      ),
+      story_media (
+        id,
+        media_url,
+        media_type,
+        caption
+      )
+    `)
+    .eq('is_public', true)
+    .eq('emotional_theme', emotionalTheme)
+    .order('total_score', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('[getStoriesByEmotion] Error:', error);
+    return [];
+  }
+
+  return (data || []) as Story[];
+}
+
+/**
+ * Get stories by category
+ * Uses existing category field
+ */
+export async function getStoriesByCategory(
+  category: string,
+  limit: number = 10
+): Promise<Story[]> {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('stories')
+    .select(`
+      *,
+      storyteller:storyteller_id (
+        id,
+        full_name,
+        preferred_name,
+        is_elder,
+        is_cultural_advisor
+      ),
+      story_media (
+        id,
+        media_url,
+        media_type,
+        caption
+      )
+    `)
+    .eq('is_public', true)
+    .eq('category', category)
+    .order('total_score', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('[getStoriesByCategory] Error:', error);
+    return [];
+  }
+
+  return (data || []) as Story[];
+}
+
+/**
+ * Get recent stories
+ * Newest stories across all types
+ */
+export async function getRecentStories(limit: number = 10): Promise<Story[]> {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('stories')
+    .select(`
+      *,
+      storyteller:storyteller_id (
+        id,
+        full_name,
+        preferred_name,
+        is_elder,
+        is_cultural_advisor
+      ),
+      story_media (
+        id,
+        media_url,
+        media_type,
+        caption
+      )
+    `)
+    .eq('is_public', true)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('[getRecentStories] Error:', error);
+    return [];
+  }
+
+  return (data || []) as Story[];
+}
+
+/**
+ * Get a single story by ID with full details
+ */
+export async function getStoryById(storyId: string): Promise<Story | null> {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('stories')
+    .select(`
+      *,
+      storyteller:storyteller_id (
+        id,
+        full_name,
+        preferred_name,
+        is_elder,
+        is_cultural_advisor,
+        bio,
+        profile_image_url
+      ),
+      story_media (
+        id,
+        media_url,
+        media_type,
+        caption,
+        display_order
+      )
+    `)
+    .eq('id', storyId)
+    .single();
+
+  if (error) {
+    console.error('[getStoryById] Error:', error);
+    return null;
+  }
+
+  // Cultural protocol check
+  const check = canDisplayPublicly(data);
+  if (!check.allowed) {
+    console.warn(`[getStoryById] Story ${storyId} not displayable:`, check.reason);
+    return null;
+  }
+
+  return data as Story;
+}
+
+/**
+ * Get story count for a specific page context
+ * Useful for pagination and UI
+ */
+export async function getStoryCount(
+  pageContext?: string,
+  pageSection?: string
+): Promise<number> {
+  const supabase = createClient();
+
+  let query = supabase
+    .from('stories')
+    .select('*', { count: 'exact', head: true })
+    .eq('is_public', true);
+
+  if (pageContext) {
+    query = query.eq('page_context', pageContext);
+  }
+
+  if (pageSection) {
+    query = query.eq('page_section', pageSection);
+  }
+
+  const { count, error } = await query;
+
+  if (error) {
+    console.error('[getStoryCount] Error:', error);
+    return 0;
+  }
+
+  return count || 0;
+}
+
+/**
+ * Search stories by keyword
+ * Full-text search across title and content
+ */
+export async function searchStories(
+  searchQuery: string,
+  limit: number = 20
+): Promise<Story[]> {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('stories')
+    .select(`
+      *,
+      storyteller:storyteller_id (
+        id,
+        full_name,
+        preferred_name,
+        is_elder,
+        is_cultural_advisor
+      ),
+      story_media (
+        id,
+        media_url,
+        media_type,
+        caption
+      )
+    `)
+    .eq('is_public', true)
+    .or(`title.ilike.%${searchQuery}%,content.ilike.%${searchQuery}%`)
+    .order('total_score', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('[searchStories] Error:', error);
+    return [];
+  }
+
+  return (data || []) as Story[];
+}
+
+/**
+ * Get all unique story types
+ * For filtering UI
+ */
+export async function getStoryTypes(): Promise<string[]> {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('stories')
+    .select('story_type')
+    .eq('is_public', true)
+    .not('story_type', 'is', null);
+
+  if (error) {
+    console.error('[getStoryTypes] Error:', error);
+    return [];
+  }
+
+  const uniqueTypes = [...new Set(data.map(d => d.story_type))].filter(Boolean);
+  return uniqueTypes as string[];
+}
+
+/**
+ * Get all unique emotional themes
+ * For filtering UI
+ */
+export async function getEmotionalThemes(): Promise<string[]> {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('stories')
+    .select('emotional_theme')
+    .eq('is_public', true)
+    .not('emotional_theme', 'is', null);
+
+  if (error) {
+    console.error('[getEmotionalThemes] Error:', error);
+    return [];
+  }
+
+  const uniqueThemes = [...new Set(data.map(d => d.emotional_theme))].filter(Boolean);
+  return uniqueThemes as string[];
+}
+
+/**
+ * Helper to format story excerpt
+ */
+export function getStoryExcerpt(content: string | undefined, maxLength: number = 150): string {
+  if (!content) return '';
+
+  if (content.length <= maxLength) return content;
+
+  return content.substring(0, maxLength).trim() + '...';
+}
+
+/**
+ * Helper to get storyteller display name
+ */
+export function getStorytellerName(storyteller?: Story['storyteller']): string {
+  if (!storyteller) return 'Anonymous';
+
+  return storyteller.preferred_name || storyteller.full_name || 'Community Member';
+}
+
+/**
+ * Helper to check if story has media
+ */
+export function hasStoryMedia(story: Story): boolean {
+  return !!(story.story_media && story.story_media.length > 0);
+}
+
+/**
+ * Helper to get primary story image
+ */
+export function getStoryImage(story: Story): string | null {
+  if (!hasStoryMedia(story)) return null;
+
+  const imageMedia = story.story_media?.find(
+    m => m.media_type === 'image' || m.media_type === 'photo'
+  );
+
+  return imageMedia?.media_url || null;
+}

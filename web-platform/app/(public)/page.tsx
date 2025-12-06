@@ -1,267 +1,573 @@
 import Link from 'next/link';
-import { Users, Globe, Building2, ArrowRight, Heart, BookOpen, TrendingUp, Mic } from 'lucide-react';
+import Image from 'next/image';
+import { Suspense } from 'react';
+import { Users, Building2, Heart, BookOpen, Calendar, Bot, Quote, Shield } from 'lucide-react';
+import { getHeroImage, getPageMedia, getFeaturedPageMedia } from '@/lib/media/utils';
+import { getElderStories, getPageStories } from '@/lib/stories/utils';
+import HomeStats from './HomeStats';
+import ElderStoryCard from '@/components/stories/ElderStoryCard';
+import StoryCarousel from '@/components/stories/StoryCarousel';
 
-export default function HomePage() {
+export default async function HomePage() {
+  // ============================================================================
+  // STRATEGIC MEDIA FETCHING
+  // ============================================================================
+
+  // 1. HERO: Video OR Photo for emotional connection
+  const heroVideo = await getFeaturedPageMedia('home', 'hero', 'video');
+  const heroImage = await getHeroImage('home');
+
+  // 2. STATS: Photos of people behind the numbers (humanize data)
+  const statsPhotos = await getPageMedia({
+    pageContext: 'home',
+    pageSection: 'stats',
+    fileType: 'image',
+    limit: 4
+  });
+
+  // 3. FEATURES: Service-specific photos for cards (make abstract tangible)
+  const featureImages = await getPageMedia({
+    pageContext: 'home',
+    pageSection: 'features',
+    fileType: 'image',
+    limit: 6
+  });
+
+  // 4. COMMUNITY GALLERY: Action shots showing programs in action
+  const communityPhotos = await getPageMedia({
+    pageContext: 'home',
+    pageSection: 'gallery',
+    fileType: 'image',
+    limit: 6
+  });
+
+  // 5. TESTIMONIALS: Portraits + optional videos for trust/authenticity
+  const testimonialPhotos = await getPageMedia({
+    pageContext: 'home',
+    pageSection: 'testimonials',
+    fileType: 'image',
+    limit: 3
+  });
+
+  // 6. QUOTE BACKGROUNDS: Large photos for quote sections
+  const quoteBackground = await getPageMedia({
+    pageContext: 'home',
+    pageSection: 'quotes',
+    fileType: 'image',
+    limit: 1
+  });
+
+  // 7. CTA BACKGROUNDS: Action photos for call-to-action sections
+  const ctaBackground = await getPageMedia({
+    pageContext: 'home',
+    pageSection: 'cta',
+    fileType: 'image',
+    limit: 1
+  });
+
+  // 8. ELDER STORIES: Featured elder stories with quotes
+  const elderStories = await getElderStories(3);
+
+  // 9. FEATURED CAROUSEL: Intelligently-placed featured stories
+  const carouselStories = await getPageStories({
+    pageContext: 'home',
+    pageSection: 'featured',
+    limit: 6
+  });
+
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-blue-900 via-teal-800 to-blue-900 text-white py-20 lg:py-32">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">
+    <div className="min-h-screen bg-white">
+
+      {/* ================================================================
+          HERO SECTION
+          PURPOSE: Immediate emotional connection, set tone
+          MEDIA: Video (autoplay, muted, loop) OR Photo background
+          WHY: Video creates immersion, photo provides fallback
+          DATABASE: page_context='home', page_section='hero'
+          ================================================================ */}
+      <section className="relative h-[85vh] min-h-[700px] flex items-center justify-center overflow-hidden">
+
+        {/* Video Background (if available) */}
+        {heroVideo ? (
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+          >
+            <source src={heroVideo.public_url} type="video/mp4" />
+          </video>
+        ) : heroImage ? (
+          // Photo Fallback
+          <div
+            className="absolute inset-0 w-full h-full bg-cover bg-center"
+            style={{ backgroundImage: `url(${heroImage})` }}
+          />
+        ) : (
+          // Gradient Fallback
+          <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900" />
+        )}
+
+        {/* Dark overlay for text readability - 60% opacity */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70" />
+
+        {/* Vignette effect */}
+        <div className="absolute inset-0" style={{
+          background: 'radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.4) 100%)'
+        }} />
+
+        {/* Content */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 drop-shadow-2xl leading-tight">
             Palm Island Community Repository
           </h1>
-          <p className="text-xl md:text-2xl mb-4 text-blue-100">
+          <p className="text-2xl md:text-3xl lg:text-4xl mb-6 font-light drop-shadow-lg">
             Manbarra & Bwgcolman Country
           </p>
-          <p className="text-lg md:text-xl max-w-3xl mx-auto text-blue-50 mb-12">
+          <p className="text-lg md:text-xl lg:text-2xl max-w-4xl mx-auto mb-12 drop-shadow-lg leading-relaxed">
             Community-controlled storytelling, impact measurement, and data sovereignty
           </p>
 
-          {/* Three Audience Pathways */}
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto mt-16">
-            {/* Community Members */}
+          {/* CTAs */}
+          <div className="flex flex-wrap gap-4 justify-center">
             <Link
-              href="/community"
-              className="group bg-white/10 backdrop-blur-sm hover:bg-white/20 border-2 border-white/30 hover:border-white p-8 rounded-xl transition-all transform hover:scale-105"
+              href="/stories"
+              className="px-8 py-4 bg-white text-gray-900 rounded-full font-semibold text-lg hover:bg-gray-100 transition-all shadow-2xl"
             >
-              <div className="flex justify-center mb-4">
-                <div className="p-3 bg-white/20 rounded-full">
-                  <Users className="w-8 h-8" />
-                </div>
-              </div>
-              <h2 className="text-2xl font-bold mb-3">Palm Island Community</h2>
-              <p className="text-blue-50 mb-6 text-sm">
-                Read stories, share your voice, and celebrate our community
-              </p>
-              <div className="flex items-center justify-center gap-2 text-white font-semibold">
-                <span>Explore Stories</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </div>
+              Read Stories
             </Link>
+            <Link
+              href="/about"
+              className="px-8 py-4 border-2 border-white text-white rounded-full font-semibold text-lg hover:bg-white hover:text-gray-900 transition-all"
+            >
+              About PICC
+            </Link>
+          </div>
+        </div>
 
-            {/* PICC Staff */}
-            <Link
-              href="/picc/dashboard"
-              className="group bg-white/10 backdrop-blur-sm hover:bg-white/20 border-2 border-white/30 hover:border-white p-8 rounded-xl transition-all transform hover:scale-105"
-            >
-              <div className="flex justify-center mb-4">
-                <div className="p-3 bg-white/20 rounded-full">
-                  <Building2 className="w-8 h-8" />
-                </div>
-              </div>
-              <h2 className="text-2xl font-bold mb-3">PICC Staff & Supporters</h2>
-              <p className="text-blue-50 mb-6 text-sm">
-                Manage content, analytics, and community engagement
-              </p>
-              <div className="flex items-center justify-center gap-2 text-white font-semibold">
-                <span>Access Dashboard</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </Link>
-
-            {/* Broader Community */}
-            <Link
-              href="/impact"
-              className="group bg-white/10 backdrop-blur-sm hover:bg-white/20 border-2 border-white/30 hover:border-white p-8 rounded-xl transition-all transform hover:scale-105"
-            >
-              <div className="flex justify-center mb-4">
-                <div className="p-3 bg-white/20 rounded-full">
-                  <Globe className="w-8 h-8" />
-                </div>
-              </div>
-              <h2 className="text-2xl font-bold mb-3">Friends & Supporters</h2>
-              <p className="text-blue-50 mb-6 text-sm">
-                See our impact, stay connected, and support our work
-              </p>
-              <div className="flex items-center justify-center gap-2 text-white font-semibold">
-                <span>See Our Impact</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </Link>
+        {/* Scroll indicator */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+          <div className="w-6 h-10 border-2 border-white rounded-full flex items-start justify-center p-2">
+            <div className="w-1 h-3 bg-white rounded-full animate-pulse" />
           </div>
         </div>
       </section>
 
-      {/* Impact Numbers */}
-      <section className="py-12 bg-gray-50 border-y border-gray-200">
+      {/* ================================================================
+          IMPACT STATS with ICONS
+          PURPOSE: Clear visual representation of key metrics
+          MEDIA: Icons instead of photos for cleaner presentation
+          WHY: Icons are more scalable and work better for stats
+          ================================================================ */}
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div className="text-center">
-              <div className="text-4xl md:text-5xl font-bold text-blue-900 mb-2">197</div>
-              <div className="text-sm text-gray-600">Staff Members</div>
-              <div className="text-xs text-green-600 mt-1">+30% from 2023</div>
+
+            {/* Stat 1: Staff Members */}
+            <div className="bg-white border border-gray-100 rounded-2xl p-8 text-center hover:shadow-lg transition-shadow">
+              <Users className="w-12 h-12 mx-auto mb-4 text-gray-600" />
+              <div className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">197</div>
+              <div className="text-sm text-gray-500 uppercase tracking-wide">Staff Members</div>
+              <div className="text-xs text-gray-400 mt-1">+30% from 2023</div>
             </div>
-            <div className="text-center">
-              <div className="text-4xl md:text-5xl font-bold text-teal-900 mb-2">16+</div>
-              <div className="text-sm text-gray-600">Integrated Services</div>
-              <div className="text-xs text-gray-500 mt-1">Holistic support</div>
+
+            {/* Stat 2: Services */}
+            <div className="bg-white border border-gray-100 rounded-2xl p-8 text-center hover:shadow-lg transition-shadow">
+              <Building2 className="w-12 h-12 mx-auto mb-4 text-gray-600" />
+              <div className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">16+</div>
+              <div className="text-sm text-gray-500 uppercase tracking-wide">Integrated Services</div>
+              <div className="text-xs text-gray-400 mt-1">Holistic support</div>
             </div>
-            <div className="text-center">
-              <div className="text-4xl md:text-5xl font-bold text-purple-900 mb-2">100%</div>
-              <div className="text-sm text-gray-600">Community Controlled</div>
-              <div className="text-xs text-purple-600 mt-1">Since 2021</div>
+
+            {/* Stat 3: Community Controlled */}
+            <div className="bg-white border border-gray-100 rounded-2xl p-8 text-center hover:shadow-lg transition-shadow">
+              <Heart className="w-12 h-12 mx-auto mb-4 text-gray-600" />
+              <div className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">100%</div>
+              <div className="text-sm text-gray-500 uppercase tracking-wide">Community Controlled</div>
+              <div className="text-xs text-gray-400 mt-1">Since 2021</div>
             </div>
-            <div className="text-center">
-              <div className="text-4xl md:text-5xl font-bold text-pink-900 mb-2">31+</div>
-              <div className="text-sm text-gray-600">Stories Shared</div>
-              <div className="text-xs text-gray-500 mt-1">And growing</div>
+
+            {/* Stat 4: Stories */}
+            <div className="bg-white border border-gray-100 rounded-2xl p-8 text-center hover:shadow-lg transition-shadow">
+              <BookOpen className="w-12 h-12 mx-auto mb-4 text-gray-600" />
+              <div className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">31+</div>
+              <div className="text-sm text-gray-500 uppercase tracking-wide">Stories Shared</div>
+              <div className="text-xs text-gray-400 mt-1">And growing</div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Featured Stories */}
-      <section className="py-16 bg-white">
+      {/* ================================================================
+          FEATURED STORIES CAROUSEL
+          PURPOSE: Showcase intelligently-placed featured community stories
+          MEDIA: Auto-advancing carousel with high-quality stories
+          WHY: Highlight diverse stories using multi-factor scoring
+          DATABASE: page_context='home', page_section='featured'
+          ALGORITHM: Quality (35%) + Engagement (30%) + Cultural (15%) + Recency (10%) + Diversity (10%)
+          ================================================================ */}
+      {carouselStories && carouselStories.length > 0 && (
+        <section className="py-20 bg-gradient-to-b from-white to-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                Featured Community Stories
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                Discover the voices, experiences, and wisdom of our community members through their powerful stories
+              </p>
+            </div>
+
+            <StoryCarousel
+              stories={carouselStories}
+              autoplay={true}
+              interval={5000}
+              className="mb-8"
+            />
+
+            <div className="text-center mt-8">
+              <Link
+                href="/stories"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-picc-teal text-white rounded-full font-semibold hover:bg-picc-navy transition-colors shadow-lg hover:shadow-xl"
+              >
+                <BookOpen className="w-5 h-5" />
+                Explore All Stories
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ================================================================
+          ELDER WISDOM STORIES
+          PURPOSE: Showcase elder voices with quotes and profile images
+          MEDIA: Story cards with quotes that link to full stories
+          WHY: Connect readers to elder wisdom directly
+          DATABASE: Stories from elders with is_elder=true
+          ================================================================ */}
+      {elderStories && elderStories.length > 0 && (
+        <section className="py-20 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <Shield className="w-10 h-10 text-purple-600" />
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+                  Voices of Our Elders
+                </h2>
+              </div>
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                Wisdom, knowledge, and guidance from community elders
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              {elderStories.slice(0, 3).map((story) => {
+                // Extract key quote from metadata - get a SHORT one
+                const metadata = (story as any).metadata;
+                const quotes = metadata?.key_quotes || [];
+                const keyQuote = quotes.find((q: string) => q.length < 100) || quotes[0];
+                const storytellerName = story.storyteller?.preferred_name || story.storyteller?.full_name || 'Elder';
+                const profileImageUrl = story.storyteller?.profile_image_url;
+
+                return (
+                  <ElderStoryCard
+                    key={story.id}
+                    storyId={story.id}
+                    storytellerName={storytellerName}
+                    profileImageUrl={profileImageUrl}
+                    keyQuote={keyQuote}
+                    storyTitle={story.title}
+                  />
+                );
+              })}
+            </div>
+
+            {/* Link to all stories */}
+            <div className="text-center mt-12">
+              <Link
+                href="/stories"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-purple-600 text-white rounded-full font-semibold text-lg hover:bg-purple-700 transition-all shadow-lg"
+              >
+                <BookOpen className="w-5 h-5" />
+                Read All Community Stories
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ================================================================
+          QUOTE SECTION with PHOTO BACKGROUND
+          PURPOSE: Emotional reinforcement of community voice
+          MEDIA: Large community photo as background
+          WHY: Connect quote to real faces, make message tangible
+          DATABASE: page_context='home', page_section='quotes'
+          ================================================================ */}
+      <section
+        className="py-20 relative overflow-hidden"
+        style={quoteBackground[0] ? {
+          backgroundImage: `url(${quoteBackground[0].public_url})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        } : undefined}
+      >
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-gray-900/90 to-gray-900/80" />
+
+        {/* Content */}
+        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
+          <Quote className="w-16 h-16 mx-auto mb-6 opacity-50" />
+          <blockquote className="text-3xl md:text-4xl font-bold mb-6 italic leading-relaxed">
+            "Everything we do is for, with, and because of the people of this beautiful community"
+          </blockquote>
+          <p className="text-xl text-gray-300">— Rachel Atkinson, CEO</p>
+        </div>
+      </section>
+
+      {/* ================================================================
+          FEATURE CARDS with PHOTO BACKGROUNDS
+          PURPOSE: Make services tangible through visual evidence
+          MEDIA: Service-specific photos as card backgrounds
+          WHY: Annual reports/library/AI are abstract - photos make real
+          DATABASE: page_context='home', page_section='features'
+          ================================================================ */}
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Community Stories
+              Explore Our Journey
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Voices from Palm Island sharing experiences, wisdom, and vision for our future
+            <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+              15 years of growth through interactive reports, comprehensive knowledge, and AI assistance
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 mb-12">
-            {/* Story Card 1 */}
-            <div className="bg-gradient-to-br from-pink-50 to-purple-50 p-8 rounded-xl border border-pink-100 hover:shadow-lg transition-all">
-              <div className="flex items-center gap-2 mb-4">
-                <BookOpen className="w-5 h-5 text-pink-600" />
-                <span className="text-sm font-semibold text-pink-900">Community Voice</span>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">
-                Stories of Resilience & Hope
-              </h3>
-              <p className="text-gray-700 mb-6">
-                Read powerful stories from our community members about overcoming challenges,
-                celebrating culture, and building a stronger future together.
-              </p>
-              <Link
-                href="/stories"
-                className="inline-flex items-center gap-2 text-pink-700 font-semibold hover:text-pink-900 transition-colors"
-              >
-                <span>Read Stories</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
 
-            {/* Share Your Voice CTA */}
-            <div className="bg-gradient-to-br from-blue-50 to-teal-50 p-8 rounded-xl border border-blue-100 hover:shadow-lg transition-all">
-              <div className="flex items-center gap-2 mb-4">
-                <Mic className="w-5 h-5 text-blue-600" />
-                <span className="text-sm font-semibold text-blue-900">Your Voice Matters</span>
+            {/* Card 1: Annual Reports - WITH PHOTO BACKGROUND */}
+            <Link href="/annual-reports" className="group">
+              <div className="bg-white rounded-2xl border border-gray-200 hover:border-gray-900 overflow-hidden transition-all h-full flex flex-col shadow-lg hover:shadow-2xl">
+                <div
+                  className="aspect-video relative flex items-center justify-center bg-cover bg-center"
+                  style={featureImages[0] ? { backgroundImage: `url(${featureImages[0].public_url})` } : undefined}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-600/80 to-purple-700/80" />
+                  <div className="text-white text-center z-10 relative p-6">
+                    <Calendar className="w-16 h-16 mx-auto mb-4 drop-shadow-lg" />
+                    <div className="text-6xl font-bold drop-shadow-lg">15</div>
+                    <div className="text-xl font-semibold drop-shadow-lg">Annual Reports</div>
+                  </div>
+                </div>
+                <div className="p-6 flex-1 flex flex-col">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                    Interactive Timeline
+                  </h3>
+                  <p className="text-gray-600 mb-4 flex-1">
+                    Navigate 15 years of growth, achievements, and community control.
+                    264+ images, full-text search, and AI-powered Q&A.
+                  </p>
+                  <div className="flex items-center text-gray-900 font-semibold group-hover:gap-2 transition-all">
+                    Explore Timeline →
+                  </div>
+                </div>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">
-                Share Your Story
-              </h3>
-              <p className="text-gray-700 mb-6">
-                Every Palm Islander has a story. Share your experiences through text, voice
-                recording, or video. Your story can inspire and strengthen our community.
-              </p>
-              <Link
-                href="/share-voice"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all"
-              >
-                <Mic className="w-4 h-4" />
-                <span>Share Your Voice</span>
-              </Link>
-            </div>
+            </Link>
+
+            {/* Card 2: Knowledge Library - WITH PHOTO BACKGROUND */}
+            <Link href="/wiki/stories" className="group">
+              <div className="bg-white rounded-2xl border border-gray-200 hover:border-gray-900 overflow-hidden transition-all h-full flex flex-col shadow-lg hover:shadow-2xl">
+                <div
+                  className="aspect-video relative flex items-center justify-center bg-cover bg-center"
+                  style={featureImages[1] ? { backgroundImage: `url(${featureImages[1].public_url})` } : undefined}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-green-600/80 to-teal-700/80" />
+                  <BookOpen className="w-24 h-24 text-white relative z-10 drop-shadow-2xl" />
+                </div>
+                <div className="p-6 flex-1 flex flex-col">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-green-600 transition-colors">
+                    Knowledge Library
+                  </h3>
+                  <p className="text-gray-600 mb-4 flex-1">
+                    Browse historical events, services, financial records, and deep insights
+                    into PICC's operations and impact.
+                  </p>
+                  <div className="flex items-center text-gray-900 font-semibold group-hover:gap-2 transition-all">
+                    Browse Library →
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            {/* Card 3: AI Chat - WITH PHOTO BACKGROUND */}
+            <Link href="/chat" className="group">
+              <div className="bg-white rounded-2xl border border-gray-200 hover:border-gray-900 overflow-hidden transition-all h-full flex flex-col shadow-lg hover:shadow-2xl">
+                <div
+                  className="aspect-video relative flex items-center justify-center bg-cover bg-center"
+                  style={featureImages[2] ? { backgroundImage: `url(${featureImages[2].public_url})` } : undefined}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-orange-600/80 to-red-700/80" />
+                  <Bot className="w-24 h-24 text-white relative z-10 drop-shadow-2xl" />
+                </div>
+                <div className="p-6 flex-1 flex flex-col">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-orange-600 transition-colors">
+                    Ask AI
+                  </h3>
+                  <p className="text-gray-600 mb-4 flex-1">
+                    AI-powered assistant with deep knowledge of PICC's history, services,
+                    and community programs. Get instant answers.
+                  </p>
+                  <div className="flex items-center text-gray-900 font-semibold group-hover:gap-2 transition-all">
+                    Ask Questions →
+                  </div>
+                </div>
+              </div>
+            </Link>
           </div>
 
-          {/* View All Stories Button */}
-          <div className="text-center">
+          {/* Stats Bar */}
+          <Suspense fallback={<div className="text-center py-8">Loading stats...</div>}>
+            <HomeStats />
+          </Suspense>
+        </div>
+      </section>
+
+      {/* ================================================================
+          FEATURED VIDEO
+          PURPOSE: Showcase community stories through video
+          MEDIA: Featured video from media library
+          WHY: Video creates emotional connection and shows real community
+          DATABASE: page_context='home', page_section='hero', file_type='video'
+          ================================================================ */}
+      {heroVideo && (
+        <section className="py-20 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                {heroVideo.title || 'Community Stories'}
+              </h2>
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                Hear directly from Palm Islanders about our journey
+              </p>
+            </div>
+
+            <div className="max-w-4xl mx-auto">
+              {/* Descript Embedded Video Player */}
+              <div
+                className="relative rounded-2xl overflow-hidden shadow-2xl"
+                style={{
+                  left: 0,
+                  width: '100%',
+                  height: 0,
+                  position: 'relative',
+                  paddingBottom: '56.25%'
+                }}
+              >
+                <iframe
+                  src={heroVideo.public_url.replace('/view/', '/embed/')}
+                  style={{
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    position: 'absolute',
+                    border: 0
+                  }}
+                  allowFullScreen
+                  allow="encrypted-media *; fullscreen *;"
+                  title={heroVideo.title || 'Community Story'}
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ================================================================
+          COMMUNITY IN ACTION GALLERY
+          PURPOSE: Visual proof of diverse programs happening
+          MEDIA: Grid of action shots from different programs/events
+          WHY: Show community isn't abstract - it's people doing things
+          DATABASE: page_context='home', page_section='gallery'
+          ================================================================ */}
+      {communityPhotos && communityPhotos.length > 0 && (
+        <section className="py-20 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                Community in Action
+              </h2>
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                Real programs, real people, real impact across our services
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {communityPhotos.map((photo, idx) => (
+                <div
+                  key={idx}
+                  className="aspect-square rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow group cursor-pointer"
+                >
+                  <img
+                    src={photo.public_url}
+                    alt={photo.alt_text || photo.title || `Community activity ${idx + 1}`}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  {photo.caption && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+                      <p className="text-white text-sm font-medium">{photo.caption}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ================================================================
+          CTA SECTION with PHOTO BACKGROUND
+          PURPOSE: Visual call-to-action showing what's possible
+          MEDIA: Action photo of community engagement
+          WHY: Show actual outcome of clicking - people sharing stories
+          DATABASE: page_context='home', page_section='cta'
+          ================================================================ */}
+      <section
+        className="py-20 relative overflow-hidden"
+        style={ctaBackground[0] ? {
+          backgroundImage: `url(${ctaBackground[0].public_url})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        } : undefined}
+      >
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 to-purple-900/90" />
+
+        {/* Content */}
+        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            Share Your Voice with Our Community
+          </h2>
+          <p className="text-lg mb-8 text-gray-100">
+            Every Palm Islander has a story. Your voice strengthens our collective journey.
+          </p>
+          <div className="flex flex-wrap gap-4 justify-center">
+            <Link
+              href="/share-voice"
+              className="px-8 py-4 bg-white text-gray-900 rounded-full font-semibold text-lg hover:bg-gray-100 transition-all shadow-2xl"
+            >
+              Share Your Story
+            </Link>
             <Link
               href="/stories"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-semibold rounded-lg transition-all"
+              className="px-8 py-4 border-2 border-white text-white rounded-full font-semibold text-lg hover:bg-white hover:text-gray-900 transition-all"
             >
-              <span>View All Stories</span>
-              <ArrowRight className="w-5 h-5" />
+              Read Stories
             </Link>
           </div>
         </div>
       </section>
 
-      {/* About PICC */}
-      <section className="py-16 bg-gradient-to-br from-gray-50 to-blue-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                About Palm Island Community Company
-              </h2>
-              <p className="text-lg text-gray-700 mb-6">
-                PICC is a community-controlled organization providing essential services and
-                support to the people of Palm Island (Manbarra & Bwgcolman Country).
-              </p>
-              <p className="text-gray-700 mb-8">
-                From colonial control to community sovereignty, our journey represents
-                Indigenous self-determination at scale. We prove that community-controlled
-                services work, eliminating dependence on external consultants and keeping
-                resources within our community.
-              </p>
-              <Link
-                href="/about"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all"
-              >
-                <span>Learn More About PICC</span>
-                <ArrowRight className="w-5 h-5" />
-              </Link>
-            </div>
-
-            <div className="space-y-4">
-              <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-600">
-                <div className="flex items-center gap-3 mb-2">
-                  <Heart className="w-6 h-6 text-blue-600" />
-                  <h3 className="font-bold text-gray-900">Community Controlled</h3>
-                </div>
-                <p className="text-sm text-gray-700">
-                  100% Indigenous-led governance ensuring culturally appropriate services
-                </p>
-              </div>
-
-              <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-teal-600">
-                <div className="flex items-center gap-3 mb-2">
-                  <TrendingUp className="w-6 h-6 text-teal-600" />
-                  <h3 className="font-bold text-gray-900">Growing Impact</h3>
-                </div>
-                <p className="text-sm text-gray-700">
-                  197 staff members (+30% from 2023) providing 16+ integrated services
-                </p>
-              </div>
-
-              <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-purple-600">
-                <div className="flex items-center gap-3 mb-2">
-                  <Globe className="w-6 h-6 text-purple-600" />
-                  <h3 className="font-bold text-gray-900">Data Sovereignty</h3>
-                </div>
-                <p className="text-sm text-gray-700">
-                  Community-owned data and storytelling infrastructure proving innovation at scale
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Newsletter Signup */}
-      <section className="py-16 bg-blue-900 text-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Stay Connected with Our Journey
-          </h2>
-          <p className="text-lg text-blue-100 mb-8">
-            Subscribe to receive updates about community stories, PICC achievements, and our ongoing work
-          </p>
-          <Link
-            href="/subscribe"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-white text-blue-900 hover:bg-blue-50 font-semibold rounded-lg shadow-lg transition-all"
-          >
-            <span>Subscribe to Updates</span>
-            <ArrowRight className="w-5 h-5" />
-          </Link>
-        </div>
-      </section>
     </div>
   );
 }

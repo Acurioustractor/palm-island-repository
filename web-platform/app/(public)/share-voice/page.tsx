@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { getHeroImage } from '@/lib/media/utils';
 import { useRouter } from 'next/navigation';
 import {
   Mic, Video, FileText, Send, User, Shield, Heart,
@@ -30,9 +31,22 @@ export default function ShareYourVoicePage() {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
+  const [heroImage, setHeroImage] = useState<string | null>(null);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    async function fetchHeroImage() {
+      try {
+        const image = await getHeroImage('share-voice');
+        setHeroImage(image);
+      } catch (error) {
+        console.error('Error fetching hero image:', error);
+      }
+    }
+    fetchHeroImage();
+  }, []);
 
   // Audio recording
   async function startAudioRecording() {
@@ -201,8 +215,8 @@ export default function ShareYourVoicePage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-2xl p-8 max-w-2xl w-full text-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl border border-gray-100 p-8 max-w-2xl w-full text-center">
           <CheckCircle className="h-20 w-20 text-green-600 mx-auto mb-6" />
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Yadu! Thank You!
@@ -223,13 +237,13 @@ export default function ShareYourVoicePage() {
                 setAudioBlob(null);
                 setVideoFile(null);
               }}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-6 py-3 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition-colors focus:outline-none focus:ring-4 focus:ring-gray-900/20"
             >
               Share Another Story
             </button>
             <button
               onClick={() => router.push('/stories')}
-              className="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+              className="px-6 py-3 border border-gray-200 hover:border-gray-900 text-gray-700 hover:text-gray-900 rounded-full transition-colors"
             >
               View Stories
             </button>
@@ -240,10 +254,17 @@ export default function ShareYourVoicePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 py-12 px-4">
+    <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div
+          className="text-center mb-12 rounded-2xl py-12 px-4"
+          style={heroImage ? {
+            backgroundImage: `linear-gradient(rgba(249, 250, 251, 0.92), rgba(249, 250, 251, 0.95)), url(${heroImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          } : undefined}
+        >
           <h1 className="text-5xl font-bold text-gray-900 mb-4">
             Share Your Voice
           </h1>
@@ -270,15 +291,15 @@ export default function ShareYourVoicePage() {
         </div>
 
         {/* Main Form */}
-        <div className="bg-white rounded-xl shadow-2xl overflow-hidden">
+        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
           {/* Tabs */}
-          <div className="grid grid-cols-3 border-b border-gray-200">
+          <div className="grid grid-cols-3 border-b border-gray-100">
             <button
               onClick={() => setActiveTab('text')}
               className={`px-6 py-4 flex items-center justify-center gap-2 transition-colors ${
                 activeTab === 'text'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                  ? 'bg-gray-900 text-white border-b-2 border-gray-900'
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
               }`}
             >
               <FileText className="h-5 w-5" />
@@ -288,8 +309,8 @@ export default function ShareYourVoicePage() {
               onClick={() => setActiveTab('audio')}
               className={`px-6 py-4 flex items-center justify-center gap-2 transition-colors ${
                 activeTab === 'audio'
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                  ? 'bg-gray-900 text-white border-b-2 border-gray-900'
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
               }`}
             >
               <Mic className="h-5 w-5" />
@@ -299,8 +320,8 @@ export default function ShareYourVoicePage() {
               onClick={() => setActiveTab('video')}
               className={`px-6 py-4 flex items-center justify-center gap-2 transition-colors ${
                 activeTab === 'video'
-                  ? 'bg-teal-600 text-white'
-                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                  ? 'bg-gray-900 text-white border-b-2 border-gray-900'
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
               }`}
             >
               <Video className="h-5 w-5" />
@@ -346,7 +367,7 @@ export default function ShareYourVoicePage() {
                     value={formData.yourName}
                     onChange={(e) => setFormData({ ...formData, yourName: e.target.value })}
                     placeholder="Enter your name"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-full focus:border-gray-400 focus:outline-none transition-colors"
                   />
                 </div>
               )}
@@ -363,7 +384,7 @@ export default function ShareYourVoicePage() {
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 placeholder="Give your story a title..."
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-full focus:border-gray-400 focus:outline-none transition-colors"
               />
             </div>
 
@@ -379,7 +400,7 @@ export default function ShareYourVoicePage() {
                   onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                   rows={12}
                   placeholder="Share your story, experience, or knowledge..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-serif"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:border-gray-400 focus:outline-none transition-colors font-serif"
                 />
                 <p className="text-xs text-gray-500 mt-2">
                   {formData.content.length} characters
@@ -401,7 +422,7 @@ export default function ShareYourVoicePage() {
                         <button
                           type="button"
                           onClick={startAudioRecording}
-                          className="px-8 py-4 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-lg font-medium"
+                          className="px-8 py-4 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition-colors text-lg font-medium focus:outline-none focus:ring-4 focus:ring-gray-900/20"
                         >
                           Start Recording
                         </button>
@@ -457,7 +478,7 @@ export default function ShareYourVoicePage() {
                     onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                     rows={4}
                     placeholder="Add any additional context or details..."
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:border-gray-400 focus:outline-none transition-colors"
                   />
                 </div>
               </div>
@@ -529,7 +550,7 @@ export default function ShareYourVoicePage() {
                     onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                     rows={4}
                     placeholder="Add any additional context or details..."
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:border-gray-400 focus:outline-none transition-colors"
                   />
                 </div>
               </div>
@@ -543,7 +564,7 @@ export default function ShareYourVoicePage() {
               <select
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-full focus:border-gray-400 focus:outline-none transition-colors"
               >
                 <option value="community">Community Life</option>
                 <option value="culture">Culture & Language</option>
@@ -579,7 +600,7 @@ export default function ShareYourVoicePage() {
             <button
               type="submit"
               disabled={submitting || (activeTab === 'audio' && !audioBlob && !formData.content) || (activeTab === 'video' && !videoFile && !formData.content)}
-              className="w-full px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-3 text-lg font-medium"
+              className="w-full px-8 py-4 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-3 text-lg font-semibold focus:outline-none focus:ring-4 focus:ring-gray-900/20"
             >
               {submitting ? (
                 <>

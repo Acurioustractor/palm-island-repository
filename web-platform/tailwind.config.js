@@ -50,10 +50,10 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Palm Island brand colors
+        // Palm Island brand colors (legacy - kept for backward compatibility)
         palm: {
           50: '#fff7ed',
-          100: '#ffedd5', 
+          100: '#ffedd5',
           200: '#fed7aa',
           300: '#fdba74',
           400: '#fb923c',
@@ -62,6 +62,43 @@ module.exports = {
           700: '#c2410c',
           800: '#9a3412',
           900: '#7c2d12',
+        },
+        // PICC Brand Style Guide Colors
+        'picc-blue': {
+          DEFAULT: '#2563eb', // blue-600
+          50: '#eff6ff',
+          100: '#dbeafe',
+          500: '#3b82f6',
+          600: '#2563eb',
+          700: '#1d4ed8',
+          900: '#1e3a8a',
+        },
+        'picc-purple': {
+          DEFAULT: '#9333ea', // purple-600
+          50: '#faf5ff',
+          500: '#a855f7',
+          600: '#9333ea',
+          700: '#7e22ce',
+        },
+        'picc-green': {
+          DEFAULT: '#16a34a', // green-600
+          50: '#f0fdf4',
+          500: '#22c55e',
+          600: '#16a34a',
+          700: '#15803d',
+        },
+        'picc-orange': {
+          DEFAULT: '#ea580c', // orange-600
+          50: '#fff7ed',
+          500: '#f97316',
+          600: '#ea580c',
+          700: '#c2410c',
+        },
+        'picc-amber': {
+          DEFAULT: '#d97706', // amber-600
+          50: '#fffbeb',
+          500: '#f59e0b',
+          600: '#d97706',
         },
       },
       borderRadius: {
@@ -90,6 +127,18 @@ module.exports = {
           "0%": { opacity: 0, transform: "scale(0.95)" },
           "100%": { opacity: 1, transform: "scale(1)" },
         },
+        "slide-in-right": {
+          "0%": { opacity: 0, transform: "translateX(-20px)" },
+          "100%": { opacity: 1, transform: "translateX(0)" },
+        },
+        "slide-in-left": {
+          "0%": { opacity: 0, transform: "translateX(20px)" },
+          "100%": { opacity: 1, transform: "translateX(0)" },
+        },
+        "fade-in-up": {
+          "0%": { opacity: 0, transform: "translateY(30px)" },
+          "100%": { opacity: 1, transform: "translateY(0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -97,6 +146,17 @@ module.exports = {
         "fade-in": "fade-in 0.5s ease-out",
         "slide-up": "slide-up 0.6s ease-out",
         "scale-in": "scale-in 0.4s ease-out",
+        "slide-in-right": "slide-in-right 0.6s ease-out",
+        "slide-in-left": "slide-in-left 0.6s ease-out",
+        "fade-in-up": "fade-in-up 0.8s ease-out",
+      },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+        'hero-gradient': 'linear-gradient(135deg, #2563eb 0%, #9333ea 100%)',
+        'success-gradient': 'linear-gradient(135deg, #16a34a 0%, #059669 100%)',
+        'warm-gradient': 'linear-gradient(135deg, #ea580c 0%, #dc2626 100%)',
+        'subtle-gradient': 'linear-gradient(135deg, #eff6ff 0%, #faf5ff 50%, #fff7ed 100%)',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],

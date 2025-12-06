@@ -10,11 +10,14 @@ dist/
 build/
 .next/
 out/
+*.tsbuildinfo
 
-# Environment variables
+# Environment variables - NEVER COMMIT
 .env
 .env.local
 .env.*.local
+.env.development
+.env.production
 
 # IDE files
 .vscode/
@@ -22,8 +25,24 @@ out/
 *.swp
 *.swo
 *~
+
+# macOS
 .DS_Store
 ._*
+.AppleDouble
+.LSOverride
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
 
 # Logs
 logs/
@@ -33,6 +52,7 @@ logs/
 .cache/
 .npm/
 .yarn/
+.turbo/
 
 # Temporary files
 tmp/
@@ -43,3 +63,35 @@ temp/
 venv/
 *.pyc
 __pycache__/
+*.py[cod]
+*$py.class
+
+# Test outputs
+coverage/
+test-results/
+playwright-report/
+.nyc_output/
+
+# Vercel
+.vercel
+
+# Local development
+*.local
+.env*.local
+
+# Sensitive files - NEVER COMMIT
+*.pem
+*.key
+credentials.json
+service-account.json
+
+# Large files (use Git LFS if needed)
+*.mp4
+*.mov
+*.avi
+*.zip
+*.tar.gz
+
+# Screenshots and debug files
+screenshots/
+debug/
