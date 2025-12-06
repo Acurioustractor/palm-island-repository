@@ -11,8 +11,28 @@ import {
   getNodeNeighborhood,
   getGraphStats
 } from '@/lib/ai/knowledge-graph';
+import { rateLimiter, getClientId } from '@/lib/ai/rate-limit';
 
 export async function GET(request: Request) {
+  // Apply rate limiting (graph is database heavy: 30/min)
+  const clientId = getClientId(request);
+  const rateCheck = rateLimiter.check(clientId, 'graph');
+
+  if (!rateCheck.allowed) {
+    return NextResponse.json({
+      error: 'Rate limit exceeded',
+      retryAfter: rateCheck.retryAfter,
+      message: `Too many requests. Please try again in ${rateCheck.retryAfter} seconds.`
+    }, {
+      status: 429,
+      headers: {
+        'X-RateLimit-Remaining': rateCheck.remaining.toString(),
+        'X-RateLimit-Reset': new Date(rateCheck.resetAt).toISOString(),
+        'Retry-After': rateCheck.retryAfter?.toString() || '60'
+      }
+    });
+  }
+
   const { searchParams } = new URL(request.url);
   const action = searchParams.get('action') || 'full';
   const nodeId = searchParams.get('nodeId');

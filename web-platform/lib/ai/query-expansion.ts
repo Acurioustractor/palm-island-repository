@@ -10,6 +10,7 @@
  */
 
 import Anthropic from '@anthropic-ai/sdk'
+import { aiCache, CACHE_TTL } from './cache'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY
@@ -55,6 +56,13 @@ export async function expandQuery(
     }
   }
 
+  // Check cache first
+  const cacheKey = [query.toLowerCase().trim(), context, maxAlternatives, includeSynonyms]
+  const cached = aiCache.get<ExpandedQuery>('queryExpansion', cacheKey)
+  if (cached) {
+    return cached
+  }
+
   try {
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-5-20250929',
@@ -94,7 +102,7 @@ Guidelines:
 
     const parsed = JSON.parse(jsonMatch[0])
 
-    return {
+    const result: ExpandedQuery = {
       original: query,
       expanded: parsed.expanded || query,
       alternativeQueries: (parsed.alternatives || []).slice(0, maxAlternatives),
@@ -103,6 +111,11 @@ Guidelines:
       correctedSpelling: parsed.correctedSpelling || undefined,
       confidence: parsed.confidence || 0.7
     }
+
+    // Cache the result (30 minutes - queries don't change often)
+    aiCache.set('queryExpansion', cacheKey, result, CACHE_TTL.MEDIUM)
+
+    return result
   } catch (error) {
     console.error('Query expansion error:', error)
 

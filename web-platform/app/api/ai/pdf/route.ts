@@ -10,8 +10,28 @@ import {
   analyzeAnnualReport,
   extractReportInfo
 } from '@/lib/ai/pdf-processing';
+import { rateLimiter, getClientId } from '@/lib/ai/rate-limit';
 
 export async function POST(request: Request) {
+  // Apply rate limiting (PDF is expensive: 5/min)
+  const clientId = getClientId(request);
+  const rateCheck = rateLimiter.check(clientId, 'pdf');
+
+  if (!rateCheck.allowed) {
+    return NextResponse.json({
+      error: 'Rate limit exceeded',
+      retryAfter: rateCheck.retryAfter,
+      message: `Too many requests. Please try again in ${rateCheck.retryAfter} seconds.`
+    }, {
+      status: 429,
+      headers: {
+        'X-RateLimit-Remaining': rateCheck.remaining.toString(),
+        'X-RateLimit-Reset': new Date(rateCheck.resetAt).toISOString(),
+        'Retry-After': rateCheck.retryAfter?.toString() || '60'
+      }
+    });
+  }
+
   try {
     const contentType = request.headers.get('content-type') || '';
 

@@ -6,10 +6,23 @@
  */
 
 import Anthropic from '@anthropic-ai/sdk'
+import { aiCache, CACHE_TTL } from './cache'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY
 })
+
+// Helper to create a hash of items for cache key
+function hashItems(items: RerankableItem[]): string {
+  const ids = items.map(i => i.id).join(',')
+  let hash = 0
+  for (let i = 0; i < ids.length; i++) {
+    const char = ids.charCodeAt(i)
+    hash = ((hash << 5) - hash) + char
+    hash = hash & hash
+  }
+  return Math.abs(hash).toString(36)
+}
 
 export interface RerankableItem {
   id: string
@@ -64,6 +77,14 @@ export async function rerankResults(
       totalItems: items.length,
       processingTime: Date.now() - startTime
     }
+  }
+
+  // Check cache first
+  const itemsHash = hashItems(items)
+  const cacheKey = [query.toLowerCase().trim(), itemsHash, topK, includeReasoning, context]
+  const cached = aiCache.get<RerankResponse>('rerank', cacheKey)
+  if (cached) {
+    return { ...cached, processingTime: Date.now() - startTime }
   }
 
   // Prepare items for Claude
@@ -132,12 +153,17 @@ ${itemsForRanking.map(item =>
       }))
       .filter((r: RerankResult) => r.id)
 
-    return {
+    const result: RerankResponse = {
       query,
       rerankedItems,
       totalItems: items.length,
       processingTime: Date.now() - startTime
     }
+
+    // Cache the result (5 minutes - search results change frequently)
+    aiCache.set('rerank', cacheKey, result, CACHE_TTL.SHORT)
+
+    return result
 
   } catch (error) {
     console.error('Reranking error:', error)

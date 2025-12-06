@@ -14,8 +14,28 @@ import {
   generateOneLiner,
   categorizeContent
 } from '@/lib/ai/summarization';
+import { rateLimiter, getClientId } from '@/lib/ai/rate-limit';
 
 export async function POST(request: Request) {
+  // Apply rate limiting (AI operations: 20/min)
+  const clientId = getClientId(request);
+  const rateCheck = rateLimiter.check(clientId, 'ai');
+
+  if (!rateCheck.allowed) {
+    return NextResponse.json({
+      error: 'Rate limit exceeded',
+      retryAfter: rateCheck.retryAfter,
+      message: `Too many requests. Please try again in ${rateCheck.retryAfter} seconds.`
+    }, {
+      status: 429,
+      headers: {
+        'X-RateLimit-Remaining': rateCheck.remaining.toString(),
+        'X-RateLimit-Reset': new Date(rateCheck.resetAt).toISOString(),
+        'Retry-After': rateCheck.retryAfter?.toString() || '60'
+      }
+    });
+  }
+
   try {
     const body = await request.json();
     const {

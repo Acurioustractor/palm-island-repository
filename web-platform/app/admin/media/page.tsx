@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Image as ImageIcon, Video, Play, Tag, MapPin, Calendar, User, Save, X, Check, Upload, Search, Filter, Eye, EyeOff } from 'lucide-react';
+import { Image as ImageIcon, Video, Play, Tag, MapPin, Calendar, User, Save, X, Check, Upload, Search, Filter, Eye, EyeOff, Sparkles } from 'lucide-react';
 import type { MediaFile, PageContext } from '@/lib/media/types';
+import SmartImageUpload from '@/components/media/SmartImageUpload';
 
 export default function AdminMediaManager() {
   const [media, setMedia] = useState<MediaFile[]>([]);
@@ -22,6 +23,9 @@ export default function AdminMediaManager() {
   // Editing state
   const [editMode, setEditMode] = useState(false);
   const [editData, setEditData] = useState<Partial<MediaFile>>({});
+
+  // Upload state
+  const [showUpload, setShowUpload] = useState(false);
 
   const pageContexts: PageContext[] = [
     'home', 'about', 'impact', 'community', 'stories',
@@ -193,12 +197,21 @@ export default function AdminMediaManager() {
                 {filteredMedia.length} of {media.length} media files
               </p>
             </div>
-            <button
-              onClick={loadMedia}
-              className="px-4 py-2 bg-gray-900 text-white rounded-full font-medium hover:bg-gray-800 transition-colors"
-            >
-              Refresh
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowUpload(true)}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-full font-medium hover:bg-indigo-700 transition-colors flex items-center gap-2"
+              >
+                <Sparkles className="w-4 h-4" />
+                Smart Upload
+              </button>
+              <button
+                onClick={loadMedia}
+                className="px-4 py-2 bg-gray-900 text-white rounded-full font-medium hover:bg-gray-800 transition-colors"
+              >
+                Refresh
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -395,6 +408,41 @@ export default function AdminMediaManager() {
           </div>
         )}
       </div>
+
+      {/* Smart Upload Modal */}
+      {showUpload && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-6">
+          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between p-6 border-b border-gray-100">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                  <Sparkles className="w-6 h-6 text-indigo-600" />
+                  Smart Upload
+                </h2>
+                <p className="text-gray-600 mt-1">AI will auto-generate alt text and detect cultural content</p>
+              </div>
+              <button
+                onClick={() => setShowUpload(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-6">
+              <SmartImageUpload
+                onUpload={async (file, analysis) => {
+                  // Here you would upload to Supabase storage and create media record
+                  console.log('Upload:', file.name, analysis);
+                  alert(`Image analyzed!\n\nAlt Text: ${analysis.altText}\n\nTags: ${analysis.tags.join(', ')}\n\nCultural Content: ${analysis.culturalElements.found ? 'Yes' : 'No'}`);
+                  setShowUpload(false);
+                  loadMedia();
+                }}
+                onError={(error) => alert(error)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Edit Modal */}
       {editMode && selectedMedia && (

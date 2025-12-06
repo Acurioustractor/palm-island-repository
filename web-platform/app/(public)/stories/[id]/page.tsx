@@ -12,6 +12,7 @@ import Breadcrumbs from '@/components/wiki/Breadcrumbs';
 import StoryInfobox from '@/components/wiki/StoryInfobox';
 import RelatedContent from '@/components/wiki/RelatedContent';
 import TableOfContents from '@/components/wiki/TableOfContents';
+import RelatedContentSidebar from '@/components/stories/RelatedContentSidebar';
 
 interface Story {
   id: string;
@@ -319,6 +320,12 @@ export default function StoryDetailPage() {
               maxItems={5}
             />
           )}
+
+          {/* AI-powered related content */}
+          <RelatedContentSidebar
+            contentId={story.id}
+            contentType="story"
+          />
 
           <TableOfContents sticky />
         </aside>

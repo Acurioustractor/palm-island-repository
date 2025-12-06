@@ -10,10 +10,23 @@
  */
 
 import Anthropic from '@anthropic-ai/sdk'
+import { aiCache, CACHE_TTL } from './cache'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY
 })
+
+// Helper to create a content hash for cache keys
+function hashContent(content: string): string {
+  let hash = 0
+  const sample = content.substring(0, 1000) // Use first 1000 chars for hash
+  for (let i = 0; i < sample.length; i++) {
+    const char = sample.charCodeAt(i)
+    hash = ((hash << 5) - hash) + char
+    hash = hash & hash
+  }
+  return Math.abs(hash).toString(36)
+}
 
 export interface SummaryResult {
   summary: string
@@ -77,6 +90,14 @@ export async function summarizeContent(
   const wordCount = content.split(/\s+/).length
   const readingTime = Math.ceil(wordCount / 200)
 
+  // Check cache first
+  const contentHash = hashContent(content)
+  const cacheKey = [contentHash, maxLength, style, preserveCulturalContext, extractKeyPoints]
+  const cached = aiCache.get<SummaryResult>('summarize', cacheKey)
+  if (cached) {
+    return { ...cached, readingTime }
+  }
+
   try {
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-5-20250929',
@@ -119,7 +140,7 @@ Keep summaries accurate and respectful. Never fabricate information.`,
 
     const parsed = JSON.parse(jsonMatch[0])
 
-    return {
+    const result: SummaryResult = {
       summary: parsed.summary || '',
       keyPoints: parsed.keyPoints || [],
       keywords: parsed.keywords || [],
@@ -129,6 +150,11 @@ Keep summaries accurate and respectful. Never fabricate information.`,
       categories: parsed.categories || [],
       success: true
     }
+
+    // Cache the result (1 hour - summaries are stable)
+    aiCache.set('summarize', cacheKey, result, CACHE_TTL.LONG)
+
+    return result
   } catch (error: any) {
     console.error('Summarization error:', error)
 
@@ -197,6 +223,14 @@ export async function extractMetadata(
   content: string,
   existingTitle?: string
 ): Promise<ContentMetadata> {
+  // Check cache first
+  const contentHash = hashContent(content)
+  const cacheKey = [contentHash, existingTitle || '']
+  const cached = aiCache.get<ContentMetadata>('extractMetadata', cacheKey)
+  if (cached) {
+    return cached
+  }
+
   try {
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-5-20250929',
@@ -233,7 +267,7 @@ Respond ONLY with valid JSON:
 
     const parsed = JSON.parse(jsonMatch[0])
 
-    return {
+    const result: ContentMetadata = {
       title: existingTitle || parsed.title || 'Untitled',
       summary: parsed.summary || '',
       keywords: parsed.keywords || [],
@@ -246,6 +280,11 @@ Respond ONLY with valid JSON:
       },
       themes: parsed.themes || []
     }
+
+    // Cache the result (1 hour - metadata is stable)
+    aiCache.set('extractMetadata', cacheKey, result, CACHE_TTL.LONG)
+
+    return result
   } catch (error) {
     console.error('Metadata extraction error:', error)
 
@@ -269,6 +308,14 @@ export async function generateOneLiner(
   content: string,
   title?: string
 ): Promise<string> {
+  // Check cache first
+  const contentHash = hashContent(content)
+  const cacheKey = [contentHash, title || '']
+  const cached = aiCache.get<string>('oneLiner', cacheKey)
+  if (cached) {
+    return cached
+  }
+
   try {
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-5-20250929',
@@ -282,7 +329,12 @@ ${title ? `Title: ${title}\n` : ''}Content: ${content.substring(0, 2000)}`
     })
 
     const text = response.content[0].type === 'text' ? response.content[0].text : ''
-    return text.trim().replace(/^["']|["']$/g, '') // Remove quotes if present
+    const result = text.trim().replace(/^["']|["']$/g, '') // Remove quotes if present
+
+    // Cache the result (1 hour)
+    aiCache.set('oneLiner', cacheKey, result, CACHE_TTL.LONG)
+
+    return result
   } catch (error) {
     console.error('One-liner generation error:', error)
     // Fallback: first sentence
@@ -330,6 +382,14 @@ export async function batchSummarize(
 export async function categorizeContent(
   content: string
 ): Promise<{ primary: string; secondary: string[]; confidence: number }> {
+  // Check cache first
+  const contentHash = hashContent(content)
+  const cacheKey = [contentHash]
+  const cached = aiCache.get<{ primary: string; secondary: string[]; confidence: number }>('categorize', cacheKey)
+  if (cached) {
+    return cached
+  }
+
   const categories = [
     'health',
     'culture',
@@ -365,11 +425,16 @@ Content: ${content.substring(0, 3000)}`
 
     if (jsonMatch) {
       const parsed = JSON.parse(jsonMatch[0])
-      return {
+      const result = {
         primary: parsed.primary || 'community',
         secondary: parsed.secondary || [],
         confidence: parsed.confidence || 0.7
       }
+
+      // Cache the result (1 hour)
+      aiCache.set('categorize', cacheKey, result, CACHE_TTL.LONG)
+
+      return result
     }
   } catch (error) {
     console.error('Categorization error:', error)

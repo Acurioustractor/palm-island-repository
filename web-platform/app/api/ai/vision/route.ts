@@ -12,8 +12,28 @@ import {
   generateAltText,
   compareImages
 } from '@/lib/ai/vision';
+import { rateLimiter, getClientId } from '@/lib/ai/rate-limit';
 
 export async function POST(request: Request) {
+  // Apply rate limiting (vision is expensive: 10/min)
+  const clientId = getClientId(request);
+  const rateCheck = rateLimiter.check(clientId, 'vision');
+
+  if (!rateCheck.allowed) {
+    return NextResponse.json({
+      error: 'Rate limit exceeded',
+      retryAfter: rateCheck.retryAfter,
+      message: `Too many requests. Please try again in ${rateCheck.retryAfter} seconds.`
+    }, {
+      status: 429,
+      headers: {
+        'X-RateLimit-Remaining': rateCheck.remaining.toString(),
+        'X-RateLimit-Reset': new Date(rateCheck.resetAt).toISOString(),
+        'Retry-After': rateCheck.retryAfter?.toString() || '60'
+      }
+    });
+  }
+
   try {
     const contentType = request.headers.get('content-type') || '';
 

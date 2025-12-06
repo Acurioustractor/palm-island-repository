@@ -12,8 +12,28 @@ import {
   findRelatedToKnowledge,
   discoverConnections
 } from '@/lib/ai/related-content';
+import { rateLimiter, getClientId } from '@/lib/ai/rate-limit';
 
 export async function GET(request: Request) {
+  // Apply rate limiting (AI operations: 20/min)
+  const clientId = getClientId(request);
+  const rateCheck = rateLimiter.check(clientId, 'ai');
+
+  if (!rateCheck.allowed) {
+    return NextResponse.json({
+      error: 'Rate limit exceeded',
+      retryAfter: rateCheck.retryAfter,
+      message: `Too many requests. Please try again in ${rateCheck.retryAfter} seconds.`
+    }, {
+      status: 429,
+      headers: {
+        'X-RateLimit-Remaining': rateCheck.remaining.toString(),
+        'X-RateLimit-Reset': new Date(rateCheck.resetAt).toISOString(),
+        'Retry-After': rateCheck.retryAfter?.toString() || '60'
+      }
+    });
+  }
+
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
   const type = searchParams.get('type') as 'story' | 'person' | 'knowledge';
@@ -49,6 +69,25 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  // Apply rate limiting (AI operations: 20/min)
+  const clientId = getClientId(request);
+  const rateCheck = rateLimiter.check(clientId, 'ai');
+
+  if (!rateCheck.allowed) {
+    return NextResponse.json({
+      error: 'Rate limit exceeded',
+      retryAfter: rateCheck.retryAfter,
+      message: `Too many requests. Please try again in ${rateCheck.retryAfter} seconds.`
+    }, {
+      status: 429,
+      headers: {
+        'X-RateLimit-Remaining': rateCheck.remaining.toString(),
+        'X-RateLimit-Reset': new Date(rateCheck.resetAt).toISOString(),
+        'Retry-After': rateCheck.retryAfter?.toString() || '60'
+      }
+    });
+  }
+
   try {
     const body = await request.json();
     const { action, items, existingConnections = [] } = body;
