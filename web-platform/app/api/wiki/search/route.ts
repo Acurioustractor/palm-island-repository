@@ -151,12 +151,14 @@ export async function GET(request: Request) {
 }
 
 async function searchStories(query: string, limit: number) {
+  // Note: 'summary' column may not exist in all schemas
+  // Using content for search and extracting summary from content if needed
   const { data, error } = await supabase
     .from('stories')
     .select(`
       id,
       title,
-      summary,
+      content,
       story_category,
       created_at,
       storyteller:storyteller_id (
@@ -166,7 +168,7 @@ async function searchStories(query: string, limit: number) {
       )
     `)
     .eq('is_public', true)
-    .or(`title.ilike.%${query}%,summary.ilike.%${query}%,content.ilike.%${query}%`)
+    .or(`title.ilike.%${query}%,content.ilike.%${query}%`)
     .order('created_at', { ascending: false })
     .limit(limit);
 
@@ -177,6 +179,8 @@ async function searchStories(query: string, limit: number) {
 
   return (data || []).map(story => ({
     ...story,
+    // Generate summary from content if not present
+    summary: story.content?.substring(0, 200) + (story.content?.length > 200 ? '...' : ''),
     type: 'story',
     url: `/stories/${story.id}`
   }));
@@ -211,27 +215,38 @@ async function searchPeople(query: string, limit: number) {
 }
 
 async function searchServices(query: string, limit: number) {
-  const { data, error } = await supabase
-    .from('services')
-    .select(`
-      id,
-      service_name,
-      description,
-      service_category
-    `)
-    .or(`service_name.ilike.%${query}%,description.ilike.%${query}%`)
-    .limit(limit);
+  // Note: 'services' table may not exist in all schemas
+  // Gracefully return empty if table doesn't exist
+  try {
+    const { data, error } = await supabase
+      .from('services')
+      .select(`
+        id,
+        service_name,
+        description,
+        service_category
+      `)
+      .or(`service_name.ilike.%${query}%,description.ilike.%${query}%`)
+      .limit(limit);
 
-  if (error) {
-    console.error('Services search error:', error);
+    if (error) {
+      // PGRST205 = table not found - this is expected in some schemas
+      if (error.code === 'PGRST205') {
+        return [];
+      }
+      console.error('Services search error:', error);
+      return [];
+    }
+
+    return (data || []).map(service => ({
+      ...service,
+      type: 'service',
+      url: `/wiki/services/${service.id}`
+    }));
+  } catch (e) {
+    // Silently fail if services table doesn't exist
     return [];
   }
-
-  return (data || []).map(service => ({
-    ...service,
-    type: 'service',
-    url: `/wiki/services/${service.id}`
-  }));
 }
 
 async function searchKnowledge(query: string, limit: number) {
