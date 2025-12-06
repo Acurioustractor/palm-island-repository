@@ -6,11 +6,17 @@
  * - Knowledge entries
  * - Profiles/People
  * - Services
+ *
+ * Features:
+ * - Query Expansion: AI rewrites queries for better results
+ * - Hybrid Search: Vector + keyword search combined
+ * - Multi-type Search: Stories, people, services, knowledge
  */
 
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { hybridSearch, textSearch } from '@/lib/scraper/rag-search';
+import { expandQuery, extractKeywords } from '@/lib/ai/query-expansion';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -23,6 +29,7 @@ export async function GET(request: Request) {
   const type = searchParams.get('type') || 'all'; // all, stories, people, services, knowledge
   const limit = parseInt(searchParams.get('limit') || '10');
   const useSemanticSearch = searchParams.get('semantic') !== 'false';
+  const useQueryExpansion = searchParams.get('expand') !== 'false';
 
   if (!query || query.trim().length < 2) {
     return NextResponse.json({
@@ -31,6 +38,21 @@ export async function GET(request: Request) {
   }
 
   try {
+    // Query Expansion: AI rewrites query for better results
+    let searchQuery = query;
+    let expandedQueryInfo = null;
+
+    if (useQueryExpansion && query.length >= 3) {
+      try {
+        expandedQueryInfo = await expandQuery(query);
+        // Use expanded query for searching
+        searchQuery = expandedQueryInfo.expanded;
+      } catch (e) {
+        // Fall back to original query if expansion fails
+        console.warn('Query expansion failed, using original:', e);
+      }
+    }
+
     const results: {
       stories: any[];
       people: any[];
@@ -48,38 +70,38 @@ export async function GET(request: Request) {
     // Parallel search across different content types
     const searchPromises: Promise<void>[] = [];
 
-    // Stories search
+    // Stories search (using expanded query)
     if (type === 'all' || type === 'stories') {
       searchPromises.push(
-        searchStories(query, limit).then(data => { results.stories = data; })
+        searchStories(searchQuery, limit).then(data => { results.stories = data; })
       );
     }
 
-    // People search
+    // People search (using expanded query)
     if (type === 'all' || type === 'people') {
       searchPromises.push(
-        searchPeople(query, limit).then(data => { results.people = data; })
+        searchPeople(searchQuery, limit).then(data => { results.people = data; })
       );
     }
 
-    // Services search
+    // Services search (using expanded query)
     if (type === 'all' || type === 'services') {
       searchPromises.push(
-        searchServices(query, limit).then(data => { results.services = data; })
+        searchServices(searchQuery, limit).then(data => { results.services = data; })
       );
     }
 
-    // Knowledge entries search
+    // Knowledge entries search (using expanded query)
     if (type === 'all' || type === 'knowledge') {
       searchPromises.push(
-        searchKnowledge(query, limit).then(data => { results.knowledge = data; })
+        searchKnowledge(searchQuery, limit).then(data => { results.knowledge = data; })
       );
     }
 
-    // RAG semantic search (if enabled)
+    // RAG semantic search (if enabled, using expanded query)
     if (useSemanticSearch && (type === 'all' || type === 'semantic')) {
       searchPromises.push(
-        hybridSearch(query, { limit, includeKnowledgeBase: true })
+        hybridSearch(searchQuery, { limit, includeKnowledgeBase: true })
           .then(data => {
             results.ragChunks = data.chunks;
             // Merge knowledge results if not already searched
@@ -89,7 +111,7 @@ export async function GET(request: Request) {
           })
           .catch(() => {
             // Fallback to text search if semantic fails
-            return textSearch(query, { limit })
+            return textSearch(searchQuery, { limit })
               .then(data => { results.ragChunks = data; });
           })
       );
@@ -106,8 +128,18 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       query,
+      searchQuery: searchQuery !== query ? searchQuery : undefined,
       totalResults,
-      results
+      results,
+      // Include query expansion metadata
+      queryExpansion: expandedQueryInfo ? {
+        original: expandedQueryInfo.original,
+        expanded: expandedQueryInfo.expanded,
+        keywords: expandedQueryInfo.keywords,
+        intent: expandedQueryInfo.intent,
+        correctedSpelling: expandedQueryInfo.correctedSpelling,
+        confidence: expandedQueryInfo.confidence
+      } : undefined
     });
 
   } catch (error) {
@@ -229,11 +261,11 @@ async function searchKnowledge(query: string, limit: number) {
   }));
 }
 
-// POST endpoint for more complex semantic queries
+// POST endpoint for more complex semantic queries with query expansion
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { query, filters = {}, limit = 10 } = body;
+    const { query, filters = {}, limit = 10, expand = true } = body;
 
     if (!query || query.trim().length < 2) {
       return NextResponse.json({
@@ -241,18 +273,32 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
+    // Query Expansion for better results
+    let searchQuery = query;
+    let expandedQueryInfo = null;
+
+    if (expand && query.length >= 3) {
+      try {
+        expandedQueryInfo = await expandQuery(query);
+        searchQuery = expandedQueryInfo.expanded;
+      } catch (e) {
+        console.warn('Query expansion failed:', e);
+      }
+    }
+
     // Use hybrid search for semantic understanding
-    const { chunks, knowledgeEntries } = await hybridSearch(query, {
+    const { chunks, knowledgeEntries } = await hybridSearch(searchQuery, {
       limit,
       includeKnowledgeBase: true,
       ...filters
     });
 
     // Search stories with potential semantic matching
-    const stories = await searchStories(query, limit);
+    const stories = await searchStories(searchQuery, limit);
 
     return NextResponse.json({
       query,
+      searchQuery: searchQuery !== query ? searchQuery : undefined,
       results: {
         stories,
         knowledge: knowledgeEntries,
@@ -262,8 +308,14 @@ export async function POST(request: Request) {
           source: chunk.sourceTitle || chunk.sourceUrl
         }))
       },
+      queryExpansion: expandedQueryInfo ? {
+        expanded: expandedQueryInfo.expanded,
+        keywords: expandedQueryInfo.keywords,
+        intent: expandedQueryInfo.intent,
+        correctedSpelling: expandedQueryInfo.correctedSpelling
+      } : undefined,
       metadata: {
-        searchMethod: 'hybrid',
+        searchMethod: 'hybrid-with-expansion',
         timestamp: new Date().toISOString()
       }
     });
