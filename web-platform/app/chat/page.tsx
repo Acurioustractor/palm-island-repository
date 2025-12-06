@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { Send, Bot, User, Sparkles, FileText, ExternalLink, Loader2 } from 'lucide-react';
-import { getHeroImage } from '@/lib/media/utils';
+import { createClient } from '@/lib/supabase/client';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -35,10 +35,21 @@ export default function ChatPage() {
   useEffect(() => {
     async function fetchHeroImage() {
       try {
-        const image = await getHeroImage('chat');
-        setHeroImage(image);
+        const supabase = createClient();
+        const { data } = await supabase
+          .from('media_files')
+          .select('public_url')
+          .eq('page_context', 'chat')
+          .eq('page_section', 'hero')
+          .eq('is_public', true)
+          .eq('is_featured', true)
+          .limit(1)
+          .single();
+        if (data?.public_url) {
+          setHeroImage(data.public_url);
+        }
       } catch (error) {
-        console.error('Error fetching hero image:', error);
+        // Hero image is optional, fail silently
       }
     }
     fetchHeroImage();

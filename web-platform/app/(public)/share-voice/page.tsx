@@ -2,7 +2,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { getHeroImage } from '@/lib/media/utils';
 import { useRouter } from 'next/navigation';
 import {
   Mic, Video, FileText, Send, User, Shield, Heart,
@@ -39,10 +38,21 @@ export default function ShareYourVoicePage() {
   useEffect(() => {
     async function fetchHeroImage() {
       try {
-        const image = await getHeroImage('share-voice');
-        setHeroImage(image);
+        const supabase = createClient();
+        const { data } = await supabase
+          .from('media_files')
+          .select('public_url')
+          .eq('page_context', 'share-voice')
+          .eq('page_section', 'hero')
+          .eq('is_public', true)
+          .eq('is_featured', true)
+          .limit(1)
+          .single();
+        if (data?.public_url) {
+          setHeroImage(data.public_url);
+        }
       } catch (error) {
-        console.error('Error fetching hero image:', error);
+        // Hero image is optional, fail silently
       }
     }
     fetchHeroImage();

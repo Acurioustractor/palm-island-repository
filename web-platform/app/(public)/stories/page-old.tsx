@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { getHeroImage } from '@/lib/media/utils';
 import Link from 'next/link';
 import { Heart, Calendar, User, MapPin, Search, Filter, Image as ImageIcon, Video, Mic, FileText, Plus } from 'lucide-react';
 
@@ -143,10 +142,21 @@ export default function StoriesGalleryPage() {
   useEffect(() => {
     async function fetchHeroImage() {
       try {
-        const image = await getHeroImage('stories');
-        setHeroImage(image);
+        const supabase = createClient();
+        const { data } = await supabase
+          .from('media_files')
+          .select('public_url')
+          .eq('page_context', 'stories')
+          .eq('page_section', 'hero')
+          .eq('is_public', true)
+          .eq('is_featured', true)
+          .limit(1)
+          .single();
+        if (data?.public_url) {
+          setHeroImage(data.public_url);
+        }
       } catch (error) {
-        console.error('Error fetching hero image:', error);
+        // Hero image is optional, fail silently
       }
     }
     fetchHeroImage();
