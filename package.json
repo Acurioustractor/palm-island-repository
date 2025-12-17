@@ -1,0 +1,12 @@
+{
+  "name": "palm-island-repository",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix web-platform",
+    "build": "npm run build --prefix web-platform",
+    "start": "npm run start --prefix web-platform"
+  },
+  "dependencies": {
+    "next": "^14.2.0"
+  }
+}
