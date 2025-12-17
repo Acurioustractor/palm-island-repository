@@ -6,9 +6,5 @@
       "src": "web-platform/package.json",
       "use": "@vercel/next"
     }
-  ],
-  "routes": [
-    { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/web-platform/$1" }
   ]
 }
