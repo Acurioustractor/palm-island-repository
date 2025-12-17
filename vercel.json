@@ -8,6 +8,17 @@
     }
   ],
   "routes": [
-    { "src": "^/$", "dest": "/web-platform/" }
+    {
+      "src": "/_next/(.*)",
+      "dest": "/web-platform/_next/$1"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/web-platform/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/web-platform/$1"
+    }
   ]
 }
