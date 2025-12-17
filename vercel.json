@@ -4,14 +4,11 @@
   "builds": [
     {
       "src": "web-platform/package.json",
-      "use": "@vercel/next",
-      "config": {
-        "zeroConfig": true
-      }
+      "use": "@vercel/next"
     }
   ],
   "routes": [
     { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "web-platform/$1" }
+    { "src": "/(.*)", "dest": "/$1" }
   ]
 }
