@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, Suspense } from 'react';
 import {
   ArrowLeft, CheckCircle, FileText, Loader2, Sparkles, Wand2,
   Plus, GripVertical, Trash2, Image, Film, BarChart3, Quote,
@@ -454,7 +454,7 @@ function BlockEditor({
   }
 }
 
-export default function ReportGeneratorPage() {
+function ReportGeneratorPageContent() {
   const searchParams = useSearchParams();
   const editId = searchParams.get('edit');
 
@@ -1073,5 +1073,13 @@ export default function ReportGeneratorPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ReportGeneratorPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center">Loading report generator...</div>}>
+      <ReportGeneratorPageContent />
+    </Suspense>
   );
 }

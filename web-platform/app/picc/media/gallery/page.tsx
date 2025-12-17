@@ -1369,7 +1369,7 @@ export default function MediaGalleryPage() {
                 Cancel
               </button>
               <button
-                onClick={applyBulkTags}
+                onClick={() => applyBulkTags()}
                 disabled={bulkTagging}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 inline-flex items-center gap-2"
               >

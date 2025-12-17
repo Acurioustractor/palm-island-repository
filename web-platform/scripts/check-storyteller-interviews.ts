@@ -88,7 +88,7 @@ async function check() {
   }
 
   // Get profiles for all interview storyteller_ids
-  const storytellerIds = [...new Set(allInterviews?.map(i => i.storyteller_id).filter(Boolean))];
+  const storytellerIds = Array.from(new Set(allInterviews?.map(i => i.storyteller_id).filter(Boolean)));
   const { data: linkedProfiles } = await supabase
     .from('profiles')
     .select('id, full_name, preferred_name')

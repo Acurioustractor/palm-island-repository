@@ -114,7 +114,7 @@ export default function DynamicSectionRenderer({
           { value: context.stats?.episodes_of_care || 0, label: 'Episodes of Care', suffix: '' },
         ]
         return (
-          <ImpactStatsGrid background="gradient" columns={Math.min(stats.length, 4)}>
+          <ImpactStatsGrid background="gradient" columns={Math.min(stats.length, 4) as 2 | 3 | 4}>
             {stats.map((stat: any, idx: number) => (
               <ImpactStatCard
                 key={idx}
@@ -259,7 +259,6 @@ export default function DynamicSectionRenderer({
                   icon: s.icon,
                   color: s.color,
                 }))}
-                layout="grid"
               />
             ) : (
               <div className="max-w-4xl mx-auto bg-gray-100 rounded-2xl h-48 flex items-center justify-center">

@@ -15,11 +15,30 @@ import {
   SectionHeader,
   ScrollReveal,
   DynamicSectionRenderer,
+  ReportHero,
+  ImpactStatsGrid,
+  ImpactStatCard,
+  StaggerContainer,
+  Divider,
+  LeadershipMessage,
+  QuoteShowcase,
+  ServiceShowcase,
+  ServiceImpact,
+  ProjectShowcase,
+  StoryCard,
+  StoryGrid,
+  PhotoGallery,
+  FeaturedVideo,
+  Timeline,
+  MilestoneCounter,
+  PersonQuoteGrid,
+  DollarBreakdown,
+  FinancialDonut,
 } from '@/components/report';
 import type { ReportSectionData, SectionContext } from '@/components/report';
 
 // WYSIWYG Editor components
-import { InlineReportEditor } from '@/components/report/editors';
+import { InlineReportEditor, EditableSection } from '@/components/report/editors';
 
 interface AnnualReport {
   id: string;

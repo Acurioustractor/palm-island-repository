@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, Suspense } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
@@ -77,7 +77,7 @@ function displayName(p?: Profile | null) {
   return (p.preferred_name || p.full_name || '').trim()
 }
 
-export default function QuoteLibraryPage() {
+function QuoteLibraryPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -619,3 +619,10 @@ export default function QuoteLibraryPage() {
   )
 }
 
+export default function QuoteLibraryPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center">Loading quotes...</div>}>
+      <QuoteLibraryPageContent />
+    </Suspense>
+  )
+}

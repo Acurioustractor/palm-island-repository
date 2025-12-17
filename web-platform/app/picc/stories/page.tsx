@@ -360,11 +360,11 @@ export default function StoriesPage() {
   const getAccessIcon = (level: string) => {
     switch (level) {
       case 'public':
-        return <Globe className="w-4 h-4 text-green-600" title="Public" />;
+        return <span title="Public"><Globe className="w-4 h-4 text-green-600" /></span>;
       case 'community':
-        return <Users className="w-4 h-4 text-blue-600" title="Community only" />;
+        return <span title="Community only"><Users className="w-4 h-4 text-blue-600" /></span>;
       case 'restricted':
-        return <Lock className="w-4 h-4 text-red-600" title="Restricted" />;
+        return <span title="Restricted"><Lock className="w-4 h-4 text-red-600" /></span>;
       default:
         return <Globe className="w-4 h-4 text-gray-400" />;
     }
@@ -694,7 +694,7 @@ export default function StoriesPage() {
                           <div className="flex items-center gap-2 mt-1">
                             {getAccessIcon(story.access_level)}
                             {story.is_featured && (
-                              <Star className="w-4 h-4 text-amber-500" title="Featured" />
+                              <span title="Featured"><Star className="w-4 h-4 text-amber-500" /></span>
                             )}
                           </div>
                         </div>

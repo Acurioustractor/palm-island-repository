@@ -35,12 +35,12 @@ async function isAuthenticated(): Promise<boolean> {
           getAll() {
             return cookieStore.getAll()
           },
-          setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value, options }) => {
+          setAll(cookiesToSet: any) {
+            cookiesToSet.forEach(({ name, value, options }: any) => {
               try { cookieStore.set(name, value, options) } catch {}
             })
           },
-        },
+        } as any,
       }
     )
     const { data: { user } } = await supabase.auth.getUser()
