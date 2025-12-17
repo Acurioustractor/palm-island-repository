@@ -49,6 +49,22 @@ const PUBLIC_ROUTES = [
   '/picc/media/collections',
 ]
 
+// Routes that can skip session handling entirely (improves performance)
+const SKIP_SESSION_ROUTES = [
+  '/wiki',
+  '/stories',
+  '/about',
+  '/community',
+  '/impact',
+  '/share-voice',
+  '/subscribe',
+  '/annual-reports',
+  '/elders',
+  '/storytellers',
+  '/immersive-stories',
+  '/publications',
+]
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
@@ -59,6 +75,15 @@ export async function middleware(request: NextRequest) {
     if (pathname === '/login' || pathname.startsWith('/login/')) {
       return NextResponse.redirect(new URL('/picc/dashboard', request.url))
     }
+    return NextResponse.next()
+  }
+
+  // Skip session handling for public content routes - just pass through
+  const shouldSkipSession = SKIP_SESSION_ROUTES.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`)
+  )
+
+  if (shouldSkipSession) {
     return NextResponse.next()
   }
 
