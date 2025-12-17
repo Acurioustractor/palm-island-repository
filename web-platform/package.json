@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.2",
+    "@mendable/firecrawl-js": "^1.21.1",
     "@pinecone-database/pinecone": "^1.1.0",
     "@qdrant/qdrant-js": "^1.8.0",
     "@radix-ui/react-avatar": "^1.0.4",
