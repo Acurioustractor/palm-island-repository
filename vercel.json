@@ -1,37 +1,3 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "version": 2,
-  "builds": [
-    {
-      "src": "web-platform/package.json",
-      "use": "@vercel/next"
-    }
-  ],
-  "routes": [
-    { "handle": "filesystem" },
-    {
-      "src": "/wiki/stories",
-      "dest": "/web-platform/wiki/stories"
-    },
-    {
-      "src": "/wiki/people",
-      "dest": "/web-platform/wiki/people"
-    },
-    {
-      "src": "/wiki/(.*)",
-      "dest": "/web-platform/wiki/$1"
-    },
-    {
-      "src": "/_next/(.*)",
-      "dest": "/web-platform/_next/$1"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "/web-platform/api/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/web-platform/$1"
-    }
-  ]
+  "$schema": "https://openapi.vercel.sh/vercel.json"
 }
