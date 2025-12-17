@@ -163,7 +163,8 @@ export default function StoryDetailPage() {
             `)
             .eq('category', data.category)
             .neq('id', params.id)
-            .eq('is_public', true)
+            .eq('access_level', 'public')
+            .eq('status', 'published')
             .limit(6);
           if (Array.isArray(relatedByCategory)) relatedCandidates.push(...relatedByCategory);
         }
@@ -199,7 +200,8 @@ export default function StoryDetailPage() {
               `)
               .overlaps('featured_people', featuredIds)
               .neq('id', params.id)
-              .eq('is_public', true)
+              .eq('access_level', 'public')
+              .eq('status', 'published')
               .limit(6);
             if (Array.isArray(relatedByPeople)) relatedCandidates.push(...relatedByPeople);
           } catch {

@@ -41,6 +41,7 @@ export default function WikiStoriesPage() {
     async function fetchStories() {
       const supabase = createClient();
 
+      // Query published public stories - organization_id may be null for historical content
       const { data, error } = await supabase
         .from('stories')
         .select(`
@@ -63,8 +64,8 @@ export default function WikiStoriesPage() {
             media_type
           )
         `)
-        .eq('is_public', true)
-        .eq('organization_id', '3c2011b9-f80d-4289-b300-0cd383cff479')
+        .eq('access_level', 'public')
+        .eq('status', 'published')
         .order('created_at', { ascending: false });
 
       if (error) {

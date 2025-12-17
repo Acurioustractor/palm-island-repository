@@ -55,7 +55,7 @@ export default function WikiIndexPage() {
     const supabase = createClient();
 
     const [storiesRes, peopleRes, servicesRes] = await Promise.all([
-      supabase.from('stories').select('id', { count: 'exact', head: true }).eq('is_public', true),
+      supabase.from('stories').select('id', { count: 'exact', head: true }).eq('access_level', 'public').eq('status', 'published'),
       supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('show_in_directory', true),
       supabase.from('services').select('id', { count: 'exact', head: true }),
     ]);
@@ -74,7 +74,8 @@ export default function WikiIndexPage() {
     const { data } = await supabase
       .from('stories')
       .select('id, title, created_at, story_category')
-      .eq('is_public', true)
+      .eq('access_level', 'public')
+      .eq('status', 'published')
       .order('created_at', { ascending: false })
       .limit(5);
 
@@ -101,7 +102,8 @@ export default function WikiIndexPage() {
           preferred_name
         )
       `)
-      .eq('is_public', true)
+      .eq('access_level', 'public')
+      .eq('status', 'published')
       .eq('is_featured', true)
       .limit(3);
 

@@ -25,7 +25,8 @@ export default async function CommunityPage() {
   const { count: storyCount } = await supabase
     .from('stories')
     .select('*', { count: 'exact', head: true })
-    .eq('is_public', true);
+    .eq('access_level', 'public')
+    .eq('status', 'published');
 
   // Get recent stories (latest 3)
   const { data: recentStories } = await supabase
@@ -38,7 +39,8 @@ export default async function CommunityPage() {
       storyteller_id,
       profiles!inner(full_name, preferred_name)
     `)
-    .eq('is_public', true)
+    .eq('access_level', 'public')
+    .eq('status', 'published')
     .order('created_at', { ascending: false })
     .limit(3);
 
