@@ -8,6 +8,19 @@
     }
   ],
   "routes": [
+    { "handle": "filesystem" },
+    {
+      "src": "/wiki/stories",
+      "dest": "/web-platform/wiki/stories"
+    },
+    {
+      "src": "/wiki/people",
+      "dest": "/web-platform/wiki/people"
+    },
+    {
+      "src": "/wiki/(.*)",
+      "dest": "/web-platform/wiki/$1"
+    },
     {
       "src": "/_next/(.*)",
       "dest": "/web-platform/_next/$1"
