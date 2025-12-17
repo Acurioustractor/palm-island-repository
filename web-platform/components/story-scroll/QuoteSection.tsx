@@ -6,6 +6,7 @@ interface QuoteSectionProps {
   quote: string;
   author?: string;
   role?: string;
+  photoUrl?: string;
   backgroundColor?: string;
   textColor?: string;
   size?: 'large' | 'medium' | 'small';
@@ -15,6 +16,7 @@ export function QuoteSection({
   quote,
   author,
   role,
+  photoUrl,
   backgroundColor = 'bg-gradient-to-br from-blue-50 to-purple-50',
   textColor = 'text-gray-900',
   size = 'large',
@@ -30,6 +32,16 @@ export function QuoteSection({
       <div className="max-w-5xl mx-auto px-8">
         <ScrollReveal direction="up">
           <div className="text-center">
+            {photoUrl && (
+              <div className="mb-8 flex justify-center">
+                <img
+                  src={photoUrl}
+                  alt={author || 'Portrait'}
+                  className="w-24 h-24 rounded-full object-cover ring-4 ring-white shadow-xl"
+                  loading="lazy"
+                />
+              </div>
+            )}
             <div className="mb-8">
               <svg
                 className="w-16 h-16 text-blue-600/20 mx-auto"

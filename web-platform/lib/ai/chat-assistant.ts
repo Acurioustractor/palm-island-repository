@@ -6,7 +6,7 @@
  */
 
 import Anthropic from '@anthropic-ai/sdk'
-import { createClient } from '@/lib/supabase/server'
+import { createServerComponentClient } from '@/lib/supabase/server'
 import { semanticSearch } from './embeddings'
 import { expandQuery } from './query-expansion'
 import { aiCache, CACHE_TTL } from './cache'
@@ -107,11 +107,11 @@ async function retrieveContext(
     }
 
     // Fallback to text search
-    const supabase = await createClient()
+    const supabase = await createServerComponentClient()
     const sources: ChatSource[] = []
 
     // Search stories
-    const { data: stories } = await supabase
+    const { data: stories } = await (supabase as any)
       .from('stories')
       .select('id, title, summary, content')
       .or(`title.ilike.%${query}%,content.ilike.%${query}%,summary.ilike.%${query}%`)
@@ -119,7 +119,7 @@ async function retrieveContext(
       .limit(3)
 
     if (stories) {
-      sources.push(...stories.map(s => ({
+      sources.push(...stories.map((s: { id: string; title: string; summary?: string; content?: string }) => ({
         id: s.id,
         type: 'story' as const,
         title: s.title,
@@ -130,14 +130,14 @@ async function retrieveContext(
     }
 
     // Search knowledge entries
-    const { data: knowledge } = await supabase
+    const { data: knowledge } = await (supabase as any)
       .from('knowledge_entries')
       .select('id, title, summary, content')
       .or(`title.ilike.%${query}%,content.ilike.%${query}%`)
       .limit(3)
 
     if (knowledge) {
-      sources.push(...knowledge.map(k => ({
+      sources.push(...knowledge.map((k: { id: string; title: string; summary?: string; content?: string }) => ({
         id: k.id,
         type: 'knowledge' as const,
         title: k.title,
@@ -359,9 +359,9 @@ export async function saveConversation(
   messages: ChatMessage[],
   userId?: string
 ): Promise<void> {
-  const supabase = await createClient()
+  const supabase = await createServerComponentClient()
 
-  await supabase
+  await (supabase as any)
     .from('chat_conversations')
     .upsert({
       id: conversationId,
@@ -379,9 +379,9 @@ export async function saveConversation(
 export async function loadConversation(
   conversationId: string
 ): Promise<ChatMessage[] | null> {
-  const supabase = await createClient()
+  const supabase = await createServerComponentClient()
 
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('chat_conversations')
     .select('messages')
     .eq('id', conversationId)

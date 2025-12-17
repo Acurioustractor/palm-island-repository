@@ -1579,6 +1579,72 @@ export type Database = {
           },
         ]
       }
+      publications: {
+        Row: {
+          id: string
+          slug: string
+          title: string
+          subtitle: string | null
+          description: string | null
+          category: string
+          tags: string[] | null
+          featured_image_url: string | null
+          thumbnail_url: string | null
+          pdf_url: string | null
+          content: Json | null
+          author: string | null
+          published_date: string | null
+          fiscal_year: string | null
+          status: string | null
+          is_featured: boolean | null
+          view_count: number | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          slug: string
+          title: string
+          subtitle?: string | null
+          description?: string | null
+          category?: string
+          tags?: string[] | null
+          featured_image_url?: string | null
+          thumbnail_url?: string | null
+          pdf_url?: string | null
+          content?: Json | null
+          author?: string | null
+          published_date?: string | null
+          fiscal_year?: string | null
+          status?: string | null
+          is_featured?: boolean | null
+          view_count?: number | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          slug?: string
+          title?: string
+          subtitle?: string | null
+          description?: string | null
+          category?: string
+          tags?: string[] | null
+          featured_image_url?: string | null
+          thumbnail_url?: string | null
+          pdf_url?: string | null
+          content?: Json | null
+          author?: string | null
+          published_date?: string | null
+          fiscal_year?: string | null
+          status?: string | null
+          is_featured?: boolean | null
+          view_count?: number | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       active_storytellers: {

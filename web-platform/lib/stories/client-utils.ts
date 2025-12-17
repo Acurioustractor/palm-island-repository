@@ -36,6 +36,7 @@ export function hasStoryMedia(story: Story): boolean {
  * Helper to get primary story image
  */
 export function getStoryImage(story: Story): string | null {
+  if (story.featured_image_url) return story.featured_image_url;
   if (!hasStoryMedia(story)) return null;
 
   const imageMedia = story.story_media?.find(

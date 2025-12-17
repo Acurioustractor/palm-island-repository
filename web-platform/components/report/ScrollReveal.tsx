@@ -62,6 +62,15 @@ export function ScrollReveal({
   useEffect(() => {
     if (disabled) return;
 
+    // Print/PDF export should render everything visible (no scroll-based reveals).
+    const isPrintMode =
+      window.matchMedia?.('print')?.matches ||
+      new URLSearchParams(window.location.search).get('print') === '1';
+    if (isPrintMode) {
+      setIsVisible(true);
+      return;
+    }
+
     // Check for reduced motion preference
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) {
@@ -97,7 +106,7 @@ export function ScrollReveal({
   return (
     <div
       ref={ref}
-      className={`transition-all ${isVisible ? animate : initial} ${className}`}
+      className={`transition-all ${isVisible ? animate : initial} print:!opacity-100 print:!translate-x-0 print:!translate-y-0 print:!scale-100 print:!transition-none ${className}`}
       style={{
         transitionDuration: `${duration}ms`,
         transitionDelay: `${delay}ms`,

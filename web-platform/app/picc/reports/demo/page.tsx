@@ -282,7 +282,8 @@ export default function DemoReportPage() {
       </div>
 
       {/* Scrollytelling Content */}
-      <StoryContainer className="pt-16">
+      <div className="pt-16">
+      <StoryContainer>
         {/* Hero Section */}
         <HeroSection
           title={demoReport.title}
@@ -523,6 +524,7 @@ export default function DemoReportPage() {
           </p>
         </div>
       </StoryContainer>
+      </div>
     </div>
   );
 }

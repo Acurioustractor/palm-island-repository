@@ -1,0 +1,877 @@
+/**
+ * PICC Annual Report - Professional Print Stylesheet
+ * Optimized for A4 PDF generation via Playwright/Puppeteer
+ */
+
+/* ============================================
+   CSS Variables - PICC Brand Colors
+   ============================================ */
+:root {
+  --picc-navy: #1e3a5f;
+  --picc-navy-light: #2d4a6f;
+  --picc-green: #2d6a4f;
+  --picc-green-light: #40916c;
+  --picc-gold: #d4a574;
+  --picc-gold-light: #e5c9a8;
+  --picc-earth: #8b7355;
+  --picc-cream: #fefdfb;
+  --picc-warm-gray: #f5f3f0;
+
+  /* Print-safe grays */
+  --gray-900: #111827;
+  --gray-800: #1f2937;
+  --gray-700: #374151;
+  --gray-600: #4b5563;
+  --gray-500: #6b7280;
+  --gray-400: #9ca3af;
+  --gray-300: #d1d5db;
+  --gray-200: #e5e7eb;
+  --gray-100: #f3f4f6;
+  --gray-50: #f9fafb;
+}
+
+/* ============================================
+   Page Setup
+   ============================================ */
+@page {
+  size: A4 portrait;
+  margin: 15mm 12mm 20mm 12mm;
+}
+
+@page :first {
+  margin: 0;
+}
+
+@page :left {
+  margin-left: 15mm;
+  margin-right: 12mm;
+}
+
+@page :right {
+  margin-left: 12mm;
+  margin-right: 15mm;
+}
+
+/* ============================================
+   Base Print Styles
+   ============================================ */
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  html, body {
+    width: 210mm;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 10pt;
+    line-height: 1.5;
+    color: var(--gray-900);
+    background: white;
+  }
+
+  /* Hide non-print elements */
+  nav,
+  .print\\:hidden,
+  [data-print-hide],
+  button:not([data-print-show]),
+  .animate-pulse,
+  .animate-spin,
+  video,
+  iframe,
+  .mapboxgl-map,
+  .navigation,
+  .floating-nav,
+  .share-button,
+  .download-button {
+    display: none !important;
+  }
+
+  /* Remove animations and transitions */
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /* Links */
+  a {
+    color: var(--picc-navy);
+    text-decoration: none;
+  }
+
+  a[href^="http"]::after {
+    content: none; /* Don't show URLs in print */
+  }
+}
+
+/* ============================================
+   Cover Page
+   ============================================ */
+.pdf-cover {
+  position: relative;
+  width: 210mm;
+  height: 297mm;
+  overflow: hidden;
+  break-after: page;
+  page-break-after: always;
+}
+
+.pdf-cover-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pdf-cover-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(30, 58, 95, 0.3) 0%,
+    rgba(30, 58, 95, 0.6) 50%,
+    rgba(30, 58, 95, 0.85) 100%
+  );
+}
+
+.pdf-cover-content {
+  position: absolute;
+  bottom: 40mm;
+  left: 15mm;
+  right: 15mm;
+  color: white;
+  text-align: center;
+}
+
+.pdf-cover-logo {
+  width: 80mm;
+  height: auto;
+  margin-bottom: 10mm;
+}
+
+.pdf-cover-title {
+  font-size: 36pt;
+  font-weight: 800;
+  line-height: 1.1;
+  margin: 0 0 5mm 0;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.pdf-cover-subtitle {
+  font-size: 18pt;
+  font-weight: 400;
+  opacity: 0.95;
+  margin: 0 0 8mm 0;
+}
+
+.pdf-cover-year {
+  font-size: 14pt;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+
+.pdf-cover-tagline {
+  position: absolute;
+  bottom: 15mm;
+  left: 15mm;
+  right: 15mm;
+  font-size: 11pt;
+  font-style: italic;
+  color: var(--picc-gold-light);
+  text-align: center;
+}
+
+/* ============================================
+   Table of Contents
+   ============================================ */
+.pdf-toc {
+  break-after: page;
+  page-break-after: always;
+  padding: 15mm 0;
+}
+
+.pdf-toc-title {
+  font-size: 24pt;
+  font-weight: 700;
+  color: var(--picc-navy);
+  margin-bottom: 10mm;
+  padding-bottom: 3mm;
+  border-bottom: 2px solid var(--picc-gold);
+}
+
+.pdf-toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.pdf-toc-item {
+  display: flex;
+  align-items: baseline;
+  padding: 3mm 0;
+  border-bottom: 1px dotted var(--gray-300);
+}
+
+.pdf-toc-item:last-child {
+  border-bottom: none;
+}
+
+.pdf-toc-number {
+  width: 8mm;
+  font-weight: 600;
+  color: var(--picc-green);
+}
+
+.pdf-toc-text {
+  flex: 1;
+  font-size: 11pt;
+  color: var(--gray-800);
+}
+
+.pdf-toc-page {
+  font-weight: 600;
+  color: var(--picc-navy);
+}
+
+/* ============================================
+   Section Headers
+   ============================================ */
+.pdf-section {
+  break-before: page;
+  page-break-before: always;
+  padding-top: 5mm;
+}
+
+.pdf-section:first-of-type {
+  break-before: auto;
+  page-break-before: auto;
+}
+
+.pdf-section-header {
+  margin-bottom: 8mm;
+  text-align: center;
+}
+
+.pdf-section-title {
+  font-size: 20pt;
+  font-weight: 700;
+  color: var(--picc-navy);
+  margin: 0 0 2mm 0;
+}
+
+.pdf-section-subtitle {
+  font-size: 11pt;
+  color: var(--gray-600);
+  margin: 0;
+}
+
+.pdf-section-divider {
+  width: 50mm;
+  height: 2px;
+  background: linear-gradient(90deg, var(--picc-green), var(--picc-gold));
+  margin: 5mm auto 0;
+}
+
+/* ============================================
+   Impact Statistics
+   ============================================ */
+.pdf-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5mm;
+  padding: 8mm;
+  background: linear-gradient(135deg, var(--picc-navy), var(--picc-green));
+  border-radius: 3mm;
+  margin-bottom: 8mm;
+}
+
+.pdf-stat-card {
+  text-align: center;
+  padding: 5mm;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2mm;
+}
+
+.pdf-stat-icon {
+  width: 10mm;
+  height: 10mm;
+  margin: 0 auto 2mm;
+  color: var(--picc-gold);
+}
+
+.pdf-stat-value {
+  font-size: 22pt;
+  font-weight: 800;
+  color: white;
+  line-height: 1;
+  margin-bottom: 1mm;
+}
+
+.pdf-stat-label {
+  font-size: 9pt;
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ============================================
+   Leadership Message
+   ============================================ */
+.pdf-leadership {
+  break-inside: avoid;
+  page-break-inside: avoid;
+  padding: 8mm;
+  background: var(--picc-warm-gray);
+  border-radius: 3mm;
+  margin-bottom: 8mm;
+}
+
+.pdf-leadership-header {
+  display: flex;
+  align-items: center;
+  gap: 5mm;
+  margin-bottom: 5mm;
+}
+
+.pdf-leadership-photo {
+  width: 25mm;
+  height: 25mm;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--picc-gold);
+}
+
+.pdf-leadership-info h3 {
+  font-size: 14pt;
+  font-weight: 700;
+  color: var(--picc-navy);
+  margin: 0 0 1mm 0;
+}
+
+.pdf-leadership-info p {
+  font-size: 10pt;
+  color: var(--picc-green);
+  margin: 0;
+}
+
+.pdf-leadership-message {
+  font-size: 10pt;
+  line-height: 1.6;
+  color: var(--gray-700);
+  columns: 2;
+  column-gap: 8mm;
+}
+
+.pdf-leadership-signature {
+  font-family: 'Georgia', serif;
+  font-size: 14pt;
+  font-style: italic;
+  color: var(--picc-navy);
+  margin-top: 5mm;
+}
+
+/* ============================================
+   Quote Showcase
+   ============================================ */
+.pdf-quote {
+  break-inside: avoid;
+  page-break-inside: avoid;
+  position: relative;
+  padding: 10mm 15mm;
+  background: linear-gradient(135deg, var(--picc-navy), var(--picc-navy-light));
+  border-radius: 3mm;
+  margin: 8mm 0;
+  color: white;
+}
+
+.pdf-quote::before {
+  content: '\201C';
+  position: absolute;
+  top: 5mm;
+  left: 8mm;
+  font-size: 60pt;
+  font-family: Georgia, serif;
+  color: var(--picc-gold);
+  opacity: 0.5;
+  line-height: 1;
+}
+
+.pdf-quote-text {
+  font-size: 14pt;
+  font-style: italic;
+  line-height: 1.5;
+  margin: 0 0 5mm 0;
+  position: relative;
+  z-index: 1;
+}
+
+.pdf-quote-attribution {
+  display: flex;
+  align-items: center;
+  gap: 3mm;
+}
+
+.pdf-quote-photo {
+  width: 12mm;
+  height: 12mm;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--picc-gold);
+}
+
+.pdf-quote-author {
+  font-size: 11pt;
+  font-weight: 600;
+}
+
+.pdf-quote-role {
+  font-size: 9pt;
+  opacity: 0.8;
+}
+
+/* ============================================
+   Services Grid
+   ============================================ */
+.pdf-services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5mm;
+}
+
+.pdf-service-card {
+  break-inside: avoid;
+  page-break-inside: avoid;
+  padding: 5mm;
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: 2mm;
+  border-left: 3px solid var(--picc-green);
+}
+
+.pdf-service-icon {
+  width: 8mm;
+  height: 8mm;
+  margin-bottom: 2mm;
+  color: var(--picc-green);
+}
+
+.pdf-service-name {
+  font-size: 11pt;
+  font-weight: 600;
+  color: var(--picc-navy);
+  margin: 0 0 2mm 0;
+}
+
+.pdf-service-description {
+  font-size: 9pt;
+  color: var(--gray-600);
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* ============================================
+   Story Cards
+   ============================================ */
+.pdf-stories-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 5mm;
+}
+
+.pdf-story-card {
+  break-inside: avoid;
+  page-break-inside: avoid;
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: 2mm;
+  overflow: hidden;
+}
+
+.pdf-story-image {
+  width: 100%;
+  height: 35mm;
+  object-fit: cover;
+}
+
+.pdf-story-content {
+  padding: 4mm;
+}
+
+.pdf-story-category {
+  font-size: 8pt;
+  font-weight: 600;
+  color: var(--picc-green);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1mm;
+}
+
+.pdf-story-title {
+  font-size: 11pt;
+  font-weight: 600;
+  color: var(--picc-navy);
+  margin: 0 0 2mm 0;
+  line-height: 1.3;
+}
+
+.pdf-story-excerpt {
+  font-size: 9pt;
+  color: var(--gray-600);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.pdf-story-author {
+  display: flex;
+  align-items: center;
+  gap: 2mm;
+  margin-top: 3mm;
+  padding-top: 3mm;
+  border-top: 1px solid var(--gray-100);
+}
+
+.pdf-story-author-photo {
+  width: 8mm;
+  height: 8mm;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.pdf-story-author-name {
+  font-size: 9pt;
+  font-weight: 500;
+  color: var(--gray-700);
+}
+
+/* ============================================
+   Project Showcase
+   ============================================ */
+.pdf-projects-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 5mm;
+}
+
+.pdf-project-card {
+  break-inside: avoid;
+  page-break-inside: avoid;
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: 2mm;
+  overflow: hidden;
+}
+
+.pdf-project-image {
+  width: 100%;
+  height: 30mm;
+  object-fit: cover;
+}
+
+.pdf-project-content {
+  padding: 4mm;
+}
+
+.pdf-project-status {
+  display: inline-block;
+  font-size: 8pt;
+  font-weight: 600;
+  padding: 1mm 2mm;
+  border-radius: 1mm;
+  margin-bottom: 2mm;
+}
+
+.pdf-project-status--active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.pdf-project-status--planning {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.pdf-project-status--completed {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.pdf-project-title {
+  font-size: 12pt;
+  font-weight: 600;
+  color: var(--picc-navy);
+  margin: 0 0 2mm 0;
+}
+
+.pdf-project-description {
+  font-size: 9pt;
+  color: var(--gray-600);
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* ============================================
+   Financial Section
+   ============================================ */
+.pdf-financial {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8mm;
+  align-items: start;
+}
+
+.pdf-financial-chart {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.pdf-financial-breakdown {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.pdf-financial-item {
+  display: flex;
+  align-items: center;
+  gap: 3mm;
+  padding: 2mm 0;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.pdf-financial-dot {
+  width: 4mm;
+  height: 4mm;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.pdf-financial-label {
+  flex: 1;
+  font-size: 9pt;
+  color: var(--gray-700);
+}
+
+.pdf-financial-value {
+  font-size: 10pt;
+  font-weight: 600;
+  color: var(--picc-navy);
+}
+
+/* ============================================
+   Photo Gallery
+   ============================================ */
+.pdf-gallery {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3mm;
+}
+
+.pdf-gallery-item {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.pdf-gallery-image {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 2mm;
+}
+
+.pdf-gallery-caption {
+  font-size: 8pt;
+  color: var(--gray-600);
+  text-align: center;
+  margin-top: 1mm;
+  line-height: 1.3;
+}
+
+/* ============================================
+   Team/Leadership Grid
+   ============================================ */
+.pdf-team-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5mm;
+}
+
+.pdf-team-card {
+  break-inside: avoid;
+  page-break-inside: avoid;
+  text-align: center;
+  padding: 4mm;
+  background: var(--gray-50);
+  border-radius: 2mm;
+}
+
+.pdf-team-photo {
+  width: 20mm;
+  height: 20mm;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto 3mm;
+  border: 2px solid var(--picc-gold);
+}
+
+.pdf-team-name {
+  font-size: 10pt;
+  font-weight: 600;
+  color: var(--picc-navy);
+  margin: 0 0 1mm 0;
+}
+
+.pdf-team-role {
+  font-size: 8pt;
+  color: var(--picc-green);
+  margin: 0;
+}
+
+/* ============================================
+   Highlights List
+   ============================================ */
+.pdf-highlights {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.pdf-highlight-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 4mm;
+  padding: 4mm;
+  margin-bottom: 3mm;
+  background: white;
+  border-radius: 2mm;
+  border-left: 3px solid var(--picc-gold);
+}
+
+.pdf-highlight-number {
+  width: 8mm;
+  height: 8mm;
+  background: linear-gradient(135deg, var(--picc-green), var(--picc-navy));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 9pt;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.pdf-highlight-text {
+  font-size: 10pt;
+  color: var(--gray-800);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ============================================
+   Back Cover
+   ============================================ */
+.pdf-back-cover {
+  break-before: page;
+  page-break-before: always;
+  position: relative;
+  min-height: 250mm;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20mm;
+  background: linear-gradient(180deg, var(--picc-navy) 0%, var(--picc-green) 100%);
+  color: white;
+}
+
+.pdf-back-logo {
+  width: 60mm;
+  height: auto;
+  margin-bottom: 10mm;
+}
+
+.pdf-back-title {
+  font-size: 18pt;
+  font-weight: 700;
+  margin: 0 0 5mm 0;
+}
+
+.pdf-back-tagline {
+  font-size: 12pt;
+  font-style: italic;
+  opacity: 0.9;
+  margin: 0 0 10mm 0;
+}
+
+.pdf-back-contact {
+  font-size: 10pt;
+  line-height: 1.8;
+  opacity: 0.9;
+}
+
+.pdf-back-contact a {
+  color: var(--picc-gold-light);
+}
+
+.pdf-back-acknowledgment {
+  position: absolute;
+  bottom: 15mm;
+  left: 15mm;
+  right: 15mm;
+  font-size: 8pt;
+  opacity: 0.7;
+  text-align: center;
+}
+
+/* ============================================
+   Utility Classes
+   ============================================ */
+.pdf-page-break {
+  break-before: page;
+  page-break-before: always;
+}
+
+.pdf-avoid-break {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.pdf-columns-2 {
+  columns: 2;
+  column-gap: 8mm;
+}
+
+.pdf-text-center {
+  text-align: center;
+}
+
+.pdf-mt-8 {
+  margin-top: 8mm;
+}
+
+.pdf-mb-8 {
+  margin-bottom: 8mm;
+}
+
+/* ============================================
+   Page Numbers (via @page rules)
+   ============================================ */
+@page {
+  @bottom-center {
+    content: counter(page);
+    font-size: 9pt;
+    color: var(--gray-500);
+  }
+}
+
+@page :first {
+  @bottom-center {
+    content: none;
+  }
+}

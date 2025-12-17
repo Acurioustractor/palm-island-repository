@@ -1,6 +1,8 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+export const runtime = 'nodejs'
+
 // Server-side Supabase client with service role (bypasses RLS)
 function getServerClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -12,6 +14,12 @@ function getServerClient() {
       persistSession: false,
     },
   });
+}
+
+function isDev(request: NextRequest) {
+  if (process.env.NODE_ENV === 'production') return false
+  const host = request.headers.get('host') || ''
+  return host.includes('localhost') || host.includes('127.0.0.1')
 }
 
 export async function GET(request: NextRequest) {
@@ -73,34 +81,29 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Safety: this endpoint bypasses RLS using the service role; keep it dev-only.
+    if (!isDev(request)) {
+      return NextResponse.json({ error: 'Not available' }, { status: 403 });
+    }
+
     const supabase = getServerClient();
     const body = await request.json();
 
     // Determine which table to use
     const table = body._table || 'projects';
 
-    const projectData = {
-      name: body.name || body.title,
-      title: body.title || body.name,
+    const projectData: Record<string, any> = {
+      name: body.name,
       slug: body.slug,
+      tagline: body.tagline,
       description: body.description,
       status: body.status || 'planning',
       project_type: body.project_type,
-      lead_organization_id: body.lead_organization_id || process.env.NEXT_PUBLIC_ORGANIZATION_ID,
       start_date: body.start_date,
       target_completion_date: body.target_completion_date,
-      actual_completion_date: body.actual_completion_date,
-      cover_image_url: body.cover_image_url,
-      objectives: body.objectives,
-      outcomes: body.outcomes,
-      impact_metrics: body.impact_metrics,
-      team_members: body.team_members,
-      partners: body.partners,
-      budget_allocated: body.budget_allocated,
-      funding_sources: body.funding_sources,
+      hero_image_url: body.hero_image_url,
       is_public: body.is_public !== false,
-      is_featured: body.is_featured || false,
-      tags: body.tags || [],
+      featured: body.featured === true,
     };
 
     // Remove undefined values
@@ -130,6 +133,11 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
+    // Safety: this endpoint bypasses RLS using the service role; keep it dev-only.
+    if (!isDev(request)) {
+      return NextResponse.json({ error: 'Not available' }, { status: 403 });
+    }
+
     const supabase = getServerClient();
     const body = await request.json();
     const { id, _table, ...updateData } = body;
@@ -161,6 +169,11 @@ export async function PATCH(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+    // Safety: this endpoint bypasses RLS using the service role; keep it dev-only.
+    if (!isDev(request)) {
+      return NextResponse.json({ error: 'Not available' }, { status: 403 });
+    }
+
     const supabase = getServerClient();
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');

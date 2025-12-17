@@ -56,7 +56,7 @@ const FISCAL_YEAR_INFO: Record<string, { era: string; color: string; theme: stri
 
 export async function GET(request: Request) {
   try {
-    const supabase = await createRouteHandlerClient()
+    const supabase = await createRouteHandlerClient() as any
 
     // Get all annual report knowledge entries
     // Note: Annual reports are stored as entry_type='document' with slug pattern 'picc-annual-report-*-full-pdf'
@@ -85,7 +85,7 @@ export async function GET(request: Request) {
 
     // Group images by normalized fiscal year
     const imagesByYear: Record<string, any[]> = {}
-    images?.forEach((img) => {
+    images?.forEach((img: any) => {
       const rawFiscalYear = img.metadata?.fiscal_year
       if (rawFiscalYear) {
         const fiscalYear = normalizeFiscalYear(rawFiscalYear)
@@ -95,7 +95,7 @@ export async function GET(request: Request) {
     })
 
     // Build timeline data
-    const timeline = knowledgeEntries?.map((entry) => {
+    const timeline = knowledgeEntries?.map((entry: any) => {
       const rawFiscalYear = entry.fiscal_year || 'unknown'
       const fiscalYear = normalizeFiscalYear(rawFiscalYear)
       const yearInfo = FISCAL_YEAR_INFO[fiscalYear] || { era: 'unknown', color: 'gray', theme: '' }
@@ -139,28 +139,28 @@ export async function GET(request: Request) {
         name: 'Foundation Era',
         years: '2009-2012',
         color: 'amber',
-        count: timeline.filter(t => t.era === 'foundation').length,
+        count: timeline.filter((t: any) => t.era === 'foundation').length,
         description: 'Establishment and early growth of PICC'
       },
       growth: {
         name: 'Growth Era',
         years: '2013-2021',
         color: 'purple',
-        count: timeline.filter(t => t.era === 'growth').length,
+        count: timeline.filter((t: any) => t.era === 'growth').length,
         description: 'Expansion of services and organizational development'
       },
       transition: {
         name: 'Transition Era',
         years: '2019-2021',
         color: 'green',
-        count: timeline.filter(t => t.era === 'transition').length,
+        count: timeline.filter((t: any) => t.era === 'transition').length,
         description: 'Transition to community control'
       },
       'community-controlled': {
         name: 'Community Controlled Era',
         years: '2021-Present',
         color: 'blue',
-        count: timeline.filter(t => t.era === 'community-controlled').length,
+        count: timeline.filter((t: any) => t.era === 'community-controlled').length,
         description: 'Self-determination and community-led governance'
       }
     }

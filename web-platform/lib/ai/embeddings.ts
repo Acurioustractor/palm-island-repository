@@ -5,7 +5,7 @@
  * Uses OpenAI's text-embedding-3-small for cost-effective embeddings.
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createServerComponentClient } from '@/lib/supabase/server'
 import { aiCache, CACHE_TTL } from './cache'
 
 const EMBEDDING_MODEL = 'text-embedding-3-small'
@@ -125,13 +125,13 @@ export async function storeEmbedding(
   contentType: 'story' | 'knowledge' | 'person',
   text: string
 ): Promise<void> {
-  const supabase = await createClient()
+  const supabase = await createServerComponentClient()
 
   // Generate embedding
   const { embedding } = await generateEmbedding(text)
 
   // Store in embeddings table
-  const { error } = await supabase
+  const { error } = await (supabase as any)
     .from('content_embeddings')
     .upsert({
       content_id: contentId,
@@ -160,13 +160,13 @@ export async function semanticSearch(
   } = {}
 ): Promise<SemanticSearchResult[]> {
   const { limit = 10, types, threshold = 0.5 } = options
-  const supabase = await createClient()
+  const supabase = await createServerComponentClient()
 
   // Generate query embedding
   const { embedding } = await generateEmbedding(query)
 
   // Search using pgvector similarity
-  const { data, error } = await supabase.rpc('match_content_by_embedding', {
+  const { data, error } = await (supabase as any).rpc('match_content_by_embedding', {
     query_embedding: embedding,
     match_threshold: threshold,
     match_count: limit,
@@ -178,7 +178,7 @@ export async function semanticSearch(
     throw error
   }
 
-  return data || []
+  return (data || []) as SemanticSearchResult[]
 }
 
 /**
@@ -193,10 +193,10 @@ export async function findSimilarContent(
   } = {}
 ): Promise<SemanticSearchResult[]> {
   const { limit = 5, excludeSameType = false } = options
-  const supabase = await createClient()
+  const supabase = await createServerComponentClient()
 
   // Get the embedding for this content
-  const { data: embeddingData } = await supabase
+  const { data: embeddingData } = await (supabase as any)
     .from('content_embeddings')
     .select('embedding')
     .eq('content_id', contentId)
@@ -208,7 +208,7 @@ export async function findSimilarContent(
   }
 
   // Search for similar content
-  const { data, error } = await supabase.rpc('match_content_by_embedding', {
+  const { data, error } = await (supabase as any).rpc('match_content_by_embedding', {
     query_embedding: embeddingData.embedding,
     match_threshold: 0.6,
     match_count: limit + 1, // +1 to exclude self
@@ -233,7 +233,7 @@ export async function findSimilarContent(
 export async function updateAllEmbeddings(
   contentType: 'story' | 'knowledge' | 'person'
 ): Promise<{ processed: number; errors: number }> {
-  const supabase = await createClient()
+  const supabase = await createServerComponentClient()
   let processed = 0
   let errors = 0
 
@@ -241,18 +241,18 @@ export async function updateAllEmbeddings(
   let query
   switch (contentType) {
     case 'story':
-      query = supabase
+      query = (supabase as any)
         .from('stories')
         .select('id, title, content, summary')
         .eq('is_public', true)
       break
     case 'knowledge':
-      query = supabase
+      query = (supabase as any)
         .from('knowledge_entries')
         .select('id, title, content, summary')
       break
     case 'person':
-      query = supabase
+      query = (supabase as any)
         .from('profiles')
         .select('id, full_name, bio')
         .eq('is_public', true)
@@ -297,9 +297,9 @@ export async function getEmbeddingStats(): Promise<{
   byType: Record<string, number>
   lastUpdated: string | null
 }> {
-  const supabase = await createClient()
+  const supabase = await createServerComponentClient()
 
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('content_embeddings')
     .select('content_type, updated_at')
 
@@ -310,7 +310,7 @@ export async function getEmbeddingStats(): Promise<{
   const byType: Record<string, number> = {}
   let lastUpdated: string | null = null
 
-  for (const item of data) {
+  for (const item of data as Array<{ content_type: string; updated_at: string }>) {
     byType[item.content_type] = (byType[item.content_type] || 0) + 1
     if (!lastUpdated || item.updated_at > lastUpdated) {
       lastUpdated = item.updated_at

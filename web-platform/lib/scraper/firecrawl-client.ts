@@ -45,7 +45,7 @@ export async function scrapeUrl(url: string): Promise<ScrapeResult> {
   try {
     const firecrawl = getFirecrawl()
 
-    const response = await firecrawl.scrape(url, {
+    const response = await (firecrawl as any).scrapeUrl(url, {
       formats: ['markdown', 'html'],
       onlyMainContent: true,
     })
@@ -124,7 +124,7 @@ export async function crawlSite(
     }
 
     // Use crawlAndWait to get all documents when the crawl completes
-    const response = await firecrawl.crawl(url, crawlOptions)
+    const response = await (firecrawl as any).crawlUrl(url, crawlOptions)
     const result = response as any
 
     if (!result || !result.success) {
@@ -173,7 +173,7 @@ export async function crawlSite(
 export async function mapSite(url: string): Promise<string[]> {
   try {
     const firecrawl = getFirecrawl()
-    const response = await firecrawl.map(url)
+    const response = await (firecrawl as any).map(url)
     const result = response as any
 
     if (!result || !result.links) {

@@ -94,11 +94,11 @@ export async function vectorSearch(
   try {
     // Generate embedding for the query
     const queryEmbedding = await generateEmbeddings([query], {
-      provider: 'voyage',
-      model: 'voyage-3-lite'
+      preferredProvider: 'voyage',
+      inputType: 'query'
     })
 
-    if (!queryEmbedding || queryEmbedding.length === 0) {
+    if (!queryEmbedding || !queryEmbedding.embeddings || queryEmbedding.embeddings.length === 0) {
       console.warn('Failed to generate query embedding, falling back to text search')
       return textSearch(query, options)
     }
@@ -109,7 +109,7 @@ export async function vectorSearch(
     const { data, error } = await supabase
       .rpc('hybrid_search_chunks', {
         query_text: query,
-        query_embedding: queryEmbedding[0],
+        query_embedding: queryEmbedding.embeddings[0],
         match_count: limit,
         vector_weight: 0.7,
         keyword_weight: 0.3
@@ -175,11 +175,10 @@ async function searchKnowledgeBaseVector(
   try {
     // Generate embedding for the query (OpenAI for 1536-dim)
     const queryEmbedding = await generateEmbeddings([query], {
-      provider: 'openai',
-      model: 'text-embedding-3-small'
+      preferredProvider: 'openai'
     })
 
-    if (!queryEmbedding || queryEmbedding.length === 0) {
+    if (!queryEmbedding || !queryEmbedding.embeddings || queryEmbedding.embeddings.length === 0) {
       console.warn('Failed to generate query embedding for knowledge base, falling back to text search')
       return searchKnowledgeBase(query, limit)
     }
@@ -189,7 +188,7 @@ async function searchKnowledgeBaseVector(
     // Use the match_knowledge_entries function
     const { data, error } = await supabase
       .rpc('match_knowledge_entries', {
-        query_embedding: queryEmbedding[0],
+        query_embedding: queryEmbedding.embeddings[0],
         match_count: limit,
         match_threshold: 0.7
       })

@@ -1,0 +1,200 @@
+{
+  "startedAt": "2025-12-16T20:36:09.746Z",
+  "force": false,
+  "limit": null,
+  "elders": [
+    {
+      "id": "b0000000-0000-0000-0000-000000000004",
+      "name": "Allan Palm Island",
+      "interviews": [
+        {
+          "interview_id": "7bc34a33-d30c-4495-a635-a36ac0c0ca7d",
+          "title": "PICC Daycare Opening",
+          "status": "raw",
+          "action": "error",
+          "quotesInserted": 0,
+          "error": "new row for relation \"extracted_quotes\" violates check constraint \"extracted_quotes_sentiment_check\""
+        },
+        {
+          "interview_id": "c8d4f21c-ff84-4006-b86b-c74e545fdacd",
+          "title": "Painting Interview",
+          "status": "raw",
+          "action": "error",
+          "quotesInserted": 0,
+          "error": "new row for relation \"extracted_quotes\" violates check constraint \"extracted_quotes_sentiment_check\""
+        },
+        {
+          "interview_id": "fde0993a-9eca-4581-9a84-981f7292ed12",
+          "title": "Lucinda Interview - Elders Trip",
+          "status": "raw",
+          "action": "error",
+          "quotesInserted": 0,
+          "error": "new row for relation \"extracted_quotes\" violates check constraint \"extracted_quotes_sentiment_check\""
+        },
+        {
+          "interview_id": "f4f459b5-80df-49ad-a8c2-88618199963a",
+          "title": "Elders Trip Interview",
+          "status": "raw",
+          "action": "error",
+          "quotesInserted": 0,
+          "error": "new row for relation \"extracted_quotes\" violates check constraint \"extracted_quotes_sentiment_check\""
+        },
+        {
+          "interview_id": "162cc8b8-d334-4ab7-b5b4-bf735e685432",
+          "title": "Mountain Welcome",
+          "status": "raw",
+          "action": "error",
+          "quotesInserted": 0,
+          "error": "new row for relation \"extracted_quotes\" violates check constraint \"extracted_quotes_sentiment_check\""
+        }
+      ]
+    },
+    {
+      "id": "a177c7bf-d20f-43e3-b78c-533ea8f40ce9",
+      "name": "Aunty Ethel",
+      "interviews": [
+        {
+          "interview_id": "4e10d089-6cfc-47f7-8cdb-e18d9174e9ab",
+          "title": "Lucinda Interview - Elders Trip",
+          "status": "raw",
+          "action": "error",
+          "quotesInserted": 0,
+          "error": "new row for relation \"extracted_quotes\" violates check constraint \"extracted_quotes_sentiment_check\""
+        },
+        {
+          "interview_id": "d5923323-a409-42de-8583-638f75220e5b",
+          "title": "Elders trip",
+          "status": "raw",
+          "action": "error",
+          "quotesInserted": 0,
+          "error": "new row for relation \"extracted_quotes\" violates check constraint \"extracted_quotes_sentiment_check\""
+        },
+        {
+          "interview_id": "e882aa5a-b5fa-4b71-866b-d2c4cd3ef4d3",
+          "title": "Ethel and Iris",
+          "status": "raw",
+          "action": "error",
+          "quotesInserted": 0,
+          "error": "new row for relation \"extracted_quotes\" violates check constraint \"extracted_quotes_sentiment_check\""
+        }
+      ]
+    },
+    {
+      "id": "5ce8bc61-440f-4bc8-8994-bcd86f86ad8c",
+      "name": "Cyndel",
+      "interviews": [
+        {
+          "interview_id": "b584b108-2e06-46d3-a6b9-810a3d4b5bcf",
+          "title": "Elders Trip",
+          "status": "raw",
+          "action": "error",
+          "quotesInserted": 0,
+          "error": "new row for relation \"extracted_quotes\" violates check constraint \"extracted_quotes_sentiment_check\""
+        }
+      ]
+    },
+    {
+      "id": "94974979-c361-41d4-9126-1af6f2af3a3b",
+      "name": "Elsa",
+      "interviews": [
+        {
+          "interview_id": "9a6d9703-ca58-45af-abac-89ff31af71a7",
+          "title": "Elders Trip",
+          "status": "raw",
+          "action": "error",
+          "quotesInserted": 0,
+          "error": "new row for relation \"extracted_quotes\" violates check constraint \"extracted_quotes_sentiment_check\""
+        }
+      ]
+    },
+    {
+      "id": "f8d71ab6-57e5-4a86-9e93-d5cb873b48ae",
+      "name": "Gurtrude",
+      "interviews": [
+        {
+          "interview_id": "564435d1-2395-4ebd-8d0a-49d53f64bdd3",
+          "title": "Elders Trip",
+          "status": "raw",
+          "action": "error",
+          "quotesInserted": 0,
+          "error": "new row for relation \"extracted_quotes\" violates check constraint \"extracted_quotes_sentiment_check\""
+        }
+      ]
+    },
+    {
+      "id": "e6539fee-7eea-4715-8d46-f89509a2e9e6",
+      "name": "Marjoyie",
+      "interviews": [
+        {
+          "interview_id": "0f49d5e8-41a4-46f3-9311-0345e3c447e6",
+          "title": "Elders Trip",
+          "status": "raw",
+          "action": "error",
+          "quotesInserted": 0,
+          "error": "new row for relation \"extracted_quotes\" violates check constraint \"extracted_quotes_sentiment_check\""
+        }
+      ]
+    },
+    {
+      "id": "085079c1-330d-485e-849e-feafc4615efe",
+      "name": "Uncle Frank",
+      "interviews": [
+        {
+          "interview_id": "57f32f3a-d5ca-41e3-9167-ab71aaac889d",
+          "title": "Elders trip - Interview #1",
+          "status": "raw",
+          "action": "error",
+          "quotesInserted": 0,
+          "error": "new row for relation \"extracted_quotes\" violates check constraint \"extracted_quotes_sentiment_check\""
+        },
+        {
+          "interview_id": "3bd5f422-672b-4764-a469-8a9c0adaac34",
+          "title": "Frank Full Interview - Elders Trip",
+          "status": "raw",
+          "action": "error",
+          "quotesInserted": 0,
+          "error": "new row for relation \"extracted_quotes\" violates check constraint \"extracted_quotes_sentiment_check\""
+        },
+        {
+          "interview_id": "dd3ce4c5-b4d5-4e2b-8f98-b5e38b067b51",
+          "title": "Uncle Frank - Flood Stories",
+          "status": "raw",
+          "action": "error",
+          "quotesInserted": 0,
+          "error": "new row for relation \"extracted_quotes\" violates check constraint \"extracted_quotes_sentiment_check\""
+        }
+      ]
+    },
+    {
+      "id": "6adfc3e5-09c7-4335-90e4-4e6d669c40a5",
+      "name": "Winni",
+      "interviews": [
+        {
+          "interview_id": "367695fd-426a-435d-9278-9461b9dbdf40",
+          "title": "Lucinda Interview - Pre trip",
+          "status": "raw",
+          "action": "error",
+          "quotesInserted": 0,
+          "error": "new row for relation \"extracted_quotes\" violates check constraint \"extracted_quotes_sentiment_check\""
+        },
+        {
+          "interview_id": "1ec1a473-4e78-429e-b65e-2e00ef88ecda",
+          "title": "Elders Trip",
+          "status": "raw",
+          "action": "error",
+          "quotesInserted": 0,
+          "error": "new row for relation \"extracted_quotes\" violates check constraint \"extracted_quotes_sentiment_check\""
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "elders": 8,
+    "interviews": 17,
+    "analyzed": 0,
+    "skipped": 0,
+    "quotesInserted": 0,
+    "errors": 17
+  },
+  "finishedAt": "2025-12-16T20:45:24.511Z"
+}

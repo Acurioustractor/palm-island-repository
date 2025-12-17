@@ -3,11 +3,12 @@
 import { useState, useEffect, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
+import { VideoEmbed } from '@/components/report/VideoEmbed';
 import {
   Image as ImageIcon, Video, Music, File, Search, Filter,
   Grid, List, Sparkles, Users, Tag, MapPin, Calendar,
   ChevronDown, X, Check, Loader2, ArrowLeft, Download,
-  Eye, Trash2, Edit, RefreshCw, UserPlus, FolderPlus
+  Eye, Trash2, Edit, RefreshCw, UserPlus, FolderPlus, Play
 } from 'lucide-react';
 
 interface MediaFile {
@@ -45,9 +46,28 @@ interface Profile {
   preferred_name?: string;
 }
 
+interface ServiceTaxonomy {
+  id: string;
+  service_name: string;
+  service_slug: string;
+  service_category: string;
+}
+
+interface ProjectTaxonomy {
+  id: string;
+  name: string;
+  slug: string;
+  project_type?: string | null;
+  status?: string | null;
+}
+
 export default function MediaGalleryPage() {
   const [media, setMedia] = useState<MediaFile[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [services, setServices] = useState<ServiceTaxonomy[]>([]);
+  const [projects, setProjects] = useState<ProjectTaxonomy[]>([]);
+  const [taxonomyLoading, setTaxonomyLoading] = useState(false);
+  const [taxonomyError, setTaxonomyError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedMedia, setSelectedMedia] = useState<MediaFile | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -63,10 +83,24 @@ export default function MediaGalleryPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [fileTypeFilter, setFileTypeFilter] = useState<string>('all');
   const [tagFilter, setTagFilter] = useState<string>('');
+  const [personFilter, setPersonFilter] = useState<string>('all');
+  const [annualReportOnly, setAnnualReportOnly] = useState(false);
+  const [annualReportFiscalYear, setAnnualReportFiscalYear] = useState<string>('all');
+  const [serviceFilter, setServiceFilter] = useState<string>('all');
+  const [projectFilter, setProjectFilter] = useState<string>('all');
 
   // People tagging
   const [showPeopleTag, setShowPeopleTag] = useState(false);
   const [selectedPeople, setSelectedPeople] = useState<string[]>([]);
+  const [profileSearch, setProfileSearch] = useState('');
+
+  // Bulk tagging
+  const [showBulkTagModal, setShowBulkTagModal] = useState(false);
+  const [bulkAnnualReport, setBulkAnnualReport] = useState(false);
+  const [bulkFiscalYear, setBulkFiscalYear] = useState<string>('all');
+  const [bulkService, setBulkService] = useState<string>('all');
+  const [bulkProject, setBulkProject] = useState<string>('all');
+  const [bulkTagging, setBulkTagging] = useState(false);
 
   // Collections
   const [showCollectionModal, setShowCollectionModal] = useState(false);
@@ -76,6 +110,53 @@ export default function MediaGalleryPage() {
 
   // Memoize supabase client to prevent recreation on every render
   const supabase = useMemo(() => createClient(), []);
+
+  const fiscalYearOptions = useMemo(() => {
+    const now = new Date();
+    const fyStart = now.getMonth() >= 6 ? now.getFullYear() : now.getFullYear() - 1;
+    return Array.from({ length: 6 }).map((_, i) => {
+      const start = fyStart - i;
+      const end = start + 1;
+      return `${start}-${String(end).slice(-2)}`;
+    });
+  }, []);
+
+  const buildMediaQueryUrl = (limit: number, offsetValue: number) => {
+    const params = new URLSearchParams();
+    params.set('limit', String(limit));
+    params.set('offset', String(offsetValue));
+
+    if (fileTypeFilter !== 'all') {
+      params.set('fileType', fileTypeFilter);
+    }
+
+    const requiredTags: string[] = [];
+
+    if (annualReportOnly) {
+      requiredTags.push('annual-report');
+      if (annualReportFiscalYear !== 'all') requiredTags.push(`fy:${annualReportFiscalYear}`);
+    } else if (tagFilter) {
+      requiredTags.push(tagFilter);
+    }
+
+    if (serviceFilter !== 'all') requiredTags.push(`service:${serviceFilter}`);
+    if (projectFilter !== 'all') requiredTags.push(`project:${projectFilter}`);
+
+    if (requiredTags.length > 0) {
+      params.set('tags', requiredTags.join(','));
+    }
+
+    if (personFilter !== 'all') {
+      params.set('person', personFilter);
+    }
+
+    const q = searchQuery.trim();
+    if (q) {
+      params.set('q', q);
+    }
+
+    return `/api/media/list?${params.toString()}`;
+  };
 
   useEffect(() => {
     // Failsafe: Force loading to false after 15 seconds no matter what
@@ -87,48 +168,23 @@ export default function MediaGalleryPage() {
     // Debounce search - only run query after user stops typing
     const timeoutId = setTimeout(() => {
       const loadData = async () => {
-        console.log('Loading media...', { fileTypeFilter, searchQuery, tagFilter });
+        console.log('Loading media...', {
+          fileTypeFilter,
+          searchQuery,
+          tagFilter,
+          personFilter,
+          annualReportOnly,
+          annualReportFiscalYear,
+        });
         setLoading(true);
 
         try {
-          // Load media
-          let query = (supabase as any)
-            .from('media_files')
-            .select(`
-              *,
-              storyteller:storyteller_id(id, full_name, preferred_name)
-            `)
-            .is('deleted_at', null)
-            .order('created_at', { ascending: false })
-            .limit(1000);
-
-          if (fileTypeFilter !== 'all') {
-            query = query.eq('file_type', fileTypeFilter);
-          }
-
-          if (searchQuery) {
-            query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%,original_filename.ilike.%${searchQuery}%`);
-          }
-
-          if (tagFilter) {
-            query = query.contains('tags', [tagFilter]);
-          }
-
-          console.log('Using DIRECT FETCH for media and profiles...');
-
-          const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-          const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+          console.log('Loading media via server API...');
 
           // Fetch first page of media files (200 at a time for faster loading)
           const mediaResponse = await fetch(
-            `${supabaseUrl}/rest/v1/media_files?select=*&deleted_at=is.null&order=created_at.desc&limit=${PAGE_SIZE}&offset=0`,
+            buildMediaQueryUrl(PAGE_SIZE, 0),
             {
-              headers: {
-                'apikey': supabaseKey!,
-                'Authorization': `Bearer ${supabaseKey}`,
-                'Content-Type': 'application/json',
-                'Prefer': 'count=exact', // Get total count
-              },
               signal: AbortSignal.timeout(5000),
             }
           );
@@ -137,34 +193,27 @@ export default function MediaGalleryPage() {
             const errorText = await mediaResponse.text();
             console.error('Media fetch error:', mediaResponse.status, errorText);
             setMedia([]);
+            setOffset(0);
             setHasMore(false);
           } else {
-            const mediaData = await mediaResponse.json();
-            const totalCount = parseInt(mediaResponse.headers.get('content-range')?.split('/')[1] || '0');
+            const payload = await mediaResponse.json().catch(() => ({} as any));
+            const mediaData = payload?.data || [];
+            const totalCount = Number(payload?.count || 0);
             console.log('Media fetch SUCCESS!', { count: mediaData?.length, total: totalCount });
-            setMedia(mediaData || []);
+            setMedia(mediaData);
             setOffset(PAGE_SIZE);
             setHasMore(mediaData.length === PAGE_SIZE && totalCount > PAGE_SIZE);
           }
 
           // Fetch profiles (also using fetch to avoid hanging)
           console.log('Fetching profiles...');
-          const profilesResponse = await fetch(
-            `${supabaseUrl}/rest/v1/profiles?select=id,full_name,preferred_name&order=full_name`,
-            {
-              headers: {
-                'apikey': supabaseKey!,
-                'Authorization': `Bearer ${supabaseKey}`,
-                'Content-Type': 'application/json',
-              },
-              signal: AbortSignal.timeout(5000),
-            }
-          );
+          const profilesResponse = await fetch(`/api/storytellers`, { signal: AbortSignal.timeout(5000) });
 
           if (!profilesResponse.ok) {
             console.error('Profiles fetch error:', profilesResponse.status);
           } else {
-            const profileData = await profilesResponse.json();
+            const profilePayload = await profilesResponse.json().catch(() => ({} as any));
+            const profileData = profilePayload?.data || [];
             console.log('Profiles fetch SUCCESS!', { count: profileData?.length });
             setProfiles(profileData || []);
           }
@@ -187,29 +236,17 @@ export default function MediaGalleryPage() {
       clearTimeout(timeoutId);
       clearTimeout(failsafeTimeout);
     };
-  }, [fileTypeFilter, searchQuery, tagFilter, supabase]);
+  }, [fileTypeFilter, searchQuery, tagFilter, personFilter, annualReportOnly, annualReportFiscalYear, serviceFilter, projectFilter, supabase]);
 
   // Load collections for "Add to Collection" feature
   useEffect(() => {
     const loadCollections = async () => {
       try {
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-        const response = await fetch(
-          `${supabaseUrl}/rest/v1/photo_collections?select=id,name,slug,item_count&order=name`,
-          {
-            headers: {
-              'apikey': supabaseKey!,
-              'Authorization': `Bearer ${supabaseKey}`,
-            },
-            signal: AbortSignal.timeout(5000),
-          }
-        );
+        const response = await fetch(`/api/photo-collections`, { signal: AbortSignal.timeout(5000) });
 
         if (response.ok) {
-          const data = await response.json();
-          setCollections(data || []);
+          const payload = await response.json().catch(() => ({} as any));
+          setCollections(payload?.data || []);
         }
       } catch (err) {
         console.error('Error loading collections:', err);
@@ -219,23 +256,36 @@ export default function MediaGalleryPage() {
     loadCollections();
   }, []);
 
+  // Load taxonomy for service/project tagging
+  useEffect(() => {
+    const loadTaxonomy = async () => {
+      setTaxonomyLoading(true);
+      setTaxonomyError(null);
+      try {
+        const res = await fetch('/api/media/taxonomy', { cache: 'no-store' });
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          setTaxonomyError(json?.error || 'Failed to load services/projects');
+          return;
+        }
+        setServices(json.services || []);
+        setProjects(json.projects || []);
+      } catch (e) {
+        setTaxonomyError('Failed to load services/projects');
+      } finally {
+        setTaxonomyLoading(false);
+      }
+    };
+    loadTaxonomy();
+  }, []);
+
   const loadMedia = async () => {
     setLoading(true);
 
     try {
-      console.log('loadMedia: Using DIRECT FETCH...');
-
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
       const response = await fetch(
-        `${supabaseUrl}/rest/v1/media_files?select=*&deleted_at=is.null&order=created_at.desc&limit=1000`,
+        buildMediaQueryUrl(PAGE_SIZE, 0),
         {
-          headers: {
-            'apikey': supabaseKey!,
-            'Authorization': `Bearer ${supabaseKey}`,
-            'Content-Type': 'application/json',
-          },
           signal: AbortSignal.timeout(5000),
         }
       );
@@ -244,14 +294,22 @@ export default function MediaGalleryPage() {
         const errorText = await response.text();
         console.error('loadMedia: Fetch error:', response.status, errorText);
         setMedia([]);
+        setOffset(0);
+        setHasMore(false);
       } else {
-        const data = await response.json();
-        console.log('loadMedia: SUCCESS!', { count: data?.length });
-        setMedia(data || []);
+        const payload = await response.json().catch(() => ({} as any));
+        const data = payload?.data || [];
+        const totalCount = Number(payload?.count || 0);
+        console.log('loadMedia: SUCCESS!', { count: data?.length, total: totalCount });
+        setMedia(data);
+        setOffset(PAGE_SIZE);
+        setHasMore(data.length === PAGE_SIZE && totalCount > PAGE_SIZE);
       }
     } catch (err) {
       console.error('loadMedia: Error:', err);
       setMedia([]);
+      setOffset(0);
+      setHasMore(false);
     } finally {
       setLoading(false);
     }
@@ -265,18 +323,9 @@ export default function MediaGalleryPage() {
     try {
       console.log('loadMore: Fetching next page...', { offset });
 
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
       const response = await fetch(
-        `${supabaseUrl}/rest/v1/media_files?select=*&deleted_at=is.null&order=created_at.desc&limit=${PAGE_SIZE}&offset=${offset}`,
+        buildMediaQueryUrl(PAGE_SIZE, offset),
         {
-          headers: {
-            'apikey': supabaseKey!,
-            'Authorization': `Bearer ${supabaseKey}`,
-            'Content-Type': 'application/json',
-            'Prefer': 'count=exact',
-          },
           signal: AbortSignal.timeout(5000),
         }
       );
@@ -286,8 +335,9 @@ export default function MediaGalleryPage() {
         console.error('loadMore: Fetch error:', response.status, errorText);
         setHasMore(false);
       } else {
-        const newData = await response.json();
-        const totalCount = parseInt(response.headers.get('content-range')?.split('/')[1] || '0');
+        const payload = await response.json().catch(() => ({} as any));
+        const newData = payload?.data || [];
+        const totalCount = Number(payload?.count || 0);
         console.log('loadMore: SUCCESS!', { count: newData?.length, total: totalCount, newOffset: offset + PAGE_SIZE });
 
         // Append new data to existing media
@@ -343,13 +393,32 @@ export default function MediaGalleryPage() {
     setAnalyzing(null);
   };
 
-  const updatePeopleTags = async (mediaId: string, peopleIds: string[]) => {
-    const { error } = await (supabase as any)
-      .from('media_files')
-      .update({ faces_detected: peopleIds })
-      .eq('id', mediaId);
+  const getVideoThumbnail = (item: any): string | null => {
+    const meta = item?.metadata || {};
+    return meta?.external_video?.thumbnail_url || meta?.thumbnail_url || meta?.thumbnail || null;
+  };
 
-    if (!error) {
+  const isExternalVideo = (item: any): boolean => {
+    const url = String(item?.public_url || '').toLowerCase();
+    if (item?.metadata?.external_video) return true;
+    if (url.includes('youtube.com') || url.includes('youtu.be')) return true;
+    if (url.includes('vimeo.com')) return true;
+    if (url.includes('descript.com')) return true;
+    if (url.includes('facebook.com') || url.includes('fb.watch')) return true;
+    if (url.includes('tiktok.com')) return true;
+    if (item?.file_type === 'video' && !url.match(/\.(mp4|webm|ogg)(\?|#|$)/)) return true;
+    return false;
+  };
+
+  const updatePeopleTags = async (mediaId: string, peopleIds: string[]) => {
+    try {
+      const res = await fetch('/api/media/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mediaIds: [mediaId], facesDetected: peopleIds }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json?.error || 'Failed to update people tags');
       loadMedia();
       if (selectedMedia?.id === mediaId) {
         setSelectedMedia({
@@ -357,6 +426,8 @@ export default function MediaGalleryPage() {
           faces_detected: peopleIds
         });
       }
+    } catch (e) {
+      console.error('Failed to update people tags:', e);
     }
   };
 
@@ -387,21 +458,17 @@ export default function MediaGalleryPage() {
     try {
       const idsToDelete = Array.from(selectedFiles);
 
-      // Soft delete by setting deleted_at timestamp
-      const { error } = await (supabase as any)
-        .from('media_files')
-        .update({ deleted_at: new Date().toISOString() })
-        .in('id', idsToDelete);
+      const res = await fetch('/api/media/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mediaIds: idsToDelete, deletedAt: new Date().toISOString() }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json?.error || 'Failed to delete photos');
 
-      if (error) {
-        console.error('Delete error:', error);
-        alert('Failed to delete photos: ' + error.message);
-      } else {
-        // Reload media to show updated list
-        await loadMedia();
-        setSelectedFiles(new Set());
-        alert(`Successfully deleted ${idsToDelete.length} photos`);
-      }
+      await loadMedia();
+      setSelectedFiles(new Set());
+      alert(`Successfully deleted ${idsToDelete.length} photos`);
     } catch (err: any) {
       console.error('Delete error:', err);
       alert('Failed to delete photos: ' + err.message);
@@ -419,33 +486,16 @@ export default function MediaGalleryPage() {
     setAddingToCollection(true);
 
     try {
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-      // Prepare collection items data
-      const items = Array.from(selectedFiles).map(mediaId => ({
-        collection_id: selectedCollectionId,
-        media_id: mediaId,
-      }));
-
-      const response = await fetch(
-        `${supabaseUrl}/rest/v1/collection_items`,
-        {
-          method: 'POST',
-          headers: {
-            'apikey': supabaseKey!,
-            'Authorization': `Bearer ${supabaseKey}`,
-            'Content-Type': 'application/json',
-            'Prefer': 'return=minimal',
-          },
-          body: JSON.stringify(items),
-          signal: AbortSignal.timeout(10000),
-        }
-      );
+      const response = await fetch(`/api/photo-collections/${selectedCollectionId}/items`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mediaIds: Array.from(selectedFiles) }),
+        signal: AbortSignal.timeout(10000),
+      });
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`Failed to add to collection: ${errorText}`);
+        throw new Error(errorText);
       }
 
       alert(`Successfully added ${selectedFiles.size} photos to collection!`);
@@ -458,6 +508,110 @@ export default function MediaGalleryPage() {
     }
 
     setAddingToCollection(false);
+  };
+
+  interface BulkTagRequestPayload {
+    addTags?: string[];
+    mergeMetadata?: Record<string, unknown>;
+    mergeContextMetadata?: Record<string, unknown>;
+  }
+
+  interface BulkTagHandlerOptions {
+    closeModal?: boolean;
+    successMessage?: string;
+  }
+
+  const eldersTripQuickTags = [
+    'project:elders-trips',
+    'page:elders',
+    'story:elders-trip',
+    'service:culture',
+  ];
+
+  const buildBulkPayload = (): BulkTagRequestPayload => {
+    const addTags: string[] = [];
+    const mergeMetadata: Record<string, unknown> = {};
+    const mergeContextMetadata: Record<string, unknown> = {};
+
+    if (bulkAnnualReport) {
+      addTags.push('annual-report');
+      if (bulkFiscalYear !== 'all') {
+        addTags.push(`fy:${bulkFiscalYear}`);
+        mergeMetadata.fiscal_year = bulkFiscalYear;
+      }
+    }
+
+    if (bulkService !== 'all') {
+      addTags.push(`service:${bulkService}`);
+      mergeContextMetadata.service_slug = bulkService;
+    }
+
+    if (bulkProject !== 'all') {
+      addTags.push(`project:${bulkProject}`);
+      mergeContextMetadata.project_slug = bulkProject;
+    }
+
+    return {
+      addTags,
+      mergeMetadata: Object.keys(mergeMetadata).length ? mergeMetadata : undefined,
+      mergeContextMetadata: Object.keys(mergeContextMetadata).length ? mergeContextMetadata : undefined,
+    };
+  };
+
+  const applyBulkTags = async (
+    payload?: BulkTagRequestPayload,
+    options?: BulkTagHandlerOptions
+  ) => {
+    if (selectedFiles.size === 0) {
+      alert('Select at least one photo before tagging.');
+      return;
+    }
+
+    const finalPayload = payload ?? buildBulkPayload();
+    const hasAddTags = (finalPayload.addTags?.length ?? 0) > 0;
+    const hasMergeMetadata = Boolean(finalPayload.mergeMetadata && Object.keys(finalPayload.mergeMetadata).length);
+    const hasMergeContext = Boolean(
+      finalPayload.mergeContextMetadata && Object.keys(finalPayload.mergeContextMetadata).length
+    );
+
+    if (!hasAddTags && !hasMergeMetadata && !hasMergeContext) {
+      alert('Choose at least one tag or field to apply.');
+      return;
+    }
+
+    setBulkTagging(true);
+    try {
+      const response = await fetch('/api/media/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mediaIds: Array.from(selectedFiles),
+          addTags: finalPayload.addTags,
+          mergeMetadata: finalPayload.mergeMetadata,
+          mergeContextMetadata: finalPayload.mergeContextMetadata,
+        }),
+        signal: AbortSignal.timeout(15000),
+      });
+
+      const json = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(json?.error || 'Bulk update failed');
+      }
+
+      const message = options?.successMessage ?? `Updated ${selectedFiles.size} item(s).`;
+      alert(message);
+
+      if (options?.closeModal ?? true) {
+        setShowBulkTagModal(false);
+      }
+      setSelectedFiles(new Set());
+      await loadMedia();
+    } catch (err: any) {
+      console.error('Bulk tag error:', err);
+      alert('Failed to apply tags: ' + (err?.message || String(err)));
+    } finally {
+      setBulkTagging(false);
+    }
   };
 
   const formatFileSize = (bytes: number): string => {
@@ -479,6 +633,15 @@ export default function MediaGalleryPage() {
 
   // Get unique tags from all media
   const allTags = Array.from(new Set(media.flatMap(m => m.tags || [])));
+  const hasActiveFilters =
+    fileTypeFilter !== 'all' ||
+    Boolean(searchQuery.trim()) ||
+    Boolean(tagFilter) ||
+    personFilter !== 'all' ||
+    annualReportOnly ||
+    annualReportFiscalYear !== 'all' ||
+    serviceFilter !== 'all' ||
+    projectFilter !== 'all';
 
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto">
@@ -492,18 +655,26 @@ export default function MediaGalleryPage() {
           Back to Media
         </Link>
 
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Photo Gallery</h1>
-            <p className="text-gray-600 mt-1">Browse, tag, and organize your community photos</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Media Gallery</h1>
+              <p className="text-gray-600 mt-1">Browse, tag, and organize your community photos</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Link
+                href="/picc/media/external-videos"
+                className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Video links
+              </Link>
+              <Link
+                href="/picc/media/upload"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Upload Media
+              </Link>
+            </div>
           </div>
-          <Link
-            href="/picc/media/upload"
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Upload Photos
-          </Link>
-        </div>
 
         {/* Pagination Info Banner */}
         {media.length > 0 && (
@@ -558,10 +729,25 @@ export default function MediaGalleryPage() {
             value={tagFilter}
             onChange={(e) => setTagFilter(e.target.value)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            disabled={annualReportOnly}
           >
             <option value="">All Tags</option>
             {allTags.map(tag => (
               <option key={tag} value={tag}>{tag}</option>
+            ))}
+          </select>
+
+          {/* Person Filter */}
+          <select
+            value={personFilter}
+            onChange={(e) => setPersonFilter(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="all">All People</option>
+            {profiles.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.preferred_name || p.full_name}
+              </option>
             ))}
           </select>
 
@@ -581,6 +767,135 @@ export default function MediaGalleryPage() {
             </button>
           </div>
         </div>
+
+        {taxonomyError && (
+          <div className="mt-3 text-sm text-red-600 flex items-center justify-between gap-3">
+            <span>Service/Project lists failed to load: {taxonomyError}</span>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="px-3 py-1 border border-red-200 rounded-lg hover:bg-red-50"
+            >
+              Retry
+            </button>
+          </div>
+        )}
+
+        {/* Annual report quick filters */}
+        <div className="mt-4 flex flex-wrap items-end gap-4">
+          <label className="flex items-center gap-2 text-sm text-gray-700">
+            <input
+              type="checkbox"
+              checked={annualReportOnly}
+              onChange={(e) => {
+                const checked = e.target.checked;
+                setAnnualReportOnly(checked);
+                if (!checked) setAnnualReportFiscalYear('all');
+              }}
+              className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
+            />
+            Annual report media
+          </label>
+
+          <div>
+            <div className="text-xs text-gray-500 mb-1">Fiscal year</div>
+            <select
+              value={annualReportFiscalYear}
+              onChange={(e) => setAnnualReportFiscalYear(e.target.value)}
+              disabled={!annualReportOnly}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+            >
+              <option value="all">All Years</option>
+              {fiscalYearOptions.map((fy) => (
+                <option key={fy} value={fy}>
+                  {fy}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              setAnnualReportOnly(true);
+              setAnnualReportFiscalYear(fiscalYearOptions[0] || 'all');
+              setTagFilter('');
+            }}
+            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm"
+          >
+            Quick: this FY
+          </button>
+
+          <div>
+            <div className="text-xs text-gray-500 mb-1">Service</div>
+            <select
+              value={serviceFilter}
+              onChange={(e) => setServiceFilter(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">All Services</option>
+              {taxonomyLoading && services.length === 0 && (
+                <option value="loading" disabled>
+                  Loading…
+                </option>
+              )}
+              {!taxonomyLoading && services.length === 0 && (
+                <option value="none" disabled>
+                  No services found
+                </option>
+              )}
+              {services.map((s) => (
+                <option key={s.id} value={s.service_slug}>
+                  {s.service_name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <div className="text-xs text-gray-500 mb-1">Project</div>
+            <select
+              value={projectFilter}
+              onChange={(e) => setProjectFilter(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">All Projects</option>
+              {taxonomyLoading && projects.length === 0 && (
+                <option value="loading" disabled>
+                  Loading…
+                </option>
+              )}
+              {!taxonomyLoading && projects.length === 0 && (
+                <option value="none" disabled>
+                  No projects found
+                </option>
+              )}
+              {projects.map((p) => (
+                <option key={p.id} value={p.slug}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2 pb-1">
+            <Link href="/picc/projects" className="text-sm text-blue-600 hover:text-blue-700">
+              Manage projects
+            </Link>
+            <span className="text-gray-300">•</span>
+            <Link href="/picc/services" className="text-sm text-blue-600 hover:text-blue-700">
+              Manage services
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6 text-sm text-yellow-900">
+        Tag selected photos with <code className="bg-white px-1 py-0.5 rounded">project:elders-trips</code>,{' '}
+        <code className="bg-white px-1 py-0.5 rounded">page:elders</code>,{' '}
+        <code className="bg-white px-1 py-0.5 rounded">story:elders-trip</code>, and{' '}
+        <code className="bg-white px-1 py-0.5 rounded">service:culture</code> to surface them in the Elders page
+        hero, gallery, and story highlights.
       </div>
 
       {/* Bulk Actions Bar */}
@@ -603,6 +918,39 @@ export default function MediaGalleryPage() {
 
             {selectedFiles.size > 0 && (
               <div className="flex gap-2">
+                <button
+                  onClick={() =>
+                    applyBulkTags(
+                      { addTags: eldersTripQuickTags },
+                      {
+                        closeModal: false,
+                        successMessage: `Elders trip tags applied to ${selectedFiles.size} item(s).`,
+                      }
+                    )
+                  }
+                  disabled={bulkTagging}
+                  className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  Quick Tag Elders Trip
+                </button>
+                <button
+                  onClick={() => {
+                    setBulkAnnualReport(annualReportOnly);
+                    setBulkFiscalYear(
+                      annualReportFiscalYear !== 'all'
+                        ? annualReportFiscalYear
+                        : (fiscalYearOptions[0] || 'all')
+                    );
+                    setBulkService(serviceFilter);
+                    setBulkProject(projectFilter);
+                    setShowBulkTagModal(true);
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  <Tag className="w-4 h-4" />
+                  Bulk Tag
+                </button>
                 <button
                   onClick={() => setShowCollectionModal(true)}
                   className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
@@ -662,13 +1010,47 @@ export default function MediaGalleryPage() {
       ) : media.length === 0 ? (
         <div className="text-center py-12 bg-gray-50 rounded-xl">
           <ImageIcon className="w-12 h-12 mx-auto text-gray-300 mb-4" />
-          <p className="text-gray-500 mb-4">No media found</p>
-          <Link
-            href="/picc/media/upload"
-            className="text-blue-600 hover:text-blue-700 font-medium"
-          >
-            Upload your first photo
-          </Link>
+          <p className="text-gray-700 font-medium mb-1">
+            {hasActiveFilters ? 'No media matches your filters' : 'No media found'}
+          </p>
+          <p className="text-gray-500 mb-4">
+            {hasActiveFilters
+              ? 'Try clearing filters, then use Bulk Tag to add Service/Project/FY tags to your photos.'
+              : 'Upload your first photo to get started.'}
+          </p>
+          <div className="flex items-center justify-center gap-3">
+            {hasActiveFilters ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery('');
+                  setFileTypeFilter('all');
+                  setTagFilter('');
+                  setPersonFilter('all');
+                  setAnnualReportOnly(false);
+                  setAnnualReportFiscalYear('all');
+                  setServiceFilter('all');
+                  setProjectFilter('all');
+                }}
+                className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Clear filters
+              </button>
+            ) : (
+              <Link
+                href="/picc/media/upload"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Upload photos
+              </Link>
+            )}
+            <Link
+              href="/picc/media/gallery"
+              className="px-4 py-2 text-blue-600 hover:text-blue-700"
+            >
+              Refresh
+            </Link>
+          </div>
         </div>
       ) : viewMode === 'grid' ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
@@ -703,6 +1085,33 @@ export default function MediaGalleryPage() {
                     className="w-full h-full object-cover"
                     loading="lazy"
                   />
+                ) : item.file_type === 'video' ? (
+                  (() => {
+                    const thumb = getVideoThumbnail(item);
+                    if (thumb) {
+                      return (
+                        <div className="relative w-full h-full">
+                          <img
+                            src={thumb}
+                            alt={item.title || 'Video'}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                          <div className="absolute inset-0 bg-black/30" />
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-14 h-14 bg-white/90 rounded-full flex items-center justify-center">
+                              <Play className="w-6 h-6 text-gray-900 ml-1" />
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    }
+                    return (
+                      <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                        <Icon className="w-12 h-12 text-gray-400" />
+                      </div>
+                    );
+                  })()
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-gray-200">
                     <Icon className="w-12 h-12 text-gray-400" />
@@ -789,6 +1198,26 @@ export default function MediaGalleryPage() {
                     alt={item.alt_text || 'Photo'}
                     className="w-16 h-16 object-cover rounded"
                   />
+                ) : item.file_type === 'video' ? (
+                  (() => {
+                    const thumb = getVideoThumbnail(item);
+                    if (thumb) {
+                      return (
+                        <div className="relative w-16 h-16 rounded overflow-hidden bg-gray-100">
+                          <img src={thumb} alt={item.title || 'Video'} className="w-full h-full object-cover" loading="lazy" />
+                          <div className="absolute inset-0 bg-black/20" />
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <Play className="w-5 h-5 text-white" />
+                          </div>
+                        </div>
+                      );
+                    }
+                    return (
+                      <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center">
+                        <Icon className="w-8 h-8 text-gray-400" />
+                      </div>
+                    );
+                  })()
                 ) : (
                   <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center">
                     <Icon className="w-8 h-8 text-gray-400" />
@@ -848,6 +1277,119 @@ export default function MediaGalleryPage() {
         </div>
       )}
 
+      {showBulkTagModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-lg shadow-xl border border-gray-200">
+            <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Bulk tag {selectedFiles.size} item(s)</h3>
+                <p className="text-sm text-gray-600 mt-1">Apply tags and metadata in one click.</p>
+              </div>
+              <button
+                onClick={() => setShowBulkTagModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg"
+                disabled={bulkTagging}
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <label className="flex items-center gap-2 text-sm text-gray-700">
+                <input
+                  type="checkbox"
+                  checked={bulkAnnualReport}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setBulkAnnualReport(checked);
+                    if (!checked) setBulkFiscalYear('all');
+                    if (checked && bulkFiscalYear === 'all') setBulkFiscalYear(fiscalYearOptions[0] || 'all');
+                  }}
+                  className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                />
+                Mark as Annual Report media
+              </label>
+
+              <div>
+                <div className="text-xs text-gray-500 mb-1">Fiscal year (optional)</div>
+                <select
+                  value={bulkFiscalYear}
+                  onChange={(e) => setBulkFiscalYear(e.target.value)}
+                  disabled={!bulkAnnualReport}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                >
+                  <option value="all">No FY tag</option>
+                  {fiscalYearOptions.map((fy) => (
+                    <option key={fy} value={fy}>
+                      {fy}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <div className="text-xs text-gray-500 mb-1">Service</div>
+                <select
+                  value={bulkService}
+                  onChange={(e) => setBulkService(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="all">No service tag</option>
+                  {services.map((s) => (
+                    <option key={s.id} value={s.service_slug}>
+                      {s.service_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <div className="text-xs text-gray-500 mb-1">Project</div>
+                <select
+                  value={bulkProject}
+                  onChange={(e) => setBulkProject(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="all">No project tag</option>
+                  {projects.map((p) => (
+                    <option key={p.id} value={p.slug}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="p-6 border-t border-gray-200 flex items-center justify-end gap-2">
+              <button
+                onClick={() => setShowBulkTagModal(false)}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                disabled={bulkTagging}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={applyBulkTags}
+                disabled={bulkTagging}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 inline-flex items-center gap-2"
+              >
+                {bulkTagging ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Applying...
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4" />
+                    Apply
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Detail Modal */}
       {selectedMedia && (
         <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
@@ -861,11 +1403,22 @@ export default function MediaGalleryPage() {
                   className="max-w-full max-h-[85vh] object-contain"
                 />
               ) : selectedMedia.file_type === 'video' ? (
-                <video
-                  src={selectedMedia.public_url}
-                  controls
-                  className="max-w-full max-h-[85vh]"
-                />
+                isExternalVideo(selectedMedia) ? (
+                  <div className="w-full max-w-4xl px-6">
+                    <VideoEmbed
+                      url={selectedMedia.public_url}
+                      title={selectedMedia.title || selectedMedia.original_filename || 'Video'}
+                      description={selectedMedia.description || undefined}
+                      thumbnail={getVideoThumbnail(selectedMedia) || undefined}
+                    />
+                  </div>
+                ) : (
+                  <video
+                    src={selectedMedia.public_url}
+                    controls
+                    className="max-w-full max-h-[85vh]"
+                  />
+                )
               ) : (
                 <div className="text-white text-center">
                   <File className="w-16 h-16 mx-auto mb-4" />
@@ -986,8 +1539,20 @@ export default function MediaGalleryPage() {
 
                   {showPeopleTag ? (
                     <div className="border border-gray-200 rounded-lg p-3">
+                      <input
+                        value={profileSearch}
+                        onChange={(e) => setProfileSearch(e.target.value)}
+                        placeholder="Search people…"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm mb-3"
+                      />
                       <div className="max-h-40 overflow-y-auto space-y-1 mb-3">
-                        {profiles.map(profile => (
+                        {profiles
+                          .filter((profile) => {
+                            const name = (profile.preferred_name || profile.full_name || '').toLowerCase();
+                            const q = profileSearch.trim().toLowerCase();
+                            return !q || name.includes(q);
+                          })
+                          .map(profile => (
                           <label
                             key={profile.id}
                             className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer"

@@ -89,13 +89,21 @@ export default async function ProjectsPage() {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Innovation Projects</h1>
           <p className="text-gray-600">Manage and track community innovation initiatives</p>
         </div>
-        <Link
-          href="/picc/projects/new"
-          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-600 to-pink-600 hover:from-orange-700 hover:to-pink-700 text-white font-semibold rounded-lg shadow-md transition-all"
-        >
-          <Plus className="w-5 h-5" />
-          <span>Add New Project</span>
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/picc/projects/manage"
+            className="px-4 py-3 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 font-semibold rounded-lg transition-all"
+          >
+            Manage (edit/delete)
+          </Link>
+          <Link
+            href="/picc/projects/new"
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-600 to-pink-600 hover:from-orange-700 hover:to-pink-700 text-white font-semibold rounded-lg shadow-md transition-all"
+          >
+            <Plus className="w-5 h-5" />
+            <span>Add New Project</span>
+          </Link>
+        </div>
       </div>
 
       {/* Stats Grid */}

@@ -28,7 +28,7 @@ interface Profile {
 interface Story {
   id: string;
   title: string;
-  summary?: string;
+  excerpt?: string;
   created_at: string;
   story_category?: string;
 }
@@ -38,6 +38,7 @@ export default function PersonProfilePage() {
   const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [stories, setStories] = useState<Story[]>([]);
+  const [featuredInStories, setFeaturedInStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
 
@@ -68,13 +69,33 @@ export default function PersonProfilePage() {
     // Fetch stories by this person
     const { data: storiesData, error: storiesError } = await supabase
       .from('stories')
-      .select('id, title, summary, created_at, story_category, is_public')
+      .select('id, title, excerpt, created_at, story_category, is_public')
       .eq('storyteller_id', id)
       .eq('is_public', true)
       .order('created_at', { ascending: false });
 
     if (!storiesError) {
       setStories(storiesData || []);
+    }
+
+    // Fetch stories where this person is featured (metadata.featured_people)
+    try {
+      const { data: featuredData, error: featuredError } = await supabase
+        .from('stories')
+        .select('id, title, excerpt, created_at, story_category, is_public, storyteller_id')
+        .eq('is_public', true)
+        .neq('storyteller_id', id)
+        .contains('metadata', { featured_people: [id] })
+        .order('created_at', { ascending: false });
+
+      if (!featuredError) {
+        const authoredIds = new Set((storiesData || []).map((s: any) => String(s.id)));
+        setFeaturedInStories((featuredData || []).filter((s: any) => !authoredIds.has(String(s.id))));
+      } else {
+        setFeaturedInStories([]);
+      }
+    } catch {
+      setFeaturedInStories([]);
     }
 
     setLoading(false);
@@ -170,8 +191,36 @@ export default function PersonProfilePage() {
 
         {/* Profile Details Editor */}
         <EnhancedProfileEditor
-          profile={profile}
-          onSave={handleProfileUpdate}
+          initialData={{
+            full_name: profile.full_name,
+            preferred_name: profile.preferred_name,
+            profile_image_url: profile.profile_image_url,
+            bio_short: profile.bio,
+            bio_long: undefined,
+            location: profile.location || '',
+            traditional_country: profile.traditional_country,
+            language_group: profile.language_group,
+            community_roles: profile.community_role ? [profile.community_role] : [],
+            expertise_areas: profile.expertise_areas || [],
+            languages_spoken: profile.languages_spoken || [],
+            profile_visibility: 'public',
+            show_in_directory: true,
+            face_recognition_consent: false,
+          }}
+          onSave={async (data) => {
+            await handleProfileUpdate({
+              full_name: data.full_name,
+              preferred_name: data.preferred_name,
+              profile_image_url: data.profile_image_url,
+              bio: data.bio_short,
+              location: data.location,
+              traditional_country: data.traditional_country,
+              language_group: data.language_group,
+              community_role: data.community_roles?.[0],
+              expertise_areas: data.expertise_areas,
+              languages_spoken: data.languages_spoken,
+            });
+          }}
           onCancel={() => setEditMode(false)}
         />
       </div>
@@ -364,11 +413,11 @@ export default function PersonProfilePage() {
                     <Heart className="h-5 w-5 text-purple-600 mt-0.5 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-gray-900 group-hover:text-purple-700 mb-1">
-                        {story.title}
-                      </h3>
-                      {story.summary && (
+                      {story.title}
+                    </h3>
+                      {story.excerpt && (
                         <p className="text-sm text-gray-600 line-clamp-2 mb-2">
-                          {story.summary}
+                          {story.excerpt}
                         </p>
                       )}
                       <div className="flex items-center gap-3 text-xs text-gray-500">
@@ -389,6 +438,57 @@ export default function PersonProfilePage() {
           ) : (
             <div className="text-center py-8 text-gray-500">
               <p>No public stories yet</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Featured In Section */}
+      <div className="mt-6 bg-white rounded-xl border border-stone-300 shadow-sm overflow-hidden">
+        <div className="bg-gradient-to-r from-stone-100 to-amber-50 border-b border-stone-200 px-6 py-4">
+          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <Heart className="h-6 w-6 text-amber-600" />
+            Featured in ({featuredInStories.length})
+          </h2>
+        </div>
+        <div className="p-6">
+          {featuredInStories.length > 0 ? (
+            <div className="space-y-4">
+              {featuredInStories.map((story) => (
+                <Link
+                  key={story.id}
+                  href={`/stories/${story.id}`}
+                  className="block p-4 border border-gray-200 rounded-lg hover:border-amber-300 hover:bg-amber-50/50 transition-all group"
+                >
+                  <div className="flex items-start gap-3">
+                    <BookOpen className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-900 group-hover:text-amber-800 mb-1">
+                      {story.title}
+                    </h3>
+                      {story.excerpt && (
+                        <p className="text-sm text-gray-600 line-clamp-2 mb-2">
+                          {story.excerpt}
+                        </p>
+                      )}
+                      <div className="flex items-center gap-3 text-xs text-gray-500">
+                        {story.story_category && (
+                          <span className="px-2 py-1 bg-stone-100 rounded border border-stone-300">
+                            {story.story_category.replace(/_/g, ' ')}
+                          </span>
+                        )}
+                        <span>
+                          {new Date(story.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <p>No featured stories yet</p>
             </div>
           )}
         </div>

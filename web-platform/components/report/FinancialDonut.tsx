@@ -35,8 +35,12 @@ export function FinancialDonut({
   onSegmentClick,
   className = '',
 }: FinancialDonutProps) {
+  const isPrint =
+    typeof window !== 'undefined' &&
+    (window.matchMedia?.('print')?.matches || new URLSearchParams(window.location.search).get('print') === '1');
+
   const [hoveredSegment, setHoveredSegment] = useState<string | null>(null);
-  const [animationProgress, setAnimationProgress] = useState(animateOnScroll ? 0 : 1);
+  const [animationProgress, setAnimationProgress] = useState(() => (isPrint ? 1 : animateOnScroll ? 0 : 1));
   const ref = useRef<SVGSVGElement>(null);
 
   const total = data.reduce((sum, item) => sum + item.value, 0);
@@ -45,6 +49,10 @@ export function FinancialDonut({
 
   // Animate on scroll into view
   useEffect(() => {
+    if (isPrint) {
+      setAnimationProgress(1);
+      return;
+    }
     if (!animateOnScroll) return;
 
     const observer = new IntersectionObserver(
@@ -80,7 +88,7 @@ export function FinancialDonut({
     }
 
     return () => observer.disconnect();
-  }, [animateOnScroll]);
+  }, [animateOnScroll, isPrint]);
 
   // Calculate segment positions
   let currentAngle = -90; // Start from top

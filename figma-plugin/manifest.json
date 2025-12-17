@@ -1,0 +1,39 @@
+{
+  "name": "PICC Annual Report Exporter",
+  "id": "picc-annual-report-exporter",
+  "api": "1.0.0",
+  "main": "dist/code.js",
+  "ui": "dist/ui.html",
+  "capabilities": [],
+  "enableProposedApi": false,
+  "editorType": ["figma"],
+  "documentAccess": "dynamic-page",
+  "networkAccess": {
+    "allowedDomains": [
+      "https://*.supabase.co",
+      "https://palm-island-repository.vercel.app"
+    ],
+    "devAllowedDomains": [
+      "http://localhost:3000"
+    ],
+    "reasoning": "Used to publish/export annual report JSON to Supabase and to preview/publish content on the Vercel site; localhost is only used during local development."
+  },
+  "permissions": ["currentuser"],
+  "menu": [
+    {
+      "name": "Export Annual Report",
+      "command": "export"
+    },
+    {
+      "name": "Sync Components",
+      "command": "sync"
+    },
+    {
+      "separator": true
+    },
+    {
+      "name": "Settings",
+      "command": "settings"
+    }
+  ]
+}

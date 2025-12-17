@@ -171,6 +171,7 @@ export function StoryCard({
   if (variant === 'featured') {
     const isElder = story.storyteller?.is_elder;
     const profileImageUrl = story.storyteller?.profile_image_url;
+    const backgroundImageUrl = storyImage || profileImageUrl;
     const bgGradient = isElder
       ? 'from-purple-900 via-purple-800 to-purple-900'
       : 'from-picc-primary via-picc-secondary to-picc-primary';
@@ -182,10 +183,10 @@ export function StoryCard({
       >
         <div className="relative aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-500">
           {/* Background - storyteller profile image or gradient */}
-          {profileImageUrl ? (
+          {backgroundImageUrl ? (
             <Image
-              src={profileImageUrl}
-              alt={storytellerName}
+              src={backgroundImageUrl}
+              alt={story.title}
               fill
               className="object-cover"
             />
@@ -331,6 +332,7 @@ export function StoryCard({
   // Default variant - elegant, image-focused card
   const isElder = story.storyteller?.is_elder;
   const profileImageUrl = story.storyteller?.profile_image_url;
+  const backgroundImageUrl = storyImage || profileImageUrl;
   const bgGradient = isElder
     ? 'from-purple-900 via-purple-800 to-purple-900'
     : 'from-picc-primary via-picc-secondary to-picc-primary';
@@ -342,10 +344,10 @@ export function StoryCard({
     >
       <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500">
         {/* Background - storyteller profile image or gradient */}
-        {profileImageUrl ? (
+        {backgroundImageUrl ? (
           <Image
-            src={profileImageUrl}
-            alt={storytellerName}
+            src={backgroundImageUrl}
+            alt={story.title}
             fill
             className="object-cover"
           />

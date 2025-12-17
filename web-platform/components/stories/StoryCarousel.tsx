@@ -150,9 +150,9 @@ export default function StoryCarousel({
 }
 
 function StorySlide({ story }: { story: Story }) {
-  const featuredImage = story.story_media?.[0]?.url || story.featured_image_url;
+  const featuredImage = story.story_media?.[0]?.media_url || story.featured_image_url;
   const hasImage = !!featuredImage;
-  const keyQuote = story.metadata?.key_quotes?.[0] || story.excerpt;
+  const keyQuote = (story.metadata as any)?.key_quotes?.[0] || story.content;
 
   return (
     <Link href={`/stories/${story.id}`} className="block h-full group">
@@ -216,9 +216,9 @@ function StorySlide({ story }: { story: Story }) {
 
               {(story.views || story.likes || story.shares) && (
                 <div className="ml-auto flex gap-4 text-sm text-white/70">
-                  {story.views > 0 && <span>👁 {story.views}</span>}
-                  {story.likes > 0 && <span>❤️ {story.likes}</span>}
-                  {story.shares > 0 && <span>🔗 {story.shares}</span>}
+                  {(story.views ?? 0) > 0 && <span>👁 {story.views}</span>}
+                  {(story.likes ?? 0) > 0 && <span>❤️ {story.likes}</span>}
+                  {(story.shares ?? 0) > 0 && <span>🔗 {story.shares}</span>}
                 </div>
               )}
             </div>

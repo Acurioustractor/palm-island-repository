@@ -1,40 +1,70 @@
 import Link from 'next/link';
-import { Suspense } from 'react';
 import {
   Users, Briefcase, Heart, Download, Share2, FileText, ArrowLeft,
   TrendingUp, Target, Award, Building2, Calendar, DollarSign,
-  BarChart3, Activity, Sparkles, ExternalLink
+  BarChart3, Activity, Sparkles, ExternalLink, MapPin, Camera
 } from 'lucide-react';
-import { createServerComponentClient } from '@/lib/supabase/server';
-import { getRecentStories, getFeaturedStories } from '@/lib/stories/utils';
-import { getHeroImage, getPageMedia } from '@/lib/media/utils';
+import { createServerSupabase } from '@/lib/supabase/client';
+import { getFeaturedStories } from '@/lib/stories/utils';
+import { getHeroImage } from '@/lib/media/utils';
+import { PhotoGallery } from '@/components/report';
+import { ServicePinMap } from '@/components/report/ServicePinMap';
+import LiveReportEditor from '@/components/report/LiveReportEditor';
 
 // This is a SERVER COMPONENT - fetches real-time data
-export default async function LiveAnnualReportPage() {
-  const supabase = await createServerComponentClient();
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+export default async function LiveAnnualReportPage({
+  searchParams,
+}: {
+  searchParams?: { edit?: string }
+}) {
+  const supabase = createServerSupabase();
+
+  const { currentFiscalYear, reportingPeriod, reportYear } = getCurrentFiscalYear();
+  const editEnabled = process.env.NODE_ENV !== 'production' && searchParams?.edit === '1'
 
   // Fetch real-time data
   const [
     statsData,
     servicesData,
     projectsData,
-    featuredStories,
+    thisYearStories,
+    fallbackFeaturedStories,
     leadershipData,
-    heroImage
+    heroImage,
+    communityGallery,
+    mapImage,
+    boardGallery,
   ] = await Promise.all([
     fetchCurrentYearStats(supabase),
     fetchAllServices(supabase),
-    fetchInnovationProjects(supabase),
-    getFeaturedStories(6),
+    fetchInnovationProjects(supabase, reportYear),
+    fetchThisYearStories(supabase, reportYear, 6),
+    getFeaturedStories(8),
     fetchLeadership(supabase),
-    getHeroImage('annual-report')
+    getHeroImage('annual-report'),
+    fetchCommunityGallery(supabase, currentFiscalYear, 18),
+    fetchAnnualReportMapImage(supabase),
+    fetchBoardGallery(supabase, currentFiscalYear, 12),
   ]);
 
-  const currentFiscalYear = '2024-25';
-  const reportingPeriod = 'July 1, 2024 - June 30, 2025';
+  const stories = mergeUniqueById(thisYearStories, fallbackFeaturedStories, 6);
+  const storyIds = stories.map((s: any) => s.id).filter(Boolean);
+  const storyImagesById = await fetchStoryImagesById(supabase, storyIds);
 
   return (
     <div className="min-h-screen bg-white">
+      <LiveReportEditor
+        enabled={editEnabled}
+        reportYear={reportYear}
+        fiscalYear={currentFiscalYear}
+        heroImage={heroImage}
+        mapImage={mapImage}
+        boardImages={(boardGallery || []).map((m: any) => ({ id: m.id, public_url: m.public_url }))}
+      />
       {/* Hero Section with Live Badge */}
       <section
         className="relative h-[60vh] min-h-[500px] flex items-center justify-center overflow-hidden"
@@ -65,14 +95,20 @@ export default async function LiveAnnualReportPage() {
 
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-4 justify-center">
-            <button className="px-8 py-4 bg-white text-gray-900 rounded-full font-semibold text-lg hover:bg-gray-100 transition-all shadow-2xl inline-flex items-center gap-2">
+            <Link
+              href={`/annual-report/${reportYear}`}
+              className="px-8 py-4 bg-white text-gray-900 rounded-full font-semibold text-lg hover:bg-gray-100 transition-all shadow-2xl inline-flex items-center gap-2"
+            >
               <Download className="w-5 h-5" />
               Download PDF
-            </button>
-            <button className="px-8 py-4 border-2 border-white text-white rounded-full font-semibold text-lg hover:bg-white hover:text-gray-900 transition-all inline-flex items-center gap-2">
+            </Link>
+            <Link
+              href="/picc/report-generator"
+              className="px-8 py-4 border-2 border-white text-white rounded-full font-semibold text-lg hover:bg-white hover:text-gray-900 transition-all inline-flex items-center gap-2"
+            >
               <Sparkles className="w-5 h-5" />
               Generate Full Report
-            </button>
+            </Link>
             <Link
               href="/annual-reports"
               className="px-8 py-4 border-2 border-white text-white rounded-full font-semibold text-lg hover:bg-white hover:text-gray-900 transition-all inline-flex items-center gap-2"
@@ -160,7 +196,7 @@ export default async function LiveAnnualReportPage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {servicesData.map((service, idx) => (
+            {servicesData.map((service: any, idx: number) => (
               <ServiceCard key={service.id} service={service} index={idx} />
             ))}
           </div>
@@ -168,7 +204,7 @@ export default async function LiveAnnualReportPage() {
       </section>
 
       {/* Innovation Projects */}
-      <section className="py-20 bg-gradient-to-br from-indigo-50 to-purple-50">
+      <section id="projects" className="py-20 bg-gradient-to-br from-indigo-50 to-purple-50">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 rounded-full mb-4">
@@ -176,17 +212,27 @@ export default async function LiveAnnualReportPage() {
               <span className="text-sm font-semibold text-purple-600 uppercase tracking-wide">Innovation</span>
             </div>
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Transformative Projects
+              Innovation Projects ({currentFiscalYear})
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Leading-edge initiatives driving positive change
+              Real initiatives from the PICC backend: Photo Studio, Elders Trips, Storm Stories and more.
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
-            {projectsData.map((project) => (
+            {projectsData.map((project: any) => (
               <ProjectCard key={project.id} project={project} />
             ))}
+          </div>
+
+          <div className="text-center mt-12">
+            <Link
+              href="/picc/projects"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-purple-600 text-white rounded-full font-semibold text-lg hover:bg-purple-700 transition-all"
+            >
+              View all projects
+              <ExternalLink className="w-5 h-5" />
+            </Link>
           </div>
         </div>
       </section>
@@ -204,8 +250,12 @@ export default async function LiveAnnualReportPage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredStories.slice(0, 6).map((story: any) => (
-              <StoryCard key={story.id} story={story} />
+            {stories.slice(0, 6).map((story: any) => (
+              <StoryCard
+                key={story.id}
+                story={story}
+                storyImage={storyImagesById[story.id]}
+              />
             ))}
           </div>
 
@@ -218,6 +268,64 @@ export default async function LiveAnnualReportPage() {
               <ExternalLink className="w-5 h-5" />
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* Community Photo Gallery (rotates every load) */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-full mb-4">
+              <Camera className="w-5 h-5" />
+              <span className="text-sm font-semibold uppercase tracking-wide">Community Photos</span>
+            </div>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Moments from {currentFiscalYear}
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Pulled from the Media Library using tags (service, project, FY) and refreshed on every visit.
+            </p>
+          </div>
+
+          {communityGallery.length > 0 ? (
+            <PhotoGallery photos={communityGallery} layout="featured" columns={4} />
+          ) : (
+            <div className="text-center py-12 bg-white rounded-2xl border border-gray-200">
+              <p className="text-gray-700 font-medium">No gallery images found yet.</p>
+              <p className="text-gray-500 mt-1">
+                Tag photos with <code className="bg-gray-100 px-1 rounded">annual-report</code> and <code className="bg-gray-100 px-1 rounded">fy:{currentFiscalYear}</code>
+                in the Media Library.
+              </p>
+              <div className="mt-4">
+                <Link href="/picc/media/gallery" className="text-blue-600 hover:text-blue-700 font-medium">
+                  Open Media Gallery →
+                </Link>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Service Map */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 rounded-full mb-4">
+              <MapPin className="w-5 h-5 text-blue-700" />
+              <span className="text-sm font-semibold text-blue-700 uppercase tracking-wide">Explore</span>
+            </div>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Service Map
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Click a service pin to see photos tagged to that service.
+            </p>
+          </div>
+
+          <ServicePinMap
+            services={servicesData}
+            backgroundImage={mapImage || undefined}
+          />
         </div>
       </section>
 
@@ -238,8 +346,14 @@ export default async function LiveAnnualReportPage() {
             <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center">
               Board of Directors
             </h3>
+
+            {boardGallery.length > 0 && (
+              <div className="mb-10">
+                <PhotoGallery photos={boardGallery} layout="grid" columns={4} />
+              </div>
+            )}
             <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-8">
-              {leadershipData.board.map((member) => (
+              {leadershipData.board.map((member: any) => (
                 <LeaderCard key={member.id} member={member} />
               ))}
             </div>
@@ -251,7 +365,7 @@ export default async function LiveAnnualReportPage() {
               Executive Leadership Team
             </h3>
             <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-8">
-              {leadershipData.executive.map((member) => (
+              {leadershipData.executive.map((member: any) => (
                 <LeaderCard key={member.id} member={member} />
               ))}
             </div>
@@ -409,6 +523,7 @@ function StatCard({ icon: Icon, value, label, change }: any) {
 }
 
 function ServiceCard({ service, index }: any) {
+  const icon = getServiceIcon(service);
   return (
     <div
       className="bg-white border-2 border-gray-100 rounded-2xl p-6 hover:border-purple-300 hover:shadow-xl transition-all"
@@ -419,7 +534,7 @@ function ServiceCard({ service, index }: any) {
         style={{ backgroundColor: service.service_color || '#6366f1' }}
       >
         <span className="text-2xl">
-          {service.icon || '🏢'}
+          {icon}
         </span>
       </div>
       <h3 className="text-xl font-bold text-gray-900 mb-2">{service.name}</h3>
@@ -439,36 +554,75 @@ function ServiceCard({ service, index }: any) {
 function ProjectCard({ project }: any) {
   return (
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all">
+      {project.hero_image_url && (
+        <div className="relative h-48 bg-gray-100 overflow-hidden">
+          <img
+            src={project.hero_image_url}
+            alt={project.name || project.title}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
       <div className="p-8">
         <div className="flex items-start justify-between mb-4">
           <Target className="w-10 h-10 text-purple-600" />
           <span className="px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-sm font-semibold">
-            {project.status || 'Active'}
+            {project.status || 'in_progress'}
           </span>
         </div>
-        <h3 className="text-2xl font-bold text-gray-900 mb-3">{project.title}</h3>
-        <p className="text-gray-600 mb-4 line-clamp-3">{project.description}</p>
+        <h3 className="text-2xl font-bold text-gray-900 mb-3">{project.name || project.title}</h3>
+        <p className="text-gray-600 mb-4 line-clamp-3">{project.tagline || project.description}</p>
         <div className="flex items-center gap-4 text-sm text-gray-500">
-          <span>Budget: ${project.budget?.toLocaleString() || 'TBD'}</span>
+          <span>Budget: {project.budget_total ? `$${Number(project.budget_total).toLocaleString()}` : 'TBD'}</span>
           <span>•</span>
-          <span>{project.timeline || '2024-25'}</span>
+          <span>{project.project_type || 'innovation'}</span>
         </div>
+        {project.slug && (
+          <div className="mt-6">
+            <Link
+              href={`/picc/projects/${project.slug}`}
+              className="inline-flex items-center gap-2 text-purple-700 hover:text-purple-900 font-semibold"
+            >
+              View project
+              <ExternalLink className="w-4 h-4" />
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-function StoryCard({ story }: any) {
+function StoryCard({ story, storyImage }: any) {
   const storytellerName = story.storyteller?.preferred_name || story.storyteller?.full_name || 'Community Member';
+  const storytellerImage = story.storyteller?.profile_image_url || null;
+  const excerpt = String(story.content || '').trim().slice(0, 180);
 
   return (
     <Link href={`/stories/${story.id}`} className="group block">
       <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:border-purple-300 hover:shadow-xl transition-all">
+        {storyImage && (
+          <div className="relative h-44 bg-gray-100 overflow-hidden">
+            <img
+              src={storyImage}
+              alt={story.title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+          </div>
+        )}
         <div className="p-6">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-indigo-400 flex items-center justify-center text-white font-bold">
-              {storytellerName.charAt(0)}
-            </div>
+            {storytellerImage ? (
+              <img
+                src={storytellerImage}
+                alt={storytellerName}
+                className="w-10 h-10 rounded-full object-cover border border-gray-200"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-indigo-400 flex items-center justify-center text-white font-bold">
+                {storytellerName.charAt(0)}
+              </div>
+            )}
             <div>
               <div className="font-semibold text-gray-900">{storytellerName}</div>
               <div className="text-sm text-gray-500">
@@ -479,7 +633,9 @@ function StoryCard({ story }: any) {
           <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-purple-600 transition-colors">
             {story.title}
           </h3>
-          <p className="text-gray-600 text-sm line-clamp-3">{story.summary}</p>
+          <p className="text-gray-600 text-sm line-clamp-3">
+            {excerpt ? `${excerpt}${String(story.content || '').length > excerpt.length ? '…' : ''}` : 'Read the full story →'}
+          </p>
         </div>
       </div>
     </Link>
@@ -546,8 +702,8 @@ async function fetchCurrentYearStats(supabase: any) {
 
 async function fetchAllServices(supabase: any) {
   const { data: services } = await supabase
-    .from('services')
-    .select('*')
+    .from('organization_services')
+    .select('id, name, slug, description, service_category, icon_name, service_color, metadata')
     .eq('is_active', true)
     .order('name');
 
@@ -571,14 +727,33 @@ async function fetchAllServices(supabase: any) {
   ];
 }
 
-async function fetchInnovationProjects(supabase: any) {
+function getServiceIcon(service: any) {
+  const category = String(service?.service_category || '').toLowerCase()
+  const iconName = String(service?.icon_name || '').toLowerCase()
+  if (iconName.includes('heart') || category.includes('health')) return '❤️'
+  if (iconName.includes('users') || category.includes('youth') || category.includes('family')) return '👥'
+  if (iconName.includes('star') || category.includes('culture')) return '⭐'
+  if (iconName.includes('home') || category.includes('housing')) return '🏠'
+  if (iconName.includes('shield') || category.includes('safety')) return '🛡️'
+  if (iconName.includes('briefcase') || category.includes('employment')) return '💼'
+  if (iconName.includes('graduation') || category.includes('education')) return '🎓'
+  return '🏢'
+}
+
+async function fetchInnovationProjects(supabase: any, reportYear: number) {
+  const { startDate } = getFiscalYearBounds(reportYear);
+
   const { data: projects } = await supabase
     .from('projects')
-    .select('*')
-    .eq('status', 'active')
-    .eq('is_innovation', true)
+    .select('id, name, slug, tagline, description, status, project_type, hero_image_url, budget_total, start_date, target_completion_date, created_at, featured')
+    .eq('is_public', true)
+    .in('project_type', ['innovation', 'infrastructure', 'cultural', 'research', 'other'])
+    .neq('status', 'archived')
+    // Prefer current FY projects, but keep featured items even if older.
+    .or(`created_at.gte.${startDate},featured.eq.true`)
+    .order('featured', { ascending: false })
     .order('created_at', { ascending: false })
-    .limit(4);
+    .limit(6);
 
   return projects || [
     {
@@ -614,6 +789,192 @@ async function fetchInnovationProjects(supabase: any) {
       timeline: '2024-28'
     },
   ];
+}
+
+async function fetchThisYearStories(supabase: any, reportYear: number, limit: number) {
+  const { startDate, endDate } = getFiscalYearBounds(reportYear)
+
+  const { data } = await supabase
+    .from('stories')
+    .select(
+      `
+      *,
+      storyteller:storyteller_id (
+        id,
+        full_name,
+        preferred_name,
+        is_elder,
+        is_cultural_advisor,
+        profile_image_url
+      )
+    `
+    )
+    .eq('is_public', true)
+    .eq('status', 'published')
+    .gte('created_at', startDate)
+    .lte('created_at', endDate)
+    .order('total_score', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(Math.max(1, limit))
+
+  return (data || []) as any[]
+}
+
+async function fetchBoardGallery(supabase: any, fiscalYear: string, limit: number) {
+  const { data } = await supabase
+    .from('media_files')
+    .select('id, public_url, title, caption, alt_text, tags, file_type, is_public, deleted_at, created_at')
+    .eq('is_public', true)
+    .is('deleted_at', null)
+    .eq('file_type', 'image')
+    .overlaps('tags', ['board', 'annual-report', `fy:${fiscalYear}`])
+    .order('is_featured', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(80)
+
+  const picked = sample((data || []) as any[], limit)
+  return picked.map((img) => ({
+    url: img.public_url,
+    caption: img.caption || img.title || img.alt_text || undefined,
+    category: 'Board',
+  }))
+}
+
+function mergeUniqueById(primary: any[], fallback: any[], limit: number) {
+  const out: any[] = []
+  const seen = new Set<string>()
+
+  for (const s of primary || []) {
+    if (!s?.id) continue
+    if (seen.has(s.id)) continue
+    seen.add(s.id)
+    out.push(s)
+    if (out.length >= limit) return out
+  }
+
+  for (const s of fallback || []) {
+    if (!s?.id) continue
+    if (seen.has(s.id)) continue
+    seen.add(s.id)
+    out.push(s)
+    if (out.length >= limit) return out
+  }
+
+  return out
+}
+
+async function fetchStoryImagesById(supabase: any, storyIds: string[]) {
+  const map: Record<string, string> = {}
+  if (!storyIds || storyIds.length === 0) return map
+
+  const { data } = await supabase
+    .from('media_files')
+    .select('story_id, public_url, is_featured, created_at, deleted_at, is_public, file_type')
+    .in('story_id', storyIds)
+    .eq('is_public', true)
+    .is('deleted_at', null)
+    .eq('file_type', 'image')
+    .order('is_featured', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(200)
+
+  for (const row of (data || []) as any[]) {
+    const sid = row.story_id as string | null
+    if (!sid) continue
+    if (!map[sid]) map[sid] = row.public_url
+  }
+
+  return map
+}
+
+async function fetchCommunityGallery(supabase: any, fiscalYear: string, limit: number) {
+  const primaryTags = ['annual-report', `fy:${fiscalYear}`]
+
+  const candidates = await fetchMediaCandidates(supabase, primaryTags, 180)
+  const fallbackCandidates =
+    candidates.length > 0
+      ? []
+      : await fetchMediaCandidates(supabase, ['community', 'event', 'culture', 'youth', 'health'], 180)
+
+  const pool = candidates.length > 0 ? candidates : fallbackCandidates
+  const picked = sample(pool, limit)
+
+  return picked.map((img) => ({
+    url: img.public_url,
+    caption: img.caption || img.title || img.alt_text || undefined,
+    category: pickNiceCategory(img.tags),
+  }))
+}
+
+async function fetchMediaCandidates(supabase: any, tags: string[], limit: number) {
+  const { data } = await supabase
+    .from('media_files')
+    .select('id, public_url, title, caption, alt_text, tags, file_type, is_public, deleted_at, created_at')
+    .eq('is_public', true)
+    .is('deleted_at', null)
+    .eq('file_type', 'image')
+    .overlaps('tags', tags)
+    .order('created_at', { ascending: false })
+    .limit(limit)
+
+  return (data || []) as any[]
+}
+
+function sample<T>(items: T[], count: number) {
+  const arr = items.slice()
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    const tmp = arr[i]
+    arr[i] = arr[j]
+    arr[j] = tmp
+  }
+  return arr.slice(0, Math.max(0, count))
+}
+
+function pickNiceCategory(tags: any) {
+  const list = Array.isArray(tags) ? tags : []
+  const ignore = (t: string) =>
+    t === 'annual-report' ||
+    t.startsWith('fy:') ||
+    t.startsWith('service:') ||
+    t.startsWith('project:')
+
+  const candidate = list.find((t: string) => typeof t === 'string' && !ignore(t))
+  return candidate || undefined
+}
+
+async function fetchAnnualReportMapImage(supabase: any) {
+  const { data } = await supabase
+    .from('media_files')
+    .select('public_url')
+    .eq('is_public', true)
+    .is('deleted_at', null)
+    .eq('page_context', 'annual-report')
+    .eq('page_section', 'map')
+    .eq('file_type', 'image')
+    .order('is_featured', { ascending: false })
+    .order('display_order', { ascending: true })
+    .limit(1)
+    .single()
+
+  return (data as any)?.public_url || null
+}
+
+function getFiscalYearBounds(reportYear: number) {
+  const startYear = reportYear - 1
+  const startDate = `${startYear}-07-01`
+  const endDate = `${reportYear}-06-30`
+  return { startDate, endDate }
+}
+
+function getCurrentFiscalYear() {
+  const now = new Date()
+  const startYear = now.getMonth() >= 6 ? now.getFullYear() : now.getFullYear() - 1
+  const endYear = startYear + 1
+  const currentFiscalYear = `${startYear}-${String(endYear).slice(-2)}`
+  const reportYear = endYear
+  const reportingPeriod = `July 1, ${startYear} - June 30, ${endYear}`
+  return { currentFiscalYear, reportingPeriod, reportYear }
 }
 
 async function fetchLeadership(supabase: any) {

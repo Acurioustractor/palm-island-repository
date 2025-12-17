@@ -2,6 +2,53 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { PICC_KNOWLEDGE_BASE, generateExecutiveSummary } from '@/lib/picc-knowledge-base'
 
+function toFiscalYearLabel(reportYear: number): string {
+  const start = reportYear - 1
+  return `${start}-${reportYear.toString().slice(-2)}`
+}
+
+function safeLower(value: unknown): string {
+  return String(value || '').toLowerCase()
+}
+
+function pickTopUnique<T>(
+  items: T[],
+  keyFn: (item: T) => string,
+  limit: number
+): T[] {
+  const seen = new Set<string>()
+  const out: T[] = []
+  for (const item of items) {
+    const key = keyFn(item)
+    if (seen.has(key)) continue
+    seen.add(key)
+    out.push(item)
+    if (out.length >= limit) break
+  }
+  return out
+}
+
+function uniqStrings(values: unknown) {
+  const out: string[] = []
+  if (!Array.isArray(values)) return out
+  for (const v of values) {
+    if (typeof v !== 'string') continue
+    const s = v.trim()
+    if (!s) continue
+    if (!out.includes(s)) out.push(s)
+  }
+  return out
+}
+
+function mergeTags(existing: unknown, add: string[]) {
+  const current = uniqStrings(existing)
+  const next = [...current]
+  for (const t of add) {
+    if (!next.includes(t)) next.push(t)
+  }
+  return next
+}
+
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -19,6 +66,11 @@ export async function POST(
 
   try {
     const { id } = params
+    const body = await request.json().catch(() => ({} as any))
+    const storyLimit = Math.max(6, Math.min(40, Number(body.storyLimit) || 18))
+    const includeQuotes = body.includeQuotes !== false
+    const includeMedia = body.includeMedia !== false
+    const publish = body.publish === true
 
     if (!id) {
       return NextResponse.json({ error: 'Report ID required' }, { status: 400 })
@@ -27,7 +79,7 @@ export async function POST(
     // Check if report exists
     const { data: report, error: reportError } = await supabase
       .from('annual_reports')
-      .select('id, title, reporting_period_start, reporting_period_end')
+      .select('id, title, report_year, reporting_period_start, reporting_period_end')
       .eq('id', id)
       .single()
 
@@ -40,17 +92,26 @@ export async function POST(
       return NextResponse.json({ error: 'Report not found' }, { status: 404 })
     }
 
+    const reportYear = Number(report.report_year)
+    const fiscalYear = toFiscalYearLabel(reportYear)
+    const periodStart = String(report.reporting_period_start)
+    const periodEnd = String(report.reporting_period_end)
+
     // Get published stories count
     const { count: totalStories } = await supabase
       .from('stories')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'published')
+      .gte('created_at', periodStart)
+      .lte('created_at', `${periodEnd}T23:59:59.999Z`)
 
     // Get unique storytellers
     const { data: storytellerData } = await supabase
       .from('stories')
       .select('storyteller_id')
       .eq('status', 'published')
+      .gte('created_at', periodStart)
+      .lte('created_at', `${periodEnd}T23:59:59.999Z`)
       .not('storyteller_id', 'is', null)
 
     const uniqueStorytellers = new Set(storytellerData?.map(s => s.storyteller_id) || []).size
@@ -60,6 +121,8 @@ export async function POST(
       .from('stories')
       .select('category')
       .eq('status', 'published')
+      .gte('created_at', periodStart)
+      .lte('created_at', `${periodEnd}T23:59:59.999Z`)
 
     const categoryMap: Record<string, number> = {}
     categoryCounts?.forEach((s: any) => {
@@ -74,6 +137,16 @@ export async function POST(
       total_stories: totalStories || 0,
       unique_storytellers: uniqueStorytellers,
       stories_by_category: categoryMap,
+
+      // Common report rollup fields (used by public report UI)
+      total_staff: kb.statistics.staff.total_2024,
+      staff_growth: parseInt(String(kb.statistics.staff.growth_rate || '').replace(/[^0-9]/g, ''), 10) || null,
+      local_employment_rate: parseInt(String(kb.statistics.staff.palm_island_residents_percentage || '').replace(/[^0-9]/g, ''), 10) || null,
+      total_revenue: kb.statistics.financial.income,
+      health_clients: kb.statistics.health_service.total_clients,
+      episodes_of_care: kb.statistics.health_service.episodes_of_care,
+      children_supported: kb.statistics.service_metrics.safe_haven_children_supported,
+      services_delivered: kb.statistics.service_metrics.total_services,
 
       // Staff statistics from knowledge base
       staff: kb.statistics.staff,
@@ -112,9 +185,13 @@ export async function POST(
         key_dates: kb.history.key_dates
       },
       cultural_context: kb.cultural_context,
+      fiscal_year: fiscalYear,
+      report_year: reportYear,
+      reporting_period_start: periodStart,
+      reporting_period_end: periodEnd,
       generated_at: new Date().toISOString(),
-      source: 'PICC Knowledge Base + 2023-24 Annual Report PDF',
-      populated_via: 'Comprehensive API'
+      source: 'Auto-generated from Living Ledger + media library',
+      populated_via: 'Annual Report Generator'
     }
 
     // Generate comprehensive year highlights
@@ -139,7 +216,7 @@ export async function POST(
         year_highlights,
         statistics,
         metadata,
-        status: 'published',
+        status: publish ? 'published' : 'drafting',
         updated_at: new Date().toISOString()
       })
       .eq('id', id)
@@ -155,28 +232,157 @@ export async function POST(
       .delete()
       .eq('report_id', id)
 
-    // Get top stories to link
-    const { data: storiesToLink, error: storiesError } = await supabase
+    // Get candidate stories for this reporting period
+    const { data: candidates, error: storiesError } = await supabase
       .from('stories')
       .select(`
         id,
         title,
+        content,
+        category,
         quality_score,
+        total_score,
+        views,
+        shares,
+        likes,
+        is_featured,
+        is_verified,
+        contains_traditional_knowledge,
+        elder_approval_given,
         created_at,
         auto_include,
         report_worthy,
-        storyteller_id
+        storyteller_id,
+        tags
       `)
       .eq('status', 'published')
+      .gte('created_at', periodStart)
+      .lte('created_at', `${periodEnd}T23:59:59.999Z`)
       .order('created_at', { ascending: false })
-      .limit(20)
+      .limit(250)
 
-    if (storiesToLink && storiesToLink.length > 0) {
-      const sortedStories = storiesToLink.sort((a: any, b: any) => {
-        return (b.quality_score || 0) - (a.quality_score || 0)
-      })
+    if (storiesError) {
+      console.error('Stories query error:', storiesError)
+    }
 
-      const storyLinks = sortedStories.map((story: any, index: number) => ({
+    const storyIds = (candidates || []).map((s: any) => s.id).filter(Boolean)
+    const mediaByStoryId = new Map<string, { count: number; heroUrl?: string }>()
+
+    if (includeMedia && storyIds.length > 0) {
+      const { data: storyMedia } = await supabase
+        .from('media_files')
+        .select('story_id, public_url, is_featured, usage_context, deleted_at, is_public, file_type')
+        .in('story_id', storyIds)
+        .eq('is_public', true)
+        .eq('file_type', 'image')
+        .is('deleted_at', null)
+
+      for (const row of storyMedia || []) {
+        const sid = row.story_id as string | null
+        if (!sid) continue
+        const current = mediaByStoryId.get(sid) || { count: 0 }
+        current.count += 1
+        const usage = safeLower((row as any).usage_context)
+        const isFeatured = (row as any).is_featured === true
+        if (!current.heroUrl && (isFeatured || usage === 'story_hero')) {
+          current.heroUrl = (row as any).public_url || undefined
+        }
+        mediaByStoryId.set(sid, current)
+      }
+    }
+
+    const keywordBoosts = [
+      'photo studio',
+      'elders',
+      'elder',
+      'storm',
+      'recovery',
+      'innovation',
+      'digital service centre',
+      'delegated authority',
+      'bwgcolman',
+      'leaders trip',
+      'trip',
+    ]
+
+    const scored = (candidates || []).map((story: any) => {
+      const titleLower = safeLower(story.title)
+      const contentLower = safeLower(story.content)
+      const tagsLower = Array.isArray(story.tags) ? story.tags.map((t: any) => safeLower(t)).join(' ') : ''
+
+      const media = mediaByStoryId.get(story.id) || { count: 0 }
+      const engagement = (Number(story.views) || 0) + (Number(story.shares) || 0) * 2 + (Number(story.likes) || 0)
+      const base = Number(story.total_score) || Number(story.quality_score) || 0
+
+      let score = base
+      if (story.auto_include) score += 1000
+      if (story.report_worthy) score += 350
+      if (story.is_featured) score += 120
+      if (story.is_verified) score += 60
+
+      // Encourage culturally safe content (avoid automatically elevating restricted knowledge)
+      if (story.contains_traditional_knowledge && !story.elder_approval_given) score -= 200
+
+      // Engagement + media richness
+      score += Math.min(250, engagement / 5)
+      score += Math.min(240, media.count * 30)
+      if (media.heroUrl) score += 40
+
+      // Boost key initiatives we want represented
+      for (const kw of keywordBoosts) {
+        if (titleLower.includes(kw) || tagsLower.includes(kw) || contentLower.includes(kw)) {
+          score += 120
+          break
+        }
+      }
+
+      return { story, score }
+    }).sort((a, b) => b.score - a.score)
+
+    // Ensure category diversity (don’t let one category dominate)
+    const preferredCategories = [
+      'innovation',
+      'economic_development',
+      'culture',
+      'youth',
+      'health',
+      'family',
+      'environment',
+      'justice',
+      'housing',
+      'community',
+    ]
+
+    const byCategory = new Map<string, Array<{ story: any; score: number }>>()
+    for (const item of scored) {
+      const cat = safeLower(item.story.category || 'general')
+      const list = byCategory.get(cat) || []
+      list.push(item)
+      byCategory.set(cat, list)
+    }
+
+    const picked: Array<{ story: any; score: number }> = []
+    for (const cat of preferredCategories) {
+      const list = byCategory.get(cat)
+      if (list && list.length > 0) picked.push(list[0])
+    }
+
+    const remaining = scored.filter(s => !picked.find(p => p.story.id === s.story.id))
+    const combined = pickTopUnique([...picked, ...remaining], (x) => x.story.id, storyLimit)
+
+    // Limit per category to keep variety
+    const selectedCategoryCounts: Record<string, number> = {}
+    const finalStories: any[] = []
+    for (const item of combined) {
+      const cat = safeLower(item.story.category || 'general')
+      selectedCategoryCounts[cat] = (selectedCategoryCounts[cat] || 0) + 1
+      if (selectedCategoryCounts[cat] > 3) continue
+      finalStories.push(item.story)
+      if (finalStories.length >= storyLimit) break
+    }
+
+    if (finalStories.length > 0) {
+      const storyLinks = finalStories.map((story: any, index: number) => ({
         report_id: id,
         story_id: story.id,
         display_order: index + 1,
@@ -192,6 +398,44 @@ export async function POST(
 
       if (linkError) {
         console.error('Link stories error:', linkError)
+      }
+    }
+
+    // Optionally auto-assign a few validated quotes to the report (if the table exists)
+    if (includeQuotes) {
+      try {
+        const { data: existingAssigned, error: assignedError } = await supabase
+          .from('extracted_quotes')
+          .select('id')
+          .eq('used_in_report_id', id)
+          .limit(1)
+
+        // If the table doesn't exist or isn't accessible, skip quietly.
+        if (assignedError) {
+          console.warn('Skipping quote assignment:', assignedError.message)
+        } else if (!existingAssigned || existingAssigned.length === 0) {
+          const { data: availableQuotes, error: availableError } = await supabase
+            .from('extracted_quotes')
+            .select('id')
+            .eq('is_validated', true)
+            .eq('suggested_for_report', true)
+            .is('used_in_report_id', null)
+            .order('created_at', { ascending: false })
+            .limit(6)
+
+          if (availableError) {
+            console.warn('Skipping quote assignment:', availableError.message)
+          } else if (availableQuotes && availableQuotes.length > 0) {
+            for (let i = 0; i < availableQuotes.length; i++) {
+              await supabase
+                .from('extracted_quotes')
+                .update({ used_in_report_id: id, display_order: i + 1 })
+                .eq('id', availableQuotes[i].id)
+            }
+          }
+        }
+      } catch (e: any) {
+        console.warn('Skipping quote assignment:', e?.message || String(e))
       }
     }
 
@@ -229,6 +473,22 @@ Chief Executive Officer`,
       },
       {
         report_id: id,
+        section_type: 'leadership_message',
+        section_title: 'Message from the Chair',
+        section_content: `As Chair of the Palm Island Community Company Board, I am proud to share this year’s report with our community.
+
+PICC exists to serve Palm Island — to deliver strong services, create meaningful local jobs, and keep decision-making in community hands. This year we have continued to strengthen governance, grow our workforce, and support families through some of the most important work on the island.
+
+I want to thank our Elders, our community members who share their stories, and the dedicated staff who show up every day with care and commitment. I also acknowledge our Board members for their steady leadership and accountability.
+
+Together, we will keep building a future where Palm Islanders lead, culture is protected, and our young people can thrive.
+
+— Luella Bligh
+Board Chair`,
+        display_order: 2
+      },
+      {
+        report_id: id,
         section_type: 'about_picc',
         section_title: 'About Palm Island Community Company',
         section_content: `**Who We Are**
@@ -244,7 +504,7 @@ Palm Island is home to the Bwgcolman people - meaning "many tribes" - representi
 
 **Our Board**
 ${kb.leadership.board_members.map(m => `- ${m.name} (${m.role})`).join('\n')}`,
-        display_order: 2
+        display_order: 3
       },
       {
         report_id: id,
@@ -265,7 +525,7 @@ ${kb.history.key_dates.map(d => `- ${d.year}: ${d.event}`).join('\n')}
 
 **Recognition**
 Palm Island was mentioned in the Bringing Them Home Report (1997) as an institution that housed children removed from their families, part of the Stolen Generations.`,
-        display_order: 3
+        display_order: 4
       },
       {
         report_id: id,
@@ -302,7 +562,7 @@ Palm Island was mentioned in the Bringing Them Home Report (1997) as an institut
 **Economic Development**
 - Social Enterprises (${kb.statistics.staff.social_enterprises_staff} staff)
 - Telstra Digital Service Centre (${kb.key_programs.digital_service_centre.languages_supported} languages, ${kb.key_programs.digital_service_centre.staff} staff)`,
-        display_order: 4
+        display_order: 5
       },
       {
         report_id: id,
@@ -320,7 +580,7 @@ The community now decides the care arrangements for children who cannot stay at 
 **Program Name: ${kb.key_programs.delegated_authority.name}**
 
 This is part of Queensland's broader "Reclaiming Our Storyline" blueprint, co-developed with QATSICPP and launched in April 2023, with $107.8 million committed over four years.`,
-        display_order: 5
+        display_order: 6
       },
       {
         report_id: id,
@@ -348,7 +608,7 @@ This is part of Queensland's broader "Reclaiming Our Storyline" blueprint, co-de
 **Accreditation**
 - RACGP Quality Practice Accreditation renewed 2024 (next 2027)
 - Human Services Quality Framework accredited (full audit 2025)`,
-        display_order: 6
+        display_order: 7
       },
       {
         report_id: id,
@@ -377,7 +637,7 @@ This is part of Queensland's broader "Reclaiming Our Storyline" blueprint, co-de
 **10-Year Growth**
 - Staff: 3x increase
 - Turnover: Quadrupled`,
-        display_order: 7
+        display_order: 8
       },
       {
         report_id: id,
@@ -406,7 +666,7 @@ This is part of Queensland's broader "Reclaiming Our Storyline" blueprint, co-de
 Through our Telstra Digital Service Centre partnership:
 - ${kb.key_programs.digital_service_centre.training_pathway}
 - Supporting ${kb.key_programs.digital_service_centre.languages_supported} languages`,
-        display_order: 8
+        display_order: 9
       },
       {
         report_id: id,
@@ -435,7 +695,7 @@ Through our Telstra Digital Service Centre partnership:
 - SNAICC Conference 2023 (Darwin)
   - "The Storyline of the Palm Island Children and Family Centre"
   - "Proud Bwgcolman Youth"`,
-        display_order: 9
+        display_order: 10
       },
       {
         report_id: id,
@@ -462,7 +722,7 @@ Maintaining our accreditations and expanding our health and family services to m
 Every service we provide, every program we run, and every advocacy effort we make is in service of our vision: Palm Islanders determining their own futures.
 
 ${kb.organization.tagline}`,
-        display_order: 10
+        display_order: 11
       },
       {
         report_id: id,
@@ -491,7 +751,7 @@ We remember all those who came before us, including the survivors of Hull River 
 *Palm Island Community Company*
 *ACN ${kb.organization.acn}*
 *${kb.organization.website}*`,
-        display_order: 11
+        display_order: 12
       }
     ]
 
@@ -501,6 +761,93 @@ We remember all those who came before us, including the survivors of Hull River 
 
     if (sectionsError) {
       console.error('Create sections error:', sectionsError)
+    }
+
+    // Auto-tag a curated set of media so the public report immediately has photos/video.
+    if (includeMedia && finalStories.length > 0) {
+      const reportTags = ['annual-report', `fy:${fiscalYear}`]
+      const selectedStoryIds = finalStories.map((s: any) => s.id).filter(Boolean)
+
+      try {
+        const { data: mediaRows } = await supabase
+          .from('media_files')
+          .select('id, story_id, public_url, file_type, usage_context, is_featured, tags, page_context, page_section, context_metadata, deleted_at, is_public')
+          .in('story_id', selectedStoryIds)
+          .eq('is_public', true)
+          .is('deleted_at', null)
+          .limit(250)
+
+        const rows = (mediaRows || []) as any[]
+        const images = rows.filter((r) => !r.file_type || r.file_type === 'image')
+        const videos = rows.filter((r) => r.file_type === 'video')
+
+        const usage = (r: any) => safeLower(r.usage_context)
+
+        const heroImage =
+          images.find((r) => r.is_featured === true || usage(r) === 'story_hero' || usage(r) === 'hero') || images[0]
+        const heroVideo = videos.find((r) => r.is_featured === true || usage(r) === 'hero') || videos[0]
+
+        const updates: any[] = []
+
+        // Tag a broader set of images for the report galleries.
+        const gallery = pickTopUnique(images, (r) => String(r.id), 40)
+        for (const r of gallery) {
+          updates.push({
+            id: r.id,
+            tags: mergeTags(r.tags, reportTags),
+            context_metadata: { ...(r.context_metadata || {}), report_year: reportYear, fiscal_year: fiscalYear },
+          })
+        }
+
+        // Set the featured hero image/video for the annual report context (used by /annual-report/live and can be reused).
+        if (heroImage?.id) {
+          // Clear existing featured hero image for this report year (best-effort).
+          await supabase
+            .from('media_files')
+            .update({ is_featured: false })
+            .eq('page_context', 'annual-report')
+            .eq('page_section', 'hero')
+            .eq('file_type', 'image')
+            .contains('context_metadata', { report_year: reportYear })
+
+          updates.push({
+            id: heroImage.id,
+            tags: mergeTags(heroImage.tags, reportTags),
+            page_context: 'annual-report',
+            page_section: 'hero',
+            file_type: 'image',
+            is_featured: true,
+            context_metadata: { ...(heroImage.context_metadata || {}), report_year: reportYear, fiscal_year: fiscalYear },
+          })
+        }
+
+        if (heroVideo?.id) {
+          await supabase
+            .from('media_files')
+            .update({ is_featured: false })
+            .eq('page_context', 'annual-report')
+            .eq('page_section', 'hero')
+            .eq('file_type', 'video')
+            .contains('context_metadata', { report_year: reportYear })
+
+          updates.push({
+            id: heroVideo.id,
+            tags: mergeTags(heroVideo.tags, reportTags),
+            page_context: 'annual-report',
+            page_section: 'hero',
+            file_type: 'video',
+            is_featured: true,
+            context_metadata: { ...(heroVideo.context_metadata || {}), report_year: reportYear, fiscal_year: fiscalYear },
+          })
+        }
+
+        if (updates.length > 0) {
+          const { error: upsertError } = await (supabase as any).from('media_files').upsert(updates, { onConflict: 'id' })
+          if (upsertError) console.warn('Auto-tag media failed:', upsertError.message)
+        }
+      } catch (e: any) {
+        console.warn('Auto-tag media skipped:', e?.message || e)
+      }
     }
 
     // Return success with comprehensive stats
@@ -515,7 +862,7 @@ We remember all those who came before us, including the survivors of Hull River 
           health_clients: kb.statistics.health_service.total_clients,
           services: kb.statistics.service_metrics.total_services
         },
-        stories_linked: storiesToLink?.length || 0,
+        stories_linked: finalStories.length,
         sections_created: sections.length
       }
     })

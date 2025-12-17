@@ -14,7 +14,7 @@ interface Project {
   title: string;
   description: string;
   category?: string;
-  status?: 'active' | 'completed' | 'upcoming';
+  status?: string;
   image?: string;
   video?: string;
   stats?: Array<{ label: string; value: string | number }>;
@@ -41,10 +41,19 @@ export function ProjectShowcase({
 }: ProjectShowcaseProps) {
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const statusColors = {
+  const statusColors: Record<string, { bg: string; text: string; label: string }> = {
     active: { bg: 'bg-green-100', text: 'text-green-700', label: 'Active' },
+    in_progress: { bg: 'bg-green-100', text: 'text-green-700', label: 'In Progress' },
     completed: { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Completed' },
     upcoming: { bg: 'bg-amber-100', text: 'text-amber-700', label: 'Coming Soon' },
+    planning: { bg: 'bg-purple-100', text: 'text-purple-700', label: 'Planning' },
+    on_hold: { bg: 'bg-gray-100', text: 'text-gray-700', label: 'On Hold' },
+    archived: { bg: 'bg-gray-100', text: 'text-gray-500', label: 'Archived' },
+  };
+
+  const getStatusStyle = (status: string | undefined) => {
+    if (!status) return null;
+    return statusColors[status] || { bg: 'bg-gray-100', text: 'text-gray-700', label: status };
   };
 
   if (variant === 'carousel') {
@@ -117,9 +126,9 @@ export function ProjectShowcase({
                     {activeProject.category}
                   </span>
                 )}
-                {activeProject.status && (
-                  <span className={`px-3 py-1 rounded-full text-sm ${statusColors[activeProject.status].bg} ${statusColors[activeProject.status].text}`}>
-                    {statusColors[activeProject.status].label}
+                {activeProject.status && getStatusStyle(activeProject.status) && (
+                  <span className={`px-3 py-1 rounded-full text-sm ${getStatusStyle(activeProject.status)!.bg} ${getStatusStyle(activeProject.status)!.text}`}>
+                    {getStatusStyle(activeProject.status)!.label}
                   </span>
                 )}
               </div>
@@ -196,10 +205,10 @@ export function ProjectShowcase({
                     )}
                   </div>
 
-                  {project.status && (
+                  {project.status && getStatusStyle(project.status) && (
                     <div className="absolute top-4 left-4">
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors[project.status].bg} ${statusColors[project.status].text}`}>
-                        {statusColors[project.status].label}
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusStyle(project.status)!.bg} ${getStatusStyle(project.status)!.text}`}>
+                        {getStatusStyle(project.status)!.label}
                       </span>
                     </div>
                   )}
@@ -284,9 +293,9 @@ export function ProjectShowcase({
                     {featured.category}
                   </span>
                 )}
-                {featured.status && (
-                  <span className={`px-3 py-1 rounded-full text-sm ${statusColors[featured.status].bg} ${statusColors[featured.status].text}`}>
-                    {statusColors[featured.status].label}
+                {featured.status && getStatusStyle(featured.status) && (
+                  <span className={`px-3 py-1 rounded-full text-sm ${getStatusStyle(featured.status)!.bg} ${getStatusStyle(featured.status)!.text}`}>
+                    {getStatusStyle(featured.status)!.label}
                   </span>
                 )}
               </div>
@@ -320,10 +329,10 @@ export function ProjectShowcase({
                     <Sparkles className="w-8 h-8 text-gray-300" />
                   </div>
                 )}
-                {project.status && (
+                {project.status && getStatusStyle(project.status) && (
                   <div className="absolute top-3 left-3">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[project.status].bg} ${statusColors[project.status].text}`}>
-                      {statusColors[project.status].label}
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusStyle(project.status)!.bg} ${getStatusStyle(project.status)!.text}`}>
+                      {getStatusStyle(project.status)!.label}
                     </span>
                   </div>
                 )}
@@ -368,10 +377,10 @@ export function ProjectShowcase({
                   <Sparkles className="w-10 h-10 text-gray-300" />
                 </div>
               )}
-              {project.status && (
+              {project.status && getStatusStyle(project.status) && (
                 <div className="absolute top-3 left-3">
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[project.status].bg} ${statusColors[project.status].text}`}>
-                    {statusColors[project.status].label}
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusStyle(project.status)!.bg} ${getStatusStyle(project.status)!.text}`}>
+                    {getStatusStyle(project.status)!.label}
                   </span>
                 </div>
               )}

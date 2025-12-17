@@ -20,20 +20,29 @@ export async function updateSession(request: NextRequest) {
         getAll() {
           return request.cookies.getAll()
         },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            request.cookies.set(name, value)
-          )
+        setAll(cookiesToSet: Array<{ name: string; value: string; options?: CookieOptions }>) {
+          // When Supabase refreshes tokens, we need the updated cookies to be visible
+          // to subsequent auth calls during this same middleware execution.
+          cookiesToSet.forEach(({ name, value }) => {
+            try {
+              request.cookies.set(name, value)
+            } catch {
+              // Some Next.js runtimes treat request cookies as immutable.
+              // It's still safe to continue as long as we set the response cookies.
+            }
+          })
+
           response = NextResponse.next({
             request: {
               headers: request.headers,
             },
           })
+
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options)
           )
         },
-      },
+      } as any,
     }
   )
 

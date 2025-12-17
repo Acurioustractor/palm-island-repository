@@ -76,7 +76,10 @@ export default function AnalyticsPage() {
         `)
         .eq('is_public', true);
 
-      const elderStories = allStoriesWithDetails?.filter(s => s.storyteller?.is_elder).length || 0;
+      const elderStories = allStoriesWithDetails?.filter((s: any) => {
+        const storyteller = Array.isArray(s.storyteller) ? s.storyteller[0] : s.storyteller;
+        return storyteller?.is_elder;
+      }).length || 0;
       const traditionalKnowledge = allStoriesWithDetails?.filter(s => s.traditional_knowledge).length || 0;
 
       // Service breakdown

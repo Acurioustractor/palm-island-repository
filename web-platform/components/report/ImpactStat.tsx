@@ -35,11 +35,20 @@ export function ImpactStat({
   duration = 2000,
   className = '',
 }: ImpactStatProps) {
-  const [displayValue, setDisplayValue] = useState(animateOnScroll ? 0 : value);
-  const [hasAnimated, setHasAnimated] = useState(!animateOnScroll);
+  const isPrint =
+    typeof window !== 'undefined' &&
+    (window.matchMedia?.('print')?.matches || new URLSearchParams(window.location.search).get('print') === '1');
+
+  const [displayValue, setDisplayValue] = useState(() => (isPrint ? value : animateOnScroll ? 0 : value));
+  const [hasAnimated, setHasAnimated] = useState(() => (isPrint ? true : !animateOnScroll));
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (isPrint) {
+      setDisplayValue(value);
+      setHasAnimated(true);
+      return;
+    }
     if (!animateOnScroll || hasAnimated) return;
 
     const observer = new IntersectionObserver(
@@ -59,7 +68,7 @@ export function ImpactStat({
     }
 
     return () => observer.disconnect();
-  }, [animateOnScroll, hasAnimated]);
+  }, [animateOnScroll, hasAnimated, isPrint, value]);
 
   const animateValue = () => {
     const startTime = performance.now();
@@ -91,22 +100,22 @@ export function ImpactStat({
 
   const sizeStyles = {
     sm: {
-      number: 'text-3xl sm:text-4xl',
-      label: 'text-sm',
-      icon: 'w-6 h-6',
-      padding: 'p-4',
+      number: 'text-3xl sm:text-4xl print:text-2xl',
+      label: 'text-sm print:text-xs',
+      icon: 'w-6 h-6 print:w-4 print:h-4',
+      padding: 'p-4 print:p-2',
     },
     md: {
-      number: 'text-4xl sm:text-5xl',
-      label: 'text-base',
-      icon: 'w-8 h-8',
-      padding: 'p-6',
+      number: 'text-4xl sm:text-5xl print:text-3xl',
+      label: 'text-base print:text-sm',
+      icon: 'w-8 h-8 print:w-5 print:h-5',
+      padding: 'p-6 print:p-3',
     },
     lg: {
-      number: 'text-5xl sm:text-6xl md:text-7xl',
-      label: 'text-lg',
-      icon: 'w-10 h-10',
-      padding: 'p-8',
+      number: 'text-5xl sm:text-6xl md:text-7xl print:text-4xl',
+      label: 'text-lg print:text-base',
+      icon: 'w-10 h-10 print:w-6 print:h-6',
+      padding: 'p-8 print:p-4',
     },
   };
 
@@ -157,21 +166,21 @@ export function ImpactStatsGrid({
   className = '',
 }: ImpactStatsGridProps) {
   const bgStyles = {
-    light: 'bg-gray-50',
-    dark: 'bg-gray-900',
-    gradient: 'bg-gradient-to-br from-[#1e3a5f] via-[#2d4a6f] to-[#2d6a4f]',
+    light: 'bg-gray-50 print:bg-gray-100',
+    dark: 'bg-gray-900 print:bg-gray-900',
+    gradient: 'bg-gradient-to-br from-[#1e3a5f] via-[#2d4a6f] to-[#2d6a4f] print:bg-[#1e3a5f]',
   };
 
   const columnStyles = {
-    2: 'grid-cols-2',
-    3: 'grid-cols-1 sm:grid-cols-3',
-    4: 'grid-cols-2 md:grid-cols-4',
+    2: 'grid-cols-2 print:grid-cols-2',
+    3: 'grid-cols-1 sm:grid-cols-3 print:grid-cols-3',
+    4: 'grid-cols-2 md:grid-cols-4 print:grid-cols-4',
   };
 
   return (
-    <section className={`py-16 sm:py-24 ${bgStyles[background]} ${className}`}>
-      <div className="max-w-6xl mx-auto px-6">
-        <div className={`grid ${columnStyles[columns]} gap-6 sm:gap-8`}>
+    <section className={`py-16 sm:py-24 print:py-8 print:break-inside-avoid ${bgStyles[background]} ${className}`}>
+      <div className="max-w-6xl mx-auto px-6 print:px-4 print:max-w-none">
+        <div className={`grid ${columnStyles[columns]} gap-6 sm:gap-8 print:gap-4`}>
           {children}
         </div>
       </div>
@@ -190,10 +199,10 @@ export function ImpactStatCard({
 }: ImpactStatCardProps) {
   return (
     <div
-      className={`rounded-2xl ${
+      className={`rounded-2xl print:rounded-lg print:break-inside-avoid ${
         glassmorphism
-          ? 'bg-white/10 backdrop-blur-sm border border-white/20'
-          : 'bg-white shadow-lg border border-gray-200'
+          ? 'bg-white/10 backdrop-blur-sm border border-white/20 print:bg-white/20 print:backdrop-blur-none'
+          : 'bg-white shadow-lg border border-gray-200 print:shadow-none'
       }`}
     >
       <ImpactStat {...props} />

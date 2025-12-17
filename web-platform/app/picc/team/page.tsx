@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@/lib/supabase/client';
 import { Users, Plus, Mail, Shield, Edit, Trash2, ArrowLeft, Crown, User } from 'lucide-react';
 import Link from 'next/link';
 
@@ -16,7 +16,7 @@ interface TeamMember {
 }
 
 export default function TeamPage() {
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [showInviteForm, setShowInviteForm] = useState(false);
   const [inviteData, setInviteData] = useState({

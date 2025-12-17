@@ -183,7 +183,7 @@ export default function BulkUploadPage() {
           <div className="grid grid-cols-5 gap-4 mb-6">
             <div className="bg-white rounded-lg border border-gray-200 p-4">
               <div className="text-2xl font-bold text-gray-900">{files.length}</div>
-              <div className="text-sm text-gray-600">Total Photos</div>
+              <div className="text-sm text-gray-600">Total Items</div>
             </div>
             <div className="bg-white rounded-lg border border-gray-200 p-4">
               <div className="text-2xl font-bold text-green-600">{successCount}</div>

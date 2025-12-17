@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  LayoutDashboard, BookOpen, Users, FileText, Mail, Image,
+  LayoutDashboard, BookOpen, Users, FileText, Mail, Image, Film,
   BarChart3, Settings, Menu, X, Home, Clock, Search,
   Mic, TrendingUp, Lightbulb, ChevronRight, ChevronDown,
   Plus, Edit, Archive, Eye, Upload, Download, Folder,
@@ -49,6 +49,7 @@ export function PICCNavigation() {
       title: 'Story Management',
       icon: BookOpen,
       items: [
+        { label: 'Story Library', href: '/picc/stories', icon: BookOpen, description: 'All stories with bulk actions' },
         { label: 'Create New', href: '/picc/create', icon: Plus, description: 'Add new story' },
         { label: 'Pending Review', href: '/picc/submissions', icon: Clock, description: 'Review submissions', badge: '0' },
         { label: 'Published', href: '/picc/published', icon: Eye, description: 'View published stories' },
@@ -71,12 +72,11 @@ export function PICCNavigation() {
       icon: Image,
       items: [
         { label: 'All Media', href: '/picc/media', icon: Folder, description: 'Browse all media' },
-        { label: 'Photo Gallery', href: '/picc/media/gallery', icon: Image, description: 'Browse photos' },
+        { label: 'Gallery', href: '/picc/media/gallery', icon: Image, description: 'Browse media' },
+        { label: 'Video Links', href: '/picc/media/external-videos', icon: Film, description: 'YouTube/Vimeo/Descript links' },
         { label: 'Collections', href: '/picc/media/collections', icon: Folder, description: 'Photo collections' },
         { label: 'Smart Folders', href: '/picc/media/smart-folders', icon: Target, description: 'Auto-organized photos' },
         { label: 'Images', href: '/picc/media/images', icon: Image, description: 'Story images' },
-        { label: 'Videos', href: '/picc/media/videos', icon: FileText, description: 'Video content' },
-        { label: 'Audio', href: '/picc/media/audio', icon: Mic, description: 'Voice recordings' },
         { label: 'Upload', href: '/picc/media/upload', icon: Upload, description: 'Upload new media' },
         { label: 'Bulk Upload', href: '/picc/media/upload-bulk', icon: Upload, description: 'Bulk import photos' },
       ],

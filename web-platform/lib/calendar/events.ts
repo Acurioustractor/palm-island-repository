@@ -4,7 +4,7 @@
  * Track community events, cultural dates, and milestones.
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createServerComponentClient } from '@/lib/supabase/server'
 
 export interface CulturalEvent {
   id: string
@@ -140,9 +140,9 @@ export async function getEvents(options: {
     limit = 50
   } = options
 
-  const supabase = await createClient()
+  const supabase = await createServerComponentClient()
 
-  let query = supabase
+  let query = (supabase as any)
     .from('cultural_events')
     .select('*')
     .gte('date', startDate)
@@ -224,9 +224,9 @@ export async function getEventsForMonth(
 export async function createEvent(
   event: Omit<CulturalEvent, 'id' | 'createdAt' | 'updatedAt'>
 ): Promise<CulturalEvent | null> {
-  const supabase = await createClient()
+  const supabase = await createServerComponentClient()
 
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('cultural_events')
     .insert({
       ...event,
@@ -251,9 +251,9 @@ export async function updateEvent(
   id: string,
   updates: Partial<CulturalEvent>
 ): Promise<CulturalEvent | null> {
-  const supabase = await createClient()
+  const supabase = await createServerComponentClient()
 
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('cultural_events')
     .update({
       ...updates,
@@ -275,9 +275,9 @@ export async function updateEvent(
  * Delete an event
  */
 export async function deleteEvent(id: string): Promise<boolean> {
-  const supabase = await createClient()
+  const supabase = await createServerComponentClient()
 
-  const { error } = await supabase
+  const { error } = await (supabase as any)
     .from('cultural_events')
     .delete()
     .eq('id', id)
@@ -294,9 +294,9 @@ export async function deleteEvent(id: string): Promise<boolean> {
  * Get events related to a story
  */
 export async function getEventsForStory(storyId: string): Promise<CulturalEvent[]> {
-  const supabase = await createClient()
+  const supabase = await createServerComponentClient()
 
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('cultural_events')
     .select('*')
     .contains('related_story_ids', [storyId])
@@ -307,7 +307,7 @@ export async function getEventsForStory(storyId: string): Promise<CulturalEvent[
     return []
   }
 
-  return (data || []) as CulturalEvent[]
+  return (data || []) as unknown as CulturalEvent[]
 }
 
 /**

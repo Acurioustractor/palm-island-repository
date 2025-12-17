@@ -1,5 +1,7 @@
 'use client'
 
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/components/providers/AuthProvider'
@@ -8,6 +10,24 @@ import { Loader2, Lock, Check, Eye, EyeOff, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 
 function ResetPasswordContent() {
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    )
+  }
+
+  return <ResetPasswordForm />
+}
+
+function ResetPasswordForm() {
   const router = useRouter()
   const { updatePassword } = useAuth()
   const supabase = createClient()

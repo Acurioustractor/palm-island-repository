@@ -14,15 +14,35 @@ function getServerClient() {
   });
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const supabase = getServerClient();
+    const { searchParams } = new URL(request.url)
+    const idsRaw = (searchParams.get('ids') || '').trim()
+    const q = (searchParams.get('q') || '').trim()
+    const limit = Math.max(1, Math.min(2000, parseInt(searchParams.get('limit') || '200', 10)))
 
-    const { data, error } = await supabase
+    let query = supabase
       .from('profiles')
-      .select('id, full_name, preferred_name, profile_image_url, bio, storyteller_type, is_elder, location, stories_contributed, interviews_completed, created_at')
+      .select('id, full_name, preferred_name, profile_image_url, bio, storyteller_type, is_elder, is_cultural_advisor, location, stories_contributed, interviews_completed, created_at')
       .order('created_at', { ascending: false })
-      .limit(200);
+      .limit(limit);
+
+    if (idsRaw) {
+      const ids = idsRaw
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .slice(0, 500);
+      query = query.in('id', ids);
+    }
+
+    if (q) {
+      const like = `%${q.replace(/%/g, '\\%')}%`;
+      query = query.or(`full_name.ilike.${like},preferred_name.ilike.${like}`);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       console.error('Database error:', error);

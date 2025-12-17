@@ -13,7 +13,12 @@ export { Section, SectionHeader, Divider, FullWidthSection } from './Section';
 // New multimedia components
 export { VideoEmbed, FeaturedVideo, VideoGrid } from './VideoEmbed';
 export { PhotoGallery, HeroGallery } from './PhotoGallery';
+export { ServicePinMap } from './ServicePinMap';
 export { ServiceShowcase, ServiceImpact, ServiceListCompact } from './ServiceShowcase';
 export { Timeline, YearInReview, MilestoneCounter } from './Timeline';
 export { ProjectShowcase, ProjectStatsSummary } from './ProjectShowcase';
 export { PersonQuoteCard, PersonQuoteGrid } from './PersonQuoteCard';
+
+// Dynamic section renderer for WYSIWYG editor
+export { default as DynamicSectionRenderer } from './DynamicSectionRenderer';
+export type { ReportSectionData, SectionContext } from './DynamicSectionRenderer';

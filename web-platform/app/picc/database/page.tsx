@@ -1,5 +1,8 @@
+export const dynamic = 'force-dynamic';
+
 import { createServerSupabase } from '@/lib/supabase/client';
 import Link from 'next/link';
+import { CopyToClipboardButton } from '@/components/ui/CopyToClipboardButton';
 import {
   Database, FileText, Users, Image as ImageIcon, Folder,
   TrendingUp, AlertCircle, CheckCircle, BookOpen, Lightbulb,
@@ -234,11 +237,11 @@ LIMIT 10;`,
           </Link>
         </div>
         <div className="grid lg:grid-cols-2 gap-6">
-          {sqlExamples.map((example, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-xl shadow-md border border-gray-200 p-6"
-            >
+	          {sqlExamples.map((example, index) => (
+	            <div
+	              key={index}
+	              className="bg-white rounded-xl shadow-md border border-gray-200 p-6"
+	            >
               <div className="flex items-start gap-3 mb-4">
                 <div className="p-2 bg-blue-100 rounded-lg">
                   <Code className="w-5 h-5 text-blue-600" />
@@ -248,21 +251,23 @@ LIMIT 10;`,
                   <p className="text-sm text-gray-600">{example.description}</p>
                 </div>
               </div>
-              <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto">
-                <pre className="text-xs text-green-400 font-mono">
-                  <code>{example.sql}</code>
-                </pre>
-              </div>
-              <button
-                onClick={() => navigator.clipboard.writeText(example.sql)}
-                className="mt-3 text-sm text-blue-600 hover:text-blue-700 font-medium"
-              >
-                Copy SQL
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
+	              <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto">
+	                <pre className="text-xs text-green-400 font-mono">
+	                  <code>{example.sql}</code>
+	                </pre>
+	              </div>
+	              <CopyToClipboardButton
+	                text={example.sql}
+	                className="mt-3 text-sm text-blue-600 hover:text-blue-700 font-medium"
+	                copyLabel="Copy SQL"
+	                copiedLabel="Copied"
+	              >
+	                Copy SQL
+	              </CopyToClipboardButton>
+	            </div>
+	          ))}
+	        </div>
+	      </div>
 
       {/* Database Documentation */}
       <div className="grid lg:grid-cols-2 gap-8 mb-8">

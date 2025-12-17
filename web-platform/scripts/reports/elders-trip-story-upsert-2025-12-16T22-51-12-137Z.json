@@ -1,0 +1,46 @@
+{
+  "startedAt": "2025-12-16T22:51:12.137Z",
+  "dryRun": false,
+  "existingStoryId": null,
+  "storytellerId": "b0000000-0000-0000-0000-000000000004",
+  "featuredPeopleCount": 8,
+  "payloadPreview": {
+    "storyteller_id": "b0000000-0000-0000-0000-000000000004",
+    "title": "The Elders Trip",
+    "summary": "A journey of connection and remembrance — Elders travelled together to return to places of deep significance, share stories, and strengthen pathways for the next generation.",
+    "content": "This page brings together a growing record of the Elders Trip: a shared journey from Palm Island to the Mission Beach / Hull River region.\n\nIt is about connection — returning to place, sharing memory, and carrying forward what Elders want young people to know.\n\nOver time, this story will expand with more photos, interviews, and reviewed quotes from Elders who took part.\n\nIf you were part of the trip and want to add details or correct anything, please let PICC know so we can keep this record accurate and respectful.",
+    "category": "culture",
+    "story_type": "elder_wisdom",
+    "access_level": "public",
+    "status": "published",
+    "is_public": true,
+    "is_featured": true,
+    "tags": [
+      "elders-trip",
+      "elders",
+      "community",
+      "culture"
+    ],
+    "location": "Palm Island / Mission Beach (Hull River region)",
+    "contains_traditional_knowledge": false,
+    "cultural_sensitivity_level": "low",
+    "featured_people": [
+      "b0000000-0000-0000-0000-000000000004",
+      "a177c7bf-d20f-43e3-b78c-533ea8f40ce9",
+      "5ce8bc61-440f-4bc8-8994-bcd86f86ad8c",
+      "94974979-c361-41d4-9126-1af6f2af3a3b",
+      "f8d71ab6-57e5-4a86-9e93-d5cb873b48ae",
+      "e6539fee-7eea-4715-8d46-f89509a2e9e6",
+      "085079c1-330d-485e-849e-feafc4615efe",
+      "6adfc3e5-09c7-4335-90e4-4e6d669c40a5"
+    ],
+    "metadata": {
+      "generated_by": "create-elders-trip-story.js",
+      "generated_at": "2025-12-16T22:51:12.137Z"
+    }
+  },
+  "result": {
+    "id": "6cb23cd9-c060-452a-be40-910dea4333aa"
+  },
+  "error": null
+}

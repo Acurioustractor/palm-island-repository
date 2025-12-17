@@ -31,7 +31,10 @@ interface FeaturedStory {
   storyteller?: {
     full_name: string;
     preferred_name?: string;
-  };
+  } | {
+    full_name: string;
+    preferred_name?: string;
+  }[];
 }
 
 export default function WikiIndexPage() {
@@ -103,7 +106,7 @@ export default function WikiIndexPage() {
       .limit(3);
 
     if (data) {
-      setFeaturedStories(data as FeaturedStory[]);
+      setFeaturedStories(data as unknown as FeaturedStory[]);
     }
   }
 
@@ -422,11 +425,14 @@ export default function WikiIndexPage() {
                     {story.summary && (
                       <p className="text-sm text-gray-600 line-clamp-2 mb-3">{story.summary}</p>
                     )}
-                    {story.storyteller && (
-                      <p className="text-xs text-gray-500">
-                        By {story.storyteller.preferred_name || story.storyteller.full_name}
-                      </p>
-                    )}
+                    {story.storyteller && (() => {
+                      const teller = Array.isArray(story.storyteller) ? story.storyteller[0] : story.storyteller;
+                      return teller ? (
+                        <p className="text-xs text-gray-500">
+                          By {teller.preferred_name || teller.full_name}
+                        </p>
+                      ) : null;
+                    })()}
                   </Link>
                 ))
               ) : (

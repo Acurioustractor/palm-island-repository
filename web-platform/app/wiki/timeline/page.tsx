@@ -14,10 +14,14 @@ interface Story {
   story_date?: string;
   story_category?: string;
   location?: string;
+  is_public?: boolean;
   storyteller?: {
     full_name: string;
     preferred_name?: string;
-  };
+  } | {
+    full_name: string;
+    preferred_name?: string;
+  }[];
 }
 
 interface TimelineGroup {
@@ -63,7 +67,7 @@ export default function TimelinePage() {
         return;
       }
 
-      setStories(data || []);
+      setStories((data || []) as unknown as Story[]);
       setLoading(false);
     }
 
@@ -253,11 +257,14 @@ export default function TimelinePage() {
                                 {story.story_category.replace(/_/g, ' ')}
                               </span>
                             )}
-                            {story.storyteller && (
-                              <span>
-                                by {story.storyteller.preferred_name || story.storyteller.full_name}
-                              </span>
-                            )}
+                            {story.storyteller && (() => {
+                              const teller = Array.isArray(story.storyteller) ? story.storyteller[0] : story.storyteller;
+                              return teller ? (
+                                <span>
+                                  by {teller.preferred_name || teller.full_name}
+                                </span>
+                              ) : null;
+                            })()}
                           </div>
                         </div>
                       </div>

@@ -14,11 +14,16 @@ interface HistoricalStory {
   created_at: string;
   location?: string;
   story_category?: string;
+  is_public?: boolean;
   storyteller?: {
     full_name: string;
     preferred_name?: string;
     is_elder?: boolean;
-  };
+  } | {
+    full_name: string;
+    preferred_name?: string;
+    is_elder?: boolean;
+  }[];
 }
 
 export default function HistoryPage() {
@@ -53,7 +58,7 @@ export default function HistoryPage() {
       if (error) {
         console.error('Error fetching history:', error);
       } else {
-        setStories(data || []);
+        setStories((data || []) as unknown as HistoricalStory[]);
       }
 
       setLoading(false);
@@ -62,7 +67,10 @@ export default function HistoryPage() {
     fetchHistoricalContent();
   }, []);
 
-  const elderStories = stories.filter(s => s.storyteller?.is_elder);
+  const elderStories = stories.filter(s => {
+    const storyteller = Array.isArray(s.storyteller) ? s.storyteller[0] : s.storyteller;
+    return storyteller?.is_elder;
+  });
   const oldestStory = stories.length > 0 ? stories[0] : null;
 
   const breadcrumbs = [
@@ -214,9 +222,10 @@ export default function HistoryPage() {
                       </p>
                     )}
                     <div className="text-xs text-gray-500">
-                      {story.storyteller && (
-                        <span>by {story.storyteller.preferred_name || story.storyteller.full_name}</span>
-                      )}
+                      {story.storyteller && (() => {
+                        const teller = Array.isArray(story.storyteller) ? story.storyteller[0] : story.storyteller;
+                        return teller ? <span>by {teller.preferred_name || teller.full_name}</span> : null;
+                      })()}
                     </div>
                   </div>
                 </div>
@@ -261,11 +270,14 @@ export default function HistoryPage() {
                             {story.location}
                           </span>
                         )}
-                        {story.storyteller?.is_elder && (
-                          <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded border border-blue-200">
-                            Elder Story
-                          </span>
-                        )}
+                        {(() => {
+                          const teller = Array.isArray(story.storyteller) ? story.storyteller[0] : story.storyteller;
+                          return teller?.is_elder ? (
+                            <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded border border-blue-200">
+                              Elder Story
+                            </span>
+                          ) : null;
+                        })()}
                       </div>
                     </div>
                   </div>

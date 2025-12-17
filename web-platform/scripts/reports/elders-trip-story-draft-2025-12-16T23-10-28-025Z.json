@@ -1,0 +1,151 @@
+{
+  "startedAt": "2025-12-16T23:10:28.025Z",
+  "storyId": "6cb23cd9-c060-452a-be40-910dea4333aa",
+  "dryRun": false,
+  "elders": 8,
+  "tripInterviews": [
+    {
+      "id": "57f32f3a-d5ca-41e3-9167-ab71aaac889d",
+      "title": "Elders trip - Interview #1",
+      "storyteller_id": "085079c1-330d-485e-849e-feafc4615efe"
+    },
+    {
+      "id": "4e10d089-6cfc-47f7-8cdb-e18d9174e9ab",
+      "title": "Lucinda Interview - Elders Trip",
+      "storyteller_id": "a177c7bf-d20f-43e3-b78c-533ea8f40ce9"
+    },
+    {
+      "id": "367695fd-426a-435d-9278-9461b9dbdf40",
+      "title": "Lucinda Interview - Pre trip",
+      "storyteller_id": "6adfc3e5-09c7-4335-90e4-4e6d669c40a5"
+    },
+    {
+      "id": "1ec1a473-4e78-429e-b65e-2e00ef88ecda",
+      "title": "Elders Trip",
+      "storyteller_id": "6adfc3e5-09c7-4335-90e4-4e6d669c40a5"
+    },
+    {
+      "id": "3bd5f422-672b-4764-a469-8a9c0adaac34",
+      "title": "Frank Full Interview - Elders Trip",
+      "storyteller_id": "085079c1-330d-485e-849e-feafc4615efe"
+    },
+    {
+      "id": "d5923323-a409-42de-8583-638f75220e5b",
+      "title": "Elders trip",
+      "storyteller_id": "a177c7bf-d20f-43e3-b78c-533ea8f40ce9"
+    },
+    {
+      "id": "9a6d9703-ca58-45af-abac-89ff31af71a7",
+      "title": "Elders Trip",
+      "storyteller_id": "94974979-c361-41d4-9126-1af6f2af3a3b"
+    },
+    {
+      "id": "564435d1-2395-4ebd-8d0a-49d53f64bdd3",
+      "title": "Elders Trip",
+      "storyteller_id": "f8d71ab6-57e5-4a86-9e93-d5cb873b48ae"
+    },
+    {
+      "id": "fde0993a-9eca-4581-9a84-981f7292ed12",
+      "title": "Lucinda Interview - Elders Trip",
+      "storyteller_id": "b0000000-0000-0000-0000-000000000004"
+    },
+    {
+      "id": "b584b108-2e06-46d3-a6b9-810a3d4b5bcf",
+      "title": "Elders Trip",
+      "storyteller_id": "5ce8bc61-440f-4bc8-8994-bcd86f86ad8c"
+    },
+    {
+      "id": "0f49d5e8-41a4-46f3-9311-0345e3c447e6",
+      "title": "Elders Trip",
+      "storyteller_id": "e6539fee-7eea-4715-8d46-f89509a2e9e6"
+    },
+    {
+      "id": "f4f459b5-80df-49ad-a8c2-88618199963a",
+      "title": "Elders Trip Interview",
+      "storyteller_id": "b0000000-0000-0000-0000-000000000004"
+    }
+  ],
+  "quotesUsed": [
+    {
+      "id": "9da5d9f9-786d-4604-8efe-b4fdd5b51c54",
+      "profile_id": "b0000000-0000-0000-0000-000000000004",
+      "interview_id": "f4f459b5-80df-49ad-a8c2-88618199963a"
+    },
+    {
+      "id": "85110f74-9236-4666-96cd-ef5f3ead1bb4",
+      "profile_id": "a177c7bf-d20f-43e3-b78c-533ea8f40ce9",
+      "interview_id": "d5923323-a409-42de-8583-638f75220e5b"
+    },
+    {
+      "id": "bc62693c-e4e8-49b3-85f3-9f1905a40272",
+      "profile_id": "5ce8bc61-440f-4bc8-8994-bcd86f86ad8c",
+      "interview_id": "b584b108-2e06-46d3-a6b9-810a3d4b5bcf"
+    },
+    {
+      "id": "53de8e25-3aed-443c-b611-1bd71ad14acd",
+      "profile_id": "94974979-c361-41d4-9126-1af6f2af3a3b",
+      "interview_id": "9a6d9703-ca58-45af-abac-89ff31af71a7"
+    },
+    {
+      "id": "e3ad7014-d9af-496e-87ce-804ea062d2fb",
+      "profile_id": "f8d71ab6-57e5-4a86-9e93-d5cb873b48ae",
+      "interview_id": "564435d1-2395-4ebd-8d0a-49d53f64bdd3"
+    },
+    {
+      "id": "b20fa3c7-3056-4049-9ef7-08dff6e4c849",
+      "profile_id": "e6539fee-7eea-4715-8d46-f89509a2e9e6",
+      "interview_id": "0f49d5e8-41a4-46f3-9311-0345e3c447e6"
+    },
+    {
+      "id": "9000f686-eaad-4600-906c-de6c74a1bef0",
+      "profile_id": "085079c1-330d-485e-849e-feafc4615efe",
+      "interview_id": "3bd5f422-672b-4764-a469-8a9c0adaac34"
+    },
+    {
+      "id": "a88c8734-e441-4445-ae19-0565e7211d1f",
+      "profile_id": "6adfc3e5-09c7-4335-90e4-4e6d669c40a5",
+      "interview_id": "1ec1a473-4e78-429e-b65e-2e00ef88ecda"
+    },
+    {
+      "id": "8ba6f39a-92b7-43f5-83ff-e76547c13cb6",
+      "profile_id": "b0000000-0000-0000-0000-000000000004",
+      "interview_id": "f4f459b5-80df-49ad-a8c2-88618199963a"
+    },
+    {
+      "id": "043ff0a7-7293-4f5b-b54c-9fcab1db2a85",
+      "profile_id": "a177c7bf-d20f-43e3-b78c-533ea8f40ce9",
+      "interview_id": "d5923323-a409-42de-8583-638f75220e5b"
+    },
+    {
+      "id": "88adc165-f3cf-4580-a547-0590551755aa",
+      "profile_id": "5ce8bc61-440f-4bc8-8994-bcd86f86ad8c",
+      "interview_id": "b584b108-2e06-46d3-a6b9-810a3d4b5bcf"
+    },
+    {
+      "id": "30410d3e-b3dc-4852-b5cd-877151428f94",
+      "profile_id": "94974979-c361-41d4-9126-1af6f2af3a3b",
+      "interview_id": "9a6d9703-ca58-45af-abac-89ff31af71a7"
+    },
+    {
+      "id": "658238ba-d5b2-4889-bd96-06de1ea152ac",
+      "profile_id": "f8d71ab6-57e5-4a86-9e93-d5cb873b48ae",
+      "interview_id": "564435d1-2395-4ebd-8d0a-49d53f64bdd3"
+    },
+    {
+      "id": "92f1ae70-76e3-462d-880d-c932ae7a71b3",
+      "profile_id": "e6539fee-7eea-4715-8d46-f89509a2e9e6",
+      "interview_id": "0f49d5e8-41a4-46f3-9311-0345e3c447e6"
+    }
+  ],
+  "updatePreview": {
+    "title": "Walking Country Together: Palm Island Elders Journey to Hull River",
+    "summaryLength": 174,
+    "contentLength": 6009,
+    "keyQuotes": [
+      "On behalf of Palm Island Community Company and the Elders, we will achieve something for our kids, the next generation. Build opportunity, build pathways, create jobs.",
+      "I'm very happy to be here standing on Djiru Country from my grandmother. That would've been where my grandmother and my granddad were.",
+      "We're not only getting the wisdom and knowledge from them, but we're getting history that we didn't even know."
+    ]
+  },
+  "error": null
+}

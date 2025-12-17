@@ -58,7 +58,7 @@ export default function VoiceRecorderWidget({
     const supported = !!(
       typeof window !== 'undefined' &&
       navigator.mediaDevices &&
-      navigator.mediaDevices.getUserMedia &&
+      'getUserMedia' in navigator.mediaDevices &&
       window.MediaRecorder
     );
     setIsSupported(supported);

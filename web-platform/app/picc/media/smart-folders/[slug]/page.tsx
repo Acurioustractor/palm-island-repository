@@ -10,6 +10,7 @@ import {
   AlertCircle,
   Calendar,
   Folder,
+  FileText,
   Loader2,
   Image as ImageIcon
 } from 'lucide-react';
@@ -43,6 +44,7 @@ const iconMap: Record<string, any> = {
   AlertCircle,
   Calendar,
   Folder,
+  FileText,
 };
 
 const colorClasses: Record<string, { bg: string; text: string; badge: string }> = {

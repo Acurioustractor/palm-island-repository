@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -17,21 +17,24 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const supabase = createClient();
-
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
 
-      if (error) {
-        setError(error.message);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data?.error || 'Invalid login');
         setLoading(false);
         return;
       }
 
-      // Success! Redirect to projects page
-      router.push('/picc/projects/photo-studio');
+      const redirect = searchParams.get('redirect');
+      const safeRedirect = redirect && redirect.startsWith('/') ? redirect : '/picc/dashboard';
+
+      // Success! Redirect to the intended page
+      router.push(safeRedirect);
       router.refresh();
     } catch (err: any) {
       setError(err.message || 'An error occurred');

@@ -3,7 +3,8 @@
 # Clean Dev Server Startup Script
 # This script ensures clean startup every time - no port conflicts, no multiple servers
 
-cd "/Volumes/OS_FIELD_B/Code/Palm Island Reposistory/web-platform"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
 
 echo "=========================================="
 echo "🚀 Starting Palm Island Dev Server"

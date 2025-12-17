@@ -48,17 +48,21 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     notFound();
   }
 
-  // Map of project slugs to their immersive story URLs
-  const storyUrls: Record<string, string> = {
-    'photo-studio': '/immersive-stories/photo-studio-journey',
-    // Add more stories as they're created
-    // 'the-station': '/immersive-stories/the-station-story',
-    // 'elders-trips': '/immersive-stories/elders-journey',
-  };
+  // Load immersive story (if it exists) for this project.
+  // By convention Story Builder uses slug `${project.slug}-story`.
+  const { data: immersiveStory } = await supabase
+    .from('immersive_stories')
+    .select('id, slug, title, is_published, updated_at, created_at')
+    .eq('project_id', project.id)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
 
-  const storyUrl = storyUrls[project.slug];
+  const immersiveStorySlug = immersiveStory?.slug || `${project.slug}-story`;
+  const immersiveStoryUrl = `/immersive-stories/${immersiveStorySlug}`;
 
   // Get project updates
+  const nowIso = new Date().toISOString();
   const { data: updates } = await supabase
     .from('project_updates')
     .select(`
@@ -76,6 +80,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     `)
     .eq('project_id', project.id)
     .eq('is_published', true)
+    .or(`published_at.is.null,published_at.lte.${nowIso}`)
     .order('published_at', { ascending: false })
     .limit(10);
 
@@ -176,7 +181,14 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
               className="px-4 py-2 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 font-semibold rounded-lg transition-all flex items-center gap-2"
             >
               <Edit className="w-4 h-4" />
-              <span>Edit</span>
+              <span>Edit Project</span>
+            </Link>
+            <Link
+              href={`/picc/projects/${project.slug}/story-builder`}
+              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all flex items-center gap-2"
+            >
+              <BookOpen className="w-4 h-4" />
+              <span>{immersiveStory ? 'Edit Story' : 'Create Story'}</span>
             </Link>
             <Link
               href={`/picc/projects/${project.slug}/updates/new`}
@@ -238,43 +250,54 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Left Column - Updates & Description */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Immersive Story - Featured if available */}
-          {storyUrl && (
-            <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 rounded-xl shadow-2xl p-8 text-white relative overflow-hidden">
-              {/* Decorative elements */}
-              <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32" />
-              <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full -ml-24 -mb-24" />
+          {/* Immersive Story */}
+          <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 rounded-xl shadow-2xl p-8 text-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full -ml-24 -mb-24" />
 
-              <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-3 bg-white/20 backdrop-blur-sm rounded-lg">
-                    <BookOpen className="w-6 h-6 text-white" />
-                  </div>
-                  <span className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-sm font-semibold">
-                    Immersive Story
-                  </span>
+            <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-4 flex-wrap">
+                <div className="p-3 bg-white/20 backdrop-blur-sm rounded-lg">
+                  <BookOpen className="w-6 h-6 text-white" />
                 </div>
+                <span className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-sm font-semibold">
+                  Immersive Story
+                </span>
+                {immersiveStory && (
+                  <span className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-sm font-semibold">
+                    {immersiveStory.is_published ? 'Published' : 'Draft'}
+                  </span>
+                )}
+              </div>
 
-                <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                  Experience the Full Journey
-                </h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-3">
+                {immersiveStory?.title || 'Tell the story of this project'}
+              </h2>
 
-                <p className="text-lg text-white/90 mb-6 max-w-2xl">
-                  Dive into an interactive, scroll-driven story featuring photos, videos,
-                  community voices, and the complete timeline of this project.
-                  Experience it the way it was meant to be told.
-                </p>
+              <p className="text-lg text-white/90 mb-6 max-w-2xl">
+                {immersiveStory
+                  ? 'Edit sections, upload media, and preview the scroll story.'
+                  : 'Create an immersive, scroll-driven story with photos, videos, and community voices.'}
+              </p>
 
+              <div className="flex flex-wrap gap-3">
                 <Link
-                  href={storyUrl}
-                  className="inline-flex items-center gap-3 px-6 py-3 bg-white hover:bg-gray-100 text-gray-900 font-bold rounded-lg shadow-lg transition-all group"
+                  href={`/picc/projects/${project.slug}/story-builder`}
+                  className="inline-flex items-center gap-3 px-6 py-3 bg-white hover:bg-gray-100 text-gray-900 font-bold rounded-lg shadow-lg transition-all"
                 >
-                  <span>View Immersive Story</span>
-                  <BookOpen className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  <span>{immersiveStory ? 'Edit Story' : 'Create Story'}</span>
+                  <Edit className="w-5 h-5" />
+                </Link>
+                <Link
+                  href={immersiveStoryUrl}
+                  className="inline-flex items-center gap-3 px-6 py-3 bg-white/15 hover:bg-white/20 border border-white/30 text-white font-bold rounded-lg transition-all"
+                >
+                  <span>Preview</span>
+                  <Eye className="w-5 h-5" />
                 </Link>
               </div>
             </div>
-          )}
+          </div>
 
           {/* Description */}
           <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
@@ -319,7 +342,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                 <FileText className="w-12 h-12 text-gray-400 mx-auto mb-3" />
                 <p className="text-gray-600 mb-4">No updates yet</p>
                 <p className="text-sm text-gray-500 mb-6">
-                  Check the Content Management Guide for SQL examples to add updates
+                  Create your first update to start building a timeline of progress.
                 </p>
               </div>
             ) : (
@@ -439,7 +462,14 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                 className="w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all text-sm text-left flex items-center gap-2"
               >
                 <BookOpen className="w-4 h-4" />
-                <span>Build Immersive Story</span>
+                <span>{immersiveStory ? 'Edit Immersive Story' : 'Create Immersive Story'}</span>
+              </Link>
+              <Link
+                href={immersiveStoryUrl}
+                className="w-full px-4 py-2 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 font-medium rounded-lg transition-all text-sm text-left flex items-center gap-2"
+              >
+                <Eye className="w-4 h-4" />
+                <span>Preview Immersive Story</span>
               </Link>
               <Link
                 href={`/picc/projects/${project.slug}/updates/new`}
@@ -456,10 +486,13 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                 <Target className="w-4 h-4" />
                 <span>Add Milestone</span>
               </button>
-              <button className="w-full px-4 py-2 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 font-medium rounded-lg transition-all text-sm text-left flex items-center gap-2">
+              <Link
+                href={`/picc/projects/${project.slug}/edit`}
+                className="w-full px-4 py-2 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 font-medium rounded-lg transition-all text-sm text-left flex items-center gap-2"
+              >
                 <Edit className="w-4 h-4" />
                 <span>Edit Project</span>
-              </button>
+              </Link>
             </div>
           </div>
         </div>

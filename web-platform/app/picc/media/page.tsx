@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import {
   Image as ImageIcon,
+  Film,
   Folder,
   FolderOpen,
   Sparkles,
@@ -98,7 +99,7 @@ export default function MediaLibraryPage() {
 
   const quickStats: QuickStat[] = [
     {
-      label: 'Total Photos',
+      label: 'Total Media',
       value: loading ? '...' : stats.totalPhotos.toLocaleString(),
       icon: <ImageIcon className="w-5 h-5" />,
       color: 'bg-blue-50 text-blue-600 border-blue-200'
@@ -125,13 +126,22 @@ export default function MediaLibraryPage() {
 
   const mainFeatures = [
     {
-      title: 'Photo Gallery',
-      description: 'Browse, search, and manage all photos with tags, metadata, and bulk actions',
+      title: 'Media Gallery',
+      description: 'Browse, search, and manage photos + video links with tags, metadata, and bulk actions',
       href: '/picc/media/gallery',
       icon: <Grid className="w-8 h-8" />,
       color: 'bg-blue-50 border-blue-200 hover:bg-blue-100',
       iconColor: 'text-blue-600',
-      stats: `${stats.totalPhotos.toLocaleString()} photos`
+      stats: `${stats.totalPhotos.toLocaleString()} items`
+    },
+    {
+      title: 'Video Links',
+      description: 'Add YouTube/Vimeo/Descript links (best for long videos) that show up in the gallery and can be tagged',
+      href: '/picc/media/external-videos',
+      icon: <Film className="w-8 h-8" />,
+      color: 'bg-pink-50 border-pink-200 hover:bg-pink-100',
+      iconColor: 'text-pink-600',
+      stats: 'External videos'
     },
     {
       title: 'Collections',
@@ -152,8 +162,8 @@ export default function MediaLibraryPage() {
       stats: '6 smart folders'
     },
     {
-      title: 'Upload Photos',
-      description: 'Add new photos with automatic tagging, metadata extraction, and organization',
+      title: 'Upload Media',
+      description: 'Upload photos, short videos, and audio files (for long videos, use Video Links)',
       href: '/picc/media/upload',
       icon: <Upload className="w-8 h-8" />,
       color: 'bg-green-50 border-green-200 hover:bg-green-100',
@@ -234,14 +244,14 @@ export default function MediaLibraryPage() {
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               <Grid className="w-4 h-4" />
-              Browse All Photos
+              Browse Gallery
             </Link>
             <Link
               href="/picc/media/upload"
               className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
             >
               <Upload className="w-4 h-4" />
-              Upload Photos
+              Upload Media
             </Link>
             <Link
               href="/picc/media/collections"

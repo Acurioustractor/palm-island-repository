@@ -160,17 +160,47 @@ export async function POST(request: NextRequest) {
       await supabase.from('annual_report_stories').insert(storyLinks)
     }
 
-    // Create report sections if provided
-    if (body.sections && body.sections.length > 0 && report) {
-      const sections = body.sections.map((section: any, index: number) => ({
-        report_id: report.id,
-        section_type: section.type,
-        section_title: section.title,
-        section_content: section.content,
-        display_order: index
-      }))
+    // Create report sections if provided, or seed default sections
+    if (report) {
+      let sectionsToInsert: any[] = []
 
-      await supabase.from('report_sections').insert(sections)
+      if (body.sections && body.sections.length > 0) {
+        sectionsToInsert = body.sections.map((section: any, index: number) => ({
+          report_id: report.id,
+          section_type: section.type,
+          section_title: section.title,
+          section_content: section.content,
+          display_order: index
+        }))
+      } else {
+        // Pre-seed default sections for the report template
+        const fiscalYear = `${body.report_year - 1}-${String(body.report_year).slice(2)}`
+        sectionsToInsert = [
+          { report_id: report.id, section_type: 'hero_image', section_title: 'Hero', display_order: 0 },
+          { report_id: report.id, section_type: 'stats_bar', section_title: 'Key Stats', section_content: JSON.stringify({ stats: [
+            { value: 0, label: 'Staff Members', suffix: '' },
+            { value: 0, label: 'Services Delivered', suffix: '' }
+          ]}), display_order: 1 },
+          { report_id: report.id, section_type: 'executive_summary', section_title: 'Executive Summary', section_content: body.executive_summary || '', display_order: 2 },
+          { report_id: report.id, section_type: 'leadership_message', section_title: 'CEO Message', section_content: JSON.stringify({ name: '', role: 'Chief Executive Officer', message: '', signature: '' }), display_order: 3 },
+          { report_id: report.id, section_type: 'quote', section_title: 'Featured Quote', section_content: JSON.stringify({ quote: '', author: '', role: '' }), display_order: 4 },
+          { report_id: report.id, section_type: 'project_showcase', section_title: 'Innovation Projects', display_order: 5 },
+          { report_id: report.id, section_type: 'leadership_message', section_title: 'Chair Message', section_content: JSON.stringify({ name: '', role: 'Board Chairperson', message: '', signature: '' }), display_order: 6 },
+          { report_id: report.id, section_type: 'community_voices', section_title: 'Community Voices', display_order: 7 },
+          { report_id: report.id, section_type: 'video', section_title: 'Featured Video', section_content: JSON.stringify({ url: '', title: '', description: '', thumbnail: '' }), display_order: 8 },
+          { report_id: report.id, section_type: 'services', section_title: 'Services We Deliver', display_order: 9 },
+          { report_id: report.id, section_type: 'timeline', section_title: 'Our Journey', display_order: 10 },
+          { report_id: report.id, section_type: 'photo_gallery', section_title: 'Year in Pictures', display_order: 11 },
+          { report_id: report.id, section_type: 'quote', section_title: 'Quote 2', section_content: JSON.stringify({ quote: '', author: '', role: '' }), display_order: 12 },
+          { report_id: report.id, section_type: 'financials', section_title: 'Financial Transparency', display_order: 13 },
+          { report_id: report.id, section_type: 'quote', section_title: 'Closing Quote', section_content: JSON.stringify({ quote: '', author: '', role: '' }), display_order: 14 },
+          { report_id: report.id, section_type: 'acknowledgments', section_title: 'Acknowledgments', section_content: body.acknowledgments || '', display_order: 15 },
+        ]
+      }
+
+      if (sectionsToInsert.length > 0) {
+        await supabase.from('report_sections').insert(sectionsToInsert)
+      }
     }
 
     return NextResponse.json({ report, created: true })

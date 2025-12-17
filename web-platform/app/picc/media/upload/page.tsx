@@ -18,7 +18,7 @@ export default function MediaUploadPage() {
   const router = useRouter();
   const [files, setFiles] = useState<UploadFile[]>([]);
   const [uploading, setUploading] = useState(false);
-  const [bucket, setBucket] = useState('story-images');
+  const [bucket, setBucket] = useState('story-media');
   const [metadata, setMetadata] = useState({
     title: '',
     description: '',
@@ -26,8 +26,31 @@ export default function MediaUploadPage() {
     location: ''
   });
 
+  const normalizeStorageMimeType = (file: File): string | undefined => {
+    const name = file.name.toLowerCase();
+    const ext = name.includes('.') ? name.split('.').pop() : '';
+
+    const reported = file.type || '';
+    if (reported === 'video/quicktime' || ext === 'mov') return 'video/mp4';
+    if (!reported && ext === 'mp4') return 'video/mp4';
+    if (!reported && ext === 'webm') return 'video/webm';
+
+    return reported || undefined;
+  };
+
+  const toUploadBody = (file: File, contentType?: string): Blob | File => {
+    if (!contentType) return file;
+    if (contentType === file.type) return file;
+    return new Blob([file], { type: contentType });
+  };
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
+
+    const hasNonImage = selectedFiles.some(f => !f.type.startsWith('image/'));
+    if (hasNonImage && bucket !== 'story-media') {
+      setBucket('story-media');
+    }
 
     const newFiles: UploadFile[] = selectedFiles.map(file => {
       const uploadFile: UploadFile = {
@@ -94,6 +117,11 @@ export default function MediaUploadPage() {
       ));
 
       try {
+        const contentType = normalizeStorageMimeType(uploadFile.file);
+        const fileType = getFileType(contentType || uploadFile.file.type);
+        const uploadBucket = fileType === 'image' ? bucket : 'story-media';
+        const uploadBody = toUploadBody(uploadFile.file, contentType);
+
         // Generate unique filename
         const fileExt = uploadFile.file.name.split('.').pop();
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
@@ -101,17 +129,18 @@ export default function MediaUploadPage() {
 
         // Upload to storage
         const { error: uploadError } = await supabase.storage
-          .from(bucket)
-          .upload(filePath, uploadFile.file, {
+          .from(uploadBucket)
+          .upload(filePath, uploadBody, {
             cacheControl: '3600',
-            upsert: false
+            upsert: false,
+            ...(contentType ? { contentType } : {})
           });
 
         if (uploadError) throw uploadError;
 
         // Get public URL
         const { data: { publicUrl } } = supabase.storage
-          .from(bucket)
+          .from(uploadBucket)
           .getPublicUrl(filePath);
 
         // Get file dimensions for images
@@ -129,10 +158,10 @@ export default function MediaUploadPage() {
             filename: fileName,
             original_filename: uploadFile.file.name,
             file_path: filePath,
-            bucket_name: bucket,
+            bucket_name: uploadBucket,
             public_url: publicUrl,
-            file_type: getFileType(uploadFile.file.type),
-            mime_type: uploadFile.file.type,
+            file_type: fileType,
+            mime_type: contentType || uploadFile.file.type,
             file_size: uploadFile.file.size,
             width,
             height,
@@ -141,6 +170,11 @@ export default function MediaUploadPage() {
             description: metadata.description || null,
             location: metadata.location || null,
             tags: metadata.tags ? metadata.tags.split(',').map(t => t.trim()) : [],
+            metadata: {
+              ...(contentType && contentType !== uploadFile.file.type
+                ? { original_mime_type: uploadFile.file.type }
+                : {}),
+            },
             tenant_id: '9c4e5de2-d80a-4e0b-8a89-1bbf09485532'
           });
 
@@ -156,8 +190,12 @@ export default function MediaUploadPage() {
 
       } catch (error: any) {
         console.error('Upload error:', error);
+        const message =
+          typeof error?.message === 'string' && error.message.includes('mime type')
+            ? `${error.message} (Tip: for videos, use the “Immersive Story Media” bucket; .mov files may need converting to .mp4.)`
+            : error?.message;
         setFiles(prev => prev.map((f, idx) =>
-          idx === i ? { ...f, status: 'error' as const, error: error.message } : f
+          idx === i ? { ...f, status: 'error' as const, error: message } : f
         ));
       }
     }
@@ -243,7 +281,7 @@ export default function MediaUploadPage() {
                 <p className="text-gray-700 font-medium mb-1">Click to upload files</p>
                 <p className="text-sm text-gray-500">or drag and drop</p>
                 <p className="text-xs text-gray-400 mt-2">
-                  Images, videos, audio files (max 10MB each)
+                  Images, short videos, audio files (for long videos, use Video Links; for best web playback, upload MP4 — iPhone .mov may need converting)
                 </p>
               </div>
               <input

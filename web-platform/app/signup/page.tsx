@@ -1,11 +1,31 @@
 'use client'
 
-import { useState, Suspense } from 'react'
+export const dynamic = 'force-dynamic';
+
+import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/components/providers/AuthProvider'
 import { Eye, EyeOff, Loader2, ArrowLeft, Check, X } from 'lucide-react'
 
 function SignUpContent() {
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    )
+  }
+
+  return <SignUpForm />
+}
+
+function SignUpForm() {
   const { signUp, loading: authLoading } = useAuth()
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')

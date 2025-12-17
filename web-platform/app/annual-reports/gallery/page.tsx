@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Calendar, ArrowLeft, Image as ImageIcon } from 'lucide-react';
+export const dynamic = 'force-dynamic';
+
+import { useState, useEffect, Suspense } from 'react';
+import { Calendar, ArrowLeft, Image as ImageIcon, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
@@ -18,7 +20,7 @@ interface MediaFile {
   };
 }
 
-export default function AnnualReportsGallery() {
+function GalleryContent() {
   const searchParams = useSearchParams();
   const yearParam = searchParams?.get('year');
 
@@ -202,5 +204,22 @@ export default function AnnualReportsGallery() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function AnnualReportsGallery() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
+          <div className="text-center">
+            <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
+            <p className="text-gray-600">Loading gallery...</p>
+          </div>
+        </div>
+      }
+    >
+      <GalleryContent />
+    </Suspense>
   );
 }

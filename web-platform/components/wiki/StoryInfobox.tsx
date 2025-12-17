@@ -8,6 +8,8 @@ import {
 } from 'lucide-react';
 
 interface InfoboxData {
+  shared_by_label?: string;
+  shared_by_href?: string;
   storyteller?: {
     id: string;
     name: string;
@@ -63,6 +65,20 @@ export function StoryInfobox({ data, className = '' }: StoryInfoboxProps) {
 
   const sensitivity = getSensitivityBadge(data.cultural_sensitivity);
   const access = getAccessBadge(data.access_level);
+  const peopleInvolved = (data.people_involved || [])
+    .map((p) => ({
+      ...p,
+      id: String(p?.id || '').trim(),
+      name: String(p?.name || '').trim(),
+      role: p?.role,
+    }))
+    .filter((p) => p.id && p.name && !/^\d+$/.test(p.name));
+  const hasImpact =
+    (typeof data.people_affected === 'number' && data.people_affected > 0) ||
+    (Array.isArray(data.impact_areas) && data.impact_areas.length > 0);
+  const hasEngagement =
+    (typeof data.views === 'number' && data.views > 0) ||
+    (typeof data.shares === 'number' && data.shares > 0);
 
   return (
     <div className={`bg-white rounded-lg border border-stone-300 shadow-sm overflow-hidden ${className}`}>
@@ -77,7 +93,29 @@ export function StoryInfobox({ data, className = '' }: StoryInfoboxProps) {
       {/* Content */}
       <div className="p-4 space-y-3">
         {/* Storyteller */}
-        {data.storyteller && (
+        {data.shared_by_label ? (
+          <div className="flex items-start gap-3 pb-3 border-b border-stone-200">
+            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-stone-400 to-amber-400 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+              <UsersIcon className="h-5 w-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs text-gray-600 mb-1 flex items-center gap-1">
+                <User className="h-3 w-3" />
+                Shared by
+              </div>
+              {data.shared_by_href ? (
+                <Link
+                  href={data.shared_by_href}
+                  className="text-sm font-medium text-amber-700 hover:text-amber-900 hover:underline block truncate"
+                >
+                  {data.shared_by_label}
+                </Link>
+              ) : (
+                <div className="text-sm font-medium text-gray-900 truncate">{data.shared_by_label}</div>
+              )}
+            </div>
+          </div>
+        ) : data.storyteller ? (
           <div className="flex items-start gap-3 pb-3 border-b border-stone-200">
             {data.storyteller.profile_image_url ? (
               <img
@@ -108,7 +146,7 @@ export function StoryInfobox({ data, className = '' }: StoryInfoboxProps) {
               </Link>
             </div>
           </div>
-        )}
+        ) : null}
 
         {/* Dates */}
         <div className="space-y-2">
@@ -203,14 +241,16 @@ export function StoryInfobox({ data, className = '' }: StoryInfoboxProps) {
         )}
 
         {/* People Involved */}
-        {data.people_involved && data.people_involved.length > 0 && (
+        {peopleInvolved.length > 0 && (
           <div className="pt-2 border-t border-stone-200">
             <div className="text-xs text-gray-600 mb-2 flex items-center gap-1">
               <UsersIcon className="h-3 w-3" />
-              People Involved
+              {peopleInvolved.every((p) => String(p.role || '').toLowerCase() === 'elder')
+                ? 'Elders involved'
+                : 'People involved'}
             </div>
             <div className="space-y-1">
-              {data.people_involved.map((person) => (
+              {peopleInvolved.map((person) => (
                 <div key={person.id} className="text-sm">
                   <Link
                     href={`/wiki/people/${person.id}`}
@@ -218,7 +258,7 @@ export function StoryInfobox({ data, className = '' }: StoryInfoboxProps) {
                   >
                     {person.name}
                   </Link>
-                  {person.role && (
+                  {person.role && String(person.role).toLowerCase() !== 'elder' && (
                     <span className="text-gray-600 text-xs ml-1">({person.role})</span>
                   )}
                 </div>
@@ -228,13 +268,13 @@ export function StoryInfobox({ data, className = '' }: StoryInfoboxProps) {
         )}
 
         {/* Impact */}
-        {(data.people_affected || data.impact_areas) && (
+        {hasImpact && (
           <div className="pt-2 border-t border-stone-200">
             <div className="text-xs text-gray-600 mb-2 flex items-center gap-1">
               <Heart className="h-3 w-3" />
               Impact
             </div>
-            {data.people_affected && (
+            {typeof data.people_affected === 'number' && data.people_affected > 0 && (
               <div className="text-sm text-gray-900 mb-1">
                 <span className="font-semibold">{data.people_affected}</span> people affected
               </div>
@@ -255,21 +295,21 @@ export function StoryInfobox({ data, className = '' }: StoryInfoboxProps) {
         )}
 
         {/* Engagement Stats */}
-        {(data.views || data.shares) && (
+        {hasEngagement && (
           <div className="pt-2 border-t border-stone-200">
             <div className="text-xs text-gray-600 mb-2 flex items-center gap-1">
               <TrendingUp className="h-3 w-3" />
               Engagement
             </div>
             <div className="flex gap-4 text-sm text-gray-900">
-              {data.views !== undefined && (
+              {typeof data.views === 'number' && data.views > 0 && (
                 <div className="flex items-center gap-1">
                   <Eye className="h-4 w-4 text-gray-600" />
                   <span className="font-medium">{data.views.toLocaleString()}</span>
                   <span className="text-xs text-gray-600">views</span>
                 </div>
               )}
-              {data.shares !== undefined && (
+              {typeof data.shares === 'number' && data.shares > 0 && (
                 <div className="flex items-center gap-1">
                   <Heart className="h-4 w-4 text-gray-600" />
                   <span className="font-medium">{data.shares}</span>
@@ -281,7 +321,10 @@ export function StoryInfobox({ data, className = '' }: StoryInfoboxProps) {
         )}
 
         {/* Media Count */}
-        {data.media_count && (
+        {data.media_count &&
+          ((data.media_count.photos || 0) > 0 ||
+            (data.media_count.videos || 0) > 0 ||
+            (data.media_count.audio || 0) > 0) && (
           <div className="pt-2 border-t border-stone-200">
             <div className="text-xs text-gray-600 mb-2">Media</div>
             <div className="flex gap-3 text-sm text-gray-900">

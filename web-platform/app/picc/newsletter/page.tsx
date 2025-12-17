@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@/lib/supabase/client';
 import { Mail, Plus, Eye, Send, ArrowLeft, Calendar, Users } from 'lucide-react';
 import Link from 'next/link';
 
@@ -15,7 +15,7 @@ interface Story {
 }
 
 export default function NewsletterPage() {
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
   const [stories, setStories] = useState<Story[]>([]);
   const [selectedStories, setSelectedStories] = useState<Set<string>>(new Set());
   const [newsletterTitle, setNewsletterTitle] = useState('');

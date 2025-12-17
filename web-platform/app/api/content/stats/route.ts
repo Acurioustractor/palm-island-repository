@@ -10,7 +10,7 @@ import { createRouteHandlerClient } from '@/lib/supabase/server'
 
 export async function GET(request: Request) {
   try {
-    const supabase = await createRouteHandlerClient()
+    const supabase = await createRouteHandlerClient() as any
 
     // Get image count (annual report images)
     const { count: imageCount, error: imageError } = await supabase

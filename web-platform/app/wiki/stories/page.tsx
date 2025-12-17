@@ -15,12 +15,18 @@ interface Story {
   emotional_theme?: string;
   created_at: string;
   traditional_knowledge?: boolean;
+  is_public?: boolean;
   storyteller?: {
     full_name: string;
     preferred_name?: string;
     is_elder?: boolean;
     profile_image_url?: string;
-  };
+  } | {
+    full_name: string;
+    preferred_name?: string;
+    is_elder?: boolean;
+    profile_image_url?: string;
+  }[];
   story_media?: Array<{
     id: string;
     media_type: string;
@@ -64,7 +70,7 @@ export default function WikiStoriesPage() {
       if (error) {
         console.error('Error fetching stories:', error);
       } else {
-        setStories(data || []);
+        setStories((data || []) as unknown as Story[]);
       }
 
       setLoading(false);
@@ -83,7 +89,10 @@ export default function WikiStoriesPage() {
     return acc;
   }, {});
 
-  const elderStories = stories.filter(s => s.storyteller?.is_elder);
+  const elderStories = stories.filter(s => {
+    const teller = Array.isArray(s.storyteller) ? s.storyteller[0] : s.storyteller;
+    return teller?.is_elder;
+  });
   const traditionalKnowledge = stories.filter(s => s.traditional_knowledge);
 
   if (loading) {
@@ -172,12 +181,15 @@ export default function WikiStoriesPage() {
                             {story.summary}
                           </p>
                         )}
-                        {story.storyteller && (
-                          <p className="text-xs text-gray-500 mt-2">
-                            by {story.storyteller.preferred_name || story.storyteller.full_name}
-                            {story.storyteller.is_elder && ' (Elder)'}
-                          </p>
-                        )}
+                        {story.storyteller && (() => {
+                          const teller = Array.isArray(story.storyteller) ? story.storyteller[0] : story.storyteller;
+                          return teller ? (
+                            <p className="text-xs text-gray-500 mt-2">
+                              by {teller.preferred_name || teller.full_name}
+                              {teller.is_elder && ' (Elder)'}
+                            </p>
+                          ) : null;
+                        })()}
                       </div>
                     </div>
                   </Link>
@@ -218,13 +230,16 @@ export default function WikiStoriesPage() {
                             {story.story_category.replace(/_/g, ' ')}
                           </span>
                         )}
-                        {story.storyteller && (
-                          <span className="text-gray-500 flex items-center gap-1">
-                            <Users className="h-3 w-3" />
-                            {story.storyteller.preferred_name || story.storyteller.full_name}
-                            {story.storyteller.is_elder && ' (Elder)'}
-                          </span>
-                        )}
+                        {story.storyteller && (() => {
+                          const teller = Array.isArray(story.storyteller) ? story.storyteller[0] : story.storyteller;
+                          return teller ? (
+                            <span className="text-gray-500 flex items-center gap-1">
+                              <Users className="h-3 w-3" />
+                              {teller.preferred_name || teller.full_name}
+                              {teller.is_elder && ' (Elder)'}
+                            </span>
+                          ) : null;
+                        })()}
                         {story.story_media && story.story_media.length > 0 && (
                           <span className="text-gray-500 flex items-center gap-1">
                             {story.story_media.some(m => m.media_type === 'video') && <Video className="h-3 w-3" />}

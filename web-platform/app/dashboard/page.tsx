@@ -14,7 +14,10 @@ interface Story {
   storyteller?: {
     full_name: string;
     preferred_name: string;
-  };
+  } | {
+    full_name: string;
+    preferred_name: string;
+  }[];
 }
 
 export default function StoryServerDashboard() {
@@ -53,7 +56,7 @@ export default function StoryServerDashboard() {
           .limit(5);
 
         setStoriesCount(count || 0);
-        setRecentStoriesData(stories || []);
+        setRecentStoriesData((stories || []) as unknown as Story[]);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching stories:', error);

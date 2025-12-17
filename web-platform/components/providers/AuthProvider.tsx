@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient, createUntypedClient } from '@/lib/supabase/client'
+import { createClient } from '@/lib/supabase/client'
 import type { User, Session, AuthError } from '@supabase/supabase-js'
 
 // Types for our auth context
@@ -43,7 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchProfile = useCallback(async (userId: string) => {
     try {
       // Use untyped client to avoid type issues and potential RLS problems
-      const untypedSupabase = createUntypedClient()
+      const untypedSupabase = createClient()
       const { data, error } = await untypedSupabase
         .from('profiles')
         .select('id, full_name, avatar_url, role, organization_id')
@@ -176,7 +176,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Create profile after signup (will be linked when email confirmed)
     // Using untyped client since profiles table may not have user_id in generated types
     if (!error && data.user) {
-      const untypedSupabase = createUntypedClient()
+      const untypedSupabase = createClient()
       await untypedSupabase.from('profiles').upsert({
         user_id: data.user.id,
         full_name: fullName,

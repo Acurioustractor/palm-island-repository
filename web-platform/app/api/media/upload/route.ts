@@ -37,6 +37,18 @@ async function analyzeImage(file: File): Promise<string[]> {
   return autoTags;
 }
 
+function normalizeStorageMimeType(file: File): string | undefined {
+  const reported = file.type || '';
+  const name = (file as any)?.name ? String((file as any).name).toLowerCase() : '';
+  const ext = name.includes('.') ? name.split('.').pop() : '';
+
+  if (reported === 'video/quicktime' || ext === 'mov') return 'video/mp4';
+  if (!reported && ext === 'mp4') return 'video/mp4';
+  if (!reported && ext === 'webm') return 'video/webm';
+
+  return reported || undefined;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = getServerClient();
@@ -48,14 +60,22 @@ export async function POST(request: NextRequest) {
     const description = formData.get('description') as string;
     const collection = formData.get('collection') as string;
     const enableAI = formData.get('enableAI') === 'true';
+    const projectSlug = (formData.get('projectSlug') as string) || '';
+    const usageContext = (formData.get('usageContext') as string) || '';
+    const title = (formData.get('title') as string) || '';
+    const altText = (formData.get('altText') as string) || '';
+    const caption = (formData.get('caption') as string) || '';
 
     if (!file) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
     // Validate file type
-    if (!file.type.startsWith('image/')) {
-      return NextResponse.json({ error: 'Only image files allowed' }, { status: 400 });
+    const normalizedContentType = normalizeStorageMimeType(file) || file.type;
+    const isImage = normalizedContentType.startsWith('image/');
+    const isVideo = normalizedContentType.startsWith('video/');
+    if (!isImage && !isVideo) {
+      return NextResponse.json({ error: 'Only image and video files allowed' }, { status: 400 });
     }
 
     // Check for duplicates using direct fetch (faster and more reliable than Supabase client)
@@ -116,7 +136,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Combine tags
-    const allTags = [...new Set([...userTags, ...aiTags])];
+    const extraTags: string[] = [];
+    if (collection) extraTags.push(`collection:${collection}`);
+    if (year) extraTags.push(`year:${year}`);
+    if (projectSlug?.trim()) extraTags.push(`project:${projectSlug.trim()}`);
+    if (usageContext?.trim()) extraTags.push(`usage:${usageContext.trim()}`);
+
+    const allTags = Array.from(new Set([...userTags, ...aiTags, ...extraTags]));
 
     // Generate unique filename
     const fileExt = file.name.split('.').pop();
@@ -132,7 +158,7 @@ export async function POST(request: NextRequest) {
     const { error: uploadError } = await supabase.storage
       .from('story-media')
       .upload(fileName, buffer, {
-        contentType: file.type,
+        contentType: normalizedContentType,
         cacheControl: '3600',
         upsert: false
       });
@@ -147,6 +173,16 @@ export async function POST(request: NextRequest) {
       .from('story-media')
       .getPublicUrl(fileName);
 
+    let projectId: string | null = null;
+    if (projectSlug?.trim()) {
+      const { data: project } = await supabase
+        .from('projects')
+        .select('id')
+        .eq('slug', projectSlug.trim())
+        .maybeSingle();
+      projectId = project?.id || null;
+    }
+
     // Create metadata record
     const mediaData = {
       filename: fileName,
@@ -154,19 +190,24 @@ export async function POST(request: NextRequest) {
       file_path: fileName,
       bucket_name: 'story-media',
       public_url: publicUrl,
-      file_type: 'image',
-      mime_type: file.type,
+      file_type: isVideo ? 'video' : 'image',
+      mime_type: normalizedContentType,
       file_size: file.size,
-      title: file.name.replace(/\.[^/.]+$/, ''), // Remove extension
+      title: title || file.name.replace(/\.[^/.]+$/, ''), // Remove extension
       description: description || null,
+      alt_text: altText || null,
+      caption: caption || null,
       tags: allTags,
       uploaded_by: null, // No user context - bulk uploads don't require login
+      project_id: projectId,
+      usage_context: usageContext || null,
       metadata: {
         upload_year: year ? parseInt(year) : new Date().getFullYear(),
         collection: collection || null,
         ai_analyzed: enableAI,
         ai_tags: aiTags,
         user_tags: userTags,
+        ...(normalizedContentType !== file.type ? { original_mime_type: file.type } : {}),
       },
       tenant_id: process.env.NEXT_PUBLIC_TENANT_ID,
     };

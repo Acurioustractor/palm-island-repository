@@ -57,8 +57,8 @@ export async function transcribeAudio(
   // Create form data
   const formData = new FormData()
 
-  // Convert buffer to blob
-  const blob = new Blob([audioBuffer], { type: getMimeType(filename) })
+  // Convert buffer to blob (use Uint8Array for proper type compatibility)
+  const blob = new Blob([new Uint8Array(audioBuffer)], { type: getMimeType(filename) })
   formData.append('file', blob, filename)
   formData.append('model', 'whisper-1')
   formData.append('response_format', 'verbose_json')

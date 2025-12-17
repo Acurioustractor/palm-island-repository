@@ -8,6 +8,8 @@ interface SectionProps {
   padding?: 'sm' | 'md' | 'lg' | 'xl';
   id?: string;
   className?: string;
+  /** Force page break before this section in PDF */
+  printPageBreak?: boolean;
 }
 
 export function Section({
@@ -16,29 +18,32 @@ export function Section({
   padding = 'lg',
   id,
   className = '',
+  printPageBreak = false,
 }: SectionProps) {
   const bgStyles = {
-    white: 'bg-white',
-    light: 'bg-[#f8f6f3]',
-    dark: 'bg-gray-900 text-white',
-    earth: 'bg-gradient-to-br from-[#fdf8f3] to-[#f5e6d3]',
-    gradient: 'bg-gradient-to-br from-[#1e3a5f] via-[#2d4a6f] to-[#2d6a4f] text-white',
-    ocean: 'bg-gradient-to-br from-[#1e3a5f] to-[#0c1a22] text-white',
+    white: 'bg-white print:bg-white',
+    light: 'bg-[#f8f6f3] print:bg-gray-50',
+    dark: 'bg-gray-900 text-white print:bg-gray-900',
+    earth: 'bg-gradient-to-br from-[#fdf8f3] to-[#f5e6d3] print:bg-amber-50',
+    gradient: 'bg-gradient-to-br from-[#1e3a5f] via-[#2d4a6f] to-[#2d6a4f] text-white print:bg-[#1e3a5f]',
+    ocean: 'bg-gradient-to-br from-[#1e3a5f] to-[#0c1a22] text-white print:bg-[#1e3a5f]',
   };
 
   const paddingStyles = {
-    sm: 'py-8 sm:py-12',
-    md: 'py-12 sm:py-16',
-    lg: 'py-16 sm:py-24',
-    xl: 'py-24 sm:py-32',
+    sm: 'py-8 sm:py-12 print:py-6',
+    md: 'py-12 sm:py-16 print:py-8',
+    lg: 'py-16 sm:py-24 print:py-10',
+    xl: 'py-24 sm:py-32 print:py-12',
   };
+
+  const pageBreakClass = printPageBreak ? 'print:break-before-page' : '';
 
   return (
     <section
       id={id}
-      className={`${bgStyles[background]} ${paddingStyles[padding]} ${className}`}
+      className={`${bgStyles[background]} ${paddingStyles[padding]} ${pageBreakClass} print:break-inside-avoid ${className}`}
     >
-      <div className="max-w-6xl mx-auto px-6">
+      <div className="max-w-6xl mx-auto px-6 print:px-0 print:max-w-none">
         {children}
       </div>
     </section>
@@ -66,12 +71,12 @@ export function SectionHeader({
   };
 
   return (
-    <ScrollReveal animation="fadeUp" className={`mb-12 max-w-2xl ${alignStyles[align]} ${className}`}>
-      <h2 className={`text-3xl sm:text-4xl font-bold mb-4 ${light ? 'text-white' : 'text-gray-900'}`}>
+    <ScrollReveal animation="fadeUp" className={`mb-12 max-w-2xl print:mb-6 ${alignStyles[align]} ${className}`}>
+      <h2 className={`text-3xl sm:text-4xl font-bold mb-4 print:text-2xl print:mb-2 print:break-after-avoid ${light ? 'text-white' : 'text-gray-900'}`}>
         {title}
       </h2>
       {subtitle && (
-        <p className={`text-lg ${light ? 'text-white/80' : 'text-gray-600'}`}>
+        <p className={`text-lg print:text-base ${light ? 'text-white/80' : 'text-gray-600'}`}>
           {subtitle}
         </p>
       )}

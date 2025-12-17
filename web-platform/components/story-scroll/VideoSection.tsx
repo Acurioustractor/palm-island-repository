@@ -1,6 +1,7 @@
 'use client';
 
 import { ScrollReveal } from './ScrollReveal';
+import { getEmbedUrl, guessVideoMimeType, isDirectVideoFile } from './videoEmbed';
 
 interface VideoSectionProps {
   videoUrl: string;
@@ -21,6 +22,8 @@ export function VideoSection({
   controls = true,
   backgroundColor = 'bg-gray-900',
 }: VideoSectionProps) {
+  const mimeType = guessVideoMimeType(videoUrl)
+
   const aspectClasses = {
     '16/9': 'aspect-video',
     '4/3': 'aspect-[4/3]',
@@ -41,16 +44,26 @@ export function VideoSection({
 
         <ScrollReveal direction="up" delay={0.2}>
           <div className={`w-full ${aspectClasses[aspectRatio]} rounded-xl overflow-hidden shadow-2xl`}>
-            <video
-              className="w-full h-full object-cover"
-              controls={controls}
-              autoPlay={autoplay}
-              muted={autoplay}
-              playsInline
-            >
-              <source src={videoUrl} type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
+            {isDirectVideoFile(videoUrl) ? (
+              <video
+                className="w-full h-full object-cover"
+                controls={controls}
+                autoPlay={autoplay}
+                muted={autoplay}
+                playsInline
+              >
+                <source src={videoUrl} {...(mimeType ? { type: mimeType } : {})} />
+                Your browser does not support the video tag.
+              </video>
+            ) : (
+              <iframe
+                src={getEmbedUrl(videoUrl, { autoplay })}
+                title={title || 'Embedded video'}
+                className="w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            )}
           </div>
         </ScrollReveal>
 

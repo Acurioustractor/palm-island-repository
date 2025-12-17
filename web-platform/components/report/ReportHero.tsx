@@ -30,9 +30,17 @@ export function ReportHero({
   showScrollIndicator = true,
   className = '',
 }: ReportHeroProps) {
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return (
+      window.matchMedia?.('print')?.matches ||
+      new URLSearchParams(window.location.search).get('print') === '1'
+    );
+  });
 
   useEffect(() => {
+    if (window.matchMedia?.('print')?.matches) return;
+    if (new URLSearchParams(window.location.search).get('print') === '1') return;
     // Trigger entrance animation
     const timer = setTimeout(() => setIsVisible(true), 100);
     return () => clearTimeout(timer);
@@ -46,7 +54,7 @@ export function ReportHero({
 
   return (
     <section
-      className={`relative min-h-screen flex flex-col items-center justify-center overflow-hidden ${className}`}
+      className={`relative min-h-screen flex flex-col items-center justify-center overflow-hidden print:min-h-0 print:h-[270mm] print:break-after-page print:page-break-after-always ${className}`}
     >
       {/* Background Video or Image */}
       {backgroundVideo ? (
@@ -89,7 +97,7 @@ export function ReportHero({
       <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
         {/* Organization */}
         <p
-          className={`text-white/80 uppercase tracking-[0.2em] text-sm mb-6 transition-all duration-700 ${
+          className={`text-white/80 uppercase tracking-[0.2em] text-sm mb-6 transition-all duration-700 print:!opacity-100 print:!translate-y-0 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
         >
@@ -98,7 +106,7 @@ export function ReportHero({
 
         {/* Main Title */}
         <h1
-          className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 transition-all duration-700 delay-100 ${
+          className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 transition-all duration-700 delay-100 print:!opacity-100 print:!translate-y-0 print:text-5xl ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
         >
@@ -108,7 +116,7 @@ export function ReportHero({
         {/* Year */}
         {year && (
           <p
-            className={`text-5xl sm:text-6xl md:text-7xl font-light text-white/90 mb-6 transition-all duration-700 delay-200 ${
+            className={`text-5xl sm:text-6xl md:text-7xl font-light text-white/90 mb-6 transition-all duration-700 delay-200 print:!opacity-100 print:!translate-y-0 print:text-4xl ${
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}
           >
@@ -119,7 +127,7 @@ export function ReportHero({
         {/* Subtitle */}
         {subtitle && (
           <p
-            className={`text-xl sm:text-2xl text-white/90 mb-8 transition-all duration-700 delay-300 ${
+            className={`text-xl sm:text-2xl text-white/90 mb-8 transition-all duration-700 delay-300 print:!opacity-100 print:!translate-y-0 ${
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}
           >
@@ -129,7 +137,7 @@ export function ReportHero({
 
         {/* Tagline */}
         <p
-          className={`text-lg text-white/70 italic transition-all duration-700 delay-400 ${
+          className={`text-lg text-white/70 italic transition-all duration-700 delay-400 print:!opacity-100 print:!translate-y-0 print:text-white ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
         >
@@ -140,7 +148,7 @@ export function ReportHero({
       {/* Scroll Indicator */}
       {showScrollIndicator && (
         <div
-          className={`absolute bottom-8 left-1/2 -translate-x-1/2 transition-all duration-700 delay-700 ${
+          className={`absolute bottom-8 left-1/2 -translate-x-1/2 transition-all duration-700 delay-700 print:hidden ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
         >

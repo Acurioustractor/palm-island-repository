@@ -1,5 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { cookies, headers } from 'next/headers';
+import { createServerClient } from '@supabase/ssr';
 import { createServerSupabase } from '@/lib/supabase/client';
 import {
   StoryContainer,
@@ -13,7 +15,10 @@ import {
   TimelineSection,
   ParallaxSection,
 } from '@/components/story-scroll';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Edit } from 'lucide-react';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 interface StoryPageProps {
   params: {
@@ -98,11 +103,40 @@ export default async function DynamicStoryPage({ params }: StoryPageProps) {
     .eq('id', story.project_id)
     .single();
 
+  const headerStore = await headers();
+  const host = headerStore.get('host') || '';
+  const isLocalDevHost =
+    host.includes('localhost') || host.includes('127.0.0.1') || host.includes('::1');
+
+  let canEdit = isLocalDevHost;
+  if (!canEdit) {
+    try {
+      const cookieStore = await cookies();
+      const authClient = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+          cookies: {
+            get(key: string) {
+              return cookieStore.get(key)?.value;
+            },
+          },
+        }
+      );
+      const {
+        data: { user },
+      } = await authClient.auth.getUser();
+      canEdit = !!user;
+    } catch {
+      canEdit = false;
+    }
+  }
+
   return (
     <StoryContainer>
       {/* Back button */}
       {project && (
-        <div className="fixed top-8 left-8 z-50">
+        <div className="fixed top-8 left-8 z-50 flex items-center gap-3">
           <Link
             href={`/picc/projects/${project.slug}`}
             className="flex items-center gap-2 px-4 py-2 bg-white/90 hover:bg-white backdrop-blur-sm rounded-full shadow-lg transition-all text-gray-900 font-medium"
@@ -110,6 +144,15 @@ export default async function DynamicStoryPage({ params }: StoryPageProps) {
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Project</span>
           </Link>
+          {canEdit && (
+            <Link
+              href={`/picc/projects/${project.slug}/story-builder`}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-full shadow-lg transition-all text-white font-semibold"
+            >
+              <Edit className="w-4 h-4" />
+              <span>Edit Story</span>
+            </Link>
+          )}
         </div>
       )}
 
@@ -149,6 +192,7 @@ export default async function DynamicStoryPage({ params }: StoryPageProps) {
                 quote={section.content || ''}
                 author={section.quote_author || undefined}
                 role={section.quote_role || undefined}
+                photoUrl={section.media_url || undefined}
                 size="large"
               />
             );

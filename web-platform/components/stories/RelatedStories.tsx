@@ -50,7 +50,7 @@ interface StoryCardProps {
 }
 
 function StoryCard({ story, variant }: StoryCardProps) {
-  const featuredImage = story.story_media?.[0]?.url || story.featured_image_url;
+  const featuredImage = story.story_media?.[0]?.media_url || story.featured_image_url;
 
   if (variant === 'grid') {
     return (
@@ -76,8 +76,8 @@ function StoryCard({ story, variant }: StoryCardProps) {
           <h3 className="font-semibold text-lg line-clamp-2 group-hover:text-picc-teal transition-colors mb-2">
             {story.title}
           </h3>
-          {story.excerpt && (
-            <p className="text-sm text-gray-600 line-clamp-2 mb-3">{story.excerpt}</p>
+          {story.content && (
+            <p className="text-sm text-gray-600 line-clamp-2 mb-3">{story.content}</p>
           )}
           <div className="flex items-center gap-2 text-sm text-gray-500">
             {story.storyteller?.is_elder && (

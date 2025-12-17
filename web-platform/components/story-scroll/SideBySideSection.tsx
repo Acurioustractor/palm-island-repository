@@ -2,7 +2,7 @@
 
 import { ReactNode } from 'react';
 import { ScrollReveal } from './ScrollReveal';
-import Image from 'next/image';
+import { getEmbedUrl, guessVideoMimeType, isDirectVideoFile } from './videoEmbed';
 
 interface SideBySideSectionProps {
   title?: string;
@@ -23,27 +23,49 @@ export function SideBySideSection({
   backgroundColor = 'bg-white',
   mediaAlt = 'Story media',
 }: SideBySideSectionProps) {
+  const videoMimeType = mediaType === 'video' ? guessVideoMimeType(mediaUrl) : undefined
+
   const MediaContent = () => (
     <div className="w-full h-full min-h-[400px] relative">
       {mediaType === 'image' ? (
-        <div className="relative w-full h-full">
-          <Image
+        mediaUrl ? (
+          <img
             src={mediaUrl}
             alt={mediaAlt}
-            fill
-            className="object-cover rounded-lg shadow-2xl"
+            className="w-full h-full object-cover rounded-lg shadow-2xl"
+            loading="lazy"
           />
-        </div>
+        ) : (
+          <div className="w-full h-full rounded-lg bg-gray-200 flex items-center justify-center text-gray-500">
+            Image unavailable
+          </div>
+        )
       ) : (
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="w-full h-full object-cover rounded-lg shadow-2xl"
-        >
-          <source src={mediaUrl} type="video/mp4" />
-        </video>
+        mediaUrl ? (
+          isDirectVideoFile(mediaUrl) ? (
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover rounded-lg shadow-2xl"
+            >
+              <source src={mediaUrl} {...(videoMimeType ? { type: videoMimeType } : {})} />
+            </video>
+          ) : (
+            <iframe
+              src={getEmbedUrl(mediaUrl, { autoplay: false })}
+              title={title || 'Embedded video'}
+              className="w-full h-full min-h-[400px] rounded-lg shadow-2xl"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          )
+        ) : (
+          <div className="w-full h-full rounded-lg bg-gray-200 flex items-center justify-center text-gray-500">
+            Video unavailable
+          </div>
+        )
       )}
     </div>
   );

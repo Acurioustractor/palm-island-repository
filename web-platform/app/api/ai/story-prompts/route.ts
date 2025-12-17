@@ -32,7 +32,7 @@ export async function GET(request: Request) {
         }
         return NextResponse.json({
           templates: STORY_TEMPLATES,
-          categories: [...new Set(STORY_TEMPLATES.map(t => t.category))]
+          categories: Array.from(new Set(STORY_TEMPLATES.map(t => t.category)))
         });
 
       case 'template':

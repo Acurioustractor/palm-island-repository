@@ -2,12 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
 import {
   ArrowLeft, Plus, Save, Eye, Trash2, GripVertical,
   Type, Quote, Image as ImageIcon, Video, Layout, Mountain,
-  Calendar, Grid3x3, MoveUp, MoveDown, BookOpen, X, Check
+  Calendar, Grid3x3, MoveUp, MoveDown, BookOpen, X, Check, Sparkles
 } from 'lucide-react';
 import { MediaUpload } from '@/components/story-builder/MediaUpload';
 import {
@@ -29,9 +27,6 @@ interface Section {
 }
 
 export default function StoryBuilderPage({ params }: { params: { slug: string } }) {
-  const router = useRouter();
-  const supabase = createClient();
-
   const [storyId, setStoryId] = useState<string | null>(null);
   const [storyTitle, setStoryTitle] = useState('');
   const [storySubtitle, setStorySubtitle] = useState('');
@@ -40,6 +35,11 @@ export default function StoryBuilderPage({ params }: { params: { slug: string } 
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [generateModalOpen, setGenerateModalOpen] = useState(false);
+  const [storytellersLoading, setStorytellersLoading] = useState(false);
+  const [storytellers, setStorytellers] = useState<Array<{ id: string; full_name: string; preferred_name?: string; is_elder?: boolean; profile_image_url?: string }>>([]);
+  const [selectedStorytellerIds, setSelectedStorytellerIds] = useState<Record<string, boolean>>({});
   const [projectName, setProjectName] = useState('');
 
   const sectionTypes = [
@@ -55,114 +55,36 @@ export default function StoryBuilderPage({ params }: { params: { slug: string } 
 
   // Load existing story if it exists
   useEffect(() => {
-    loadStory();
-    loadProject();
+    setStoryId(null);
+    setStoryTitle('');
+    setStorySubtitle('');
+    setHeroMedia({ url: '', type: 'image' });
+    setSections([]);
+    setProjectName('');
+    loadEditorData();
   }, [params.slug]);
 
-  const loadProject = async () => {
-    const { data } = await supabase
-      .from('projects')
-      .select('name')
-      .eq('slug', params.slug)
-      .single();
+  const loadEditorData = async () => {
+    try {
+      const res = await fetch(`/api/story-builder?projectSlug=${encodeURIComponent(params.slug)}`);
+      const json = await res.json();
+      if (!res.ok) throw new Error(json?.error || 'Failed to load story');
 
-    if (data) {
-      setProjectName(data.name);
-    }
-  };
+      if (json?.project?.name) setProjectName(json.project.name);
 
-  const loadStory = async () => {
-    // First get the project ID
-    const { data: project } = await supabase
-      .from('projects')
-      .select('id')
-      .eq('slug', params.slug)
-      .single();
-
-    if (!project) return;
-
-    // Load existing story
-    const { data: story } = await supabase
-      .from('immersive_stories')
-      .select('*')
-      .eq('project_id', project.id)
-      .single();
-
-    if (story) {
-      setStoryId(story.id);
-      setStoryTitle(story.title || '');
-      setStorySubtitle(story.subtitle || '');
-      setHeroMedia({
-        url: story.hero_media_url || '',
-        type: story.hero_media_type || 'image',
-      });
-
-      // Load sections
-      const { data: sectionsData } = await supabase
-        .from('story_sections')
-        .select('*')
-        .eq('story_id', story.id)
-        .order('section_order');
-
-      if (sectionsData) {
-        const loadedSections = await Promise.all(
-          sectionsData.map(async (section: any) => {
-            let data = {
-              title: section.title,
-              content: section.content,
-              mediaUrl: section.media_url,
-              mediaType: section.media_type,
-              mediaPosition: section.media_position,
-              caption: section.media_caption,
-              alt: section.media_alt,
-              quote: section.content,
-              author: section.quote_author,
-              role: section.quote_role,
-              videoUrl: section.media_url,
-              imageUrl: section.media_url,
-              text: section.title,
-              subtitle: section.content,
-              images: [],
-              events: [],
-            };
-
-            // Load timeline events if timeline section
-            if (section.section_type === 'timeline') {
-              const { data: events } = await supabase
-                .from('story_timeline_events')
-                .select('*')
-                .eq('section_id', section.id)
-                .order('event_order');
-
-              data.events = events || [];
-            }
-
-            // Load gallery images if gallery section
-            if (section.section_type === 'gallery') {
-              const { data: images } = await supabase
-                .from('story_gallery_images')
-                .select('*')
-                .eq('section_id', section.id)
-                .order('image_order');
-
-              data.images = images?.map((img: any) => ({
-                url: img.image_url,
-                alt: img.image_alt,
-                caption: img.image_caption,
-              })) || [];
-            }
-
-            return {
-              id: section.id,
-              type: section.section_type,
-              order: section.section_order,
-              data,
-            };
-          })
-        );
-
-        setSections(loadedSections);
+      const story = json?.story;
+      if (story) {
+        setStoryId(story.id);
+        setStoryTitle(story.title || '');
+        setStorySubtitle(story.subtitle || '');
+        setHeroMedia({
+          url: story.hero_media_url || '',
+          type: story.hero_media_type || 'image',
+        });
+        setSections(json?.sections || []);
       }
+    } catch (error: any) {
+      console.error('Failed to load story editor data:', error);
     }
   };
 
@@ -171,7 +93,7 @@ export default function StoryBuilderPage({ params }: { params: { slug: string } 
       case 'text':
         return { title: '', content: '' };
       case 'quote':
-        return { quote: '', author: '', role: '' };
+        return { quote: '', author: '', role: '', photoUrl: '' };
       case 'sidebyside':
         return { title: '', content: '', mediaUrl: '', mediaType: 'image', mediaPosition: 'right' };
       case 'video':
@@ -231,117 +153,22 @@ export default function StoryBuilderPage({ params }: { params: { slug: string } 
 
     setSaving(true);
     try {
-      // Get project ID
-      const { data: project } = await supabase
-        .from('projects')
-        .select('id')
-        .eq('slug', params.slug)
-        .single();
+      const res = await fetch('/api/story-builder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          projectSlug: params.slug,
+          title: storyTitle,
+          subtitle: storySubtitle,
+          heroMedia,
+          sections,
+        }),
+      });
 
-      if (!project) throw new Error('Project not found');
+      const json = await res.json();
+      if (!res.ok) throw new Error(json?.error || 'Failed to save story');
 
-      const { data: { user } } = await supabase.auth.getUser();
-
-      let currentStoryId = storyId;
-
-      // Create or update story
-      if (storyId) {
-        await supabase
-          .from('immersive_stories')
-          .update({
-            title: storyTitle,
-            subtitle: storySubtitle,
-            hero_media_url: heroMedia.url,
-            hero_media_type: heroMedia.type,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', storyId);
-      } else {
-        const slug = `${params.slug}-story`;
-        const { data: newStory } = await supabase
-          .from('immersive_stories')
-          .insert({
-            project_id: project.id,
-            title: storyTitle,
-            subtitle: storySubtitle,
-            slug,
-            hero_media_url: heroMedia.url,
-            hero_media_type: heroMedia.type,
-            created_by: user?.id,
-          })
-          .select()
-          .single();
-
-        if (newStory) {
-          currentStoryId = newStory.id;
-          setStoryId(newStory.id);
-        }
-      }
-
-      if (!currentStoryId) throw new Error('Failed to create story');
-
-      // Delete existing sections
-      await supabase
-        .from('story_sections')
-        .delete()
-        .eq('story_id', currentStoryId);
-
-      // Save sections
-      for (let i = 0; i < sections.length; i++) {
-        const section = sections[i];
-
-        const { data: savedSection } = await supabase
-          .from('story_sections')
-          .insert({
-            story_id: currentStoryId,
-            section_order: i,
-            section_type: section.type,
-            title: section.data.title || section.data.text || null,
-            content: section.data.content || section.data.quote || section.data.subtitle || null,
-            media_url: section.data.mediaUrl || section.data.videoUrl || section.data.imageUrl || null,
-            media_type: section.data.mediaType || null,
-            media_position: section.data.mediaPosition || null,
-            media_caption: section.data.caption || null,
-            media_alt: section.data.alt || null,
-            quote_author: section.data.author || null,
-            quote_role: section.data.role || null,
-          })
-          .select()
-          .single();
-
-        if (savedSection) {
-          // Save timeline events
-          if (section.type === 'timeline' && section.data.events) {
-            for (let j = 0; j < section.data.events.length; j++) {
-              const event = section.data.events[j];
-              await supabase.from('story_timeline_events').insert({
-                section_id: savedSection.id,
-                event_order: j,
-                event_date: event.date,
-                event_title: event.title,
-                event_description: event.description,
-                is_complete: event.isComplete !== false,
-              });
-            }
-          }
-
-          // Save gallery images
-          if (section.type === 'gallery' && section.data.images) {
-            for (let j = 0; j < section.data.images.length; j++) {
-              const image = section.data.images[j];
-              if (image.url) {
-                await supabase.from('story_gallery_images').insert({
-                  section_id: savedSection.id,
-                  image_order: j,
-                  image_url: image.url,
-                  image_alt: image.alt,
-                  image_caption: image.caption,
-                });
-              }
-            }
-          }
-        }
-      }
+      if (json?.storyId) setStoryId(json.storyId);
 
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
@@ -351,6 +178,84 @@ export default function StoryBuilderPage({ params }: { params: { slug: string } 
       alert('Failed to save story: ' + error.message);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleGenerate = async () => {
+    setGenerateModalOpen(true);
+    setStorytellersLoading(true);
+    try {
+      const res = await fetch('/api/storytellers');
+      const json = await res.json();
+      if (!res.ok) throw new Error(json?.error || 'Failed to load storytellers');
+      const list = (json?.data || []) as any[];
+      setStorytellers(list);
+      const elders = list.filter((p) => p.is_elder).slice(0, 12);
+      const defaultSelection: Record<string, boolean> = {};
+      elders.forEach((p) => (defaultSelection[p.id] = true));
+      setSelectedStorytellerIds(defaultSelection);
+    } catch (e: any) {
+      console.error('Failed to load storytellers:', e);
+      alert('Failed to load storytellers: ' + (e?.message || 'Unknown error'));
+      setGenerateModalOpen(false);
+    } finally {
+      setStorytellersLoading(false);
+    }
+  };
+
+  const applyGenerated = (json: any) => {
+    if (typeof json?.storyTitle === 'string') setStoryTitle(json.storyTitle);
+    if (typeof json?.storySubtitle === 'string') setStorySubtitle(json.storySubtitle);
+    if (json?.heroMedia?.url) setHeroMedia({ url: json.heroMedia.url, type: json.heroMedia.type === 'video' ? 'video' : 'image' });
+    if (Array.isArray(json?.sections)) {
+      setSections(json.sections);
+      setEditingSection(json.sections[0]?.id || null);
+    }
+  };
+
+  const runGenerateQuick = async () => {
+    const ok = confirm('Generate a draft from this project’s description, media, and updates? This will replace your current sections.');
+    if (!ok) return;
+    setGenerating(true);
+    try {
+      const res = await fetch(`/api/story-builder/generate?projectSlug=${encodeURIComponent(params.slug)}`);
+      const json = await res.json();
+      if (!res.ok) throw new Error(json?.error || 'Failed to generate story');
+      applyGenerated(json);
+      setGenerateModalOpen(false);
+    } catch (error: any) {
+      console.error('Generate error:', error);
+      alert('Failed to generate story: ' + (error?.message || 'Unknown error'));
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const runGenerateFromElders = async () => {
+    const ids = Object.entries(selectedStorytellerIds).filter(([, v]) => v).map(([k]) => k);
+    if (ids.length === 0) {
+      alert('Select at least one storyteller');
+      return;
+    }
+    const ok = confirm('Generate a draft using selected Elders’ transcripts/quotes (plus tagged media)? This will replace your current sections.');
+    if (!ok) return;
+
+    setGenerating(true);
+    try {
+      const res = await fetch('/api/story-builder/generate-from-interviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ projectSlug: params.slug, storytellerIds: ids }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json?.error || 'Failed to generate story');
+      applyGenerated(json);
+      setGenerateModalOpen(false);
+    } catch (error: any) {
+      console.error('Generate error:', error);
+      alert('Failed to generate story: ' + (error?.message || 'Unknown error'));
+    } finally {
+      setGenerating(false);
     }
   };
 
@@ -373,11 +278,12 @@ export default function StoryBuilderPage({ params }: { params: { slug: string } 
     return sectionType ? sectionType.color : 'gray';
   };
 
-  const renderSectionEditor = (section: Section) => {
-    const props = {
-      data: section.data,
-      onChange: (newData: any) => updateSection(section.id, newData),
-    };
+	  const renderSectionEditor = (section: Section) => {
+	    const props = {
+	      data: section.data,
+	      onChange: (newData: any) => updateSection(section.id, newData),
+	      projectSlug: params.slug,
+	    };
 
     switch (section.type) {
       case 'text':
@@ -426,6 +332,23 @@ export default function StoryBuilderPage({ params }: { params: { slug: string } 
             </div>
             <div className="flex gap-3">
               <button
+                onClick={handleGenerate}
+                disabled={generating}
+                className="flex items-center gap-2 px-6 py-3 bg-white/20 hover:bg-white/30 text-white font-semibold rounded-lg transition-all disabled:opacity-50"
+              >
+                {generating ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Generating...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-5 h-5" />
+                    <span>Auto-generate</span>
+                  </>
+                )}
+              </button>
+              <button
                 onClick={handleSave}
                 disabled={saving}
                 className="flex items-center gap-2 px-6 py-3 bg-white hover:bg-gray-100 text-gray-900 font-semibold rounded-lg transition-all shadow-lg disabled:opacity-50"
@@ -457,6 +380,80 @@ export default function StoryBuilderPage({ params }: { params: { slug: string } 
             </div>
           </div>
         </div>
+
+        {generateModalOpen && (
+          <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-6">
+            <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[85vh] overflow-hidden border border-gray-200">
+              <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+                <div>
+                  <div className="font-bold text-gray-900">Auto-generate Story</div>
+                  <div className="text-xs text-gray-600">Start with a draft, then refine in the editor.</div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setGenerateModalOpen(false)}
+                  className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg text-sm"
+                >
+                  Close
+                </button>
+              </div>
+
+              <div className="p-6 overflow-y-auto max-h-[calc(85vh-56px)] space-y-6">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <button
+                    type="button"
+                    disabled={generating}
+                    onClick={runGenerateQuick}
+                    className="p-4 border border-gray-200 rounded-xl hover:border-blue-400 hover:bg-blue-50 text-left transition-colors disabled:opacity-50"
+                  >
+                    <div className="font-bold text-gray-900 mb-1">Quick draft</div>
+                    <div className="text-sm text-gray-600">Uses project description, tagged media, and project updates timeline.</div>
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={generating}
+                    onClick={runGenerateFromElders}
+                    className="p-4 border border-gray-200 rounded-xl hover:border-purple-400 hover:bg-purple-50 text-left transition-colors disabled:opacity-50"
+                  >
+                    <div className="font-bold text-gray-900 mb-1">Draft from Elders’ transcripts</div>
+                    <div className="text-sm text-gray-600">Adds quotes with portraits from selected storytellers + trip media.</div>
+                  </button>
+                </div>
+
+                <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="font-bold text-gray-900">Select storytellers</div>
+                    {storytellersLoading && <div className="text-sm text-gray-600">Loading…</div>}
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {storytellers.map((p) => (
+                      <label key={p.id} className="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg">
+                        <input
+                          type="checkbox"
+                          checked={!!selectedStorytellerIds[p.id]}
+                          onChange={(e) => setSelectedStorytellerIds((prev) => ({ ...prev, [p.id]: e.target.checked }))}
+                        />
+                        {p.profile_image_url ? (
+                          <img src={p.profile_image_url} alt="" className="w-10 h-10 rounded-full object-cover" />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-gray-200" />
+                        )}
+                        <div className="min-w-0">
+                          <div className="text-sm font-semibold text-gray-900 truncate">
+                            {p.preferred_name || p.full_name}
+                          </div>
+                          <div className="text-xs text-gray-600">{p.is_elder ? 'Elder' : 'Storyteller'}</div>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Left: Story Settings & Add Section */}
@@ -496,6 +493,8 @@ export default function StoryBuilderPage({ params }: { params: { slug: string } 
                   label="Hero Media"
                   accept="both"
                   currentUrl={heroMedia.url}
+                  projectSlug={params.slug}
+                  usageContext="immersive_story"
                   onUpload={(url, type) => setHeroMedia({ url, type })}
                 />
               </div>

@@ -1,11 +1,31 @@
 'use client'
 
-import { useState, Suspense } from 'react'
+export const dynamic = 'force-dynamic';
+
+import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/components/providers/AuthProvider'
 import { Loader2, ArrowLeft, Mail, Check } from 'lucide-react'
 
 function ForgotPasswordContent() {
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    )
+  }
+
+  return <ForgotPasswordForm />
+}
+
+function ForgotPasswordForm() {
   const { resetPassword } = useAuth()
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')

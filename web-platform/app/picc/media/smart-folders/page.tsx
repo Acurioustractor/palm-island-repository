@@ -10,6 +10,7 @@ import {
   AlertCircle,
   Calendar,
   Folder,
+  FileText,
   Image as ImageIcon,
   Loader2
 } from 'lucide-react';
@@ -38,6 +39,7 @@ const iconMap: Record<string, any> = {
   AlertCircle,
   Calendar,
   Folder,
+  FileText,
 };
 
 const colorClasses: Record<string, { bg: string; border: string; text: string; badge: string }> = {
@@ -53,6 +55,7 @@ export default function SmartFoldersPage() {
   const [folders, setFolders] = useState<SmartFolder[]>([]);
   const [mediaCounts, setMediaCounts] = useState<MediaCount>({});
   const [loading, setLoading] = useState(true);
+  const [bootstrapping, setBootstrapping] = useState(false);
 
   useEffect(() => {
     loadSmartFolders();
@@ -91,6 +94,21 @@ export default function SmartFoldersPage() {
       console.error('Error loading smart folders:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const bootstrapFolders = async () => {
+    try {
+      setBootstrapping(true);
+      const res = await fetch('/api/media/bootstrap-system-folders', { method: 'POST' });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json?.error || 'Failed to bootstrap folders');
+      await loadSmartFolders();
+      alert(`Created/updated ${json.createdOrUpdated || 0} system folders.`);
+    } catch (e: any) {
+      alert(e?.message || 'Failed to bootstrap folders');
+    } finally {
+      setBootstrapping(false);
     }
   };
 
@@ -206,6 +224,15 @@ export default function SmartFoldersPage() {
               <Sparkles className="h-8 w-8 text-purple-600" />
               <h1 className="text-3xl font-bold text-gray-900">Smart Folders</h1>
             </div>
+            <button
+              onClick={bootstrapFolders}
+              disabled={bootstrapping}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-sm disabled:opacity-60"
+              title="Create service/project/year folders automatically"
+            >
+              {bootstrapping ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+              Build PICC Folders
+            </button>
           </div>
           <p className="text-gray-600">
             Dynamic collections that automatically organize photos based on tags, dates, and quality

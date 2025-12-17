@@ -40,9 +40,18 @@ export function TextSectionEditor({ data, onChange }: any) {
 }
 
 // Quote Section Editor
-export function QuoteSectionEditor({ data, onChange }: any) {
+export function QuoteSectionEditor({ data, onChange, projectSlug }: any) {
   return (
     <div className="space-y-4">
+      <MediaUpload
+        label="Portrait (Optional)"
+        accept="image"
+        currentUrl={data.photoUrl}
+        projectSlug={projectSlug}
+        usageContext="profile_photo"
+        onUpload={(url) => onChange({ ...data, photoUrl: url })}
+      />
+
       <div>
         <label className="block text-sm font-semibold text-gray-700 mb-2">
           Quote
@@ -86,7 +95,7 @@ export function QuoteSectionEditor({ data, onChange }: any) {
 }
 
 // Side by Side Section Editor
-export function SideBySideSectionEditor({ data, onChange }: any) {
+export function SideBySideSectionEditor({ data, onChange, projectSlug }: any) {
   return (
     <div className="space-y-4">
       <div>
@@ -106,6 +115,8 @@ export function SideBySideSectionEditor({ data, onChange }: any) {
         label="Media (Image or Video)"
         accept="both"
         currentUrl={data.mediaUrl}
+        projectSlug={projectSlug}
+        usageContext="immersive_story"
         onUpload={(url, type) => onChange({ ...data, mediaUrl: url, mediaType: type })}
       />
 
@@ -154,7 +165,7 @@ export function SideBySideSectionEditor({ data, onChange }: any) {
 }
 
 // Video Section Editor
-export function VideoSectionEditor({ data, onChange }: any) {
+export function VideoSectionEditor({ data, onChange, projectSlug }: any) {
   return (
     <div className="space-y-4">
       <div>
@@ -174,6 +185,8 @@ export function VideoSectionEditor({ data, onChange }: any) {
         label="Video File"
         accept="video"
         currentUrl={data.videoUrl}
+        projectSlug={projectSlug}
+        usageContext="immersive_story"
         onUpload={(url) => onChange({ ...data, videoUrl: url })}
       />
 
@@ -194,13 +207,15 @@ export function VideoSectionEditor({ data, onChange }: any) {
 }
 
 // Full Bleed Image Editor
-export function FullBleedImageEditor({ data, onChange }: any) {
+export function FullBleedImageEditor({ data, onChange, projectSlug }: any) {
   return (
     <div className="space-y-4">
       <MediaUpload
         label="Image"
         accept="image"
         currentUrl={data.imageUrl}
+        projectSlug={projectSlug}
+        usageContext="immersive_story"
         onUpload={(url) => onChange({ ...data, imageUrl: url })}
       />
 
@@ -234,7 +249,7 @@ export function FullBleedImageEditor({ data, onChange }: any) {
 }
 
 // Gallery Section Editor
-export function GallerySectionEditor({ data, onChange }: any) {
+export function GallerySectionEditor({ data, onChange, projectSlug }: any) {
   const images = data.images || [];
 
   const addImage = () => {
@@ -309,12 +324,14 @@ export function GallerySectionEditor({ data, onChange }: any) {
                   </button>
                 </div>
 
-                <div className="space-y-3">
-                  <MediaUpload
-                    accept="image"
-                    currentUrl={image.url}
-                    onUpload={(url) => updateImage(index, 'url', url)}
-                  />
+	                <div className="space-y-3">
+	                  <MediaUpload
+	                    accept="image"
+	                    currentUrl={image.url}
+	                    projectSlug={projectSlug}
+	                    usageContext="immersive_story"
+	                    onUpload={(url) => updateImage(index, 'url', url)}
+	                  />
 
                   <input
                     type="text"
@@ -462,13 +479,15 @@ export function TimelineSectionEditor({ data, onChange }: any) {
 }
 
 // Parallax Section Editor
-export function ParallaxSectionEditor({ data, onChange }: any) {
+export function ParallaxSectionEditor({ data, onChange, projectSlug }: any) {
   return (
     <div className="space-y-4">
       <MediaUpload
         label="Background Image"
         accept="image"
         currentUrl={data.imageUrl}
+        projectSlug={projectSlug}
+        usageContext="immersive_story"
         onUpload={(url) => onChange({ ...data, imageUrl: url })}
       />
 

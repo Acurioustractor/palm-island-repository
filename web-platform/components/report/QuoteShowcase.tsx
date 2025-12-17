@@ -48,8 +48,8 @@ export function QuoteShowcase({
 
   if (variant === 'featured') {
     return (
-      <section className={`py-20 sm:py-32 ${bgStyles[background]} ${className}`}>
-        <div className="max-w-5xl mx-auto px-6">
+      <section className={`py-20 sm:py-32 print:py-10 print:break-inside-avoid ${bgStyles[background]} ${className}`}>
+        <div className="max-w-5xl mx-auto px-6 print:px-0">
           <ScrollReveal animation="scale">
             <div className="relative">
               {/* Large quote marks */}
@@ -182,34 +182,34 @@ export function LeadershipMessage({
   className = '',
 }: LeadershipMessageProps) {
   return (
-    <section className={`py-16 sm:py-24 ${className}`}>
-      <div className="max-w-5xl mx-auto px-6">
+    <section className={`py-16 sm:py-24 print:py-10 print:break-inside-avoid ${className}`}>
+      <div className="max-w-5xl mx-auto px-6 print:px-0">
         <ScrollReveal animation="fadeUp">
-          <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center print:text-2xl print:mb-6">
             Message from Our {role}
           </h2>
         </ScrollReveal>
 
-        <div className="grid md:grid-cols-5 gap-8 items-start">
+        <div className="grid md:grid-cols-5 gap-8 items-start print:grid-cols-5 print:gap-4">
           {/* Photo column */}
-          <ScrollReveal animation="fadeRight" className="md:col-span-2">
+          <ScrollReveal animation="fadeRight" className="md:col-span-2 print:col-span-2">
             <div className="relative">
               {image ? (
                 <img
                   src={image}
                   alt={name}
-                  className="w-full aspect-[4/5] object-cover rounded-2xl shadow-xl"
+                  className="w-full aspect-[4/5] object-cover rounded-2xl shadow-xl print:rounded-lg print:shadow-none"
                 />
               ) : (
-                <div className="w-full aspect-[4/5] bg-gradient-to-br from-[#1e3a5f] to-[#2d6a4f] rounded-2xl shadow-xl flex items-center justify-center">
-                  <span className="text-6xl font-bold text-white/30">
+                <div className="w-full aspect-[4/5] bg-gradient-to-br from-[#1e3a5f] to-[#2d6a4f] rounded-2xl shadow-xl flex items-center justify-center print:rounded-lg">
+                  <span className="text-6xl font-bold text-white/30 print:text-4xl">
                     {name.charAt(0)}
                   </span>
                 </div>
               )}
 
               {/* Name card overlay */}
-              <div className="absolute -bottom-4 -right-4 bg-white rounded-lg shadow-lg p-4">
+              <div className="absolute -bottom-4 -right-4 bg-white rounded-lg shadow-lg p-4 print:relative print:bottom-0 print:right-0 print:mt-2 print:shadow-none print:border print:border-gray-200">
                 <p className="font-bold text-gray-900">{name}</p>
                 <p className="text-sm text-gray-500">{role}</p>
               </div>
@@ -217,17 +217,17 @@ export function LeadershipMessage({
           </ScrollReveal>
 
           {/* Message column */}
-          <ScrollReveal animation="fadeLeft" delay={200} className="md:col-span-3">
-            <div className="prose prose-lg max-w-none">
-              <Quote className="w-10 h-10 text-[#8b5a2b]/30 mb-4" />
+          <ScrollReveal animation="fadeLeft" delay={200} className="md:col-span-3 print:col-span-3">
+            <div className="prose prose-lg max-w-none print:prose-sm">
+              <Quote className="w-10 h-10 text-[#8b5a2b]/30 mb-4 print:w-6 print:h-6 print:mb-2" />
 
-              <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+              <div className="text-gray-700 whitespace-pre-wrap leading-relaxed print:text-sm print:leading-normal">
                 {message}
               </div>
 
               {signature && (
-                <div className="mt-8 pt-6 border-t border-gray-200">
-                  <p className="font-script text-2xl text-gray-800 italic">
+                <div className="mt-8 pt-6 border-t border-gray-200 print:mt-4 print:pt-3">
+                  <p className="font-script text-2xl text-gray-800 italic print:text-xl">
                     {signature}
                   </p>
                   <p className="text-sm text-gray-500 mt-1">{name}</p>

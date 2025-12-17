@@ -17,7 +17,7 @@ export async function createServerComponentClient() {
         getAll() {
           return cookieStore.getAll()
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: Array<{ name: string; value: string; options?: CookieOptions }>) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options)
@@ -27,7 +27,7 @@ export async function createServerComponentClient() {
             // This can be ignored if you have middleware refreshing sessions.
           }
         },
-      },
+      } as any,
     }
   )
 }
@@ -47,12 +47,12 @@ export async function createRouteHandlerClient() {
         getAll() {
           return cookieStore.getAll()
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: Array<{ name: string; value: string; options?: CookieOptions }>) {
           cookiesToSet.forEach(({ name, value, options }) =>
             cookieStore.set(name, value, options)
           )
         },
-      },
+      } as any,
     }
   )
 }
@@ -99,7 +99,7 @@ export async function getServerProfile(): Promise<AuthProfile | null> {
   if (!user) return null
 
   const supabase = await createServerComponentClient()
-  const { data: profile } = await supabase
+  const { data: profile } = await (supabase as any)
     .from('profiles')
     .select('*')
     .eq('user_id', user.id)

@@ -1,0 +1,149 @@
+{
+  "startedAt": "2025-12-16T22:48:20.404Z",
+  "apply": true,
+  "force": false,
+  "limit": null,
+  "maxInterviews": 3,
+  "maxTranscriptChars": 14000,
+  "totals": {
+    "elders": 8,
+    "analyzed": 8,
+    "updated": 8,
+    "skipped": 0,
+    "errors": 0
+  },
+  "elders": [
+    {
+      "id": "b0000000-0000-0000-0000-000000000004",
+      "name": "Allan Palm Island",
+      "action": "updated",
+      "bio": "Allan Palm Island is a Director with Palm Island Community Company and a respected cultural leader and artist. Trained initially by his father and later through formal study including a Bachelor of Fine Arts from RMIT Melbourne, Uncle Allan creates artwork that represents family, togetherness, and the young generation. He welcomes visitors to Palm Island on behalf of the Bwgcolman people and is committed to sharing culture and history through art and education.",
+      "error": null,
+      "source_interviews": [
+        {
+          "id": "7bc34a33-d30c-4495-a635-a36ac0c0ca7d",
+          "title": "PICC Daycare Opening"
+        },
+        {
+          "id": "c8d4f21c-ff84-4006-b86b-c74e545fdacd",
+          "title": "Painting Interview"
+        },
+        {
+          "id": "fde0993a-9eca-4581-9a84-981f7292ed12",
+          "title": "Lucinda Interview - Elders Trip"
+        }
+      ]
+    },
+    {
+      "id": "a177c7bf-d20f-43e3-b78c-533ea8f40ce9",
+      "name": "Aunty Ethel",
+      "action": "updated",
+      "bio": "Aunty Ethel Taylor Robinson is one of the eldest members of the Palm Island Community Company and has dedicated herself to supporting the organisation and attending Elders' meetings. Her father was born at Halifax and is of South Sea Islander and Aboriginal descent, while her mother is a descendant of the Durabal tribe with connections to Hinchinbrook. Aunty Ethel carries deep knowledge of her people and her family's history, and continues to guide the company's direction with wisdom and commitment.",
+      "error": null,
+      "source_interviews": [
+        {
+          "id": "4e10d089-6cfc-47f7-8cdb-e18d9174e9ab",
+          "title": "Lucinda Interview - Elders Trip"
+        },
+        {
+          "id": "d5923323-a409-42de-8583-638f75220e5b",
+          "title": "Elders trip"
+        },
+        {
+          "id": "e882aa5a-b5fa-4b71-866b-d2c4cd3ef4d3",
+          "title": "Ethel and Iris"
+        }
+      ]
+    },
+    {
+      "id": "5ce8bc61-440f-4bc8-8994-bcd86f86ad8c",
+      "name": "Cyndel",
+      "action": "updated",
+      "bio": "Cyndel Louise Pryor is an Elder with deep ancestral connections to Palm Island through her grandfather, Peter Brear, who was involved in significant events there in the 1930s, and her parents, who married on the island. Her mother was part of the Stolen Generation, raised in the Palm Island dormitory, and Cyndel has dedicated herself to researching and preserving her mother's history from the Guay people near Tully. Now a grandmother and great-grandmother to many, she values learning from Elders and is committed to passing down knowledge to future generations.",
+      "error": null,
+      "source_interviews": [
+        {
+          "id": "b584b108-2e06-46d3-a6b9-810a3d4b5bcf",
+          "title": "Elders Trip"
+        }
+      ]
+    },
+    {
+      "id": "94974979-c361-41d4-9126-1af6f2af3a3b",
+      "name": "Elsa",
+      "action": "updated",
+      "bio": "Elsa Watson is an Elder with the Palm Island Community Company whose family connections span the Atherton Tablelands and Palm Island. Her maternal grandparents were among those sent to Palm Island from the Tablelands area, arriving when her mother was ten years old. Elsa has deep ties to Palm Island, where she grew up attending local schools, worked in retail for over 20 years, and now focuses on sharing history and cultural knowledge with younger generations while learning from senior Elders in the community.",
+      "error": null,
+      "source_interviews": [
+        {
+          "id": "9a6d9703-ca58-45af-abac-89ff31af71a7",
+          "title": "Elders Trip"
+        }
+      ]
+    },
+    {
+      "id": "f8d71ab6-57e5-4a86-9e93-d5cb873b48ae",
+      "name": "Gurtrude",
+      "action": "updated",
+      "bio": "Gurtrude Grace Richardson is an Elder from Palm Island who has been part of the Palm Island Elders group for three years. She values spending time with Elders, learning about respect, and sharing knowledge across generations. Gurtrude enjoys the joy and wisdom that comes from being with other Elders in the community.",
+      "error": null,
+      "source_interviews": [
+        {
+          "id": "564435d1-2395-4ebd-8d0a-49d53f64bdd3",
+          "title": "Elders Trip"
+        }
+      ]
+    },
+    {
+      "id": "e6539fee-7eea-4715-8d46-f89509a2e9e6",
+      "name": "Marjoyie",
+      "action": "updated",
+      "bio": "Marjorie Burns is an Elder from Palm Island who has deep family connections to the Bwgcolman community. Her grandfather, Alf Palmer, was a traditional owner who could speak seven languages, and Marjorie has worked to learn more about her heritage and pass stories down to her children and grandchildren. She has been an active member of the Palm Island Elders group, where she continues to learn from other Elders and participate in cultural trips that connect her to her ancestors' history.",
+      "error": null,
+      "source_interviews": [
+        {
+          "id": "0f49d5e8-41a4-46f3-9311-0345e3c447e6",
+          "title": "Elders Trip"
+        }
+      ]
+    },
+    {
+      "id": "085079c1-330d-485e-849e-feafc4615efe",
+      "name": "Uncle Frank",
+      "action": "updated",
+      "bio": "Uncle Frank Anderson is a Palm Island Elder who was brought to the island as a child in 1945 and has remained connected to the community ever since. He grew up in the dormitories on Palm Island, attending school there and later working in various roles including in the settlement store and overseeing tools for workers. After spending time working on the mainland and in New South Wales, Uncle Frank returned to Palm Island, where he continues to live today.",
+      "error": null,
+      "source_interviews": [
+        {
+          "id": "57f32f3a-d5ca-41e3-9167-ab71aaac889d",
+          "title": "Elders trip - Interview #1"
+        },
+        {
+          "id": "3bd5f422-672b-4764-a469-8a9c0adaac34",
+          "title": "Frank Full Interview - Elders Trip"
+        },
+        {
+          "id": "dd3ce4c5-b4d5-4e2b-8f98-b5e38b067b51",
+          "title": "Uncle Frank - Flood Stories"
+        }
+      ]
+    },
+    {
+      "id": "6adfc3e5-09c7-4335-90e4-4e6d669c40a5",
+      "name": "Winni",
+      "action": "updated",
+      "bio": "Winni Obar is a respected Elder from Palm Island with deep ancestral connections to Durru Country, Warra, and Gungandji peoples. She serves as secretary for the Elders Advisory Committee through Palm Island Community Company, where she has worked for 15 years supporting family wellbeing and organizing cultural activities including fundraising trips to reconnect with Country. Winni's grandmother and great-uncle were among those relocated from Hull River Mission to Mission Beach and eventually to Palm Island, and she continues to honor their legacy through her community leadership.",
+      "error": null,
+      "source_interviews": [
+        {
+          "id": "367695fd-426a-435d-9278-9461b9dbdf40",
+          "title": "Lucinda Interview - Pre trip"
+        },
+        {
+          "id": "1ec1a473-4e78-429e-b65e-2e00ef88ecda",
+          "title": "Elders Trip"
+        }
+      ]
+    }
+  ]
+}

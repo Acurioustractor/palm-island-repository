@@ -13,13 +13,20 @@ interface CulturalStory {
   story_category?: string;
   traditional_knowledge?: boolean;
   language_used?: string;
+  is_public?: boolean;
   storyteller?: {
     full_name: string;
     preferred_name?: string;
     is_elder?: boolean;
     traditional_country?: string;
     language_group?: string;
-  };
+  } | {
+    full_name: string;
+    preferred_name?: string;
+    is_elder?: boolean;
+    traditional_country?: string;
+    language_group?: string;
+  }[];
 }
 
 export default function CulturePage() {
@@ -55,7 +62,7 @@ export default function CulturePage() {
       if (error) {
         console.error('Error fetching culture:', error);
       } else {
-        setStories(data || []);
+        setStories((data || []) as unknown as CulturalStory[]);
       }
 
       setLoading(false);
@@ -68,7 +75,10 @@ export default function CulturePage() {
     s.story_category === 'culture_language' ||
     s.traditional_knowledge
   );
-  const elderStories = stories.filter(s => s.storyteller?.is_elder);
+  const elderStories = stories.filter(s => {
+    const storyteller = Array.isArray(s.storyteller) ? s.storyteller[0] : s.storyteller;
+    return storyteller?.is_elder;
+  });
 
   const breadcrumbs = [
     { label: 'Wiki', href: '/wiki' },
@@ -202,21 +212,28 @@ export default function CulturePage() {
                           </p>
                         )}
                         <div className="flex flex-wrap gap-2 mt-2 text-xs">
-                          {story.storyteller?.is_elder && (
-                            <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded border border-blue-200">
-                              Elder Knowledge
-                            </span>
-                          )}
-                          {story.language_used && (
-                            <span className="px-2 py-1 bg-purple-50 text-purple-700 rounded border border-purple-200">
-                              {story.language_used}
-                            </span>
-                          )}
-                          {story.storyteller?.traditional_country && (
-                            <span className="px-2 py-1 bg-emerald-50 text-emerald-700 rounded border border-emerald-200">
-                              {story.storyteller.traditional_country}
-                            </span>
-                          )}
+                          {(() => {
+                            const storyteller = Array.isArray(story.storyteller) ? story.storyteller[0] : story.storyteller;
+                            return (
+                              <>
+                                {storyteller?.is_elder && (
+                                  <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded border border-blue-200">
+                                    Elder Knowledge
+                                  </span>
+                                )}
+                                {story.language_used && (
+                                  <span className="px-2 py-1 bg-purple-50 text-purple-700 rounded border border-purple-200">
+                                    {story.language_used}
+                                  </span>
+                                )}
+                                {storyteller?.traditional_country && (
+                                  <span className="px-2 py-1 bg-emerald-50 text-emerald-700 rounded border border-emerald-200">
+                                    {storyteller.traditional_country}
+                                  </span>
+                                )}
+                              </>
+                            );
+                          })()}
                         </div>
                       </div>
                     </div>
@@ -261,11 +278,14 @@ export default function CulturePage() {
                         {story.summary}
                       </p>
                     )}
-                    {story.storyteller && (
-                      <p className="text-xs text-gray-500">
-                        by {story.storyteller.preferred_name || story.storyteller.full_name}
-                      </p>
-                    )}
+                    {(() => {
+                      const storyteller = Array.isArray(story.storyteller) ? story.storyteller[0] : story.storyteller;
+                      return storyteller && (
+                        <p className="text-xs text-gray-500">
+                          by {storyteller.preferred_name || storyteller.full_name}
+                        </p>
+                      );
+                    })()}
                   </div>
                 </div>
               </Link>
@@ -304,11 +324,14 @@ export default function CulturePage() {
                             {story.story_category.replace(/_/g, ' ')}
                           </span>
                         )}
-                        {story.storyteller && (
-                          <span className="text-gray-500">
-                            by {story.storyteller.preferred_name || story.storyteller.full_name}
-                          </span>
-                        )}
+                        {(() => {
+                          const storyteller = Array.isArray(story.storyteller) ? story.storyteller[0] : story.storyteller;
+                          return storyteller && (
+                            <span className="text-gray-500">
+                              by {storyteller.preferred_name || storyteller.full_name}
+                            </span>
+                          );
+                        })()}
                       </div>
                     </div>
                   </div>

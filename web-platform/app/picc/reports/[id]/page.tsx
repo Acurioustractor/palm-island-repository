@@ -4,7 +4,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   FileText, ArrowLeft, Download, Edit, Eye, Share2,
   Calendar, Users, Tag, BarChart3, BookOpen, Heart,
-  Loader2, Check, ExternalLink, Printer, RefreshCw, Sparkles, AlertCircle
+  Loader2, Check, ExternalLink, Printer, RefreshCw, Sparkles, AlertCircle,
+  Image as ImageIcon
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -420,6 +421,13 @@ export default function ReportViewerPage() {
               Export
             </button>
             <Link
+              href={`/picc/annual-reports/${id}/images`}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-300 hover:text-white border border-gray-700 rounded-lg hover:border-gray-500 transition-colors"
+            >
+              <ImageIcon className="h-4 w-4" />
+              Images
+            </Link>
+            <Link
               href={`/picc/report-generator?edit=${id}`}
               className="flex items-center gap-2 px-3 py-1.5 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
             >
@@ -481,7 +489,8 @@ export default function ReportViewerPage() {
       )}
 
       {/* Scrollytelling Content */}
-      <StoryContainer className={`pt-16 ${isReportEmpty || populateSuccess ? 'mt-16' : ''}`}>
+      <div className={`pt-16 ${isReportEmpty || populateSuccess ? 'mt-16' : ''}`}>
+      <StoryContainer>
         {/* Hero Section */}
         <HeroSection
           title={report.title}
@@ -681,6 +690,7 @@ export default function ReportViewerPage() {
           </p>
         </div>
       </StoryContainer>
+      </div>
     </div>
   );
 }

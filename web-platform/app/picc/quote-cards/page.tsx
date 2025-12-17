@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@/lib/supabase/client';
 import { Image as ImageIcon, Download, ArrowLeft, Palette, Type } from 'lucide-react';
 import Link from 'next/link';
 
@@ -18,7 +18,7 @@ interface Profile {
 }
 
 export default function QuoteCardsPage() {
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [stories, setStories] = useState<Story[]>([]);
   const [profiles, setProfiles] = useState<{ [key: string]: Profile }>({});
@@ -59,7 +59,7 @@ export default function QuoteCardsPage() {
       setStories(storiesData);
 
       // Load profiles
-      const storytellerIds = [...new Set(storiesData.map(s => s.storyteller_id).filter(Boolean))];
+      const storytellerIds = Array.from(new Set(storiesData.map(s => s.storyteller_id).filter(Boolean)));
       const { data: profilesData } = await supabase
         .from('profiles')
         .select('id, full_name')

@@ -31,6 +31,8 @@ export type PageContext =
   | 'stories'
   | 'share-voice'
   | 'annual-reports'
+  | 'annual-report'
+  | 'publications'
   | 'search'
   | 'chat'
   | 'assistant'

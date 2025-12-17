@@ -18,7 +18,7 @@ import type {
 export async function getPageMedia(query: PageMediaQuery): Promise<MediaFile[]> {
   const supabase = await createServerComponentClient();
 
-  let queryBuilder = supabase
+  let queryBuilder = (supabase as any)
     .from('media_files')
     .select('*')
     .eq('page_context', query.pageContext)
@@ -74,7 +74,7 @@ export async function getFeaturedPageMedia(
 ): Promise<FeaturedMedia | null> {
   const supabase = await createServerComponentClient();
 
-  let queryBuilder = supabase
+  let queryBuilder = (supabase as any)
     .from('media_files')
     .select('id, public_url, title, alt_text, context_metadata')
     .eq('page_context', pageContext)
@@ -181,7 +181,7 @@ export async function getMediaByTags(
 ): Promise<MediaFile[]> {
   const supabase = await createServerComponentClient();
 
-  let queryBuilder = supabase
+  let queryBuilder = (supabase as any)
     .from('media_files')
     .select('*')
     .overlaps('tags', tags)
@@ -213,7 +213,7 @@ export async function getMediaByTags(
 export async function getRecentMedia(limit: number = 20): Promise<MediaFile[]> {
   const supabase = await createServerComponentClient();
 
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('media_files')
     .select('*')
     .eq('is_public', true)
@@ -245,7 +245,7 @@ export async function getAllPageMedia(pageContext: PageContext): Promise<MediaFi
 export async function searchMedia(query: string, limit: number = 20): Promise<MediaFile[]> {
   const supabase = await createServerComponentClient();
 
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('media_files')
     .select('*')
     .or(`title.ilike.%${query}%,description.ilike.%${query}%`)
@@ -268,7 +268,7 @@ export async function searchMedia(query: string, limit: number = 20): Promise<Me
 export async function getPageMediaStats(pageContext: PageContext) {
   const supabase = await createServerComponentClient();
 
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('media_by_page_context')
     .select('*')
     .eq('page_context', pageContext);

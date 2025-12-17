@@ -66,6 +66,9 @@ export interface Story {
   storyteller_id?: string;
   storyteller?: Storyteller;
   story_media?: StoryMedia[];
+  featured_image_url?: string;
+  featured_people?: string[];
+  metadata?: Record<string, unknown>;
 
   // Publication status
   is_public?: boolean;

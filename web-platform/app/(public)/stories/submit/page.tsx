@@ -69,13 +69,24 @@ export default function SubmitStoryPage() {
       const { error: insertError } = await supabase
         .from('stories')
         .insert({
-          ...formData,
           storyteller_id: communityProfile.id,
-          author_id: communityProfile.id,
-          privacy_level: 'public',
-          is_public: true,
-          status: 'draft', // Start as draft
-          published_at: null
+          collected_by: communityProfile.id,
+          title: formData.title,
+          content: formData.content,
+          excerpt: formData.summary,
+          category: formData.story_category,
+          story_type: formData.story_type,
+          access_level: 'public',
+          is_public: false,
+          status: 'submitted',
+          contains_traditional_knowledge: false,
+          cultural_sensitivity_level: 'low',
+          tags: ['community-submission'],
+          metadata: {
+            emotional_theme: formData.emotional_theme,
+            submission_source: 'public_form',
+            submitted_at: new Date().toISOString(),
+          },
         });
 
       if (insertError) throw insertError;

@@ -1,0 +1,333 @@
+{
+  "name": "PICC Annual Report 2024-25",
+  "version": "1.0",
+  "fiscalYear": "2024-25",
+  "createdFrom": "2023-24 template",
+  "sections": [
+    {
+      "id": "hero",
+      "type": "ReportHero",
+      "name": "Hero Section",
+      "order": 0,
+      "width": 1440,
+      "height": 800,
+      "props": {
+        "title": "PICC Annual Report 2024-25",
+        "subtitle": "Our Community, Our Future, Our Way",
+        "theme": "Building Stronger Foundations",
+        "backgroundImage": "[Add community photo]"
+      },
+      "placeholders": {
+        "backgroundImage": { "width": 1440, "height": 800, "label": "Hero Background Image" }
+      }
+    },
+    {
+      "id": "impact-stats",
+      "type": "ImpactStatsGrid",
+      "name": "Key Statistics",
+      "order": 1,
+      "width": 1440,
+      "height": 400,
+      "props": {
+        "title": "Year at a Glance",
+        "stats": [
+          { "value": "197+", "label": "Staff Members", "description": "Local employment" },
+          { "value": "2,283", "label": "Health Clients", "description": "Community members served" },
+          { "value": "17,488", "label": "Episodes of Care", "description": "Health service delivery" },
+          { "value": "1,187", "label": "Children Supported", "description": "Through Safe Haven" },
+          { "value": "95%", "label": "Local Staff", "description": "Palm Islanders employed" },
+          { "value": "$23.4M", "label": "Revenue", "description": "Annual budget" }
+        ]
+      }
+    },
+    {
+      "id": "executive-summary",
+      "type": "Section",
+      "name": "Executive Summary",
+      "order": 2,
+      "width": 1440,
+      "height": 600,
+      "props": {
+        "title": "Executive Summary",
+        "content": "The 2024-25 financial year continues to build on the strong foundations laid by Palm Island Community Company. Our commitment to community-led development drives exceptional outcomes across all services.\n\n[Update with 2024-25 achievements and highlights]"
+      }
+    },
+    {
+      "id": "ceo-message",
+      "type": "LeadershipMessage",
+      "name": "CEO Message",
+      "order": 3,
+      "width": 1440,
+      "height": 700,
+      "props": {
+        "name": "Rachel Atkinson",
+        "role": "Chief Executive Officer",
+        "message": "[CEO message for 2024-25]",
+        "photo": "[Add CEO photo]"
+      },
+      "placeholders": {
+        "photo": { "width": 400, "height": 500, "label": "CEO Portrait Photo" }
+      }
+    },
+    {
+      "id": "chair-message",
+      "type": "LeadershipMessage",
+      "name": "Chair Message",
+      "order": 4,
+      "width": 1440,
+      "height": 700,
+      "props": {
+        "name": "Luella Bligh",
+        "role": "Board Chair",
+        "message": "[Chair message for 2024-25]",
+        "photo": "[Add Chair photo]"
+      },
+      "placeholders": {
+        "photo": { "width": 400, "height": 500, "label": "Chair Portrait Photo" }
+      }
+    },
+    {
+      "id": "quote-1",
+      "type": "QuoteShowcase",
+      "name": "Community Quote 1",
+      "order": 5,
+      "width": 1440,
+      "height": 400,
+      "props": {
+        "quote": "[Add community member quote]",
+        "author": "[Name]",
+        "role": "[Role/Description]",
+        "variant": "featured"
+      }
+    },
+    {
+      "id": "services-showcase",
+      "type": "ServiceShowcase",
+      "name": "Our Services",
+      "order": 6,
+      "width": 1440,
+      "height": 800,
+      "props": {
+        "title": "Services We Deliver",
+        "subtitle": "Supporting our community across every stage of life",
+        "services": [
+          { "name": "Health Services", "description": "Primary health care and chronic disease management", "icon": "health", "color": "#e85d04" },
+          { "name": "Safe Haven", "description": "Support services for children and families", "icon": "shield", "color": "#2d6a4f" },
+          { "name": "Housing Services", "description": "Housing maintenance and tenancy support", "icon": "home", "color": "#1e3a5f" },
+          { "name": "Youth Programs", "description": "Leadership development and education support", "icon": "graduation", "color": "#8b5a2b" },
+          { "name": "Elder Services", "description": "Cultural programs and support for Elders", "icon": "heart", "color": "#7c3aed" },
+          { "name": "Employment Services", "description": "Job training and employment pathways", "icon": "briefcase", "color": "#0891b2" }
+        ]
+      }
+    },
+    {
+      "id": "timeline",
+      "type": "Timeline",
+      "name": "Year Timeline",
+      "order": 7,
+      "width": 1440,
+      "height": 900,
+      "props": {
+        "title": "Our Journey Through 2024-25",
+        "events": [
+          { "date": "July 2024", "title": "[Event Title]", "description": "[Description]", "category": "milestone" },
+          { "date": "September 2024", "title": "[Event Title]", "description": "[Description]", "category": "launch" },
+          { "date": "November 2024", "title": "[Event Title]", "description": "[Description]", "category": "event" },
+          { "date": "January 2025", "title": "[Event Title]", "description": "[Description]", "category": "achievement" },
+          { "date": "March 2025", "title": "[Event Title]", "description": "[Description]", "category": "launch" },
+          { "date": "May 2025", "title": "[Event Title]", "description": "[Description]", "category": "milestone" },
+          { "date": "June 2025", "title": "[Event Title]", "description": "[Description]", "category": "achievement" }
+        ]
+      }
+    },
+    {
+      "id": "stories-section",
+      "type": "StoryGrid",
+      "name": "Community Stories",
+      "order": 8,
+      "width": 1440,
+      "height": 1000,
+      "props": {
+        "title": "Stories from Our Community",
+        "subtitle": "Real voices, real impact",
+        "stories": [
+          { "title": "[Story Title 1]", "excerpt": "[Brief excerpt]", "category": "Community", "image": "[Add image]" },
+          { "title": "[Story Title 2]", "excerpt": "[Brief excerpt]", "category": "Health", "image": "[Add image]" },
+          { "title": "[Story Title 3]", "excerpt": "[Brief excerpt]", "category": "Youth", "image": "[Add image]" },
+          { "title": "[Story Title 4]", "excerpt": "[Brief excerpt]", "category": "Elder", "image": "[Add image]" }
+        ]
+      },
+      "placeholders": {
+        "images": [
+          { "width": 400, "height": 300, "label": "Story Image 1" },
+          { "width": 400, "height": 300, "label": "Story Image 2" },
+          { "width": 400, "height": 300, "label": "Story Image 3" },
+          { "width": 400, "height": 300, "label": "Story Image 4" }
+        ]
+      }
+    },
+    {
+      "id": "person-quotes",
+      "type": "PersonQuoteGrid",
+      "name": "Community Voices",
+      "order": 9,
+      "width": 1440,
+      "height": 1200,
+      "props": {
+        "title": "Voices from Palm Island",
+        "people": [
+          { "name": "[Name]", "role": "Cultural Elder", "quote": "[Quote]", "image": "[Photo]" },
+          { "name": "[Name]", "role": "Youth Program Graduate", "quote": "[Quote]", "image": "[Photo]" },
+          { "name": "[Name]", "role": "Health Worker", "quote": "[Quote]", "image": "[Photo]" },
+          { "name": "[Name]", "role": "Traditional Owner", "quote": "[Quote]", "image": "[Photo]" },
+          { "name": "[Name]", "role": "Safe Haven Coordinator", "quote": "[Quote]", "image": "[Photo]" },
+          { "name": "[Name]", "role": "Digital Services Trainee", "quote": "[Quote]", "image": "[Photo]" }
+        ]
+      },
+      "placeholders": {
+        "photos": [
+          { "width": 300, "height": 300, "label": "Person Photo 1" },
+          { "width": 300, "height": 300, "label": "Person Photo 2" },
+          { "width": 300, "height": 300, "label": "Person Photo 3" },
+          { "width": 300, "height": 300, "label": "Person Photo 4" },
+          { "width": 300, "height": 300, "label": "Person Photo 5" },
+          { "width": 300, "height": 300, "label": "Person Photo 6" }
+        ]
+      }
+    },
+    {
+      "id": "projects",
+      "type": "ProjectShowcase",
+      "name": "Innovation Projects",
+      "order": 10,
+      "width": 1440,
+      "height": 900,
+      "props": {
+        "title": "Innovation & Special Projects",
+        "projects": [
+          { "name": "Photo Studio Elders Project", "description": "Capturing the stories and wisdom of our Elders", "tagline": "Preserving Elder voices", "type": "Cultural Preservation", "image": "[Add image]" },
+          { "name": "Digital Service Centre", "description": "Technology access and training for community", "tagline": "Connecting community", "type": "Community Services", "image": "[Add image]" },
+          { "name": "[New Project]", "description": "[Description]", "tagline": "[Tagline]", "type": "[Type]", "image": "[Add image]" }
+        ]
+      }
+    },
+    {
+      "id": "financial-donut",
+      "type": "FinancialDonut",
+      "name": "Financial Overview",
+      "order": 11,
+      "width": 1440,
+      "height": 700,
+      "props": {
+        "title": "Where Our Funding Goes",
+        "subtitle": "Financial transparency for our community",
+        "segments": [
+          { "label": "Wages & Salaries", "value": 14040000, "percentage": 60, "color": "#2d6a4f", "description": "197 staff delivering services" },
+          { "label": "Administration", "value": 4914000, "percentage": 21, "color": "#1e3a5f", "description": "Operations and governance" },
+          { "label": "Program Supplies", "value": 2106000, "percentage": 9, "color": "#e85d04", "description": "Materials for programs" },
+          { "label": "Contractors", "value": 1404000, "percentage": 6, "color": "#8b5a2b", "description": "Specialist services" },
+          { "label": "Other Costs", "value": 936000, "percentage": 4, "color": "#6b7280", "description": "Travel, training, support" }
+        ]
+      }
+    },
+    {
+      "id": "dollar-breakdown",
+      "type": "DollarBreakdown",
+      "name": "Every Dollar",
+      "order": 12,
+      "width": 1440,
+      "height": 500,
+      "props": {
+        "title": "Every Dollar at Work",
+        "subtitle": "How each dollar supports our community",
+        "breakdown": [
+          { "label": "Staff Wages", "cents": 60, "color": "#2d6a4f", "description": "Paying our 197 dedicated staff" },
+          { "label": "Administration", "cents": 21, "color": "#1e3a5f", "description": "Running operations" },
+          { "label": "Program Delivery", "cents": 9, "color": "#e85d04", "description": "Materials and supplies" },
+          { "label": "Specialist Services", "cents": 6, "color": "#8b5a2b", "description": "Expert support" },
+          { "label": "Community Support", "cents": 4, "color": "#6b7280", "description": "Direct support" }
+        ]
+      }
+    },
+    {
+      "id": "photo-gallery",
+      "type": "PhotoGallery",
+      "name": "Year in Photos",
+      "order": 13,
+      "width": 1440,
+      "height": 1000,
+      "props": {
+        "title": "Our Year in Photos",
+        "images": [
+          { "src": "[Photo 1]", "caption": "[Caption]", "category": "Community" },
+          { "src": "[Photo 2]", "caption": "[Caption]", "category": "Events" },
+          { "src": "[Photo 3]", "caption": "[Caption]", "category": "Services" },
+          { "src": "[Photo 4]", "caption": "[Caption]", "category": "Culture" },
+          { "src": "[Photo 5]", "caption": "[Caption]", "category": "Youth" },
+          { "src": "[Photo 6]", "caption": "[Caption]", "category": "Elders" },
+          { "src": "[Photo 7]", "caption": "[Caption]", "category": "Health" },
+          { "src": "[Photo 8]", "caption": "[Caption]", "category": "Staff" }
+        ]
+      },
+      "placeholders": {
+        "images": [
+          { "width": 600, "height": 400, "label": "Gallery Photo 1" },
+          { "width": 600, "height": 400, "label": "Gallery Photo 2" },
+          { "width": 600, "height": 400, "label": "Gallery Photo 3" },
+          { "width": 600, "height": 400, "label": "Gallery Photo 4" },
+          { "width": 600, "height": 400, "label": "Gallery Photo 5" },
+          { "width": 600, "height": 400, "label": "Gallery Photo 6" },
+          { "width": 600, "height": 400, "label": "Gallery Photo 7" },
+          { "width": 600, "height": 400, "label": "Gallery Photo 8" }
+        ]
+      }
+    },
+    {
+      "id": "quote-2",
+      "type": "QuoteShowcase",
+      "name": "Closing Quote",
+      "order": 14,
+      "width": 1440,
+      "height": 400,
+      "props": {
+        "quote": "[Add powerful closing quote from community member or Elder]",
+        "author": "[Name]",
+        "role": "[Role]",
+        "variant": "centered"
+      }
+    },
+    {
+      "id": "acknowledgments",
+      "type": "Section",
+      "name": "Acknowledgments",
+      "order": 15,
+      "width": 1440,
+      "height": 500,
+      "props": {
+        "title": "Acknowledgments",
+        "content": "We acknowledge the Manbarra and Bwgcolman peoples as the Traditional Custodians of Great Palm Island and pay our respects to Elders past, present, and emerging.\n\nWe thank all our funding partners, community members, and dedicated staff who make our work possible.\n\n[Add specific acknowledgments for 2024-25]",
+        "backgroundColor": "#1e3a5f",
+        "textColor": "white"
+      }
+    }
+  ],
+  "designTokens": {
+    "colors": {
+      "primary": "#1e3a5f",
+      "secondary": "#7c3aed",
+      "accent": "#e85d04",
+      "success": "#2d6a4f",
+      "warning": "#8b5a2b",
+      "background": "#fefdfb",
+      "text": "#1f2937"
+    },
+    "fonts": {
+      "heading": "DM Serif Display",
+      "body": "Inter"
+    },
+    "spacing": {
+      "section": 80,
+      "element": 24
+    }
+  }
+}

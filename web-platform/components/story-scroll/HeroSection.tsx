@@ -3,6 +3,7 @@
 import { ReactNode } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
+import { guessVideoMimeType, isDirectVideoFile } from './videoEmbed';
 
 interface HeroSectionProps {
   title: string;
@@ -25,6 +26,8 @@ export function HeroSection({
   textPosition = 'center',
   children,
 }: HeroSectionProps) {
+  const backgroundVideoMimeType = backgroundVideo ? guessVideoMimeType(backgroundVideo) : undefined
+
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -60,7 +63,7 @@ export function HeroSection({
         style={{ scale }}
         className="absolute inset-0 w-full h-full"
       >
-        {backgroundVideo ? (
+        {backgroundVideo && isDirectVideoFile(backgroundVideo) ? (
           <video
             autoPlay
             loop
@@ -68,7 +71,10 @@ export function HeroSection({
             playsInline
             className="w-full h-full object-cover"
           >
-            <source src={backgroundVideo} type="video/mp4" />
+            <source
+              src={backgroundVideo}
+              {...(backgroundVideoMimeType ? { type: backgroundVideoMimeType } : {})}
+            />
           </video>
         ) : backgroundImage ? (
           <div

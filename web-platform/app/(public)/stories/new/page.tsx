@@ -173,7 +173,7 @@ export default function NewStoryPage() {
       collected_by: formData.collected_by || null,
       title: formData.title,
       content: formData.content,
-      summary: formData.summary || null,
+      excerpt: formData.summary || null,
       story_type: formData.story_type,
       category: formData.category,
       sub_category: formData.sub_category || null,

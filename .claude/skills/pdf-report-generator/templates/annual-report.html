@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=210mm, initial-scale=1.0">
+  <title>{{title}} - PICC Annual Report {{year}}</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Print Styles -->
+  <link rel="stylesheet" href="../styles/print.css">
+
+  <style>
+    /* Inline critical styles for PDF generation */
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    /* Icon SVGs - inline for reliability */
+    .icon {
+      width: 24px;
+      height: 24px;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    /* Ensure images load */
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==========================================
+       COVER PAGE
+       ========================================== -->
+  <div class="pdf-cover">
+    <img
+      src="{{heroImage}}"
+      alt="Palm Island Community"
+      class="pdf-cover-image"
+      onerror="this.style.display='none'"
+    />
+    <div class="pdf-cover-overlay"></div>
+    <div class="pdf-cover-content">
+      <img
+        src="{{logoUrl}}"
+        alt="PICC Logo"
+        class="pdf-cover-logo"
+        onerror="this.style.display='none'"
+      />
+      <h1 class="pdf-cover-title">{{title}}</h1>
+      <p class="pdf-cover-subtitle">{{subtitle}}</p>
+      <p class="pdf-cover-year">{{reportingPeriod}}</p>
+    </div>
+    <p class="pdf-cover-tagline">Our Community, Our Future, Our Way</p>
+  </div>
+
+  <!-- ==========================================
+       TABLE OF CONTENTS
+       ========================================== -->
+  <div class="pdf-toc">
+    <h2 class="pdf-toc-title">Contents</h2>
+    <ol class="pdf-toc-list">
+      <li class="pdf-toc-item">
+        <span class="pdf-toc-number">1</span>
+        <span class="pdf-toc-text">Executive Summary</span>
+        <span class="pdf-toc-page">3</span>
+      </li>
+      <li class="pdf-toc-item">
+        <span class="pdf-toc-number">2</span>
+        <span class="pdf-toc-text">CEO Message</span>
+        <span class="pdf-toc-page">4</span>
+      </li>
+      <li class="pdf-toc-item">
+        <span class="pdf-toc-number">3</span>
+        <span class="pdf-toc-text">Year at a Glance</span>
+        <span class="pdf-toc-page">5</span>
+      </li>
+      <li class="pdf-toc-item">
+        <span class="pdf-toc-number">4</span>
+        <span class="pdf-toc-text">Our Services</span>
+        <span class="pdf-toc-page">6</span>
+      </li>
+      <li class="pdf-toc-item">
+        <span class="pdf-toc-number">5</span>
+        <span class="pdf-toc-text">Community Stories</span>
+        <span class="pdf-toc-page">8</span>
+      </li>
+      <li class="pdf-toc-item">
+        <span class="pdf-toc-number">6</span>
+        <span class="pdf-toc-text">Innovation Projects</span>
+        <span class="pdf-toc-page">10</span>
+      </li>
+      <li class="pdf-toc-item">
+        <span class="pdf-toc-number">7</span>
+        <span class="pdf-toc-text">Financial Summary</span>
+        <span class="pdf-toc-page">12</span>
+      </li>
+      <li class="pdf-toc-item">
+        <span class="pdf-toc-number">8</span>
+        <span class="pdf-toc-text">Community Voices</span>
+        <span class="pdf-toc-page">13</span>
+      </li>
+      <li class="pdf-toc-item">
+        <span class="pdf-toc-number">9</span>
+        <span class="pdf-toc-text">Leadership & Board</span>
+        <span class="pdf-toc-page">14</span>
+      </li>
+      <li class="pdf-toc-item">
+        <span class="pdf-toc-number">10</span>
+        <span class="pdf-toc-text">Acknowledgments</span>
+        <span class="pdf-toc-page">15</span>
+      </li>
+    </ol>
+  </div>
+
+  <!-- ==========================================
+       EXECUTIVE SUMMARY
+       ========================================== -->
+  <section class="pdf-section">
+    <div class="pdf-section-header">
+      <h2 class="pdf-section-title">Executive Summary</h2>
+      <p class="pdf-section-subtitle">A Year of Growth, Resilience, and Community</p>
+      <div class="pdf-section-divider"></div>
+    </div>
+
+    <!-- Impact Stats Banner -->
+    <div class="pdf-stats-grid">
+      {{#each stats}}
+      <div class="pdf-stat-card">
+        <div class="pdf-stat-icon">
+          <!-- Icon SVG inserted here -->
+          {{{icon}}}
+        </div>
+        <div class="pdf-stat-value">{{value}}</div>
+        <div class="pdf-stat-label">{{label}}</div>
+      </div>
+      {{/each}}
+    </div>
+
+    <div class="pdf-columns-2">
+      <p>{{executiveSummary}}</p>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       CEO MESSAGE
+       ========================================== -->
+  <section class="pdf-section">
+    <div class="pdf-section-header">
+      <h2 class="pdf-section-title">Message from the CEO</h2>
+      <div class="pdf-section-divider"></div>
+    </div>
+
+    <div class="pdf-leadership">
+      <div class="pdf-leadership-header">
+        <img
+          src="{{ceo.photoUrl}}"
+          alt="{{ceo.name}}"
+          class="pdf-leadership-photo"
+          onerror="this.style.display='none'"
+        />
+        <div class="pdf-leadership-info">
+          <h3>{{ceo.name}}</h3>
+          <p>{{ceo.role}}</p>
+        </div>
+      </div>
+      <div class="pdf-leadership-message">
+        {{ceo.message}}
+      </div>
+      <p class="pdf-leadership-signature">{{ceo.signature}}</p>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       CHAIR MESSAGE
+       ========================================== -->
+  {{#if chair.message}}
+  <section class="pdf-section">
+    <div class="pdf-section-header">
+      <h2 class="pdf-section-title">Message from the Chair</h2>
+      <div class="pdf-section-divider"></div>
+    </div>
+
+    <div class="pdf-leadership">
+      <div class="pdf-leadership-header">
+        <img
+          src="{{chair.photoUrl}}"
+          alt="{{chair.name}}"
+          class="pdf-leadership-photo"
+          onerror="this.style.display='none'"
+        />
+        <div class="pdf-leadership-info">
+          <h3>{{chair.name}}</h3>
+          <p>{{chair.role}}</p>
+        </div>
+      </div>
+      <div class="pdf-leadership-message">
+        {{chair.message}}
+      </div>
+      <p class="pdf-leadership-signature">{{chair.signature}}</p>
+    </div>
+  </section>
+  {{/if}}
+
+  <!-- ==========================================
+       YEAR HIGHLIGHTS
+       ========================================== -->
+  {{#if highlights.length}}
+  <section class="pdf-section">
+    <div class="pdf-section-header">
+      <h2 class="pdf-section-title">Year at a Glance</h2>
+      <p class="pdf-section-subtitle">Key achievements from {{year}}</p>
+      <div class="pdf-section-divider"></div>
+    </div>
+
+    <ol class="pdf-highlights">
+      {{#each highlights}}
+      <li class="pdf-highlight-item">
+        <span class="pdf-highlight-number">{{@index}}</span>
+        <p class="pdf-highlight-text">{{this}}</p>
+      </li>
+      {{/each}}
+    </ol>
+  </section>
+  {{/if}}
+
+  <!-- ==========================================
+       FEATURED QUOTE
+       ========================================== -->
+  {{#if featuredQuote}}
+  <div class="pdf-quote">
+    <p class="pdf-quote-text">{{featuredQuote.text}}</p>
+    <div class="pdf-quote-attribution">
+      {{#if featuredQuote.photoUrl}}
+      <img src="{{featuredQuote.photoUrl}}" alt="{{featuredQuote.author}}" class="pdf-quote-photo">
+      {{/if}}
+      <div>
+        <div class="pdf-quote-author">{{featuredQuote.author}}</div>
+        <div class="pdf-quote-role">{{featuredQuote.role}}</div>
+      </div>
+    </div>
+  </div>
+  {{/if}}
+
+  <!-- ==========================================
+       SERVICES
+       ========================================== -->
+  <section class="pdf-section">
+    <div class="pdf-section-header">
+      <h2 class="pdf-section-title">Our Services</h2>
+      <p class="pdf-section-subtitle">Supporting our community across all aspects of life</p>
+      <div class="pdf-section-divider"></div>
+    </div>
+
+    <div class="pdf-services-grid">
+      {{#each services}}
+      <div class="pdf-service-card">
+        <div class="pdf-service-icon" style="color: {{color}}">
+          {{{icon}}}
+        </div>
+        <h4 class="pdf-service-name">{{name}}</h4>
+        <p class="pdf-service-description">{{description}}</p>
+      </div>
+      {{/each}}
+    </div>
+  </section>
+
+  <!-- ==========================================
+       COMMUNITY STORIES
+       ========================================== -->
+  {{#if stories.length}}
+  <section class="pdf-section">
+    <div class="pdf-section-header">
+      <h2 class="pdf-section-title">Community Stories</h2>
+      <p class="pdf-section-subtitle">Stories from the heart of Palm Island</p>
+      <div class="pdf-section-divider"></div>
+    </div>
+
+    <div class="pdf-stories-grid">
+      {{#each stories}}
+      <div class="pdf-story-card">
+        {{#if imageUrl}}
+        <img src="{{imageUrl}}" alt="{{title}}" class="pdf-story-image">
+        {{/if}}
+        <div class="pdf-story-content">
+          <div class="pdf-story-category">{{category}}</div>
+          <h4 class="pdf-story-title">{{title}}</h4>
+          <p class="pdf-story-excerpt">{{excerpt}}</p>
+          {{#if author}}
+          <div class="pdf-story-author">
+            {{#if author.photoUrl}}
+            <img src="{{author.photoUrl}}" alt="{{author.name}}" class="pdf-story-author-photo">
+            {{/if}}
+            <span class="pdf-story-author-name">{{author.name}}</span>
+          </div>
+          {{/if}}
+        </div>
+      </div>
+      {{/each}}
+    </div>
+  </section>
+  {{/if}}
+
+  <!-- ==========================================
+       INNOVATION PROJECTS
+       ========================================== -->
+  {{#if projects.length}}
+  <section class="pdf-section">
+    <div class="pdf-section-header">
+      <h2 class="pdf-section-title">Innovation in Action</h2>
+      <p class="pdf-section-subtitle">Projects transforming our community</p>
+      <div class="pdf-section-divider"></div>
+    </div>
+
+    <div class="pdf-projects-grid">
+      {{#each projects}}
+      <div class="pdf-project-card">
+        {{#if imageUrl}}
+        <img src="{{imageUrl}}" alt="{{title}}" class="pdf-project-image">
+        {{/if}}
+        <div class="pdf-project-content">
+          <span class="pdf-project-status pdf-project-status--{{statusClass}}">{{status}}</span>
+          <h4 class="pdf-project-title">{{title}}</h4>
+          <p class="pdf-project-description">{{description}}</p>
+        </div>
+      </div>
+      {{/each}}
+    </div>
+  </section>
+  {{/if}}
+
+  <!-- ==========================================
+       FINANCIAL SUMMARY
+       ========================================== -->
+  {{#if financials}}
+  <section class="pdf-section">
+    <div class="pdf-section-header">
+      <h2 class="pdf-section-title">Financial Summary</h2>
+      <p class="pdf-section-subtitle">Transparent stewardship of community resources</p>
+      <div class="pdf-section-divider"></div>
+    </div>
+
+    <div class="pdf-financial">
+      <div class="pdf-financial-chart">
+        <!-- SVG Donut Chart -->
+        <svg viewBox="0 0 200 200" width="180" height="180">
+          {{#each financials.breakdown}}
+          <circle
+            cx="100" cy="100" r="80"
+            fill="none"
+            stroke="{{color}}"
+            stroke-width="30"
+            stroke-dasharray="{{dashArray}}"
+            stroke-dashoffset="{{dashOffset}}"
+            transform="rotate(-90 100 100)"
+          />
+          {{/each}}
+          <text x="100" y="95" text-anchor="middle" font-size="24" font-weight="700" fill="#1e3a5f">
+            ${{financials.total}}
+          </text>
+          <text x="100" y="115" text-anchor="middle" font-size="10" fill="#6b7280">
+            Total Revenue
+          </text>
+        </svg>
+      </div>
+
+      <div class="pdf-financial-breakdown">
+        {{#each financials.breakdown}}
+        <div class="pdf-financial-item">
+          <span class="pdf-financial-dot" style="background: {{color}}"></span>
+          <span class="pdf-financial-label">{{label}}</span>
+          <span class="pdf-financial-value">${{value}}</span>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+  </section>
+  {{/if}}
+
+  <!-- ==========================================
+       COMMUNITY VOICES / QUOTES
+       ========================================== -->
+  {{#if quotes.length}}
+  <section class="pdf-section">
+    <div class="pdf-section-header">
+      <h2 class="pdf-section-title">Community Voices</h2>
+      <p class="pdf-section-subtitle">In their own words</p>
+      <div class="pdf-section-divider"></div>
+    </div>
+
+    {{#each quotes}}
+    <div class="pdf-quote" style="margin-bottom: 5mm;">
+      <p class="pdf-quote-text">{{text}}</p>
+      <div class="pdf-quote-attribution">
+        {{#if photoUrl}}
+        <img src="{{photoUrl}}" alt="{{author}}" class="pdf-quote-photo">
+        {{/if}}
+        <div>
+          <div class="pdf-quote-author">{{author}}</div>
+          <div class="pdf-quote-role">{{role}}</div>
+        </div>
+      </div>
+    </div>
+    {{/each}}
+  </section>
+  {{/if}}
+
+  <!-- ==========================================
+       PHOTO GALLERY
+       ========================================== -->
+  {{#if gallery.length}}
+  <section class="pdf-section">
+    <div class="pdf-section-header">
+      <h2 class="pdf-section-title">Community Gallery</h2>
+      <p class="pdf-section-subtitle">Moments from {{year}}</p>
+      <div class="pdf-section-divider"></div>
+    </div>
+
+    <div class="pdf-gallery">
+      {{#each gallery}}
+      <div class="pdf-gallery-item">
+        <img src="{{url}}" alt="{{caption}}" class="pdf-gallery-image">
+        {{#if caption}}
+        <p class="pdf-gallery-caption">{{caption}}</p>
+        {{/if}}
+      </div>
+      {{/each}}
+    </div>
+  </section>
+  {{/if}}
+
+  <!-- ==========================================
+       LEADERSHIP & BOARD
+       ========================================== -->
+  {{#if leadership}}
+  <section class="pdf-section">
+    <div class="pdf-section-header">
+      <h2 class="pdf-section-title">Leadership & Governance</h2>
+      <p class="pdf-section-subtitle">Community-elected leaders guiding our vision</p>
+      <div class="pdf-section-divider"></div>
+    </div>
+
+    {{#if leadership.board.length}}
+    <h3 style="font-size: 14pt; color: #1e3a5f; margin-bottom: 5mm;">Board of Directors</h3>
+    <div class="pdf-team-grid">
+      {{#each leadership.board}}
+      <div class="pdf-team-card">
+        <img
+          src="{{photoUrl}}"
+          alt="{{name}}"
+          class="pdf-team-photo"
+          onerror="this.style.background='linear-gradient(135deg, #2d6a4f, #1e3a5f)'"
+        />
+        <h4 class="pdf-team-name">{{name}}</h4>
+        <p class="pdf-team-role">{{role}}</p>
+      </div>
+      {{/each}}
+    </div>
+    {{/if}}
+
+    {{#if leadership.executive.length}}
+    <h3 style="font-size: 14pt; color: #1e3a5f; margin: 8mm 0 5mm;">Executive Leadership</h3>
+    <div class="pdf-team-grid">
+      {{#each leadership.executive}}
+      <div class="pdf-team-card">
+        <img
+          src="{{photoUrl}}"
+          alt="{{name}}"
+          class="pdf-team-photo"
+          onerror="this.style.background='linear-gradient(135deg, #2d6a4f, #1e3a5f)'"
+        />
+        <h4 class="pdf-team-name">{{name}}</h4>
+        <p class="pdf-team-role">{{role}}</p>
+      </div>
+      {{/each}}
+    </div>
+    {{/if}}
+  </section>
+  {{/if}}
+
+  <!-- ==========================================
+       ACKNOWLEDGMENTS
+       ========================================== -->
+  {{#if acknowledgments}}
+  <section class="pdf-section">
+    <div class="pdf-section-header">
+      <h2 class="pdf-section-title">Acknowledgments</h2>
+      <div class="pdf-section-divider"></div>
+    </div>
+
+    <div class="pdf-columns-2">
+      <p>{{acknowledgments}}</p>
+    </div>
+  </section>
+  {{/if}}
+
+  <!-- ==========================================
+       BACK COVER
+       ========================================== -->
+  <div class="pdf-back-cover">
+    <img
+      src="{{logoUrl}}"
+      alt="PICC Logo"
+      class="pdf-back-logo"
+      onerror="this.style.display='none'"
+    />
+    <h2 class="pdf-back-title">Palm Island Community Company</h2>
+    <p class="pdf-back-tagline">Our Community, Our Future, Our Way</p>
+
+    <div class="pdf-back-contact">
+      <p>
+        <strong>Address:</strong> Palm Island, Queensland 4816<br>
+        <strong>Phone:</strong> (07) 4770 1177<br>
+        <strong>Email:</strong> <a href="mailto:info@picc.com.au">info@picc.com.au</a><br>
+        <strong>Web:</strong> <a href="https://picc.com.au">www.picc.com.au</a>
+      </p>
+    </div>
+
+    <p class="pdf-back-acknowledgment">
+      Palm Island Community Company acknowledges the Traditional Owners of Palm Island,
+      the Manbarra and Bwgcolman peoples, and pays respect to Elders past, present, and emerging.
+    </p>
+  </div>
+
+</body>
+</html>

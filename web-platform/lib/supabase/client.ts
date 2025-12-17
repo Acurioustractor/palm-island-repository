@@ -1,3 +1,4 @@
+import { createBrowserClient } from '@supabase/ssr'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 
 // For use in Client Components
@@ -9,7 +10,8 @@ export function createClient() {
     throw new Error('Missing Supabase environment variables')
   }
 
-  return createSupabaseClient(supabaseUrl, supabaseAnonKey)
+  // Use cookie-based auth storage so Next.js middleware/server components can read the session.
+  return createBrowserClient(supabaseUrl, supabaseAnonKey)
 }
 
 // For use in Server Components and API routes

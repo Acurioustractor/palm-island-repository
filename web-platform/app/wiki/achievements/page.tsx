@@ -13,14 +13,21 @@ interface AchievementStory {
   story_category?: string;
   created_at: string;
   location?: string;
+  is_public?: boolean;
   storyteller?: {
     full_name: string;
     preferred_name?: string;
-  };
+  } | {
+    full_name: string;
+    preferred_name?: string;
+  }[];
   service?: {
     service_name: string;
     service_color?: string;
-  };
+  } | {
+    service_name: string;
+    service_color?: string;
+  }[];
 }
 
 export default function AchievementsPage() {
@@ -57,7 +64,7 @@ export default function AchievementsPage() {
       if (error) {
         console.error('Error fetching achievements:', error);
       } else {
-        setStories(data || []);
+        setStories((data || []) as unknown as AchievementStory[]);
       }
 
       setLoading(false);
@@ -197,21 +204,27 @@ export default function AchievementsPage() {
                           </p>
                         )}
                         <div className="flex flex-wrap gap-2 text-xs">
-                          {story.service && (
-                            <span className="px-2 py-1 bg-rose-50 text-rose-700 rounded border border-rose-200">
-                              {story.service.service_name}
-                            </span>
-                          )}
+                          {(() => {
+                            const service = Array.isArray(story.service) ? story.service[0] : story.service;
+                            return service && (
+                              <span className="px-2 py-1 bg-rose-50 text-rose-700 rounded border border-rose-200">
+                                {service.service_name}
+                              </span>
+                            );
+                          })()}
                           {story.location && (
                             <span className="px-2 py-1 bg-emerald-50 text-emerald-700 rounded border border-emerald-200">
                               {story.location}
                             </span>
                           )}
-                          {story.storyteller && (
-                            <span className="text-gray-500">
-                              by {story.storyteller.preferred_name || story.storyteller.full_name}
-                            </span>
-                          )}
+                          {(() => {
+                            const storyteller = Array.isArray(story.storyteller) ? story.storyteller[0] : story.storyteller;
+                            return storyteller && (
+                              <span className="text-gray-500">
+                                by {storyteller.preferred_name || storyteller.full_name}
+                              </span>
+                            );
+                          })()}
                         </div>
                       </div>
                     </div>
@@ -297,20 +310,23 @@ export default function AchievementsPage() {
                           {story.summary}
                         </p>
                       )}
-                      {story.service && (
-                        <div className="flex items-center gap-2 text-xs">
-                          <span
-                            className="px-2 py-1 rounded border"
-                            style={{
-                              backgroundColor: story.service.service_color ? `${story.service.service_color}20` : '#FEF3C7',
-                              borderColor: story.service.service_color || '#F59E0B',
-                              color: story.service.service_color || '#92400E'
-                            }}
-                          >
-                            {story.service.service_name}
-                          </span>
-                        </div>
-                      )}
+                      {(() => {
+                        const service = Array.isArray(story.service) ? story.service[0] : story.service;
+                        return service && (
+                          <div className="flex items-center gap-2 text-xs">
+                            <span
+                              className="px-2 py-1 rounded border"
+                              style={{
+                                backgroundColor: service.service_color ? `${service.service_color}20` : '#FEF3C7',
+                                borderColor: service.service_color || '#F59E0B',
+                                color: service.service_color || '#92400E'
+                              }}
+                            >
+                              {service.service_name}
+                            </span>
+                          </div>
+                        );
+                      })()}
                     </div>
                   </div>
                 </Link>

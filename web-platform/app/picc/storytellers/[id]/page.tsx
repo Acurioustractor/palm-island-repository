@@ -7,7 +7,7 @@ import Link from 'next/link';
 import {
   ArrowLeft, User, MapPin, Calendar, BookOpen, Quote as QuoteIcon,
   Star, CheckCircle, Plus, Sparkles, Loader2, Image as ImageIcon,
-  Edit, Mic, FileText, Camera, Clock, Heart, Award
+  Edit, Mic, FileText, Camera, Clock, Heart, Award, Film, ExternalLink
 } from 'lucide-react';
 import { StorytellerQuoteCard } from '@/components/storyteller/StorytellerQuoteCard';
 
@@ -62,6 +62,17 @@ interface MediaFile {
   file_type: string;
 }
 
+interface Story {
+  id: string;
+  title: string;
+  created_at: string;
+  status?: string;
+  access_level?: string;
+  is_public?: boolean;
+  category?: string;
+  story_type?: string;
+}
+
 export default function StorytellerProfilePage() {
   const params = useParams();
   const storytellerId = params.id as string;
@@ -70,9 +81,11 @@ export default function StorytellerProfilePage() {
   const [quotes, setQuotes] = useState<ExtractedQuote[]>([]);
   const [interviews, setInterviews] = useState<Interview[]>([]);
   const [photos, setPhotos] = useState<MediaFile[]>([]);
+  const [videos, setVideos] = useState<MediaFile[]>([]);
+  const [stories, setStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'quotes' | 'interviews' | 'photos'>('quotes');
+  const [activeTab, setActiveTab] = useState<'quotes' | 'stories' | 'interviews' | 'media'>('quotes');
 
   const supabase = createClient();
 
@@ -112,6 +125,18 @@ export default function StorytellerProfilePage() {
       setInterviews(interviewsData);
     }
 
+    // Load stories by this storyteller (public + drafts for staff review)
+    const { data: storiesData } = await (supabase as any)
+      .from('stories')
+      .select('id, title, created_at, status, access_level, is_public, category, story_type')
+      .eq('storyteller_id', storytellerId)
+      .order('created_at', { ascending: false })
+      .limit(30);
+
+    if (storiesData) {
+      setStories(storiesData);
+    }
+
     // Load photos where this person is tagged
     const { data: photosData } = await (supabase as any)
       .from('media_files')
@@ -123,6 +148,19 @@ export default function StorytellerProfilePage() {
 
     if (photosData) {
       setPhotos(photosData);
+    }
+
+    // Load videos where this person is tagged
+    const { data: videosData } = await (supabase as any)
+      .from('media_files')
+      .select('id, public_url, title, file_type')
+      .contains('faces_detected', [storytellerId])
+      .eq('file_type', 'video')
+      .is('deleted_at', null)
+      .limit(20);
+
+    if (videosData) {
+      setVideos(videosData);
     }
 
     setLoading(false);
@@ -299,6 +337,14 @@ export default function StorytellerProfilePage() {
               Edit Profile
             </Link>
             <Link
+              href={`/wiki/people/${storytellerId}`}
+              target="_blank"
+              className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium flex items-center gap-2"
+            >
+              <ExternalLink className="w-4 h-4" />
+              Public Profile
+            </Link>
+            <Link
               href={`/picc/storytellers/${storytellerId}/interviews`}
               className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium flex items-center gap-2"
             >
@@ -316,7 +362,7 @@ export default function StorytellerProfilePage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-4 gap-4 mt-8 pt-6 border-t border-white/20">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mt-8 pt-6 border-t border-white/20">
           <div className="text-center">
             <div className="text-3xl font-bold">{quotes.length}</div>
             <div className="text-sm text-purple-200">Quotes</div>
@@ -326,12 +372,20 @@ export default function StorytellerProfilePage() {
             <div className="text-sm text-purple-200">Validated</div>
           </div>
           <div className="text-center">
+            <div className="text-3xl font-bold">{stories.length}</div>
+            <div className="text-sm text-purple-200">Stories</div>
+          </div>
+          <div className="text-center">
             <div className="text-3xl font-bold">{interviews.length}</div>
             <div className="text-sm text-purple-200">Interviews</div>
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold">{photos.length}</div>
             <div className="text-sm text-purple-200">Photos</div>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl font-bold">{videos.length}</div>
+            <div className="text-sm text-purple-200">Videos</div>
           </div>
         </div>
       </div>
@@ -350,6 +404,17 @@ export default function StorytellerProfilePage() {
           Quotes ({quotes.length})
         </button>
         <button
+          onClick={() => setActiveTab('stories')}
+          className={`px-6 py-3 font-medium text-sm border-b-2 transition-colors ${
+            activeTab === 'stories'
+              ? 'border-purple-600 text-purple-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          <BookOpen className="w-4 h-4 inline mr-2" />
+          Stories ({stories.length})
+        </button>
+        <button
           onClick={() => setActiveTab('interviews')}
           className={`px-6 py-3 font-medium text-sm border-b-2 transition-colors ${
             activeTab === 'interviews'
@@ -361,15 +426,15 @@ export default function StorytellerProfilePage() {
           Interviews ({interviews.length})
         </button>
         <button
-          onClick={() => setActiveTab('photos')}
+          onClick={() => setActiveTab('media')}
           className={`px-6 py-3 font-medium text-sm border-b-2 transition-colors ${
-            activeTab === 'photos'
+            activeTab === 'media'
               ? 'border-purple-600 text-purple-600'
               : 'border-transparent text-gray-500 hover:text-gray-700'
           }`}
         >
           <ImageIcon className="w-4 h-4 inline mr-2" />
-          Photos ({photos.length})
+          Media ({photos.length + videos.length})
         </button>
       </div>
 
@@ -496,6 +561,98 @@ export default function StorytellerProfilePage() {
         </div>
       )}
 
+      {activeTab === 'stories' && (
+        <div>
+          <div className="flex items-center justify-between mb-6 gap-3 flex-wrap">
+            <h2 className="text-lg font-bold text-gray-900">Stories</h2>
+            <div className="flex items-center gap-2">
+              <Link
+                href="/stories/import-transcript"
+                className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm hover:bg-gray-50 flex items-center gap-2"
+              >
+                <FileText className="w-4 h-4" />
+                Import Transcript
+              </Link>
+              <Link
+                href="/stories/new"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium flex items-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                Create Story
+              </Link>
+            </div>
+          </div>
+
+          {stories.length === 0 ? (
+            <div className="text-center py-12 bg-gray-50 rounded-xl">
+              <BookOpen className="w-12 h-12 mx-auto text-gray-300 mb-4" />
+              <p className="text-gray-500 mb-4">No stories linked to {displayName} yet</p>
+              <div className="flex items-center justify-center gap-3 flex-wrap">
+                <Link
+                  href="/stories/import-transcript"
+                  className="text-blue-600 hover:text-blue-700 font-medium"
+                >
+                  Import a transcript as a draft story →
+                </Link>
+                <Link
+                  href="/stories/new"
+                  className="text-blue-600 hover:text-blue-700 font-medium"
+                >
+                  Create a new story →
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {stories.map((s) => (
+                <div key={s.id} className="bg-white border border-gray-200 rounded-xl p-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <div className="font-semibold text-gray-900">{s.title}</div>
+                      <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-600">
+                        <span className="inline-flex items-center gap-1">
+                          <Calendar className="w-4 h-4" />
+                          {new Date(s.created_at).toLocaleDateString('en-AU')}
+                        </span>
+                        {s.category && (
+                          <span className="px-2 py-0.5 bg-gray-100 rounded">
+                            {s.category}
+                          </span>
+                        )}
+                        {s.status && (
+                          <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded capitalize">
+                            {s.status}
+                          </span>
+                        )}
+                        {s.access_level && (
+                          <span className="px-2 py-0.5 bg-purple-50 text-purple-700 rounded capitalize">
+                            {s.access_level}
+                          </span>
+                        )}
+                        {s.is_public === true && (
+                          <span className="px-2 py-0.5 bg-green-50 text-green-700 rounded">
+                            public
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <Link
+                      href={`/stories/${s.id}`}
+                      target="_blank"
+                      className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 flex items-center gap-2"
+                      title="Open story"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      Open
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {activeTab === 'interviews' && (
         <div>
           <div className="flex items-center justify-between mb-6">
@@ -604,46 +761,88 @@ export default function StorytellerProfilePage() {
         </div>
       )}
 
-      {activeTab === 'photos' && (
+      {activeTab === 'media' && (
         <div>
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-bold text-gray-900">Photos featuring {displayName}</h2>
+          <div className="flex items-center justify-between mb-6 gap-3 flex-wrap">
+            <h2 className="text-lg font-bold text-gray-900">Tagged Media</h2>
             <Link
               href="/picc/media/gallery"
               className="text-purple-600 hover:text-purple-700 text-sm font-medium"
             >
-              Browse All Photos →
+              Open Media Gallery →
             </Link>
           </div>
 
-          {photos.length === 0 ? (
-            <div className="text-center py-12 bg-gray-50 rounded-xl">
-              <ImageIcon className="w-12 h-12 mx-auto text-gray-300 mb-4" />
-              <p className="text-gray-500 mb-4">No photos tagged with {displayName} yet</p>
-              <Link
-                href="/picc/media/gallery"
-                className="text-purple-600 hover:text-purple-700 font-medium"
-              >
-                Tag photos in gallery →
-              </Link>
+          <div className="grid lg:grid-cols-2 gap-6">
+            <div className="bg-white border border-gray-200 rounded-xl p-5">
+              <h3 className="font-bold text-gray-900 flex items-center gap-2">
+                <Film className="w-5 h-5 text-purple-600" />
+                Videos ({videos.length})
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Videos where {displayName} has been tagged.
+              </p>
+
+              {videos.length === 0 ? (
+                <div className="text-sm text-gray-500 mt-4">
+                  No videos tagged yet. Tag faces in the media library to make videos appear here.
+                </div>
+              ) : (
+                <div className="mt-4 space-y-2">
+                  {videos.map((v) => (
+                    <a
+                      key={v.id}
+                      href={v.public_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors px-4 py-3"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="font-semibold text-gray-900 truncate">{v.title || 'Video'}</div>
+                          <div className="text-xs text-gray-500 truncate">{v.public_url}</div>
+                        </div>
+                        <ExternalLink className="w-4 h-4 text-gray-400 flex-shrink-0 mt-1" />
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {photos.map(photo => (
-                <Link
-                  key={photo.id}
-                  href="/picc/media/gallery"
-                  className="aspect-square bg-gray-100 rounded-lg overflow-hidden hover:ring-2 hover:ring-purple-500 transition-all"
-                >
-                  <img
-                    src={photo.public_url}
-                    alt={photo.title || 'Photo'}
-                    className="w-full h-full object-cover"
-                  />
-                </Link>
-              ))}
+
+            <div className="bg-white border border-gray-200 rounded-xl p-5">
+              <h3 className="font-bold text-gray-900 flex items-center gap-2">
+                <ImageIcon className="w-5 h-5 text-purple-600" />
+                Photos ({photos.length})
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Photos where {displayName} has been tagged.
+              </p>
+
+              {photos.length === 0 ? (
+                <div className="text-sm text-gray-500 mt-4">
+                  No photos tagged yet. Tag faces in the media library to make photos appear here.
+                </div>
+              ) : (
+                <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {photos.map(photo => (
+                    <Link
+                      key={photo.id}
+                      href="/picc/media/gallery"
+                      className="aspect-square bg-gray-100 rounded-lg overflow-hidden hover:ring-2 hover:ring-purple-500 transition-all"
+                      title="Open media gallery to manage tags"
+                    >
+                      <img
+                        src={photo.public_url}
+                        alt={photo.title || 'Photo'}
+                        className="w-full h-full object-cover"
+                      />
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       )}
     </div>

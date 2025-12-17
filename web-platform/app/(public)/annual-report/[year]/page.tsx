@@ -1,42 +1,25 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
-import { useParams } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { useEffect, useState, useRef, useCallback } from 'react';
+import { useParams, useSearchParams } from 'next/navigation';
 import {
   Users, Briefcase, Heart, Clock, ArrowLeft, Download, Share2,
   AlertCircle, RefreshCw, Baby, GraduationCap, Home, Stethoscope,
-  Shield, Scale, Building, ChevronRight, MapPin, Star
+  Shield, Scale, Building, ChevronRight, MapPin, Star, Edit3, Image, Settings
 } from 'lucide-react';
 import Link from 'next/link';
 
 // Import our beautiful report components
 import {
-  ReportHero,
-  ImpactStatCard,
-  ImpactStatsGrid,
   Section,
   SectionHeader,
   ScrollReveal,
-  StaggerContainer,
-  QuoteShowcase,
-  LeadershipMessage,
-  StoryCard,
-  StoryGrid,
-  DollarBreakdown,
-  FinancialDonut,
-  FeaturedVideo,
-  VideoGrid,
-  PhotoGallery,
-  HeroGallery,
-  ServiceShowcase,
-  ServiceImpact,
-  Timeline,
-  MilestoneCounter,
-  ProjectShowcase,
-  Divider,
-  PersonQuoteGrid,
+  DynamicSectionRenderer,
 } from '@/components/report';
+import type { ReportSectionData, SectionContext } from '@/components/report';
+
+// WYSIWYG Editor components
+import { InlineReportEditor } from '@/components/report/editors';
 
 interface AnnualReport {
   id: string;
@@ -53,6 +36,7 @@ interface AnnualReport {
   acknowledgments?: string;
   ceo_message?: string;
   chair_message?: string;
+  pdf_url?: string;
 }
 
 interface Story {
@@ -66,7 +50,11 @@ interface Story {
     full_name: string;
     profile_image_url?: string;
     storyteller_type?: string;
-  };
+  } | {
+    full_name: string;
+    profile_image_url?: string;
+    storyteller_type?: string;
+  }[];
 }
 
 interface Service {
@@ -97,15 +85,67 @@ interface Project {
   tagline?: string;
 }
 
+interface ReportSectionRow {
+  id: string;
+  section_type: string;
+  section_title: string;
+  section_content: string;
+  display_order: number;
+}
+
+interface ExtractedQuoteRow {
+  id: string;
+  quote_text: string;
+  attribution?: string;
+  impact_area?: string;
+  theme?: string;
+  photo_url?: string;
+  display_order?: number;
+}
+
+interface ReportImageRow {
+  id: string;
+  public_url: string;
+  title?: string;
+  description?: string;
+  caption?: string;
+  alt_text?: string;
+  tags?: string[];
+  metadata?: Record<string, any>;
+  is_featured?: boolean;
+  file_type?: string;
+  usage_context?: string;
+}
+
+interface MediaBySections {
+  hero: ReportImageRow[];
+  ceo: ReportImageRow[];
+  chair: ReportImageRow[];
+  gallery: ReportImageRow[];
+  stories: ReportImageRow[];
+  projects: ReportImageRow[];
+  video_thumb: ReportImageRow[];
+}
+
 export default function PublicAnnualReportPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const year = params?.year as string;
+  const isEditMode = searchParams.get('edit') === '1';
 
   const [report, setReport] = useState<AnnualReport | null>(null);
   const [stories, setStories] = useState<Story[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [leadershipMessages, setLeadershipMessages] = useState<LeadershipMessageData[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [reportSections, setReportSections] = useState<ReportSectionRow[]>([]);
+  const [reportQuotes, setReportQuotes] = useState<ExtractedQuoteRow[]>([]);
+  const [storyImagesById, setStoryImagesById] = useState<Record<string, string>>({});
+  const [reportImages, setReportImages] = useState<ReportImageRow[]>([]);
+  const [storyGalleryImages, setStoryGalleryImages] = useState<ReportImageRow[]>([]);
+  const [mediaBySections, setMediaBySections] = useState<MediaBySections>({
+    hero: [], ceo: [], chair: [], gallery: [], stories: [], projects: [], video_thumb: []
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -127,70 +167,30 @@ export default function PublicAnnualReportPage() {
     setError(null);
 
     try {
-      const supabase = createClient();
       const reportYear = parseInt(year);
 
-      // Load most data in parallel for speed
-      const [
-        reportResult,
-        storiesResult,
-        servicesResult,
-        projectsResult,
-      ] = await Promise.all([
-        // Annual report
-        supabase
-          .from('annual_reports')
-          .select('*')
-          .eq('report_year', reportYear)
-          .maybeSingle(),
-
-        // Stories - get all published stories
-        supabase
-          .from('stories')
-          .select('id, title, content, category, story_type, location, profiles(full_name, profile_image_url, storyteller_type)')
-          .eq('status', 'published')
-          .order('created_at', { ascending: false })
-          .limit(20),
-
-        // Services - use organization_services table
-        supabase
-          .from('organization_services')
-          .select('id, name, description, service_category, icon_name, service_color')
-          .eq('is_active', true)
-          .order('name'),
-
-        // Innovation projects
-        supabase
-          .from('projects')
-          .select('id, name, description, project_type, status, hero_image_url, tagline')
-          .eq('status', 'active')
-          .limit(6),
-      ]);
-
-      // Fetch leadership messages separately (needs report ID)
-      let leadershipResult: { data: any[] | null; error: any } = { data: [], error: null };
-      const reportData = reportResult.data as AnnualReport | null;
-      if (reportData?.id) {
-        leadershipResult = await supabase
-          .from('report_leadership_messages')
-          .select('id, message_title, message_content, person_name, role, person_photo_url')
-          .eq('report_id', reportData.id);
+      const res = await fetch(`/api/public/annual-report/${reportYear}`, { cache: 'no-store' });
+      const payload = await res.json().catch(() => ({} as any));
+      if (!res.ok) {
+        throw new Error(payload?.error || 'Failed to load annual report');
       }
 
       if (!isMounted.current) return;
 
-      // Set report data
-      if (reportData) {
-        setReport(reportData);
-      } else {
-        setReport(createRichDemoReport(reportYear));
-      }
+      const reportData = payload.report as AnnualReport;
+      setReport(reportData);
 
-      // Set stories
-      setStories((storiesResult.data || []) as Story[]);
+      setStories((payload.stories || []) as Story[]);
+      setProjects((payload.projects || []) as Project[]);
+      setReportSections((payload.sections || []) as ReportSectionRow[]);
+      setReportQuotes((payload.quotes || []) as ExtractedQuoteRow[]);
+      setReportImages((payload.reportMedia || []) as ReportImageRow[]);
+      setMediaBySections(payload.mediaBySections || {
+        hero: [], ceo: [], chair: [], gallery: [], stories: [], projects: [], video_thumb: []
+      });
+      setLeadershipMessages([]); // leadership content is stored in sections in this workflow
 
-      // Set services - map database columns to interface properties
-      const mappedServices = (servicesResult.data || []).map((s: any) => ({
+      const mappedServices = (payload.services || []).map((s: any) => ({
         id: s.id,
         name: s.name,
         description: s.description,
@@ -200,11 +200,34 @@ export default function PublicAnnualReportPage() {
       }));
       setServices(mappedServices as Service[]);
 
-      // Set leadership messages
-      setLeadershipMessages((leadershipResult.data || []) as LeadershipMessageData[]);
+      const storyMedia = (payload.storyMedia || []) as any[];
+      const map: Record<string, string> = {};
+      for (const row of storyMedia) {
+        const sid = row.story_id as string | null;
+        if (!sid || map[sid]) continue;
+        const usage = String(row.usage_context || '').toLowerCase();
+        const featured = row.is_featured === true;
+        if (featured || usage === 'story_hero') {
+          map[sid] = row.public_url;
+        }
+      }
+      for (const row of storyMedia) {
+        const sid = row.story_id as string | null;
+        if (!sid || map[sid]) continue;
+        map[sid] = row.public_url;
+      }
+      setStoryImagesById(map);
 
-      // Set projects
-      setProjects((projectsResult.data || []) as Project[]);
+      const dedup = new Set<string>();
+      const gallery = storyMedia
+        .filter((m) => Boolean(m?.public_url))
+        .filter((m) => {
+          if (dedup.has(m.public_url)) return false;
+          dedup.add(m.public_url);
+          return true;
+        })
+        .slice(0, 80) as any;
+      setStoryGalleryImages(gallery);
 
     } catch (err: any) {
       console.error('Error loading data:', err);
@@ -218,6 +241,11 @@ export default function PublicAnnualReportPage() {
       }
     }
   };
+
+  // Handler for section updates - refresh data
+  const handleSectionUpdated = useCallback(() => {
+    loadAllData();
+  }, []);
 
   // Rich demo report with all real-world content
   const createRichDemoReport = (reportYear: number): AnnualReport => ({
@@ -316,7 +344,7 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
     { date: 'June 2024', title: '197 Staff Achievement', description: '30% growth in local employment opportunities', category: 'achievement' as const },
   ];
 
-  // Demo projects if none loaded
+  // Demo projects if none loaded - using placeholder images
   const demoProjects: Project[] = [
     {
       id: '1',
@@ -325,7 +353,7 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
       tagline: 'Preserving Elder voices for future generations',
       project_type: 'Cultural Preservation',
       status: 'active',
-      hero_image_url: '/images/projects/photo-studio.jpg',
+      hero_image_url: 'https://placehold.co/800x400/7c3aed/ffffff?text=Photo+Studio',
     },
     {
       id: '2',
@@ -334,7 +362,7 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
       tagline: 'Connecting community through technology',
       project_type: 'Community Services',
       status: 'active',
-      hero_image_url: '/images/projects/digital-centre.jpg',
+      hero_image_url: 'https://placehold.co/800x400/0891b2/ffffff?text=Digital+Centre',
     },
     {
       id: '3',
@@ -343,7 +371,7 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
       tagline: 'Walking through our history',
       project_type: 'Cultural Tourism',
       status: 'active',
-      hero_image_url: '/images/projects/bwgcolman-way.jpg',
+      hero_image_url: 'https://placehold.co/800x400/e85d04/ffffff?text=Cultural+Trail',
     },
   ];
 
@@ -377,12 +405,13 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
   ];
 
   // Community voices with photos - people cards linking to stories
+  // Using placeholder images until real photos are uploaded
   const communityVoices = [
     {
       name: "Aunty Maureen",
       role: "Cultural Elder",
       quote: "Our stories are the foundation of everything we do. When the young ones learn our history, they learn who they are and where they belong.",
-      image: "/images/people/aunty-maureen.jpg",
+      image: "https://placehold.co/400x400/7c3aed/ffffff?text=AM",
       storyLink: "/stories/elder-wisdom-maureen",
       storyTitle: "Read Aunty Maureen's Story",
     },
@@ -390,7 +419,7 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
       name: "David Thompson",
       role: "Youth Program Graduate",
       quote: "PICC believed in me when I didn't believe in myself. The youth program showed me there's a path forward, right here on Palm Island.",
-      image: "/images/people/david-youth.jpg",
+      image: "https://placehold.co/400x400/7c3aed/ffffff?text=DT",
       storyLink: "/stories/youth-success-david",
       storyTitle: "David's Journey",
     },
@@ -398,7 +427,7 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
       name: "Sister Joyce",
       role: "Health Worker",
       quote: "Every day I see the difference we make. When someone gets the care they need, when a family is supported - that's what keeps me going.",
-      image: "/images/people/sister-joyce.jpg",
+      image: "https://placehold.co/400x400/7c3aed/ffffff?text=SJ",
       storyLink: "/stories/health-frontline",
       storyTitle: "Frontline Stories",
     },
@@ -406,7 +435,7 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
       name: "Uncle Tommy",
       role: "Traditional Owner",
       quote: "This land holds our ancestors' wisdom. Everything PICC does, we do it the right way - respecting Country, respecting culture.",
-      image: "/images/people/uncle-tommy.jpg",
+      image: "https://placehold.co/400x400/7c3aed/ffffff?text=UT",
       storyLink: "/stories/country-connection",
       storyTitle: "Connection to Country",
     },
@@ -414,7 +443,7 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
       name: "Sarah Williams",
       role: "Safe Haven Coordinator",
       quote: "These children are our future. When we protect them, support their families, we're building a stronger Palm Island for generations to come.",
-      image: "/images/people/sarah-safehaven.jpg",
+      image: "https://placehold.co/400x400/7c3aed/ffffff?text=SW",
       storyLink: "/stories/safe-haven-impact",
       storyTitle: "Safe Haven Impact",
     },
@@ -422,45 +451,77 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
       name: "Marcus Johnson",
       role: "Digital Services Trainee",
       quote: "Technology isn't just for the cities. Our Elders are now video calling their grandchildren on the mainland. That connection is everything.",
-      image: "/images/people/marcus-digital.jpg",
+      image: "https://placehold.co/400x400/7c3aed/ffffff?text=MJ",
       storyLink: "/stories/digital-bridge",
       storyTitle: "Bridging the Digital Gap",
     },
   ];
 
   // Featured videos
+  const getVideoThumbnail = (m: any) =>
+    m?.metadata?.external_video?.thumbnail_url || m?.metadata?.thumbnail_url || null;
+
+  const pickFeaturedVideo = (
+    slotTag: string,
+    fallback: { url: string; title: string; description: string; thumbnail?: string; badge?: string }
+  ) => {
+    const videos = reportImages.filter((i) => i.file_type === 'video' && i.public_url);
+    const match = videos.find((i) => Array.isArray(i.tags) && i.tags.includes(slotTag));
+    if (!match) return fallback;
+    return {
+      url: match.public_url,
+      title: match.title || fallback.title,
+      description: match.description || match.caption || fallback.description,
+      thumbnail: getVideoThumbnail(match) || fallback.thumbnail,
+      badge: fallback.badge,
+    };
+  };
+
+  // Tag 2 videos for the report like:
+  // - annual-report, fy:2024-25, video:leaders-trip
+  // - annual-report, fy:2024-25, video:daycare-launch
   const featuredVideos = {
-    leadersTrip: {
-      url: "https://www.youtube.com/watch?v=LEADERS_TRIP_VIDEO_ID", // Replace with actual video ID
-      title: "Leaders Trip: Learning From Each Other",
-      description: "Palm Island leaders visited communities across Queensland to share knowledge and strengthen connections. This trip brought back new ideas for supporting our people.",
-      thumbnail: "/images/videos/leaders-trip-thumb.jpg",
-      badge: "Community Leadership",
-    },
-    daycareLaunch: {
-      url: "https://www.youtube.com/watch?v=DAYCARE_LAUNCH_VIDEO_ID", // Replace with actual video ID
-      title: "Daycare Centre Opening Day",
-      description: "A milestone moment for Palm Island families. Our new early learning centre gives our littlest community members the best start in life.",
-      thumbnail: "/images/videos/daycare-launch-thumb.jpg",
-      badge: "New Service Launch",
-    },
+    leadersTrip: pickFeaturedVideo('video:leaders-trip', {
+      url: 'https://www.youtube.com/watch?v=LEADERS_TRIP_VIDEO_ID',
+      title: 'Leaders Trip: Learning From Each Other',
+      description:
+        'Palm Island leaders visited communities across Queensland to share knowledge and strengthen connections. This trip brought back new ideas for supporting our people.',
+      thumbnail: 'https://placehold.co/640x360/1e3a5f/ffffff?text=Leaders+Trip',
+      badge: 'Community Leadership',
+    }),
+    daycareLaunch: pickFeaturedVideo('video:daycare-launch', {
+      url: 'https://www.youtube.com/watch?v=DAYCARE_LAUNCH_VIDEO_ID',
+      title: 'Daycare Centre Opening Day',
+      description:
+        'A milestone moment for Palm Island families. Our new early learning centre gives our littlest community members the best start in life.',
+      thumbnail: 'https://placehold.co/640x360/2d6a4f/ffffff?text=Daycare+Launch',
+      badge: 'New Service Launch',
+    }),
   };
 
   // Get leadership messages or use defaults
   const getCEOMessage = () => {
+    const sectionMsg = reportSections.find(s =>
+      s.section_type === 'leadership_message' &&
+      s.section_title?.toLowerCase().includes('ceo')
+    );
     const ceoMsg = leadershipMessages.find(m =>
       m.message_title?.toLowerCase().includes('ceo') ||
       m.role?.toLowerCase().includes('ceo')
     );
-    return ceoMsg?.message_content || report?.ceo_message || '';
+    return sectionMsg?.section_content || ceoMsg?.message_content || report?.ceo_message || '';
   };
 
   const getChairMessage = () => {
+    const sectionMsg = reportSections.find(s =>
+      s.section_type === 'leadership_message' &&
+      s.section_title?.toLowerCase().includes('chair')
+    );
     const chairMsg = leadershipMessages.find(m =>
       m.message_title?.toLowerCase().includes('chair') ||
       m.role?.toLowerCase().includes('chair')
     );
-    return chairMsg?.message_content || report?.chair_message || '';
+    return sectionMsg?.section_content || chairMsg?.message_content || report?.chair_message || '';
   };
 
   // Group stories by category
@@ -472,11 +533,12 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
   }, {} as Record<string, Story[]>);
 
   // Get elder stories
-  const elderStories = stories.filter(s =>
-    s.story_type === 'elder_story' ||
-    s.profiles?.storyteller_type === 'elder' ||
-    s.category?.toLowerCase().includes('elder')
-  );
+  const elderStories = stories.filter(s => {
+    const profile = Array.isArray(s.profiles) ? s.profiles[0] : s.profiles;
+    return s.story_type === 'elder_story' ||
+      profile?.storyteller_type === 'elder' ||
+      s.category?.toLowerCase().includes('elder');
+  });
 
   if (loading) {
     return (
@@ -530,11 +592,96 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
   const stats = report.statistics || {};
   const displayServices = services.length > 0 ? services : demoServices;
   const displayProjects = projects.length > 0 ? projects : demoProjects;
+  const gallerySource = reportImages.length > 0 ? reportImages : storyGalleryImages;
+  const galleryPhotos = gallerySource
+    .filter((img) => !img.file_type || img.file_type === 'image')
+    .map((img) => ({
+      url: img.public_url,
+      caption: img.caption || img.title || img.alt_text || undefined,
+      category: (Array.isArray(img.tags) ? img.tags.find(t => t !== 'annual-report') : undefined) as any,
+    }))
+    .filter((p) => Boolean(p.url))
+    .slice(0, 30);
+
+  // Use section-specific media if available, with fallbacks
+  const heroImage =
+    mediaBySections.hero[0]?.public_url ||
+    reportImages.find((i) => i.is_featured && (i.file_type === 'image' || !i.file_type))?.public_url ||
+    reportImages.find((i) => i.file_type === 'image')?.public_url ||
+    galleryPhotos[0]?.url ||
+    storyImagesById[stories[0]?.id || ''] ||
+    undefined;
+
+  const heroVideo =
+    reportImages.find((i) => i.is_featured && i.file_type === 'video')?.public_url ||
+    reportImages.find((i) => i.file_type === 'video')?.public_url ||
+    undefined;
+
+  // CEO and Chair portrait images
+  const ceoImage = mediaBySections.ceo[0]?.public_url || undefined;
+  const chairImage = mediaBySections.chair[0]?.public_url || undefined;
+
+  // Gallery photos - prioritize section-tagged, then fall back
+  const sectionGalleryPhotos = mediaBySections.gallery.map((img) => ({
+    url: img.public_url,
+    caption: img.caption || img.title || img.alt_text || undefined,
+    category: (Array.isArray(img.tags) ? img.tags.find(t => !t.startsWith('report-section:') && t !== 'annual-report' && !t.startsWith('fy:')) : undefined) as any,
+  })).filter((p) => Boolean(p.url));
+
+  const finalGalleryPhotos = sectionGalleryPhotos.length > 0 ? sectionGalleryPhotos : galleryPhotos;
+
+  const quotesToUse = (reportQuotes.length > 0
+    ? reportQuotes
+    : [
+        { id: 'fallback-1', quote_text: featuredQuotes[0].quote, attribution: featuredQuotes[0].author, impact_area: featuredQuotes[0].role },
+        { id: 'fallback-2', quote_text: featuredQuotes[1].quote, attribution: featuredQuotes[1].author, impact_area: featuredQuotes[1].role },
+      ]) as ExtractedQuoteRow[];
+
+  const isUuid =
+    typeof report.id === 'string' &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(report.id);
+
+  const pdfHref =
+    report.pdf_url ||
+    (isUuid ? `/api/annual-reports/${report.id}/export-pdf` : `/api/annual-reports/${report.report_year}/export-pdf`);
+
+  // Fiscal year for API calls
+  const fiscalYear = `${report.report_year - 1}-${String(report.report_year).slice(2)}`;
+
+  // Build context object for dynamic sections
+  const sectionContext: SectionContext = {
+    report,
+    heroImage,
+    heroVideo,
+    ceoImage,
+    chairImage,
+    services: displayServices,
+    projects: displayProjects,
+    stories,
+    galleryPhotos: finalGalleryPhotos,
+    milestones,
+    quotes: quotesToUse,
+    communityVoices,
+    stats,
+    financialData,
+    dollarBreakdownData,
+    isEditMode,
+  };
+
+  // Sort sections by display_order
+  const sortedSections = [...reportSections].sort((a, b) => a.display_order - b.display_order);
 
   return (
+    <InlineReportEditor
+      reportId={report.id}
+      reportYear={report.report_year}
+      fiscalYear={fiscalYear}
+      isEditMode={isEditMode}
+      onSectionUpdated={handleSectionUpdated}
+    >
     <main className="min-h-screen bg-[#fefdfb]">
       {/* Floating Nav */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/50">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/50 print:hidden">
         <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
           <Link
             href="/"
@@ -545,27 +692,82 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
           </Link>
 
           <div className="flex items-center gap-3">
+            {/* Edit Mode Toolbar */}
+            {isEditMode && report?.id && (
+              <>
+                <Link
+                  href={`/picc/report-generator?edit=${report.id}`}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-purple-700 hover:text-purple-900 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors"
+                >
+                  <Edit3 className="w-4 h-4" />
+                  Edit Sections
+                </Link>
+                <Link
+                  href={`/picc/annual-reports/${report.id}/images`}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-teal-700 hover:text-teal-900 bg-teal-50 hover:bg-teal-100 rounded-lg transition-colors"
+                >
+                  <Image className="w-4 h-4" />
+                  Images
+                </Link>
+                <div className="w-px h-6 bg-gray-300" />
+              </>
+            )}
+            {!isEditMode && (
+              <Link
+                href={`/annual-report/${year}?edit=1`}
+                className="p-2 text-gray-500 hover:text-purple-700 hover:bg-purple-50 rounded-lg transition-colors"
+                title="Edit Mode"
+              >
+                <Settings className="w-5 h-5" />
+              </Link>
+            )}
             <button className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
               <Share2 className="w-5 h-5" />
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-[#1e3a5f] text-white text-sm rounded-lg hover:bg-[#2d4a6f] transition-colors">
-              <Download className="w-4 h-4" />
-              Download PDF
-            </button>
+            {pdfHref ? (
+              <a
+                href={pdfHref}
+                className="flex items-center gap-2 px-4 py-2 bg-[#1e3a5f] text-white text-sm rounded-lg hover:bg-[#2d4a6f] transition-colors"
+              >
+                <Download className="w-4 h-4" />
+                Download PDF
+              </a>
+            ) : (
+              <button
+                disabled
+                className="flex items-center gap-2 px-4 py-2 bg-gray-300 text-white text-sm rounded-lg cursor-not-allowed"
+              >
+                <Download className="w-4 h-4" />
+                PDF Unavailable
+              </button>
+            )}
           </div>
         </div>
       </nav>
 
       {/* Hero - with optional background video */}
-      <ReportHero
-        title={report.title}
-        subtitle={report.subtitle || report.theme}
-        year={report.report_year}
-        organization="Palm Island Community Company"
-        tagline="Our Community, Our Future, Our Way"
-        backgroundVideo="/videos/picc-hero-2024.mp4" // Optional: remove this line if no video available
-        backgroundVideoPoster="/images/hero/palm-island-aerial.jpg"
-      />
+      <EditableSection
+        sectionId="hero"
+        sectionType="hero_image"
+        label="Hero Section"
+        isEditMode={isEditMode}
+        data={{
+          title: report.title,
+          subtitle: report.subtitle || report.theme || '',
+          image: heroImage || '',
+          video: heroVideo || '',
+        }}
+      >
+        <ReportHero
+          title={report.title}
+          subtitle={report.subtitle || report.theme}
+          year={report.report_year}
+          organization="Palm Island Community Company"
+          tagline="Our Community, Our Future, Our Way"
+          backgroundImage={heroImage}
+          backgroundVideo={heroVideo}
+        />
+      </EditableSection>
 
       {/* Key Impact Stats */}
       <ImpactStatsGrid background="gradient" columns={4}>
@@ -601,33 +803,60 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
       </ImpactStatsGrid>
 
       {/* Executive Summary */}
-      <Section background="white" padding="xl">
-        <SectionHeader
-          title="Executive Summary"
-          subtitle="A Year of Growth, Resilience, and Community"
-        />
-        <ScrollReveal animation="fadeUp" delay={200}>
-          <div className="max-w-3xl mx-auto">
-            <p className="text-lg text-gray-700 leading-relaxed whitespace-pre-wrap">
-              {report.executive_summary}
-            </p>
-          </div>
-        </ScrollReveal>
-      </Section>
+      <EditableSection
+        sectionId="executive-summary"
+        sectionType="text"
+        label="Executive Summary"
+        isEditMode={isEditMode}
+        data={{
+          title: 'Executive Summary',
+          subtitle: 'A Year of Growth, Resilience, and Community',
+          content: report.executive_summary || '',
+        }}
+      >
+        <Section background="white" padding="xl">
+          <SectionHeader
+            title="Executive Summary"
+            subtitle="A Year of Growth, Resilience, and Community"
+          />
+          <ScrollReveal animation="fadeUp" delay={200}>
+            <div className="max-w-3xl mx-auto">
+              <p className="text-lg text-gray-700 leading-relaxed whitespace-pre-wrap">
+                {report.executive_summary}
+              </p>
+            </div>
+          </ScrollReveal>
+        </Section>
+      </EditableSection>
 
       {/* CEO Message */}
       {getCEOMessage() && (
-        <LeadershipMessage
-          name="Rachel Atkinson"
-          role="Chief Executive Officer"
-          message={getCEOMessage()}
-          signature="Rachel"
-        />
+        <EditableSection
+          sectionId="ceo-message"
+          sectionType="leadership_message"
+          label="CEO Message"
+          isEditMode={isEditMode}
+          data={{
+            name: 'Rachel Atkinson',
+            role: 'ceo',
+            image: ceoImage || '',
+            message: getCEOMessage(),
+            signature: 'Rachel',
+          }}
+        >
+          <LeadershipMessage
+            name="Rachel Atkinson"
+            role="Chief Executive Officer"
+            image={ceoImage}
+            message={getCEOMessage()}
+            signature="Rachel"
+          />
+        </EditableSection>
       )}
 
       {/* Year Highlights with Numbers */}
       {report.year_highlights && report.year_highlights.length > 0 && (
-        <Section background="earth" padding="lg">
+        <Section background="earth" padding="lg" className="print:py-4 print:break-before-avoid">
           <SectionHeader
             title="Year at a Glance"
             subtitle="Key achievements from 2023-24"
@@ -637,12 +866,12 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
               {report.year_highlights.map((highlight, index) => (
                 <div
                   key={index}
-                  className="flex items-start gap-4 p-4 bg-white/80 backdrop-blur-sm rounded-xl mb-3 shadow-sm"
+                  className="flex items-start gap-4 p-4 bg-white/80 backdrop-blur-sm rounded-xl mb-3 shadow-sm print:p-2 print:mb-1"
                 >
-                  <div className="w-10 h-10 bg-gradient-to-br from-[#2d6a4f] to-[#1e3a5f] rounded-xl flex items-center justify-center flex-shrink-0">
-                    <span className="text-white font-bold">{index + 1}</span>
+                  <div className="w-10 h-10 bg-gradient-to-br from-[#2d6a4f] to-[#1e3a5f] rounded-xl flex items-center justify-center flex-shrink-0 print:w-6 print:h-6 print:rounded-lg">
+                    <span className="text-white font-bold print:text-sm">{index + 1}</span>
                   </div>
-                  <p className="text-gray-800 pt-2 font-medium">{highlight}</p>
+                  <p className="text-gray-800 pt-2 font-medium print:pt-0 print:text-sm">{highlight}</p>
                 </div>
               ))}
             </StaggerContainer>
@@ -651,7 +880,7 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
       )}
 
       {/* Milestone Counter */}
-      <Section background="white" padding="lg">
+      <Section background="white" padding="lg" className="print:py-4 print:break-before-avoid">
         <MilestoneCounter
           milestones={[
             { label: 'Total Staff', value: stats.total_staff || 197, description: '30% growth' },
@@ -663,13 +892,27 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
       </Section>
 
       {/* Featured Elder Quote */}
-      <QuoteShowcase
-        quote={featuredQuotes[0].quote}
-        author={featuredQuotes[0].author}
-        role={featuredQuotes[0].role}
-        variant="featured"
-        background="gradient"
-      />
+      <EditableSection
+        sectionId="featured-quote-1"
+        sectionType="quote"
+        label="Featured Quote"
+        isEditMode={isEditMode}
+        data={{
+          quote: quotesToUse[0]?.quote_text || featuredQuotes[0].quote,
+          author: quotesToUse[0]?.attribution || featuredQuotes[0].author,
+          role: quotesToUse[0]?.impact_area || featuredQuotes[0].role,
+          image: quotesToUse[0]?.photo_url || '',
+        }}
+      >
+        <QuoteShowcase
+          quote={quotesToUse[0]?.quote_text || featuredQuotes[0].quote}
+          author={quotesToUse[0]?.attribution || featuredQuotes[0].author}
+          role={quotesToUse[0]?.impact_area || featuredQuotes[0].role}
+          image={quotesToUse[0]?.photo_url}
+          variant="featured"
+          background="gradient"
+        />
+      </EditableSection>
 
       {/* Innovation Projects */}
       <Section background="light" padding="xl">
@@ -693,12 +936,27 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
 
       {/* Chair Message */}
       {getChairMessage() && (
-        <LeadershipMessage
-          name="Luella Bligh"
-          role="Board Chairperson"
-          message={getChairMessage()}
-          signature="Luella"
-        />
+        <EditableSection
+          sectionId="chair-message"
+          sectionType="leadership_message"
+          label="Chair Message"
+          isEditMode={isEditMode}
+          data={{
+            name: 'Luella Bligh',
+            role: 'chair',
+            image: chairImage || '',
+            message: getChairMessage(),
+            signature: 'Luella',
+          }}
+        >
+          <LeadershipMessage
+            name="Luella Bligh"
+            role="Board Chairperson"
+            image={chairImage}
+            message={getChairMessage()}
+            signature="Luella"
+          />
+        </EditableSection>
       )}
 
       {/* Community Voices - People with Photos and Quotes */}
@@ -724,21 +982,34 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
       </Section>
 
       {/* Featured Video - Leaders Trip */}
-      <Section background="white" padding="xl">
-        <SectionHeader
-          title="Leaders Learning Together"
-          subtitle="Sharing knowledge, strengthening connections"
-        />
-        <div className="max-w-4xl mx-auto">
-          <FeaturedVideo
-            url={featuredVideos.leadersTrip.url}
-            title={featuredVideos.leadersTrip.title}
-            description={featuredVideos.leadersTrip.description}
-            thumbnail={featuredVideos.leadersTrip.thumbnail}
-            badge={featuredVideos.leadersTrip.badge}
+      <EditableSection
+        sectionId="video-leaders-trip"
+        sectionType="video"
+        label="Featured Video - Leaders Trip"
+        isEditMode={isEditMode}
+        data={{
+          title: featuredVideos.leadersTrip.title,
+          url: featuredVideos.leadersTrip.url,
+          description: featuredVideos.leadersTrip.description,
+          thumbnail: featuredVideos.leadersTrip.thumbnail || '',
+        }}
+      >
+        <Section background="white" padding="xl">
+          <SectionHeader
+            title="Leaders Learning Together"
+            subtitle="Sharing knowledge, strengthening connections"
           />
-        </div>
-      </Section>
+          <div className="max-w-4xl mx-auto">
+            <FeaturedVideo
+              url={featuredVideos.leadersTrip.url}
+              title={featuredVideos.leadersTrip.title}
+              description={featuredVideos.leadersTrip.description}
+              thumbnail={featuredVideos.leadersTrip.thumbnail}
+              badge={featuredVideos.leadersTrip.badge}
+            />
+          </div>
+        </Section>
+      </EditableSection>
 
       {/* Services We Deliver */}
       <Section background="white" padding="xl">
@@ -782,24 +1053,28 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
             subtitle="Stories from the heart of Palm Island"
           />
           <StoryGrid columns={3}>
-            {stories.slice(0, 6).map((story, index) => (
-              <ScrollReveal key={story.id} animation="fadeUp" delay={index * 100}>
-                <StoryCard
-                  story={{
-                    id: story.id,
-                    title: story.title,
-                    content: story.content,
-                    category: story.category,
-                    author: story.profiles ? {
-                      name: story.profiles.full_name,
-                      image: story.profiles.profile_image_url,
-                    } : undefined,
-                  }}
-                  variant="default"
-                  linkTo={`/stories/${story.id}`}
-                />
-              </ScrollReveal>
-            ))}
+            {stories.slice(0, 6).map((story, index) => {
+              const profile = Array.isArray(story.profiles) ? story.profiles[0] : story.profiles;
+              return (
+                <ScrollReveal key={story.id} animation="fadeUp" delay={index * 100}>
+                  <StoryCard
+                    story={{
+                      id: story.id,
+                      title: story.title,
+                      content: story.content,
+                      category: story.category,
+                      image: storyImagesById[story.id],
+                      author: profile ? {
+                        name: profile.full_name,
+                        image: profile.profile_image_url,
+                      } : undefined,
+                    }}
+                    variant="default"
+                    linkTo={`/stories/${story.id}`}
+                  />
+                </ScrollReveal>
+              );
+            })}
           </StoryGrid>
 
           {stories.length > 6 && (
@@ -826,52 +1101,72 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
       </Section>
 
       {/* Featured Video - Daycare Launch */}
-      <Section background="earth" padding="xl">
-        <SectionHeader
-          title="A New Beginning for Our Little Ones"
-          subtitle="Palm Island's Early Learning Centre opens its doors"
-        />
-        <div className="max-w-4xl mx-auto">
-          <FeaturedVideo
-            url={featuredVideos.daycareLaunch.url}
-            title={featuredVideos.daycareLaunch.title}
-            description={featuredVideos.daycareLaunch.description}
-            thumbnail={featuredVideos.daycareLaunch.thumbnail}
-            badge={featuredVideos.daycareLaunch.badge}
+      <EditableSection
+        sectionId="video-daycare-launch"
+        sectionType="video"
+        label="Featured Video - Daycare"
+        isEditMode={isEditMode}
+        data={{
+          title: featuredVideos.daycareLaunch.title,
+          url: featuredVideos.daycareLaunch.url,
+          description: featuredVideos.daycareLaunch.description,
+          thumbnail: featuredVideos.daycareLaunch.thumbnail || '',
+        }}
+      >
+        <Section background="earth" padding="xl">
+          <SectionHeader
+            title="A New Beginning for Our Little Ones"
+            subtitle="Palm Island's Early Learning Centre opens its doors"
           />
-        </div>
-      </Section>
+          <div className="max-w-4xl mx-auto">
+            <FeaturedVideo
+              url={featuredVideos.daycareLaunch.url}
+              title={featuredVideos.daycareLaunch.title}
+              description={featuredVideos.daycareLaunch.description}
+              thumbnail={featuredVideos.daycareLaunch.thumbnail}
+              badge={featuredVideos.daycareLaunch.badge}
+            />
+          </div>
+        </Section>
+      </EditableSection>
 
       {/* Photo Gallery - Year in Pictures */}
-      <Section background="light" padding="xl">
-        <SectionHeader
-          title="Year in Pictures"
-          subtitle="Moments that captured the spirit of our community"
-        />
-        <PhotoGallery
-          photos={[
-            { url: "/images/gallery/community-event-1.jpg", caption: "Annual Community Day celebrations" },
-            { url: "/images/gallery/elders-portrait-session.jpg", caption: "Photo Studio - Capturing Elder stories" },
-            { url: "/images/gallery/health-outreach.jpg", caption: "Health team delivering care" },
-            { url: "/images/gallery/youth-graduation.jpg", caption: "Youth Program graduation ceremony" },
-            { url: "/images/gallery/storm-recovery.jpg", caption: "Community comes together after the storm" },
-            { url: "/images/gallery/digital-training.jpg", caption: "Digital skills workshop for Elders" },
-            { url: "/images/gallery/daycare-opening.jpg", caption: "Early Learning Centre opening day" },
-            { url: "/images/gallery/leaders-visit.jpg", caption: "Leaders Trip - Learning from other communities" },
-          ]}
-          columns={4}
-          layout="masonry"
-        />
-      </Section>
+      {finalGalleryPhotos.length > 0 && (
+        <Section background="light" padding="xl">
+          <SectionHeader
+            title="Year in Pictures"
+            subtitle="Moments that captured the spirit of our community"
+          />
+          <PhotoGallery
+            photos={finalGalleryPhotos}
+            columns={4}
+            layout="masonry"
+          />
+        </Section>
+      )}
 
       {/* Another Quote */}
-      <QuoteShowcase
-        quote={featuredQuotes[1].quote}
-        author={featuredQuotes[1].author}
-        role={featuredQuotes[1].role}
-        variant="centered"
-        background="ocean"
-      />
+      <EditableSection
+        sectionId="featured-quote-2"
+        sectionType="quote"
+        label="Featured Quote 2"
+        isEditMode={isEditMode}
+        data={{
+          quote: quotesToUse[1]?.quote_text || featuredQuotes[1].quote,
+          author: quotesToUse[1]?.attribution || featuredQuotes[1].author,
+          role: quotesToUse[1]?.impact_area || featuredQuotes[1].role,
+          image: quotesToUse[1]?.photo_url || '',
+        }}
+      >
+        <QuoteShowcase
+          quote={quotesToUse[1]?.quote_text || featuredQuotes[1].quote}
+          author={quotesToUse[1]?.attribution || featuredQuotes[1].author}
+          role={quotesToUse[1]?.impact_area || featuredQuotes[1].role}
+          image={quotesToUse[1]?.photo_url}
+          variant="centered"
+          background="ocean"
+        />
+      </EditableSection>
 
       {/* Financial Section */}
       <Section background="light" padding="xl">
@@ -946,46 +1241,312 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
       )}
 
       {/* Final Quote - Looking Forward */}
-      <QuoteShowcase
-        quote="Our vision is clear: a Palm Island where every person has the opportunity to thrive, where our culture is celebrated, and where our community leads its own future. Together, we are making this vision a reality."
-        author="Palm Island Community Company"
-        variant="centered"
-        background="gradient"
-      />
+      <EditableSection
+        sectionId="featured-quote-3"
+        sectionType="quote"
+        label="Final Quote"
+        isEditMode={isEditMode}
+        data={{
+          quote: quotesToUse[2]?.quote_text || "Our vision is clear: a Palm Island where every person has the opportunity to thrive, where our culture is celebrated, and where our community leads its own future. Together, we are making this vision a reality.",
+          author: quotesToUse[2]?.attribution || "Palm Island Community Company",
+          role: quotesToUse[2]?.impact_area || '',
+          image: quotesToUse[2]?.photo_url || '',
+        }}
+      >
+        <QuoteShowcase
+          quote={quotesToUse[2]?.quote_text || "Our vision is clear: a Palm Island where every person has the opportunity to thrive, where our culture is celebrated, and where our community leads its own future. Together, we are making this vision a reality."}
+          author={quotesToUse[2]?.attribution || "Palm Island Community Company"}
+          role={quotesToUse[2]?.impact_area}
+          image={quotesToUse[2]?.photo_url}
+          variant="centered"
+          background="gradient"
+        />
+      </EditableSection>
 
       {/* Acknowledgments */}
-      <Section background="dark" padding="xl">
-        <div className="text-center max-w-3xl mx-auto">
-          <ScrollReveal animation="fadeUp">
-            <h2 className="text-3xl font-bold text-white mb-6">Acknowledgments</h2>
-            <p className="text-gray-300 text-lg leading-relaxed mb-8">
-              {report.acknowledgments}
-            </p>
-            {report.metadata?.funder_name && (
-              <p className="text-gray-400">
-                With gratitude to {report.metadata.funder_name}
-              </p>
-            )}
-          </ScrollReveal>
+      <EditableSection
+        sectionId="acknowledgments"
+        sectionType="text"
+        label="Acknowledgments"
+        isEditMode={isEditMode}
+        data={{
+          title: 'Acknowledgments',
+          content: reportSections.find(s => s.section_type === 'acknowledgments')?.section_content || report.acknowledgments || '',
+        }}
+      >
+        <Section background="dark" padding="xl">
+          <div className="text-center max-w-3xl mx-auto">
+            <ScrollReveal animation="fadeUp">
+              <h2 className="text-3xl font-bold text-white mb-6">Acknowledgments</h2>
+              <div className="text-gray-300 text-lg leading-relaxed mb-8 whitespace-pre-wrap">
+                {reportSections.find(s => s.section_type === 'acknowledgments')?.section_content || report.acknowledgments}
+              </div>
+              {report.metadata?.funder_name && (
+                <p className="text-gray-400">
+                  With gratitude to {report.metadata.funder_name}
+                </p>
+              )}
+            </ScrollReveal>
 
-          <ScrollReveal animation="fadeUp" delay={200}>
-            <div className="mt-12 pt-8 border-t border-gray-700">
-              <div className="flex items-center justify-center gap-6 mb-6">
-                <MapPin className="w-6 h-6 text-white/40" />
-                <p className="text-white/60 text-sm">
-                  Palm Island (Bwgcolman), Queensland, Australia
+            <ScrollReveal animation="fadeUp" delay={200}>
+              <div className="mt-12 pt-8 border-t border-gray-700">
+                <div className="flex items-center justify-center gap-6 mb-6">
+                  <MapPin className="w-6 h-6 text-white/40" />
+                  <p className="text-white/60 text-sm">
+                    Palm Island (Bwgcolman), Queensland, Australia
+                  </p>
+                </div>
+                <p className="text-2xl font-light text-white/80 italic mb-4">
+                  "Our Community, Our Future, Our Way"
+                </p>
+                <p className="text-gray-500 text-sm">
+                  Palm Island Community Company &copy; {report.report_year}
                 </p>
               </div>
-              <p className="text-2xl font-light text-white/80 italic mb-4">
-                "Our Community, Our Future, Our Way"
+            </ScrollReveal>
+          </div>
+        </Section>
+      </EditableSection>
+
+      {/* Dynamic Sections - renders any sections added via the editor */}
+      {reportSections
+        .filter(section => {
+          // Only show sections that were added dynamically (have UUID ids)
+          // and aren't one of the "core" sections managed by the hardcoded layout
+          const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(section.id);
+          if (!isUuid) return false;
+
+          // Show all dynamically added sections
+          return true;
+        })
+        .map((section) => {
+          // Parse section_content as JSON if it looks like JSON
+          let contentData: any = {};
+          try {
+            if (section.section_content?.startsWith('{')) {
+              contentData = JSON.parse(section.section_content);
+            }
+          } catch {
+            // Not JSON, use as plain text
+          }
+
+          return (
+            <EditableSection
+              key={section.id}
+              sectionId={section.id}
+              sectionType={section.section_type}
+              label={section.section_title || section.section_type.replace(/_/g, ' ')}
+              isEditMode={isEditMode}
+              data={{
+                title: section.section_title,
+                content: section.section_content,
+                ...contentData,
+              }}
+            >
+              {/* Text Section */}
+              {section.section_type === 'text' && (
+                <Section background="white" padding="xl">
+                  {section.section_title && (
+                    <SectionHeader title={section.section_title} />
+                  )}
+                  <div className="max-w-3xl mx-auto">
+                    <div className="prose prose-lg max-w-none">
+                      <p className="text-gray-700 whitespace-pre-wrap">{section.section_content}</p>
+                    </div>
+                  </div>
+                </Section>
+              )}
+
+              {/* Quote Section */}
+              {section.section_type === 'quote' && (
+                <QuoteShowcase
+                  quote={contentData.quote || section.section_content || ''}
+                  author={contentData.author || section.section_title || ''}
+                  role={contentData.role}
+                  image={contentData.image}
+                  variant="centered"
+                  background="light"
+                />
+              )}
+
+              {/* Leadership Message */}
+              {section.section_type === 'leadership_message' && (
+                <LeadershipMessage
+                  name={contentData.name || section.section_title || 'Leader'}
+                  role={contentData.role || 'Leadership'}
+                  image={contentData.image}
+                  message={contentData.message || section.section_content || ''}
+                  signature={contentData.signature}
+                />
+              )}
+
+              {/* Video Section */}
+              {section.section_type === 'video' && (
+                <Section background="white" padding="xl">
+                  {section.section_title && (
+                    <SectionHeader title={section.section_title} />
+                  )}
+                  <div className="max-w-4xl mx-auto">
+                    <FeaturedVideo
+                      url={contentData.url || ''}
+                      title={contentData.title || section.section_title || ''}
+                      description={contentData.description || section.section_content || ''}
+                      thumbnail={contentData.thumbnail}
+                    />
+                  </div>
+                </Section>
+              )}
+
+              {/* Hero Image */}
+              {section.section_type === 'hero_image' && (
+                <Section background="light" padding="xl">
+                  {contentData.image ? (
+                    <div className="max-w-4xl mx-auto">
+                      <img
+                        src={contentData.image}
+                        alt={section.section_title || ''}
+                        className="w-full rounded-2xl shadow-lg"
+                      />
+                      {section.section_title && (
+                        <p className="text-center text-gray-600 mt-4">{section.section_title}</p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="max-w-4xl mx-auto bg-gray-100 rounded-2xl h-64 flex items-center justify-center">
+                      <p className="text-gray-400">Click to add an image</p>
+                    </div>
+                  )}
+                </Section>
+              )}
+
+              {/* Photo Gallery */}
+              {section.section_type === 'photo_gallery' && (
+                <Section background="light" padding="xl">
+                  {section.section_title && (
+                    <SectionHeader title={section.section_title} />
+                  )}
+                  {contentData.photos && contentData.photos.length > 0 ? (
+                    <PhotoGallery
+                      photos={contentData.photos}
+                      columns={4}
+                      layout="masonry"
+                    />
+                  ) : (
+                    <div className="max-w-4xl mx-auto bg-gray-100 rounded-2xl h-48 flex items-center justify-center">
+                      <p className="text-gray-400">Click to add photos</p>
+                    </div>
+                  )}
+                </Section>
+              )}
+
+              {/* Stats Bar */}
+              {section.section_type === 'stats_bar' && (
+                <ImpactStatsGrid background="gradient" columns={4}>
+                  {(contentData.stats || []).map((stat: any, idx: number) => (
+                    <ImpactStatCard
+                      key={idx}
+                      value={stat.value}
+                      label={stat.label}
+                      suffix={stat.suffix}
+                      icon={Users}
+                      color="white"
+                      animateOnScroll
+                    />
+                  ))}
+                </ImpactStatsGrid>
+              )}
+
+              {/* Timeline */}
+              {section.section_type === 'timeline' && (
+                <Section background="white" padding="xl">
+                  {section.section_title && (
+                    <SectionHeader title={section.section_title} />
+                  )}
+                  {contentData.events && contentData.events.length > 0 ? (
+                    <Timeline events={contentData.events} variant="vertical" />
+                  ) : (
+                    <div className="max-w-4xl mx-auto bg-gray-100 rounded-2xl h-48 flex items-center justify-center">
+                      <p className="text-gray-400">Click to add timeline events</p>
+                    </div>
+                  )}
+                </Section>
+              )}
+
+              {/* Divider */}
+              {section.section_type === 'divider' && (
+                <Divider />
+              )}
+
+              {/* Community Voices */}
+              {section.section_type === 'community_voices' && (
+                <Section background="light" padding="xl">
+                  {section.section_title && (
+                    <SectionHeader title={section.section_title} />
+                  )}
+                  {contentData.voices && contentData.voices.length > 0 ? (
+                    <PersonQuoteGrid people={contentData.voices} />
+                  ) : (
+                    <div className="max-w-4xl mx-auto bg-gray-100 rounded-2xl h-48 flex items-center justify-center">
+                      <p className="text-gray-400">Click to add community voices</p>
+                    </div>
+                  )}
+                </Section>
+              )}
+
+              {/* Project Showcase */}
+              {section.section_type === 'project_showcase' && (
+                <Section background="light" padding="xl">
+                  {section.section_title && (
+                    <SectionHeader title={section.section_title} />
+                  )}
+                  {contentData.projects && contentData.projects.length > 0 ? (
+                    <ProjectShowcase
+                      projects={contentData.projects}
+                      variant="magazine"
+                    />
+                  ) : (
+                    <div className="max-w-4xl mx-auto bg-gray-100 rounded-2xl h-48 flex items-center justify-center">
+                      <p className="text-gray-400">Click to add projects</p>
+                    </div>
+                  )}
+                </Section>
+              )}
+
+              {/* Fallback for unknown types */}
+              {!['text', 'quote', 'leadership_message', 'video', 'hero_image', 'photo_gallery', 'stats_bar', 'timeline', 'divider', 'community_voices', 'project_showcase'].includes(section.section_type) && (
+                <Section background="white" padding="xl">
+                  {section.section_title && (
+                    <SectionHeader title={section.section_title} />
+                  )}
+                  <div className="max-w-3xl mx-auto">
+                    <div className="text-gray-700 whitespace-pre-wrap">{section.section_content}</div>
+                  </div>
+                </Section>
+              )}
+            </EditableSection>
+          );
+        })}
+
+      {/* Demo Mode Warning */}
+      {isEditMode && report.id === 'demo' && (
+        <div className="fixed bottom-20 left-4 right-4 sm:left-auto sm:right-4 sm:w-96 z-50 bg-amber-50 border border-amber-200 rounded-xl p-4 shadow-lg print:hidden">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <h4 className="font-semibold text-amber-800 mb-1">Demo Mode</h4>
+              <p className="text-sm text-amber-700">
+                This is a preview report. To add or edit sections, create a real report in the admin panel first.
               </p>
-              <p className="text-gray-500 text-sm">
-                Palm Island Community Company &copy; {report.report_year}
-              </p>
+              <Link
+                href="/picc/reports/new"
+                className="inline-block mt-2 text-sm font-medium text-amber-800 hover:text-amber-900 underline"
+              >
+                Create Real Report →
+              </Link>
             </div>
-          </ScrollReveal>
+          </div>
         </div>
-      </Section>
+      )}
 
       {/* Footer CTA */}
       <Section background="white" padding="md">
@@ -1011,5 +1572,6 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
         </div>
       </Section>
     </main>
+    </InlineReportEditor>
   );
 }

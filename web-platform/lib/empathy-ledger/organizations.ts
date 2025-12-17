@@ -29,35 +29,35 @@ import type {
  * Get organization by ID
  */
 export async function getOrganization(orgId: string) {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('organizations')
     .select('*')
     .eq('id', orgId)
     .single();
 
   if (error) throw error;
-  return data as Organization;
+  return data as unknown as Organization;
 }
 
 /**
  * Get organization by short name (e.g., 'PICC')
  */
 export async function getOrganizationByShortName(shortName: string) {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('organizations')
     .select('*')
     .eq('short_name', shortName)
     .single();
 
   if (error) throw error;
-  return data as Organization;
+  return data as unknown as Organization;
 }
 
 /**
  * Get organization overview with stats
  */
 export async function getOrganizationOverview(orgId: string) {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('organization_overview')
     .select('*')
     .eq('id', orgId)
@@ -71,7 +71,7 @@ export async function getOrganizationOverview(orgId: string) {
  * Get all organizations (public ones)
  */
 export async function getAllOrganizations() {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('organizations')
     .select('*')
     .eq('empathy_ledger_enabled', true)
@@ -85,7 +85,7 @@ export async function getAllOrganizations() {
  * Create new organization
  */
 export async function createOrganization(input: CreateOrganizationInput) {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('organizations')
     .insert({
       name: input.name,
@@ -115,7 +115,7 @@ export async function updateOrganization(
   orgId: string,
   updates: Partial<Organization>
 ) {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('organizations')
     .update(updates)
     .eq('id', orgId)
@@ -130,7 +130,7 @@ export async function updateOrganization(
  * Get organization statistics
  */
 export async function getOrganizationStats(orgId: string) {
-  const { data, error } = await supabase.rpc('get_organization_stats', {
+  const { data, error } = await (supabase as any).rpc('get_organization_stats', {
     org_uuid: orgId,
   });
 
@@ -146,7 +146,7 @@ export async function getOrganizationStats(orgId: string) {
  * Get all services for an organization
  */
 export async function getOrganizationServices(orgId: string) {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('organization_services')
     .select('*')
     .eq('organization_id', orgId)
@@ -161,7 +161,7 @@ export async function getOrganizationServices(orgId: string) {
  * Get service by slug
  */
 export async function getServiceBySlug(orgId: string, slug: string) {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('organization_services')
     .select('*')
     .eq('organization_id', orgId)
@@ -176,7 +176,7 @@ export async function getServiceBySlug(orgId: string, slug: string) {
  * Create new service
  */
 export async function createService(input: CreateServiceInput) {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('organization_services')
     .insert({
       organization_id: input.organization_id,
@@ -201,14 +201,14 @@ export async function createService(input: CreateServiceInput) {
  * Update service story count (called automatically by trigger, but can be used manually)
  */
 export async function updateServiceStoryCount(serviceId: string) {
-  const { count, error } = await supabase
+  const { count, error } = await (supabase as any)
     .from('stories')
     .select('*', { count: 'exact', head: true })
     .eq('service_id', serviceId);
 
   if (error) throw error;
 
-  const { data: updateData, error: updateError } = await supabase
+  const { data: updateData, error: updateError } = await (supabase as any)
     .from('organization_services')
     .update({ story_count: count || 0 })
     .eq('id', serviceId)
@@ -227,7 +227,7 @@ export async function updateServiceStoryCount(serviceId: string) {
  * Get all members of an organization
  */
 export async function getOrganizationMembers(orgId: string) {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('organization_members')
     .select(`
       *,
@@ -255,7 +255,7 @@ export async function addOrganizationMember(
     can_manage_members?: boolean;
   } = {}
 ) {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('organization_members')
     .insert({
       organization_id: orgId,
@@ -275,7 +275,7 @@ export async function addOrganizationMember(
  * Check if user is member of organization
  */
 export async function isOrganizationMember(orgId: string, profileId: string) {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('organization_members')
     .select('id')
     .eq('organization_id', orgId)
@@ -291,7 +291,7 @@ export async function isOrganizationMember(orgId: string, profileId: string) {
  * Check if user can manage reports
  */
 export async function canManageReports(orgId: string, profileId: string) {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('organization_members')
     .select('can_manage_reports')
     .eq('organization_id', orgId)
@@ -311,7 +311,7 @@ export async function canManageReports(orgId: string, profileId: string) {
  * Get all reports for an organization
  */
 export async function getOrganizationReports(orgId: string) {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('annual_reports_with_stats')
     .select('*')
     .eq('organization_id', orgId)
@@ -325,7 +325,7 @@ export async function getOrganizationReports(orgId: string) {
  * Get report by year
  */
 export async function getReportByYear(orgId: string, year: number) {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('annual_reports')
     .select('*')
     .eq('organization_id', orgId)
@@ -340,7 +340,7 @@ export async function getReportByYear(orgId: string, year: number) {
  * Get report with stats
  */
 export async function getReportWithStats(reportId: string) {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('annual_reports_with_stats')
     .select('*')
     .eq('id', reportId)
@@ -358,7 +358,7 @@ export async function createAnnualReport(input: CreateAnnualReportInput) {
   const periodStart = `${input.report_year}-01-01`;
   const periodEnd = `${input.report_year}-12-31`;
 
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('annual_reports')
     .insert({
       organization_id: input.organization_id,
@@ -388,7 +388,7 @@ export async function updateAnnualReport(
   reportId: string,
   updates: Partial<AnnualReport>
 ) {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('annual_reports')
     .update(updates)
     .eq('id', reportId)
@@ -413,7 +413,7 @@ export async function updateReportStatus(
  * Publish report
  */
 export async function publishReport(reportId: string, profileId: string) {
-  const { data, error} = await supabase
+  const { data, error} = await (supabase as any)
     .from('annual_reports')
     .update({
       status: 'published',
@@ -436,7 +436,7 @@ export async function publishReport(reportId: string, profileId: string) {
  * Get stories suitable for annual report (using smart selection)
  */
 export async function getStoriesForReport(params: SelectStoriesForReportParams) {
-  const { data, error } = await supabase.rpc('get_stories_for_report', {
+  const { data, error } = await (supabase as any).rpc('get_stories_for_report', {
     org_uuid: params.organization_id,
     year_value: params.report_year,
     limit_count: params.max_stories || 50,
@@ -487,8 +487,8 @@ export async function selectStoriesForReport(
   if (error) throw error;
 
   // Calculate scores and sort
-  const scored = data.map((story) => {
-    const impactScore = story.views + story.shares * 2 + story.likes;
+  const scored = data.map((story: any) => {
+    const impactScore = (story.views ?? 0) + (story.shares ?? 0) * 2 + (story.likes ?? 0);
     let relevanceScore = 0.7;
 
     if (story.is_featured) relevanceScore = 1.0;
@@ -531,7 +531,7 @@ export async function addStoryToReport(
     display_order?: number;
   } = {}
 ) {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('annual_report_stories')
     .insert({
       report_id: reportId,
@@ -553,7 +553,7 @@ export async function addStoryToReport(
  * Remove story from report
  */
 export async function removeStoryFromReport(reportId: string, storyId: string) {
-  const { error } = await supabase
+  const { error } = await (supabase as any)
     .from('annual_report_stories')
     .delete()
     .eq('report_id', reportId)
@@ -566,7 +566,7 @@ export async function removeStoryFromReport(reportId: string, storyId: string) {
  * Get stories in a report
  */
 export async function getReportStories(reportId: string) {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('annual_report_stories')
     .select(`
       *,
@@ -620,7 +620,7 @@ export async function autoPopulateReport(
  * Get all public report templates
  */
 export async function getReportTemplates() {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('report_templates')
     .select('*')
     .eq('is_public', true)
@@ -634,7 +634,7 @@ export async function getReportTemplates() {
  * Get template by name
  */
 export async function getReportTemplate(templateName: string) {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('report_templates')
     .select('*')
     .eq('template_name', templateName)
@@ -652,7 +652,7 @@ export async function getReportTemplate(templateName: string) {
  * Request elder approval for report
  */
 export async function requestElderApproval(reportId: string, elderIds: string[]) {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('annual_reports')
     .update({
       elder_approval_required: true,
@@ -683,7 +683,7 @@ export async function grantElderApproval(reportId: string, elderId: string) {
     currentApprovals.push(elderId);
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('annual_reports')
     .update({
       elder_approvals: currentApprovals,
@@ -743,7 +743,7 @@ export async function getPICCServices() {
  * Increment report views
  */
 export async function incrementReportViews(reportId: string) {
-  const { error } = await supabase.rpc('increment', {
+  const { error } = await (supabase as any).rpc('increment', {
     table_name: 'annual_reports',
     row_id: reportId,
     column_name: 'views',
@@ -760,7 +760,7 @@ export async function incrementReportViews(reportId: string) {
  * Increment report downloads
  */
 export async function incrementReportDownloads(reportId: string) {
-  const { error } = await supabase.rpc('increment', {
+  const { error } = await (supabase as any).rpc('increment', {
     table_name: 'annual_reports',
     row_id: reportId,
     column_name: 'downloads',

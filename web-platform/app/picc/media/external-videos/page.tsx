@@ -25,7 +25,7 @@ interface ExternalVideo {
   title: string;
   description: string | null;
   video_url: string;
-  platform: 'youtube' | 'vimeo' | 'facebook' | 'tiktok' | 'other';
+  platform: 'youtube' | 'vimeo' | 'descript' | 'facebook' | 'tiktok' | 'other';
   video_id: string | null;
   thumbnail_url: string | null;
   category: string | null;
@@ -53,6 +53,10 @@ function extractVideoId(url: string): { platform: string; videoId: string | null
   if (vimeoMatch) {
     return { platform: 'vimeo', videoId: vimeoMatch[1] };
   }
+  // Descript
+  if (url.includes('descript.com')) {
+    return { platform: 'descript', videoId: null };
+  }
   // Facebook
   if (url.includes('facebook.com') || url.includes('fb.watch')) {
     return { platform: 'facebook', videoId: null };
@@ -79,7 +83,6 @@ export default function ExternalVideosPage() {
   const [filterCategory, setFilterCategory] = useState('all');
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingVideo, setEditingVideo] = useState<ExternalVideo | null>(null);
-  const [tableExists, setTableExists] = useState(true);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -126,13 +129,7 @@ export default function ExternalVideosPage() {
         return;
       }
 
-      if (result.tableExists === false) {
-        setTableExists(false);
-        return;
-      }
-
       setVideos(result.data || []);
-      setTableExists(true);
     } catch (error) {
       console.error('Error loading videos:', error);
     } finally {
@@ -255,49 +252,7 @@ export default function ExternalVideosPage() {
     }
   };
 
-  // Table doesn't exist - show setup instructions
-  if (!tableExists && !loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <div className="max-w-4xl mx-auto">
-          <Link href="/picc/media" className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-4">
-            <ArrowLeft className="h-4 w-4" />
-            Back to Media Library
-          </Link>
-
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-            <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Film className="w-8 h-8 text-orange-600" />
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">External Videos Table Not Found</h1>
-            <p className="text-gray-600 mb-6">
-              The external_videos table needs to be created in your Supabase database.
-              Run the migration SQL to enable this feature.
-            </p>
-
-            <div className="bg-gray-50 rounded-lg p-4 text-left mb-6">
-              <h3 className="font-medium text-gray-900 mb-2">To set up:</h3>
-              <ol className="list-decimal list-inside text-sm text-gray-700 space-y-2">
-                <li>Go to your Supabase Dashboard</li>
-                <li>Open the SQL Editor</li>
-                <li>Run the migration from: <code className="bg-gray-200 px-1 rounded">lib/empathy-ledger/media-repository.sql</code></li>
-                <li>Refresh this page</li>
-              </ol>
-            </div>
-
-            <Link
-              href="https://supabase.com/dashboard"
-              target="_blank"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-[#1e3a5f] text-white rounded-lg hover:bg-[#2d4a6f] transition-colors"
-            >
-              <ExternalLink className="w-4 h-4" />
-              Open Supabase Dashboard
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // No special DB setup required: external videos are stored in media_files and show in the main gallery.
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">

@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { createServerSupabase } from '@/lib/supabase/client';
+import { CopyToClipboardButton } from '@/components/ui/CopyToClipboardButton';
 import {
   ArrowLeft, Edit, FileCode, AlertCircle, Save, Trash2,
-  Calendar, Eye, EyeOff, Star, Lightbulb, Database
+  Calendar, Eye, EyeOff, Star, Lightbulb, Database, BookOpen, FileText
 } from 'lucide-react';
 
 interface EditProjectPageProps {
@@ -77,9 +78,42 @@ WHERE id = '${project.id}';`;
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
           <Edit className="w-8 h-8 text-blue-600" />
-          Edit Project
+          Edit Project (SQL)
         </h1>
-        <p className="text-gray-600">Update project details, status, and settings</p>
+        <p className="text-gray-600">Project metadata editor (not the immersive story)</p>
+      </div>
+
+      {/* Immersive Story Shortcut */}
+      <div className="bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-6 mb-8">
+        <div className="flex items-start justify-between gap-6">
+          <div>
+            <h3 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
+              <FileText className="w-5 h-5 text-purple-700" />
+              Editing the immersive story?
+            </h3>
+            <p className="text-sm text-gray-700">
+              This page edits the <code className="px-1.5 py-0.5 bg-white rounded text-xs font-mono">projects</code> record.
+              Use Story Builder to edit the immersive story content and sections.
+            </p>
+          </div>
+          <div className="flex flex-col gap-2 flex-shrink-0">
+            <Link
+              href={`/picc/projects/${params.slug}/story-builder`}
+              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all flex items-center gap-2 justify-center"
+            >
+              <BookOpen className="w-4 h-4" />
+              <span>Open Story Builder</span>
+            </Link>
+            <Link
+              href={`/immersive-stories/${params.slug}-story`}
+              target="_blank"
+              className="px-4 py-2 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 font-semibold rounded-lg transition-all flex items-center gap-2 justify-center"
+            >
+              <Eye className="w-4 h-4" />
+              <span>Preview Story</span>
+            </Link>
+          </div>
+        </div>
       </div>
 
       {/* Current Process Notice */}
@@ -252,13 +286,15 @@ WHERE id = '${project.id}';`;
                 <FileCode className="w-5 h-5 text-green-600" />
                 Update SQL
               </h2>
-              <button
-                onClick={() => navigator.clipboard.writeText(updateSQL)}
+              <CopyToClipboardButton
+                text={updateSQL}
                 className="px-3 py-1.5 bg-green-50 hover:bg-green-100 text-green-600 text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
+                copyLabel="Copy SQL"
+                copiedLabel="Copied"
               >
                 <Save className="w-4 h-4" />
                 <span>Copy SQL</span>
-              </button>
+              </CopyToClipboardButton>
             </div>
             <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto max-h-96 overflow-y-auto">
               <pre className="text-xs text-green-400 font-mono">
