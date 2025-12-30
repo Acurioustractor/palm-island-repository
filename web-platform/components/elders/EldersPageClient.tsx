@@ -13,6 +13,9 @@ import {
   X,
   Filter,
   Users,
+  BarChart3,
+  MessageSquareQuote,
+  FileText,
 } from 'lucide-react'
 import type { TripStop } from '@/components/elders/EldersTripMap'
 import Modal from '@/components/ui/Modal'
@@ -62,9 +65,35 @@ type TripMedia = {
   immersiveStoryHref: string
 }
 
+type ElderInsights = {
+  stats: {
+    totalElders: number
+    eldersWithQuotes: number
+    eldersWithInterviews: number
+    totalQuotes: number
+    validatedQuotes: number
+    totalInterviews: number
+  }
+  themes: Array<{
+    name: string
+    count: number
+    fromQuotes: number
+    fromInterviews: number
+    sampleQuote: { id: string; text: string; elderName: string | null } | null
+  }>
+  highlightedQuotes: Array<{
+    id: string
+    text: string
+    theme: string | null
+    elderName: string | null
+    createdAt: string
+  }>
+}
+
 type Props = {
   elders: ElderCard[]
   hero: { type: 'image' | 'video'; url: string; title: string | null } | null
+  insights: ElderInsights
   trip: TripMedia
 }
 
@@ -158,7 +187,7 @@ function getFilterOptions(elders: ElderCard[]) {
   }
 }
 
-export default function EldersPageClient({ elders, hero, trip }: Props) {
+export default function EldersPageClient({ elders, hero, insights, trip }: Props) {
   // Modal state
   const [activeElderId, setActiveElderId] = useState<string | null>(null)
 
@@ -233,6 +262,53 @@ export default function EldersPageClient({ elders, hero, trip }: Props) {
   }, [])
 
   const stops = useMemo(() => makeStops(), [])
+
+  const quoteCoverage = useMemo(() => {
+    if (!insights.stats.totalElders) return 0
+    return Math.round((insights.stats.eldersWithQuotes / insights.stats.totalElders) * 100)
+  }, [insights.stats.eldersWithQuotes, insights.stats.totalElders])
+
+  const interviewCoverage = useMemo(() => {
+    if (!insights.stats.totalElders) return 0
+    return Math.round((insights.stats.eldersWithInterviews / insights.stats.totalElders) * 100)
+  }, [insights.stats.eldersWithInterviews, insights.stats.totalElders])
+
+  const themeMaxCount = useMemo(() => {
+    if (!insights.themes.length) return 1
+    return Math.max(...insights.themes.map((t) => t.count))
+  }, [insights.themes])
+
+  const insightStats = useMemo(
+    () => [
+      {
+        label: 'Elders with quotes',
+        value: `${insights.stats.eldersWithQuotes}/${insights.stats.totalElders || 0}`,
+        helper: `${quoteCoverage}% coverage`,
+        icon: MessageSquareQuote,
+      },
+      {
+        label: 'Interviews logged',
+        value: insights.stats.totalInterviews,
+        helper: `${interviewCoverage}% of Elders`,
+        icon: FileText,
+      },
+      {
+        label: 'Validated quotes',
+        value: insights.stats.validatedQuotes,
+        helper: `${insights.stats.totalQuotes} total`,
+        icon: BarChart3,
+      },
+    ],
+    [
+      insights.stats.eldersWithQuotes,
+      insights.stats.totalElders,
+      insights.stats.totalInterviews,
+      insights.stats.validatedQuotes,
+      insights.stats.totalQuotes,
+      quoteCoverage,
+      interviewCoverage,
+    ]
+  )
 
   useEffect(() => {
     const updateGrid = () => {
@@ -497,6 +573,127 @@ export default function EldersPageClient({ elders, hero, trip }: Props) {
               )}
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Transcript Insights */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-6">
+        <div className="rounded-3xl border border-stone-200 bg-gradient-to-br from-amber-50 via-white to-purple-50 shadow-sm p-8">
+          <div className="flex items-start justify-between gap-6 flex-wrap">
+            <div className="max-w-2xl">
+              <p className="text-xs uppercase tracking-wide font-semibold text-purple-700">Transcript insights</p>
+              <h2 className="text-3xl font-bold text-gray-900 mt-1">What Elders are speaking about</h2>
+              <p className="mt-2 text-gray-700">
+                Based on {insights.stats.totalQuotes || 0} quotes and {insights.stats.totalInterviews || 0} interviews logged so far.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full sm:w-auto">
+              {insightStats.map((card) => (
+                <div
+                  key={card.label}
+                  className="flex items-start gap-3 bg-white/80 border border-stone-200 rounded-2xl px-4 py-3 shadow-sm"
+                >
+                  <div className="p-2 rounded-xl bg-purple-100 text-purple-700">
+                    <card.icon className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold text-gray-600 uppercase tracking-wide">{card.label}</div>
+                    <div className="text-xl font-bold text-gray-900">{card.value}</div>
+                    <div className="text-xs text-gray-600">{card.helper}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {insights.themes.length === 0 && insights.highlightedQuotes.length === 0 ? (
+            <div className="mt-6 text-sm text-gray-700">
+              Add validated Elder quotes or transcript themes to see the pattern of voices here.
+            </div>
+          ) : (
+            <div className="mt-8 grid lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 space-y-4">
+                {insights.themes.length === 0 ? (
+                  <div className="bg-white rounded-2xl border border-dashed border-stone-300 p-6 text-sm text-gray-700">
+                    Themes will appear once transcripts are tagged or quotes have themes set.
+                  </div>
+                ) : (
+                  insights.themes.map((theme) => {
+                    const width = Math.max(12, Math.round((theme.count / themeMaxCount) * 100))
+                    return (
+                      <div
+                        key={theme.name}
+                        className="bg-white rounded-2xl border border-stone-200 p-5 shadow-sm"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <div className="text-sm font-semibold text-gray-900">{theme.name}</div>
+                            <div className="text-xs text-gray-600">
+                              {theme.fromQuotes} quotes • {theme.fromInterviews} transcript tags
+                            </div>
+                          </div>
+                          <div className="text-sm font-bold text-gray-900">{theme.count}</div>
+                        </div>
+                        <div className="mt-3 h-2 rounded-full bg-stone-100 overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-purple-600 via-amber-500 to-orange-400"
+                            style={{ width: `${Math.min(width, 100)}%` }}
+                          />
+                        </div>
+                        {theme.sampleQuote?.text && (
+                          <p className="mt-3 text-sm text-gray-700 italic">
+                            “{theme.sampleQuote.text}”
+                            {theme.sampleQuote.elderName && (
+                              <span className="text-gray-500"> — {theme.sampleQuote.elderName}</span>
+                            )}
+                          </p>
+                        )}
+                      </div>
+                    )
+                  })
+                )}
+              </div>
+
+              <div className="bg-white rounded-2xl border border-stone-200 p-5 shadow-sm">
+                <div className="flex items-center gap-2">
+                  <MessageSquareQuote className="w-4 h-4 text-purple-700" />
+                  <h3 className="text-lg font-bold text-gray-900">Highlighted quotes</h3>
+                </div>
+                <div className="mt-4 space-y-4">
+                  {insights.highlightedQuotes.length === 0 ? (
+                    <p className="text-sm text-gray-700">
+                      Publish validated Elder quotes to spotlight them here.
+                    </p>
+                  ) : (
+                    insights.highlightedQuotes.slice(0, 6).map((q) => {
+                      const quoteDate = q.createdAt ? new Date(q.createdAt) : null
+                      const formattedDate =
+                        quoteDate && !Number.isNaN(quoteDate.valueOf())
+                          ? quoteDate.toLocaleDateString('en-AU', { month: 'short', year: 'numeric' })
+                          : null
+                      return (
+                        <div
+                          key={q.id}
+                          className="border border-stone-200 rounded-xl p-3 bg-stone-50"
+                        >
+                          <div className="text-sm text-gray-900 leading-relaxed">“{q.text}”</div>
+                          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-gray-600">
+                            {q.elderName && <span>{q.elderName}</span>}
+                            {q.theme && (
+                              <span className="px-2 py-1 rounded-full bg-purple-100 text-purple-700 font-semibold">
+                                {q.theme}
+                              </span>
+                            )}
+                            {formattedDate && <span>{formattedDate}</span>}
+                          </div>
+                        </div>
+                      )
+                    })
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 

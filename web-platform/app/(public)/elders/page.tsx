@@ -57,6 +57,40 @@ type MediaRow = {
 
 type ProjectRow = { id: string; name: string; slug: string }
 
+type InterviewRow = {
+  id: string
+  storyteller_id: string | null
+  interview_title: string | null
+  status: string | null
+  key_themes: string[] | null
+  created_at: string | null
+}
+
+type EldersInsights = {
+  stats: {
+    totalElders: number
+    eldersWithQuotes: number
+    eldersWithInterviews: number
+    totalQuotes: number
+    validatedQuotes: number
+    totalInterviews: number
+  }
+  themes: Array<{
+    name: string
+    count: number
+    fromQuotes: number
+    fromInterviews: number
+    sampleQuote: { id: string; text: string; elderName: string | null } | null
+  }>
+  highlightedQuotes: Array<{
+    id: string
+    text: string
+    theme: string | null
+    elderName: string | null
+    createdAt: string
+  }>
+}
+
 export const metadata = {
   title: 'Our Elders | PICC',
   description:
@@ -72,12 +106,24 @@ function safeText(input: unknown) {
   return s || null
 }
 
+function formatThemeLabel(input: unknown) {
+  const s = safeText(input)
+  if (!s) return 'Community voice'
+  return s
+    .replace(/[_-]+/g, ' ')
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+}
+
 export default async function EldersPage() {
   const supabase = createServerSupabase() as any
 
   let elders: ElderProfileRow[] = []
   let quotes: QuoteRow[] = []
   let stories: StoryRow[] = []
+  let interviews: InterviewRow[] = []
   let tripImages: MediaRow[] = []
   let tripVideo: MediaRow | null = null
   let eldersTripProject: ProjectRow | null = null
@@ -149,6 +195,18 @@ export default async function EldersPage() {
   const elderIds = elders.map((e) => e.id).filter(Boolean)
 
   if (elderIds.length > 0) {
+    try {
+      const { data } = await supabase
+        .from('interviews')
+        .select('id, storyteller_id, interview_title, status, key_themes, created_at')
+        .in('storyteller_id', elderIds)
+        .order('created_at', { ascending: false })
+        .limit(400)
+      interviews = Array.isArray(data) ? (data as InterviewRow[]) : []
+    } catch {
+      interviews = []
+    }
+
     try {
       const { data } = await supabase
         .from('extracted_quotes')
@@ -352,6 +410,81 @@ export default async function EldersPage() {
     storiesByProfile.set(s.storyteller_id, list)
   }
 
+  const elderNameById = new Map<string, string>()
+  elders.forEach((e) => elderNameById.set(e.id, displayName({ preferred_name: e.preferred_name, full_name: e.full_name })))
+
+  const themeBuckets = new Map<
+    string,
+    { label: string; fromQuotes: number; fromInterviews: number; quotes: QuoteRow[] }
+  >()
+
+  const registerTheme = (raw: unknown, source: 'quote' | 'interview', quote?: QuoteRow) => {
+    const label = formatThemeLabel(raw)
+    const key = label.toLowerCase()
+    const bucket =
+      themeBuckets.get(key) || { label, fromQuotes: 0, fromInterviews: 0, quotes: [] }
+    if (source === 'quote') bucket.fromQuotes += 1
+    if (source === 'interview') bucket.fromInterviews += 1
+    if (quote) bucket.quotes.push(quote)
+    themeBuckets.set(key, bucket)
+  }
+
+  for (const q of quotes) {
+    registerTheme(q.theme, 'quote', q)
+  }
+
+  for (const interview of interviews) {
+    const themes = Array.isArray(interview?.key_themes) ? interview.key_themes : []
+    if (themes.length === 0) {
+      registerTheme('Transcript reflections', 'interview')
+      continue
+    }
+    for (const theme of themes) {
+      registerTheme(theme, 'interview')
+    }
+  }
+
+  const themeInsightList = Array.from(themeBuckets.values())
+    .map((bucket) => {
+      const best = pickBestQuotes(bucket.quotes, 1)[0] || null
+      return {
+        name: bucket.label,
+        count: bucket.fromQuotes + bucket.fromInterviews,
+        fromQuotes: bucket.fromQuotes,
+        fromInterviews: bucket.fromInterviews,
+        sampleQuote: best
+          ? {
+              id: best.id,
+              text: best.quote_text,
+              elderName: elderNameById.get(best.profile_id || '') || safeText(best.attribution),
+            }
+          : null,
+      }
+    })
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 6)
+
+  const highlightedQuotes = pickBestQuotes(quotes, 8).map((q) => ({
+    id: q.id,
+    text: q.quote_text,
+    theme: formatThemeLabel(q.theme),
+    elderName: elderNameById.get(q.profile_id || '') || safeText(q.attribution),
+    createdAt: q.created_at,
+  }))
+
+  const insights: EldersInsights = {
+    stats: {
+      totalElders: elders.length,
+      eldersWithQuotes: elders.filter((e) => (quotesByProfile.get(e.id) || []).length > 0).length,
+      eldersWithInterviews: elders.filter((e) => interviews.some((i) => i.storyteller_id === e.id)).length,
+      totalQuotes: quotes.length,
+      validatedQuotes: quotes.filter((q) => q.is_validated).length,
+      totalInterviews: interviews.length,
+    },
+    themes: themeInsightList,
+    highlightedQuotes,
+  }
+
   const eldersView = elders
     .filter((e) => e && e.id)
     .map((e) => {
@@ -437,6 +570,7 @@ export default async function EldersPage() {
     <EldersPageClient
       elders={eldersView}
       hero={heroMedia}
+      insights={insights}
       trip={{
         project: eldersTripProject ? { name: eldersTripProject.name, slug: eldersTripProject.slug } : null,
         video: tripVideoView,
