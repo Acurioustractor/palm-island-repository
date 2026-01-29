@@ -10,6 +10,12 @@ import { getHeroImage } from '@/lib/media/utils';
 import { PhotoGallery } from '@/components/report';
 import { ServicePinMap } from '@/components/report/ServicePinMap';
 import LiveReportEditor from '@/components/report/LiveReportEditor';
+import nextDynamic from 'next/dynamic';
+
+const InteractiveServiceMap = nextDynamic(
+  () => import('@/components/report/InteractiveServiceMap'),
+  { ssr: false }
+);
 
 // This is a SERVER COMPONENT - fetches real-time data
 export const runtime = 'nodejs';
@@ -197,7 +203,13 @@ export default async function LiveAnnualReportPage({
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {servicesData.map((service: any, idx: number) => (
-              <ServiceCard key={service.id} service={service} index={idx} />
+              <Link
+                key={service.id}
+                href={`/services/${service.slug || service.id}`}
+                className="block"
+              >
+                <ServiceCard service={service} index={idx} />
+              </Link>
             ))}
           </div>
         </div>
@@ -322,9 +334,20 @@ export default async function LiveAnnualReportPage({
             </p>
           </div>
 
-          <ServicePinMap
-            services={servicesData}
-            backgroundImage={mapImage || undefined}
+          <InteractiveServiceMap
+            services={servicesData.map((s: any) => ({
+              id: s.id,
+              name: s.name,
+              slug: s.slug,
+              description: s.description,
+              service_category: s.service_category,
+              icon_name: s.icon_name,
+              service_color: s.service_color,
+              metadata: s.metadata,
+              staff_count: s.service_metrics?.[0]?.staff_count || s.staff_count,
+              clients_served: s.service_metrics?.[0]?.clients_served || s.clients_served,
+              service_metrics: s.service_metrics,
+            }))}
           />
         </div>
       </section>
@@ -703,7 +726,13 @@ async function fetchCurrentYearStats(supabase: any) {
 async function fetchAllServices(supabase: any) {
   const { data: services } = await supabase
     .from('organization_services')
-    .select('id, name, slug, description, service_category, icon_name, service_color, metadata')
+    .select(`
+      id, name, slug, description, service_category, icon_name, service_color, metadata,
+      service_metrics (
+        fiscal_year, clients_served, sessions_delivered, staff_count,
+        key_achievement, headline_stat_value, headline_stat_label
+      )
+    `)
     .eq('is_active', true)
     .order('name');
 

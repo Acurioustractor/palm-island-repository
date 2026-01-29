@@ -18,7 +18,7 @@ export function PublicNavigation() {
 
   const navLinks = [
     { label: 'Stories', href: '/stories' },
-    { label: 'Elders', href: '/elders' },
+    { label: 'Services', href: '/services' },
     { label: 'About PICC', href: '/about' },
     {
       label: 'Knowledge',
@@ -26,8 +26,7 @@ export function PublicNavigation() {
       hasDropdown: true,
       dropdownItems: [
         { label: 'Live Annual Report 2024-25', href: '/annual-report/live', featured: true },
-        { label: 'Our Elders', href: '/elders' },
-        { label: 'Reports & Publications', href: '/publications' },
+        { label: 'Service Map', href: '/services' },
         { label: 'Annual Reports Timeline', href: '/annual-reports' },
         { label: 'Knowledge Base', href: '/wiki/stories' },
         { label: 'Community Stories', href: '/stories' },
