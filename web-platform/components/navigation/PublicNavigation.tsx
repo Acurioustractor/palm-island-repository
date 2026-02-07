@@ -26,6 +26,7 @@ export function PublicNavigation() {
       hasDropdown: true,
       dropdownItems: [
         { label: 'Live Annual Report 2024-25', href: '/annual-report/live', featured: true },
+        { label: 'Road to 20 Years', href: '/road-to-20-years', featured: true },
         { label: 'Service Map', href: '/services' },
         { label: 'Annual Reports Timeline', href: '/annual-reports' },
         { label: 'Knowledge Base', href: '/wiki/stories' },

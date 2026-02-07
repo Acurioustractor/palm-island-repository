@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} | Palm Island Community Company</title>
+    <link rel="stylesheet" href="styles/picc-brand.css">
+    <link rel="stylesheet" href="styles/report-layout.css">
+</head>
+<body>
+    <!-- COVER PAGE -->
+    <section class="page cover-page">
+        <div class="cover-background">
+            <img src="{{ cover_image }}" alt="Palm Island" class="cover-photo">
+            <div class="wave-overlay"></div>
+        </div>
+        <div class="cover-content">
+            <img src="assets/picc-logo-turtle.png" alt="PICC Logo" class="cover-logo">
+            <div class="cover-title-block">
+                <span class="cover-year">{{ year_range }}</span>
+                <h1 class="cover-title">ANNUAL<br>REPORT</h1>
+            </div>
+        </div>
+        <div class="cover-wave-pattern"></div>
+    </section>
+
+    <!-- LEADERSHIP SPREAD -->
+    <section class="page spread leadership-spread">
+        <!-- CEO Message -->
+        <article class="leadership-message ceo-message">
+            <div class="leader-photo-frame">
+                <img src="{{ ceo.photo }}" alt="{{ ceo.name }}">
+            </div>
+            <h2 class="handwritten">Message from the CEO</h2>
+            <p class="lead">{{ ceo.message_lead }}</p>
+            <div class="message-body">
+                {{ ceo.message_body | safe }}
+            </div>
+            <p class="signature">{{ ceo.name }}</p>
+        </article>
+
+        <!-- Chair Message -->
+        <article class="leadership-message chair-message">
+            <div class="leader-photo-frame">
+                <img src="{{ chair.photo }}" alt="{{ chair.name }}">
+            </div>
+            <h2 class="handwritten">Message from the Chair</h2>
+            <p class="lead">{{ chair.message_lead }}</p>
+            <div class="message-body">
+                {{ chair.message_body | safe }}
+            </div>
+            <p class="signature">{{ chair.name }}</p>
+        </article>
+    </section>
+
+    <!-- ACKNOWLEDGEMENT -->
+    <section class="page acknowledgement-page">
+        <div class="ack-content">
+            <h3 class="handwritten">Acknowledgement of Country</h3>
+            <p class="ack-text">{{ acknowledgement_text }}</p>
+        </div>
+        <div class="ack-decoration"></div>
+    </section>
+
+    <!-- HIGHLIGHTS -->
+    {% if highlights %}
+    <section class="page highlights-page">
+        <h2 class="handwritten text-center">Key Highlights</h2>
+        <div class="highlights-grid">
+            {% for h in highlights %}
+            <div class="highlight-card {% if h.is_featured %}featured{% endif %}">
+                <h4>{{ h.title }}</h4>
+                {% if h.subtitle %}<p class="highlight-subtitle">{{ h.subtitle }}</p>{% endif %}
+                {% if h.description %}<p class="highlight-description">{{ h.description }}</p>{% endif %}
+                {% if h.impact_achieved %}
+                <div class="highlight-impact">{{ h.impact_achieved }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- GOVERNANCE & SERVICES -->
+    <section class="page spread governance-spread">
+        <div class="governance-section">
+            <h2 class="handwritten">Corporate Governance</h2>
+            <h3>Key Achievements</h3>
+            <ul class="achievements-list">
+                {% for achievement in governance_achievements %}
+                <li>{{ achievement }}</li>
+                {% endfor %}
+            </ul>
+
+            <h3 class="handwritten">Members of the Board</h3>
+            <ul class="board-list">
+                {% for member in board_members %}
+                <li><strong>{{ member.name }}</strong>, {{ member.role }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="services-section">
+            <h2 class="handwritten">Services</h2>
+            <ul class="services-list">
+                {% for service in services %}
+                <li>{{ service }}</li>
+                {% endfor %}
+            </ul>
+
+            <div class="report-card">
+                <h4>Report Card</h4>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Staff Numbers</th>
+                            {% for year in staff_data.years %}
+                            <th>{{ year }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>No. of staff members</td>
+                            {% for count in staff_data.counts %}
+                            <td>{{ count }}</td>
+                            {% endfor %}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- STORIES SECTION -->
+    {% for story in stories %}
+    <section class="page story-page {% if loop.index is odd %}story-left{% else %}story-right{% endif %}">
+        <div class="story-image-area">
+            <img src="{{ story.featured_image }}" alt="{{ story.title }}" class="story-featured-image">
+            {% if story.gallery %}
+            <div class="story-gallery">
+                {% for img in story.gallery[:3] %}
+                <img src="{{ img }}" alt="Gallery image" class="gallery-thumb">
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="story-content-area">
+            <span class="story-category">{{ story.category }}</span>
+            <h2 class="handwritten story-title">{{ story.title }}</h2>
+            <p class="story-subtitle">{{ story.subtitle }}</p>
+
+            <div class="story-body">
+                {{ story.body | safe }}
+            </div>
+
+            {% if story.quote %}
+            <blockquote class="story-quote">
+                <p>"{{ story.quote.text }}"</p>
+                <cite>— {{ story.quote.attribution }}</cite>
+            </blockquote>
+            {% endif %}
+
+            {% if story.services %}
+            <div class="story-services">
+                <strong>Services:</strong> {{ story.services | join(', ') }}
+            </div>
+            {% endif %}
+        </div>
+    </section>
+    {% endfor %}
+
+    <!-- DATA CARDS SECTION -->
+    <section class="page spread data-spread">
+        <h2 class="handwritten section-title">Community Services</h2>
+        <p class="section-subtitle">Report Cards</p>
+
+        <div class="data-cards-grid">
+            {% for card in data_cards %}
+            <div class="data-card">
+                <h4>{{ card.title }}</h4>
+                <p class="data-subtitle">{{ card.subtitle }}</p>
+
+                {% if card.type == 'table' %}
+                <table class="data-table compact">
+                    <thead>
+                        <tr>
+                            {% for header in card.headers %}
+                            <th>{{ header }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in card.rows %}
+                        <tr>
+                            {% for cell in row %}
+                            <td>{{ cell }}</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% elif card.type == 'chart' %}
+                <div class="chart-placeholder" data-chart="{{ card.chart_data | tojson }}">
+                    <!-- Chart rendered by CSS/SVG -->
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- FINANCIAL SUMMARY -->
+    <section class="page spread financial-spread">
+        <div class="financial-left">
+            <h2 class="handwritten">Summary Financial Report</h2>
+            <p class="financial-date">30 June {{ year }}</p>
+
+            <table class="financial-table">
+                <tbody>
+                    <tr class="section-header">
+                        <td colspan="3"><strong>Balance Sheet</strong></td>
+                    </tr>
+                    {% for item in financials.balance_sheet %}
+                    <tr class="{{ item.class }}">
+                        <td>{{ item.label }}</td>
+                        <td class="amount">${{ item.current | format_number }}</td>
+                        <td class="amount">${{ item.previous | format_number }}</td>
+                    </tr>
+                    {% endfor %}
+
+                    <tr class="section-header">
+                        <td colspan="3"><strong>Income and Expenditure</strong></td>
+                    </tr>
+                    {% for item in financials.income_expenditure %}
+                    <tr class="{{ item.class }}">
+                        <td>{{ item.label }}</td>
+                        <td class="amount">${{ item.current | format_number }}</td>
+                        <td class="amount">${{ item.previous | format_number }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="financial-right">
+            <h3>Dissection of Expenditure</h3>
+            <p class="chart-year">{{ year }}</p>
+
+            <div class="pie-chart">
+                <!-- SVG Pie Chart -->
+                <svg viewBox="0 0 200 200" class="expenditure-pie">
+                    {% for segment in financials.expenditure_breakdown %}
+                    <circle class="pie-segment"
+                            cx="100" cy="100" r="80"
+                            stroke="{{ segment.color }}"
+                            stroke-dasharray="{{ segment.percent * 5.02 }} 502"
+                            stroke-dashoffset="{{ segment.offset }}"
+                            fill="none"
+                            stroke-width="40"/>
+                    {% endfor %}
+                </svg>
+            </div>
+
+            <ul class="expenditure-legend">
+                {% for item in financials.expenditure_breakdown %}
+                <li>
+                    <span class="legend-color" style="background: {{ item.color }}"></span>
+                    {{ item.label }} <strong>{{ item.percent }}%</strong>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </section>
+
+    <!-- PARTNERS -->
+    <section class="page partners-page">
+        <h2 class="handwritten">Our Partners</h2>
+        <p class="partners-intro">PICC could not do all that we do without the help of our partners. Some of the organisations with which we worked and collaborated in {{ year_range }}:</p>
+
+        <div class="partners-grid">
+            {% for partner in partners %}
+            <span class="partner-name">{{ partner }}</span>
+            {% endfor %}
+        </div>
+
+        <div class="partners-photo">
+            <img src="{{ partners_photo }}" alt="PICC Team">
+        </div>
+    </section>
+
+    <!-- BACK COVER -->
+    <section class="page back-cover">
+        <div class="back-cover-content">
+            <div class="contact-block">
+                <h3 class="handwritten">Palm Island Community Company</h3>
+                <address>
+                    {{ contact.address_line1 }}<br>
+                    {{ contact.address_line2 }}<br>
+                    {{ contact.address_line3 }}<br>
+                    {{ contact.country }}
+                </address>
+                <p class="contact-phone">{{ contact.phone }}</p>
+                <p class="contact-web">{{ contact.website }}</p>
+                <p class="contact-acn">ACN {{ contact.acn }}</p>
+            </div>
+
+            <div class="mission-statement">
+                <p>{{ mission_statement }}</p>
+            </div>
+        </div>
+        <div class="back-cover-wave"></div>
+    </section>
+</body>
+</html>

@@ -165,6 +165,8 @@ export default function PublicAnnualReportPage() {
   const [mediaBySections, setMediaBySections] = useState<MediaBySections>({
     hero: [], ceo: [], chair: [], gallery: [], stories: [], projects: [], video_thumb: []
   });
+  const [boardPhotos, setBoardPhotos] = useState<ReportImageRow[]>([]);
+  const [elderPhotos, setElderPhotos] = useState<ReportImageRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -207,6 +209,8 @@ export default function PublicAnnualReportPage() {
       setMediaBySections(payload.mediaBySections || {
         hero: [], ceo: [], chair: [], gallery: [], stories: [], projects: [], video_thumb: []
       });
+      setBoardPhotos((payload.boardPhotos || []) as ReportImageRow[]);
+      setElderPhotos((payload.elderPhotos || []) as ReportImageRow[]);
       setLeadershipMessages([]); // leadership content is stored in sections in this workflow
 
       const mappedServices = (payload.services || []).map((s: any) => ({
@@ -363,7 +367,12 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
     { date: 'June 2024', title: '197 Staff Achievement', description: '30% growth in local employment opportunities', category: 'achievement' as const },
   ];
 
-  // Demo projects if none loaded - using placeholder images
+  // Demo projects if none loaded - use media library photos when available
+  const findPhotoByTag = (tag: string) =>
+    reportImages.find(i => Array.isArray(i.tags) && i.tags.includes(tag) && i.file_type !== 'video')?.public_url ||
+    elderPhotos.find(i => Array.isArray(i.tags) && i.tags.includes(tag))?.public_url ||
+    undefined;
+
   const demoProjects: Project[] = [
     {
       id: '1',
@@ -372,7 +381,7 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
       tagline: 'Preserving Elder voices for future generations',
       project_type: 'Cultural Preservation',
       status: 'active',
-      hero_image_url: 'https://placehold.co/800x400/7c3aed/ffffff?text=Photo+Studio',
+      hero_image_url: findPhotoByTag('content:elders') || findPhotoByTag('event:photo-shoot-oct-2025'),
     },
     {
       id: '2',
@@ -381,7 +390,7 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
       tagline: 'Connecting community through technology',
       project_type: 'Community Services',
       status: 'active',
-      hero_image_url: 'https://placehold.co/800x400/0891b2/ffffff?text=Digital+Centre',
+      hero_image_url: findPhotoByTag('event:daycare-opening-2025') || findPhotoByTag('content:indoor'),
     },
     {
       id: '3',
@@ -390,7 +399,7 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
       tagline: 'Walking through our history',
       project_type: 'Cultural Tourism',
       status: 'active',
-      hero_image_url: 'https://placehold.co/800x400/e85d04/ffffff?text=Cultural+Trail',
+      hero_image_url: findPhotoByTag('content:nature') || findPhotoByTag('setting:on-country'),
     },
   ];
 
@@ -424,13 +433,14 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
   ];
 
   // Community voices with photos - people cards linking to stories
-  // Using placeholder images until real photos are uploaded
+  // Use elder/community photos from media library when available
+  const elderPhotoUrls = elderPhotos.map(p => p.public_url).filter(Boolean);
   const communityVoices = [
     {
       name: "Aunty Maureen",
       role: "Cultural Elder",
       quote: "Our stories are the foundation of everything we do. When the young ones learn our history, they learn who they are and where they belong.",
-      image: "https://placehold.co/400x400/7c3aed/ffffff?text=AM",
+      image: elderPhotoUrls[0] || undefined,
       storyLink: "/stories/elder-wisdom-maureen",
       storyTitle: "Read Aunty Maureen's Story",
     },
@@ -438,7 +448,7 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
       name: "David Thompson",
       role: "Youth Program Graduate",
       quote: "PICC believed in me when I didn't believe in myself. The youth program showed me there's a path forward, right here on Palm Island.",
-      image: "https://placehold.co/400x400/7c3aed/ffffff?text=DT",
+      image: elderPhotoUrls[1] || undefined,
       storyLink: "/stories/youth-success-david",
       storyTitle: "David's Journey",
     },
@@ -446,7 +456,7 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
       name: "Sister Joyce",
       role: "Health Worker",
       quote: "Every day I see the difference we make. When someone gets the care they need, when a family is supported - that's what keeps me going.",
-      image: "https://placehold.co/400x400/7c3aed/ffffff?text=SJ",
+      image: elderPhotoUrls[2] || undefined,
       storyLink: "/stories/health-frontline",
       storyTitle: "Frontline Stories",
     },
@@ -454,7 +464,7 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
       name: "Uncle Tommy",
       role: "Traditional Owner",
       quote: "This land holds our ancestors' wisdom. Everything PICC does, we do it the right way - respecting Country, respecting culture.",
-      image: "https://placehold.co/400x400/7c3aed/ffffff?text=UT",
+      image: elderPhotoUrls[3] || undefined,
       storyLink: "/stories/country-connection",
       storyTitle: "Connection to Country",
     },
@@ -462,7 +472,7 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
       name: "Sarah Williams",
       role: "Safe Haven Coordinator",
       quote: "These children are our future. When we protect them, support their families, we're building a stronger Palm Island for generations to come.",
-      image: "https://placehold.co/400x400/7c3aed/ffffff?text=SW",
+      image: elderPhotoUrls[4] || undefined,
       storyLink: "/stories/safe-haven-impact",
       storyTitle: "Safe Haven Impact",
     },
@@ -470,7 +480,7 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
       name: "Marcus Johnson",
       role: "Digital Services Trainee",
       quote: "Technology isn't just for the cities. Our Elders are now video calling their grandchildren on the mainland. That connection is everything.",
-      image: "https://placehold.co/400x400/7c3aed/ffffff?text=MJ",
+      image: elderPhotoUrls[5] || undefined,
       storyLink: "/stories/digital-bridge",
       storyTitle: "Bridging the Digital Gap",
     },
@@ -505,7 +515,7 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
       title: 'Leaders Trip: Learning From Each Other',
       description:
         'Palm Island leaders visited communities across Queensland to share knowledge and strengthen connections. This trip brought back new ideas for supporting our people.',
-      thumbnail: 'https://placehold.co/640x360/1e3a5f/ffffff?text=Leaders+Trip',
+      thumbnail: findPhotoByTag('event:community-visit-jun-2025') || undefined,
       badge: 'Community Leadership',
     }),
     daycareLaunch: pickFeaturedVideo('video:daycare-launch', {
@@ -513,7 +523,7 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
       title: 'Daycare Centre Opening Day',
       description:
         'A milestone moment for Palm Island families. Our new early learning centre gives our littlest community members the best start in life.',
-      thumbnail: 'https://placehold.co/640x360/2d6a4f/ffffff?text=Daycare+Launch',
+      thumbnail: findPhotoByTag('event:daycare-opening-2025') || undefined,
       badge: 'New Service Launch',
     }),
   };

@@ -1,0 +1,377 @@
+/**
+ * PICC Brand Styles
+ * Palm Island Community Company - Annual Report
+ *
+ * Based on existing design system and 2023-24 report
+ */
+
+/* ========================================
+   CSS VARIABLES - PICC BRAND
+   ======================================== */
+
+:root {
+    /* Primary Colors */
+    --picc-blue: #2563eb;
+    --picc-blue-dark: #1e3a8a;
+    --picc-blue-light: #eff6ff;
+    --picc-purple: #9333ea;
+    --picc-purple-light: #faf5ff;
+
+    /* Secondary Colors */
+    --picc-green: #16a34a;
+    --picc-orange: #ea580c;
+    --picc-amber: #d97706;
+    --picc-coral: #ff6b6b;
+
+    /* Neutral Colors */
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --text-caption: #6b7280;
+    --text-muted: #9ca3af;
+
+    /* Backgrounds */
+    --bg-white: #ffffff;
+    --bg-light: #f9fafb;
+    --bg-section: #f3f4f6;
+    --bg-dark: #1a1a1a;
+
+    /* Section Background Colors (from existing report) */
+    --section-blue: #4a7fb5;
+    --section-purple: #b8a9d4;
+    --section-green: #a8d5ba;
+    --section-teal: #7fb5b5;
+
+    /* Typography */
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+    /* Spacing */
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+    --space-2xl: 3rem;
+    --space-3xl: 4rem;
+
+    /* Border Radius */
+    --radius-sm: 0.25rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.5rem;
+    --radius-full: 9999px;
+}
+
+/* ========================================
+   BASE STYLES
+   ======================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 11pt;
+    line-height: 1.6;
+}
+
+body {
+    font-family: var(--font-body);
+    color: var(--text-primary);
+    background: var(--bg-white);
+}
+
+/* ========================================
+   TYPOGRAPHY
+   ======================================== */
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--text-primary);
+}
+
+/* Handwritten style headers (matching existing report) */
+.handwritten {
+    font-family: 'Permanent Marker', 'Comic Sans MS', cursive;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+}
+
+h1 { font-size: 2.5rem; }
+h2 { font-size: 1.75rem; }
+h3 { font-size: 1.25rem; }
+h4 { font-size: 1rem; }
+
+p {
+    margin-bottom: var(--space-md);
+}
+
+.lead {
+    font-size: 1.125rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+}
+
+/* ========================================
+   BRAND ELEMENTS
+   ======================================== */
+
+/* Wave Pattern (decorative element at bottom of sections) */
+.wave-pattern,
+.wave-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 120px;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M0,60 C300,120 600,0 900,60 C1050,90 1150,90 1200,60 L1200,120 L0,120 Z" fill="%23b8a9d4"/><path d="M0,80 C400,140 800,20 1200,80 L1200,120 L0,120 Z" fill="%234a7fb5" opacity="0.8"/></svg>') no-repeat bottom;
+    background-size: cover;
+}
+
+/* Dot Pattern Overlay */
+.dot-pattern {
+    background-image: radial-gradient(circle, rgba(255,255,255,0.3) 2px, transparent 2px);
+    background-size: 20px 20px;
+}
+
+/* Photo Frames */
+.photo-frame {
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.photo-frame-circular {
+    border-radius: var(--radius-full);
+    border: 4px solid var(--bg-white);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Leader Photo Frame (dotted border style from report) */
+.leader-photo-frame {
+    width: 180px;
+    height: 180px;
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    position: relative;
+    margin-bottom: var(--space-lg);
+}
+
+.leader-photo-frame::before {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: var(--radius-full);
+    border: 3px dotted rgba(255,255,255,0.5);
+}
+
+.leader-photo-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ========================================
+   COLOR SECTIONS
+   ======================================== */
+
+.section-blue {
+    background: linear-gradient(135deg, var(--section-blue) 0%, #3a6fa5 100%);
+    color: var(--bg-white);
+}
+
+.section-purple {
+    background: linear-gradient(135deg, var(--section-purple) 0%, #a899c4 100%);
+    color: var(--text-primary);
+}
+
+.section-green {
+    background: linear-gradient(135deg, var(--section-green) 0%, #98c5aa 100%);
+    color: var(--text-primary);
+}
+
+.section-teal {
+    background: linear-gradient(135deg, var(--section-teal) 0%, #6fa5a5 100%);
+    color: var(--bg-white);
+}
+
+/* ========================================
+   BLOCKQUOTES
+   ======================================== */
+
+blockquote {
+    position: relative;
+    padding: var(--space-lg) var(--space-xl);
+    margin: var(--space-xl) 0;
+    font-style: italic;
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: var(--text-secondary);
+}
+
+blockquote::before {
+    content: '"';
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 4rem;
+    font-family: Georgia, serif;
+    color: var(--picc-blue);
+    opacity: 0.3;
+    line-height: 1;
+}
+
+blockquote cite {
+    display: block;
+    margin-top: var(--space-md);
+    font-style: normal;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* ========================================
+   DATA TABLES
+   ======================================== */
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.data-table th,
+.data-table td {
+    padding: var(--space-sm) var(--space-md);
+    text-align: left;
+    border-bottom: 1px solid var(--bg-section);
+}
+
+.data-table th {
+    background: var(--picc-blue);
+    color: var(--bg-white);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+}
+
+.data-table tr:nth-child(even) {
+    background: var(--bg-light);
+}
+
+.data-table .amount {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.data-table.compact th,
+.data-table.compact td {
+    padding: var(--space-xs) var(--space-sm);
+    font-size: 0.75rem;
+}
+
+/* ========================================
+   FINANCIAL TABLES
+   ======================================== */
+
+.financial-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.financial-table td {
+    padding: var(--space-sm) var(--space-md);
+    border-bottom: 1px solid var(--bg-section);
+}
+
+.financial-table .section-header td {
+    background: var(--picc-blue);
+    color: var(--bg-white);
+    padding: var(--space-md);
+}
+
+.financial-table .total td {
+    font-weight: 700;
+    border-top: 2px solid var(--text-primary);
+}
+
+.financial-table .amount {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ========================================
+   LISTS
+   ======================================== */
+
+.achievements-list,
+.services-list {
+    list-style: none;
+    padding: 0;
+}
+
+.achievements-list li,
+.services-list li {
+    position: relative;
+    padding-left: var(--space-lg);
+    margin-bottom: var(--space-sm);
+}
+
+.achievements-list li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: var(--picc-blue);
+    font-weight: bold;
+}
+
+.services-list li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: var(--picc-purple);
+}
+
+/* ========================================
+   SIGNATURE
+   ======================================== */
+
+.signature {
+    font-family: 'Permanent Marker', cursive;
+    font-size: 1.5rem;
+    color: var(--picc-blue-dark);
+    margin-top: var(--space-lg);
+}
+
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-white { color: var(--bg-white); }
+.text-blue { color: var(--picc-blue); }
+.text-muted { color: var(--text-muted); }
+
+.bg-white { background: var(--bg-white); }
+.bg-light { background: var(--bg-light); }
+.bg-blue { background: var(--picc-blue); }
+.bg-gradient {
+    background: linear-gradient(135deg, var(--picc-blue) 0%, var(--picc-purple) 100%);
+}
+
+.rounded { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
+.rounded-full { border-radius: var(--radius-full); }
+
+.shadow {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.shadow-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}

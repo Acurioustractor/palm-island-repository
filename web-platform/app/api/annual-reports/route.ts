@@ -16,6 +16,8 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
+    const fiscalYear = searchParams.get('fiscal_year')
+    const reportType = searchParams.get('report_type')
 
     let query = supabase
       .from('annual_reports')
@@ -24,6 +26,8 @@ export async function GET(request: NextRequest) {
         title,
         subtitle,
         report_year,
+        fiscal_year,
+        report_type,
         reporting_period_start,
         reporting_period_end,
         status,
@@ -44,6 +48,14 @@ export async function GET(request: NextRequest) {
 
     if (status && status !== 'all') {
       query = query.eq('status', status)
+    }
+
+    if (fiscalYear) {
+      query = query.eq('fiscal_year', fiscalYear)
+    }
+
+    if (reportType) {
+      query = query.eq('report_type', reportType)
     }
 
     const { data, error } = await query

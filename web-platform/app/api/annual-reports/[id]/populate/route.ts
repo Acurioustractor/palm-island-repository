@@ -79,7 +79,7 @@ export async function POST(
     // Check if report exists
     const { data: report, error: reportError } = await supabase
       .from('annual_reports')
-      .select('id, title, report_year, reporting_period_start, reporting_period_end')
+      .select('id, title, report_year, fiscal_year, reporting_period_start, reporting_period_end')
       .eq('id', id)
       .single()
 
@@ -93,7 +93,7 @@ export async function POST(
     }
 
     const reportYear = Number(report.report_year)
-    const fiscalYear = toFiscalYearLabel(reportYear)
+    const fiscalYear = report.fiscal_year || toFiscalYearLabel(reportYear)
     const periodStart = String(report.reporting_period_start)
     const periodEnd = String(report.reporting_period_end)
 

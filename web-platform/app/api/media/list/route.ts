@@ -85,8 +85,11 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
 
+    const featured = searchParams.get('featured')
+
     if (fileType && fileType !== 'all') query = query.eq('file_type', fileType)
-    if (tags.length > 0) query = query.overlaps('tags', tags)
+    if (tags.length > 0) query = query.contains('tags', tags)
+    if (featured === 'true') query = query.eq('is_featured', true)
 
     if (person && person !== 'all') {
       // faces_detected is stored as an array of profile IDs.

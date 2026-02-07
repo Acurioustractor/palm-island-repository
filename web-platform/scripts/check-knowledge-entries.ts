@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Quick diagnostic script to check knowledge_entries table
  */

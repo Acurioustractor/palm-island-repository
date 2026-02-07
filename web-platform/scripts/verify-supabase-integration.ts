@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { config } from 'dotenv';
 import { resolve } from 'path';
 import { createClient } from '@supabase/supabase-js';

@@ -93,12 +93,12 @@ export async function vectorSearch(
 
   try {
     // Generate embedding for the query
-    const queryEmbedding = await generateEmbeddings([query], {
-      preferredProvider: 'voyage',
-      inputType: 'query'
+    const embeddingResult = await generateEmbeddings([query], {
+      inputType: 'query',
+      preferredProvider: 'voyage'
     })
 
-    if (!queryEmbedding || !queryEmbedding.embeddings || queryEmbedding.embeddings.length === 0) {
+    if (!embeddingResult || !embeddingResult.success || embeddingResult.embeddings.length === 0) {
       console.warn('Failed to generate query embedding, falling back to text search')
       return textSearch(query, options)
     }
@@ -109,7 +109,7 @@ export async function vectorSearch(
     const { data, error } = await supabase
       .rpc('hybrid_search_chunks', {
         query_text: query,
-        query_embedding: queryEmbedding.embeddings[0],
+        query_embedding: embeddingResult.embeddings[0],
         match_count: limit,
         vector_weight: 0.7,
         keyword_weight: 0.3
@@ -174,11 +174,12 @@ async function searchKnowledgeBaseVector(
 ): Promise<any[]> {
   try {
     // Generate embedding for the query (OpenAI for 1536-dim)
-    const queryEmbedding = await generateEmbeddings([query], {
+    const embeddingResult = await generateEmbeddings([query], {
+      inputType: 'query',
       preferredProvider: 'openai'
     })
 
-    if (!queryEmbedding || !queryEmbedding.embeddings || queryEmbedding.embeddings.length === 0) {
+    if (!embeddingResult || !embeddingResult.success || embeddingResult.embeddings.length === 0) {
       console.warn('Failed to generate query embedding for knowledge base, falling back to text search')
       return searchKnowledgeBase(query, limit)
     }
@@ -188,7 +189,7 @@ async function searchKnowledgeBaseVector(
     // Use the match_knowledge_entries function
     const { data, error } = await supabase
       .rpc('match_knowledge_entries', {
-        query_embedding: queryEmbedding.embeddings[0],
+        query_embedding: embeddingResult.embeddings[0],
         match_count: limit,
         match_threshold: 0.7
       })

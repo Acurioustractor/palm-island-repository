@@ -1,4 +1,4 @@
-import { getRecentStories, getFeaturedStories, getElderStories, getStoriesByTag } from '@/lib/stories/utils';
+import { getRecentStories, getFeaturedStories, getElderStories } from '@/lib/stories/utils';
 import { StoryCard, StoryGrid } from '@/components/stories/StoryCard';
 import { getPageMedia } from '@/lib/media/utils';
 import Link from 'next/link';
@@ -6,18 +6,13 @@ import { Plus, Sparkles, Shield } from 'lucide-react';
 
 export const revalidate = 300; // Revalidate every 5 minutes
 
-export default async function StoriesPage({ searchParams }: { searchParams?: { tag?: string } }) {
-  const tag = searchParams?.tag ? String(searchParams.tag).trim() : '';
-
+export default async function StoriesPage() {
   // Fetch different story collections
-  const heroMediaPromise = getPageMedia({ pageContext: 'stories', pageSection: 'hero', fileType: 'image', limit: 1 });
-
-  const [heroMedia, tagStories, featuredStories, recentStories, elderStories] = await Promise.all([
-    heroMediaPromise,
-    tag ? getStoriesByTag(tag, 30) : Promise.resolve([]),
-    tag ? Promise.resolve([]) : getFeaturedStories(3),
-    tag ? Promise.resolve([]) : getRecentStories(12),
-    tag ? Promise.resolve([]) : getElderStories(6),
+  const [featuredStories, recentStories, elderStories, heroMedia] = await Promise.all([
+    getFeaturedStories(3),
+    getRecentStories(12),
+    getElderStories(6),
+    getPageMedia({ pageContext: 'stories', pageSection: 'hero', fileType: 'image', limit: 1 })
   ]);
 
   const heroImage = heroMedia && heroMedia.length > 0 ? heroMedia[0].public_url : null;
@@ -35,10 +30,10 @@ export default async function StoriesPage({ searchParams }: { searchParams?: { t
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-5xl md:text-6xl font-bold mb-6 text-gray-900">
-            {tag ? `Stories: ${tag}` : 'Community Stories'}
+            Community Stories
           </h1>
           <p className="text-xl md:text-2xl mb-8 text-gray-700 max-w-3xl mx-auto">
-            {tag ? 'Stories grouped by tag for easier discovery and sharing.' : 'Every voice matters. Every story shapes our future.'}
+            Every voice matters. Every story shapes our future.
           </p>
           <p className="text-lg text-gray-600 italic mb-10">
             Manbarra & Bwgcolman Country • Palm Island
@@ -52,14 +47,6 @@ export default async function StoriesPage({ searchParams }: { searchParams?: { t
               <Plus className="w-5 h-5" />
               Share Your Story
             </Link>
-            {tag && (
-              <Link
-                href="/stories"
-                className="inline-flex items-center gap-2 border-2 border-gray-900 text-gray-900 px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-900 hover:text-white transition-all"
-              >
-                Clear filter
-              </Link>
-            )}
             <Link
               href="/"
               className="inline-flex items-center gap-2 border-2 border-gray-900 text-gray-900 px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-900 hover:text-white transition-all"
@@ -95,41 +82,8 @@ export default async function StoriesPage({ searchParams }: { searchParams?: { t
       </section>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Tag Results */}
-        {tag && (
-          <section className="mb-16">
-            <div className="mb-8">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-                Tagged stories
-              </h2>
-              <p className="text-lg text-gray-600">
-                Showing {tagStories.length} story{tagStories.length === 1 ? '' : 'ies'} tagged <span className="font-semibold">{tag}</span>.
-              </p>
-            </div>
-            {tagStories.length > 0 ? (
-              <StoryGrid columns={3}>
-                {tagStories.map((story) => (
-                  <StoryCard
-                    key={story.id}
-                    story={story}
-                    variant="default"
-                    showExcerpt={true}
-                    showStorytellerInfo={true}
-                    showQuote={true}
-                  />
-                ))}
-              </StoryGrid>
-            ) : (
-              <div className="text-center py-12 bg-white rounded-2xl border border-gray-200">
-                <p className="text-lg text-gray-600">No public stories found for this tag yet.</p>
-                <p className="text-sm text-gray-500 mt-2">Add the tag to a story in the editor, then publish it.</p>
-              </div>
-            )}
-          </section>
-        )}
-
         {/* Featured Stories */}
-        {!tag && featuredStories && featuredStories.length > 0 && (
+        {featuredStories && featuredStories.length > 0 && (
           <section className="mb-16">
             <div className="flex items-center gap-3 mb-8">
               <Sparkles className="w-8 h-8 text-picc-primary" />
@@ -151,7 +105,7 @@ export default async function StoriesPage({ searchParams }: { searchParams?: { t
         )}
 
         {/* Elder Stories */}
-        {!tag && elderStories && elderStories.length > 0 && (
+        {elderStories && elderStories.length > 0 && (
           <section className="mb-16">
             <div className="flex items-center gap-3 mb-8">
               <Shield className="w-8 h-8 text-purple-600" />
@@ -176,7 +130,7 @@ export default async function StoriesPage({ searchParams }: { searchParams?: { t
         )}
 
         {/* Recent Stories */}
-        {!tag && recentStories && recentStories.length > 0 && (
+        {recentStories && recentStories.length > 0 && (
           <section>
             <div className="mb-8">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Recent Stories</h2>
@@ -198,7 +152,7 @@ export default async function StoriesPage({ searchParams }: { searchParams?: { t
         )}
 
         {/* No Stories Message */}
-        {!tag && (!recentStories || recentStories.length === 0) && (!featuredStories || featuredStories.length === 0) && (
+        {(!recentStories || recentStories.length === 0) && (!featuredStories || featuredStories.length === 0) && (
           <div className="text-center py-20 bg-white rounded-2xl border border-gray-200">
             <p className="text-2xl text-gray-600 mb-4">No stories available yet.</p>
             <Link

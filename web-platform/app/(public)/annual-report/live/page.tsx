@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import {
-  Users, Briefcase, Heart, Download, Share2, FileText, ArrowLeft,
+  Users, Heart, Download, ArrowLeft,
   TrendingUp, Target, Award, Building2, Calendar, DollarSign,
-  BarChart3, Activity, Sparkles, ExternalLink, MapPin, Camera
+  Activity, Sparkles, ExternalLink, MapPin, Camera
 } from 'lucide-react';
 import { createServerSupabase } from '@/lib/supabase/client';
 import { getFeaturedStories } from '@/lib/stories/utils';
@@ -10,6 +10,9 @@ import { getHeroImage } from '@/lib/media/utils';
 import { PhotoGallery } from '@/components/report';
 import { ServicePinMap } from '@/components/report/ServicePinMap';
 import LiveReportEditor from '@/components/report/LiveReportEditor';
+import FinancialSummary, { type FinancialData } from '@/components/report/FinancialSummary';
+import HighlightsShowcase, { type Highlight, type LeadershipMessage as HighlightLeaderMsg } from '@/components/report/HighlightsShowcase';
+import ShareFooterButtons from '@/components/report/ShareFooterButtons';
 import nextDynamic from 'next/dynamic';
 
 const InteractiveServiceMap = nextDynamic(
@@ -25,12 +28,13 @@ export const revalidate = 0;
 export default async function LiveAnnualReportPage({
   searchParams,
 }: {
-  searchParams?: { edit?: string }
+  searchParams?: { edit?: string; audience?: string }
 }) {
   const supabase = createServerSupabase();
 
   const { currentFiscalYear, reportingPeriod, reportYear } = getCurrentFiscalYear();
   const editEnabled = process.env.NODE_ENV !== 'production' && searchParams?.edit === '1'
+  const audience = (searchParams?.audience || 'public') as 'government' | 'indigenous' | 'public';
 
   // Fetch real-time data
   const [
@@ -44,6 +48,10 @@ export default async function LiveAnnualReportPage({
     communityGallery,
     mapImage,
     boardGallery,
+    financialsResult,
+    previousFinancialsResult,
+    highlightsResult,
+    linkedStoriesResult,
   ] = await Promise.all([
     fetchCurrentYearStats(supabase),
     fetchAllServices(supabase),
@@ -55,11 +63,55 @@ export default async function LiveAnnualReportPage({
     fetchCommunityGallery(supabase, currentFiscalYear, 18),
     fetchAnnualReportMapImage(supabase),
     fetchBoardGallery(supabase, currentFiscalYear, 12),
+    fetchFinancials(supabase, reportYear),
+    fetchFinancials(supabase, reportYear - 1),
+    fetchHighlights(supabase, reportYear),
+    fetchLinkedStories(supabase, reportYear),
   ]);
 
-  const stories = mergeUniqueById(thisYearStories, fallbackFeaturedStories, 6);
+  // Prefer linked (curated) stories, then this-year stories, then featured fallback
+  const stories = mergeUniqueById(
+    linkedStoriesResult,
+    mergeUniqueById(thisYearStories, fallbackFeaturedStories, 12),
+    6
+  );
   const storyIds = stories.map((s: any) => s.id).filter(Boolean);
   const storyImagesById = await fetchStoryImagesById(supabase, storyIds);
+  // Also use featured_image_url from story records themselves
+  for (const story of stories) {
+    if (story.featured_image_url && !storyImagesById[story.id]) {
+      storyImagesById[story.id] = story.featured_image_url;
+    }
+  }
+
+  // Prepare highlights data with leadership messages
+  const leadershipMessages: HighlightLeaderMsg[] = [
+    ...leadershipData.executive.map((l: any) => ({
+      id: l.id,
+      full_name: l.full_name,
+      position: l.position,
+      leadership_type: 'executive',
+      message_title: l.message_title || null,
+      message_content: l.message_content || null,
+      message_excerpt: l.message_excerpt || null,
+      featured_quote: l.featured_quote || null,
+      photo_url: l.photo_url || null,
+    })),
+    ...leadershipData.board.map((l: any) => ({
+      id: l.id,
+      full_name: l.full_name,
+      position: l.position,
+      leadership_type: 'board',
+      message_title: l.message_title || null,
+      message_content: l.message_content || null,
+      message_excerpt: l.message_excerpt || null,
+      featured_quote: l.featured_quote || null,
+      photo_url: l.photo_url || null,
+    })),
+  ];
+
+  // Fetch elder quotes for the quotes section
+  const elderQuotes = await fetchElderQuotes(supabase, 6);
 
   return (
     <div className="min-h-screen bg-white">
@@ -189,6 +241,27 @@ export default async function LiveAnnualReportPage({
         </div>
       </section>
 
+      {/* Highlights & Leadership Messages */}
+      {(highlightsResult.length > 0 || leadershipMessages.some((l: any) => l.featured_quote || l.message_excerpt)) && (
+        <section className="py-20 bg-white">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 rounded-full mb-4">
+                <Award className="w-5 h-5 text-purple-600" />
+                <span className="text-sm font-semibold text-purple-600 uppercase tracking-wide">Highlights</span>
+              </div>
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                Key Achievements & Messages
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                Milestones and messages from our leadership team
+              </p>
+            </div>
+            <HighlightsShowcase highlights={highlightsResult} leadership={leadershipMessages} />
+          </div>
+        </section>
+      )}
+
       {/* All Services Showcase */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-6">
@@ -267,6 +340,7 @@ export default async function LiveAnnualReportPage({
                 key={story.id}
                 story={story}
                 storyImage={storyImagesById[story.id]}
+                isFeatured={story._is_featured}
               />
             ))}
           </div>
@@ -282,6 +356,55 @@ export default async function LiveAnnualReportPage({
           </div>
         </div>
       </section>
+
+      {/* Elder Quotes */}
+      {elderQuotes.length > 0 && (
+        <section className="py-20 bg-gradient-to-br from-amber-50 to-orange-50">
+          <div className="max-w-5xl mx-auto px-6">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                Community Voices
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                Words of wisdom from our Elders and community members
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-8">
+              {elderQuotes.map((quote: any) => (
+                <div key={quote.id} className="bg-white rounded-2xl p-8 shadow-sm border border-amber-100 hover:shadow-lg transition-all">
+                  <div className="flex items-start gap-4">
+                    {quote.photo_url ? (
+                      <img
+                        src={quote.photo_url}
+                        alt={quote.attribution || quote.speaker_name}
+                        className="w-14 h-14 rounded-full object-cover border-2 border-amber-200 flex-shrink-0"
+                      />
+                    ) : (
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-400 to-orange-400 flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
+                        {(quote.attribution || quote.speaker_name || '?').charAt(0)}
+                      </div>
+                    )}
+                    <div>
+                      <blockquote className="text-gray-800 text-lg italic leading-relaxed mb-3">
+                        &ldquo;{quote.quote_text || quote.text}&rdquo;
+                      </blockquote>
+                      <p className="text-amber-700 font-semibold">
+                        — {quote.attribution || quote.speaker_name}
+                      </p>
+                      {quote.theme && (
+                        <span className="inline-block mt-2 px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">
+                          {quote.theme}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Community Photo Gallery (rotates every load) */}
       <section className="py-20 bg-gray-50">
@@ -396,117 +519,52 @@ export default async function LiveAnnualReportPage({
         </div>
       </section>
 
-      {/* Financial Documents Section */}
+      {/* Financial Summary Section */}
       <section className="py-20 bg-white">
         <div className="max-w-5xl mx-auto px-6">
           <div className="text-center mb-12">
             <DollarSign className="w-16 h-16 mx-auto mb-4 text-green-600" />
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Financial Reports & Documents
+              Financial Summary
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Transparent, audited financial documentation
+              Transparent, accountable financial management
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            <FinancialDocCard
-              title="Annual Financial Statement"
-              description="Comprehensive financial overview for FY {currentFiscalYear}"
-              icon={FileText}
-              fileSize="2.4 MB"
-              downloadUrl="/documents/financials/picc-financial-statement-2024-25.pdf"
+          {financialsResult ? (
+            <FinancialSummary
+              current={financialsResult}
+              previous={previousFinancialsResult}
+              fiscalYear={currentFiscalYear}
             />
-            <FinancialDocCard
-              title="Auditor's Report"
-              description="Independent audit report by Ernst & Young"
-              icon={Award}
-              fileSize="1.8 MB"
-              downloadUrl="/documents/financials/picc-audit-report-2024-25.pdf"
-            />
-            <FinancialDocCard
-              title="Budget Breakdown"
-              description="Detailed service-by-service budget allocation"
-              icon={BarChart3}
-              fileSize="1.2 MB"
-              downloadUrl="/documents/financials/picc-budget-breakdown-2024-25.pdf"
-            />
-            <FinancialDocCard
-              title="Impact Metrics Report"
-              description="Quantified community outcomes and ROI analysis"
-              icon={TrendingUp}
-              fileSize="3.1 MB"
-              downloadUrl="/documents/financials/picc-impact-metrics-2024-25.pdf"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* PDF Generation Section */}
-      <section className="py-20 bg-gradient-to-br from-purple-900 to-indigo-900 text-white">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <Sparkles className="w-16 h-16 mx-auto mb-6" />
-          <h2 className="text-4xl font-bold mb-6">
-            Generate Complete Annual Report
-          </h2>
-          <p className="text-xl mb-8 opacity-90">
-            Create a beautifully designed, professionally formatted PDF report
-            with all current data, stories, and financials.
-          </p>
-
-          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-8 mb-8">
-            <h3 className="text-2xl font-bold mb-4">Report Includes:</h3>
-            <div className="grid md:grid-cols-2 gap-4 text-left">
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-white text-sm">✓</span>
-                </div>
-                <span>Real-time statistics and metrics</span>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-white text-sm">✓</span>
-                </div>
-                <span>All {statsData.totalServices}+ service summaries</span>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-white text-sm">✓</span>
-                </div>
-                <span>Featured community stories</span>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-white text-sm">✓</span>
-                </div>
-                <span>Financial statements and audits</span>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-white text-sm">✓</span>
-                </div>
-                <span>Leadership profiles</span>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-white text-sm">✓</span>
-                </div>
-                <span>Innovation project highlights</span>
-              </div>
+          ) : (
+            <div className="text-center py-12 bg-gray-50 rounded-2xl border border-gray-200">
+              <DollarSign className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+              <p className="text-gray-600 font-medium">Financial data not yet available for {currentFiscalYear}</p>
+              <p className="text-gray-500 text-sm mt-1">
+                Enter financial data in the admin dashboard to display it here.
+              </p>
             </div>
-          </div>
-
-          <button className="px-12 py-5 bg-white text-purple-900 rounded-full font-bold text-xl hover:bg-gray-100 transition-all shadow-2xl inline-flex items-center gap-3">
-            <Sparkles className="w-6 h-6" />
-            Generate Full Report PDF
-            <span className="text-sm opacity-75">(Coming Soon)</span>
-          </button>
-
-          <p className="mt-6 text-sm opacity-75">
-            Integration with Figma/Canva for automated report generation
-          </p>
+          )}
         </div>
       </section>
+
+      {/* Download PDF Section */}
+      <PdfDownloadSection reportYear={reportYear} fiscalYear={currentFiscalYear} totalServices={statsData.totalServices} />
+
+      {/* Audience-Specific Banner */}
+      {audience !== 'public' && (
+        <section className={`py-4 text-center text-sm font-medium ${
+          audience === 'government'
+            ? 'bg-blue-600 text-white'
+            : 'bg-amber-500 text-white'
+        }`}>
+          {audience === 'government'
+            ? 'Viewing: Government & Funders Perspective — Emphasis on accountability, compliance, and outcomes'
+            : 'Viewing: Indigenous Organisations Perspective — Emphasis on self-determination and community control'}
+        </section>
+      )}
 
       {/* Share & Download Footer */}
       <section className="py-12 bg-gray-900 text-white">
@@ -514,17 +572,10 @@ export default async function LiveAnnualReportPage({
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div>
               <h3 className="text-2xl font-bold mb-2">Share This Report</h3>
-              <p className="text-gray-400">Help us celebrate our community's achievements</p>
+              <p className="text-gray-400">Help us celebrate our community&apos;s achievements</p>
             </div>
-            <div className="flex gap-4">
-              <button className="px-6 py-3 bg-white/10 hover:bg-white/20 rounded-full inline-flex items-center gap-2 transition-all">
-                <Share2 className="w-5 h-5" />
-                Share
-              </button>
-              <button className="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-full inline-flex items-center gap-2 transition-all">
-                <Download className="w-5 h-5" />
-                Download Report
-              </button>
+            <div className="flex flex-wrap gap-3">
+              <ShareFooterButtons fiscalYear={currentFiscalYear} />
             </div>
           </div>
         </div>
@@ -616,7 +667,7 @@ function ProjectCard({ project }: any) {
   );
 }
 
-function StoryCard({ story, storyImage }: any) {
+function StoryCard({ story, storyImage, isFeatured }: any) {
   const storytellerName = story.storyteller?.preferred_name || story.storyteller?.full_name || 'Community Member';
   const storytellerImage = story.storyteller?.profile_image_url || null;
   const excerpt = String(story.content || '').trim().slice(0, 180);
@@ -631,6 +682,11 @@ function StoryCard({ story, storyImage }: any) {
               alt={story.title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
+            {isFeatured && (
+              <span className="absolute top-2 right-2 px-2 py-1 bg-amber-500 text-white text-xs font-bold rounded-full">
+                Featured
+              </span>
+            )}
           </div>
         )}
         <div className="p-6">
@@ -668,39 +724,22 @@ function StoryCard({ story, storyImage }: any) {
 function LeaderCard({ member }: any) {
   return (
     <div className="bg-white rounded-xl p-6 text-center border border-gray-100 hover:border-purple-300 hover:shadow-lg transition-all">
-      <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-400 to-indigo-400 mx-auto mb-4 flex items-center justify-center text-white text-3xl font-bold">
-        {member.full_name?.charAt(0) || 'P'}
-      </div>
+      {member.photo_url ? (
+        <img
+          src={member.photo_url}
+          alt={member.full_name}
+          className="w-20 h-20 rounded-full mx-auto mb-4 object-cover border-2 border-purple-100"
+        />
+      ) : (
+        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-400 to-indigo-400 mx-auto mb-4 flex items-center justify-center text-white text-3xl font-bold">
+          {member.full_name?.charAt(0) || 'P'}
+        </div>
+      )}
       <h4 className="font-bold text-gray-900 mb-1">{member.full_name}</h4>
       <p className="text-sm text-purple-600 font-medium mb-2">{member.position}</p>
       {member.bio && (
         <p className="text-xs text-gray-600 line-clamp-3">{member.bio}</p>
       )}
-    </div>
-  );
-}
-
-function FinancialDocCard({ title, description, icon: Icon, fileSize, downloadUrl }: any) {
-  return (
-    <div className="bg-white border-2 border-gray-200 rounded-xl p-6 hover:border-green-400 hover:shadow-lg transition-all group">
-      <div className="flex items-start gap-4">
-        <div className="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
-          <Icon className="w-6 h-6 text-green-600" />
-        </div>
-        <div className="flex-1">
-          <h4 className="font-bold text-gray-900 mb-1 group-hover:text-green-600 transition-colors">
-            {title}
-          </h4>
-          <p className="text-sm text-gray-600 mb-3">{description}</p>
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-500">{fileSize}</span>
-            <button className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 transition-all">
-              <Download className="w-4 h-4" />
-              Download
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
@@ -1006,6 +1045,35 @@ function getCurrentFiscalYear() {
   return { currentFiscalYear, reportingPeriod, reportYear }
 }
 
+async function fetchElderQuotes(supabase: any, limit: number) {
+  // Try extracted_quotes with photos (include non-validated that have real story photos)
+  const { data: extracted } = await supabase
+    .from('extracted_quotes')
+    .select('id, quote_text, attribution, photo_url, theme, impact_area')
+    .not('photo_url', 'is', null)
+    .not('used_in_report_id', 'is', null)
+    .order('display_order', { ascending: true })
+    .limit(limit)
+
+  if (extracted && extracted.length >= 3) return extracted
+
+  // Fallback to elder_quotes table
+  const { data: elder } = await supabase
+    .from('elder_quotes')
+    .select('id, text, speaker_name, speaker_role, theme, category')
+    .eq('permission_level', 'public')
+    .order('created_at', { ascending: false })
+    .limit(limit)
+
+  return (elder || []).map((q: any) => ({
+    id: q.id,
+    quote_text: q.text,
+    attribution: q.speaker_name,
+    theme: q.theme || q.category,
+    photo_url: null,
+  }))
+}
+
 async function fetchLeadership(supabase: any) {
   const { data: allLeaders } = await supabase
     .from('leadership')
@@ -1035,4 +1103,175 @@ async function fetchLeadership(supabase: any) {
   }
 
   return { board, executive };
+}
+
+async function fetchFinancials(supabase: any, year: number): Promise<FinancialData | null> {
+  const { data } = await supabase
+    .from('annual_financials')
+    .select('*')
+    .eq('fiscal_year', year)
+    .limit(1)
+    .single();
+
+  return data || null;
+}
+
+async function fetchHighlights(supabase: any, reportYear: number): Promise<Highlight[]> {
+  // Get the report ID for this year
+  const { data: report } = await supabase
+    .from('annual_reports')
+    .select('id')
+    .eq('report_year', reportYear)
+    .limit(1)
+    .single();
+
+  if (!report?.id) return [];
+
+  const { data } = await supabase
+    .from('report_highlights')
+    .select('id, title, subtitle, description, impact_achieved, highlight_type, is_featured, display_order, display_style, metrics')
+    .eq('report_id', report.id)
+    .order('display_order');
+
+  return (data || []) as Highlight[];
+}
+
+async function fetchLinkedStories(supabase: any, reportYear: number): Promise<any[]> {
+  // Get annual report for this year
+  const { data: report } = await supabase
+    .from('annual_reports')
+    .select('id')
+    .eq('report_year', reportYear)
+    .limit(1)
+    .single();
+
+  if (!report?.id) return [];
+
+  // Fetch linked stories via junction table
+  const { data: links } = await supabase
+    .from('annual_report_stories')
+    .select(`
+      story_id,
+      is_featured,
+      display_order,
+      section_placement,
+      story:stories (
+        *,
+        storyteller:storyteller_id (
+          id, full_name, preferred_name, is_elder, is_cultural_advisor, profile_image_url
+        )
+      )
+    `)
+    .eq('report_id', report.id)
+    .order('display_order');
+
+  if (!links || links.length === 0) return [];
+
+  return links
+    .filter((link: any) => link.story)
+    .map((link: any) => ({
+      ...link.story,
+      _is_featured: link.is_featured,
+      _section: link.section_placement,
+      _display_order: link.display_order,
+    }));
+}
+
+async function fetchPdfUrl(reportYear: number): Promise<{ url: string; updatedAt: string } | null> {
+  try {
+    const supabase = (await import('@/lib/supabase/client')).createServerSupabase();
+    const fileName = `picc-annual-report-${reportYear - 1}-${String(reportYear).slice(-2)}.pdf`;
+
+    const { data } = await supabase.storage
+      .from('reports')
+      .createSignedUrl(fileName, 3600); // 1 hour
+
+    if (data?.signedUrl) {
+      // Get metadata for last modified
+      const { data: files } = await supabase.storage
+        .from('reports')
+        .list('', { search: fileName });
+
+      const file = files?.find((f: any) => f.name === fileName);
+      return {
+        url: data.signedUrl,
+        updatedAt: file?.updated_at || file?.created_at || '',
+      };
+    }
+  } catch {
+    // PDF not available yet
+  }
+  return null;
+}
+
+async function PdfDownloadSection({ reportYear, fiscalYear, totalServices }: { reportYear: number; fiscalYear: string; totalServices: number }) {
+  const pdf = await fetchPdfUrl(reportYear);
+
+  return (
+    <section className="py-20 bg-gradient-to-br from-purple-900 to-indigo-900 text-white">
+      <div className="max-w-4xl mx-auto px-6 text-center">
+        <Download className="w-16 h-16 mx-auto mb-6" />
+        <h2 className="text-4xl font-bold mb-6">
+          Download Annual Report
+        </h2>
+        <p className="text-xl mb-8 opacity-90">
+          A beautifully designed PDF with all data, stories, and financials
+          from the {fiscalYear} reporting period.
+        </p>
+
+        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-8 mb-8">
+          <h3 className="text-2xl font-bold mb-4">Report Includes:</h3>
+          <div className="grid md:grid-cols-2 gap-4 text-left">
+            {[
+              'Real-time statistics and metrics',
+              `All ${totalServices}+ service summaries`,
+              'Featured community stories',
+              'Financial statements and audits',
+              'Leadership profiles',
+              'Innovation project highlights',
+            ].map((item) => (
+              <div key={item} className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-white text-sm">&#10003;</span>
+                </div>
+                <span>{item}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {pdf ? (
+          <div>
+            <a
+              href={pdf.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-12 py-5 bg-white text-purple-900 rounded-full font-bold text-xl hover:bg-gray-100 transition-all shadow-2xl inline-flex items-center gap-3"
+            >
+              <Download className="w-6 h-6" />
+              Download Annual Report PDF
+            </a>
+            {pdf.updatedAt && (
+              <p className="mt-4 text-sm opacity-75">
+                Last generated: {new Date(pdf.updatedAt).toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })}
+              </p>
+            )}
+          </div>
+        ) : (
+          <div>
+            <Link
+              href="/picc/report-generator"
+              className="px-12 py-5 bg-white text-purple-900 rounded-full font-bold text-xl hover:bg-gray-100 transition-all shadow-2xl inline-flex items-center gap-3"
+            >
+              <Sparkles className="w-6 h-6" />
+              Generate Report PDF
+            </Link>
+            <p className="mt-4 text-sm opacity-75">
+              PDF not yet generated for {fiscalYear}. Use the report generator to create one.
+            </p>
+          </div>
+        )}
+      </div>
+    </section>
+  );
 }

@@ -43,16 +43,13 @@ export default function ShareYourVoicePage() {
           .from('media_files')
           .select('public_url')
           .eq('page_context', 'share-voice')
-          .eq('page_section', 'hero')
-          .eq('is_public', true)
           .eq('is_featured', true)
+          .eq('is_public', true)
           .limit(1)
           .single();
-        if (data?.public_url) {
-          setHeroImage(data.public_url);
-        }
+        setHeroImage(data?.public_url || null);
       } catch (error) {
-        // Hero image is optional, fail silently
+        console.error('Error fetching hero image:', error);
       }
     }
     fetchHeroImage();

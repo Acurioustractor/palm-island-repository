@@ -30,6 +30,17 @@ export interface PlacementFilter {
   require_featured?: boolean;
   require_media?: boolean;
 
+  // Storyteller constraints
+  storyteller_is_elder?: boolean;
+  storyteller_is_cultural_advisor?: boolean;
+
+  // Content filters
+  emotional_themes?: string[];
+  categories?: string[];
+
+  // Exclusions
+  exclude_story_ids?: string[];
+
   // Service relationship
   service_ids?: string[];
 }

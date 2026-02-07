@@ -70,6 +70,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
+    // Validate file size before upload attempt
+    const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB - story-media bucket limit
+    const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50MB for videos
+    const fileIsVideo = file.type.startsWith('video/') || file.name.toLowerCase().endsWith('.mov') || file.name.toLowerCase().endsWith('.mp4');
+    const maxSize = fileIsVideo ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE;
+    const maxLabel = fileIsVideo ? '50MB' : '10MB';
+
+    if (file.size > maxSize) {
+      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
+      return NextResponse.json({
+        error: 'file_too_large',
+        message: `File is ${fileSizeMB}MB but the maximum is ${maxLabel}. Please resize the image before uploading.`,
+        details: {
+          fileSize: file.size,
+          maxSize,
+          fileName: file.name,
+        }
+      }, { status: 413 });
+    }
+
     // Validate file type
     const normalizedContentType = normalizeStorageMimeType(file) || file.type;
     const isImage = normalizedContentType.startsWith('image/');

@@ -150,15 +150,47 @@ export async function GET(request: NextRequest, { params }: { params: { year: st
         Array.isArray(m.tags) && m.tags.includes(`report-section:${sectionId}`)
       )
 
+    // Fallback: query the broader media library using the new tag taxonomy
+    const getMediaByTags = (requiredTags: string[], opts?: { featured?: boolean; limit?: number }) =>
+      allMedia
+        .filter((m) => {
+          const tags = Array.isArray(m.tags) ? m.tags : []
+          return requiredTags.every((t) => tags.includes(t))
+        })
+        .filter((m) => (opts?.featured ? m.is_featured : true))
+        .slice(0, opts?.limit || 50)
+
+    const heroBySection = getMediaBySection('hero')
+    const ceoBySection = getMediaBySection('ceo')
+    const chairBySection = getMediaBySection('chair')
+    const galleryBySection = getMediaBySection('gallery')
+    const storiesBySection = getMediaBySection('stories')
+    const projectsBySection = getMediaBySection('projects')
+    const videoThumbBySection = getMediaBySection('video_thumb')
+
     const mediaBySections = {
-      hero: getMediaBySection('hero'),
-      ceo: getMediaBySection('ceo'),
-      chair: getMediaBySection('chair'),
-      gallery: getMediaBySection('gallery'),
-      stories: getMediaBySection('stories'),
-      projects: getMediaBySection('projects'),
-      video_thumb: getMediaBySection('video_thumb'),
+      hero: heroBySection.length > 0
+        ? heroBySection
+        : getMediaByTags(['section:cover'], { limit: 3 }),
+      ceo: ceoBySection.length > 0
+        ? ceoBySection
+        : getMediaByTags(['person:rachel-atkinson', 'role:ceo'], { limit: 2 }),
+      chair: chairBySection.length > 0
+        ? chairBySection
+        : getMediaByTags(['person:luella-bligh', 'role:chair'], { limit: 2 }),
+      gallery: galleryBySection.length > 0
+        ? galleryBySection
+        : allMedia
+            .filter((m) => m.is_featured && m.file_type !== 'video' && !m.deleted_at)
+            .slice(0, 30),
+      stories: storiesBySection,
+      projects: projectsBySection,
+      video_thumb: videoThumbBySection,
     }
+
+    // Also provide board and elder photos for the page to use
+    const boardPhotos = getMediaByTags(['board'])
+    const elderPhotos = getMediaByTags(['content:elders'], { featured: true, limit: 10 })
 
     const storyIds = linkedStories.map((s: any) => s.id).filter(Boolean)
     const storyMedia = allMedia
@@ -175,6 +207,8 @@ export async function GET(request: NextRequest, { params }: { params: { year: st
       reportMedia: annualReportMedia,
       mediaBySections,
       storyMedia,
+      boardPhotos,
+      elderPhotos,
       computedFiscalYear: reportFiscalYear,
     })
   } catch (error: any) {

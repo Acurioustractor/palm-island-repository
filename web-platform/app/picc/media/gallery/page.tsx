@@ -8,8 +8,11 @@ import {
   Image as ImageIcon, Video, Music, File, Search, Filter,
   Grid, List, Sparkles, Users, Tag, MapPin, Calendar,
   ChevronDown, X, Check, Loader2, ArrowLeft, Download,
-  Eye, Trash2, Edit, RefreshCw, UserPlus, FolderPlus, Play
+  Eye, Trash2, Edit, RefreshCw, UserPlus, FolderPlus, Play, XCircle
 } from 'lucide-react';
+import ServiceTagBar from '@/components/media/ServiceTagBar';
+import { TagDots } from '@/components/media/TagChips';
+import BulkTagRemoveModal from '@/components/media/BulkTagRemoveModal';
 
 interface MediaFile {
   id: string;
@@ -88,6 +91,10 @@ export default function MediaGalleryPage() {
   const [annualReportFiscalYear, setAnnualReportFiscalYear] = useState<string>('all');
   const [serviceFilter, setServiceFilter] = useState<string>('all');
   const [projectFilter, setProjectFilter] = useState<string>('all');
+  const [eventFilter, setEventFilter] = useState<string>('all');
+  const [sectionFilter, setSectionFilter] = useState<string>('all');
+  const [contentFilter, setContentFilter] = useState<string>('all');
+  const [featuredOnly, setFeaturedOnly] = useState(false);
 
   // People tagging
   const [showPeopleTag, setShowPeopleTag] = useState(false);
@@ -101,6 +108,11 @@ export default function MediaGalleryPage() {
   const [bulkService, setBulkService] = useState<string>('all');
   const [bulkProject, setBulkProject] = useState<string>('all');
   const [bulkTagging, setBulkTagging] = useState(false);
+
+  // Tag removal
+  const [showRemoveTagsModal, setShowRemoveTagsModal] = useState(false);
+  const [untaggedOnly, setUntaggedOnly] = useState(false);
+  const [serviceTagBarLoading, setServiceTagBarLoading] = useState(false);
 
   // Collections
   const [showCollectionModal, setShowCollectionModal] = useState(false);
@@ -141,6 +153,10 @@ export default function MediaGalleryPage() {
 
     if (serviceFilter !== 'all') requiredTags.push(`service:${serviceFilter}`);
     if (projectFilter !== 'all') requiredTags.push(`project:${projectFilter}`);
+    if (eventFilter !== 'all') requiredTags.push(eventFilter);
+    if (sectionFilter !== 'all') requiredTags.push(sectionFilter);
+    if (contentFilter !== 'all') requiredTags.push(contentFilter);
+    if (featuredOnly) params.set('featured', 'true');
 
     if (requiredTags.length > 0) {
       params.set('tags', requiredTags.join(','));
@@ -236,7 +252,7 @@ export default function MediaGalleryPage() {
       clearTimeout(timeoutId);
       clearTimeout(failsafeTimeout);
     };
-  }, [fileTypeFilter, searchQuery, tagFilter, personFilter, annualReportOnly, annualReportFiscalYear, serviceFilter, projectFilter, supabase]);
+  }, [fileTypeFilter, searchQuery, tagFilter, personFilter, annualReportOnly, annualReportFiscalYear, serviceFilter, projectFilter, eventFilter, sectionFilter, contentFilter, featuredOnly, supabase]);
 
   // Load collections for "Add to Collection" feature
   useEffect(() => {
@@ -614,6 +630,42 @@ export default function MediaGalleryPage() {
     }
   };
 
+  const handleServiceQuickAssign = async (serviceSlug: string) => {
+    if (selectedFiles.size === 0) return;
+    setServiceTagBarLoading(true);
+    try {
+      await applyBulkTags(
+        { addTags: [`service:${serviceSlug}`], mergeContextMetadata: { service_slug: serviceSlug } },
+        { closeModal: false, successMessage: `Tagged ${selectedFiles.size} item(s) with service:${serviceSlug}` }
+      );
+    } finally {
+      setServiceTagBarLoading(false);
+    }
+  };
+
+  const handleBulkRemoveTags = async (tagsToRemove: string[]) => {
+    if (selectedFiles.size === 0 || tagsToRemove.length === 0) return;
+    try {
+      const response = await fetch('/api/media/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mediaIds: Array.from(selectedFiles),
+          removeTags: tagsToRemove,
+        }),
+        signal: AbortSignal.timeout(15000),
+      });
+      const json = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(json?.error || 'Failed to remove tags');
+      alert(`Removed ${tagsToRemove.length} tag(s) from ${selectedFiles.size} item(s)`);
+      setSelectedFiles(new Set());
+      await loadMedia();
+    } catch (err: any) {
+      console.error('Remove tags error:', err);
+      alert('Failed to remove tags: ' + (err?.message || String(err)));
+    }
+  };
+
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -633,6 +685,11 @@ export default function MediaGalleryPage() {
 
   // Get unique tags from all media
   const allTags = Array.from(new Set(media.flatMap(m => m.tags || [])));
+  // Filter media client-side for "untagged" since it's not a server filter
+  const displayMedia = untaggedOnly
+    ? media.filter(m => !m.tags || !m.tags.some(t => t.startsWith('service:')))
+    : media;
+
   const hasActiveFilters =
     fileTypeFilter !== 'all' ||
     Boolean(searchQuery.trim()) ||
@@ -641,7 +698,12 @@ export default function MediaGalleryPage() {
     annualReportOnly ||
     annualReportFiscalYear !== 'all' ||
     serviceFilter !== 'all' ||
-    projectFilter !== 'all';
+    projectFilter !== 'all' ||
+    eventFilter !== 'all' ||
+    sectionFilter !== 'all' ||
+    contentFilter !== 'all' ||
+    featuredOnly ||
+    untaggedOnly;
 
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto">
@@ -685,9 +747,9 @@ export default function MediaGalleryPage() {
                   📸 Showing {media.length} photos (Page 1)
                 </p>
                 <p className="text-blue-700 text-sm mt-1">
-                  <strong>Total in database:</strong> 1,214 photos •
                   <strong> Loading:</strong> 200 photos per page •
                   <strong> Scroll down</strong> to load more automatically
+                  {hasActiveFilters && ' • Filters active'}
                 </p>
               </div>
             </div>
@@ -878,6 +940,16 @@ export default function MediaGalleryPage() {
             </select>
           </div>
 
+          <label className="flex items-center gap-2 text-sm text-gray-700 pb-1">
+            <input
+              type="checkbox"
+              checked={untaggedOnly}
+              onChange={(e) => setUntaggedOnly(e.target.checked)}
+              className="w-4 h-4 rounded border-gray-300 text-orange-600 focus:ring-2 focus:ring-orange-500"
+            />
+            Untagged (no service)
+          </label>
+
           <div className="flex items-center gap-2 pb-1">
             <Link href="/picc/projects" className="text-sm text-blue-600 hover:text-blue-700">
               Manage projects
@@ -887,6 +959,83 @@ export default function MediaGalleryPage() {
               Manage services
             </Link>
           </div>
+        </div>
+
+        {/* Event, Section, Content & Featured filters */}
+        <div className="mt-4 flex flex-wrap items-end gap-4">
+          <div>
+            <div className="text-xs text-gray-500 mb-1">Event</div>
+            <select
+              value={eventFilter}
+              onChange={(e) => setEventFilter(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">All Events</option>
+              <option value="event:spring-festival-2025">Spring Festival 2025</option>
+              <option value="event:daycare-opening-2025">Daycare Opening 2025</option>
+              <option value="event:community-visit-jun-2025">Community Visit Jun 2025</option>
+              <option value="event:photo-shoot-oct-2025">Photo Shoot Oct 2025</option>
+            </select>
+          </div>
+
+          <div>
+            <div className="text-xs text-gray-500 mb-1">Report Section</div>
+            <select
+              value={sectionFilter}
+              onChange={(e) => setSectionFilter(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">All Sections</option>
+              <option value="section:cover">Covers</option>
+              <option value="section:ceo-message">CEO Messages</option>
+              <option value="section:chair-message">Chair Messages</option>
+              <option value="section:board">Board Members</option>
+              <option value="section:governance">Governance</option>
+              <option value="section:service-report">Service Reports</option>
+              <option value="section:statistics">Statistics &amp; Data</option>
+              <option value="section:highlights">Highlights</option>
+            </select>
+          </div>
+
+          <div>
+            <div className="text-xs text-gray-500 mb-1">Content</div>
+            <select
+              value={contentFilter}
+              onChange={(e) => setContentFilter(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">All Content</option>
+              <optgroup label="Subject">
+                <option value="content:portrait">Portraits</option>
+                <option value="content:group">Group Shots</option>
+                <option value="content:elders">Elders</option>
+                <option value="content:youth">Youth</option>
+                <option value="content:children">Children</option>
+                <option value="content:art">Art &amp; Culture</option>
+              </optgroup>
+              <optgroup label="Setting">
+                <option value="content:indoor">Indoor</option>
+                <option value="content:outdoor">Outdoor</option>
+                <option value="content:nature">Nature</option>
+                <option value="setting:on-country">On Country</option>
+                <option value="setting:photobooth">Photobooth</option>
+              </optgroup>
+              <optgroup label="Quality">
+                <option value="quality:professional">Professional</option>
+                <option value="content:documentary">Documentary</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <label className="flex items-center gap-2 text-sm text-gray-700 pb-1">
+            <input
+              type="checkbox"
+              checked={featuredOnly}
+              onChange={(e) => setFeaturedOnly(e.target.checked)}
+              className="w-4 h-4 rounded border-gray-300 text-yellow-600 focus:ring-2 focus:ring-yellow-500"
+            />
+            Featured only ⭐
+          </label>
         </div>
       </div>
 
@@ -898,15 +1047,23 @@ export default function MediaGalleryPage() {
         hero, gallery, and story highlights.
       </div>
 
+      {/* Service Quick-Assign Bar */}
+      <ServiceTagBar
+        services={services}
+        selectedCount={selectedFiles.size}
+        loading={serviceTagBarLoading}
+        onAssign={handleServiceQuickAssign}
+      />
+
       {/* Bulk Actions Bar */}
-      {media.length > 0 && (
+      {displayMedia.length > 0 && (
         <div className="bg-white rounded-xl border border-gray-200 p-4 mb-4 shadow-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
-                  checked={selectedFiles.size === media.length && media.length > 0}
+                  checked={selectedFiles.size === displayMedia.length && displayMedia.length > 0}
                   onChange={toggleSelectAll}
                   className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
                 />
@@ -950,6 +1107,13 @@ export default function MediaGalleryPage() {
                 >
                   <Tag className="w-4 h-4" />
                   Bulk Tag
+                </button>
+                <button
+                  onClick={() => setShowRemoveTagsModal(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                >
+                  <XCircle className="w-4 h-4" />
+                  Remove Tags
                 </button>
                 <button
                   onClick={() => setShowCollectionModal(true)}
@@ -1054,7 +1218,7 @@ export default function MediaGalleryPage() {
         </div>
       ) : viewMode === 'grid' ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          {media.map((item) => {
+          {displayMedia.map((item) => {
             const Icon = getFileIcon(item.file_type);
             const isAnalyzing = analyzing === item.id;
 
@@ -1157,6 +1321,13 @@ export default function MediaGalleryPage() {
                   </div>
                 )}
 
+                {/* Service tag dots */}
+                {item.tags && item.tags.some(t => t.startsWith('service:')) && (
+                  <div className="absolute bottom-2 left-2 z-10">
+                    <TagDots tags={item.tags} />
+                  </div>
+                )}
+
                 {/* Elder Approval Badge - moved down slightly to avoid checkbox */}
                 {item.requires_elder_approval && (
                   <div className="absolute top-10 left-2">
@@ -1171,7 +1342,7 @@ export default function MediaGalleryPage() {
         </div>
       ) : (
         <div className="space-y-2">
-          {media.map((item) => {
+          {displayMedia.map((item) => {
             const Icon = getFileIcon(item.file_type);
 
             return (
@@ -1675,6 +1846,14 @@ export default function MediaGalleryPage() {
           </div>
         </div>
       )}
+
+      {/* Bulk Tag Remove Modal */}
+      <BulkTagRemoveModal
+        selectedMedia={media.filter(m => selectedFiles.has(m.id))}
+        open={showRemoveTagsModal}
+        onClose={() => setShowRemoveTagsModal(false)}
+        onRemove={handleBulkRemoveTags}
+      />
 
       {/* Add to Collection Modal */}
       {showCollectionModal && (

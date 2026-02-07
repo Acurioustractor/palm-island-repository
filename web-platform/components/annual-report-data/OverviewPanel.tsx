@@ -1,0 +1,264 @@
+'use client';
+
+import { useState } from 'react';
+import {
+  Sparkles,
+  RefreshCw,
+  Heart,
+  Shield,
+  Users,
+  Lightbulb,
+  Leaf,
+  Building,
+  BookOpen,
+  Star,
+  TrendingUp,
+  AlertCircle,
+  ChevronRight,
+} from 'lucide-react';
+
+interface Theme {
+  title: string;
+  icon: string;
+  summary: string;
+  key_stats: string[];
+  related_sections: string[];
+}
+
+interface Overview {
+  executive_summary: string;
+  themes: Theme[];
+  strengths: string[];
+  opportunities: string[];
+}
+
+interface OverviewPanelProps {
+  reportId: string | null;
+  fyLabel: string;
+  onNavigateTab?: (tab: string) => void;
+}
+
+const ICON_MAP: Record<string, React.ReactNode> = {
+  heart: <Heart className="w-5 h-5" />,
+  shield: <Shield className="w-5 h-5" />,
+  users: <Users className="w-5 h-5" />,
+  lightbulb: <Lightbulb className="w-5 h-5" />,
+  leaf: <Leaf className="w-5 h-5" />,
+  building: <Building className="w-5 h-5" />,
+  book: <BookOpen className="w-5 h-5" />,
+  star: <Star className="w-5 h-5" />,
+};
+
+const THEME_COLORS = [
+  { bg: 'bg-purple-50', border: 'border-purple-200', icon: 'text-purple-600', badge: 'bg-purple-100 text-purple-700' },
+  { bg: 'bg-emerald-50', border: 'border-emerald-200', icon: 'text-emerald-600', badge: 'bg-emerald-100 text-emerald-700' },
+  { bg: 'bg-blue-50', border: 'border-blue-200', icon: 'text-blue-600', badge: 'bg-blue-100 text-blue-700' },
+  { bg: 'bg-amber-50', border: 'border-amber-200', icon: 'text-amber-600', badge: 'bg-amber-100 text-amber-700' },
+  { bg: 'bg-rose-50', border: 'border-rose-200', icon: 'text-rose-600', badge: 'bg-rose-100 text-rose-700' },
+  { bg: 'bg-teal-50', border: 'border-teal-200', icon: 'text-teal-600', badge: 'bg-teal-100 text-teal-700' },
+];
+
+export default function OverviewPanel({ reportId, fyLabel, onNavigateTab }: OverviewPanelProps) {
+  const [overview, setOverview] = useState<Overview | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [generatedAt, setGeneratedAt] = useState<string | null>(null);
+
+  const generate = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/annual-report-data/overview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fy_label: fyLabel, report_id: reportId }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Generation failed');
+      }
+      const data = await res.json();
+      setOverview(data.overview);
+      setGeneratedAt(data.generated_at);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!overview && !loading && !error) {
+    return (
+      <div className="max-w-4xl">
+        <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl border border-purple-200 p-12 text-center">
+          <Sparkles className="w-12 h-12 text-purple-400 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            AI-Generated Thematic Overview
+          </h2>
+          <p className="text-sm text-gray-600 mb-6 max-w-md mx-auto">
+            Generate a comprehensive summary of all annual report data, organised into
+            themes like Health &amp; Wellbeing, Cultural Strength, Innovation, and more.
+          </p>
+          <button
+            onClick={generate}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white font-medium rounded-xl hover:bg-purple-700 transition-colors"
+          >
+            <Sparkles className="w-4 h-4" />
+            Generate Overview
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="max-w-4xl">
+        <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-600 mx-auto mb-4" />
+          <p className="text-sm text-gray-600">Analysing report data and generating thematic overview...</p>
+          <p className="text-xs text-gray-400 mt-1">This may take 10-15 seconds</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-4xl space-y-4">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+          <div>
+            <div className="text-sm font-medium text-red-800">Generation failed</div>
+            <div className="text-sm text-red-700 mt-1">{error}</div>
+          </div>
+        </div>
+        <button
+          onClick={generate}
+          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors"
+        >
+          <RefreshCw className="w-4 h-4" />
+          Try Again
+        </button>
+      </div>
+    );
+  }
+
+  if (!overview) return null;
+
+  return (
+    <div className="max-w-4xl space-y-6">
+      {/* Header with regenerate */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-purple-500" />
+            Thematic Overview — FY {fyLabel}
+          </h2>
+          {generatedAt && (
+            <p className="text-xs text-gray-400 mt-0.5">
+              Generated {new Date(generatedAt).toLocaleString()}
+            </p>
+          )}
+        </div>
+        <button
+          onClick={generate}
+          disabled={loading}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors disabled:opacity-50"
+        >
+          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+          Regenerate
+        </button>
+      </div>
+
+      {/* Executive Summary */}
+      <div className="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl p-6 text-white">
+        <h3 className="text-sm font-medium text-purple-200 uppercase tracking-wider mb-2">
+          Executive Summary
+        </h3>
+        <p className="text-base leading-relaxed">
+          {overview.executive_summary}
+        </p>
+      </div>
+
+      {/* Themes Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {overview.themes.map((theme, idx) => {
+          const colors = THEME_COLORS[idx % THEME_COLORS.length];
+          return (
+            <div key={idx} className={`${colors.bg} rounded-xl border ${colors.border} p-5`}>
+              <div className="flex items-start gap-3 mb-3">
+                <div className={`${colors.icon} mt-0.5`}>
+                  {ICON_MAP[theme.icon] || <Star className="w-5 h-5" />}
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900">{theme.title}</h3>
+                  <p className="text-sm text-gray-600 mt-1">{theme.summary}</p>
+                </div>
+              </div>
+
+              {theme.key_stats.length > 0 && (
+                <div className="space-y-1.5 mb-3">
+                  {theme.key_stats.map((stat, i) => (
+                    <div key={i} className="flex items-center gap-2 text-sm text-gray-700">
+                      <TrendingUp className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                      {stat}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {theme.related_sections.length > 0 && onNavigateTab && (
+                <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-gray-200/50">
+                  {theme.related_sections.map(section => (
+                    <button
+                      key={section}
+                      onClick={() => onNavigateTab(section)}
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded ${colors.badge} hover:opacity-80 transition-opacity`}
+                    >
+                      {section}
+                      <ChevronRight className="w-3 h-3" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Strengths & Opportunities */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <h3 className="text-sm font-semibold text-emerald-700 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <TrendingUp className="w-4 h-4" />
+            Key Strengths
+          </h3>
+          <ul className="space-y-2">
+            {overview.strengths.map((s, i) => (
+              <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0 mt-1.5" />
+                {s}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <h3 className="text-sm font-semibold text-blue-700 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <Lightbulb className="w-4 h-4" />
+            Opportunities
+          </h3>
+          <ul className="space-y-2">
+            {overview.opportunities.map((o, i) => (
+              <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0 mt-1.5" />
+                {o}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Re-extract images from annual report PDFs and upload to Supabase storage
  * This fixes the corrupt local files and updates database with correct URLs

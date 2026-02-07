@@ -521,8 +521,8 @@ export default async function AboutPage() {
 
             <div className="grid md:grid-cols-2 gap-8">
               {elderStories.map((story) => {
-                const featuredImage = story.story_media?.[0]?.media_url;
-                const keyQuote = (story.placement_metadata as any)?.key_quotes?.[0] || story.content?.substring(0, 200);
+                const featuredImage = story.story_media?.[0]?.media_url || story.featured_image_url;
+                const keyQuote = (story.metadata as any)?.key_quotes?.[0] || (story as any).summary || (story as any).excerpt;
 
                 return (
                   <Link
@@ -543,7 +543,7 @@ export default async function AboutPage() {
                     <div className="p-6">
                       {story.story_type && (
                         <span className="inline-block px-3 py-1 bg-purple-100 text-purple-700 text-xs font-semibold rounded-full mb-3">
-                          {story.story_type.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}
+                          {story.story_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                         </span>
                       )}
 

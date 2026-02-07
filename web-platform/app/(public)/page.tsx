@@ -87,27 +87,21 @@ export default async function HomePage() {
           ================================================================ */}
       <section className="relative h-[85vh] min-h-[700px] flex items-center justify-center overflow-hidden">
 
-        {/* Video Background (if available) */}
-        {heroVideo ? (
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover"
-          >
+        {/* Video Background — prefer DB MP4, fall back to local hero video */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster={heroImage || '/video/hero-poster.jpg'}
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          {heroVideo?.public_url?.endsWith('.mp4') ? (
             <source src={heroVideo.public_url} type="video/mp4" />
-          </video>
-        ) : heroImage ? (
-          // Photo Fallback
-          <div
-            className="absolute inset-0 w-full h-full bg-cover bg-center"
-            style={{ backgroundImage: `url(${heroImage})` }}
-          />
-        ) : (
-          // Gradient Fallback
-          <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900" />
-        )}
+          ) : (
+            <source src="/video/hero-desktop-web.mp4" type="video/mp4" />
+          )}
+        </video>
 
         {/* Dark overlay for text readability - 60% opacity */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70" />

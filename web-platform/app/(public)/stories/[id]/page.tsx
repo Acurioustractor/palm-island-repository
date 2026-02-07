@@ -6,25 +6,20 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import {
   Calendar, User, MapPin, ArrowLeft, Share2, BookOpen,
-  Heart, MessageCircle, Eye, Pencil
+  Heart, MessageCircle, Eye
 } from 'lucide-react';
 import Breadcrumbs from '@/components/wiki/Breadcrumbs';
 import StoryInfobox from '@/components/wiki/StoryInfobox';
+import RelatedContent from '@/components/wiki/RelatedContent';
 import TableOfContents from '@/components/wiki/TableOfContents';
-import RelatedContentSidebar from '@/components/stories/RelatedContentSidebar';
-import StoryContentRenderer from '@/components/stories/StoryContentRenderer';
-import { StoryCard, StoryGrid } from '@/components/stories/StoryCard';
 
 interface Story {
   id: string;
   title: string;
-  excerpt?: string;
   summary?: string;
   content?: string;
-  metadata?: any;
   category?: string;
   emotional_theme?: string;
-  featured_people?: string[];
   created_at: string;
   story_date?: string;
   location?: string;
@@ -63,11 +58,7 @@ export default function StoryDetailPage() {
   const params = useParams();
   const [story, setStory] = useState<Story | null>(null);
   const [relatedStories, setRelatedStories] = useState<any[]>([]);
-  const [featuredPeople, setFeaturedPeople] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const showEditLink =
-    typeof window !== 'undefined' &&
-    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
   useEffect(() => {
     async function fetchStory() {
@@ -110,114 +101,41 @@ export default function StoryDetailPage() {
 
         setStory(data);
 
-        // Featured people (profiles linked to the story beyond the primary storyteller)
-        const featuredIds = Array.isArray((data as any).featured_people)
-          ? (data as any).featured_people
-          : Array.isArray((data as any)?.metadata?.featured_people)
-            ? (data as any).metadata.featured_people
-            : [];
-        if (featuredIds.length > 0) {
-          const { data: people } = await supabase
-            .from('profiles')
-            .select('id, full_name, preferred_name, profile_image_url, is_elder, is_cultural_advisor, bio')
-            .in('id', featuredIds)
-            .limit(50);
-
-          const list = Array.isArray(people) ? people : [];
-          const byId = new Map(list.map((p: any) => [String(p.id), p]));
-          setFeaturedPeople(featuredIds.map((id: any) => byId.get(String(id))).filter(Boolean));
-        } else {
-          setFeaturedPeople([]);
-        }
-
-        // Related stories (by category, then by overlapping featured people)
-        const relatedCandidates: any[] = [];
-
+        // Fetch related stories (same category)
         if (data.category) {
-          const { data: relatedByCategory } = await supabase
+          const { data: related } = await supabase
             .from('stories')
             .select(`
               id,
               title,
-              content,
-              excerpt,
+              summary,
               created_at,
-              story_type,
-              category,
-              access_level,
-              is_public,
-              contains_traditional_knowledge,
-              elder_approval_required,
-              elder_approval_given,
-              cultural_sensitivity_level,
-              featured_image_url,
-              metadata,
               storyteller:storyteller_id (
-                id,
                 preferred_name,
-                full_name,
-                is_elder,
-                is_cultural_advisor,
-                profile_image_url
+                full_name
               )
             `)
             .eq('category', data.category)
             .neq('id', params.id)
-            .eq('access_level', 'public')
-            .eq('status', 'published')
+            .eq('is_public', true)
             .limit(6);
-          if (Array.isArray(relatedByCategory)) relatedCandidates.push(...relatedByCategory);
-        }
 
-        if (featuredIds.length > 0) {
-          try {
-            const { data: relatedByPeople } = await supabase
-              .from('stories')
-              .select(`
-                id,
-                title,
-                content,
-                excerpt,
-                created_at,
-                story_type,
-                category,
-                access_level,
-                is_public,
-                contains_traditional_knowledge,
-                elder_approval_required,
-                elder_approval_given,
-                cultural_sensitivity_level,
-                featured_image_url,
-                metadata,
-                storyteller:storyteller_id (
-                  id,
-                  preferred_name,
-                  full_name,
-                  is_elder,
-                  is_cultural_advisor,
-                  profile_image_url
-                )
-              `)
-              .overlaps('featured_people', featuredIds)
-              .neq('id', params.id)
-              .eq('access_level', 'public')
-              .eq('status', 'published')
-              .limit(6);
-            if (Array.isArray(relatedByPeople)) relatedCandidates.push(...relatedByPeople);
-          } catch {
-            // Backwards compatible: featured_people column may not exist yet.
+          if (related) {
+            setRelatedStories(
+              related.map((s: any) => ({
+                id: s.id,
+                title: s.title,
+                type: 'story',
+                href: `/stories/${s.id}`,
+                description: s.summary,
+                metadata: {
+                  date: s.created_at,
+                  author: s.storyteller?.preferred_name || s.storyteller?.full_name,
+                },
+              }))
+            );
           }
         }
-
-        const seen = new Set<string>();
-        const deduped = relatedCandidates.filter((s: any) => {
-          const id = String(s?.id || '');
-          if (!id || seen.has(id)) return false;
-          seen.add(id);
-          return true;
-        });
-
-        setRelatedStories(deduped.slice(0, 6));
 
         setLoading(false);
       } catch (error) {
@@ -259,64 +177,29 @@ export default function StoryDetailPage() {
     { label: story.title, href: `/stories/${story.id}` },
   ];
 
-  const sharedByAllElders = String((story as any)?.metadata?.shared_by || '').toLowerCase() === 'all_elders'
-  const isElderGroupShared =
-    sharedByAllElders || (featuredPeople.length > 1 && featuredPeople.every((p: any) => p?.is_elder))
-
-  const peopleInvolved = (() => {
-    const list = featuredPeople
-      .map((p: any) => {
-        const id = String(p?.id || '').trim()
-        const name = String(p?.preferred_name || p?.full_name || '').trim()
-        const role = p?.is_elder ? 'Elder' : p?.is_cultural_advisor ? 'Cultural advisor' : undefined
-        return { id, name, role }
-      })
-      .filter((p) => p.id && p.name && !/^\d+$/.test(p.name))
-
-    const byId = new Map<string, (typeof list)[number]>()
-    for (const p of list) byId.set(p.id, p)
-    return Array.from(byId.values())
-  })()
-
   const infoboxData = {
-    shared_by_label:
-      isElderGroupShared
-        ? 'All Elders'
-        : undefined,
-    shared_by_href:
-      isElderGroupShared
-        ? '/elders'
-        : undefined,
-    storyteller:
-      isElderGroupShared
-        ? undefined
-        : story.storyteller
-          ? {
-              id: story.storyteller.id,
-              name: story.storyteller.full_name,
-              preferred_name: story.storyteller.preferred_name,
-              profile_image_url: story.storyteller.profile_image_url,
-            }
-          : undefined,
-    people_involved: peopleInvolved,
+    storyteller: story.storyteller ? {
+      id: story.storyteller.id,
+      name: story.storyteller.full_name,
+      preferred_name: story.storyteller.preferred_name,
+      profile_image_url: story.storyteller.profile_image_url,
+    } : undefined,
     date_shared: story.created_at,
     story_date: story.story_date,
     location: story.location,
     categories: story.category ? [getCategoryLabel(story.category)] : [],
     services: story.service ? [story.service] : [],
     people_affected: story.people_affected,
-    views: typeof story.views === 'number' && story.views > 0 ? story.views : undefined,
-    shares: typeof story.shares === 'number' && story.shares > 0 ? story.shares : undefined,
+    views: story.views || 0,
+    shares: story.shares || 0,
     cultural_sensitivity: story.cultural_sensitivity_level as any,
     access_level: story.access_level as any,
     elder_approved: story.elder_approval_given,
-    media_count: (() => {
-      const photos = story.story_media?.filter((m) => m.media_type === 'photo').length || 0
-      const videos = story.story_media?.filter((m) => m.media_type === 'video').length || 0
-      const audio = story.story_media?.filter((m) => m.media_type === 'audio').length || 0
-      if (photos === 0 && videos === 0 && audio === 0) return undefined
-      return { photos, videos, audio }
-    })(),
+    media_count: {
+      photos: story.story_media?.filter(m => m.media_type === 'photo').length || 0,
+      videos: story.story_media?.filter(m => m.media_type === 'video').length || 0,
+      audio: story.story_media?.filter(m => m.media_type === 'audio').length || 0,
+    },
   };
 
   return (
@@ -324,25 +207,14 @@ export default function StoryDetailPage() {
       {/* Breadcrumbs */}
       <Breadcrumbs items={breadcrumbs} className="mb-6" />
 
-      {/* Back + Edit buttons */}
-      <div className="flex items-center justify-between gap-4 mb-6">
-        <Link
-          href="/stories"
-          className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Stories
-        </Link>
-        {showEditLink && (
-          <Link
-            href={`/picc/stories/${story.id}/edit`}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-900 text-white hover:bg-gray-800 transition-colors"
-          >
-            <Pencil className="h-4 w-4" />
-            Edit story
-          </Link>
-        )}
-      </div>
+      {/* Back button */}
+      <Link
+        href="/stories"
+        className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-6 transition-colors"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Back to Stories
+      </Link>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Content */}
@@ -353,23 +225,15 @@ export default function StoryDetailPage() {
               {story.title}
             </h1>
 
-            {(story.excerpt || story.summary) && (
+            {story.summary && (
               <p className="text-xl text-gray-600 mb-6 leading-relaxed">
-                {story.excerpt || story.summary}
+                {story.summary}
               </p>
             )}
 
             {/* Meta info */}
             <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 pb-6 border-b border-gray-200">
-              {isElderGroupShared ? (
-                <Link
-                  href="/elders"
-                  className="flex items-center gap-2 hover:text-blue-600 transition-colors"
-                >
-                  <User className="h-4 w-4" />
-                  All Elders
-                </Link>
-              ) : story.storyteller ? (
+              {story.storyteller && (
                 <Link
                   href={`/wiki/people/${story.storyteller.id}`}
                   className="flex items-center gap-2 hover:text-blue-600 transition-colors"
@@ -377,7 +241,7 @@ export default function StoryDetailPage() {
                   <User className="h-4 w-4" />
                   {story.storyteller.preferred_name || story.storyteller.full_name}
                 </Link>
-              ) : null}
+              )}
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
                 {new Date(story.created_at).toLocaleDateString('en-AU', {
@@ -392,12 +256,10 @@ export default function StoryDetailPage() {
                   {story.location}
                 </div>
               )}
-              {typeof story.views === 'number' && story.views > 0 && (
-                <div className="flex items-center gap-2">
-                  <Eye className="h-4 w-4" />
-                  {story.views} views
-                </div>
-              )}
+              <div className="flex items-center gap-2">
+                <Eye className="h-4 w-4" />
+                {story.views || 0} views
+              </div>
             </div>
           </div>
 
@@ -429,81 +291,10 @@ export default function StoryDetailPage() {
           {/* Story Content */}
           <div className="prose prose-lg max-w-none">
             <h2 id="story">The Story</h2>
-            <StoryContentRenderer content={story.content || ''} />
+            <div className="whitespace-pre-wrap leading-relaxed text-gray-800">
+              {story.content}
+            </div>
           </div>
-
-          {/* Featured People */}
-          {featuredPeople.length > 0 && (
-            <div className="pt-6 border-t border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                {isElderGroupShared ? 'Elders involved' : 'Featured people'}
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {featuredPeople.map((p: any) => {
-                  const name = String(p.preferred_name || p.full_name || 'Community member').trim() || 'Community member';
-                  return (
-                    <Link
-                      key={p.id}
-                      href={`/wiki/people/${p.id}`}
-                      className="group flex items-start gap-4 p-4 bg-white rounded-xl border border-gray-200 hover:border-blue-200 hover:shadow-sm transition-all"
-                    >
-                      {p.profile_image_url ? (
-                        <img
-                          src={p.profile_image_url}
-                          alt=""
-                          className="w-12 h-12 rounded-full object-cover flex-shrink-0"
-                        />
-                      ) : (
-                        <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-semibold flex-shrink-0">
-                          {String(name).trim().slice(0, 1).toUpperCase()}
-                        </div>
-                      )}
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <div className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors truncate">
-                            {name}
-                          </div>
-                          {p.is_elder && (
-                            <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">
-                              Elder
-                            </span>
-                          )}
-                          {p.is_cultural_advisor && !p.is_elder && (
-                            <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
-                              Cultural advisor
-                            </span>
-                          )}
-                        </div>
-                        {p.bio && (
-                          <p className="mt-1 text-sm text-gray-600 line-clamp-2">{p.bio}</p>
-                        )}
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Related Stories (bottom) */}
-          {relatedStories.length > 0 && (
-            <div className="pt-6 border-t border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Related stories</h2>
-              <StoryGrid columns={3}>
-                {relatedStories.slice(0, 6).map((s: any) => (
-                  <StoryCard
-                    key={s.id}
-                    story={s}
-                    variant="default"
-                    showExcerpt={true}
-                    showStorytellerInfo={true}
-                    showCulturalWarning={true}
-                    showQuote={true}
-                  />
-                ))}
-              </StoryGrid>
-            </div>
-          )}
 
           {/* Actions */}
           <div className="flex items-center gap-4 pt-6 border-t border-gray-200">
@@ -526,11 +317,13 @@ export default function StoryDetailPage() {
         <aside className="space-y-6">
           <StoryInfobox data={infoboxData} />
 
-          {/* AI-powered related content */}
-          <RelatedContentSidebar
-            contentId={story.id}
-            contentType="story"
-          />
+          {relatedStories.length > 0 && (
+            <RelatedContent
+              items={relatedStories}
+              title="Related Stories"
+              maxItems={5}
+            />
+          )}
 
           <TableOfContents sticky />
         </aside>

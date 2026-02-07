@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Fix image URLs to point to actual Supabase storage files
  */

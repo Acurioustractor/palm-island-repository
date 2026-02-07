@@ -1,271 +1,224 @@
-# Annual Report Automation System
-## Palm Island Community Repository
+# PICC Annual Report Generation System
 
-### Overview
-This system enables the Palm Island community to generate professional, comprehensive annual reports automatically from the stories, media, and data collected throughout the year - eliminating the need for expensive external consultants while maintaining full community control.
+## Overview
 
-### Report Philosophy
-**"Our Stories, Our Data, Our Report"**
-- **Community-Led**: Reports reflect community priorities and values
-- **Strength-Based**: Focus on achievements, growth, and positive impact
-- **Culturally Grounded**: Honors traditional knowledge and cultural protocols
-- **Visually Rich**: Incorporates photos, videos, and community artwork
-- **Accessible**: Easy to read and understand for all community members
-- **Sovereignty**: Complete Indigenous control over narrative and data
+This system enables Palm Island Community Company to generate professional, storytelling-focused annual reports through an "always-on" content collection process. Instead of scrambling at year-end, stories flow continuously into a central database and are curated into beautiful PDF and web reports.
 
-### Report Structure
-
-#### 🌊 **Cover & Introduction**
-- Beautiful cover featuring community artwork/photography
-- Message from community leadership
-- Year overview and theme
-- Cultural acknowledgment and protocols
-
-#### 🌿 **Community Stories**
-- Key achievements and milestones
-- Community-led initiatives and programs
-- Youth accomplishments and activities
-- Elder wisdom and cultural preservation
-- Environmental and land management
-
-#### 🔥 **Data & Impact**
-- Health and wellbeing indicators
-- Education achievements
-- Economic development progress
-- Cultural program participation
-- Environmental improvements
-
-#### 📚 **Looking Forward**
-- Community vision and goals
-- Planned initiatives for next year
-- Priorities and aspirations
-- Continuing cultural preservation
-
-### Automation Features
-
-#### 1. **Story Aggregation**
-- Automatically collects approved stories from repository
-- Organizes by category and importance
-- Includes proper attribution and permissions
-- Maintains cultural sensitivity protocols
-
-#### 2. **Media Integration**
-- Pulls high-quality photos and videos
-- Creates photo galleries for each section
-- Integrates multimedia QR codes for digital versions
-- Respects access levels and permissions
-
-#### 3. **Data Visualization**
-- Generates charts and infographics from community data
-- Creates easy-to-understand visual summaries
-- Highlights positive trends and achievements
-- Maintains privacy and aggregation standards
-
-#### 4. **Template Customization**
-- Multiple design templates to choose from
-- Community branding and color schemes
-- Flexible layouts for different content types
-- Cultural design elements and patterns
-
-### Report Generation Process
-
-#### Phase 1: Content Preparation (November)
-1. **Story Collection Review**
-   - Review all stories added during the year
-   - Verify permissions and cultural protocols
-   - Select key stories for annual report
-   - Get final approval from storytellers
-
-2. **Media Selection**
-   - Choose best photos/videos from each category
-   - Ensure proper permissions and attributions
-   - Optimize media for print and digital formats
-   - Create media galleries and captions
-
-3. **Data Compilation**
-   - Gather community data and statistics
-   - Create summaries and trend analysis
-   - Prepare visualizations and infographics
-   - Verify accuracy and community approval
-
-#### Phase 2: Report Assembly (December)
-1. **Content Organization**
-   - Arrange stories by theme and importance
-   - Balance text, images, and data
-   - Ensure cultural protocols are followed
-   - Create smooth narrative flow
-
-2. **Design and Layout**
-   - Apply chosen template and branding
-   - Integrate photos and media elements
-   - Create data visualizations
-   - Ensure accessibility and readability
-
-3. **Community Review**
-   - Share draft with community leadership
-   - Get elder approval for cultural content
-   - Incorporate feedback and revisions
-   - Final community approval process
-
-#### Phase 3: Production and Distribution (January)
-1. **Final Production**
-   - Generate print-ready PDF version
-   - Create digital/web version with multimedia
-   - Prepare executive summary version
-   - Quality check and final review
-
-2. **Distribution**
-   - Share with community members first
-   - Provide copies to relevant organizations
-   - Post digital version on community website
-   - Archive for historical preservation
-
-### Template Options
-
-#### 🎨 **Traditional Design Template**
-- Earth tones and natural colors
-- Traditional pattern borders
-- Integration of cultural artwork
-- Emphasis on storytelling and imagery
-
-#### 🎨 **Modern Professional Template**  
-- Clean, contemporary design
-- Bold use of color and white space
-- Data visualization focus
-- Professional layout and typography
-
-#### 🎨 **Photo Story Template**
-- Image-heavy design approach
-- Large photo galleries and spreads
-- Minimal text overlay on images
-- Perfect for visual storytelling
-
-#### 🎨 **Youth-Focused Template**
-- Vibrant colors and dynamic layouts
-- Interactive elements and QR codes
-- Youth artwork and photography
-- Modern design sensibilities
-
-### Content Categories
-
-#### Community Achievements
-- **Education**: Graduations, scholarships, literacy programs
-- **Health**: Wellness programs, health improvements, traditional medicine
-- **Culture**: Language preservation, ceremonies, traditional practices
-- **Environment**: Land care, conservation projects, traditional ecological knowledge
-- **Youth**: Programs, achievements, leadership development
-- **Elders**: Wisdom sharing, mentorship, cultural teaching
-
-#### Data Sections
-- **Demographics**: Community population and family structures
-- **Education**: School enrollment, completion rates, adult education
-- **Health**: Health indicators, program participation, wellness metrics
-- **Economy**: Employment, local business development, tourism
-- **Culture**: Language speakers, cultural program participation
-- **Environment**: Land management, conservation outcomes
-
-### Automation Scripts
-
-#### Data Collection Script (`collect-data.py`)
-```python
-# Automated data collection from various sources
-# Aggregates community stories by category
-# Compiles media files with proper permissions
-# Generates summary statistics
-# Maintains cultural protocols and access levels
-```
-
-#### Report Generator Script (`generate-report.py`)
-```python
-# Takes collected data and generates formatted report
-# Applies selected template and styling
-# Integrates stories, media, and data visualizations
-# Produces both print and digital versions
-# Handles cultural sensitivity and permissions
-```
-
-#### Media Processor Script (`process-media.py`)
-```python
-# Optimizes images and videos for report use
-# Creates thumbnails and web-optimized versions
-# Generates QR codes for multimedia content
-# Maintains metadata and attribution
-```
-
-### User Interface
-
-#### Simple Web Interface
-- **Template Selection**: Choose from available report designs
-- **Content Review**: Preview and approve stories and media
-- **Custom Sections**: Add special sections or highlights
-- **Data Input**: Add any additional data or metrics
-- **Preview**: Review complete report before final generation
-
-#### Community Input Process
-1. **Story Nomination**: Community members suggest key stories
-2. **Priority Voting**: Community votes on most important content
-3. **Review Periods**: Multiple opportunities for community input
-4. **Cultural Check**: Elder and cultural advisor review
-5. **Final Approval**: Community leadership signs off
-
-### Quality Assurance
-
-#### Content Quality
-- **Accuracy**: All facts and data verified
-- **Attribution**: Proper credit given to all contributors
-- **Cultural Sensitivity**: Protocols followed throughout
-- **Readability**: Clear, accessible language used
-- **Visual Quality**: High-resolution images and professional layout
-
-#### Technical Quality
-- **Print Ready**: High-resolution PDF for professional printing
-- **Web Optimized**: Fast-loading digital version
-- **Mobile Friendly**: Accessible on phones and tablets
-- **Accessible**: Meets accessibility standards for all users
-
-### Distribution Strategy
-
-#### Internal Distribution
-- **Community Members**: Digital and print copies available
-- **Leadership**: Special bound copies for official use
-- **Elders**: Large print versions available
-- **Youth**: Digital versions with multimedia features
-- **Archive**: Preservation copies for historical record
-
-#### External Sharing
-- **Government Partners**: Official reports to relevant agencies
-- **Funding Organizations**: Reports to supporters and funders
-- **Media**: Selected content for public relations
-- **Academic**: Research and educational partnerships
-- **Other Indigenous Communities**: Sharing best practices
-
-### Continuous Improvement
-
-#### Annual Review Process
-- **Community Feedback**: Survey about report content and design
-- **Usage Analysis**: Track how report is used and shared
-- **Template Updates**: Refresh designs and improve functionality  
-- **Process Refinement**: Streamline automation and approval workflows
-- **Technology Upgrades**: Keep systems current and secure
+**Philosophy:** "Our Stories, Our Data, Our Report"
 
 ---
 
-### Quick Start Guide
+## Quick Start
 
-#### For Community Members
-1. **Throughout the Year**: Submit stories using community templates
-2. **October**: Nominate key stories for annual report inclusion
-3. **November**: Review and approve selected content
-4. **December**: Provide feedback on report draft
-5. **January**: Celebrate release of new annual report
+### 1. Prerequisites
 
-#### For Report Coordinators  
-1. **Set Up**: Configure automation scripts and templates
-2. **Content**: Collect and organize stories, media, and data
-3. **Generate**: Run automation to create initial report draft
-4. **Review**: Facilitate community review and approval process
-5. **Publish**: Produce and distribute final report
+```bash
+# Install Python dependencies
+pip install weasyprint jinja2 pypdf supabase python-dotenv --break-system-packages
+
+# macOS: Install system dependencies for WeasyPrint
+brew install pango cairo libffi
+
+# Ubuntu/Debian: Install system dependencies
+sudo apt-get install python3-cffi python3-brotli libpango-1.0-0 libharfbuzz0b libpangoft2-1.0-0
+```
+
+### 2. Environment Setup
+
+Create a `.env` file in the `scripts/` directory:
+
+```env
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_KEY=your-service-key
+```
+
+### 3. Assemble Content
+
+```bash
+cd scripts
+
+# Pull approved stories from Supabase for 2025
+python assemble_content.py --year 2025 --output ../output/report-2025-assembled.json
+```
+
+### 4. Generate PDF
+
+```bash
+# Generate PDF (and HTML preview)
+python generate_pdf.py --input ../output/report-2025-assembled.json
+
+# Generate print-ready PDF with bleeds
+python generate_pdf.py --input ../output/report-2025-assembled.json --print-ready
+```
+
+### 5. Review Output
+
+- **PDF**: `output/picc-annual-report-2025.pdf`
+- **HTML Preview**: `output/picc-annual-report-2025.html`
+- **Print-Ready**: `output/picc-annual-report-2025-PRINT.pdf`
 
 ---
 
-*This automation system ensures that Palm Island's annual report truly reflects the community's voice, values, and achievements while maintaining the highest standards of cultural protocols and data sovereignty.*
+## Directory Structure
+
+```
+annual-reports/
+├── README.md                    # This file
+├── templates/
+│   ├── annual-report.html       # Main Jinja2 template
+│   └── styles/
+│       ├── picc-brand.css       # Brand colors, typography
+│       └── report-layout.css    # Page layout, sections
+├── scripts/
+│   ├── assemble_content.py      # Pull content from Supabase
+│   └── generate_pdf.py          # Generate PDF from content
+├── assets/                      # Photos, logos (add your own)
+│   └── photos/
+└── output/                      # Generated reports
+    ├── report-2025-assembled.json
+    ├── picc-annual-report-2025.html
+    └── picc-annual-report-2025.pdf
+```
+
+---
+
+## Full Process Documentation
+
+For the complete always-on content collection process, see:
+**[ALWAYS-ON-ANNUAL-REPORT-PROCESS.md](../ALWAYS-ON-ANNUAL-REPORT-PROCESS.md)**
+
+This covers:
+- Year-round content collection workflow
+- Monthly/quarterly review schedules
+- Story submission templates
+- Supabase schema requirements
+- Semi-automated curation process
+- PDF generation pipeline details
+- Web version generation
+- Print specifications
+
+---
+
+## Workflow Summary
+
+```
+Year-Round Collection          Semi-Automated Generation
+─────────────────────          ─────────────────────────
+
+Services submit stories  ────► Stories in Supabase
+Community submissions   ────►   (approved, tagged)
+Youth/Elder programs    ────►         │
+                                      │
+                               ┌──────▼──────┐
+                               │  Selection  │
+                               │   Meeting   │ ◄── May each year
+                               └──────┬──────┘
+                                      │
+                               ┌──────▼──────┐
+                               │  Assemble   │
+                               │   Content   │
+                               └──────┬──────┘
+                                      │
+                               ┌──────▼──────┐
+                               │  Generate   │
+                               │    PDF      │
+                               └──────┬──────┘
+                                      │
+                               ┌──────▼──────┐
+                               │   Review    │
+                               │  & Refine   │
+                               └──────┬──────┘
+                                      │
+                               ┌──────▼──────┐
+                               │   Publish   │ ────► PDF, Web, Print
+                               └─────────────┘
+```
+
+---
+
+## Customization
+
+### Adding Stories Manually
+
+If you need to add stories without the database, edit the assembled JSON file directly:
+
+```json
+{
+  "stories": [
+    {
+      "title": "Youth Program Wins Award",
+      "subtitle": "Palm Island young people recognized nationally",
+      "body": "<p>Story content here...</p>",
+      "category": "Youth Story",
+      "featured_image": "assets/photos/youth-award.jpg",
+      "quote": {
+        "text": "This award belongs to the whole community.",
+        "attribution": "Youth Program Coordinator"
+      },
+      "services": ["Youth Service"]
+    }
+  ]
+}
+```
+
+### Modifying the Template
+
+Edit `templates/annual-report.html` to change the report structure. Key sections:
+
+- `.cover-page` - Cover design
+- `.leadership-spread` - CEO/Chair messages
+- `.story-page` - Individual story layout
+- `.financial-spread` - Financial tables and charts
+- `.back-cover` - Contact information
+
+### Adjusting Branding
+
+Edit `templates/styles/picc-brand.css` to modify:
+
+- Colors (CSS variables at top)
+- Typography
+- Decorative elements (waves, dots)
+- Quote styling
+
+---
+
+## Troubleshooting
+
+### WeasyPrint Installation Issues
+
+**macOS:**
+```bash
+brew install pango cairo libffi
+export LDFLAGS="-L/opt/homebrew/opt/libffi/lib"
+export CPPFLAGS="-I/opt/homebrew/opt/libffi/include"
+pip install weasyprint --break-system-packages
+```
+
+**Linux:**
+```bash
+sudo apt-get update
+sudo apt-get install python3-cffi python3-brotli libpango-1.0-0 libharfbuzz0b libpangoft2-1.0-0 libffi-dev
+```
+
+### Fonts Not Rendering
+
+Install the Permanent Marker font for handwritten headers:
+```bash
+# Download and install to system fonts
+# Or use a fallback in picc-brand.css
+```
+
+### Images Not Showing
+
+Ensure the `assets/` directory contains all referenced images, or update paths in the assembled JSON.
+
+---
+
+## Support
+
+For questions about this system, see the main documentation or contact the PICC development team.
+
+**Related Documentation:**
+- [ALWAYS-ON-ANNUAL-REPORT-PROCESS.md](../ALWAYS-ON-ANNUAL-REPORT-PROCESS.md) - Full process guide
+- [ANNUAL-REPORT-DESIGN-STRATEGY.md](../web-platform/ANNUAL-REPORT-DESIGN-STRATEGY.md) - Design approach
+- [COLOR-PALETTE.md](../web-platform/COLOR-PALETTE.md) - Brand colors

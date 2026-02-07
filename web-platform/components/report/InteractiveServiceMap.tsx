@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import dynamic from 'next/dynamic';
-import { MapPin, X, Users, Activity, ExternalLink } from 'lucide-react';
+import { MapPin, X, Users, Activity, ExternalLink, Quote, ImageIcon } from 'lucide-react';
 import Link from 'next/link';
 
 // Leaflet requires window — disable SSR
@@ -79,6 +79,7 @@ export function InteractiveServiceMap({
 }) {
   const [activeService, setActiveService] = useState<ServiceMapItem | null>(null);
   const [media, setMedia] = useState<ServiceMedia[]>([]);
+  const [storyQuote, setStoryQuote] = useState<{ text: string; author: string } | null>(null);
   const [loadingMedia, setLoadingMedia] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -92,12 +93,31 @@ export function InteractiveServiceMap({
   const openService = async (service: ServiceMapItem) => {
     setActiveService(service);
     setLoadingMedia(true);
+    setStoryQuote(null);
+    const slug = service.slug || service.metadata?.slug;
+    if (!slug) {
+      setLoadingMedia(false);
+      return;
+    }
+
     try {
-      const slug = service.slug || service.metadata?.slug;
-      if (slug) {
-        const res = await fetch(`/api/public/service-media?slug=${slug}&limit=8`);
-        const json = await res.json();
+      const [mediaRes, storyRes] = await Promise.allSettled([
+        fetch(`/api/public/service-media?slug=${slug}&limit=8`),
+        fetch(`/api/public/service-story-quote?slug=${slug}`),
+      ]);
+
+      if (mediaRes.status === 'fulfilled' && mediaRes.value.ok) {
+        const json = await mediaRes.value.json();
         setMedia(json.media || []);
+      } else {
+        setMedia([]);
+      }
+
+      if (storyRes.status === 'fulfilled' && storyRes.value.ok) {
+        const json = await storyRes.value.json();
+        if (json.quote) {
+          setStoryQuote(json.quote);
+        }
       }
     } catch {
       setMedia([]);
@@ -191,6 +211,19 @@ export function InteractiveServiceMap({
                 </div>
               )}
             </div>
+
+            {/* Story Quote */}
+            {storyQuote && (
+              <div className="bg-purple-50 rounded-xl p-4 mb-4 border-l-4 border-purple-400">
+                <Quote className="w-5 h-5 text-purple-400 mb-2" />
+                <p className="text-gray-800 italic text-sm leading-relaxed mb-2">
+                  &ldquo;{storyQuote.text}&rdquo;
+                </p>
+                <p className="text-purple-700 text-xs font-semibold">
+                  — {storyQuote.author}
+                </p>
+              </div>
+            )}
 
             {/* Photos */}
             {loadingMedia ? (

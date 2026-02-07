@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Find good candidates for featured stories
  * - Elder stories
