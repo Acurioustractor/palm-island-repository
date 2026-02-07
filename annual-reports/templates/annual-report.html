@@ -12,17 +12,130 @@
     <section class="page cover-page">
         <div class="cover-background">
             <img src="{{ cover_image }}" alt="Palm Island" class="cover-photo">
-            <div class="wave-overlay"></div>
         </div>
         <div class="cover-content">
             <img src="assets/picc-logo-turtle.png" alt="PICC Logo" class="cover-logo">
             <div class="cover-title-block">
                 <span class="cover-year">{{ year_range }}</span>
-                <h1 class="cover-title">ANNUAL<br>REPORT</h1>
+                <h1 class="cover-title">Annual<br>Report</h1>
+                <p class="cover-subtitle">Palm Island Community Company</p>
             </div>
         </div>
         <div class="cover-wave-pattern"></div>
     </section>
+
+    <!-- TABLE OF CONTENTS -->
+    <section class="page toc-page">
+        <div class="accent-bar"></div>
+        <h2>Contents</h2>
+        <ul class="toc-list">
+            <li class="toc-item">
+                <span class="toc-item-title">At a Glance</span>
+                <span class="toc-item-dots"></span>
+                <span class="toc-item-page">3</span>
+            </li>
+            <li class="toc-item">
+                <span class="toc-item-title">Leadership Messages</span>
+                <span class="toc-item-dots"></span>
+                <span class="toc-item-page">4</span>
+            </li>
+            <li class="toc-item">
+                <span class="toc-item-title">Acknowledgement of Country</span>
+                <span class="toc-item-dots"></span>
+                <span class="toc-item-page">5</span>
+            </li>
+            {% if highlights %}
+            <li class="toc-item">
+                <span class="toc-item-title">Key Highlights</span>
+                <span class="toc-item-dots"></span>
+                <span class="toc-item-page">6</span>
+            </li>
+            {% endif %}
+            <li class="toc-item">
+                <span class="toc-item-title">Governance & Services</span>
+                <span class="toc-item-dots"></span>
+                <span class="toc-item-page">{% if highlights %}7{% else %}6{% endif %}</span>
+            </li>
+            {% if stories %}
+            <li class="toc-item">
+                <span class="toc-item-title">Community Stories</span>
+                <span class="toc-item-dots"></span>
+                <span class="toc-item-page">{% if highlights %}8{% else %}7{% endif %}</span>
+            </li>
+            {% endif %}
+            <li class="toc-item">
+                <span class="toc-item-title">Service Report Cards</span>
+                <span class="toc-item-dots"></span>
+                <span class="toc-item-page">—</span>
+            </li>
+            <li class="toc-item">
+                <span class="toc-item-title">Financial Summary</span>
+                <span class="toc-item-dots"></span>
+                <span class="toc-item-page">—</span>
+            </li>
+            <li class="toc-item">
+                <span class="toc-item-title">Our Partners</span>
+                <span class="toc-item-dots"></span>
+                <span class="toc-item-page">—</span>
+            </li>
+        </ul>
+    </section>
+
+    <!-- AT A GLANCE -->
+    {% if stats %}
+    <section class="page glance-page">
+        <div class="accent-bar accent-bar-center"></div>
+        <h2>At a Glance</h2>
+        <p class="year-label">{{ year_range }}</p>
+
+        <div class="glance-grid">
+            {% if stats.staff_count %}
+            <div class="glance-stat">
+                <div class="stat-number">{{ stats.staff_count }}</div>
+                <div class="stat-label">Staff Members</div>
+            </div>
+            {% endif %}
+            {% if stats.services_count %}
+            <div class="glance-stat">
+                <div class="stat-number">{{ stats.services_count }}</div>
+                <div class="stat-label">Services Delivered</div>
+            </div>
+            {% endif %}
+            {% if stats.clients_served %}
+            <div class="glance-stat">
+                <div class="stat-number">{{ stats.clients_served }}</div>
+                <div class="stat-label">Clients Served</div>
+            </div>
+            {% endif %}
+            {% if stats.indigenous_staff_pct %}
+            <div class="glance-stat">
+                <div class="stat-number">{{ stats.indigenous_staff_pct }}%</div>
+                <div class="stat-label">Indigenous Staff</div>
+            </div>
+            {% endif %}
+            {% if stats.years_operating %}
+            <div class="glance-stat">
+                <div class="stat-number">{{ stats.years_operating }}</div>
+                <div class="stat-label">Years Operating</div>
+            </div>
+            {% endif %}
+            {% if stats.total_income %}
+            <div class="glance-stat">
+                <div class="stat-number">${{ stats.total_income }}</div>
+                <div class="stat-label">Total Income</div>
+            </div>
+            {% endif %}
+            {% if stats.community_controlled_since %}
+            <div class="glance-stat wide">
+                <div>
+                    <div class="stat-number">{{ stats.community_controlled_since }}</div>
+                    <div class="stat-label">Community Controlled Since</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+    {% endif %}
 
     <!-- LEADERSHIP SPREAD -->
     <section class="page spread leadership-spread">
@@ -65,7 +178,8 @@
     <!-- HIGHLIGHTS -->
     {% if highlights %}
     <section class="page highlights-page">
-        <h2 class="handwritten text-center">Key Highlights</h2>
+        <span class="section-label">Year in Review</span>
+        <h2 class="handwritten">Key Highlights</h2>
         <div class="highlights-grid">
             {% for h in highlights %}
             <div class="highlight-card {% if h.is_featured %}featured{% endif %}">
@@ -92,7 +206,7 @@
                 {% endfor %}
             </ul>
 
-            <h3 class="handwritten">Members of the Board</h3>
+            <h3>Members of the Board</h3>
             <ul class="board-list">
                 {% for member in board_members %}
                 <li><strong>{{ member.name }}</strong>, {{ member.role }}</li>
@@ -133,6 +247,7 @@
     </section>
 
     <!-- STORIES SECTION -->
+    {% if stories %}
     {% for story in stories %}
     <section class="page story-page {% if loop.index is odd %}story-left{% else %}story-right{% endif %}">
         <div class="story-image-area">
@@ -170,8 +285,10 @@
         </div>
     </section>
     {% endfor %}
+    {% endif %}
 
     <!-- DATA CARDS SECTION -->
+    {% if data_cards %}
     <section class="page spread data-spread">
         <h2 class="handwritten section-title">Community Services</h2>
         <p class="section-subtitle">Report Cards</p>
@@ -210,10 +327,12 @@
             {% endfor %}
         </div>
     </section>
+    {% endif %}
 
     <!-- FINANCIAL SUMMARY -->
     <section class="page spread financial-spread">
         <div class="financial-left">
+            <span class="section-label">Financial Overview</span>
             <h2 class="handwritten">Summary Financial Report</h2>
             <p class="financial-date">30 June {{ year }}</p>
 
@@ -242,6 +361,12 @@
                     {% endfor %}
                 </tbody>
             </table>
+
+            {% if financials.audited %}
+            <div class="audited-badge">
+                <span>&#10003;</span> Audited by {{ financials.auditor_name }}
+            </div>
+            {% endif %}
         </div>
 
         <div class="financial-right">
@@ -249,18 +374,24 @@
             <p class="chart-year">{{ year }}</p>
 
             <div class="pie-chart">
-                <!-- SVG Pie Chart -->
+                <!-- SVG Donut Chart -->
                 <svg viewBox="0 0 200 200" class="expenditure-pie">
                     {% for segment in financials.expenditure_breakdown %}
                     <circle class="pie-segment"
-                            cx="100" cy="100" r="80"
+                            cx="100" cy="100" r="70"
                             stroke="{{ segment.color }}"
-                            stroke-dasharray="{{ segment.percent * 5.02 }} 502"
+                            stroke-dasharray="{{ segment.percent * 4.4 }} 440"
                             stroke-dashoffset="{{ segment.offset }}"
                             fill="none"
-                            stroke-width="40"/>
+                            stroke-width="28"/>
                     {% endfor %}
                 </svg>
+                {% if financials.total_expenditure %}
+                <div class="pie-chart-center">
+                    <div class="total-label">Total</div>
+                    <div class="total-amount">${{ financials.total_expenditure | format_number }}</div>
+                </div>
+                {% endif %}
             </div>
 
             <ul class="expenditure-legend">
@@ -276,6 +407,7 @@
 
     <!-- PARTNERS -->
     <section class="page partners-page">
+        <div class="accent-bar accent-bar-center"></div>
         <h2 class="handwritten">Our Partners</h2>
         <p class="partners-intro">PICC could not do all that we do without the help of our partners. Some of the organisations with which we worked and collaborated in {{ year_range }}:</p>
 
@@ -285,14 +417,17 @@
             {% endfor %}
         </div>
 
+        {% if partners_photo %}
         <div class="partners-photo">
             <img src="{{ partners_photo }}" alt="PICC Team">
         </div>
+        {% endif %}
     </section>
 
     <!-- BACK COVER -->
     <section class="page back-cover">
         <div class="back-cover-content">
+            <img src="assets/picc-logo-turtle.png" alt="PICC Logo" class="back-cover-logo">
             <div class="contact-block">
                 <h3 class="handwritten">Palm Island Community Company</h3>
                 <address>

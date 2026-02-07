@@ -452,10 +452,10 @@ def fetch_financial_data(client: Client, year: int) -> dict:
         labour_pct, admin_pct, property_pct = 60, 21, 4
         vehicle_pct, travel_pct, client_pct = 2, 8, 5
 
-    # Calculate offsets for pie chart (cumulative)
+    # Calculate offsets for donut chart (cumulative, r=70, circumference=440)
     offsets = [0]
     for pct in [labour_pct, admin_pct, property_pct, vehicle_pct, travel_pct]:
-        offsets.append(offsets[-1] + round(pct * 5.01))  # 5.01 ≈ 502/100 for SVG stroke-dashoffset
+        offsets.append(offsets[-1] + round(pct * 4.4))  # 4.4 = 440/100 for SVG stroke-dashoffset
 
     return {
         "balance_sheet": [
@@ -479,15 +479,17 @@ def fetch_financial_data(client: Client, year: int) -> dict:
             {"label": "NET SURPLUS (DEFICIT)", "current": c_net_surplus, "previous": p_net_surplus, "class": "total"},
         ],
         "expenditure_breakdown": [
-            {"label": "Total Labour Costs", "percent": labour_pct, "color": "#4a7fb5", "offset": offsets[0]},
-            {"label": "Administration Expenses", "percent": admin_pct, "color": "#b8a9d4", "offset": offsets[1]},
-            {"label": "Property & Energy Expenses", "percent": property_pct, "color": "#a8d5ba", "offset": offsets[2]},
-            {"label": "Motor Vehicle Expenses", "percent": vehicle_pct, "color": "#f59e0b", "offset": offsets[3]},
-            {"label": "Travel & Training Expenses", "percent": travel_pct, "color": "#7fb5b5", "offset": offsets[4]},
-            {"label": "Client Related Costs", "percent": client_pct, "color": "#ff6b6b", "offset": offsets[5]},
+            {"label": "Total Labour Costs", "percent": labour_pct, "color": "#2563eb", "offset": offsets[0]},
+            {"label": "Administration Expenses", "percent": admin_pct, "color": "#9333ea", "offset": offsets[1]},
+            {"label": "Property & Energy Expenses", "percent": property_pct, "color": "#16a34a", "offset": offsets[2]},
+            {"label": "Motor Vehicle Expenses", "percent": vehicle_pct, "color": "#d97706", "offset": offsets[3]},
+            {"label": "Travel & Training Expenses", "percent": travel_pct, "color": "#0f766e", "offset": offsets[4]},
+            {"label": "Client Related Costs", "percent": client_pct, "color": "#ea580c", "offset": offsets[5]},
         ],
         "audited": current_year_data.get("audited", False) if current_year_data else False,
         "auditor_name": current_year_data.get("auditor_name", "") if current_year_data else "",
+        "total_expenditure": c_total_expenditure,
+        "total_income": get_val(current_year_data, 'total_income') if current_year_data else 0,
     }
 
 
@@ -842,6 +844,16 @@ def assemble_report(year: int, output_path: Optional[Path] = None, use_date_rang
 
         # Highlights from database
         "highlights": highlights,
+
+        # At-a-glance stats for summary page
+        "stats": {
+            "staff_count": staff_data["counts"][0] if staff_data["counts"] else 0,
+            "services_count": len(services),
+            "indigenous_staff_pct": staff_data.get("indigenous_percent", 0),
+            "years_operating": year - 1994,  # PICC established 1994
+            "total_income": f"{financials.get('total_income', 0):,.0f}" if financials.get("total_income") else "",
+            "community_controlled_since": "1994",
+        },
     }
 
     # Save to file if output path provided

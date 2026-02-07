@@ -1,12 +1,19 @@
 /**
- * PICC Brand Styles
+ * PICC Brand Styles — Magazine Edition
  * Palm Island Community Company - Annual Report
  *
- * Based on existing design system and 2023-24 report
+ * Typography: Inter (body) + Caveat (handwritten accents)
+ * Colors: PICC Blue→Purple gradient system
  */
 
 /* ========================================
-   CSS VARIABLES - PICC BRAND
+   GOOGLE FONTS
+   ======================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Caveat:wght@400;500;600;700&display=swap');
+
+/* ========================================
+   CSS VARIABLES — PICC BRAND
    ======================================== */
 
 :root {
@@ -14,13 +21,28 @@
     --picc-blue: #2563eb;
     --picc-blue-dark: #1e3a8a;
     --picc-blue-light: #eff6ff;
+    --picc-blue-50: #eff6ff;
+    --picc-blue-100: #dbeafe;
+    --picc-blue-500: #3b82f6;
+    --picc-blue-600: #2563eb;
+    --picc-blue-700: #1d4ed8;
+    --picc-blue-900: #1e3a8a;
+
     --picc-purple: #9333ea;
     --picc-purple-light: #faf5ff;
+    --picc-purple-50: #faf5ff;
+    --picc-purple-500: #a855f7;
+    --picc-purple-600: #9333ea;
+    --picc-purple-700: #7e22ce;
 
     /* Secondary Colors */
     --picc-green: #16a34a;
+    --picc-green-50: #f0fdf4;
+    --picc-green-light: #dcfce7;
     --picc-orange: #ea580c;
+    --picc-orange-50: #fff7ed;
     --picc-amber: #d97706;
+    --picc-amber-50: #fffbeb;
     --picc-coral: #ff6b6b;
 
     /* Neutral Colors */
@@ -35,15 +57,17 @@
     --bg-section: #f3f4f6;
     --bg-dark: #1a1a1a;
 
-    /* Section Background Colors (from existing report) */
-    --section-blue: #4a7fb5;
-    --section-purple: #b8a9d4;
-    --section-green: #a8d5ba;
-    --section-teal: #7fb5b5;
+    /* Section Accent Colors */
+    --section-blue: #1d4ed8;
+    --section-purple: #7e22ce;
+    --section-green: #15803d;
+    --section-teal: #0f766e;
+    --section-ocean: #0369a1;
 
     /* Typography */
     --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-handwritten: 'Caveat', 'Permanent Marker', cursive;
 
     /* Spacing */
     --space-xs: 0.25rem;
@@ -53,12 +77,14 @@
     --space-xl: 2rem;
     --space-2xl: 3rem;
     --space-3xl: 4rem;
+    --space-4xl: 6rem;
 
     /* Border Radius */
     --radius-sm: 0.25rem;
     --radius-md: 0.5rem;
     --radius-lg: 1rem;
     --radius-xl: 1.5rem;
+    --radius-2xl: 2rem;
     --radius-full: 9999px;
 }
 
@@ -73,14 +99,16 @@
 }
 
 html {
-    font-size: 11pt;
-    line-height: 1.6;
+    font-size: 10.5pt;
+    line-height: 1.65;
 }
 
 body {
     font-family: var(--font-body);
     color: var(--text-primary);
     background: var(--bg-white);
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
 }
 
 /* ========================================
@@ -89,84 +117,141 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
-    font-weight: 700;
-    line-height: 1.2;
+    font-weight: 800;
+    line-height: 1.15;
     color: var(--text-primary);
+    letter-spacing: -0.02em;
 }
 
-/* Handwritten style headers (matching existing report) */
-.handwritten {
-    font-family: 'Permanent Marker', 'Comic Sans MS', cursive;
-    font-weight: 400;
-    letter-spacing: 0.02em;
-}
-
-h1 { font-size: 2.5rem; }
-h2 { font-size: 1.75rem; }
-h3 { font-size: 1.25rem; }
-h4 { font-size: 1rem; }
+h1 { font-size: 3rem; }
+h2 { font-size: 1.85rem; margin-bottom: var(--space-lg); }
+h3 { font-size: 1.35rem; margin-bottom: var(--space-md); }
+h4 { font-size: 1.05rem; margin-bottom: var(--space-sm); }
 
 p {
     margin-bottom: var(--space-md);
+    color: var(--text-secondary);
 }
 
 .lead {
-    font-size: 1.125rem;
+    font-size: 1.15rem;
     color: var(--text-secondary);
-    line-height: 1.7;
+    line-height: 1.75;
+    font-weight: 400;
+}
+
+strong { font-weight: 700; }
+
+/* Handwritten accent headers */
+.handwritten {
+    font-family: var(--font-handwritten);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+}
+
+/* Section label (small caps above headings) */
+.section-label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--picc-purple);
+    margin-bottom: var(--space-sm);
 }
 
 /* ========================================
-   BRAND ELEMENTS
+   BRAND GRADIENTS
    ======================================== */
 
-/* Wave Pattern (decorative element at bottom of sections) */
-.wave-pattern,
+.gradient-text {
+    background: linear-gradient(135deg, var(--picc-blue) 0%, var(--picc-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.bg-gradient-hero {
+    background: linear-gradient(135deg, var(--picc-blue-600) 0%, var(--picc-purple-600) 100%);
+}
+
+.bg-gradient-subtle {
+    background: linear-gradient(135deg, var(--picc-blue-50) 0%, var(--picc-purple-50) 100%);
+}
+
+.bg-gradient-ocean {
+    background: linear-gradient(180deg, #0c4a6e 0%, #1e3a8a 50%, #312e81 100%);
+}
+
+/* ========================================
+   BRAND DECORATIVE ELEMENTS
+   ======================================== */
+
+/* Wave Pattern — Dual layer */
 .wave-overlay {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    height: 120px;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M0,60 C300,120 600,0 900,60 C1050,90 1150,90 1200,60 L1200,120 L0,120 Z" fill="%23b8a9d4"/><path d="M0,80 C400,140 800,20 1200,80 L1200,120 L0,120 Z" fill="%234a7fb5" opacity="0.8"/></svg>') no-repeat bottom;
+    height: 100px;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120" preserveAspectRatio="none"><path d="M0,40 C360,100 720,0 1080,60 C1260,80 1380,70 1440,40 L1440,120 L0,120 Z" fill="rgba(255,255,255,0.15)"/><path d="M0,70 C480,120 960,30 1440,70 L1440,120 L0,120 Z" fill="rgba(255,255,255,0.1)"/></svg>') no-repeat bottom;
     background-size: cover;
 }
 
-/* Dot Pattern Overlay */
-.dot-pattern {
-    background-image: radial-gradient(circle, rgba(255,255,255,0.3) 2px, transparent 2px);
-    background-size: 20px 20px;
+/* Accent bar — thin gradient line */
+.accent-bar {
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--picc-blue) 0%, var(--picc-purple) 100%);
+    border-radius: 2px;
+    margin-bottom: var(--space-lg);
 }
 
-/* Photo Frames */
+.accent-bar-center {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Dot grid background pattern */
+.dot-pattern {
+    background-image: radial-gradient(circle, rgba(37,99,235,0.06) 1.5px, transparent 1.5px);
+    background-size: 24px 24px;
+}
+
+/* ========================================
+   PHOTO TREATMENTS
+   ======================================== */
+
 .photo-frame {
     border-radius: var(--radius-xl);
     overflow: hidden;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
 }
 
 .photo-frame-circular {
     border-radius: var(--radius-full);
     border: 4px solid var(--bg-white);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
 }
 
-/* Leader Photo Frame (dotted border style from report) */
+/* Leader Portrait Frame — magazine style */
 .leader-photo-frame {
-    width: 180px;
-    height: 180px;
+    width: 140px;
+    height: 140px;
     border-radius: var(--radius-full);
     overflow: hidden;
     position: relative;
     margin-bottom: var(--space-lg);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
 }
 
 .leader-photo-frame::before {
     content: '';
     position: absolute;
-    inset: -8px;
+    inset: -6px;
     border-radius: var(--radius-full);
-    border: 3px dotted rgba(255,255,255,0.5);
+    border: 2px solid rgba(255,255,255,0.4);
 }
 
 .leader-photo-frame img {
@@ -176,53 +261,57 @@ p {
 }
 
 /* ========================================
-   COLOR SECTIONS
+   SECTION BACKGROUNDS
    ======================================== */
 
 .section-blue {
-    background: linear-gradient(135deg, var(--section-blue) 0%, #3a6fa5 100%);
+    background: linear-gradient(135deg, var(--section-blue) 0%, #1e40af 100%);
     color: var(--bg-white);
 }
 
 .section-purple {
-    background: linear-gradient(135deg, var(--section-purple) 0%, #a899c4 100%);
-    color: var(--text-primary);
+    background: linear-gradient(135deg, var(--picc-purple) 0%, var(--picc-purple-700) 100%);
+    color: var(--bg-white);
 }
 
 .section-green {
-    background: linear-gradient(135deg, var(--section-green) 0%, #98c5aa 100%);
-    color: var(--text-primary);
+    background: linear-gradient(135deg, var(--section-green) 0%, #166534 100%);
+    color: var(--bg-white);
 }
 
 .section-teal {
-    background: linear-gradient(135deg, var(--section-teal) 0%, #6fa5a5 100%);
+    background: linear-gradient(135deg, var(--section-teal) 0%, #115e59 100%);
     color: var(--bg-white);
 }
 
 /* ========================================
-   BLOCKQUOTES
+   BLOCKQUOTES — Pull Quote Style
    ======================================== */
 
 blockquote {
     position: relative;
-    padding: var(--space-lg) var(--space-xl);
+    padding: var(--space-xl) var(--space-2xl);
     margin: var(--space-xl) 0;
     font-style: italic;
-    font-size: 1.125rem;
-    line-height: 1.7;
+    font-size: 1.1rem;
+    line-height: 1.75;
     color: var(--text-secondary);
+    border-left: none;
 }
 
 blockquote::before {
-    content: '"';
+    content: '\201C';
     position: absolute;
     left: 0;
-    top: 0;
-    font-size: 4rem;
-    font-family: Georgia, serif;
-    color: var(--picc-blue);
-    opacity: 0.3;
+    top: -8px;
+    font-size: 5rem;
+    font-family: Georgia, 'Times New Roman', serif;
+    background: linear-gradient(135deg, var(--picc-blue) 0%, var(--picc-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     line-height: 1;
+    opacity: 0.6;
 }
 
 blockquote cite {
@@ -230,42 +319,51 @@ blockquote cite {
     margin-top: var(--space-md);
     font-style: normal;
     font-weight: 600;
-    color: var(--text-primary);
+    font-size: 0.9rem;
+    color: var(--picc-blue-dark);
 }
 
 /* ========================================
-   DATA TABLES
+   DATA TABLES — Zebra stripe + brand header
    ======================================== */
 
 .data-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.875rem;
+    font-size: 0.85rem;
+    border-radius: var(--radius-md);
+    overflow: hidden;
 }
 
 .data-table th,
 .data-table td {
     padding: var(--space-sm) var(--space-md);
     text-align: left;
-    border-bottom: 1px solid var(--bg-section);
+    border-bottom: 1px solid #e5e7eb;
 }
 
 .data-table th {
-    background: var(--picc-blue);
+    background: linear-gradient(135deg, var(--picc-blue) 0%, var(--picc-blue-700) 100%);
     color: var(--bg-white);
     font-weight: 600;
     text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 0.05em;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    padding: var(--space-md);
 }
 
 .data-table tr:nth-child(even) {
     background: var(--bg-light);
 }
 
+.data-table tr:hover {
+    background: var(--picc-blue-50);
+}
+
 .data-table .amount {
     text-align: right;
     font-variant-numeric: tabular-nums;
+    font-weight: 500;
 }
 
 .data-table.compact th,
@@ -275,37 +373,50 @@ blockquote cite {
 }
 
 /* ========================================
-   FINANCIAL TABLES
+   FINANCIAL TABLES — Clean professional
    ======================================== */
 
 .financial-table {
     width: 100%;
     border-collapse: collapse;
+    font-size: 0.85rem;
 }
 
 .financial-table td {
-    padding: var(--space-sm) var(--space-md);
-    border-bottom: 1px solid var(--bg-section);
+    padding: 6px var(--space-md);
+    border-bottom: 1px solid #e5e7eb;
 }
 
 .financial-table .section-header td {
-    background: var(--picc-blue);
+    background: linear-gradient(135deg, var(--picc-blue) 0%, var(--picc-purple) 100%);
     color: var(--bg-white);
     padding: var(--space-md);
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .financial-table .total td {
-    font-weight: 700;
+    font-weight: 800;
     border-top: 2px solid var(--text-primary);
+    border-bottom: 2px solid var(--text-primary);
+    background: var(--picc-blue-50);
+}
+
+.financial-table .subtotal td {
+    font-weight: 600;
+    border-top: 1px solid var(--text-secondary);
 }
 
 .financial-table .amount {
     text-align: right;
     font-variant-numeric: tabular-nums;
+    font-weight: 500;
 }
 
 /* ========================================
-   LISTS
+   LISTS — Brand styled
    ======================================== */
 
 .achievements-list,
@@ -317,23 +428,52 @@ blockquote cite {
 .achievements-list li,
 .services-list li {
     position: relative;
-    padding-left: var(--space-lg);
-    margin-bottom: var(--space-sm);
+    padding-left: var(--space-xl);
+    margin-bottom: var(--space-md);
+    font-size: 0.9rem;
+    line-height: 1.6;
 }
 
 .achievements-list li::before {
-    content: '•';
+    content: '';
     position: absolute;
     left: 0;
-    color: var(--picc-blue);
-    font-weight: bold;
+    top: 8px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--picc-blue) 0%, var(--picc-purple) 100%);
 }
 
 .services-list li::before {
-    content: '•';
+    content: '';
     position: absolute;
-    left: 0;
-    color: var(--picc-purple);
+    left: 2px;
+    top: 8px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--picc-purple);
+}
+
+/* ========================================
+   STAT CARDS — Big number displays
+   ======================================== */
+
+.stat-number {
+    font-size: 3rem;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.03em;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-caption);
+    margin-top: var(--space-xs);
 }
 
 /* ========================================
@@ -341,10 +481,47 @@ blockquote cite {
    ======================================== */
 
 .signature {
-    font-family: 'Permanent Marker', cursive;
-    font-size: 1.5rem;
+    font-family: var(--font-handwritten);
+    font-size: 1.75rem;
     color: var(--picc-blue-dark);
     margin-top: var(--space-lg);
+}
+
+/* ========================================
+   BADGE / TAG
+   ======================================== */
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: var(--radius-full);
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.badge-blue {
+    background: var(--picc-blue-50);
+    color: var(--picc-blue-700);
+}
+
+.badge-purple {
+    background: var(--picc-purple-50);
+    color: var(--picc-purple-700);
+}
+
+.badge-green {
+    background: var(--picc-green-50);
+    color: var(--picc-green);
+}
+
+.badge-audited {
+    background: var(--picc-green-50);
+    color: var(--picc-green);
+    border: 1px solid var(--picc-green-light);
 }
 
 /* ========================================
@@ -355,6 +532,7 @@ blockquote cite {
 .text-right { text-align: right; }
 .text-white { color: var(--bg-white); }
 .text-blue { color: var(--picc-blue); }
+.text-purple { color: var(--picc-purple); }
 .text-muted { color: var(--text-muted); }
 
 .bg-white { background: var(--bg-white); }
@@ -366,6 +544,7 @@ blockquote cite {
 
 .rounded { border-radius: var(--radius-md); }
 .rounded-lg { border-radius: var(--radius-lg); }
+.rounded-xl { border-radius: var(--radius-xl); }
 .rounded-full { border-radius: var(--radius-full); }
 
 .shadow {
@@ -373,5 +552,16 @@ blockquote cite {
 }
 
 .shadow-lg {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 10px -3px rgba(0, 0, 0, 0.05);
 }
+
+.shadow-xl {
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
+}
+
+.mb-0 { margin-bottom: 0; }
+.mb-sm { margin-bottom: var(--space-sm); }
+.mb-md { margin-bottom: var(--space-md); }
+.mb-lg { margin-bottom: var(--space-lg); }
+.mb-xl { margin-bottom: var(--space-xl); }
+.mb-2xl { margin-bottom: var(--space-2xl); }
