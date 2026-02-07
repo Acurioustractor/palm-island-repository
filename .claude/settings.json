@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd /Users/benknight/Code/Palm\\ Island\\ Reposistory/web-platform && npx tsc --noEmit --pretty 2>&1 | head -30 || true"
+          }
+        ]
+      }
+    ]
+  }
+}
