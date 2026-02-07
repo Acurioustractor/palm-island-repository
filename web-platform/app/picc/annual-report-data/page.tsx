@@ -15,7 +15,7 @@ import ProjectsPanel from '@/components/annual-report-data/ProjectsPanel';
 import CountdownPanel from '@/components/annual-report-data/CountdownPanel';
 import OverviewPanel from '@/components/annual-report-data/OverviewPanel';
 import DashboardSkeleton from '@/components/annual-report-data/DashboardSkeleton';
-import { useToast } from '@/components/ui/Toast';
+import { useToast, ToastProvider } from '@/components/ui/Toast';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useUndoStack } from '@/hooks/useUndoStack';
 
@@ -157,7 +157,15 @@ function reducer(state: DashboardState, action: Action): DashboardState {
   }
 }
 
-export default function AnnualReportDataDashboard() {
+export default function AnnualReportDataPage() {
+  return (
+    <ToastProvider>
+      <AnnualReportDataDashboard />
+    </ToastProvider>
+  );
+}
+
+function AnnualReportDataDashboard() {
   const toast = useToast();
   const undoStack = useUndoStack();
   const [state, dispatch] = useReducer(reducer, {
