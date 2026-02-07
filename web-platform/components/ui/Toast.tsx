@@ -12,13 +12,14 @@ interface Toast {
   description?: string
   variant?: 'default' | 'success' | 'error' | 'warning' | 'info'
   duration?: number
+  action?: { label: string; onClick: () => void }
 }
 
 interface ToastContextType {
   toasts: Toast[]
   addToast: (toast: Omit<Toast, 'id'>) => void
   removeToast: (id: string) => void
-  success: (title: string, description?: string) => void
+  success: (title: string, description?: string, action?: { label: string; onClick: () => void }) => void
   error: (title: string, description?: string) => void
   warning: (title: string, description?: string) => void
   info: (title: string, description?: string) => void
@@ -47,8 +48,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const success = React.useCallback(
-    (title: string, description?: string) => {
-      addToast({ title, description, variant: 'success' })
+    (title: string, description?: string, action?: { label: string; onClick: () => void }) => {
+      addToast({ title, description, variant: 'success', action, duration: action ? 8000 : 5000 })
     },
     [addToast]
   )
@@ -126,6 +127,7 @@ function ToastItem({
   description,
   variant = 'default',
   duration = 5000,
+  action,
   onClose,
 }: ToastItemProps) {
   return (
@@ -155,6 +157,17 @@ function ToastItem({
           >
             {description}
           </ToastPrimitive.Description>
+        )}
+        {action && (
+          <button
+            onClick={() => {
+              action.onClick()
+              onClose()
+            }}
+            className="mt-1 text-sm font-semibold underline underline-offset-2 hover:opacity-80 transition-opacity"
+          >
+            {action.label}
+          </button>
         )}
       </div>
       <ToastPrimitive.Close

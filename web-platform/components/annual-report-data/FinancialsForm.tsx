@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { Save, CheckCircle } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Save, CheckCircle, AlertTriangle } from 'lucide-react';
+import HelpTooltip from './HelpTooltip';
 
 interface FinancialData {
   current_assets: number | null;
@@ -27,12 +28,12 @@ interface FinancialsFormProps {
   onSave: (data: FinancialData & { fiscal_year: number }) => Promise<void>;
 }
 
-const CURRENCY_FIELDS: { key: keyof FinancialData; label: string; section: string }[] = [
-  { key: 'current_assets', label: 'Current Assets', section: 'Balance Sheet' },
-  { key: 'non_current_assets', label: 'Non-Current Assets', section: 'Balance Sheet' },
-  { key: 'current_liabilities', label: 'Current Liabilities', section: 'Balance Sheet' },
-  { key: 'non_current_liabilities', label: 'Non-Current Liabilities', section: 'Balance Sheet' },
-  { key: 'total_income', label: 'Total Income', section: 'Income & Expenditure' },
+const CURRENCY_FIELDS: { key: keyof FinancialData; label: string; section: string; help?: string }[] = [
+  { key: 'current_assets', label: 'Current Assets', section: 'Balance Sheet', help: 'Cash, receivables, and other assets expected to convert to cash within 12 months' },
+  { key: 'non_current_assets', label: 'Non-Current Assets', section: 'Balance Sheet', help: 'Property, equipment, and long-term investments' },
+  { key: 'current_liabilities', label: 'Current Liabilities', section: 'Balance Sheet', help: 'Debts and obligations due within 12 months' },
+  { key: 'non_current_liabilities', label: 'Non-Current Liabilities', section: 'Balance Sheet', help: 'Long-term debts and obligations' },
+  { key: 'total_income', label: 'Total Income', section: 'Income & Expenditure', help: 'All revenue including grants, fees, and other income' },
   { key: 'labour_costs', label: 'Labour Costs', section: 'Income & Expenditure' },
   { key: 'administration_expenses', label: 'Administration Expenses', section: 'Income & Expenditure' },
   { key: 'property_energy_expenses', label: 'Property & Energy Expenses', section: 'Income & Expenditure' },
@@ -73,8 +74,50 @@ export default function FinancialsForm({ initialData, fiscalYear, onSave }: Fina
     setSaved(false);
   };
 
+  // Validation
+  const errors = useMemo(() => {
+    const errs: Record<string, string> = {};
+
+    // Non-negative check for currency fields
+    for (const field of CURRENCY_FIELDS) {
+      const val = formData[field.key];
+      if (typeof val === 'number' && val < 0) {
+        errs[field.key] = 'Value cannot be negative';
+      }
+    }
+
+    // Audit conditional requirements
+    if (formData.audited) {
+      if (!formData.auditor_name?.trim()) {
+        errs.auditor_name = 'Required when audited';
+      }
+      if (!formData.audit_date) {
+        errs.audit_date = 'Required when audited';
+      }
+    }
+
+    return errs;
+  }, [formData]);
+
+  // Warnings (non-blocking)
+  const warnings = useMemo(() => {
+    const warns: string[] = [];
+    const totalExpenditure = (formData.labour_costs || 0) + (formData.administration_expenses || 0) +
+      (formData.property_energy_expenses || 0) + (formData.motor_vehicle_expenses || 0) +
+      (formData.travel_training_expenses || 0) + (formData.client_related_costs || 0);
+
+    if (formData.total_income && totalExpenditure > formData.total_income) {
+      warns.push('Total expenditure exceeds total income — this results in a deficit');
+    }
+    return warns;
+  }, [formData]);
+
+  const hasErrors = Object.keys(errors).length > 0;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (hasErrors) return;
+
     setSaving(true);
     try {
       await onSave({
@@ -116,30 +159,71 @@ export default function FinancialsForm({ initialData, fiscalYear, onSave }: Fina
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
+      {/* Error summary */}
+      {hasErrors && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="text-sm font-medium text-red-800 mb-1">Please fix the following errors:</div>
+          <ul className="text-sm text-red-700 list-disc list-inside">
+            {Object.entries(errors).map(([key, msg]) => (
+              <li key={key}>{CURRENCY_FIELDS.find(f => f.key === key)?.label || key}: {msg}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Warnings */}
+      {warnings.length > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+          <div>
+            {warnings.map((w, i) => (
+              <div key={i} className="text-sm text-amber-800">{w}</div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {sections.map(section => (
         <div key={section}>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200 flex items-center gap-2">
             {section}
+            <HelpTooltip content={
+              section === 'Balance Sheet'
+                ? 'Assets, liabilities, and net position at fiscal year end'
+                : 'Revenue and expenses for the fiscal year period'
+            } />
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {CURRENCY_FIELDS.filter(f => f.section === section).map(field => (
-              <div key={field.key}>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {field.label}
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={formData[field.key] !== null && formData[field.key] !== undefined ? formData[field.key]!.toString() : ''}
-                    onChange={e => handleChange(field.key, e.target.value)}
-                    className="w-full pl-7 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-400 focus:outline-none focus:ring-1 focus:ring-purple-400"
-                    placeholder="0.00"
-                  />
+            {CURRENCY_FIELDS.filter(f => f.section === section).map(field => {
+              const fieldError = errors[field.key];
+              return (
+                <div key={field.key}>
+                  <label className="flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-1">
+                    {field.label}
+                    {field.help && <HelpTooltip content={field.help} />}
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={formData[field.key] !== null && formData[field.key] !== undefined ? formData[field.key]!.toString() : ''}
+                      onChange={e => handleChange(field.key, e.target.value)}
+                      className={`w-full pl-7 pr-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-1 ${
+                        fieldError
+                          ? 'border-red-300 focus:border-red-400 focus:ring-red-400'
+                          : 'border-gray-200 focus:border-purple-400 focus:ring-purple-400'
+                      }`}
+                      placeholder="0.00"
+                    />
+                  </div>
+                  {fieldError && (
+                    <p className="text-xs text-red-600 mt-1">{fieldError}</p>
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Computed totals */}
@@ -202,23 +286,41 @@ export default function FinancialsForm({ initialData, fiscalYear, onSave }: Fina
             </label>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Auditor Name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Auditor Name {formData.audited && <span className="text-red-500">*</span>}
+            </label>
             <input
               type="text"
               value={formData.auditor_name || ''}
               onChange={e => setFormData(prev => ({ ...prev, auditor_name: e.target.value || null }))}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-400 focus:outline-none"
+              className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none ${
+                errors.auditor_name
+                  ? 'border-red-300 focus:border-red-400'
+                  : 'border-gray-200 focus:border-purple-400'
+              }`}
               placeholder="Auditor name"
             />
+            {errors.auditor_name && (
+              <p className="text-xs text-red-600 mt-1">{errors.auditor_name}</p>
+            )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Audit Date</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Audit Date {formData.audited && <span className="text-red-500">*</span>}
+            </label>
             <input
               type="date"
               value={formData.audit_date || ''}
               onChange={e => setFormData(prev => ({ ...prev, audit_date: e.target.value || null }))}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-400 focus:outline-none"
+              className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none ${
+                errors.audit_date
+                  ? 'border-red-300 focus:border-red-400'
+                  : 'border-gray-200 focus:border-purple-400'
+              }`}
             />
+            {errors.audit_date && (
+              <p className="text-xs text-red-600 mt-1">{errors.audit_date}</p>
+            )}
           </div>
         </div>
       </div>
@@ -239,7 +341,7 @@ export default function FinancialsForm({ initialData, fiscalYear, onSave }: Fina
       <div className="flex items-center gap-4">
         <button
           type="submit"
-          disabled={saving}
+          disabled={saving || hasErrors}
           className="flex items-center gap-2 px-6 py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 font-medium"
         >
           {saving ? (

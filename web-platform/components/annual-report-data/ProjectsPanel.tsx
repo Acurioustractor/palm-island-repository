@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Star, ExternalLink, Briefcase, FolderOpen } from 'lucide-react';
+import EmptyState from './EmptyState';
 
 interface Project {
   id: string;
@@ -141,8 +142,13 @@ export default function ProjectsPanel({
             ))}
             {projects.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-sm text-gray-500">
-                  No projects found for this fiscal year.
+                <td colSpan={6} className="p-0">
+                  <EmptyState
+                    icon={<Briefcase className="w-6 h-6" />}
+                    title="No innovation projects"
+                    description="No projects found for this fiscal year. Add projects in the Projects section."
+                    secondaryAction={{ label: 'Manage Projects', href: '/picc/projects' }}
+                  />
                 </td>
               </tr>
             )}

@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { Clock } from 'lucide-react';
 
 const FISCAL_YEARS = [
   { value: 2026, label: '2025-26' },
@@ -9,29 +9,32 @@ const FISCAL_YEARS = [
   { value: 2023, label: '2022-23' },
 ];
 
-type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
-
 interface DashboardHeaderProps {
   fiscalYear: number;
   onFiscalYearChange: (fy: number) => void;
-  saveStatus: SaveStatus;
+  overallProgress: number;
+  completeSections: number;
+  totalSections: number;
+  freshnessLabel: string;
 }
 
 export default function DashboardHeader({
   fiscalYear,
   onFiscalYearChange,
-  saveStatus,
+  overallProgress,
+  completeSections,
+  totalSections,
+  freshnessLabel,
 }: DashboardHeaderProps) {
   return (
-    <div className="flex items-start justify-between mb-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Annual Report Data</h1>
-        <p className="text-gray-600 mt-1">
-          Enter and manage all data for the annual report
-        </p>
-      </div>
-      <div className="flex items-center gap-4">
-        <SaveIndicator status={saveStatus} />
+    <div className="mb-6">
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Annual Report Data</h1>
+          <p className="text-gray-600 mt-1">
+            Enter and manage all data for the annual report
+          </p>
+        </div>
         <select
           value={fiscalYear}
           onChange={e => onFiscalYearChange(parseInt(e.target.value))}
@@ -44,25 +47,30 @@ export default function DashboardHeader({
           ))}
         </select>
       </div>
+
+      {/* Quick stat pills */}
+      <div className="flex items-center gap-2 mt-3">
+        <span
+          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
+            overallProgress >= 80
+              ? 'bg-emerald-100 text-emerald-700'
+              : overallProgress >= 40
+                ? 'bg-amber-100 text-amber-700'
+                : 'bg-red-100 text-red-700'
+          }`}
+        >
+          {overallProgress}% Complete
+        </span>
+        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+          {completeSections}/{totalSections} Sections
+        </span>
+        {freshnessLabel && (
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-500">
+            <Clock className="w-3 h-3" />
+            {freshnessLabel}
+          </span>
+        )}
+      </div>
     </div>
-  );
-}
-
-function SaveIndicator({ status }: { status: SaveStatus }) {
-  if (status === 'idle') return null;
-
-  const config = {
-    saving: { icon: Clock, text: 'Saving...', className: 'text-gray-500' },
-    saved: { icon: CheckCircle, text: 'All changes saved', className: 'text-emerald-600' },
-    error: { icon: AlertCircle, text: 'Save failed', className: 'text-red-600' },
-  } as const;
-
-  const { icon: Icon, text, className } = config[status];
-
-  return (
-    <span className={`flex items-center gap-1.5 text-sm ${className}`}>
-      <Icon className="w-4 h-4" />
-      {text}
-    </span>
   );
 }

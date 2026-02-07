@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Trash2, Save, MessageSquare } from 'lucide-react';
+import { Plus, Trash2, Save, MessageSquare, Trophy } from 'lucide-react';
+import EmptyState from './EmptyState';
 
 interface Highlight {
   id?: string;
@@ -120,6 +121,15 @@ export default function HighlightsPanel({
             No annual report found for this fiscal year. Create one first in the Annual
             Reports section.
           </div>
+        )}
+
+        {highlights.length === 0 && reportId && (
+          <EmptyState
+            icon={<Trophy className="w-6 h-6" />}
+            title="No achievements yet"
+            description="Add your first key achievement or milestone for this fiscal year."
+            action={{ label: 'Add Achievement', onClick: addHighlight }}
+          />
         )}
 
         <div className="space-y-4">
@@ -323,9 +333,11 @@ export default function HighlightsPanel({
           ))}
 
           {leadership.length === 0 && (
-            <div className="text-sm text-gray-500 bg-gray-50 rounded-lg p-4">
-              No leadership records found. Add leaders in the database first.
-            </div>
+            <EmptyState
+              icon={<MessageSquare className="w-6 h-6" />}
+              title="No leadership messages"
+              description="Add leaders in the Board tab first, then write their messages here."
+            />
           )}
         </div>
       </div>

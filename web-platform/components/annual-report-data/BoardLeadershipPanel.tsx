@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Plus, Save, Trash2, Users, UserCog, GripVertical } from 'lucide-react';
+import EmptyState from './EmptyState';
 
 interface BoardMember {
   id?: string;
@@ -247,8 +248,13 @@ export default function BoardLeadershipPanel({
               })}
               {boardMembers.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-sm text-gray-500">
-                    No board members found. Click &ldquo;Add Member&rdquo; to add one.
+                  <td colSpan={5} className="p-0">
+                    <EmptyState
+                      icon={<Users className="w-6 h-6" />}
+                      title="No board members"
+                      description="Add board members to include them in the annual report."
+                      action={{ label: 'Add Member', onClick: addBoardMember }}
+                    />
                   </td>
                 </tr>
               )}
@@ -357,9 +363,11 @@ export default function BoardLeadershipPanel({
           })}
 
           {leadershipMembers.length === 0 && (
-            <div className="text-sm text-gray-500 bg-gray-50 rounded-lg p-4">
-              No leadership records found. Add leaders in the database first.
-            </div>
+            <EmptyState
+              icon={<UserCog className="w-6 h-6" />}
+              title="No executive leadership"
+              description="Leadership records are managed in the database. Contact an administrator to add them."
+            />
           )}
         </div>
       </div>

@@ -26,6 +26,7 @@ interface ServicesPanelProps {
   previousServices: ServiceMetric[];
   fiscalYear: number;
   onSave: (data: any) => Promise<void>;
+  onCellSaved?: (info: { serviceId: string; field: string; previousValue: any; newValue: any }) => void;
 }
 
 export default function ServicesPanel({
@@ -33,6 +34,7 @@ export default function ServicesPanel({
   previousServices,
   fiscalYear,
   onSave,
+  onCellSaved,
 }: ServicesPanelProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
@@ -143,6 +145,7 @@ export default function ServicesPanel({
           fiscalYear={fiscalYear}
           previousYearServices={filteredPrevious}
           onSave={onSave}
+          onCellSaved={onCellSaved}
         />
       </div>
     </div>

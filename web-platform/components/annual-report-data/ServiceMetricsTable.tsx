@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { CheckCircle, Circle, Copy, Save } from 'lucide-react';
+import HelpTooltip from './HelpTooltip';
 
 interface ServiceMetric {
   organization_service_id: string;
@@ -20,6 +21,13 @@ interface ServiceMetric {
   } | null;
 }
 
+interface CellChangeInfo {
+  serviceId: string;
+  field: string;
+  previousValue: any;
+  newValue: any;
+}
+
 interface ServiceMetricsTableProps {
   services: ServiceMetric[];
   fiscalYear: number;
@@ -29,6 +37,7 @@ interface ServiceMetricsTableProps {
     fiscal_year: number;
     [key: string]: any;
   }) => Promise<void>;
+  onCellSaved?: (info: CellChangeInfo) => void;
 }
 
 export default function ServiceMetricsTable({
@@ -36,6 +45,7 @@ export default function ServiceMetricsTable({
   fiscalYear,
   previousYearServices,
   onSave,
+  onCellSaved,
 }: ServiceMetricsTableProps) {
   const [editingCell, setEditingCell] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
@@ -59,25 +69,37 @@ export default function ServiceMetricsTable({
     setEditingCell(null);
 
     const numericFields = ['clients_served', 'sessions_delivered', 'events_held', 'staff_count'];
-    const value = numericFields.includes(field)
+    const newValue = numericFields.includes(field)
       ? (editValue ? parseInt(editValue) : null)
       : (editValue || null);
 
-    setLocalData(prev => ({ ...prev, [key]: value }));
+    // Capture previous value before overwriting
+    const previousValue = localData[key] !== undefined
+      ? localData[key]
+      : (() => {
+          const svc = services.find(s => s.organization_service_id === serviceId);
+          return svc?.metrics ? (svc.metrics as any)[field] : null;
+        })();
+
+    // Skip save if value hasn't changed
+    if (previousValue === newValue) return;
+
+    setLocalData(prev => ({ ...prev, [key]: newValue }));
     setSaving(serviceId);
 
     try {
       await onSave({
         organization_service_id: serviceId,
         fiscal_year: fiscalYear,
-        [field]: value,
+        [field]: newValue,
       });
+      onCellSaved?.({ serviceId, field, previousValue, newValue });
     } catch (error) {
       console.error('Save error:', error);
     } finally {
       setSaving(null);
     }
-  }, [editValue, fiscalYear, onSave]);
+  }, [editValue, fiscalYear, onSave, onCellSaved, localData, services]);
 
   const handleKeyDown = (e: React.KeyboardEvent, serviceId: string, field: string) => {
     if (e.key === 'Enter') {
@@ -121,6 +143,16 @@ export default function ServiceMetricsTable({
       setSaving(null);
     }
   };
+
+  // Allow parent to apply an undo by updating local data
+  const applyUndoValue = useCallback((serviceId: string, field: string, value: any) => {
+    const key = `${serviceId}.${field}`;
+    setLocalData(prev => ({ ...prev, [key]: value }));
+  }, []);
+
+  // Expose applyUndoValue via a ref-based callback pattern
+  // Parent can call onSave directly to persist, and we update local display
+  // This is handled by the parent passing the undo save through onSave
 
   const hasData = (svc: ServiceMetric) => {
     const m = svc.metrics;
@@ -184,8 +216,12 @@ export default function ServiceMetricsTable({
             <th className="px-3 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider w-[100px]">Sessions</th>
             <th className="px-3 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider w-[80px]">Events</th>
             <th className="px-3 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider w-[80px]">Staff</th>
-            <th className="px-3 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider w-[120px]">Headline Stat</th>
-            <th className="px-3 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider min-w-[200px]">Key Achievement</th>
+            <th className="px-3 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider w-[120px]">
+              <span className="inline-flex items-center gap-1">Headline Stat <HelpTooltip content="A single standout number for this service, e.g. '1,200 meals served' or '98% satisfaction'" /></span>
+            </th>
+            <th className="px-3 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider min-w-[200px]">
+              <span className="inline-flex items-center gap-1">Key Achievement <HelpTooltip content="The most significant accomplishment for this service during the fiscal year" /></span>
+            </th>
             <th className="px-3 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider w-[60px]"></th>
           </tr>
         </thead>

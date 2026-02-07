@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { BookOpen, Link2, Unlink, Star, Image, MessageSquare, Search, Filter, Calendar, Plus } from 'lucide-react';
+import { BookOpen, Link2, Unlink, Star, Image, MessageSquare, Search, Filter, Calendar, Plus, CheckSquare, Square, X } from 'lucide-react';
 import StoryCreatorPanel from './StoryCreatorPanel';
+import EmptyState from './EmptyState';
 
 interface LinkedStory {
   link_id: string;
@@ -44,6 +45,9 @@ export default function StoriesPanel({ stories, reportId, onStoriesChange }: Sto
   const [yearFilter, setYearFilter] = useState<string>('current');
   const [allStories, setAllStories] = useState<LinkedStory[]>([]);
   const [loadingAll, setLoadingAll] = useState(false);
+  const [bulkMode, setBulkMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkSaving, setBulkSaving] = useState(false);
 
   // Fetch all historical stories when switching to "all" filter
   useEffect(() => {
@@ -173,6 +177,101 @@ export default function StoriesPanel({ stories, reportId, onStoriesChange }: Sto
     }
   };
 
+  const toggleSelected = (linkId: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(linkId)) next.delete(linkId);
+      else next.add(linkId);
+      return next;
+    });
+  };
+
+  const selectAll = () => {
+    setSelectedIds(new Set(displayStories.map(s => s.link_id)));
+  };
+
+  const clearSelection = () => {
+    setSelectedIds(new Set());
+    setBulkMode(false);
+  };
+
+  const bulkSetSection = async (section: string) => {
+    if (!reportId || selectedIds.size === 0) return;
+    setBulkSaving(true);
+    try {
+      await Promise.all(
+        Array.from(selectedIds).map(linkId =>
+          fetch('/api/annual-report-data/stories', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ link_id: linkId, section_placement: section || null }),
+          })
+        )
+      );
+      onStoriesChange(
+        stories.map(s =>
+          selectedIds.has(s.link_id) ? { ...s, section_placement: section || null } : s
+        )
+      );
+      clearSelection();
+    } catch (error) {
+      console.error('Bulk section error:', error);
+    } finally {
+      setBulkSaving(false);
+    }
+  };
+
+  const bulkFeature = async (featured: boolean) => {
+    if (!reportId || selectedIds.size === 0) return;
+    setBulkSaving(true);
+    try {
+      await Promise.all(
+        Array.from(selectedIds).map(linkId =>
+          fetch('/api/annual-report-data/stories', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ link_id: linkId, is_featured: featured }),
+          })
+        )
+      );
+      onStoriesChange(
+        stories.map(s =>
+          selectedIds.has(s.link_id) ? { ...s, is_featured: featured } : s
+        )
+      );
+      clearSelection();
+    } catch (error) {
+      console.error('Bulk feature error:', error);
+    } finally {
+      setBulkSaving(false);
+    }
+  };
+
+  const bulkUnlink = async () => {
+    if (!reportId || selectedIds.size === 0) return;
+    setBulkSaving(true);
+    try {
+      const selectedStoryIds = stories
+        .filter(s => selectedIds.has(s.link_id))
+        .map(s => s.story_id);
+      await Promise.all(
+        selectedStoryIds.map(storyId =>
+          fetch('/api/annual-report-data/stories', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'unlink', report_id: reportId, story_id: storyId }),
+          })
+        )
+      );
+      onStoriesChange(stories.filter(s => !selectedIds.has(s.link_id)));
+      clearSelection();
+    } catch (error) {
+      console.error('Bulk unlink error:', error);
+    } finally {
+      setBulkSaving(false);
+    }
+  };
+
   if (!reportId) {
     return (
       <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-800">
@@ -233,6 +332,19 @@ export default function StoriesPanel({ stories, reportId, onStoriesChange }: Sto
         </h2>
         {isCurrentView && (
           <div className="flex items-center gap-2">
+            {displayStories.length > 0 && (
+              <button
+                onClick={() => { setBulkMode(!bulkMode); setSelectedIds(new Set()); }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                  bulkMode
+                    ? 'text-purple-700 bg-purple-100 border border-purple-300'
+                    : 'text-gray-600 border border-gray-200 hover:bg-gray-50'
+                }`}
+              >
+                <CheckSquare className="w-4 h-4" />
+                {bulkMode ? 'Cancel' : 'Select'}
+              </button>
+            )}
             <button
               onClick={() => setShowCreator(true)}
               className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-green-600 border border-green-200 rounded-lg hover:bg-green-50 transition-colors"
@@ -261,7 +373,21 @@ export default function StoriesPanel({ stories, reportId, onStoriesChange }: Sto
       {/* Stories list */}
       <div className="space-y-3">
         {displayStories.map(story => (
-          <div key={story.link_id} className="bg-white rounded-xl border border-gray-200 p-4 flex items-start gap-4">
+          <div key={story.link_id} className={`bg-white rounded-xl border p-4 flex items-start gap-4 ${
+            bulkMode && selectedIds.has(story.link_id) ? 'border-purple-300 bg-purple-50/30' : 'border-gray-200'
+          }`}>
+            {bulkMode && isCurrentView && (
+              <button
+                onClick={() => toggleSelected(story.link_id)}
+                className="flex-shrink-0 mt-1 text-gray-400 hover:text-purple-600 transition-colors"
+              >
+                {selectedIds.has(story.link_id) ? (
+                  <CheckSquare className="w-5 h-5 text-purple-600" />
+                ) : (
+                  <Square className="w-5 h-5" />
+                )}
+              </button>
+            )}
             {story.hero_image_url ? (
               <img
                 src={story.hero_image_url}
@@ -342,13 +468,74 @@ export default function StoriesPanel({ stories, reportId, onStoriesChange }: Sto
         ))}
 
         {displayStories.length === 0 && !loadingAll && (
-          <div className="text-sm text-gray-500 bg-gray-50 rounded-lg p-4">
-            {isCurrentView
-              ? <>No stories linked to this report yet. Click &ldquo;Link More Stories&rdquo; to add some.</>
-              : 'No stories found for this filter.'}
-          </div>
+          isCurrentView ? (
+            <EmptyState
+              icon={<BookOpen className="w-6 h-6" />}
+              title="No stories linked yet"
+              description="Link published stories to this report or create a new one."
+              action={{ label: 'Link Stories', onClick: () => { setShowPicker(true); fetchAvailable(); } }}
+              secondaryAction={{ label: 'Create New Story', href: '#' }}
+            />
+          ) : (
+            <EmptyState
+              icon={<BookOpen className="w-6 h-6" />}
+              title="No stories found"
+              description="No stories match the selected year filter."
+            />
+          )
         )}
       </div>
+
+      {/* Bulk Action Bar */}
+      {bulkMode && selectedIds.size > 0 && (
+        <div className="sticky bottom-4 mx-auto max-w-3xl bg-white rounded-xl border border-purple-200 shadow-lg p-3 flex items-center gap-3 z-40">
+          <div className="flex items-center gap-2 text-sm font-medium text-purple-700">
+            <CheckSquare className="w-4 h-4" />
+            {selectedIds.size} selected
+          </div>
+          <button
+            onClick={selectAll}
+            className="text-xs text-purple-600 hover:underline"
+          >
+            Select all
+          </button>
+          <div className="flex-1" />
+          <select
+            onChange={e => { if (e.target.value) bulkSetSection(e.target.value); e.target.value = ''; }}
+            disabled={bulkSaving}
+            className="px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:border-purple-400 focus:outline-none"
+            defaultValue=""
+          >
+            <option value="" disabled>Set Section...</option>
+            <option value="">No section</option>
+            {SECTIONS.map(s => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+          <button
+            onClick={() => bulkFeature(true)}
+            disabled={bulkSaving}
+            className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-amber-600 border border-amber-200 rounded-lg hover:bg-amber-50 disabled:opacity-50 transition-colors"
+          >
+            <Star className="w-3.5 h-3.5" />
+            Feature All
+          </button>
+          <button
+            onClick={() => bulkUnlink()}
+            disabled={bulkSaving}
+            className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-red-600 border border-red-200 rounded-lg hover:bg-red-50 disabled:opacity-50 transition-colors"
+          >
+            <Unlink className="w-3.5 h-3.5" />
+            Unlink All
+          </button>
+          <button
+            onClick={clearSelection}
+            className="p-1.5 text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Story Picker Modal */}
       {showPicker && (

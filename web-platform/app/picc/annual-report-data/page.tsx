@@ -1,6 +1,6 @@
 'use client';
 
-import { useReducer, useEffect, useCallback } from 'react';
+import { useReducer, useEffect, useCallback, useMemo, useState } from 'react';
 import DashboardHeader from '@/components/annual-report-data/DashboardHeader';
 import OverallProgress from '@/components/annual-report-data/OverallProgress';
 import TabBar from '@/components/annual-report-data/TabBar';
@@ -14,6 +14,10 @@ import PhotosMediaPanel from '@/components/annual-report-data/PhotosMediaPanel';
 import ProjectsPanel from '@/components/annual-report-data/ProjectsPanel';
 import CountdownPanel from '@/components/annual-report-data/CountdownPanel';
 import OverviewPanel from '@/components/annual-report-data/OverviewPanel';
+import DashboardSkeleton from '@/components/annual-report-data/DashboardSkeleton';
+import { useToast } from '@/components/ui/Toast';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { useUndoStack } from '@/hooks/useUndoStack';
 
 const FISCAL_YEARS = [
   { value: 2026, label: '2025-26' },
@@ -23,7 +27,6 @@ const FISCAL_YEARS = [
 ];
 
 type TabId = 'services' | 'financials' | 'highlights' | 'preview' | 'stories' | 'board' | 'photos' | 'projects' | 'countdown' | 'overview';
-type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
 const ALL_TABS: TabId[] = ['overview', 'services', 'financials', 'highlights', 'stories', 'board', 'photos', 'projects', 'countdown', 'preview'];
 
@@ -60,10 +63,8 @@ interface DashboardState {
   leadership: LeadershipMessage[];
   reportId: string | null;
   loading: boolean;
-  saveStatus: SaveStatus;
   servicesWithData: number;
   totalServices: number;
-  // New state fields
   stories: any[];
   boardMembers: any[];
   boardLeadership: any[];
@@ -73,13 +74,13 @@ interface DashboardState {
   projects: any[];
   projectsFeaturedCount: number;
   projectsByType: Record<string, number>;
+  lastFetchedAt: Date | null;
 }
 
 type Action =
   | { type: 'SET_FISCAL_YEAR'; fiscalYear: number }
   | { type: 'SET_TAB'; tab: TabId }
   | { type: 'SET_LOADING'; loading: boolean }
-  | { type: 'SET_SAVE_STATUS'; status: SaveStatus }
   | {
       type: 'SET_DATA';
       services: any[];
@@ -118,8 +119,6 @@ function reducer(state: DashboardState, action: Action): DashboardState {
       return { ...state, activeTab: action.tab };
     case 'SET_LOADING':
       return { ...state, loading: action.loading };
-    case 'SET_SAVE_STATUS':
-      return { ...state, saveStatus: action.status };
     case 'SET_DATA':
       return {
         ...state,
@@ -132,6 +131,7 @@ function reducer(state: DashboardState, action: Action): DashboardState {
         servicesWithData: action.servicesWithData,
         totalServices: action.totalServices,
         loading: false,
+        lastFetchedAt: new Date(),
       };
     case 'SET_HIGHLIGHTS':
       return { ...state, highlights: action.highlights };
@@ -158,6 +158,8 @@ function reducer(state: DashboardState, action: Action): DashboardState {
 }
 
 export default function AnnualReportDataDashboard() {
+  const toast = useToast();
+  const undoStack = useUndoStack();
   const [state, dispatch] = useReducer(reducer, {
     fiscalYear: 2025,
     activeTab: getInitialTab(),
@@ -168,7 +170,6 @@ export default function AnnualReportDataDashboard() {
     leadership: [],
     reportId: null,
     loading: true,
-    saveStatus: 'idle',
     servicesWithData: 0,
     totalServices: 0,
     stories: [],
@@ -180,7 +181,27 @@ export default function AnnualReportDataDashboard() {
     projects: [],
     projectsFeaturedCount: 0,
     projectsByType: {},
+    lastFetchedAt: null,
   });
+
+  // Freshness label
+  const [freshnessLabel, setFreshnessLabel] = useState<string>('');
+
+  useEffect(() => {
+    const update = () => {
+      if (!state.lastFetchedAt) {
+        setFreshnessLabel('');
+        return;
+      }
+      const seconds = Math.round((Date.now() - state.lastFetchedAt.getTime()) / 1000);
+      if (seconds < 60) setFreshnessLabel('Just now');
+      else if (seconds < 3600) setFreshnessLabel(`${Math.floor(seconds / 60)}m ago`);
+      else setFreshnessLabel(`${Math.floor(seconds / 3600)}h ago`);
+    };
+    update();
+    const interval = setInterval(update, 30000);
+    return () => clearInterval(interval);
+  }, [state.lastFetchedAt]);
 
   const fyLabel =
     FISCAL_YEARS.find(f => f.value === state.fiscalYear)?.label ||
@@ -249,7 +270,6 @@ export default function AnnualReportDataDashboard() {
   async function fetchNewTabData(reportId: string | null, fyLabel: string, fiscalYear: number) {
     const fetches: Promise<void>[] = [];
 
-    // Stories (needs reportId)
     if (reportId) {
       fetches.push(
         fetch(`/api/annual-report-data/stories?report_id=${reportId}`)
@@ -261,7 +281,6 @@ export default function AnnualReportDataDashboard() {
       dispatch({ type: 'SET_STORIES', stories: [] });
     }
 
-    // Board & Leadership
     fetches.push(
       fetch('/api/annual-report-data/board')
         .then(r => r.json())
@@ -273,7 +292,6 @@ export default function AnnualReportDataDashboard() {
         .catch(() => dispatch({ type: 'SET_BOARD_DATA', boardMembers: [], boardLeadership: [] }))
     );
 
-    // Media
     fetches.push(
       fetch(`/api/annual-report-data/media?fy_tag=fy:${fyLabel}`)
         .then(r => r.json())
@@ -286,7 +304,6 @@ export default function AnnualReportDataDashboard() {
         .catch(() => dispatch({ type: 'SET_MEDIA_DATA', media: [], sectionCounts: {}, gaps: [] }))
     );
 
-    // Projects
     fetches.push(
       fetch(`/api/annual-report-data/projects?fy=${fiscalYear}`)
         .then(r => r.json())
@@ -302,11 +319,10 @@ export default function AnnualReportDataDashboard() {
     await Promise.allSettled(fetches);
   }
 
-  // -- Save handlers --
+  // -- Save handlers with toast --
 
   const handleServiceSave = useCallback(
     async (data: any) => {
-      dispatch({ type: 'SET_SAVE_STATUS', status: 'saving' });
       try {
         const res = await fetch('/api/annual-report-data/metrics', {
           method: 'POST',
@@ -325,19 +341,18 @@ export default function AnnualReportDataDashboard() {
           dispatch({ type: 'INCREMENT_SERVICES_WITH_DATA' });
         }
 
-        dispatch({ type: 'SET_SAVE_STATUS', status: 'saved' });
+        // Toast is shown by handleCellSaved (with undo) or callers for non-cell saves
       } catch (error) {
         console.error('Save error:', error);
-        dispatch({ type: 'SET_SAVE_STATUS', status: 'error' });
+        toast.error('Save failed', error instanceof Error ? error.message : 'Unknown error');
         throw error;
       }
     },
-    [state.services]
+    [state.services, toast]
   );
 
   const handleFinancialsSave = useCallback(
     async (data: any) => {
-      dispatch({ type: 'SET_SAVE_STATUS', status: 'saving' });
       try {
         const res = await fetch('/api/annual-report-data/financials', {
           method: 'PUT',
@@ -349,19 +364,18 @@ export default function AnnualReportDataDashboard() {
           throw new Error(err.error);
         }
         dispatch({ type: 'SET_FINANCIALS_DONE' });
-        dispatch({ type: 'SET_SAVE_STATUS', status: 'saved' });
+        toast.success('Financials saved');
       } catch (error) {
         console.error('Save error:', error);
-        dispatch({ type: 'SET_SAVE_STATUS', status: 'error' });
+        toast.error('Save failed', error instanceof Error ? error.message : 'Unknown error');
         throw error;
       }
     },
-    []
+    [toast]
   );
 
   const handleHighlightSave = useCallback(
     async (highlight: Highlight) => {
-      dispatch({ type: 'SET_SAVE_STATUS', status: 'saving' });
       try {
         const res = await fetch('/api/annual-report-data/highlights', {
           method: 'POST',
@@ -377,13 +391,13 @@ export default function AnnualReportDataDashboard() {
             ? state.highlights.map(h => (h.id === highlight.id ? data.highlight : h))
             : [...state.highlights.filter(h => h.id), data.highlight],
         });
-        dispatch({ type: 'SET_SAVE_STATUS', status: 'saved' });
+        toast.success('Highlight saved');
       } catch (error) {
         console.error('Save error:', error);
-        dispatch({ type: 'SET_SAVE_STATUS', status: 'error' });
+        toast.error('Save failed');
       }
     },
-    [state.highlights]
+    [state.highlights, toast]
   );
 
   const handleHighlightDelete = useCallback(
@@ -396,16 +410,17 @@ export default function AnnualReportDataDashboard() {
           type: 'SET_HIGHLIGHTS',
           highlights: state.highlights.filter(h => h.id !== id),
         });
+        toast.success('Highlight deleted');
       } catch (error) {
         console.error('Delete error:', error);
+        toast.error('Delete failed');
       }
     },
-    [state.highlights]
+    [state.highlights, toast]
   );
 
   const handleLeadershipSave = useCallback(
     async (leader: LeadershipMessage) => {
-      dispatch({ type: 'SET_SAVE_STATUS', status: 'saving' });
       try {
         await fetch('/api/annual-report-data/highlights', {
           method: 'POST',
@@ -419,19 +434,76 @@ export default function AnnualReportDataDashboard() {
             featured_quote: leader.featured_quote,
           }),
         });
-        dispatch({ type: 'SET_SAVE_STATUS', status: 'saved' });
+        toast.success('Leadership message saved');
       } catch (error) {
         console.error('Save error:', error);
-        dispatch({ type: 'SET_SAVE_STATUS', status: 'error' });
+        toast.error('Save failed');
       }
     },
-    []
+    [toast]
+  );
+
+  // -- Undo support for service metrics --
+
+  const handleCellSaved = useCallback(
+    (info: { serviceId: string; field: string; previousValue: any; newValue: any }) => {
+      undoStack.push({
+        id: info.serviceId,
+        field: info.field,
+        previousValue: info.previousValue,
+        newValue: info.newValue,
+      });
+      toast.success('Changes saved', undefined, {
+        label: 'Undo',
+        onClick: () => {
+          const entry = undoStack.pop();
+          if (entry) {
+            handleServiceSave({
+              organization_service_id: entry.id,
+              fiscal_year: state.fiscalYear,
+              [entry.field]: entry.previousValue,
+            }).catch(() => {});
+          }
+        },
+      });
+    },
+    [undoStack, toast, handleServiceSave, state.fiscalYear]
   );
 
   // -- Derived state --
 
   const financialsDone = state.financials !== null;
   const highlightsCount = state.highlights.length;
+
+  // Overall progress calculation
+  const overallProgress = useMemo(() => {
+    const servicePercent = state.totalServices > 0 ? state.servicesWithData / state.totalServices : 0;
+    return Math.round(
+      servicePercent * 35 +
+      (financialsDone ? 1 : 0) * 15 +
+      (highlightsCount > 0 ? 1 : 0) * 10 +
+      (state.stories.length > 0 ? 1 : 0) * 15 +
+      (state.boardMembers.length > 0 ? 1 : 0) * 10 +
+      (state.reportMedia.length > 0 ? 1 : 0) * 10 +
+      (state.projectsFeaturedCount > 0 ? 1 : 0) * 5
+    );
+  }, [state.servicesWithData, state.totalServices, financialsDone, highlightsCount, state.stories.length, state.boardMembers.length, state.reportMedia.length, state.projectsFeaturedCount]);
+
+  const completeSections = useMemo(() => {
+    let count = 0;
+    if (state.servicesWithData === state.totalServices && state.totalServices > 0) count++;
+    if (financialsDone) count++;
+    if (highlightsCount > 0) count++;
+    if (state.stories.length > 0) count++;
+    if (state.boardMembers.length > 0) count++;
+    if (state.reportMedia.length > 0) count++;
+    if (state.projectsFeaturedCount > 0) count++;
+    return count;
+  }, [state.servicesWithData, state.totalServices, financialsDone, highlightsCount, state.stories.length, state.boardMembers.length, state.reportMedia.length, state.projectsFeaturedCount]);
+
+  const handleNavigateTab = useCallback((tab: string) => {
+    dispatch({ type: 'SET_TAB', tab: tab as TabId });
+  }, []);
 
   const tabs = [
     {
@@ -483,18 +555,58 @@ export default function AnnualReportDataDashboard() {
     },
   ];
 
+  // Keyboard shortcuts
+  const tabShortcuts = ALL_TABS.map((tab, i) => ({
+    key: i === 9 ? '0' : (i + 1).toString(),
+    alt: true,
+    handler: () => dispatch({ type: 'SET_TAB', tab }),
+    description: `Go to ${tabs.find(t => t.id === tab)?.label || tab}`,
+  }));
+
+  const { showHelp, setShowHelp } = useKeyboardShortcuts([
+    ...tabShortcuts,
+    {
+      key: 's',
+      ctrl: true,
+      handler: () => {
+        toast.info('Use the save button in the active panel');
+      },
+      description: 'Save (panel-specific)',
+    },
+    {
+      key: 'z',
+      ctrl: true,
+      handler: () => {
+        const entry = undoStack.pop();
+        if (entry) {
+          handleServiceSave({
+            organization_service_id: entry.id,
+            fiscal_year: state.fiscalYear,
+            [entry.field]: entry.previousValue,
+          }).then(() => {
+            toast.success('Change undone');
+          }).catch(() => {});
+        } else {
+          toast.info('Nothing to undo');
+        }
+      },
+      description: 'Undo last change',
+    },
+  ]);
+
   return (
     <div className="p-8">
       <DashboardHeader
         fiscalYear={state.fiscalYear}
         onFiscalYearChange={fy => dispatch({ type: 'SET_FISCAL_YEAR', fiscalYear: fy })}
-        saveStatus={state.saveStatus}
+        overallProgress={overallProgress}
+        completeSections={completeSections}
+        totalSections={7}
+        freshnessLabel={freshnessLabel}
       />
 
       {state.loading ? (
-        <div className="flex items-center justify-center py-20">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600" />
-        </div>
+        <DashboardSkeleton />
       ) : (
         <>
           <OverallProgress
@@ -529,6 +641,7 @@ export default function AnnualReportDataDashboard() {
               previousServices={state.previousServices}
               fiscalYear={state.fiscalYear}
               onSave={handleServiceSave}
+              onCellSaved={handleCellSaved}
             />
           )}
 
@@ -630,9 +743,45 @@ export default function AnnualReportDataDashboard() {
               photosCount={state.reportMedia.length}
               photoGaps={state.mediaGaps}
               projectsFeaturedCount={state.projectsFeaturedCount}
+              onNavigateTab={handleNavigateTab}
             />
           )}
         </>
+      )}
+
+      {/* Keyboard shortcuts help overlay */}
+      {showHelp && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowHelp(false)}>
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Keyboard Shortcuts</h3>
+            <div className="space-y-2">
+              {ALL_TABS.map((tab, i) => (
+                <div key={tab} className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">{tabs.find(t => t.id === tab)?.label || tab}</span>
+                  <kbd className="px-2 py-0.5 bg-gray-100 border border-gray-200 rounded text-xs font-mono">
+                    Alt+{i === 9 ? '0' : i + 1}
+                  </kbd>
+                </div>
+              ))}
+              <div className="border-t border-gray-200 pt-2 mt-2 space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">Undo last change</span>
+                  <kbd className="px-2 py-0.5 bg-gray-100 border border-gray-200 rounded text-xs font-mono">Ctrl+Z</kbd>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">Show this help</span>
+                  <kbd className="px-2 py-0.5 bg-gray-100 border border-gray-200 rounded text-xs font-mono">?</kbd>
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowHelp(false)}
+              className="mt-4 w-full px-4 py-2 text-sm font-medium text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
