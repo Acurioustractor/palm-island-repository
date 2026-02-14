@@ -233,7 +233,7 @@ export default function ManageProjectsPage() {
   return (
     <div className="p-6 lg:p-8 max-w-6xl mx-auto">
       <div className="mb-8">
-        <Link href="/picc/projects" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-4">
+        <Link href="/picc/projects" className="inline-flex items-center gap-2 text-picc-red hover:text-picc-red mb-4">
           <ArrowLeft className="w-4 h-4" />
           Back to Projects
         </Link>
@@ -243,7 +243,7 @@ export default function ManageProjectsPage() {
             <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Manage Projects</h1>
             <p className="text-gray-600 mt-1">Create, edit, archive, or delete innovation projects.</p>
           </div>
-          <Link href="/picc/services" className="text-sm text-blue-600 hover:text-blue-700">
+          <Link href="/picc/services" className="text-sm text-picc-red hover:text-picc-red">
             Manage services →
           </Link>
         </div>
@@ -261,7 +261,7 @@ export default function ManageProjectsPage() {
             <input
               value={form.name}
               onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
               placeholder="e.g. Photo Studio"
             />
           </div>
@@ -271,7 +271,7 @@ export default function ManageProjectsPage() {
             <input
               value={form.slug}
               onChange={(e) => setForm((p) => ({ ...p, slug: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
               placeholder={computedSlug || 'auto-generated'}
             />
             <div className="text-xs text-gray-400 mt-1">
@@ -284,7 +284,7 @@ export default function ManageProjectsPage() {
             <input
               value={form.tagline}
               onChange={(e) => setForm((p) => ({ ...p, tagline: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
               placeholder="Short punchy summary"
             />
           </div>
@@ -295,7 +295,7 @@ export default function ManageProjectsPage() {
               value={form.description}
               onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
               placeholder="Used on the public report and project page"
             />
           </div>
@@ -305,7 +305,7 @@ export default function ManageProjectsPage() {
             <select
               value={form.status}
               onChange={(e) => setForm((p) => ({ ...p, status: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
             >
               {STATUS_OPTIONS.map((s) => (
                 <option key={s} value={s}>
@@ -320,7 +320,7 @@ export default function ManageProjectsPage() {
             <select
               value={form.project_type}
               onChange={(e) => setForm((p) => ({ ...p, project_type: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
             >
               {TYPE_OPTIONS.map((t) => (
                 <option key={t} value={t}>
@@ -335,7 +335,7 @@ export default function ManageProjectsPage() {
             <input
               value={form.hero_image_url}
               onChange={(e) => setForm((p) => ({ ...p, hero_image_url: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
               placeholder="Paste a media public URL (or add later)"
             />
           </div>
@@ -363,7 +363,7 @@ export default function ManageProjectsPage() {
             <button
               onClick={create}
               disabled={saving}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-picc-red hover:bg-picc-red text-white rounded-lg disabled:opacity-50"
             >
               <Plus className="w-4 h-4" />
               {saving ? 'Saving…' : 'Create project'}
@@ -375,7 +375,7 @@ export default function ManageProjectsPage() {
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
         <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
           <div className="font-semibold text-gray-900">Projects ({projects.length})</div>
-          <button onClick={load} className="text-sm text-blue-600 hover:text-blue-700" disabled={loading}>
+          <button onClick={load} className="text-sm text-picc-red hover:text-picc-red" disabled={loading}>
             Refresh
           </button>
         </div>
@@ -470,7 +470,7 @@ export default function ManageProjectsPage() {
                   <input
                     value={editModal.name}
                     onChange={(e) => setEditModal((p) => ({ ...p, name: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
                   />
                 </div>
                 <div>
@@ -478,7 +478,7 @@ export default function ManageProjectsPage() {
                   <input
                     value={editModal.slug}
                     onChange={(e) => setEditModal((p) => ({ ...p, slug: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
                   />
                 </div>
               </div>
@@ -488,7 +488,7 @@ export default function ManageProjectsPage() {
                 <input
                   value={editModal.tagline}
                   onChange={(e) => setEditModal((p) => ({ ...p, tagline: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
                 />
               </div>
 
@@ -498,7 +498,7 @@ export default function ManageProjectsPage() {
                   value={editModal.description}
                   onChange={(e) => setEditModal((p) => ({ ...p, description: e.target.value }))}
                   rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
                 />
               </div>
 
@@ -508,7 +508,7 @@ export default function ManageProjectsPage() {
                   <select
                     value={editModal.status}
                     onChange={(e) => setEditModal((p) => ({ ...p, status: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
                   >
                     {STATUS_OPTIONS.map((s) => (
                       <option key={s} value={s}>
@@ -522,7 +522,7 @@ export default function ManageProjectsPage() {
                   <select
                     value={editModal.project_type}
                     onChange={(e) => setEditModal((p) => ({ ...p, project_type: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
                   >
                     {TYPE_OPTIONS.map((t) => (
                       <option key={t} value={t}>
@@ -538,7 +538,7 @@ export default function ManageProjectsPage() {
                 <input
                   value={editModal.hero_image_url}
                   onChange={(e) => setEditModal((p) => ({ ...p, hero_image_url: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
                 />
               </div>
 
@@ -572,7 +572,7 @@ export default function ManageProjectsPage() {
               </button>
               <button
                 onClick={save}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
+                className="px-4 py-2 rounded-lg bg-picc-red hover:bg-picc-red text-white disabled:opacity-50"
                 disabled={saving}
               >
                 {saving ? 'Saving…' : 'Save'}

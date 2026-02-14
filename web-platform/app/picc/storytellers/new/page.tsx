@@ -127,7 +127,7 @@ export default function NewStorytellerPage() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-4">
-          <User className="w-8 h-8 text-blue-600" />
+          <User className="w-8 h-8 text-picc-red" />
           <h1 className="text-3xl font-bold text-gray-900">Add New Storyteller</h1>
         </div>
         <p className="text-gray-600">
@@ -142,7 +142,7 @@ export default function NewStorytellerPage() {
             Profile Photo
           </label>
           <div className="flex items-start gap-4">
-            <div className="w-32 h-32 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center overflow-hidden">
+            <div className="w-32 h-32 rounded-lg bg-gradient-to-br from-picc-red to-picc-ochre flex items-center justify-center overflow-hidden">
               {imagePreview ? (
                 <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
               ) : (
@@ -178,7 +178,7 @@ export default function NewStorytellerPage() {
               required
               value={formData.full_name}
               onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
               placeholder="e.g., Uncle Frank Foster"
             />
           </div>
@@ -191,7 +191,7 @@ export default function NewStorytellerPage() {
               type="text"
               value={formData.preferred_name}
               onChange={(e) => setFormData({ ...formData, preferred_name: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
               placeholder="e.g., Uncle Frank"
             />
           </div>
@@ -206,7 +206,7 @@ export default function NewStorytellerPage() {
             value={formData.bio}
             onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
             rows={4}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
             placeholder="Short bio about the storyteller..."
           />
         </div>
@@ -220,7 +220,7 @@ export default function NewStorytellerPage() {
             <select
               value={formData.storyteller_type}
               onChange={(e) => setFormData({ ...formData, storyteller_type: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
             >
               <option value="community_member">Community Member</option>
               <option value="elder">Elder</option>
@@ -240,7 +240,7 @@ export default function NewStorytellerPage() {
                 type="checkbox"
                 checked={formData.is_elder}
                 onChange={(e) => setFormData({ ...formData, is_elder: e.target.checked })}
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-picc-red border-gray-300 rounded focus:ring-picc-red"
               />
               <span className="text-sm text-gray-700">Elder</span>
             </label>
@@ -249,7 +249,7 @@ export default function NewStorytellerPage() {
                 type="checkbox"
                 checked={formData.is_cultural_advisor}
                 onChange={(e) => setFormData({ ...formData, is_cultural_advisor: e.target.checked })}
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-picc-red border-gray-300 rounded focus:ring-picc-red"
               />
               <span className="text-sm text-gray-700">Cultural Advisor</span>
             </label>
@@ -266,7 +266,7 @@ export default function NewStorytellerPage() {
               type="text"
               value={formData.location}
               onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
             />
           </div>
 
@@ -278,7 +278,7 @@ export default function NewStorytellerPage() {
               type="text"
               value={formData.traditional_country}
               onChange={(e) => setFormData({ ...formData, traditional_country: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
               placeholder="e.g., Bwgcolman"
             />
           </div>
@@ -291,7 +291,7 @@ export default function NewStorytellerPage() {
               type="text"
               value={formData.language_group}
               onChange={(e) => setFormData({ ...formData, language_group: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
               placeholder="e.g., Manbarra"
             />
           </div>
@@ -307,7 +307,7 @@ export default function NewStorytellerPage() {
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
             />
           </div>
 
@@ -319,7 +319,7 @@ export default function NewStorytellerPage() {
               type="tel"
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
             />
           </div>
         </div>
@@ -337,7 +337,7 @@ export default function NewStorytellerPage() {
           <button
             type="submit"
             disabled={saving || uploading}
-            className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center gap-2 px-6 py-2 bg-picc-red text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {saving || uploading ? (
               <>

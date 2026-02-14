@@ -94,7 +94,7 @@ export default function MediaVideosPage() {
           </Link>
 
           <div className="flex items-center gap-3 mb-2">
-            <Film className="h-8 w-8 text-purple-600" />
+            <Film className="h-8 w-8 text-picc-ochre" />
             <h1 className="text-3xl font-bold text-gray-900">Video Library</h1>
           </div>
           <p className="text-gray-600">Browse all video content from stories and community</p>
@@ -109,7 +109,7 @@ export default function MediaVideosPage() {
               placeholder="Search videos..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-transparent"
             />
           </div>
         </div>
@@ -137,7 +137,7 @@ export default function MediaVideosPage() {
         {/* Loading State */}
         {loading && (
           <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-picc-ochre mx-auto"></div>
             <p className="text-gray-600 mt-4">Loading videos...</p>
           </div>
         )}
@@ -155,7 +155,7 @@ export default function MediaVideosPage() {
                   />
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center group-hover:bg-black/30 transition-all">
                     <div className="bg-white/90 rounded-full p-4">
-                      <Play className="h-8 w-8 text-purple-600 fill-current" />
+                      <Play className="h-8 w-8 text-picc-ochre fill-current" />
                     </div>
                   </div>
                 </div>
@@ -169,7 +169,7 @@ export default function MediaVideosPage() {
                     href={video.publicUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block w-full text-center bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-all"
+                    className="block w-full text-center bg-picc-ochre text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-picc-ochre transition-all"
                   >
                     Watch Video
                   </a>

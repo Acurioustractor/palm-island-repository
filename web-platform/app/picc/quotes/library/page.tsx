@@ -282,7 +282,7 @@ function QuoteLibraryPageContent() {
           <button
             disabled={selectedQuotes.length === 0}
             onClick={openSendModal}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-picc-red text-white hover:bg-picc-red disabled:opacity-50"
           >
             <Send className="h-4 w-4" />
             Send to Story Builder ({selectedQuotes.length})
@@ -299,7 +299,7 @@ function QuoteLibraryPageContent() {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search quote text, attribution, context…"
-              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent"
             />
           </div>
           <button
@@ -315,7 +315,7 @@ function QuoteLibraryPageContent() {
             <select
               value={profileId}
               onChange={(e) => setProfileId(e.target.value)}
-              className="appearance-none px-4 py-2 pr-10 border rounded-lg bg-white focus:ring-2 focus:ring-blue-500 min-w-[220px]"
+              className="appearance-none px-4 py-2 pr-10 border rounded-lg bg-white focus:ring-2 focus:ring-picc-red min-w-[220px]"
             >
               <option value="">All storytellers</option>
               {profiles.map((p) => (
@@ -331,7 +331,7 @@ function QuoteLibraryPageContent() {
             <select
               value={theme}
               onChange={(e) => setTheme(e.target.value)}
-              className="appearance-none px-4 py-2 pr-10 border rounded-lg bg-white focus:ring-2 focus:ring-blue-500"
+              className="appearance-none px-4 py-2 pr-10 border rounded-lg bg-white focus:ring-2 focus:ring-picc-red"
             >
               <option value="">All themes</option>
               {THEMES.map((t) => (
@@ -347,7 +347,7 @@ function QuoteLibraryPageContent() {
             <select
               value={sentiment}
               onChange={(e) => setSentiment(e.target.value)}
-              className="appearance-none px-4 py-2 pr-10 border rounded-lg bg-white focus:ring-2 focus:ring-blue-500"
+              className="appearance-none px-4 py-2 pr-10 border rounded-lg bg-white focus:ring-2 focus:ring-picc-red"
             >
               <option value="">All sentiment</option>
               {SENTIMENTS.map((s) => (
@@ -363,7 +363,7 @@ function QuoteLibraryPageContent() {
             <select
               value={impactArea}
               onChange={(e) => setImpactArea(e.target.value)}
-              className="appearance-none px-4 py-2 pr-10 border rounded-lg bg-white focus:ring-2 focus:ring-blue-500"
+              className="appearance-none px-4 py-2 pr-10 border rounded-lg bg-white focus:ring-2 focus:ring-picc-red"
             >
               <option value="">All impact areas</option>
               {IMPACT_AREAS.map((a) => (
@@ -380,7 +380,7 @@ function QuoteLibraryPageContent() {
               type="checkbox"
               checked={validatedOnly}
               onChange={(e) => setValidatedOnly(e.target.checked)}
-              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              className="rounded border-gray-300 text-picc-red focus:ring-picc-red"
             />
             Validated only
           </label>
@@ -390,7 +390,7 @@ function QuoteLibraryPageContent() {
               type="checkbox"
               checked={suggestedOnly}
               onChange={(e) => setSuggestedOnly(e.target.checked)}
-              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              className="rounded border-gray-300 text-picc-red focus:ring-picc-red"
             />
             Report-ready only
           </label>
@@ -409,7 +409,7 @@ function QuoteLibraryPageContent() {
       {/* Quotes list */}
       {loading ? (
         <div className="flex items-center justify-center min-h-[50vh]">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-picc-red" />
         </div>
       ) : quotes.length === 0 ? (
         <div className="bg-white border rounded-xl p-10 text-center">
@@ -428,7 +428,7 @@ function QuoteLibraryPageContent() {
               <div
                 key={quote.id}
                 className={`bg-white border rounded-xl p-5 hover:shadow-sm transition-shadow ${
-                  selected ? 'ring-2 ring-blue-500' : ''
+                  selected ? 'ring-2 ring-picc-red' : ''
                 }`}
               >
                 <div className="flex items-start gap-3">
@@ -436,7 +436,7 @@ function QuoteLibraryPageContent() {
                     type="checkbox"
                     checked={selected}
                     onChange={() => toggleSelected(quote.id)}
-                    className="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="mt-1 rounded border-gray-300 text-picc-red focus:ring-picc-red"
                   />
 
                   <div className="flex-1">
@@ -456,18 +456,18 @@ function QuoteLibraryPageContent() {
                         )}
                         <span className="font-medium text-gray-800">{name}</span>
                         {quote.profile?.is_elder ? (
-                          <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-xs font-semibold">Elder</span>
+                          <span className="px-2 py-0.5 rounded-full bg-picc-ochre/10 text-picc-ochre text-xs font-semibold">Elder</span>
                         ) : null}
                       </span>
 
                       {quote.theme ? (
-                        <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold">{quote.theme}</span>
+                        <span className="px-2 py-0.5 rounded-full bg-warm-50 text-picc-red text-xs font-semibold">{quote.theme}</span>
                       ) : null}
                       {quote.sentiment ? (
                         <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 text-xs font-semibold">{quote.sentiment}</span>
                       ) : null}
                       {quote.impact_area ? (
-                        <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold">{quote.impact_area}</span>
+                        <span className="px-2 py-0.5 rounded-full bg-sage-50 text-sage-700 text-xs font-semibold">{quote.impact_area}</span>
                       ) : null}
                     </div>
 
@@ -504,7 +504,7 @@ function QuoteLibraryPageContent() {
                       {quote.profile_id ? (
                         <Link
                           href={`/picc/storytellers/${quote.profile_id}`}
-                          className="text-sm text-blue-600 hover:text-blue-700 inline-flex items-center gap-1"
+                          className="text-sm text-picc-red hover:text-picc-red inline-flex items-center gap-1"
                         >
                           View storyteller <ExternalLink className="h-4 w-4" />
                         </Link>
@@ -555,7 +555,7 @@ function QuoteLibraryPageContent() {
                       value={projectSearch}
                       onChange={(e) => setProjectSearch(e.target.value)}
                       placeholder="Search projects…"
-                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent"
                     />
                   </div>
                 </div>
@@ -585,7 +585,7 @@ function QuoteLibraryPageContent() {
                           <button
                             onClick={() => setTargetProjectSlug(p.slug)}
                             className={`w-full text-left px-4 py-3 hover:bg-gray-50 ${
-                              targetProjectSlug === p.slug ? 'bg-blue-50' : ''
+                              targetProjectSlug === p.slug ? 'bg-warm-50' : ''
                             }`}
                           >
                             <div className="font-medium text-gray-900">{p.name}</div>
@@ -605,7 +605,7 @@ function QuoteLibraryPageContent() {
                 <button
                   onClick={sendToStoryBuilder}
                   disabled={!targetProjectSlug || selectedQuotes.length === 0}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-picc-red text-white hover:bg-picc-red disabled:opacity-50"
                 >
                   <Send className="h-4 w-4" />
                   Open Story Builder

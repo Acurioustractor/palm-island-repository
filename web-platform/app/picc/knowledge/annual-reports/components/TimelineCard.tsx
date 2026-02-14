@@ -25,32 +25,32 @@ export default function TimelineCard({ year, index, onExpand }: TimelineCardProp
   // Color schemes by era
   const colorSchemes = {
     amber: {
-      gradient: 'from-amber-50 to-orange-50',
-      border: 'border-amber-300',
-      badge: 'bg-amber-100 text-amber-700 border-amber-300',
-      button: 'bg-amber-600 hover:bg-amber-700',
-      text: 'text-amber-700'
+      gradient: 'from-picc-ochre-50 to-picc-ochre-50',
+      border: 'border-picc-ochre-300',
+      badge: 'bg-picc-ochre-100 text-picc-ochre border-picc-ochre-300',
+      button: 'bg-picc-ochre hover:bg-picc-ochre',
+      text: 'text-picc-ochre'
     },
     purple: {
-      gradient: 'from-purple-50 to-pink-50',
-      border: 'border-purple-300',
-      badge: 'bg-purple-100 text-purple-700 border-purple-300',
-      button: 'bg-purple-600 hover:bg-purple-700',
-      text: 'text-purple-700'
+      gradient: 'from-warm-100 to-warm-100',
+      border: 'border-picc-ochre-300',
+      badge: 'bg-warm-100 text-picc-ochre border-picc-ochre-300',
+      button: 'bg-picc-ochre hover:bg-picc-ochre',
+      text: 'text-picc-ochre'
     },
     green: {
-      gradient: 'from-green-50 to-emerald-50',
-      border: 'border-green-300',
-      badge: 'bg-green-100 text-green-700 border-green-300',
-      button: 'bg-green-600 hover:bg-green-700',
-      text: 'text-green-700'
+      gradient: 'from-sage-50 to-sage-50',
+      border: 'border-sage-300',
+      badge: 'bg-sage-100 text-sage-700 border-sage-300',
+      button: 'bg-sage-600 hover:bg-sage-600',
+      text: 'text-sage-700'
     },
     blue: {
-      gradient: 'from-blue-50 to-cyan-50',
-      border: 'border-blue-300',
-      badge: 'bg-blue-100 text-blue-700 border-blue-300',
-      button: 'bg-blue-600 hover:bg-blue-700',
-      text: 'text-blue-700'
+      gradient: 'from-warm-50 to-warm-50',
+      border: 'border-picc-red-300',
+      badge: 'bg-warm-100 text-picc-red border-picc-red-300',
+      button: 'bg-picc-red hover:bg-picc-red',
+      text: 'text-picc-red'
     }
   };
 

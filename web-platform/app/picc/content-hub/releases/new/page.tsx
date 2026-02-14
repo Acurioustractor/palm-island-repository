@@ -117,7 +117,7 @@ export default function NewReleasePage() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-4">
-          <Sparkles className="w-8 h-8 text-purple-600" />
+          <Sparkles className="w-8 h-8 text-picc-ochre" />
           <h1 className="text-3xl font-bold text-gray-900">Create Content Release</h1>
         </div>
         <p className="text-gray-600">
@@ -139,7 +139,7 @@ export default function NewReleasePage() {
                 required
                 value={formData.release_type}
                 onChange={(e) => setFormData({ ...formData, release_type: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre"
               >
                 <option value="monthly_update">Monthly Update</option>
                 <option value="quarterly_thematic">Quarterly Theme</option>
@@ -158,7 +158,7 @@ export default function NewReleasePage() {
                 required
                 value={formData.release_date}
                 onChange={(e) => setFormData({ ...formData, release_date: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre"
               />
             </div>
           </div>
@@ -172,7 +172,7 @@ export default function NewReleasePage() {
               required
               value={formData.release_title}
               onChange={(e) => handleTitleChange(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre"
               placeholder="e.g., November 2024 Community Update"
             />
           </div>
@@ -185,7 +185,7 @@ export default function NewReleasePage() {
               type="text"
               value={formData.release_slug}
               onChange={(e) => setFormData({ ...formData, release_slug: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 font-mono text-sm"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre font-mono text-sm"
               placeholder="auto-generated-from-title"
             />
           </div>
@@ -198,7 +198,7 @@ export default function NewReleasePage() {
               <select
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre"
               >
                 <option value="draft">Draft</option>
                 <option value="scheduled">Scheduled</option>
@@ -212,7 +212,7 @@ export default function NewReleasePage() {
                   type="checkbox"
                   checked={formData.include_in_annual_report}
                   onChange={(e) => setFormData({ ...formData, include_in_annual_report: e.target.checked })}
-                  className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                  className="w-4 h-4 text-picc-ochre border-gray-300 rounded focus:ring-picc-ochre"
                 />
                 <span className="text-sm text-gray-700">Include in Annual Report</span>
               </label>
@@ -221,7 +221,7 @@ export default function NewReleasePage() {
                   type="number"
                   value={formData.annual_report_year}
                   onChange={(e) => setFormData({ ...formData, annual_report_year: parseInt(e.target.value) })}
-                  className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre"
                 />
               )}
             </div>
@@ -240,7 +240,7 @@ export default function NewReleasePage() {
               value={formData.executive_summary}
               onChange={(e) => setFormData({ ...formData, executive_summary: e.target.value })}
               rows={4}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre"
               placeholder="Brief overview of this release..."
             />
           </div>
@@ -253,7 +253,7 @@ export default function NewReleasePage() {
               value={formData.community_context}
               onChange={(e) => setFormData({ ...formData, community_context: e.target.value })}
               rows={3}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre"
               placeholder="Background context for this release..."
             />
           </div>
@@ -266,7 +266,7 @@ export default function NewReleasePage() {
               value={formData.impact_highlight}
               onChange={(e) => setFormData({ ...formData, impact_highlight: e.target.value })}
               rows={3}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre"
               placeholder="Key impact or achievement to highlight..."
             />
           </div>
@@ -287,7 +287,7 @@ export default function NewReleasePage() {
                   key={story.id}
                   className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
                     selectedStories.includes(story.id)
-                      ? 'border-purple-500 bg-purple-50'
+                      ? 'border-picc-ochre bg-picc-ochre/5'
                       : 'border-gray-200 hover:bg-gray-50'
                   }`}
                 >
@@ -295,7 +295,7 @@ export default function NewReleasePage() {
                     type="checkbox"
                     checked={selectedStories.includes(story.id)}
                     onChange={() => toggleStory(story.id)}
-                    className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                    className="w-4 h-4 text-picc-ochre border-gray-300 rounded focus:ring-picc-ochre"
                   />
                   <div className="flex-1">
                     <p className="font-medium text-gray-900">{story.title}</p>
@@ -322,7 +322,7 @@ export default function NewReleasePage() {
           <button
             type="submit"
             disabled={saving}
-            className="flex items-center gap-2 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center gap-2 px-6 py-2 bg-picc-ochre text-white rounded-lg hover:bg-picc-ochre/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {saving ? (
               <>

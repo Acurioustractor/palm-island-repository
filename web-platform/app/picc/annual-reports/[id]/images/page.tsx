@@ -253,7 +253,7 @@ export default function AnnualReportImagesPage() {
     return (
       <div className="min-h-screen bg-gray-50 p-8">
         <div className="max-w-7xl mx-auto flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+          <Loader2 className="w-8 h-8 animate-spin text-picc-ochre" />
           <span className="ml-3 text-gray-600">Loading media library...</span>
         </div>
       </div>
@@ -294,7 +294,7 @@ export default function AnnualReportImagesPage() {
               <button
                 onClick={saveSelections}
                 disabled={saving}
-                className="flex items-center gap-2 px-5 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
+                className="flex items-center gap-2 px-5 py-2 bg-picc-ochre text-white rounded-lg hover:bg-picc-ochre disabled:opacity-50"
               >
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 Save Selections
@@ -328,7 +328,7 @@ export default function AnnualReportImagesPage() {
                       onClick={() => setActiveSection(section.id)}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors ${
                         isActive
-                          ? 'bg-purple-100 text-purple-700 border border-purple-200'
+                          ? 'bg-picc-ochre-100 text-picc-ochre border border-picc-ochre-200'
                           : 'hover:bg-gray-100 text-gray-700'
                       }`}
                     >
@@ -339,7 +339,7 @@ export default function AnnualReportImagesPage() {
                       </div>
                       <div className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                         count > 0
-                          ? 'bg-purple-600 text-white'
+                          ? 'bg-picc-ochre text-white'
                           : 'bg-gray-200 text-gray-600'
                       }`}>
                         {count}/{section.max}
@@ -358,7 +358,7 @@ export default function AnnualReportImagesPage() {
                   </div>
                   <div className="flex justify-between py-1">
                     <span>Selected for Report</span>
-                    <span className="font-medium text-purple-600">
+                    <span className="font-medium text-picc-ochre">
                       {Object.values(taggedMedia).flat().length}
                     </span>
                   </div>
@@ -410,7 +410,7 @@ export default function AnnualReportImagesPage() {
             </div>
 
             {/* Section Header */}
-            <div className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-xl p-4 mb-6 text-white">
+            <div className="bg-gradient-to-r from-picc-ochre to-picc-ochre rounded-xl p-4 mb-6 text-white">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   {activeSectionConfig && <activeSectionConfig.icon className="w-6 h-6" />}
@@ -438,7 +438,7 @@ export default function AnnualReportImagesPage() {
                 </p>
                 <Link
                   href="/picc/media/gallery"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-picc-ochre text-white rounded-lg hover:bg-picc-ochre"
                 >
                   <Camera className="w-4 h-4" />
                   Go to Media Gallery
@@ -458,9 +458,9 @@ export default function AnnualReportImagesPage() {
                       onClick={() => toggleMediaSelection(media.id)}
                       className={`relative group cursor-pointer rounded-xl overflow-hidden border-2 transition-all ${
                         isSelected
-                          ? 'border-purple-600 ring-2 ring-purple-200'
+                          ? 'border-picc-ochre ring-2 ring-picc-ochre-200'
                           : selectedInOther
-                          ? 'border-amber-400 opacity-75'
+                          ? 'border-picc-ochre-300 opacity-75'
                           : 'border-transparent hover:border-gray-300'
                       }`}
                     >
@@ -481,7 +481,7 @@ export default function AnnualReportImagesPage() {
                       {/* Selection Indicator */}
                       <div className={`absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center transition-all ${
                         isSelected
-                          ? 'bg-purple-600 text-white'
+                          ? 'bg-picc-ochre text-white'
                           : 'bg-white/90 text-gray-400 opacity-0 group-hover:opacity-100'
                       }`}>
                         {isSelected ? <Check className="w-4 h-4" /> : <div className="w-3 h-3 border-2 border-current rounded-full" />}
@@ -489,7 +489,7 @@ export default function AnnualReportImagesPage() {
 
                       {/* Used in other sections indicator */}
                       {selectedInOther && !isSelected && (
-                        <div className="absolute top-2 left-2 px-2 py-0.5 bg-amber-500 text-white text-xs rounded-full">
+                        <div className="absolute top-2 left-2 px-2 py-0.5 bg-picc-ochre-500 text-white text-xs rounded-full">
                           Used elsewhere
                         </div>
                       )}

@@ -4,7 +4,7 @@ import { createServerSupabase } from '@/lib/supabase/client';
 import {
   ArrowLeft, Edit, Plus, Image, Clock, TrendingUp, CheckCircle,
   AlertCircle, Pause, Users, Calendar, DollarSign, Target,
-  FileText, Upload, Eye, EyeOff, Star, BookOpen
+  FileText, Upload, Eye, EyeOff, Star, BookOpen, MapPin, Circle
 } from 'lucide-react';
 
 interface ProjectPageProps {
@@ -100,6 +100,20 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     .eq('project_id', project.id)
     .order('target_date', { ascending: true });
 
+  // Get 20-year timeline era for this project
+  let matchedEra: { name: string; subtitle: string } | null = null;
+  if (project.start_date) {
+    const { data: eras } = await supabase
+      .from('history_eras')
+      .select('name, subtitle, start_year, end_year')
+      .order('start_year', { ascending: true });
+
+    if (eras && eras.length > 0) {
+      const projectYear = new Date(project.start_date).getFullYear();
+      matchedEra = eras.find((era: any) => projectYear >= era.start_year && projectYear <= era.end_year) || null;
+    }
+  }
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'planning':
@@ -118,13 +132,13 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'planning':
-        return 'bg-blue-100 text-blue-700 border-blue-200';
+        return 'bg-warm-100 text-picc-red border-warm-200';
       case 'in_progress':
         return 'bg-green-100 text-green-700 border-green-200';
       case 'on_hold':
-        return 'bg-amber-100 text-amber-700 border-amber-200';
+        return 'bg-picc-ochre-100 text-picc-ochre-700 border-picc-ochre-200';
       case 'completed':
-        return 'bg-purple-100 text-purple-700 border-purple-200';
+        return 'bg-warm-100 text-picc-ochre border-warm-200';
       default:
         return 'bg-gray-100 text-gray-700 border-gray-200';
     }
@@ -135,11 +149,11 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
       case 'milestone':
         return 'bg-green-100 text-green-700 border-green-200';
       case 'challenge':
-        return 'bg-amber-100 text-amber-700 border-amber-200';
+        return 'bg-picc-ochre-100 text-picc-ochre-700 border-picc-ochre-200';
       case 'success':
-        return 'bg-purple-100 text-purple-700 border-purple-200';
+        return 'bg-warm-100 text-picc-ochre border-warm-200';
       default:
-        return 'bg-blue-100 text-blue-700 border-blue-200';
+        return 'bg-warm-100 text-picc-red border-warm-200';
     }
   };
 
@@ -185,14 +199,14 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             </Link>
             <Link
               href={`/picc/projects/${project.slug}/story-builder`}
-              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all flex items-center gap-2"
+              className="px-4 py-2 bg-gradient-to-r from-picc-red to-picc-ochre hover:from-picc-red hover:to-picc-ochre text-white font-semibold rounded-lg transition-all flex items-center gap-2"
             >
               <BookOpen className="w-4 h-4" />
               <span>{immersiveStory ? 'Edit Story' : 'Create Story'}</span>
             </Link>
             <Link
               href={`/picc/projects/${project.slug}/updates/new`}
-              className="px-4 py-2 bg-gradient-to-r from-orange-600 to-pink-600 hover:from-orange-700 hover:to-pink-700 text-white font-semibold rounded-lg transition-all flex items-center gap-2"
+              className="px-4 py-2 bg-gradient-to-r from-picc-ochre to-picc-red hover:from-picc-ochre-700 hover:to-picc-red text-white font-semibold rounded-lg transition-all flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
               <span>Add Update</span>
@@ -203,8 +217,8 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         {/* Project Meta */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 pt-6 border-t border-gray-200">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Calendar className="w-5 h-5 text-blue-600" />
+            <div className="p-2 bg-warm-100 rounded-lg">
+              <Calendar className="w-5 h-5 text-picc-red" />
             </div>
             <div>
               <div className="text-sm text-gray-600">Started</div>
@@ -215,8 +229,8 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-teal-100 rounded-lg">
-              <Target className="w-5 h-5 text-teal-600" />
+            <div className="p-2 bg-sage-100 rounded-lg">
+              <Target className="w-5 h-5 text-picc-ochre" />
             </div>
             <div>
               <div className="text-sm text-gray-600">Project Type</div>
@@ -225,8 +239,8 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              {project.is_public ? <Eye className="w-5 h-5 text-purple-600" /> : <EyeOff className="w-5 h-5 text-purple-600" />}
+            <div className="p-2 bg-warm-100 rounded-lg">
+              {project.is_public ? <Eye className="w-5 h-5 text-picc-ochre" /> : <EyeOff className="w-5 h-5 text-picc-ochre" />}
             </div>
             <div>
               <div className="text-sm text-gray-600">Visibility</div>
@@ -251,7 +265,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         {/* Left Column - Updates & Description */}
         <div className="lg:col-span-2 space-y-6">
           {/* Immersive Story */}
-          <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 rounded-xl shadow-2xl p-8 text-white relative overflow-hidden">
+          <div className="bg-gradient-to-br from-picc-red via-picc-ochre to-picc-red rounded-xl shadow-2xl p-8 text-white relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32" />
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full -ml-24 -mb-24" />
 
@@ -307,6 +321,30 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             </div>
           </div>
 
+          {/* 20-Year Timeline Connection */}
+          {matchedEra && (
+            <Link
+              href="/20-years"
+              className="block bg-gradient-to-r from-warm-50 to-picc-ochre-50 border border-warm-200 rounded-xl p-6 hover:shadow-md transition-all group"
+            >
+              <div className="flex items-start gap-4">
+                <div className="p-3 bg-white rounded-lg shadow-sm">
+                  <MapPin className="w-6 h-6 text-picc-red" />
+                </div>
+                <div className="flex-1">
+                  <div className="text-xs font-semibold uppercase tracking-wider text-picc-ochre mb-1">
+                    Part of PICC&apos;s Road to 20 Years
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-1">{matchedEra.name}</h3>
+                  {matchedEra.subtitle && (
+                    <p className="text-sm text-gray-600">{matchedEra.subtitle}</p>
+                  )}
+                </div>
+                <ArrowLeft className="w-5 h-5 text-gray-400 group-hover:text-picc-red rotate-180 transition-colors mt-1" />
+              </div>
+            </Link>
+          )}
+
           {/* Impact Areas */}
           {project.impact_areas && project.impact_areas.length > 0 && (
             <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
@@ -315,7 +353,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                 {project.impact_areas.map((area: string) => (
                   <span
                     key={area}
-                    className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-medium border border-blue-200"
+                    className="px-3 py-1.5 bg-warm-50 text-picc-red rounded-full text-sm font-medium border border-warm-200"
                   >
                     {area}
                   </span>
@@ -330,7 +368,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
               <h2 className="text-2xl font-bold text-gray-900">Project Updates</h2>
               <Link
                 href={`/picc/projects/${project.slug}/updates/new`}
-                className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition-all flex items-center gap-2 text-sm"
+                className="px-4 py-2 bg-picc-ochre hover:bg-picc-ochre-700 text-white font-semibold rounded-lg transition-all flex items-center gap-2 text-sm"
               >
                 <Plus className="w-4 h-4" />
                 <span>New Update</span>
@@ -350,7 +388,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                 {updates.map((update: any) => (
                   <div
                     key={update.id}
-                    className="border-l-4 border-orange-400 pl-4 hover:border-orange-600 transition-colors"
+                    className="border-l-4 border-picc-ochre pl-4 hover:border-picc-ochre-600 transition-colors"
                   >
                     <div className="flex items-start justify-between mb-2">
                       <div>
@@ -388,7 +426,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-gray-900">Project Media</h3>
-              <button className="p-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg transition-colors">
+              <button className="p-2 bg-warm-50 hover:bg-warm-100 text-picc-red rounded-lg transition-colors">
                 <Upload className="w-4 h-4" />
               </button>
             </div>
@@ -420,46 +458,70 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                 <p className="text-sm text-gray-600">No milestones yet</p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {milestones.map((milestone: any) => (
-                  <div
-                    key={milestone.id}
-                    className={`p-3 rounded-lg border ${
-                      milestone.status === 'completed'
-                        ? 'bg-green-50 border-green-200'
-                        : milestone.status === 'in_progress'
-                        ? 'bg-blue-50 border-blue-200'
-                        : 'bg-gray-50 border-gray-200'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      {milestone.status === 'completed' ? (
-                        <CheckCircle className="w-4 h-4 text-green-600" />
-                      ) : milestone.status === 'in_progress' ? (
-                        <TrendingUp className="w-4 h-4 text-blue-600" />
-                      ) : (
-                        <Clock className="w-4 h-4 text-gray-400" />
-                      )}
-                      <span className="font-semibold text-sm text-gray-900">{milestone.title}</span>
-                    </div>
-                    {milestone.target_date && (
-                      <div className="text-xs text-gray-600 ml-6">
-                        Target: {new Date(milestone.target_date).toLocaleDateString('en-AU')}
+              <div className="relative">
+                {/* Vertical connecting line */}
+                <div className="absolute left-[15px] top-4 bottom-4 w-0.5 bg-gray-200" />
+
+                <div className="space-y-4">
+                  {milestones.map((milestone: any) => {
+                    const isOverdue = milestone.status !== 'completed' && milestone.target_date && new Date(milestone.target_date) < new Date();
+                    return (
+                      <div key={milestone.id} className="relative flex gap-4">
+                        {/* Status icon */}
+                        <div className="relative z-10 flex-shrink-0 mt-0.5">
+                          {milestone.status === 'completed' ? (
+                            <div className="w-[30px] h-[30px] rounded-full bg-green-100 flex items-center justify-center">
+                              <CheckCircle className="w-5 h-5 text-green-600" />
+                            </div>
+                          ) : isOverdue ? (
+                            <div className="w-[30px] h-[30px] rounded-full bg-red-100 flex items-center justify-center">
+                              <AlertCircle className="w-5 h-5 text-red-500" />
+                            </div>
+                          ) : milestone.status === 'in_progress' ? (
+                            <div className="w-[30px] h-[30px] rounded-full bg-picc-ochre-100 flex items-center justify-center">
+                              <Clock className="w-5 h-5 text-picc-ochre" />
+                            </div>
+                          ) : (
+                            <div className="w-[30px] h-[30px] rounded-full bg-gray-100 flex items-center justify-center">
+                              <Circle className="w-4 h-4 text-gray-400" />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex-1 pb-1">
+                          <span className="font-semibold text-sm text-gray-900">{milestone.title}</span>
+                          {milestone.description && (
+                            <p className="text-xs text-gray-500 mt-0.5">{milestone.description}</p>
+                          )}
+                          <div className="flex items-center gap-3 mt-1">
+                            {milestone.target_date && (
+                              <span className={`text-xs ${isOverdue ? 'text-red-500 font-medium' : 'text-gray-500'}`}>
+                                Target: {new Date(milestone.target_date).toLocaleDateString('en-AU')}
+                              </span>
+                            )}
+                            {milestone.completion_date && (
+                              <span className="text-xs text-green-600 font-medium">
+                                Completed: {new Date(milestone.completion_date).toLocaleDateString('en-AU')}
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                ))}
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>
 
           {/* Quick Actions */}
-          <div className="bg-gradient-to-br from-orange-50 to-pink-50 border border-orange-200 rounded-xl p-6">
+          <div className="bg-gradient-to-br from-picc-ochre-50 to-warm-50 border border-picc-ochre-200 rounded-xl p-6">
             <h3 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h3>
             <div className="space-y-2">
               <Link
                 href={`/picc/projects/${project.slug}/story-builder`}
-                className="w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all text-sm text-left flex items-center gap-2"
+                className="w-full px-4 py-2 bg-gradient-to-r from-picc-red to-picc-ochre hover:from-picc-red hover:to-picc-ochre text-white font-semibold rounded-lg transition-all text-sm text-left flex items-center gap-2"
               >
                 <BookOpen className="w-4 h-4" />
                 <span>{immersiveStory ? 'Edit Immersive Story' : 'Create Immersive Story'}</span>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useParams, useRouter } from 'next/navigation';
-import { Upload as UploadIcon, User, Save, X, ArrowLeft, Trash2, Image as ImageIcon } from 'lucide-react';
+import { Upload as UploadIcon, User, Save, X, ArrowLeft, Trash2, Image as ImageIcon, Check } from 'lucide-react';
 import Link from 'next/link';
 
 export default function UploadStorytellerPhotoPage() {
@@ -154,7 +154,7 @@ export default function UploadStorytellerPhotoPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-picc-red mx-auto mb-4"></div>
           <p className="text-gray-600">Loading...</p>
         </div>
       </div>
@@ -166,7 +166,7 @@ export default function UploadStorytellerPhotoPage() {
       <div className="p-8 max-w-4xl mx-auto">
         <div className="text-center">
           <p className="text-red-600">Storyteller not found</p>
-          <Link href="/picc/storytellers" className="text-blue-600 hover:underline mt-4 inline-block">
+          <Link href="/picc/storytellers" className="text-picc-red hover:underline mt-4 inline-block">
             Back to Storytellers
           </Link>
         </div>
@@ -180,14 +180,14 @@ export default function UploadStorytellerPhotoPage() {
       <div className="mb-8">
         <Link
           href="/picc/storytellers"
-          className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-4"
+          className="inline-flex items-center gap-2 text-picc-red hover:text-picc-red mb-4"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Storytellers
         </Link>
 
         <div className="flex items-center gap-3 mb-4">
-          <ImageIcon className="w-8 h-8 text-green-600" />
+          <ImageIcon className="w-8 h-8 text-sage-600" />
           <h1 className="text-3xl font-bold text-gray-900">Upload Profile Photo</h1>
         </div>
         <p className="text-gray-600">
@@ -204,7 +204,7 @@ export default function UploadStorytellerPhotoPage() {
 
           <div className="flex flex-col items-center">
             {/* Large preview */}
-            <div className="w-64 h-64 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center overflow-hidden mb-6 shadow-lg">
+            <div className="w-64 h-64 rounded-lg bg-gradient-to-br from-picc-red to-picc-ochre flex items-center justify-center overflow-hidden mb-6 shadow-lg">
               {imagePreview ? (
                 <img
                   src={imagePreview}
@@ -217,7 +217,7 @@ export default function UploadStorytellerPhotoPage() {
             </div>
 
             {/* File input */}
-            <label className="cursor-pointer inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg">
+            <label className="cursor-pointer inline-flex items-center gap-2 px-6 py-3 bg-picc-red hover:bg-picc-red text-white font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg">
               <UploadIcon className="w-5 h-5" />
               {selectedFile ? 'Choose Different Photo' : 'Choose Photo'}
               <input
@@ -229,14 +229,15 @@ export default function UploadStorytellerPhotoPage() {
             </label>
 
             {selectedFile && (
-              <p className="text-sm text-green-600 mt-3 font-medium">
-                ✓ Selected: {selectedFile.name}
+              <p className="text-sm text-sage-600 mt-3 font-medium flex items-center gap-1 justify-center">
+                <Check className="h-4 w-4" />
+                Selected: {selectedFile.name}
               </p>
             )}
 
-            <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg max-w-md">
-              <p className="text-sm text-blue-800 font-medium mb-2">Photo Guidelines:</p>
-              <ul className="text-xs text-blue-700 space-y-1">
+            <div className="mt-4 p-4 bg-warm-50 border border-warm-200 rounded-lg max-w-md">
+              <p className="text-sm text-picc-earth font-medium mb-2">Photo Guidelines:</p>
+              <ul className="text-xs text-picc-red space-y-1">
                 <li>• Recommended size: 800x800px or larger</li>
                 <li>• Max file size: 5MB</li>
                 <li>• Formats: JPG, PNG, WebP</li>
@@ -272,7 +273,7 @@ export default function UploadStorytellerPhotoPage() {
           <button
             onClick={uploadPhoto}
             disabled={!selectedFile || uploading}
-            className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center gap-2 px-6 py-2 bg-sage-600 text-white rounded-lg hover:bg-sage-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {uploading ? (
               <>

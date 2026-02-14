@@ -44,13 +44,13 @@ export default function StoryBuilderPage({ params }: { params: { slug: string } 
 
   const sectionTypes = [
     { type: 'text', icon: Type, label: 'Text Section', color: 'blue' },
-    { type: 'quote', icon: Quote, label: 'Quote', color: 'purple' },
+    { type: 'quote', icon: Quote, label: 'Quote', color: 'picc-ochre' },
     { type: 'sidebyside', icon: Layout, label: 'Side by Side', color: 'green' },
     { type: 'video', icon: Video, label: 'Video', color: 'red' },
     { type: 'fullbleed', icon: ImageIcon, label: 'Full Image', color: 'orange' },
-    { type: 'gallery', icon: Grid3x3, label: 'Gallery', color: 'pink' },
-    { type: 'timeline', icon: Calendar, label: 'Timeline', color: 'teal' },
-    { type: 'parallax', icon: Mountain, label: 'Parallax', color: 'indigo' },
+    { type: 'gallery', icon: Grid3x3, label: 'Gallery', color: 'picc-red' },
+    { type: 'timeline', icon: Calendar, label: 'Timeline', color: 'sage' },
+    { type: 'parallax', icon: Mountain, label: 'Parallax', color: 'warm' },
   ];
 
   // Load existing story if it exists
@@ -319,7 +319,7 @@ export default function StoryBuilderPage({ params }: { params: { slug: string } 
           <span>Back to {projectName || 'Project'}</span>
         </Link>
 
-        <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-xl shadow-2xl p-8 text-white mb-8">
+        <div className="bg-gradient-to-r from-picc-red via-picc-ochre to-picc-red rounded-xl shadow-2xl p-8 text-white mb-8">
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
@@ -404,7 +404,7 @@ export default function StoryBuilderPage({ params }: { params: { slug: string } 
                     type="button"
                     disabled={generating}
                     onClick={runGenerateQuick}
-                    className="p-4 border border-gray-200 rounded-xl hover:border-blue-400 hover:bg-blue-50 text-left transition-colors disabled:opacity-50"
+                    className="p-4 border border-gray-200 rounded-xl hover:border-picc-red-300 hover:bg-warm-50 text-left transition-colors disabled:opacity-50"
                   >
                     <div className="font-bold text-gray-900 mb-1">Quick draft</div>
                     <div className="text-sm text-gray-600">Uses project description, tagged media, and project updates timeline.</div>
@@ -414,7 +414,7 @@ export default function StoryBuilderPage({ params }: { params: { slug: string } 
                     type="button"
                     disabled={generating}
                     onClick={runGenerateFromElders}
-                    className="p-4 border border-gray-200 rounded-xl hover:border-purple-400 hover:bg-purple-50 text-left transition-colors disabled:opacity-50"
+                    className="p-4 border border-gray-200 rounded-xl hover:border-picc-ochre-300 hover:bg-warm-100 text-left transition-colors disabled:opacity-50"
                   >
                     <div className="font-bold text-gray-900 mb-1">Draft from Elders’ transcripts</div>
                     <div className="text-sm text-gray-600">Adds quotes with portraits from selected storytellers + trip media.</div>
@@ -472,7 +472,7 @@ export default function StoryBuilderPage({ params }: { params: { slug: string } 
                     value={storyTitle}
                     onChange={(e) => setStoryTitle(e.target.value)}
                     placeholder="Our Stories, Our Camera"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent"
                   />
                 </div>
 
@@ -485,7 +485,7 @@ export default function StoryBuilderPage({ params }: { params: { slug: string } 
                     value={storySubtitle}
                     onChange={(e) => setStorySubtitle(e.target.value)}
                     placeholder="How Palm Island built a photography studio"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent"
                   />
                 </div>
 
@@ -508,9 +508,9 @@ export default function StoryBuilderPage({ params }: { params: { slug: string } 
                       <button
                         key={st.type}
                         onClick={() => addSection(st.type)}
-                        className="p-3 border border-gray-200 hover:border-blue-400 hover:bg-blue-50 rounded-lg transition-colors text-left group"
+                        className="p-3 border border-gray-200 hover:border-picc-red-300 hover:bg-warm-50 rounded-lg transition-colors text-left group"
                       >
-                        <Icon className="w-4 h-4 text-gray-600 group-hover:text-blue-600 mb-1" />
+                        <Icon className="w-4 h-4 text-gray-600 group-hover:text-picc-red mb-1" />
                         <div className="text-xs font-semibold text-gray-900">{st.label}</div>
                       </button>
                     );
@@ -549,7 +549,7 @@ export default function StoryBuilderPage({ params }: { params: { slug: string } 
                         key={section.id}
                         className={`border rounded-lg transition-colors ${
                           isEditing
-                            ? 'border-blue-400 bg-blue-50'
+                            ? 'border-picc-red-300 bg-warm-50'
                             : 'border-gray-200 hover:border-gray-300'
                         }`}
                       >

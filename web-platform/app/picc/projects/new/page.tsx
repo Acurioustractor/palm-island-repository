@@ -37,21 +37,21 @@ export default function NewProjectPage() {
       slug: 'photo-studio',
       icon: Image,
       tagline: 'On-Country professional photography',
-      color: 'from-pink-600 to-rose-600',
+      color: 'from-picc-red to-picc-red',
     },
     {
       name: 'The Station',
       slug: 'the-station',
       icon: Building2,
       tagline: 'Community hub and cultural space',
-      color: 'from-blue-600 to-teal-600',
+      color: 'from-picc-red to-sage',
     },
     {
       name: 'Elders Cultural Trips',
       slug: 'elders-trips',
       icon: Users,
       tagline: 'Connecting elders to Country',
-      color: 'from-purple-600 to-pink-600',
+      color: 'from-picc-ochre to-picc-red',
     },
   ];
 
@@ -73,16 +73,16 @@ export default function NewProjectPage() {
       </div>
 
       {/* Current Process Notice */}
-      <div className="bg-blue-50 border-l-4 border-blue-600 p-6 rounded-lg mb-8">
+      <div className="bg-warm-50 border-l-4 border-picc-red p-6 rounded-lg mb-8">
         <div className="flex items-start gap-3">
-          <AlertCircle className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+          <AlertCircle className="w-6 h-6 text-picc-red flex-shrink-0 mt-0.5" />
           <div>
-            <h3 className="font-bold text-blue-900 mb-2">Current Setup: Database SQL</h3>
-            <p className="text-blue-800 mb-3">
+            <h3 className="font-bold text-picc-earth mb-2">Current Setup: Database SQL</h3>
+            <p className="text-picc-earth mb-3">
               Projects are currently added via SQL in Supabase. This ensures proper data structure and
               allows for bulk imports. A visual form builder is coming in Phase 2.
             </p>
-            <p className="text-sm text-blue-700">
+            <p className="text-sm text-picc-red">
               This approach gives you full control and is perfect for migrating existing project data.
             </p>
           </div>
@@ -96,14 +96,14 @@ export default function NewProjectPage() {
           {/* Step-by-Step Guide */}
           <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <Database className="w-5 h-5 text-orange-600" />
+              <Database className="w-5 h-5 text-picc-ochre" />
               How to Add a Project
             </h2>
 
             <div className="space-y-6">
               {/* Step 1 */}
               <div className="flex gap-4">
-                <div className="flex-shrink-0 w-8 h-8 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center font-bold">
+                <div className="flex-shrink-0 w-8 h-8 bg-picc-ochre-100 text-picc-ochre rounded-full flex items-center justify-center font-bold">
                   1
                 </div>
                 <div>
@@ -114,7 +114,7 @@ export default function NewProjectPage() {
                   <Link
                     href="https://supabase.com/dashboard"
                     target="_blank"
-                    className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                    className="text-sm text-picc-red hover:text-picc-red font-medium"
                   >
                     Open Supabase Dashboard →
                   </Link>
@@ -123,7 +123,7 @@ export default function NewProjectPage() {
 
               {/* Step 2 */}
               <div className="flex gap-4">
-                <div className="flex-shrink-0 w-8 h-8 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center font-bold">
+                <div className="flex-shrink-0 w-8 h-8 bg-picc-ochre-100 text-picc-ochre rounded-full flex items-center justify-center font-bold">
                   2
                 </div>
                 <div>
@@ -136,7 +136,7 @@ export default function NewProjectPage() {
 
               {/* Step 3 */}
               <div className="flex gap-4">
-                <div className="flex-shrink-0 w-8 h-8 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center font-bold">
+                <div className="flex-shrink-0 w-8 h-8 bg-picc-ochre-100 text-picc-ochre rounded-full flex items-center justify-center font-bold">
                   3
                 </div>
                 <div>
@@ -155,7 +155,7 @@ export default function NewProjectPage() {
 
               {/* Step 4 */}
               <div className="flex gap-4">
-                <div className="flex-shrink-0 w-8 h-8 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center font-bold">
+                <div className="flex-shrink-0 w-8 h-8 bg-picc-ochre-100 text-picc-ochre rounded-full flex items-center justify-center font-bold">
                   4
                 </div>
                 <div>
@@ -168,7 +168,7 @@ export default function NewProjectPage() {
 
               {/* Step 5 */}
               <div className="flex gap-4">
-                <div className="flex-shrink-0 w-8 h-8 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center font-bold">
+                <div className="flex-shrink-0 w-8 h-8 bg-picc-ochre-100 text-picc-ochre rounded-full flex items-center justify-center font-bold">
                   5
                 </div>
                 <div>
@@ -185,20 +185,20 @@ export default function NewProjectPage() {
           </div>
 
           {/* Resources */}
-          <div className="bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-200 rounded-xl p-6">
+          <div className="bg-gradient-to-br from-warm-100 to-warm-50 border border-warm-200 rounded-xl p-6">
             <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <FileText className="w-5 h-5 text-purple-600" />
+              <FileText className="w-5 h-5 text-picc-ochre" />
               Resources & Examples
             </h3>
             <div className="space-y-3">
               <Link
                 href="/picc/database"
-                className="block p-3 bg-white hover:bg-gray-50 rounded-lg border border-purple-200 transition-all"
+                className="block p-3 bg-white hover:bg-gray-50 rounded-lg border border-warm-200 transition-all"
               >
                 <div className="font-semibold text-gray-900 mb-1">Database Tools</div>
                 <div className="text-sm text-gray-600">View table statistics and run queries</div>
               </Link>
-              <div className="block p-3 bg-white rounded-lg border border-purple-200">
+              <div className="block p-3 bg-white rounded-lg border border-warm-200">
                 <div className="font-semibold text-gray-900 mb-1">Content Management Guide</div>
                 <div className="text-sm text-gray-600 mb-2">
                   Full SQL examples in <code className="px-1.5 py-0.5 bg-gray-100 rounded text-xs">CONTENT-MANAGEMENT-GUIDE.md</code>
@@ -215,12 +215,12 @@ export default function NewProjectPage() {
           <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <FileCode className="w-5 h-5 text-blue-600" />
+                <FileCode className="w-5 h-5 text-picc-red" />
                 SQL Template
               </h2>
               <button
                 onClick={() => navigator.clipboard.writeText(exampleSQL)}
-                className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 text-sm font-medium rounded-lg transition-colors"
+                className="px-3 py-1.5 bg-warm-50 hover:bg-blue-100 text-picc-red text-sm font-medium rounded-lg transition-colors"
               >
                 Copy SQL
               </button>
@@ -230,17 +230,20 @@ export default function NewProjectPage() {
                 <code>{exampleSQL}</code>
               </pre>
             </div>
-            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-sm text-blue-800">
-                <strong>💡 Tip:</strong> Copy this template, customize the values, and run it in Supabase SQL Editor.
-              </p>
+            <div className="mt-4 p-3 bg-warm-50 border border-warm-200 rounded-lg">
+              <div className="flex items-start gap-2 text-sm text-picc-earth">
+                <Lightbulb className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                <p>
+                  <strong>Tip:</strong> Copy this template, customize the values, and run it in Supabase SQL Editor.
+                </p>
+              </div>
             </div>
           </div>
 
           {/* Example Projects */}
           <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
             <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <Lightbulb className="w-5 h-5 text-amber-600" />
+              <Lightbulb className="w-5 h-5 text-picc-ochre" />
               Example Projects
             </h3>
             <p className="text-sm text-gray-600 mb-4">
@@ -252,7 +255,7 @@ export default function NewProjectPage() {
                 return (
                   <div
                     key={project.slug}
-                    className="p-3 border border-gray-200 rounded-lg hover:border-orange-300 transition-colors"
+                    className="p-3 border border-gray-200 rounded-lg hover:border-picc-ochre-300 transition-colors"
                   >
                     <div className="flex items-center gap-3 mb-2">
                       <div className={`p-2 bg-gradient-to-r ${project.color} rounded-lg`}>
@@ -274,9 +277,9 @@ export default function NewProjectPage() {
           </div>
 
           {/* Coming Soon */}
-          <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-6">
+          <div className="bg-gradient-to-br from-picc-ochre-50 to-orange-50 border border-picc-ochre-200 rounded-xl p-6">
             <div className="flex items-start gap-3 mb-4">
-              <Calendar className="w-6 h-6 text-amber-600 flex-shrink-0" />
+              <Calendar className="w-6 h-6 text-picc-ochre flex-shrink-0" />
               <div>
                 <h3 className="font-bold text-gray-900 mb-2">Coming in Phase 2</h3>
                 <p className="text-sm text-gray-700">

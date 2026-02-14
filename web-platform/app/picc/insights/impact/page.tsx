@@ -225,12 +225,12 @@ export default function ImpactDashboardPage() {
           <div className="text-blue-100 text-sm">Total Stories</div>
         </div>
 
-        <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-6 text-white">
+        <div className="bg-gradient-to-br from-picc-ochre-500 to-picc-ochre rounded-lg p-6 text-white">
           <div className="flex items-center justify-between mb-2">
             <Users className="w-8 h-8 opacity-80" />
           </div>
           <div className="text-3xl font-bold mb-1">{stats.totalStorytellers}</div>
-          <div className="text-purple-100 text-sm">Storytellers</div>
+          <div className="text-picc-ochre-100 text-sm">Storytellers</div>
         </div>
 
         <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-6 text-white">
@@ -266,7 +266,7 @@ export default function ImpactDashboardPage() {
 
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <div className="flex items-center gap-3 mb-4">
-            <Activity className="w-6 h-6 text-teal-600" />
+            <Activity className="w-6 h-6 text-sage" />
             <h2 className="text-lg font-bold text-gray-900">Youth Engagement</h2>
           </div>
           <div className="text-4xl font-bold text-gray-900 mb-2">{stats.youthContributions}</div>
@@ -275,7 +275,7 @@ export default function ImpactDashboardPage() {
 
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <div className="flex items-center gap-3 mb-4">
-            <MessageSquare className="w-6 h-6 text-purple-600" />
+            <MessageSquare className="w-6 h-6 text-picc-ochre" />
             <h2 className="text-lg font-bold text-gray-900">Community Voice</h2>
           </div>
           <div className="text-4xl font-bold text-gray-900 mb-2">{stats.communityVoiceStories}</div>
@@ -325,7 +325,7 @@ export default function ImpactDashboardPage() {
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
-                    className="bg-purple-600 h-2 rounded-full"
+                    className="bg-picc-ochre h-2 rounded-full"
                     style={{
                       width: `${(cat.count / stats.totalStories) * 100}%`
                     }}
@@ -355,7 +355,10 @@ export default function ImpactDashboardPage() {
       {/* Insights */}
       <div className="mt-8 grid md:grid-cols-2 gap-6">
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <h3 className="text-lg font-bold text-blue-900 mb-3">📈 Growth Insights</h3>
+          <h3 className="text-lg font-bold text-blue-900 mb-3 flex items-center gap-2">
+            <TrendingUp className="h-5 w-5" />
+            Growth Insights
+          </h3>
           <ul className="space-y-2 text-sm text-blue-800">
             <li>
               • Story submissions {getGrowthPercentage() >= 0 ? 'increased' : 'decreased'} by{' '}
@@ -374,7 +377,10 @@ export default function ImpactDashboardPage() {
         </div>
 
         <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-          <h3 className="text-lg font-bold text-green-900 mb-3">💡 Recommendations</h3>
+          <h3 className="text-lg font-bold text-green-900 mb-3 flex items-center gap-2">
+            <Target className="h-5 w-5" />
+            Recommendations
+          </h3>
           <ul className="space-y-2 text-sm text-green-800">
             {stats.storiesThisMonth < stats.storiesLastMonth && (
               <li>• Consider running a story collection campaign to boost engagement</li>

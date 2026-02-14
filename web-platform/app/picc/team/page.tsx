@@ -79,9 +79,9 @@ export default function TeamPage() {
   const getRoleColor = (role: string) => {
     switch (role) {
       case 'admin':
-        return 'bg-purple-100 text-purple-700 border-purple-200';
+        return 'bg-warm-100 text-picc-ochre border-warm-200';
       case 'editor':
-        return 'bg-blue-100 text-blue-700 border-blue-200';
+        return 'bg-warm-100 text-picc-red border-warm-200';
       case 'viewer':
         return 'bg-gray-100 text-gray-700 border-gray-200';
       default:
@@ -114,12 +114,12 @@ export default function TeamPage() {
 
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-3">
-              <Users className="h-8 w-8 text-blue-600" />
+              <Users className="h-8 w-8 text-picc-red" />
               <h1 className="text-3xl font-bold text-gray-900">Team Management</h1>
             </div>
             <button
               onClick={() => setShowInviteForm(!showInviteForm)}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-all flex items-center gap-2"
+              className="bg-picc-red text-white px-4 py-2 rounded-lg font-medium hover:bg-picc-red transition-all flex items-center gap-2"
             >
               <Plus className="h-4 w-4" />
               Invite Member
@@ -142,7 +142,7 @@ export default function TeamPage() {
                   value={inviteData.full_name}
                   onChange={(e) => setInviteData({ ...inviteData, full_name: e.target.value })}
                   placeholder="John Smith"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent"
                 />
               </div>
 
@@ -155,7 +155,7 @@ export default function TeamPage() {
                   value={inviteData.email}
                   onChange={(e) => setInviteData({ ...inviteData, email: e.target.value })}
                   placeholder="john@picc.org"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent"
                 />
               </div>
 
@@ -166,7 +166,7 @@ export default function TeamPage() {
                 <select
                   value={inviteData.role}
                   onChange={(e) => setInviteData({ ...inviteData, role: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent"
                 >
                   <option value="viewer">Viewer</option>
                   <option value="editor">Editor</option>
@@ -178,7 +178,7 @@ export default function TeamPage() {
             <div className="flex gap-2">
               <button
                 onClick={handleInvite}
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-all"
+                className="bg-picc-red text-white px-6 py-2 rounded-lg font-medium hover:bg-picc-red transition-all"
               >
                 Send Invitation
               </button>
@@ -194,24 +194,24 @@ export default function TeamPage() {
 
         {/* Role Descriptions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+          <div className="bg-warm-100 border border-warm-200 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Crown className="h-5 w-5 text-purple-600" />
-              <h3 className="font-semibold text-purple-900">Admin</h3>
+              <Crown className="h-5 w-5 text-picc-ochre" />
+              <h3 className="font-semibold text-picc-earth-600">Admin</h3>
             </div>
-            <ul className="text-sm text-purple-700 space-y-1">
+            <ul className="text-sm text-picc-ochre space-y-1">
               <li>• Full platform access</li>
               <li>• Manage team members</li>
               <li>• Configure settings</li>
             </ul>
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="bg-warm-50 border border-warm-200 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Edit className="h-5 w-5 text-blue-600" />
-              <h3 className="font-semibold text-blue-900">Editor</h3>
+              <Edit className="h-5 w-5 text-picc-red" />
+              <h3 className="font-semibold text-picc-earth">Editor</h3>
             </div>
-            <ul className="text-sm text-blue-700 space-y-1">
+            <ul className="text-sm text-picc-red space-y-1">
               <li>• Create & edit stories</li>
               <li>• Publish content</li>
               <li>• Manage storytellers</li>
@@ -243,7 +243,7 @@ export default function TeamPage() {
               <div key={member.id} className="p-6 hover:bg-gray-50 transition-all">
                 <div className="flex items-center justify-between">
                   <div className="flex items-start gap-4 flex-1">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-lg">
+                    <div className="w-12 h-12 bg-gradient-to-br from-picc-red to-picc-ochre rounded-full flex items-center justify-center text-white font-semibold text-lg">
                       {member.full_name.charAt(0)}
                     </div>
 
@@ -272,7 +272,7 @@ export default function TeamPage() {
 
                   <div className="flex items-center gap-2">
                     <button
-                      className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                      className="p-2 text-gray-400 hover:text-picc-red hover:bg-warm-50 rounded-lg transition-all"
                       title="Edit member"
                     >
                       <Edit className="h-4 w-4" />
@@ -291,9 +291,9 @@ export default function TeamPage() {
         </div>
 
         {/* Info Box */}
-        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="text-sm text-blue-900 font-medium mb-1">Team Management</div>
-          <p className="text-xs text-blue-700">
+        <div className="mt-6 bg-warm-50 border border-warm-200 rounded-lg p-4">
+          <div className="text-sm text-picc-earth font-medium mb-1">Team Management</div>
+          <p className="text-xs text-picc-red">
             Team members will receive an email invitation to join the platform. They'll need to
             create a password and verify their email before gaining access.
           </p>

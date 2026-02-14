@@ -170,7 +170,7 @@ export default function PermissionsPage() {
           <div className="text-sm text-gray-600">Face Recognition Consent</div>
         </div>
         <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="text-2xl font-bold text-purple-600">{stats.traditionalKnowledge}</div>
+          <div className="text-2xl font-bold text-picc-ochre">{stats.traditionalKnowledge}</div>
           <div className="text-sm text-gray-600">Can Share Traditional Knowledge</div>
         </div>
         <div className="bg-white p-4 rounded-lg border border-gray-200">
@@ -288,7 +288,7 @@ export default function PermissionsPage() {
                       )}
                       className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                         profile.can_share_traditional_knowledge
-                          ? 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                          ? 'bg-picc-ochre-100 text-picc-ochre hover:bg-picc-ochre-200'
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
                     >
@@ -378,12 +378,12 @@ export default function PermissionsPage() {
           </ul>
         </div>
 
-        <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
-          <h3 className="text-lg font-bold text-purple-900 mb-3 flex items-center gap-2">
+        <div className="bg-picc-ochre-50 border border-picc-ochre-200 rounded-lg p-6">
+          <h3 className="text-lg font-bold text-picc-earth mb-3 flex items-center gap-2">
             <Users className="w-5 h-5" />
             Cultural Protocol Guidelines
           </h3>
-          <ul className="space-y-2 text-sm text-purple-800">
+          <ul className="space-y-2 text-sm text-picc-earth">
             <li>• Always seek Elder guidance for traditional knowledge</li>
             <li>• Obtain written consent before sharing sensitive content</li>
             <li>• Respect family and community wishes for privacy</li>

@@ -92,19 +92,19 @@ const mockConversations = [
 
 const conversationTypeConfig: Record<string, { label: string; color: string; icon: typeof Users }> = {
   listening_tour: { label: 'Listening Tour', color: 'bg-blue-100 text-blue-700', icon: Users },
-  town_hall: { label: 'Town Hall', color: 'bg-purple-100 text-purple-700', icon: Users },
+  town_hall: { label: 'Town Hall', color: 'bg-picc-ochre-100 text-picc-ochre', icon: Users },
   focus_group: { label: 'Focus Group', color: 'bg-green-100 text-green-700', icon: Users },
-  elder_session: { label: 'Elder Session', color: 'bg-amber-100 text-amber-700', icon: User },
-  youth_forum: { label: 'Youth Forum', color: 'bg-pink-100 text-pink-700', icon: Users },
-  service_feedback: { label: 'Service Feedback', color: 'bg-teal-100 text-teal-700', icon: MessageSquare },
-  planning_workshop: { label: 'Planning Workshop', color: 'bg-indigo-100 text-indigo-700', icon: FileText },
+  elder_session: { label: 'Elder Session', color: 'bg-picc-ochre-100 text-picc-ochre', icon: User },
+  youth_forum: { label: 'Youth Forum', color: 'bg-picc-red-100 text-picc-red', icon: Users },
+  service_feedback: { label: 'Service Feedback', color: 'bg-sage-100 text-sage', icon: MessageSquare },
+  planning_workshop: { label: 'Planning Workshop', color: 'bg-warm-100 text-picc-red', icon: FileText },
 };
 
 const statusConfig: Record<string, { label: string; color: string; icon: typeof Clock }> = {
   planned: { label: 'Planned', color: 'bg-gray-100 text-gray-600', icon: Clock },
   conducted: { label: 'Conducted', color: 'bg-blue-100 text-blue-700', icon: CheckCircle },
   transcribed: { label: 'Transcribed', color: 'bg-yellow-100 text-yellow-700', icon: FileAudio },
-  analyzed: { label: 'Analyzed', color: 'bg-purple-100 text-purple-700', icon: Brain },
+  analyzed: { label: 'Analyzed', color: 'bg-picc-ochre-100 text-picc-ochre', icon: Brain },
   integrated: { label: 'Integrated', color: 'bg-green-100 text-green-700', icon: CheckCircle },
 };
 
@@ -135,7 +135,7 @@ export default function ConversationsPage() {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg">
+            <div className="p-2 bg-gradient-to-br from-warm-500 to-picc-ochre rounded-lg">
               <MessageSquare className="w-6 h-6 text-white" />
             </div>
             <div>
@@ -145,7 +145,7 @@ export default function ConversationsPage() {
           </div>
           <Link
             href="/picc/conversations/new"
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-picc-red text-white rounded-lg hover:bg-picc-red transition-colors"
           >
             <Plus className="w-4 h-4" />
             New Conversation
@@ -169,7 +169,7 @@ export default function ConversationsPage() {
             <Clock className="w-4 h-4" />
             <span className="text-sm">Upcoming</span>
           </div>
-          <div className="text-2xl font-bold text-indigo-600">{stats.planned}</div>
+          <div className="text-2xl font-bold text-picc-red">{stats.planned}</div>
           <div className="text-xs text-gray-500">Planned</div>
         </div>
 
@@ -178,7 +178,7 @@ export default function ConversationsPage() {
             <Brain className="w-4 h-4" />
             <span className="text-sm">Analyzed</span>
           </div>
-          <div className="text-2xl font-bold text-purple-600">{stats.analyzed}</div>
+          <div className="text-2xl font-bold text-picc-ochre">{stats.analyzed}</div>
           <div className="text-xs text-gray-500">Ready for reports</div>
         </div>
 
@@ -236,13 +236,13 @@ export default function ConversationsPage() {
                 placeholder="Search conversations..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-warm-500 focus:border-transparent"
               />
             </div>
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-warm-500"
             >
               <option value="all">All Status</option>
               <option value="planned">Planned</option>
@@ -254,7 +254,7 @@ export default function ConversationsPage() {
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
-              className="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-warm-500"
             >
               <option value="all">All Types</option>
               <option value="listening_tour">Listening Tour</option>
@@ -295,7 +295,7 @@ export default function ConversationsPage() {
                         {statConfig.label}
                       </span>
                       {conversation.elder_present && (
-                        <span className="px-2 py-0.5 text-xs font-medium rounded bg-amber-100 text-amber-700">
+                        <span className="px-2 py-0.5 text-xs font-medium rounded bg-picc-ochre-100 text-picc-ochre">
                           Elder Present
                         </span>
                       )}
@@ -318,7 +318,7 @@ export default function ConversationsPage() {
                         </span>
                       )}
                       {conversation.insights_count > 0 && (
-                        <span className="flex items-center gap-1 text-purple-600">
+                        <span className="flex items-center gap-1 text-picc-ochre">
                           <Sparkles className="w-3 h-3" />
                           {conversation.insights_count} insights
                         </span>
@@ -329,7 +329,7 @@ export default function ConversationsPage() {
                   <div className="flex items-center gap-2">
                     <Link
                       href={`/picc/conversations/${conversation.id}`}
-                      className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                      className="p-2 text-gray-400 hover:text-picc-red hover:bg-warm-50 rounded-lg transition-colors"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <Eye className="w-5 h-5" />
@@ -348,7 +348,7 @@ export default function ConversationsPage() {
                           <h4 className="text-sm font-medium text-gray-700 mb-2">Themes Identified</h4>
                           <div className="flex flex-wrap gap-2">
                             {conversation.themes_identified.map((theme, i) => (
-                              <span key={i} className="px-3 py-1 text-sm bg-indigo-100 text-indigo-700 rounded-full">
+                              <span key={i} className="px-3 py-1 text-sm bg-warm-100 text-picc-red rounded-full">
                                 {theme}
                               </span>
                             ))}
@@ -362,7 +362,7 @@ export default function ConversationsPage() {
                           <h4 className="text-sm font-medium text-gray-700 mb-2">Key Quotes</h4>
                           <div className="space-y-2">
                             {conversation.key_quotes.map((quote, i) => (
-                              <blockquote key={i} className="pl-4 border-l-2 border-indigo-300 text-sm text-gray-600 italic">
+                              <blockquote key={i} className="pl-4 border-l-2 border-picc-red-300 text-sm text-gray-600 italic">
                                 &ldquo;{quote}&rdquo;
                               </blockquote>
                             ))}
@@ -376,7 +376,7 @@ export default function ConversationsPage() {
                           <h4 className="text-sm font-medium text-gray-700 mb-2">Priority Issues</h4>
                           <div className="flex flex-wrap gap-2">
                             {conversation.priority_issues.map((issue, i) => (
-                              <span key={i} className="px-3 py-1 text-sm bg-amber-100 text-amber-700 rounded-full flex items-center gap-1">
+                              <span key={i} className="px-3 py-1 text-sm bg-picc-ochre-100 text-picc-ochre rounded-full flex items-center gap-1">
                                 <AlertCircle className="w-3 h-3" />
                                 {issue}
                               </span>
@@ -402,14 +402,14 @@ export default function ConversationsPage() {
                       <div className="flex gap-3 pt-2">
                         <Link
                           href={`/picc/conversations/${conversation.id}`}
-                          className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors"
+                          className="px-4 py-2 bg-picc-red text-white text-sm rounded-lg hover:bg-picc-red transition-colors"
                         >
                           View Full Details
                         </Link>
                         {conversation.status !== 'planned' && (
                           <Link
                             href={`/picc/conversations/${conversation.id}/insights`}
-                            className="px-4 py-2 bg-purple-100 text-purple-700 text-sm rounded-lg hover:bg-purple-200 transition-colors flex items-center gap-1"
+                            className="px-4 py-2 bg-picc-ochre-100 text-picc-ochre text-sm rounded-lg hover:bg-picc-ochre-200 transition-colors flex items-center gap-1"
                           >
                             <Sparkles className="w-4 h-4" />
                             Manage Insights
@@ -442,7 +442,7 @@ export default function ConversationsPage() {
                   setFilterType('all');
                   setSearchQuery('');
                 }}
-                className="mt-2 text-indigo-600 hover:text-indigo-700"
+                className="mt-2 text-picc-red hover:text-picc-red"
               >
                 Clear filters
               </button>
@@ -452,12 +452,12 @@ export default function ConversationsPage() {
       </div>
 
       {/* Tips Section */}
-      <div className="mt-8 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-100">
+      <div className="mt-8 bg-gradient-to-r from-warm-50 to-picc-ochre-50 rounded-xl p-6 border border-warm-100">
         <h3 className="font-bold text-gray-900 mb-3">Community Conversation Best Practices</h3>
         <div className="grid md:grid-cols-3 gap-4">
           <div className="flex gap-3">
-            <div className="p-2 bg-indigo-100 rounded-lg h-fit">
-              <Users className="w-5 h-5 text-indigo-600" />
+            <div className="p-2 bg-warm-100 rounded-lg h-fit">
+              <Users className="w-5 h-5 text-picc-red" />
             </div>
             <div>
               <h4 className="font-medium text-gray-900">Include Elders</h4>
@@ -465,8 +465,8 @@ export default function ConversationsPage() {
             </div>
           </div>
           <div className="flex gap-3">
-            <div className="p-2 bg-purple-100 rounded-lg h-fit">
-              <Mic className="w-5 h-5 text-purple-600" />
+            <div className="p-2 bg-picc-ochre-100 rounded-lg h-fit">
+              <Mic className="w-5 h-5 text-picc-ochre" />
             </div>
             <div>
               <h4 className="font-medium text-gray-900">Record with Consent</h4>

@@ -145,15 +145,15 @@ export default function CommunityVoicePage() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-4">
-          <Mic className="w-8 h-8 text-teal-600" />
+          <Mic className="w-8 h-8 text-sage-600" />
           <h1 className="text-3xl font-bold text-gray-900">Community Voice</h1>
         </div>
         <p className="text-gray-600 mb-4">
           Stories shared by community members - review and publish community submissions
         </p>
 
-        <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
-          <p className="text-sm text-teal-800">
+        <div className="bg-sage-50 border border-sage-200 rounded-lg p-4">
+          <p className="text-sm text-sage-800">
             <strong>Note:</strong> Community Voice includes stories submitted anonymously or by community members.
             Review these stories and publish them to share community perspectives.
           </p>
@@ -175,7 +175,7 @@ export default function CommunityVoicePage() {
           <div className="text-sm text-gray-600">Published</div>
         </div>
         <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="text-2xl font-bold text-purple-600">{stats.anonymous}</div>
+          <div className="text-2xl font-bold text-picc-ochre">{stats.anonymous}</div>
           <div className="text-sm text-gray-600">Anonymous</div>
         </div>
       </div>
@@ -230,7 +230,7 @@ export default function CommunityVoicePage() {
                     <h3 className="text-lg font-bold text-gray-900">{story.title}</h3>
 
                     {story.is_anonymous && (
-                      <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-medium">
+                      <span className="px-2 py-1 bg-picc-ochre-100 text-picc-ochre rounded text-xs font-medium">
                         Anonymous
                       </span>
                     )}

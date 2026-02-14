@@ -95,7 +95,7 @@ export default function MediaAudioPage() {
           </Link>
 
           <div className="flex items-center gap-3 mb-2">
-            <Mic className="h-8 w-8 text-teal-600" />
+            <Mic className="h-8 w-8 text-picc-ochre" />
             <h1 className="text-3xl font-bold text-gray-900">Audio Library</h1>
           </div>
           <p className="text-gray-600">Browse all voice recordings and audio content</p>
@@ -110,7 +110,7 @@ export default function MediaAudioPage() {
               placeholder="Search audio files..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-transparent"
             />
           </div>
         </div>
@@ -138,7 +138,7 @@ export default function MediaAudioPage() {
         {/* Loading State */}
         {loading && (
           <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-picc-ochre mx-auto"></div>
             <p className="text-gray-600 mt-4">Loading audio files...</p>
           </div>
         )}
@@ -150,8 +150,8 @@ export default function MediaAudioPage() {
               <div key={index} className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-all">
                 <div className="flex items-center gap-4">
                   <div className="flex-shrink-0">
-                    <div className="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center">
-                      <Mic className="h-6 w-6 text-teal-600" />
+                    <div className="w-12 h-12 bg-warm-100 rounded-lg flex items-center justify-center">
+                      <Mic className="h-6 w-6 text-picc-ochre" />
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">

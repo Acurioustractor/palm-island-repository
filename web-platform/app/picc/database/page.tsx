@@ -56,7 +56,7 @@ export default async function DatabasePage() {
       name: 'Stories',
       table: 'stories',
       icon: BookOpen,
-      color: 'from-blue-600 to-teal-600',
+      color: 'from-blue-600 to-sage',
       bgColor: 'bg-blue-50',
       iconColor: 'text-blue-600',
       count: stats.stories.count,
@@ -67,9 +67,9 @@ export default async function DatabasePage() {
       name: 'Storytellers',
       table: 'profiles',
       icon: Users,
-      color: 'from-purple-600 to-pink-600',
-      bgColor: 'bg-purple-50',
-      iconColor: 'text-purple-600',
+      color: 'from-picc-ochre to-picc-red',
+      bgColor: 'bg-picc-ochre-50',
+      iconColor: 'text-picc-ochre',
       count: stats.storytellers.count,
       error: stats.storytellers.error,
       description: 'Registered community members',
@@ -89,7 +89,7 @@ export default async function DatabasePage() {
       name: 'Projects',
       table: 'projects',
       icon: Folder,
-      color: 'from-orange-600 to-pink-600',
+      color: 'from-orange-600 to-picc-red',
       bgColor: 'bg-orange-50',
       iconColor: 'text-orange-600',
       count: stats.projects.count,
@@ -100,9 +100,9 @@ export default async function DatabasePage() {
       name: 'Project Updates',
       table: 'project_updates',
       icon: FileText,
-      color: 'from-amber-600 to-yellow-600',
-      bgColor: 'bg-amber-50',
-      iconColor: 'text-amber-600',
+      color: 'from-picc-ochre to-yellow-600',
+      bgColor: 'bg-picc-ochre-50',
+      iconColor: 'text-picc-ochre',
       count: stats.projectUpdates.count,
       error: stats.projectUpdates.error,
       description: 'Blog-style project updates',
@@ -163,7 +163,7 @@ LIMIT 10;`,
       </div>
 
       {/* Quick Links */}
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-6 mb-8">
+      <div className="bg-gradient-to-r from-blue-50 to-picc-ochre-50 border border-blue-200 rounded-xl p-6 mb-8">
         <div className="flex items-start gap-4">
           <div className="p-3 bg-blue-600 rounded-lg">
             <ExternalLink className="w-6 h-6 text-white" />
@@ -274,7 +274,7 @@ LIMIT 10;`,
         {/* Schema Information */}
         <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
           <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <Database className="w-5 h-5 text-purple-600" />
+            <Database className="w-5 h-5 text-picc-ochre" />
             Database Schema Files
           </h3>
           <div className="space-y-3">
@@ -303,34 +303,34 @@ LIMIT 10;`,
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-6">
+        <div className="bg-gradient-to-br from-picc-ochre-50 to-warm-50 border border-picc-ochre-200 rounded-xl p-6">
           <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <Lightbulb className="w-5 h-5 text-purple-600" />
+            <Lightbulb className="w-5 h-5 text-picc-ochre" />
             Quick Actions
           </h3>
           <div className="space-y-3">
             <Link
               href="/picc/projects"
-              className="block p-3 bg-white hover:bg-gray-50 rounded-lg border border-purple-200 transition-all"
+              className="block p-3 bg-white hover:bg-gray-50 rounded-lg border border-picc-ochre-200 transition-all"
             >
               <div className="font-semibold text-gray-900 mb-1">Manage Projects</div>
               <div className="text-sm text-gray-600">View and manage innovation projects</div>
             </Link>
             <Link
               href="/picc/admin/storytellers"
-              className="block p-3 bg-white hover:bg-gray-50 rounded-lg border border-purple-200 transition-all"
+              className="block p-3 bg-white hover:bg-gray-50 rounded-lg border border-picc-ochre-200 transition-all"
             >
               <div className="font-semibold text-gray-900 mb-1">View All Stories</div>
               <div className="text-sm text-gray-600">Browse and manage community stories</div>
             </Link>
             <Link
               href="/picc/storytellers"
-              className="block p-3 bg-white hover:bg-gray-50 rounded-lg border border-purple-200 transition-all"
+              className="block p-3 bg-white hover:bg-gray-50 rounded-lg border border-picc-ochre-200 transition-all"
             >
               <div className="font-semibold text-gray-900 mb-1">Storyteller Profiles</div>
               <div className="text-sm text-gray-600">Manage community member profiles</div>
             </Link>
-            <div className="p-3 bg-white rounded-lg border border-purple-200">
+            <div className="p-3 bg-white rounded-lg border border-picc-ochre-200">
               <div className="font-semibold text-gray-900 mb-1">Content Management Guide</div>
               <div className="text-sm text-gray-600 mb-2">SQL examples and workflows</div>
               <div className="text-xs text-gray-500">
@@ -342,12 +342,12 @@ LIMIT 10;`,
       </div>
 
       {/* Important Notes */}
-      <div className="bg-amber-50 border-l-4 border-amber-600 p-6 rounded-lg">
+      <div className="bg-picc-ochre-50 border-l-4 border-picc-ochre p-6 rounded-lg">
         <div className="flex items-start gap-3">
-          <AlertCircle className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" />
+          <AlertCircle className="w-6 h-6 text-picc-ochre flex-shrink-0 mt-0.5" />
           <div>
-            <h3 className="font-bold text-amber-900 mb-2">Database Safety</h3>
-            <ul className="text-sm text-amber-800 space-y-1">
+            <h3 className="font-bold text-picc-earth mb-2">Database Safety</h3>
+            <ul className="text-sm text-picc-earth space-y-1">
               <li>• Always test queries on a copy or in a transaction before running on production data</li>
               <li>• Use WHERE clauses carefully to avoid updating/deleting unintended records</li>
               <li>• Back up data before running major migrations or bulk updates</li>

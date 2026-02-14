@@ -301,7 +301,7 @@ export default function EditStorytellerPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
+          <Loader2 className="w-12 h-12 animate-spin text-picc-red mx-auto mb-4" />
           <p className="text-gray-600">Loading storyteller...</p>
         </div>
       </div>
@@ -353,7 +353,7 @@ export default function EditStorytellerPage() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-picc-red to-picc-ochre">
                     <User className="w-24 h-24 text-white opacity-50" />
                   </div>
                 )}
@@ -379,7 +379,7 @@ export default function EditStorytellerPage() {
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploading}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-picc-red text-white rounded-lg hover:bg-picc-red disabled:opacity-50"
                 >
                   <UploadIcon className="w-4 h-4" />
                   Upload New Photo
@@ -422,14 +422,14 @@ export default function EditStorytellerPage() {
                         onClick={() => selectFromLibrary(img)}
                         className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${
                           formData.profile_image_url === img.public_url
-                            ? 'border-blue-500 ring-2 ring-blue-200'
+                            ? 'border-picc-red ring-2 ring-warm-200'
                             : 'border-transparent hover:border-gray-300'
                         }`}
                       >
                         <img src={img.public_url} alt="" className="w-full h-full object-cover" />
                         {formData.profile_image_url === img.public_url && (
-                          <div className="absolute inset-0 bg-blue-500/20 flex items-center justify-center">
-                            <Check className="w-4 h-4 text-blue-600" />
+                          <div className="absolute inset-0 bg-picc-red/20 flex items-center justify-center">
+                            <Check className="w-4 h-4 text-picc-red" />
                           </div>
                         )}
                       </button>
@@ -456,7 +456,7 @@ export default function EditStorytellerPage() {
                     required
                     value={formData.full_name}
                     onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
                     placeholder="e.g., Uncle Frank Foster"
                   />
                 </div>
@@ -469,7 +469,7 @@ export default function EditStorytellerPage() {
                     type="text"
                     value={formData.preferred_name}
                     onChange={(e) => setFormData({ ...formData, preferred_name: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
                     placeholder="e.g., Uncle Frank"
                   />
                 </div>
@@ -481,7 +481,7 @@ export default function EditStorytellerPage() {
                   <select
                     value={formData.storyteller_type}
                     onChange={(e) => setFormData({ ...formData, storyteller_type: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
                   >
                     <option value="community_member">Community Member</option>
                     <option value="elder">Elder</option>
@@ -501,7 +501,7 @@ export default function EditStorytellerPage() {
                     type="text"
                     value={formData.community_role}
                     onChange={(e) => setFormData({ ...formData, community_role: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
                     placeholder="e.g., Elder, Teacher, Artist"
                   />
                 </div>
@@ -512,7 +512,7 @@ export default function EditStorytellerPage() {
                     type="text"
                     value={formData.location}
                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
                   />
                 </div>
 
@@ -521,7 +521,7 @@ export default function EditStorytellerPage() {
                   <select
                     value={formData.age_range}
                     onChange={(e) => setFormData({ ...formData, age_range: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
                   >
                     <option value="">Not specified</option>
                     <option value="under_18">Under 18</option>
@@ -541,7 +541,7 @@ export default function EditStorytellerPage() {
                   value={formData.bio}
                   onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                   rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
                   placeholder="Short bio about the storyteller..."
                 />
               </div>
@@ -562,7 +562,7 @@ export default function EditStorytellerPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, traditional_country: e.target.value })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
                     placeholder="e.g., Bwgcolman"
                   />
                 </div>
@@ -575,7 +575,7 @@ export default function EditStorytellerPage() {
                     type="text"
                     value={formData.language_group}
                     onChange={(e) => setFormData({ ...formData, language_group: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
                     placeholder="e.g., Manbarra"
                   />
                 </div>
@@ -593,7 +593,7 @@ export default function EditStorytellerPage() {
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
                   />
                 </div>
 
@@ -603,7 +603,7 @@ export default function EditStorytellerPage() {
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
                   />
                 </div>
               </div>
@@ -619,7 +619,7 @@ export default function EditStorytellerPage() {
                     type="checkbox"
                     checked={formData.is_elder}
                     onChange={(e) => setFormData({ ...formData, is_elder: e.target.checked })}
-                    className="w-5 h-5 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                    className="w-5 h-5 rounded border-gray-300 text-picc-ochre focus:ring-picc-ochre"
                   />
                   <div>
                     <span className="font-medium text-gray-900">Elder Status</span>
@@ -636,7 +636,7 @@ export default function EditStorytellerPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, is_cultural_advisor: e.target.checked })
                     }
-                    className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                    className="w-5 h-5 rounded border-gray-300 text-picc-ochre focus:ring-picc-ochre"
                   />
                   <div>
                     <span className="font-medium text-gray-900">Cultural Advisor</span>
@@ -651,7 +651,7 @@ export default function EditStorytellerPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, show_in_directory: e.target.checked })
                     }
-                    className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="w-5 h-5 rounded border-gray-300 text-picc-red focus:ring-picc-red"
                   />
                   <div>
                     <span className="font-medium text-gray-900">Show in Directory</span>
@@ -674,7 +674,7 @@ export default function EditStorytellerPage() {
               <button
                 type="submit"
                 disabled={saving}
-                className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex items-center gap-2 px-6 py-2 bg-picc-red text-white rounded-lg hover:bg-picc-red disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {saving ? (
                   <>
@@ -711,7 +711,7 @@ export default function EditStorytellerPage() {
             <div className="p-4 overflow-y-auto max-h-[calc(80vh-80px)]">
               {loadingMedia ? (
                 <div className="text-center py-12">
-                  <Loader2 className="w-8 h-8 animate-spin mx-auto text-blue-600 mb-2" />
+                  <Loader2 className="w-8 h-8 animate-spin mx-auto text-picc-red mb-2" />
                   <p className="text-gray-500">Loading media...</p>
                 </div>
               ) : mediaLibrary.length === 0 ? (
@@ -726,7 +726,7 @@ export default function EditStorytellerPage() {
                       key={media.id}
                       type="button"
                       onClick={() => selectFromLibrary(media)}
-                      className="relative aspect-square rounded-lg overflow-hidden border-2 border-transparent hover:border-blue-500 transition-all group"
+                      className="relative aspect-square rounded-lg overflow-hidden border-2 border-transparent hover:border-picc-red transition-all group"
                     >
                       <img
                         src={media.public_url}

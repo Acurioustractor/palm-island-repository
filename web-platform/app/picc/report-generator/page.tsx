@@ -43,7 +43,7 @@ function AddBlockButton({ onAdd }: { onAdd: (type: string) => void }) {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-purple-700 hover:text-purple-900 hover:bg-purple-50 rounded-lg transition-colors"
+        className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-picc-ochre-700 hover:text-picc-ochre-900 hover:bg-picc-ochre-50 rounded-lg transition-colors"
       >
         <Plus className="w-4 h-4" />
         Add Block
@@ -64,9 +64,9 @@ function AddBlockButton({ onAdd }: { onAdd: (type: string) => void }) {
                     onAdd(type.id);
                     setOpen(false);
                   }}
-                  className="w-full flex items-start gap-3 px-3 py-2 hover:bg-purple-50 text-left"
+                  className="w-full flex items-start gap-3 px-3 py-2 hover:bg-picc-ochre-50 text-left"
                 >
-                  <Icon className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" />
+                  <Icon className="w-4 h-4 text-picc-ochre-600 mt-0.5 flex-shrink-0" />
                   <div>
                     <div className="text-sm font-medium text-gray-900">{type.label}</div>
                     <div className="text-xs text-gray-500">{type.description}</div>
@@ -132,7 +132,7 @@ function BlockEditor({
             />
           </div>
           <p className="text-xs text-gray-500">
-            Tip: Use the <Link href={`/picc/annual-reports/${section.id}/images`} className="text-purple-600 underline">Images Manager</Link> to select report images
+            Tip: Use the <Link href={`/picc/annual-reports/${section.id}/images`} className="text-picc-ochre underline">Images Manager</Link> to select report images
           </p>
         </div>
       );
@@ -231,7 +231,7 @@ function BlockEditor({
               <button
                 type="button"
                 onClick={() => updateConfig('stats', [...stats, { label: '', value: '' }])}
-                className="text-xs text-purple-600 hover:text-purple-800"
+                className="text-xs text-picc-ochre hover:text-picc-earth"
               >
                 + Add stat
               </button>
@@ -327,12 +327,12 @@ function BlockEditor({
               placeholder="Year in Pictures"
             />
           </div>
-          <div className="bg-purple-50 rounded-lg p-3">
-            <p className="text-sm text-purple-800 mb-2">
+          <div className="bg-picc-ochre-50 rounded-lg p-3">
+            <p className="text-sm text-picc-ochre-800 mb-2">
               Gallery images are managed through the Images Manager
             </p>
-            <p className="text-xs text-purple-600">
-              Tag images with <code className="bg-purple-100 px-1 rounded">report-section:gallery</code> to include them
+            <p className="text-xs text-picc-ochre-600">
+              Tag images with <code className="bg-picc-ochre-100 px-1 rounded">report-section:gallery</code> to include them
             </p>
           </div>
         </div>
@@ -400,7 +400,7 @@ function BlockEditor({
               <button
                 type="button"
                 onClick={() => updateConfig('milestones', [...milestones, { date: '', title: '', description: '' }])}
-                className="text-xs text-purple-600 hover:text-purple-800"
+                className="text-xs text-picc-ochre-600 hover:text-picc-ochre-800"
               >
                 + Add milestone
               </button>
@@ -712,8 +712,8 @@ function ReportGeneratorPageContent() {
           </Link>
 
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-purple-100 rounded-xl">
-              <FileText className="h-7 w-7 text-purple-700" />
+            <div className="p-2 bg-picc-ochre-100 rounded-xl">
+              <FileText className="h-7 w-7 text-picc-ochre-700" />
             </div>
             <h1 className="text-3xl font-bold text-gray-900">Annual Report Generator</h1>
           </div>
@@ -808,11 +808,11 @@ function ReportGeneratorPageContent() {
                     return (
                       <div
                         key={section.id || `new-${idx}`}
-                        className={`rounded-lg border ${isExpanded ? 'border-purple-200 bg-purple-50/30' : 'border-gray-200'} overflow-hidden`}
+                        className={`rounded-lg border ${isExpanded ? 'border-picc-ochre-200 bg-picc-ochre-50/30' : 'border-gray-200'} overflow-hidden`}
                       >
                         {/* Block Header */}
                         <div
-                          className={`flex items-center gap-3 px-3 py-2 cursor-pointer ${isExpanded ? 'bg-purple-100/50' : 'bg-gray-50 hover:bg-gray-100'}`}
+                          className={`flex items-center gap-3 px-3 py-2 cursor-pointer ${isExpanded ? 'bg-picc-ochre-100/50' : 'bg-gray-50 hover:bg-gray-100'}`}
                           onClick={() =>
                             setEdit((p) => ({
                               ...p,
@@ -823,7 +823,7 @@ function ReportGeneratorPageContent() {
                           }
                         >
                           <GripVertical className="w-4 h-4 text-gray-400 cursor-grab" />
-                          <Icon className="w-4 h-4 text-purple-600" />
+                          <Icon className="w-4 h-4 text-picc-ochre-600" />
                           <span className="flex-1 text-sm font-medium text-gray-900 truncate">
                             {section.section_title || sectionType.label}
                           </span>
@@ -922,7 +922,7 @@ function ReportGeneratorPageContent() {
               <button
                 onClick={rerunPopulate}
                 disabled={status.state === 'working' || edit.loading}
-                className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-medium text-white bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-medium text-white bg-gradient-to-r from-picc-ochre-600 to-picc-ochre-700 hover:from-picc-ochre-700 hover:to-picc-ochre-800 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {status.state === 'working' ? <Loader2 className="w-5 h-5 animate-spin" /> : <Wand2 className="w-5 h-5" />}
                 Re-run Auto-Select
@@ -930,7 +930,7 @@ function ReportGeneratorPageContent() {
               {edit.reportId && (
                 <Link
                   href={`/picc/annual-reports/${edit.reportId}/images`}
-                  className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-medium border border-purple-300 text-purple-700 hover:bg-purple-50"
+                  className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-medium border border-picc-ochre-300 text-picc-ochre-700 hover:bg-picc-ochre-50"
                 >
                   <Image className="w-5 h-5" />
                   Manage Report Images
@@ -955,7 +955,7 @@ function ReportGeneratorPageContent() {
               <select
                 value={config.fiscalYearStart}
                 onChange={(e) => setConfig((prev) => ({ ...prev, fiscalYearStart: Number(e.target.value) }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre-500 focus:border-transparent"
               >
                 {Array.from({ length: 6 }).map((_, i) => {
                   const now = new Date();
@@ -980,7 +980,7 @@ function ReportGeneratorPageContent() {
                 type="text"
                 value={config.theme}
                 onChange={(e) => setConfig((prev) => ({ ...prev, theme: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre-500 focus:border-transparent"
               />
               <p className="text-xs text-gray-500 mt-2">Used as a high-level framing theme.</p>
             </div>
@@ -993,7 +993,7 @@ function ReportGeneratorPageContent() {
                 max={40}
                 value={config.storyLimit}
                 onChange={(e) => setConfig((prev) => ({ ...prev, storyLimit: Number(e.target.value) }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre-500 focus:border-transparent"
               />
               <p className="text-xs text-gray-500 mt-2">Automatically prioritises report-worthy + photo-rich stories.</p>
             </div>
@@ -1004,7 +1004,7 @@ function ReportGeneratorPageContent() {
                   type="checkbox"
                   checked={config.includeMedia}
                   onChange={(e) => setConfig((prev) => ({ ...prev, includeMedia: e.target.checked }))}
-                  className="rounded text-purple-600 focus:ring-2 focus:ring-purple-500"
+                  className="rounded text-picc-ochre-600 focus:ring-2 focus:ring-picc-ochre-500"
                 />
                 Prioritise photos (media library + story images)
               </label>
@@ -1013,7 +1013,7 @@ function ReportGeneratorPageContent() {
                   type="checkbox"
                   checked={config.includeQuotes}
                   onChange={(e) => setConfig((prev) => ({ ...prev, includeQuotes: e.target.checked }))}
-                  className="rounded text-purple-600 focus:ring-2 focus:ring-purple-500"
+                  className="rounded text-picc-ochre-600 focus:ring-2 focus:ring-picc-ochre-500"
                 />
                 Pull validated quotes (if available)
               </label>
@@ -1022,7 +1022,7 @@ function ReportGeneratorPageContent() {
                   type="checkbox"
                   checked={config.publishStatus}
                   onChange={(e) => setConfig((prev) => ({ ...prev, publishStatus: e.target.checked }))}
-                  className="rounded text-purple-600 focus:ring-2 focus:ring-purple-500"
+                  className="rounded text-picc-ochre-600 focus:ring-2 focus:ring-picc-ochre-500"
                 />
                 Mark as published automatically
               </label>
@@ -1033,7 +1033,7 @@ function ReportGeneratorPageContent() {
             <button
               onClick={generateAnnualReport}
               disabled={status.state === 'working'}
-              className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-medium text-white bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-medium text-white bg-gradient-to-r from-picc-ochre-600 to-picc-ochre-700 hover:from-picc-ochre-700 hover:to-picc-ochre-800 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {status.state === 'working' ? <Loader2 className="w-5 h-5 animate-spin" /> : <Wand2 className="w-5 h-5" />}
               Generate {fiscalYearLabel} Annual Report
@@ -1041,7 +1041,7 @@ function ReportGeneratorPageContent() {
 
             {status.state === 'working' && (
               <div className="text-sm text-gray-600 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-purple-600" />
+                <Sparkles className="w-4 h-4 text-picc-ochre-600" />
                 {status.message}
               </div>
             )}

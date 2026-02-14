@@ -157,7 +157,7 @@ export default function StorytellerInterviewsPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-picc-red mx-auto mb-4"></div>
           <p className="text-gray-600">Loading interviews...</p>
         </div>
       </div>
@@ -169,7 +169,7 @@ export default function StorytellerInterviewsPage() {
       <div className="p-8">
         <div className="text-center">
           <p className="text-red-600">Storyteller not found</p>
-          <Link href="/picc/storytellers" className="text-blue-600 hover:underline mt-4 inline-block">
+          <Link href="/picc/storytellers" className="text-picc-red hover:underline mt-4 inline-block">
             Back to Storytellers
           </Link>
         </div>
@@ -192,7 +192,7 @@ export default function StorytellerInterviewsPage() {
           </div>
           <button
             onClick={() => setShowAddForm(!showAddForm)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-picc-red text-white rounded-lg hover:bg-picc-red transition-colors"
           >
             <Plus className="w-5 h-5" />
             Add Interview
@@ -201,7 +201,7 @@ export default function StorytellerInterviewsPage() {
 
         <Link
           href="/picc/storytellers"
-          className="text-blue-600 hover:underline text-sm"
+          className="text-picc-red hover:underline text-sm"
         >
           ← Back to Storytellers
         </Link>
@@ -222,7 +222,7 @@ export default function StorytellerInterviewsPage() {
                   required
                   value={newInterview.interview_title}
                   onChange={(e) => setNewInterview({ ...newInterview, interview_title: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-warm-500"
                   placeholder="e.g., Youth Services Interview - Roy Prior"
                 />
               </div>
@@ -235,7 +235,7 @@ export default function StorytellerInterviewsPage() {
                   type="date"
                   value={newInterview.interview_date}
                   onChange={(e) => setNewInterview({ ...newInterview, interview_date: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-warm-500"
                 />
               </div>
             </div>
@@ -248,7 +248,7 @@ export default function StorytellerInterviewsPage() {
                 type="number"
                 value={newInterview.interview_duration_minutes}
                 onChange={(e) => setNewInterview({ ...newInterview, interview_duration_minutes: parseInt(e.target.value) || 0 })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-warm-500"
                 placeholder="e.g., 45"
               />
             </div>
@@ -262,7 +262,7 @@ export default function StorytellerInterviewsPage() {
                 value={newInterview.raw_transcript}
                 onChange={(e) => setNewInterview({ ...newInterview, raw_transcript: e.target.value })}
                 rows={10}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 font-mono text-sm"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-warm-500 font-mono text-sm"
                 placeholder="Paste the full interview transcript here..."
               />
               <p className="text-sm text-gray-500 mt-1">
@@ -278,7 +278,7 @@ export default function StorytellerInterviewsPage() {
                 value={newInterview.interview_notes}
                 onChange={(e) => setNewInterview({ ...newInterview, interview_notes: e.target.value })}
                 rows={3}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-warm-500"
                 placeholder="Context, key themes, or follow-up notes..."
               />
             </div>
@@ -286,7 +286,7 @@ export default function StorytellerInterviewsPage() {
             <div className="flex items-center gap-3">
               <button
                 type="submit"
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="px-6 py-2 bg-picc-red text-white rounded-lg hover:bg-picc-red transition-colors"
               >
                 Save Interview
               </button>
@@ -313,7 +313,7 @@ export default function StorytellerInterviewsPage() {
             </p>
             <button
               onClick={() => setShowAddForm(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-picc-red text-white rounded-lg hover:bg-picc-red"
             >
               <Plus className="w-5 h-5" />
               Add First Interview
@@ -348,8 +348,8 @@ export default function StorytellerInterviewsPage() {
 
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
                       interview.status === 'raw' ? 'bg-yellow-100 text-yellow-700' :
-                      interview.status === 'transcribed' ? 'bg-blue-100 text-blue-700' :
-                      interview.status === 'edited' ? 'bg-purple-100 text-purple-700' :
+                      interview.status === 'transcribed' ? 'bg-warm-100 text-picc-red' :
+                      interview.status === 'edited' ? 'bg-warm-100 text-picc-ochre' :
                       interview.status === 'approved' ? 'bg-green-100 text-green-700' :
                       'bg-gray-100 text-gray-700'
                     }`}>
@@ -368,7 +368,7 @@ export default function StorytellerInterviewsPage() {
               </div>
 
               {interview.interview_notes && (
-                <div className="mb-4 p-3 bg-blue-50 border border-blue-100 rounded">
+                <div className="mb-4 p-3 bg-warm-50 border border-warm-100 rounded">
                   <p className="text-sm text-gray-700">{interview.interview_notes}</p>
                 </div>
               )}
@@ -385,7 +385,7 @@ export default function StorytellerInterviewsPage() {
               <div className="flex items-center gap-2">
                 <Link
                   href={`/picc/storytellers/${storytellerId}/interviews/${interview.id}`}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors text-sm"
+                  className="flex items-center gap-2 px-4 py-2 bg-warm-50 text-picc-red rounded hover:bg-warm-100 transition-colors text-sm"
                 >
                   <ExternalLink className="w-4 h-4" />
                   View Full Transcript

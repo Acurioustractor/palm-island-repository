@@ -463,7 +463,7 @@ export default function MediaEditPage() {
           <button
             onClick={save}
             disabled={saving}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-picc-red text-white hover:bg-picc-red disabled:opacity-60"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             Save

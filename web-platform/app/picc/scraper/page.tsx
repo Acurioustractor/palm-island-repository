@@ -186,7 +186,7 @@ export default function QuotesPage() {
   if (loading) {
     return (
       <div className="p-8 text-center">
-        <Loader2 className="w-8 h-8 animate-spin mx-auto text-amber-600" />
+        <Loader2 className="w-8 h-8 animate-spin mx-auto text-picc-ochre-600" />
         <p className="text-gray-500 mt-2">Loading content...</p>
       </div>
     );
@@ -204,15 +204,15 @@ export default function QuotesPage() {
 
       {/* Stats Dashboard */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-200">
+        <div className="bg-gradient-to-br from-picc-ochre-50 to-orange-50 rounded-xl p-4 border border-picc-ochre-200">
           <div className="flex items-center gap-2 mb-2">
-            <QuoteIcon className="w-5 h-5 text-amber-600" />
-            <span className="text-2xl font-bold text-amber-700">{quotes.length}</span>
+            <QuoteIcon className="w-5 h-5 text-picc-ochre-600" />
+            <span className="text-2xl font-bold text-picc-ochre-700">{quotes.length}</span>
           </div>
-          <div className="text-sm text-amber-600">Total Quotes</div>
+          <div className="text-sm text-picc-ochre-600">Total Quotes</div>
         </div>
 
-        <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
+        <div className="bg-gradient-to-br from-green-50 to-sage-50 rounded-xl p-4 border border-green-200">
           <div className="flex items-center gap-2 mb-2">
             <CheckCircle className="w-5 h-5 text-green-600" />
             <span className="text-2xl font-bold text-green-700">{validatedCount}</span>
@@ -220,15 +220,15 @@ export default function QuotesPage() {
           <div className="text-sm text-green-600">Validated</div>
         </div>
 
-        <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
+        <div className="bg-gradient-to-br from-picc-ochre-50 to-picc-red-50 rounded-xl p-4 border border-picc-ochre-200">
           <div className="flex items-center gap-2 mb-2">
-            <Star className="w-5 h-5 text-purple-600" />
-            <span className="text-2xl font-bold text-purple-700">{reportReadyCount}</span>
+            <Star className="w-5 h-5 text-picc-ochre-600" />
+            <span className="text-2xl font-bold text-picc-ochre-700">{reportReadyCount}</span>
           </div>
-          <div className="text-sm text-purple-600">Report Ready</div>
+          <div className="text-sm text-picc-ochre-600">Report Ready</div>
         </div>
 
-        <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-4 border border-blue-200">
+        <div className="bg-gradient-to-br from-blue-50 to-warm-50 rounded-xl p-4 border border-blue-200">
           <div className="flex items-center gap-2 mb-2">
             <FileText className="w-5 h-5 text-blue-600" />
             <span className="text-2xl font-bold text-blue-700">{recentContentCount}</span>
@@ -252,7 +252,7 @@ export default function QuotesPage() {
                     placeholder="Search quotes..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre-500"
                   />
                 </div>
               </div>
@@ -260,7 +260,7 @@ export default function QuotesPage() {
               <select
                 value={themeFilter}
                 onChange={(e) => setThemeFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 text-sm"
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre-500 text-sm"
               >
                 <option value="">All Themes</option>
                 {themes.map(theme => (
@@ -275,7 +275,7 @@ export default function QuotesPage() {
                   type="checkbox"
                   checked={showValidatedOnly}
                   onChange={(e) => setShowValidatedOnly(e.target.checked)}
-                  className="rounded text-amber-600"
+                  className="rounded text-picc-ochre-600"
                 />
                 <span className="text-sm text-gray-600">Validated</span>
               </label>
@@ -284,7 +284,7 @@ export default function QuotesPage() {
                   type="checkbox"
                   checked={showReportOnly}
                   onChange={(e) => setShowReportOnly(e.target.checked)}
-                  className="rounded text-amber-600"
+                  className="rounded text-picc-ochre-600"
                 />
                 <span className="text-sm text-gray-600">Report Ready</span>
               </label>
@@ -297,7 +297,7 @@ export default function QuotesPage() {
               <h2 className="font-semibold text-gray-900">{filteredQuotes.length} Quotes</h2>
               <Link
                 href="/picc/annual-reports"
-                className="text-sm text-amber-600 hover:text-amber-700 font-medium"
+                className="text-sm text-picc-ochre-600 hover:text-picc-ochre-700 font-medium"
               >
                 Add to Reports →
               </Link>
@@ -317,7 +317,7 @@ export default function QuotesPage() {
                   key={quote.id}
                   className={`bg-white border rounded-xl p-5 transition-all ${
                     quote.suggested_for_report
-                      ? 'border-amber-300 bg-amber-50/30'
+                      ? 'border-picc-ochre-300 bg-picc-ochre-50/30'
                       : quote.is_validated
                         ? 'border-green-200'
                         : 'border-gray-200'
@@ -333,7 +333,7 @@ export default function QuotesPage() {
                         — {quote.attribution || 'Community Voice'}
                       </span>
                       {quote.theme && (
-                        <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full">
+                        <span className="px-2 py-0.5 bg-picc-ochre-100 text-picc-ochre-700 text-xs rounded-full">
                           {quote.theme}
                         </span>
                       )}
@@ -366,7 +366,7 @@ export default function QuotesPage() {
                         onClick={() => toggleReportSuggestion(quote.id, !quote.suggested_for_report)}
                         className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                           quote.suggested_for_report
-                            ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'
+                            ? 'bg-picc-ochre-100 text-picc-ochre-700 hover:bg-picc-ochre-200'
                             : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                         }`}
                       >
@@ -390,14 +390,14 @@ export default function QuotesPage() {
         {/* Sidebar - Content & Sources */}
         <div className="space-y-6">
           {/* Quick Actions */}
-          <div className="bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl p-6 text-white">
+          <div className="bg-gradient-to-br from-picc-ochre-500 to-orange-500 rounded-xl p-6 text-white">
             <h3 className="font-bold mb-2">Ready for Reports?</h3>
-            <p className="text-amber-100 text-sm mb-4">
+            <p className="text-picc-ochre-100 text-sm mb-4">
               {reportReadyCount} quotes ready to add to your annual report
             </p>
             <Link
               href="/picc/annual-reports"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-white text-amber-600 rounded-lg font-medium hover:bg-amber-50"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white text-picc-ochre-600 rounded-lg font-medium hover:bg-picc-ochre-50"
             >
               <FileText className="w-4 h-4" />
               Go to Reports
@@ -474,7 +474,7 @@ export default function QuotesPage() {
           </div>
 
           {/* Help */}
-          <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-5 border border-blue-200">
+          <div className="bg-gradient-to-br from-blue-50 to-picc-ochre-50 rounded-xl p-5 border border-blue-200">
             <h3 className="font-semibold text-gray-900 mb-2">How it works</h3>
             <ul className="text-sm text-gray-600 space-y-2">
               <li className="flex items-start gap-2">
@@ -544,7 +544,7 @@ export default function QuotesPage() {
                   setSelectedContent(null);
                 }}
                 disabled={extracting === selectedContent.id}
-                className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg font-medium hover:from-amber-600 hover:to-orange-600 flex items-center gap-2"
+                className="px-4 py-2 bg-gradient-to-r from-picc-ochre-500 to-orange-500 text-white rounded-lg font-medium hover:from-picc-ochre-600 hover:to-orange-600 flex items-center gap-2"
               >
                 {extracting === selectedContent.id ? (
                   <>

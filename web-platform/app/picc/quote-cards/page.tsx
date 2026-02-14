@@ -167,7 +167,7 @@ export default function QuoteCardsPage() {
           </Link>
 
           <div className="flex items-center gap-3 mb-2">
-            <ImageIcon className="h-8 w-8 text-pink-600" />
+            <ImageIcon className="h-8 w-8 text-picc-red" />
             <h1 className="text-3xl font-bold text-gray-900">Quote Card Generator</h1>
           </div>
           <p className="text-gray-600">Create shareable quote cards for social media</p>
@@ -190,7 +190,7 @@ export default function QuoteCardsPage() {
                     setQuoteText(firstSentence.trim());
                   }
                 }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent mb-4"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent mb-4"
               >
                 <option value="">Choose a story...</option>
                 {stories.map(story => (
@@ -210,14 +210,14 @@ export default function QuoteCardsPage() {
                 onChange={(e) => setQuoteText(e.target.value)}
                 placeholder="Enter a powerful quote..."
                 rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent mb-4"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent mb-4"
               />
               <input
                 type="text"
                 value={attribution}
                 onChange={(e) => setAttribution(e.target.value)}
                 placeholder="Attribution (e.g., Elder Mary Smith)"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent"
               />
             </div>
 
@@ -239,7 +239,7 @@ export default function QuoteCardsPage() {
                         setBackgroundColor(preset.bg);
                         setTextColor(preset.text);
                       }}
-                      className="aspect-square rounded-lg border-2 border-gray-200 hover:border-pink-500 transition-all relative group"
+                      className="aspect-square rounded-lg border-2 border-gray-200 hover:border-picc-red transition-all relative group"
                       style={{ backgroundColor: preset.bg }}
                       title={preset.name}
                     >
@@ -303,16 +303,16 @@ export default function QuoteCardsPage() {
               <button
                 onClick={downloadCard}
                 disabled={!quoteText}
-                className="w-full bg-pink-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-pink-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                className="w-full bg-picc-red text-white px-6 py-3 rounded-lg font-medium hover:bg-picc-red/90 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
               >
                 <Download className="h-5 w-5" />
                 Download Quote Card
               </button>
             </div>
 
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <div className="text-sm text-blue-900 font-medium mb-1">Social Media Tips</div>
-              <ul className="text-xs text-blue-700 space-y-1">
+            <div className="bg-warm-50 border border-warm-200 rounded-lg p-4">
+              <div className="text-sm text-picc-earth font-medium mb-1">Social Media Tips</div>
+              <ul className="text-xs text-picc-red space-y-1">
                 <li>• Cards are 1200x1200px (perfect for Instagram)</li>
                 <li>• Keep quotes short and impactful (under 30 words)</li>
                 <li>• Use high contrast for readability</li>

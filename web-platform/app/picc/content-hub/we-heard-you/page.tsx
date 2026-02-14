@@ -65,7 +65,7 @@ export default function WeHeardYouPage() {
           <div className="text-sm text-gray-600">Actions Taken</div>
         </div>
         <div className="bg-white p-6 rounded-lg border border-gray-200 text-center">
-          <TrendingUp className="w-8 h-8 text-purple-600 mx-auto mb-2" />
+          <TrendingUp className="w-8 h-8 text-picc-ochre mx-auto mb-2" />
           <div className="text-2xl font-bold text-gray-900">
             {insights.filter(i => i.status === 'resolved').length}
           </div>

@@ -1,9 +1,6 @@
 import Link from 'next/link';
 import { createServerSupabase } from '@/lib/supabase/client';
-import {
-  BarChart3, Users, BookOpen, Clock, TrendingUp,
-  FileText, Mic, Settings, ArrowRight, AlertCircle
-} from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 
 export default async function PICCDashboard() {
   const supabase = createServerSupabase();
@@ -27,6 +24,12 @@ export default async function PICCDashboard() {
     .from('profiles')
     .select('*', { count: 'exact', head: true });
 
+  const { count: mediaFiles } = await supabase
+    .from('media_files')
+    .select('*', { count: 'exact', head: true })
+    .eq('is_public', true)
+    .is('deleted_at', null);
+
   // Get recent submissions
   const { data: recentSubmissions } = await supabase
     .from('stories')
@@ -43,222 +46,130 @@ export default async function PICCDashboard() {
     .limit(5);
 
   return (
-    <div className="p-8">
+    <div>
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard Overview</h1>
-        <p className="text-gray-600 mt-1">Manage content, analytics, and community engagement</p>
+        <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">PICC Admin</p>
+        <h1 className="text-4xl font-bold text-gray-900 mt-1">Dashboard</h1>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-600">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-blue-100 rounded-lg">
-                <BookOpen className="w-6 h-6 text-blue-600" />
-              </div>
-              <div className="text-right">
-                <div className="text-3xl font-bold text-gray-900">{totalStories || 0}</div>
-                <div className="text-sm text-gray-600">Total Stories</div>
-              </div>
-            </div>
-            <div className="text-sm text-gray-600">
-              {publishedStories || 0} published
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-amber-600">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-amber-100 rounded-lg">
-                <Clock className="w-6 h-6 text-amber-600" />
-              </div>
-              <div className="text-right">
-                <div className="text-3xl font-bold text-gray-900">{submittedStories || 0}</div>
-                <div className="text-sm text-gray-600">Pending Review</div>
-              </div>
-            </div>
-            <div className="text-sm text-amber-600 font-medium">
-              {submittedStories ? 'Needs attention' : 'All caught up'}
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-teal-600">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-teal-100 rounded-lg">
-                <Users className="w-6 h-6 text-teal-600" />
-              </div>
-              <div className="text-right">
-                <div className="text-3xl font-bold text-gray-900">{storytellers || 0}</div>
-                <div className="text-sm text-gray-600">Storytellers</div>
-              </div>
-            </div>
-            <div className="text-sm text-gray-600">
-              Community members
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-purple-600">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-purple-100 rounded-lg">
-                <TrendingUp className="w-6 h-6 text-purple-600" />
-              </div>
-              <div className="text-right">
-                <div className="text-3xl font-bold text-gray-900">100%</div>
-                <div className="text-sm text-gray-600">Data Sovereignty</div>
-              </div>
-            </div>
-            <div className="text-sm text-gray-600">
-              Community controlled
-            </div>
-          </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
+        <div>
+          <p className="text-3xl font-bold text-gray-900">{totalStories || 0}</p>
+          <p className="text-sm text-gray-500 mt-1">Total stories</p>
+          <p className="text-xs text-gray-400 mt-2">{publishedStories || 0} published</p>
+        </div>
+        <div>
+          <p className="text-3xl font-bold text-gray-900">{submittedStories || 0}</p>
+          <p className="text-sm text-gray-500 mt-1">Pending review</p>
+          <p className="text-xs text-gray-400 mt-2">{submittedStories ? 'Needs attention' : 'All caught up'}</p>
+        </div>
+        <div>
+          <p className="text-3xl font-bold text-gray-900">{storytellers || 0}</p>
+          <p className="text-sm text-gray-500 mt-1">Storytellers</p>
+          <p className="text-xs text-gray-400 mt-2">Community members</p>
+        </div>
+        <div>
+          <p className="text-3xl font-bold text-gray-900">{mediaFiles || 0}</p>
+          <p className="text-sm text-gray-500 mt-1">Photos & media</p>
+          <p className="text-xs text-gray-400 mt-2">Community library</p>
+        </div>
       </div>
 
       {/* Quick Actions */}
-      <div className="grid md:grid-cols-3 gap-6 mb-8">
+      <div className="mb-10">
+        <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">Quick actions</p>
+        <div className="border border-gray-200 rounded-xl divide-y divide-gray-100">
           <Link
-            href="/picc/admin/storytellers"
-            className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg border border-gray-200 hover:border-blue-300 transition-all group"
+            href="/picc/stories"
+            className="flex items-center justify-between px-6 py-5 hover:bg-gray-50 transition-colors group"
           >
-            <div className="flex items-center gap-4 mb-4">
-              <div className="p-3 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
-                <Users className="w-6 h-6 text-blue-600" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900">Manage Stories</h3>
+            <div>
+              <p className="text-sm font-medium text-gray-900">Stories</p>
+              <p className="text-xs text-gray-500 mt-0.5">View, edit, and publish community stories</p>
             </div>
-            <p className="text-gray-600 text-sm mb-4">
-              View, edit, and publish community stories
-            </p>
-            <div className="flex items-center gap-2 text-blue-600 font-semibold group-hover:gap-3 transition-all">
-              <span>Manage</span>
-              <ArrowRight className="w-4 h-4" />
-            </div>
+            <ChevronRight className="h-4 w-4 text-gray-300 group-hover:text-gray-500 transition-colors" />
           </Link>
-
           <Link
             href="/picc/analytics"
-            className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg border border-gray-200 hover:border-teal-300 transition-all group"
+            className="flex items-center justify-between px-6 py-5 hover:bg-gray-50 transition-colors group"
           >
-            <div className="flex items-center gap-4 mb-4">
-              <div className="p-3 bg-teal-100 rounded-lg group-hover:bg-teal-200 transition-colors">
-                <BarChart3 className="w-6 h-6 text-teal-600" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900">Analytics</h3>
+            <div>
+              <p className="text-sm font-medium text-gray-900">Analytics</p>
+              <p className="text-xs text-gray-500 mt-0.5">View impact metrics and engagement data</p>
             </div>
-            <p className="text-gray-600 text-sm mb-4">
-              View impact metrics and engagement data
-            </p>
-            <div className="flex items-center gap-2 text-teal-600 font-semibold group-hover:gap-3 transition-all">
-              <span>View Analytics</span>
-              <ArrowRight className="w-4 h-4" />
-            </div>
+            <ChevronRight className="h-4 w-4 text-gray-300 group-hover:text-gray-500 transition-colors" />
           </Link>
-
           <Link
-            href="/picc/content-studio"
-            className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg border border-gray-200 hover:border-purple-300 transition-all group"
+            href="/picc/media"
+            className="flex items-center justify-between px-6 py-5 hover:bg-gray-50 transition-colors group"
           >
-            <div className="flex items-center gap-4 mb-4">
-              <div className="p-3 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
-                <FileText className="w-6 h-6 text-purple-600" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900">Content Studio</h3>
+            <div>
+              <p className="text-sm font-medium text-gray-900">Media Library</p>
+              <p className="text-xs text-gray-500 mt-0.5">Browse and manage community photos and media</p>
             </div>
-            <p className="text-gray-600 text-sm mb-4">
-              Export stories to social media and create shareable content
-            </p>
-            <div className="flex items-center gap-2 text-purple-600 font-semibold group-hover:gap-3 transition-all">
-              <span>Create Content</span>
-              <ArrowRight className="w-4 h-4" />
-            </div>
+            <ChevronRight className="h-4 w-4 text-gray-300 group-hover:text-gray-500 transition-colors" />
           </Link>
+          <Link
+            href="/picc/annual-report-data"
+            className="flex items-center justify-between px-6 py-5 hover:bg-gray-50 transition-colors group"
+          >
+            <div>
+              <p className="text-sm font-medium text-gray-900">Annual Report Data</p>
+              <p className="text-xs text-gray-500 mt-0.5">Manage data and metrics for annual reports</p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-gray-300 group-hover:text-gray-500 transition-colors" />
+          </Link>
+        </div>
       </div>
 
       {/* Pending Review */}
       {(submittedStories ?? 0) > 0 && (
-        <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200 mb-8">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <Clock className="w-6 h-6 text-amber-600" />
-                <h2 className="text-xl font-bold text-gray-900">Pending Review</h2>
-              </div>
-              <Link
-                href="/picc/admin/storytellers"
-                className="text-blue-600 hover:text-blue-700 font-semibold text-sm"
-              >
-                View All →
-              </Link>
-            </div>
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Pending review</p>
+            <Link
+              href="/picc/stories"
+              className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
+            >
+              View all &rarr;
+            </Link>
+          </div>
 
+          <div className="border border-gray-200 rounded-xl divide-y divide-gray-100">
             {recentSubmissions && recentSubmissions.length > 0 ? (
-              <div className="space-y-3">
-                {recentSubmissions.map((story: any) => (
-                  <div
-                    key={story.id}
-                    className="flex items-center justify-between p-4 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors"
-                  >
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900 mb-1">{story.title}</h3>
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
-                        <span>
-                          By: {story.profiles?.preferred_name || story.profiles?.full_name || 'Community Voice'}
-                        </span>
-                        <span>•</span>
-                        <span>
-                          {new Date(story.created_at).toLocaleDateString()}
-                        </span>
-                      </div>
+              recentSubmissions.map((story: any) => (
+                <div
+                  key={story.id}
+                  className="flex items-center justify-between px-6 py-4"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">{story.title}</p>
+                    <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
+                      <span>
+                        {story.profiles?.preferred_name || story.profiles?.full_name || 'Community Voice'}
+                      </span>
+                      <span>&middot;</span>
+                      <span>
+                        {new Date(story.created_at).toLocaleDateString()}
+                      </span>
                     </div>
-                    <Link
-                      href={`/stories/${story.id}`}
-                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all"
-                    >
-                      Review
-                    </Link>
                   </div>
-                ))}
-              </div>
+                  <Link
+                    href={`/stories/${story.id}`}
+                    className="text-sm text-gray-500 hover:text-gray-900 font-medium transition-colors ml-4"
+                  >
+                    Review &rarr;
+                  </Link>
+                </div>
+              ))
             ) : (
-              <p className="text-gray-600 text-center py-8">No submissions pending review</p>
+              <p className="text-gray-500 text-center py-8 text-sm">No submissions pending review</p>
             )}
+          </div>
         </div>
       )}
-
-      {/* Phase 2 Preview */}
-      <div className="bg-gradient-to-r from-blue-900 to-purple-900 text-white p-8 rounded-xl shadow-lg">
-        <h2 className="text-2xl font-bold mb-4">Coming Soon: Phase 2 Features</h2>
-        <p className="text-blue-100 mb-6">
-          Enhanced tools for content management, social media, and community engagement
-        </p>
-        <div className="grid md:grid-cols-3 gap-6">
-          <div>
-            <div className="font-semibold mb-2 flex items-center gap-2">
-              <FileText className="w-5 h-5" />
-              Content Studio
-            </div>
-            <p className="text-sm text-blue-200">
-              Export stories to social media, create quote cards, generate newsletters
-            </p>
-          </div>
-          <div>
-            <div className="font-semibold mb-2 flex items-center gap-2">
-              <Mic className="w-5 h-5" />
-              Newsletter Builder
-            </div>
-            <p className="text-sm text-blue-200">
-              Create and send newsletters with story highlights and impact metrics
-            </p>
-          </div>
-          <div>
-            <div className="font-semibold mb-2 flex items-center gap-2">
-              <BarChart3 className="w-5 h-5" />
-              Advanced Analytics
-            </div>
-            <p className="text-sm text-blue-200">
-              Detailed insights, custom reports, and funder-ready exports
-            </p>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

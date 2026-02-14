@@ -363,10 +363,10 @@ export default function StoryEditorPage() {
                   {isNew ? 'New Story' : 'Edit Story'}
                 </h1>
                 {hasChanges && (
-                  <span className="text-xs text-amber-600">Unsaved changes</span>
+                  <span className="text-xs text-picc-ochre-600">Unsaved changes</span>
                 )}
                 {!hasChanges && lastSavedAt && (
-                  <span className="text-xs text-emerald-700">
+                  <span className="text-xs text-sage-700">
                     Saved {new Date(lastSavedAt).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 )}

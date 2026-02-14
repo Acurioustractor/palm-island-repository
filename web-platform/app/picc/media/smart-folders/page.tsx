@@ -1,19 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import {
-  ArrowLeft,
-  Sparkles,
-  Users,
-  Heart,
-  Star,
-  AlertCircle,
-  Calendar,
-  Folder,
-  FileText,
-  Image as ImageIcon,
-  Loader2
-} from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 interface SmartFolder {
@@ -28,34 +16,22 @@ interface SmartFolder {
   created_at: string;
 }
 
-interface MediaCount {
-  [key: string]: number;
-}
-
-const iconMap: Record<string, any> = {
-  Users,
-  Heart,
-  Star,
-  AlertCircle,
-  Calendar,
-  Folder,
-  FileText,
-};
-
-const colorClasses: Record<string, { bg: string; border: string; text: string; badge: string }> = {
-  amber: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', badge: 'bg-amber-100 text-amber-700' },
-  blue: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', badge: 'bg-blue-100 text-blue-700' },
-  red: { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700', badge: 'bg-red-100 text-red-700' },
-  purple: { bg: 'bg-purple-50', border: 'border-purple-200', text: 'text-purple-700', badge: 'bg-purple-100 text-purple-700' },
-  green: { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-700', badge: 'bg-green-100 text-green-700' },
-  pink: { bg: 'bg-pink-50', border: 'border-pink-200', text: 'text-pink-700', badge: 'bg-pink-100 text-pink-700' },
+const COLOR_ACCENTS: Record<string, string> = {
+  amber: 'border-l-amber-400',
+  blue: 'border-l-blue-400',
+  red: 'border-l-red-400',
+  purple: 'border-l-purple-400',
+  green: 'border-l-green-500',
+  pink: 'border-l-pink-400',
 };
 
 export default function SmartFoldersPage() {
   const [folders, setFolders] = useState<SmartFolder[]>([]);
-  const [mediaCounts, setMediaCounts] = useState<MediaCount>({});
+  const [mediaCounts, setMediaCounts] = useState<Record<string, number>>({});
+  const [thumbnails, setThumbnails] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [bootstrapping, setBootstrapping] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   useEffect(() => {
     loadSmartFolders();
@@ -68,7 +44,6 @@ export default function SmartFoldersPage() {
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
       const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-      // Load smart folders
       const response = await fetch(
         `${supabaseUrl}/rest/v1/smart_folders?select=*&order=name`,
         {
@@ -88,8 +63,18 @@ export default function SmartFoldersPage() {
       const data = await response.json();
       setFolders(data || []);
 
-      // Calculate counts for each folder
-      await calculateCounts(data);
+      try {
+        const countsRes = await fetch('/api/media/smart-folder-counts', {
+          signal: AbortSignal.timeout(30000),
+        });
+        if (countsRes.ok) {
+          const countsJson = await countsRes.json();
+          setMediaCounts(countsJson.counts || {});
+          setThumbnails(countsJson.thumbnails || {});
+        }
+      } catch (countErr) {
+        console.error('Error loading folder counts:', countErr);
+      }
     } catch (error: any) {
       console.error('Error loading smart folders:', error);
     } finally {
@@ -104,7 +89,6 @@ export default function SmartFoldersPage() {
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(json?.error || 'Failed to bootstrap folders');
       await loadSmartFolders();
-      alert(`Created/updated ${json.createdOrUpdated || 0} system folders.`);
     } catch (e: any) {
       alert(e?.message || 'Failed to bootstrap folders');
     } finally {
@@ -112,225 +96,271 @@ export default function SmartFoldersPage() {
     }
   };
 
-  const calculateCounts = async (folders: SmartFolder[]) => {
-    try {
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  const groupFolders = (folderList: SmartFolder[]) => {
+    const groups: { label: string; folders: SmartFolder[] }[] = [];
+    const events: SmartFolder[] = [];
+    const services: SmartFolder[] = [];
+    const projects: SmartFolder[] = [];
+    const fiscalYears: SmartFolder[] = [];
+    const annualReports: SmartFolder[] = [];
+    const utility: SmartFolder[] = [];
 
-      // Get all media files
-      const mediaResponse = await fetch(
-        `${supabaseUrl}/rest/v1/media_files?select=id,tags,quality_score,created_at&deleted_at=is.null`,
-        {
-          headers: {
-            'apikey': supabaseAnonKey,
-            'Authorization': `Bearer ${supabaseAnonKey}`,
-          },
-          signal: AbortSignal.timeout(10000),
-        }
-      );
-
-      if (!mediaResponse.ok) return;
-
-      const allMedia = await mediaResponse.json();
-      const counts: MediaCount = {};
-
-      // Calculate counts based on query rules
-      folders.forEach(folder => {
-        counts[folder.slug] = getMatchingMediaCount(folder, allMedia);
-      });
-
-      setMediaCounts(counts);
-    } catch (error) {
-      console.error('Error calculating counts:', error);
+    for (const f of folderList) {
+      if (f.slug.startsWith('event-') || f.slug.startsWith('source-') || f.slug === 'profile-photos') {
+        events.push(f);
+      } else if (f.slug.startsWith('service-')) {
+        services.push(f);
+      } else if (f.slug.startsWith('project-')) {
+        projects.push(f);
+      } else if (f.slug.startsWith('fy-')) {
+        fiscalYears.push(f);
+      } else if (f.slug.startsWith('annual-report-')) {
+        annualReports.push(f);
+      } else {
+        utility.push(f);
+      }
     }
-  };
 
-  const getMatchingMediaCount = (folder: SmartFolder, allMedia: any[]): number => {
-    const rules = folder.query_rules;
-    if (!rules || !rules.filters) return 0;
+    if (events.length) groups.push({ label: 'Photo Collections', folders: events });
+    if (utility.length) groups.push({ label: 'Utility', folders: utility });
+    if (services.length) groups.push({ label: 'Services', folders: services });
+    if (projects.length) groups.push({ label: 'Projects', folders: projects });
+    if (annualReports.length) groups.push({ label: 'Annual Reports', folders: annualReports });
+    if (fiscalYears.length) groups.push({ label: 'Fiscal Years', folders: fiscalYears });
 
-    return allMedia.filter(media => {
-      return rules.filters.every((filter: any) => {
-        switch (filter.field) {
-          case 'tags':
-            if (filter.operator === 'contains') {
-              return media.tags?.includes(filter.value);
-            }
-            if (filter.operator === 'contains_any') {
-              return filter.value.some((tag: string) => media.tags?.includes(tag));
-            }
-            if (filter.operator === 'empty') {
-              return !media.tags || media.tags.length === 0;
-            }
-            return false;
-
-          case 'quality_score':
-            if (filter.operator === '>=') {
-              return (media.quality_score || 0) >= filter.value;
-            }
-            return false;
-
-          case 'created_at':
-            if (filter.operator === '>=') {
-              if (filter.value === 'start_of_month') {
-                const now = new Date();
-                const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-                return new Date(media.created_at) >= startOfMonth;
-              }
-            }
-            return false;
-
-          default:
-            return false;
-        }
-      });
-    }).length;
-  };
-
-  const getIcon = (iconName: string) => {
-    const Icon = iconMap[iconName] || Folder;
-    return Icon;
-  };
-
-  const getColorClasses = (color: string) => {
-    return colorClasses[color] || colorClasses.blue;
+    return groups;
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center py-12">
-            <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
-            <p className="text-gray-600">Loading smart folders...</p>
-          </div>
-        </div>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-6">
-          <Link href="/picc/media" className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-4">
-            <ArrowLeft className="h-4 w-4" />
-            Back to Media Library
-          </Link>
+  const systemFolders = folders.filter(f => f.is_system);
+  const customFolders = folders.filter(f => !f.is_system);
+  const groups = groupFolders(systemFolders);
 
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-3">
-              <Sparkles className="h-8 w-8 text-purple-600" />
-              <h1 className="text-3xl font-bold text-gray-900">Smart Folders</h1>
+  return (
+    <div className="min-h-screen bg-white">
+      <div className="max-w-6xl mx-auto px-6 py-12">
+
+        {/* Header */}
+        <div className="flex items-start justify-between mb-12">
+          <div>
+            <Link href="/picc/media" className="text-sm text-gray-400 hover:text-gray-600 transition-colors">
+              Media Library
+            </Link>
+            <h1 className="text-4xl font-bold text-gray-900 mt-2 mb-3">Smart Folders</h1>
+            <p className="text-lg text-gray-600 max-w-2xl">
+              Dynamic collections that automatically organize photos based on tags, events, and dates.
+            </p>
+          </div>
+          <div className="flex items-center gap-3 mt-2">
+            {/* View toggle */}
+            <div className="flex border border-gray-200 rounded-lg overflow-hidden text-sm">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`px-3 py-1.5 transition-colors ${viewMode === 'grid' ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-50'}`}
+              >
+                Grid
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`px-3 py-1.5 transition-colors ${viewMode === 'list' ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-50'}`}
+              >
+                List
+              </button>
             </div>
             <button
               onClick={bootstrapFolders}
               disabled={bootstrapping}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-sm disabled:opacity-60"
-              title="Create service/project/year folders automatically"
+              className="text-sm text-gray-500 hover:text-gray-700 border border-gray-200 rounded-lg px-4 py-1.5 hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
-              {bootstrapping ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-              Build PICC Folders
+              {bootstrapping ? 'Building...' : 'Rebuild'}
             </button>
           </div>
-          <p className="text-gray-600">
-            Dynamic collections that automatically organize photos based on tags, dates, and quality
-          </p>
         </div>
 
-        {/* System Smart Folders */}
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">System Folders</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {folders.filter(f => f.is_system).map((folder) => {
-              const Icon = getIcon(folder.icon);
-              const colors = getColorClasses(folder.color);
-              const count = mediaCounts[folder.slug] || 0;
+        {/* Grouped folder sections */}
+        {groups.map((group) => (
+          <div key={group.label} className="mb-12">
+            <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">
+              {group.label}
+            </h2>
 
-              return (
-                <Link
-                  key={folder.id}
-                  href={`/picc/media/smart-folders/${folder.slug}`}
-                  className={`group block p-6 rounded-xl border-2 ${colors.border} ${colors.bg} hover:shadow-lg transition-all`}
-                >
-                  <div className="flex items-start gap-4">
-                    <div className={`p-3 rounded-lg ${colors.badge}`}>
-                      <Icon className="w-6 h-6" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors">
-                        {folder.name}
-                      </h3>
-                      <p className="text-sm text-gray-600 mb-3">
-                        {folder.description}
-                      </p>
-                      <div className="flex items-center gap-2 text-sm">
-                        <ImageIcon className="w-4 h-4 text-gray-400" />
-                        <span className={`font-medium ${colors.text}`}>
-                          {count} photo{count !== 1 ? 's' : ''}
-                        </span>
+            {viewMode === 'grid' ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {group.folders.map((folder) => {
+                  const count = mediaCounts[folder.slug] || 0;
+                  const thumb = thumbnails[folder.slug];
+
+                  return (
+                    <Link
+                      key={folder.id}
+                      href={`/picc/media/smart-folders/${folder.slug}`}
+                      className="group rounded-lg overflow-hidden border border-gray-200 hover:shadow-md transition-all"
+                    >
+                      {/* Thumbnail */}
+                      <div className="aspect-[4/3] bg-gray-50 relative">
+                        {thumb ? (
+                          <img
+                            src={thumb}
+                            alt={folder.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <span className="text-xs text-gray-300">No photos</span>
+                          </div>
+                        )}
+                        {/* Count badge */}
+                        {count > 0 && (
+                          <div className="absolute top-2 right-2 px-2 py-0.5 bg-black/60 text-white text-xs rounded-full backdrop-blur-sm tabular-nums">
+                            {count}
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* User Smart Folders (if any) */}
-        {folders.filter(f => !f.is_system).length > 0 && (
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Custom Folders</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {folders.filter(f => !f.is_system).map((folder) => {
-                const Icon = getIcon(folder.icon);
-                const colors = getColorClasses(folder.color);
-                const count = mediaCounts[folder.slug] || 0;
-
-                return (
-                  <Link
-                    key={folder.id}
-                    href={`/picc/media/smart-folders/${folder.slug}`}
-                    className={`group block p-6 rounded-xl border-2 ${colors.border} ${colors.bg} hover:shadow-lg transition-all`}
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className={`p-3 rounded-lg ${colors.badge}`}>
-                        <Icon className="w-6 h-6" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors">
+                      {/* Label */}
+                      <div className="px-3 py-2.5">
+                        <h3 className="text-sm font-medium text-gray-900 truncate group-hover:text-gray-700 transition-colors">
                           {folder.name}
                         </h3>
-                        <p className="text-sm text-gray-600 mb-3">
-                          {folder.description}
-                        </p>
-                        <div className="flex items-center gap-2 text-sm">
-                          <ImageIcon className="w-4 h-4 text-gray-400" />
-                          <span className={`font-medium ${colors.text}`}>
-                            {count} photo{count !== 1 ? 's' : ''}
-                          </span>
-                        </div>
+                        <p className="text-xs text-gray-400 mt-0.5 truncate">{folder.description}</p>
                       </div>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="border border-gray-200 rounded-xl overflow-hidden divide-y divide-gray-100">
+                {group.folders.map((folder) => {
+                  const count = mediaCounts[folder.slug] || 0;
+                  const accent = COLOR_ACCENTS[folder.color] || 'border-l-gray-300';
+                  const thumb = thumbnails[folder.slug];
+
+                  return (
+                    <Link
+                      key={folder.id}
+                      href={`/picc/media/smart-folders/${folder.slug}`}
+                      className={`group flex items-center gap-4 px-5 py-3.5 bg-white hover:bg-gray-50 transition-colors border-l-4 ${accent}`}
+                    >
+                      {/* Thumbnail in list view */}
+                      <div className="w-12 h-12 rounded bg-gray-100 overflow-hidden flex-shrink-0">
+                        {thumb ? (
+                          <img src={thumb} alt="" className="w-full h-full object-cover" loading="lazy" />
+                        ) : (
+                          <div className="w-full h-full" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-base font-medium text-gray-900 group-hover:text-gray-700 transition-colors">
+                          {folder.name}
+                        </h3>
+                        <p className="text-sm text-gray-500 mt-0.5 truncate">{folder.description}</p>
+                      </div>
+                      <div className="flex items-center gap-4 ml-4">
+                        <span className={`text-sm tabular-nums ${count > 0 ? 'text-gray-700 font-medium' : 'text-gray-300'}`}>
+                          {count}
+                        </span>
+                        <span className="text-gray-300 group-hover:text-gray-500 transition-colors">&rarr;</span>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        ))}
+
+        {/* Custom folders */}
+        {customFolders.length > 0 && (
+          <div className="mb-12">
+            <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">
+              Custom Folders
+            </h2>
+            {viewMode === 'grid' ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {customFolders.map((folder) => {
+                  const count = mediaCounts[folder.slug] || 0;
+                  const thumb = thumbnails[folder.slug];
+                  return (
+                    <Link
+                      key={folder.id}
+                      href={`/picc/media/smart-folders/${folder.slug}`}
+                      className="group rounded-lg overflow-hidden border border-gray-200 hover:shadow-md transition-all"
+                    >
+                      <div className="aspect-[4/3] bg-gray-50 relative">
+                        {thumb ? (
+                          <img src={thumb} alt={folder.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <span className="text-xs text-gray-300">No photos</span>
+                          </div>
+                        )}
+                        {count > 0 && (
+                          <div className="absolute top-2 right-2 px-2 py-0.5 bg-black/60 text-white text-xs rounded-full backdrop-blur-sm tabular-nums">
+                            {count}
+                          </div>
+                        )}
+                      </div>
+                      <div className="px-3 py-2.5">
+                        <h3 className="text-sm font-medium text-gray-900 truncate">{folder.name}</h3>
+                        <p className="text-xs text-gray-400 mt-0.5 truncate">{folder.description}</p>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="border border-gray-200 rounded-xl overflow-hidden divide-y divide-gray-100">
+                {customFolders.map((folder) => {
+                  const count = mediaCounts[folder.slug] || 0;
+                  const thumb = thumbnails[folder.slug];
+                  return (
+                    <Link
+                      key={folder.id}
+                      href={`/picc/media/smart-folders/${folder.slug}`}
+                      className="group flex items-center gap-4 px-5 py-3.5 bg-white hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="w-12 h-12 rounded bg-gray-100 overflow-hidden flex-shrink-0">
+                        {thumb ? (
+                          <img src={thumb} alt="" className="w-full h-full object-cover" loading="lazy" />
+                        ) : (
+                          <div className="w-full h-full" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-base font-medium text-gray-900">{folder.name}</h3>
+                        <p className="text-sm text-gray-500 mt-0.5 truncate">{folder.description}</p>
+                      </div>
+                      <div className="flex items-center gap-4 ml-4">
+                        <span className={`text-sm tabular-nums ${count > 0 ? 'text-gray-700 font-medium' : 'text-gray-300'}`}>
+                          {count}
+                        </span>
+                        <span className="text-gray-300 group-hover:text-gray-500 transition-colors">&rarr;</span>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
 
-        {/* Empty State */}
+        {/* Empty state */}
         {folders.length === 0 && (
-          <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
-            <Sparkles className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No smart folders found</h3>
-            <p className="text-gray-600">
-              Smart folders will automatically organize your photos
+          <div className="text-center py-16">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No smart folders yet</h3>
+            <p className="text-gray-500 mb-6">
+              Click &ldquo;Rebuild&rdquo; to generate folders from your services, projects, and events.
             </p>
           </div>
         )}
+
       </div>
     </div>
   );

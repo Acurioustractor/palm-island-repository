@@ -75,9 +75,9 @@ export default function KnowledgeTimelinePage() {
 
   const getEventTypeColor = (type: string) => {
     const colors: Record<string, string> = {
-      'cultural': 'bg-purple-100 text-purple-700 border-purple-300',
-      'community': 'bg-blue-100 text-blue-700 border-blue-300',
-      'historical': 'bg-amber-100 text-amber-700 border-amber-300',
+      'cultural': 'bg-picc-ochre-100 text-picc-ochre border-picc-ochre-300',
+      'community': 'bg-warm-100 text-picc-red border-blue-300',
+      'historical': 'bg-picc-ochre-100 text-picc-ochre border-picc-ochre-300',
       'service': 'bg-green-100 text-green-700 border-green-300',
       'story': 'bg-gray-100 text-gray-700 border-gray-300'
     };
@@ -88,7 +88,7 @@ export default function KnowledgeTimelinePage() {
     <div className="p-8 max-w-4xl mx-auto">
       <Link
         href="/picc/knowledge"
-        className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6"
+        className="inline-flex items-center gap-2 text-picc-red hover:text-picc-red mb-6"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Knowledge Base
@@ -96,7 +96,7 @@ export default function KnowledgeTimelinePage() {
 
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-4">
-          <Calendar className="w-8 h-8 text-blue-600" />
+          <Calendar className="w-8 h-8 text-picc-red" />
           <h1 className="text-3xl font-bold text-gray-900">Community Timeline</h1>
         </div>
         <p className="text-gray-600">
@@ -106,7 +106,7 @@ export default function KnowledgeTimelinePage() {
 
       {loading ? (
         <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-picc-red mx-auto mb-4"></div>
           <p className="text-gray-600">Loading timeline...</p>
         </div>
       ) : events.length === 0 ? (
@@ -127,7 +127,7 @@ export default function KnowledgeTimelinePage() {
               >
                 <div className="flex items-center gap-3">
                   <span className="text-xl font-bold text-gray-900">{year}</span>
-                  <span className="px-2 py-1 bg-blue-100 text-blue-700 text-sm rounded">
+                  <span className="px-2 py-1 bg-warm-100 text-picc-red text-sm rounded">
                     {eventsByYear[year].length} events
                   </span>
                 </div>
@@ -147,7 +147,7 @@ export default function KnowledgeTimelinePage() {
                     >
                       {/* Timeline connector */}
                       <div className="flex flex-col items-center">
-                        <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
+                        <div className="w-3 h-3 bg-picc-red rounded-full"></div>
                         {index < eventsByYear[year].length - 1 && (
                           <div className="w-0.5 h-full bg-gray-300 absolute top-3 left-1.5"></div>
                         )}

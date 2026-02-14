@@ -1,32 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import {
-  Image as ImageIcon,
-  Film,
-  Folder,
-  FolderOpen,
-  Sparkles,
-  Upload,
-  Grid,
-  LayoutGrid,
-  ArrowRight,
-  TrendingUp
-} from 'lucide-react';
 import Link from 'next/link';
-
-interface QuickStat {
-  label: string;
-  value: string | number;
-  icon: React.ReactNode;
-  color: string;
-}
 
 export default function MediaLibraryPage() {
   const [stats, setStats] = useState({
     totalPhotos: 0,
     collections: 0,
-    smartFolders: 6,
+    smartFolders: 0,
     recentUploads: 0
   });
   const [loading, setLoading] = useState(true);
@@ -39,56 +20,38 @@ export default function MediaLibraryPage() {
     try {
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
       const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+      const headers = {
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`,
+        'Prefer': 'count=exact'
+      };
 
-      // Get total photos count
-      const photosResponse = await fetch(
-        `${supabaseUrl}/rest/v1/media_files?select=id&deleted_at=is.null&limit=1`,
-        {
-          headers: {
-            'apikey': supabaseKey,
-            'Authorization': `Bearer ${supabaseKey}`,
-            'Prefer': 'count=exact'
-          },
-          signal: AbortSignal.timeout(5000),
-        }
-      );
-      const photosCount = photosResponse.headers.get('content-range')?.split('/')[1] || '0';
+      const [photosRes, collectionsRes, foldersRes, recentRes] = await Promise.all([
+        fetch(`${supabaseUrl}/rest/v1/media_files?select=id&deleted_at=is.null&limit=1`, {
+          headers, signal: AbortSignal.timeout(5000),
+        }),
+        fetch(`${supabaseUrl}/rest/v1/photo_collections?select=id&limit=1`, {
+          headers, signal: AbortSignal.timeout(5000),
+        }),
+        fetch(`${supabaseUrl}/rest/v1/smart_folders?select=id&limit=1`, {
+          headers, signal: AbortSignal.timeout(5000),
+        }),
+        (() => {
+          const d = new Date();
+          d.setDate(d.getDate() - 7);
+          return fetch(`${supabaseUrl}/rest/v1/media_files?select=id&deleted_at=is.null&created_at=gte.${d.toISOString()}&limit=1`, {
+            headers, signal: AbortSignal.timeout(5000),
+          });
+        })()
+      ]);
 
-      // Get collections count
-      const collectionsResponse = await fetch(
-        `${supabaseUrl}/rest/v1/photo_collections?select=id&limit=1`,
-        {
-          headers: {
-            'apikey': supabaseKey,
-            'Authorization': `Bearer ${supabaseKey}`,
-            'Prefer': 'count=exact'
-          },
-          signal: AbortSignal.timeout(5000),
-        }
-      );
-      const collectionsCount = collectionsResponse.headers.get('content-range')?.split('/')[1] || '0';
-
-      // Get recent uploads (last 7 days)
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      const recentResponse = await fetch(
-        `${supabaseUrl}/rest/v1/media_files?select=id&deleted_at=is.null&created_at=gte.${sevenDaysAgo.toISOString()}&limit=1`,
-        {
-          headers: {
-            'apikey': supabaseKey,
-            'Authorization': `Bearer ${supabaseKey}`,
-            'Prefer': 'count=exact'
-          },
-          signal: AbortSignal.timeout(5000),
-        }
-      );
-      const recentCount = recentResponse.headers.get('content-range')?.split('/')[1] || '0';
+      const getCount = (res: Response) => parseInt(res.headers.get('content-range')?.split('/')[1] || '0');
 
       setStats({
-        totalPhotos: parseInt(photosCount),
-        collections: parseInt(collectionsCount),
-        smartFolders: 6,
-        recentUploads: parseInt(recentCount)
+        totalPhotos: getCount(photosRes),
+        collections: getCount(collectionsRes),
+        smartFolders: getCount(foldersRes),
+        recentUploads: getCount(recentRes)
       });
     } catch (error) {
       console.error('Error loading stats:', error);
@@ -97,203 +60,91 @@ export default function MediaLibraryPage() {
     }
   };
 
-  const quickStats: QuickStat[] = [
-    {
-      label: 'Total Media',
-      value: loading ? '...' : stats.totalPhotos.toLocaleString(),
-      icon: <ImageIcon className="w-5 h-5" />,
-      color: 'bg-blue-50 text-blue-600 border-blue-200'
-    },
-    {
-      label: 'Collections',
-      value: loading ? '...' : stats.collections,
-      icon: <Folder className="w-5 h-5" />,
-      color: 'bg-purple-50 text-purple-600 border-purple-200'
-    },
-    {
-      label: 'Smart Folders',
-      value: stats.smartFolders,
-      icon: <Sparkles className="w-5 h-5" />,
-      color: 'bg-amber-50 text-amber-600 border-amber-200'
-    },
-    {
-      label: 'Recent (7 days)',
-      value: loading ? '...' : stats.recentUploads,
-      icon: <TrendingUp className="w-5 h-5" />,
-      color: 'bg-green-50 text-green-600 border-green-200'
-    }
-  ];
-
-  const mainFeatures = [
-    {
-      title: 'Media Gallery',
-      description: 'Browse, search, and manage photos + video links with tags, metadata, and bulk actions',
-      href: '/picc/media/gallery',
-      icon: <Grid className="w-8 h-8" />,
-      color: 'bg-blue-50 border-blue-200 hover:bg-blue-100',
-      iconColor: 'text-blue-600',
-      stats: `${stats.totalPhotos.toLocaleString()} items`
-    },
-    {
-      title: 'Video Links',
-      description: 'Add YouTube/Vimeo/Descript links (best for long videos) that show up in the gallery and can be tagged',
-      href: '/picc/media/external-videos',
-      icon: <Film className="w-8 h-8" />,
-      color: 'bg-pink-50 border-pink-200 hover:bg-pink-100',
-      iconColor: 'text-pink-600',
-      stats: 'External videos'
-    },
-    {
-      title: 'Collections',
-      description: 'Create and manage custom photo albums for events, projects, and themes',
-      href: '/picc/media/collections',
-      icon: <FolderOpen className="w-8 h-8" />,
-      color: 'bg-purple-50 border-purple-200 hover:bg-purple-100',
-      iconColor: 'text-purple-600',
-      stats: `${stats.collections} collections`
-    },
-    {
-      title: 'Smart Folders',
-      description: 'Dynamic collections that automatically organize photos by tags, dates, and quality',
-      href: '/picc/media/smart-folders',
-      icon: <Sparkles className="w-8 h-8" />,
-      color: 'bg-amber-50 border-amber-200 hover:bg-amber-100',
-      iconColor: 'text-amber-600',
-      stats: '6 smart folders'
-    },
-    {
-      title: 'Upload Media',
-      description: 'Upload photos, short videos, and audio files (for long videos, use Video Links)',
-      href: '/picc/media/upload',
-      icon: <Upload className="w-8 h-8" />,
-      color: 'bg-green-50 border-green-200 hover:bg-green-100',
-      iconColor: 'text-green-600',
-      stats: 'Drag & drop supported'
-    }
-  ];
+  const fmt = (n: number) => loading ? '\u2014' : n.toLocaleString();
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-white">
+      <div className="max-w-6xl mx-auto px-6 py-12">
+
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <LayoutGrid className="w-10 h-10 text-blue-600" />
-            <h1 className="text-4xl font-bold text-gray-900">Media Library</h1>
-          </div>
-          <p className="text-lg text-gray-600">
-            Organize, browse, and manage your photo collection with Collections and Smart Folders
+        <div className="mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-3">Media Library</h1>
+          <p className="text-lg text-gray-600 max-w-2xl">
+            Organize, browse, and manage your photo collection with collections and smart folders.
           </p>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          {quickStats.map((stat, index) => (
-            <div
-              key={index}
-              className={`p-4 rounded-xl border-2 ${stat.color} transition-all`}
-            >
-              <div className="flex items-center gap-2 mb-2">
-                {stat.icon}
-                <span className="text-sm font-medium">{stat.label}</span>
-              </div>
-              <div className="text-3xl font-bold">
-                {stat.value}
-              </div>
+        {/* Stats row */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+          {[
+            { label: 'Total media', value: fmt(stats.totalPhotos) },
+            { label: 'Collections', value: fmt(stats.collections) },
+            { label: 'Smart folders', value: fmt(stats.smartFolders) },
+            { label: 'Added this week', value: fmt(stats.recentUploads) },
+          ].map((stat) => (
+            <div key={stat.label}>
+              <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+              <p className="text-sm text-gray-500 mt-1">{stat.label}</p>
             </div>
           ))}
         </div>
 
-        {/* Main Features Grid */}
-        <div className="grid md:grid-cols-2 gap-6">
-          {mainFeatures.map((feature, index) => (
+        {/* Main navigation */}
+        <div className="space-y-px border border-gray-200 rounded-xl overflow-hidden mb-16">
+          {[
+            {
+              title: 'Gallery',
+              description: 'Browse, search, and manage all photos and video links with tags and bulk actions.',
+              href: '/picc/media/gallery',
+              stat: `${fmt(stats.totalPhotos)} items`,
+            },
+            {
+              title: 'Smart Folders',
+              description: 'Dynamic collections that automatically organize photos by tags, events, and dates.',
+              href: '/picc/media/smart-folders',
+              stat: `${fmt(stats.smartFolders)} folders`,
+            },
+            {
+              title: 'Collections',
+              description: 'Manually curated photo albums for specific events, projects, or themes.',
+              href: '/picc/media/collections',
+              stat: `${fmt(stats.collections)} collections`,
+            },
+            {
+              title: 'Video Links',
+              description: 'YouTube, Vimeo, and Descript links that appear in the gallery and can be tagged.',
+              href: '/picc/media/external-videos',
+            },
+            {
+              title: 'Upload',
+              description: 'Upload photos, short videos, and audio files. Drag and drop supported.',
+              href: '/picc/media/upload',
+            },
+            {
+              title: 'Cover Photos',
+              description: 'Manage hero images for all 33 integrated services.',
+              href: '/picc/media/cover-photos',
+            },
+          ].map((item) => (
             <Link
-              key={index}
-              href={feature.href}
-              className={`group block p-6 rounded-xl border-2 ${feature.color} transition-all hover:shadow-lg`}
+              key={item.title}
+              href={item.href}
+              className="group flex items-center justify-between px-6 py-5 bg-white hover:bg-gray-50 transition-colors"
             >
-              <div className="flex items-start gap-4">
-                <div className={`p-4 rounded-lg bg-white border-2 ${feature.color.split(' ')[1]} ${feature.iconColor}`}>
-                  {feature.icon}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-2">
-                    <h2 className="text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
-                      {feature.title}
-                    </h2>
-                    <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
-                  </div>
-                  <p className="text-gray-600 mb-3">
-                    {feature.description}
-                  </p>
-                  <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${feature.color}`}>
-                    {feature.stats}
-                  </div>
-                </div>
+              <div className="flex-1 min-w-0">
+                <h2 className="text-lg font-semibold text-gray-900 group-hover:text-gray-700 transition-colors">
+                  {item.title}
+                </h2>
+                <p className="text-sm text-gray-500 mt-0.5">{item.description}</p>
               </div>
+              {item.stat && (
+                <span className="text-sm text-gray-400 ml-6 whitespace-nowrap">{item.stat}</span>
+              )}
+              <span className="text-gray-300 group-hover:text-gray-500 ml-4 transition-colors">&rarr;</span>
             </Link>
           ))}
         </div>
 
-        {/* Quick Actions */}
-        <div className="mt-8 p-6 bg-white rounded-xl border-2 border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/picc/media/gallery"
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              <Grid className="w-4 h-4" />
-              Browse Gallery
-            </Link>
-            <Link
-              href="/picc/media/upload"
-              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-            >
-              <Upload className="w-4 h-4" />
-              Upload Media
-            </Link>
-            <Link
-              href="/picc/media/collections"
-              className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-            >
-              <Folder className="w-4 h-4" />
-              Manage Collections
-            </Link>
-            <Link
-              href="/picc/media/smart-folders"
-              className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
-            >
-              <Sparkles className="w-4 h-4" />
-              View Smart Folders
-            </Link>
-          </div>
-        </div>
-
-        {/* Info Cards */}
-        <div className="mt-8 grid md:grid-cols-3 gap-6">
-          <div className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border-2 border-blue-200">
-            <Grid className="w-8 h-8 text-blue-600 mb-3" />
-            <h3 className="font-semibold text-gray-900 mb-2">Gallery</h3>
-            <p className="text-sm text-gray-700">
-              Search, filter, and browse all photos with advanced metadata and bulk operations
-            </p>
-          </div>
-          <div className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border-2 border-purple-200">
-            <FolderOpen className="w-8 h-8 text-purple-600 mb-3" />
-            <h3 className="font-semibold text-gray-900 mb-2">Collections</h3>
-            <p className="text-sm text-gray-700">
-              Manually curated photo albums for specific events, projects, or themes
-            </p>
-          </div>
-          <div className="p-6 bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl border-2 border-amber-200">
-            <Sparkles className="w-8 h-8 text-amber-600 mb-3" />
-            <h3 className="font-semibold text-gray-900 mb-2">Smart Folders</h3>
-            <p className="text-sm text-gray-700">
-              Auto-updating dynamic collections based on tags, dates, quality, and other criteria
-            </p>
-          </div>
-        </div>
       </div>
     </div>
   );

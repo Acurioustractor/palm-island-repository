@@ -421,7 +421,7 @@ export default function StorytellersPage() {
             </Link>
             <Link
               href="/picc/storytellers/new"
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-picc-red text-white rounded-lg hover:bg-picc-red transition-colors"
             >
               <Plus className="w-4 h-4" />
               Add Storyteller
@@ -434,14 +434,14 @@ export default function StorytellersPage() {
           <Link
             href="/elders"
             target="_blank"
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-100 hover:bg-amber-100"
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-picc-ochre-50 text-picc-ochre-800 border border-picc-ochre-100 hover:bg-picc-ochre-100"
           >
             <ExternalLink className="w-3 h-3" />
             View Elders Page
           </Link>
           <Link
             href="/picc/stories"
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-50 text-purple-800 border border-purple-100 hover:bg-purple-100"
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-warm-100 text-picc-earth-500 border border-warm-100 hover:bg-warm-100"
           >
             <BookOpen className="w-3 h-3" />
             Manage Stories
@@ -450,25 +450,25 @@ export default function StorytellersPage() {
 
         {/* Stats */}
         <div className="grid grid-cols-5 gap-4 mt-6">
-          <div className="bg-blue-50 rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold text-blue-700">{stats.total}</div>
-            <div className="text-sm text-blue-600">Total</div>
+          <div className="bg-warm-50 rounded-lg p-4 text-center">
+            <div className="text-2xl font-bold text-picc-red">{stats.total}</div>
+            <div className="text-sm text-picc-red">Total</div>
           </div>
-          <div className="bg-amber-50 rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold text-amber-700">{stats.elders}</div>
-            <div className="text-sm text-amber-600">Elders</div>
+          <div className="bg-picc-ochre-50 rounded-lg p-4 text-center">
+            <div className="text-2xl font-bold text-picc-ochre-700">{stats.elders}</div>
+            <div className="text-sm text-picc-ochre-600">Elders</div>
           </div>
-          <div className="bg-green-50 rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold text-green-700">{stats.withStories}</div>
-            <div className="text-sm text-green-600">With Stories</div>
+          <div className="bg-sage-50 rounded-lg p-4 text-center">
+            <div className="text-2xl font-bold text-sage-700">{stats.withStories}</div>
+            <div className="text-sm text-sage-600">With Stories</div>
           </div>
-          <div className="bg-purple-50 rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold text-purple-700">{stats.totalStories}</div>
-            <div className="text-sm text-purple-600">Total Stories</div>
+          <div className="bg-warm-100 rounded-lg p-4 text-center">
+            <div className="text-2xl font-bold text-picc-ochre">{stats.totalStories}</div>
+            <div className="text-sm text-picc-ochre">Total Stories</div>
           </div>
-          <div className="bg-teal-50 rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold text-teal-700">{stats.totalInterviews}</div>
-            <div className="text-sm text-teal-600">Interviews</div>
+          <div className="bg-warm-50 rounded-lg p-4 text-center">
+            <div className="text-2xl font-bold text-picc-ochre">{stats.totalInterviews}</div>
+            <div className="text-sm text-picc-ochre">Interviews</div>
           </div>
         </div>
       </div>
@@ -485,7 +485,7 @@ export default function StorytellersPage() {
                 placeholder="Search by name..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
               />
             </div>
           </div>
@@ -494,7 +494,7 @@ export default function StorytellersPage() {
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
           >
             <option value="all">All Types</option>
             {STORYTELLER_TYPES.map((type) => (
@@ -508,7 +508,7 @@ export default function StorytellersPage() {
           <select
             value={hasStoriesFilter}
             onChange={(e) => setHasStoriesFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
           >
             <option value="all">Stories: Any</option>
             <option value="yes">Has Stories</option>
@@ -520,14 +520,14 @@ export default function StorytellersPage() {
             onClick={() => setShowFilters(!showFilters)}
             className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
               activeFiltersCount > 0
-                ? 'border-blue-300 bg-blue-50 text-blue-700'
+                ? 'border-warm-300 bg-warm-50 text-picc-red'
                 : 'border-gray-300 text-gray-700 hover:bg-gray-50'
             }`}
           >
             <Filter className="w-4 h-4" />
             Filters
             {activeFiltersCount > 0 && (
-              <span className="px-1.5 py-0.5 bg-blue-600 text-white text-xs rounded-full">
+              <span className="px-1.5 py-0.5 bg-picc-red text-white text-xs rounded-full">
                 {activeFiltersCount}
               </span>
             )}
@@ -539,7 +539,7 @@ export default function StorytellersPage() {
               onClick={() => setViewMode('table')}
               className={`p-2 ${
                 viewMode === 'table'
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-picc-red text-white'
                   : 'bg-white text-gray-600 hover:bg-gray-50'
               }`}
               title="Table view"
@@ -550,7 +550,7 @@ export default function StorytellersPage() {
               onClick={() => setViewMode('grid')}
               className={`p-2 ${
                 viewMode === 'grid'
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-picc-red text-white'
                   : 'bg-white text-gray-600 hover:bg-gray-50'
               }`}
               title="Grid view"
@@ -561,7 +561,7 @@ export default function StorytellersPage() {
               onClick={() => setViewMode('compact')}
               className={`p-2 ${
                 viewMode === 'compact'
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-picc-red text-white'
                   : 'bg-white text-gray-600 hover:bg-gray-50'
               }`}
               title="Compact view"
@@ -595,7 +595,7 @@ export default function StorytellersPage() {
                         }}
                         className={`px-2 py-1 text-xs rounded-full transition-colors ${
                           tagFilter.includes(tag.id)
-                            ? 'bg-blue-600 text-white'
+                            ? 'bg-picc-red text-white'
                             : `${getTagColorClass(tag.id)} ${getTagColorClass(tag.id, 'text')}`
                         }`}
                       >
@@ -634,7 +634,7 @@ export default function StorytellersPage() {
                 <p className="text-sm text-gray-600">
                   {storytellers.length} of {totalCount} storytellers
                   {selectedIds.size > 0 && (
-                    <span className="ml-2 text-blue-600">({selectedIds.size} selected)</span>
+                    <span className="ml-2 text-picc-red">({selectedIds.size} selected)</span>
                   )}
                 </p>
               </div>
@@ -649,7 +649,7 @@ export default function StorytellersPage() {
                   setTagFilter([]);
                   setHasStoriesFilter('all');
                 }}
-                className="mt-4 text-sm text-blue-600 hover:text-blue-700"
+                className="mt-4 text-sm text-picc-red hover:text-picc-red"
               >
                 Clear all filters
               </button>
@@ -706,7 +706,7 @@ export default function StorytellersPage() {
       {/* Content */}
       {loading ? (
         <div className="text-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto text-blue-600 mb-2" />
+          <Loader2 className="w-8 h-8 animate-spin mx-auto text-picc-red mb-2" />
           <p className="text-gray-500">Loading storytellers...</p>
         </div>
       ) : storytellers.length === 0 ? (
@@ -735,7 +735,7 @@ export default function StorytellersPage() {
           ) : (
             <Link
               href="/picc/storytellers/new"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-picc-red text-white rounded-lg hover:bg-picc-red"
             >
               <Plus className="w-4 h-4" />
               Add Storyteller
@@ -754,7 +754,7 @@ export default function StorytellersPage() {
                       type="checkbox"
                       checked={selectedIds.size === storytellers.length && storytellers.length > 0}
                       onChange={toggleSelectAll}
-                      className="w-4 h-4 rounded border-gray-300 text-blue-600"
+                      className="w-4 h-4 rounded border-gray-300 text-picc-red"
                     />
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Photo</th>
@@ -770,14 +770,14 @@ export default function StorytellersPage() {
                 {sortedStorytellers.map((storyteller) => (
                   <tr
                     key={storyteller.id}
-                    className={`hover:bg-gray-50 ${selectedIds.has(storyteller.id) ? 'bg-blue-50' : ''}`}
+                    className={`hover:bg-gray-50 ${selectedIds.has(storyteller.id) ? 'bg-warm-50' : ''}`}
                   >
                     <td className="px-4 py-3">
                       <input
                         type="checkbox"
                         checked={selectedIds.has(storyteller.id)}
                         onChange={() => toggleSelect(storyteller.id)}
-                        className="w-4 h-4 rounded border-gray-300 text-blue-600"
+                        className="w-4 h-4 rounded border-gray-300 text-picc-red"
                       />
                     </td>
                     <td className="px-4 py-3">
@@ -788,7 +788,7 @@ export default function StorytellersPage() {
                           className="w-10 h-10 rounded-full object-cover"
                         />
                       ) : (
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white flex items-center justify-center font-bold text-sm">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-picc-red to-picc-ochre text-white flex items-center justify-center font-bold text-sm">
                           {(storyteller.preferred_name || storyteller.full_name || 'PI')
                             .trim()
                             .slice(0, 2)
@@ -800,7 +800,7 @@ export default function StorytellersPage() {
                       <div>
                         <Link
                           href={`/picc/storytellers/${storyteller.id}`}
-                          className="font-medium text-gray-900 hover:text-blue-600"
+                          className="font-medium text-gray-900 hover:text-picc-red"
                         >
                           {storyteller.preferred_name || storyteller.full_name}
                         </Link>
@@ -814,7 +814,7 @@ export default function StorytellersPage() {
                         <span
                           className={`px-2 py-0.5 text-xs rounded-full ${
                             storyteller.is_elder
-                              ? 'bg-amber-100 text-amber-700'
+                              ? 'bg-picc-ochre-100 text-picc-ochre-700'
                               : 'bg-gray-100 text-gray-600'
                           }`}
                         >
@@ -822,7 +822,7 @@ export default function StorytellersPage() {
                             ?.label || storyteller.storyteller_type?.replace(/_/g, ' ')}
                         </span>
                         {storyteller.is_elder && (
-                          <span className="px-1.5 py-0.5 bg-amber-500 text-white text-xs rounded">
+                          <span className="px-1.5 py-0.5 bg-picc-ochre text-white text-xs rounded">
                             Elder
                           </span>
                         )}
@@ -959,7 +959,7 @@ export default function StorytellersPage() {
               key={storyteller.id}
               className={`bg-white rounded-xl border overflow-hidden transition-all relative ${
                 selectedIds.has(storyteller.id)
-                  ? 'border-blue-400 ring-2 ring-blue-200'
+                  ? 'border-picc-red-300 ring-2 ring-warm-200'
                   : 'border-gray-200 hover:border-gray-300'
               }`}
             >
@@ -969,12 +969,12 @@ export default function StorytellersPage() {
                   type="checkbox"
                   checked={selectedIds.has(storyteller.id)}
                   onChange={() => toggleSelect(storyteller.id)}
-                  className="w-5 h-5 rounded border-2 border-white shadow-lg accent-blue-600"
+                  className="w-5 h-5 rounded border-2 border-white shadow-lg accent-picc-red"
                 />
               </div>
 
               {/* Photo */}
-              <div className="relative aspect-square bg-gradient-to-br from-blue-500 to-purple-600">
+              <div className="relative aspect-square bg-gradient-to-br from-picc-red to-picc-ochre">
                 {storyteller.profile_image_url ? (
                   <img
                     src={storyteller.profile_image_url}
@@ -987,7 +987,7 @@ export default function StorytellersPage() {
                   </div>
                 )}
                 {storyteller.is_elder && (
-                  <div className="absolute top-2 right-2 px-2 py-0.5 bg-amber-500 text-white text-xs rounded">
+                  <div className="absolute top-2 right-2 px-2 py-0.5 bg-picc-ochre text-white text-xs rounded">
                     Elder
                   </div>
                 )}
@@ -997,7 +997,7 @@ export default function StorytellersPage() {
               <div className="p-3">
                 <Link
                   href={`/picc/storytellers/${storyteller.id}`}
-                  className="font-medium text-gray-900 hover:text-blue-600 line-clamp-1"
+                  className="font-medium text-gray-900 hover:text-picc-red line-clamp-1"
                 >
                   {storyteller.preferred_name || storyteller.full_name}
                 </Link>
@@ -1039,14 +1039,14 @@ export default function StorytellersPage() {
             <div
               key={storyteller.id}
               className={`flex items-center gap-4 px-4 py-3 hover:bg-gray-50 ${
-                selectedIds.has(storyteller.id) ? 'bg-blue-50' : ''
+                selectedIds.has(storyteller.id) ? 'bg-warm-50' : ''
               }`}
             >
               <input
                 type="checkbox"
                 checked={selectedIds.has(storyteller.id)}
                 onChange={() => toggleSelect(storyteller.id)}
-                className="w-4 h-4 rounded border-gray-300 text-blue-600"
+                className="w-4 h-4 rounded border-gray-300 text-picc-red"
               />
               {storyteller.profile_image_url ? (
                 <img
@@ -1055,7 +1055,7 @@ export default function StorytellersPage() {
                   className="w-8 h-8 rounded-full object-cover"
                 />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white flex items-center justify-center font-bold text-xs">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-picc-red to-picc-ochre text-white flex items-center justify-center font-bold text-xs">
                   {(storyteller.preferred_name || storyteller.full_name || 'PI')
                     .trim()
                     .slice(0, 2)
@@ -1065,7 +1065,7 @@ export default function StorytellersPage() {
               <div className="flex-1 min-w-0">
                 <Link
                   href={`/picc/storytellers/${storyteller.id}`}
-                  className="font-medium text-gray-900 hover:text-blue-600"
+                  className="font-medium text-gray-900 hover:text-picc-red"
                 >
                   {storyteller.preferred_name || storyteller.full_name}
                 </Link>
@@ -1073,7 +1073,7 @@ export default function StorytellersPage() {
               <span className="text-xs text-gray-500">{storyteller.stories_contributed} stories</span>
               <span className="text-xs text-gray-500">{storyteller.interviews_completed || 0} interviews</span>
               {storyteller.is_elder && (
-                <span className="px-1.5 py-0.5 bg-amber-100 text-amber-700 text-xs rounded">
+                <span className="px-1.5 py-0.5 bg-picc-ochre-100 text-picc-ochre-700 text-xs rounded">
                   Elder
                 </span>
               )}

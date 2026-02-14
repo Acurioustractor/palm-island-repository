@@ -247,8 +247,8 @@ export default function MediaCollectionsPage() {
           </Link>
 
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <FolderOpen className="w-8 h-8 text-green-600" />
+            <div className="w-16 h-16 bg-sage-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <FolderOpen className="w-8 h-8 text-sage-600" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Photo Collections Table Not Found</h1>
             <p className="text-gray-600 mb-6">
@@ -290,7 +290,7 @@ export default function MediaCollectionsPage() {
 
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-3">
-              <FolderOpen className="h-8 w-8 text-green-600" />
+              <FolderOpen className="h-8 w-8 text-sage-600" />
               <h1 className="text-3xl font-bold text-gray-900">Photo Collections</h1>
             </div>
             <button
@@ -450,7 +450,7 @@ export default function MediaCollectionsPage() {
         {/* Loading */}
         {loading && (
           <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sage-600 mx-auto"></div>
             <p className="text-gray-600 mt-4">Loading collections...</p>
           </div>
         )}
@@ -461,7 +461,7 @@ export default function MediaCollectionsPage() {
             {filteredCollections.map((collection) => (
               <div key={collection.id} className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all">
                 {/* Cover Image */}
-                <div className="aspect-[16/9] bg-gradient-to-br from-green-50 to-blue-50 relative overflow-hidden">
+                <div className="aspect-[16/9] bg-gradient-to-br from-sage-50 to-warm-50 relative overflow-hidden">
                   {collection.cover_image_id ? (
                     <div className="w-full h-full bg-gray-100 flex items-center justify-center">
                       <ImageIcon className="w-16 h-16 text-gray-300" />
@@ -471,13 +471,13 @@ export default function MediaCollectionsPage() {
                     </div>
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <FolderOpen className="w-16 h-16 text-green-400/50" />
+                      <FolderOpen className="w-16 h-16 text-sage-400/50" />
                     </div>
                   )}
 
                   {/* Public Badge */}
                   {collection.is_public && (
-                    <span className="absolute top-2 left-2 px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded">
+                    <span className="absolute top-2 left-2 px-2 py-1 bg-sage-100 text-sage-700 text-xs font-medium rounded">
                       Public
                     </span>
                   )}

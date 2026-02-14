@@ -76,7 +76,7 @@ export default function AnnualReportsTimelinePage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-picc-red mx-auto mb-4"></div>
           <p className="text-gray-600 text-lg">Loading PICC's journey...</p>
         </div>
       </div>
@@ -96,7 +96,7 @@ export default function AnnualReportsTimelinePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-warm-50 to-warm-100">
       {/* Header */}
       <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4">
@@ -104,7 +104,7 @@ export default function AnnualReportsTimelinePage() {
             <div className="flex items-center gap-4">
               <Link
                 href="/picc/knowledge"
-                className="text-blue-600 hover:text-blue-700 flex items-center gap-2"
+                className="text-picc-red hover:text-picc-red flex items-center gap-2"
               >
                 <ChevronLeft className="w-5 h-5" />
                 Knowledge Base
@@ -112,7 +112,7 @@ export default function AnnualReportsTimelinePage() {
               <div className="h-6 w-px bg-gray-300"></div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                  <Calendar className="w-7 h-7 text-blue-600" />
+                  <Calendar className="w-7 h-7 text-picc-red" />
                   Annual Reports Timeline
                 </h1>
                 <p className="text-sm text-gray-600 mt-1">
@@ -125,7 +125,7 @@ export default function AnnualReportsTimelinePage() {
             <div className="flex items-center gap-2">
               <Link
                 href="/picc/media/collections/annual-reports-images"
-                className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm"
+                className="flex items-center gap-2 px-4 py-2 bg-picc-ochre text-white rounded-lg hover:bg-picc-ochre transition-colors text-sm"
               >
                 <ImageIcon className="w-4 h-4" />
                 View Gallery ({data.stats.totalImages})
@@ -207,9 +207,9 @@ export default function AnnualReportsTimelinePage() {
             ))}
 
             {/* End Cap */}
-            <div className="flex-shrink-0 w-96 h-[500px] flex items-center justify-center bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl border-2 border-blue-200 scroll-snap-align-start">
+            <div className="flex-shrink-0 w-96 h-[500px] flex items-center justify-center bg-gradient-to-br from-warm-100 to-warm-100 rounded-2xl border-2 border-warm-200 scroll-snap-align-start">
               <div className="text-center p-8">
-                <Calendar className="w-16 h-16 text-blue-600 mx-auto mb-4" />
+                <Calendar className="w-16 h-16 text-picc-red mx-auto mb-4" />
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">
                   {data.stats.totalReports} Years of Impact
                 </h3>
@@ -218,7 +218,7 @@ export default function AnnualReportsTimelinePage() {
                 </p>
                 <Link
                   href="/picc/media/collections/annual-reports-images"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-picc-red text-white rounded-lg hover:bg-picc-red transition-colors"
                 >
                   <ImageIcon className="w-5 h-5" />
                   Explore Full Gallery
@@ -264,10 +264,10 @@ export default function AnnualReportsTimelinePage() {
           <div>
             <h4 className="font-semibold text-gray-900 mb-2">Explore Further</h4>
             <div className="space-y-2 text-sm">
-              <Link href="/picc/knowledge" className="block text-blue-600 hover:text-blue-700">
+              <Link href="/picc/knowledge" className="block text-picc-red hover:text-picc-red">
                 → Search Knowledge Base
               </Link>
-              <Link href="/picc/media/gallery" className="block text-blue-600 hover:text-blue-700">
+              <Link href="/picc/media/gallery" className="block text-picc-red hover:text-picc-red">
                 → Browse Media Library
               </Link>
             </div>

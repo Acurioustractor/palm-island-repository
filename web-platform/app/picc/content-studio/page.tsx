@@ -177,9 +177,9 @@ export default function ContentStudioPage() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <Sparkles className="w-8 h-8 text-purple-600" />
+          <Sparkles className="w-8 h-8 text-picc-ochre" />
           <h1 className="text-3xl font-bold text-gray-900">Content Studio</h1>
-          <span className="px-3 py-1 bg-purple-100 text-purple-700 text-sm font-medium rounded-full">
+          <span className="px-3 py-1 bg-picc-ochre/10 text-picc-ochre text-sm font-medium rounded-full">
             AI-Powered
           </span>
           <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
@@ -255,7 +255,7 @@ export default function ContentStudioPage() {
                   icon={<Instagram className="w-5 h-5" />}
                   title="Instagram"
                   platform="instagram"
-                  color="pink"
+                  color="picc-red"
                   content={generatedContent.instagram}
                   generating={generating.instagram}
                   onGenerate={() => generateContent('instagram')}
@@ -293,7 +293,7 @@ export default function ContentStudioPage() {
                   icon={<Linkedin className="w-5 h-5" />}
                   title="LinkedIn"
                   platform="linkedin"
-                  color="sky"
+                  color="warm"
                   content={generatedContent.linkedin}
                   generating={generating.linkedin}
                   onGenerate={() => generateContent('linkedin')}
@@ -339,7 +339,7 @@ interface AIExportCardProps {
   icon: React.ReactNode;
   title: string;
   platform: string;
-  color: 'pink' | 'blue' | 'sky';
+  color: 'picc-red' | 'blue' | 'warm';
   content?: string;
   generating: boolean;
   onGenerate: () => void;
@@ -373,9 +373,9 @@ function AIExportCard({
   onEditChange
 }: AIExportCardProps) {
   const colorClasses = {
-    pink: 'bg-pink-100 text-pink-700',
+    'picc-red': 'bg-picc-red/10 text-picc-red',
     blue: 'bg-blue-100 text-blue-700',
-    sky: 'bg-sky-100 text-sky-700',
+    warm: 'bg-warm-100 text-picc-red',
   };
 
   const isFragment = content?.includes('[RECOMMENDATION: Skip social media');
@@ -425,7 +425,7 @@ function AIExportCard({
         {!content && !generating && (
           <button
             onClick={onGenerate}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium rounded-lg transition-all"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-picc-ochre to-picc-red hover:from-picc-ochre/90 hover:to-picc-red/90 text-white font-medium rounded-lg transition-all"
           >
             <Sparkles className="w-4 h-4" />
             Generate with AI
@@ -434,7 +434,7 @@ function AIExportCard({
 
         {generating && (
           <div className="flex items-center justify-center gap-3 py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-picc-ochre"></div>
             <p className="text-gray-600">AI is writing...</p>
           </div>
         )}
@@ -442,9 +442,9 @@ function AIExportCard({
         {content && !generating && (
           <>
             {isFragment && (
-              <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2">
-                <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-amber-800">
+              <div className="mb-4 p-3 bg-picc-ochre/10 border border-picc-ochre/20 rounded-lg flex items-start gap-2">
+                <AlertCircle className="w-5 h-5 text-picc-ochre flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-picc-ochre">
                   This appears to be a brief fragment. Consider skipping social media or combining with other stories.
                 </p>
               </div>

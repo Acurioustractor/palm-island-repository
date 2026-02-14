@@ -30,27 +30,25 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-white">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="mb-6">
-          <Link href="/picc/dashboard" className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-4">
-            <ArrowLeft className="h-4 w-4" />
+        <div className="mb-8">
+          <Link href="/picc/dashboard" className="animated-underline inline-flex items-center gap-2 text-sm text-gray-400 hover:text-gray-900 transition-colors duration-300 mb-4">
+            <ArrowLeft className="h-3.5 w-3.5" />
             Back to Dashboard
           </Link>
 
-          <div className="flex items-center gap-3 mb-2">
-            <SettingsIcon className="h-8 w-8 text-gray-600" />
-            <h1 className="text-3xl font-bold text-gray-900">General Settings</h1>
-          </div>
-          <p className="text-gray-600">Configure platform settings and preferences</p>
+          <span className="text-xs font-semibold uppercase tracking-[0.15em] text-gray-400">Configuration</span>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-[-0.02em] mt-1">General Settings</h1>
+          <p className="text-gray-500 text-sm mt-2">Configure platform settings and preferences</p>
         </div>
 
         <div className="space-y-6">
           {/* Site Information */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="bg-white rounded-2xl border border-gray-100 p-6">
             <div className="flex items-center gap-2 mb-4">
-              <Globe className="h-5 w-5 text-blue-600" />
+              <Globe className="h-5 w-5 text-picc-red" />
               <h2 className="text-lg font-semibold text-gray-900">Site Information</h2>
             </div>
             <div className="space-y-4">
@@ -62,7 +60,7 @@ export default function SettingsPage() {
                   type="text"
                   value={settings.siteName}
                   onChange={(e) => setSettings({ ...settings, siteName: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre-300 focus:border-transparent"
                 />
               </div>
 
@@ -74,7 +72,7 @@ export default function SettingsPage() {
                   type="text"
                   value={settings.siteTagline}
                   onChange={(e) => setSettings({ ...settings, siteTagline: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre-300 focus:border-transparent"
                 />
               </div>
 
@@ -86,7 +84,7 @@ export default function SettingsPage() {
                   <select
                     value={settings.defaultLanguage}
                     onChange={(e) => setSettings({ ...settings, defaultLanguage: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre-300 focus:border-transparent"
                   >
                     <option value="en">English</option>
                     <option value="mua">Mua (Bwgcolman)</option>
@@ -100,7 +98,7 @@ export default function SettingsPage() {
                   <select
                     value={settings.timezone}
                     onChange={(e) => setSettings({ ...settings, timezone: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre-300 focus:border-transparent"
                   >
                     <option value="Australia/Brisbane">Brisbane (AEST)</option>
                     <option value="Australia/Sydney">Sydney (AEDT)</option>
@@ -112,9 +110,9 @@ export default function SettingsPage() {
           </div>
 
           {/* Community Submissions */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="bg-white rounded-2xl border border-gray-100 p-6">
             <div className="flex items-center gap-2 mb-4">
-              <Shield className="h-5 w-5 text-purple-600" />
+              <Shield className="h-5 w-5 text-picc-ochre" />
               <h2 className="text-lg font-semibold text-gray-900">Community Submissions</h2>
             </div>
             <div className="space-y-3">
@@ -127,7 +125,7 @@ export default function SettingsPage() {
                   type="checkbox"
                   checked={settings.enablePublicSubmissions}
                   onChange={(e) => setSettings({ ...settings, enablePublicSubmissions: e.target.checked })}
-                  className="h-5 w-5 rounded text-purple-600 focus:ring-2 focus:ring-purple-500"
+                  className="h-5 w-5 rounded text-picc-ochre focus:ring-2 focus:ring-picc-ochre-300"
                 />
               </label>
 
@@ -140,7 +138,7 @@ export default function SettingsPage() {
                   type="checkbox"
                   checked={settings.requireApproval}
                   onChange={(e) => setSettings({ ...settings, requireApproval: e.target.checked })}
-                  className="h-5 w-5 rounded text-purple-600 focus:ring-2 focus:ring-purple-500"
+                  className="h-5 w-5 rounded text-picc-ochre focus:ring-2 focus:ring-picc-ochre-300"
                 />
               </label>
 
@@ -153,16 +151,16 @@ export default function SettingsPage() {
                   type="checkbox"
                   checked={settings.allowAnonymous}
                   onChange={(e) => setSettings({ ...settings, allowAnonymous: e.target.checked })}
-                  className="h-5 w-5 rounded text-purple-600 focus:ring-2 focus:ring-purple-500"
+                  className="h-5 w-5 rounded text-picc-ochre focus:ring-2 focus:ring-picc-ochre-300"
                 />
               </label>
             </div>
           </div>
 
           {/* Privacy & Cultural Safety */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="bg-white rounded-2xl border border-gray-100 p-6">
             <div className="flex items-center gap-2 mb-4">
-              <Shield className="h-5 w-5 text-teal-600" />
+              <Shield className="h-5 w-5 text-picc-ochre" />
               <h2 className="text-lg font-semibold text-gray-900">Privacy & Cultural Safety</h2>
             </div>
             <div className="space-y-3">
@@ -175,13 +173,13 @@ export default function SettingsPage() {
                   type="checkbox"
                   checked={settings.enableFaceRecognition}
                   onChange={(e) => setSettings({ ...settings, enableFaceRecognition: e.target.checked })}
-                  className="h-5 w-5 rounded text-teal-600 focus:ring-2 focus:ring-teal-500"
+                  className="h-5 w-5 rounded text-picc-ochre focus:ring-2 focus:ring-picc-ochre-300"
                 />
               </label>
 
-              <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
-                <div className="text-sm text-teal-900 font-medium mb-1">Cultural Protocols Active</div>
-                <ul className="text-xs text-teal-700 space-y-1">
+              <div className="bg-warm-50 border border-warm-200 rounded-lg p-4">
+                <div className="text-sm text-picc-earth font-medium mb-1">Cultural Protocols Active</div>
+                <ul className="text-xs text-picc-ochre space-y-1">
                   <li>• Elder approval required for cultural stories</li>
                   <li>• Traditional knowledge marked as sensitive</li>
                   <li>• Community voice submissions tracked separately</li>
@@ -191,9 +189,9 @@ export default function SettingsPage() {
           </div>
 
           {/* Notifications */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="bg-white rounded-2xl border border-gray-100 p-6">
             <div className="flex items-center gap-2 mb-4">
-              <Bell className="h-5 w-5 text-orange-600" />
+              <Bell className="h-5 w-5 text-picc-ochre" />
               <h2 className="text-lg font-semibold text-gray-900">Notifications</h2>
             </div>
             <div className="space-y-3">
@@ -206,7 +204,7 @@ export default function SettingsPage() {
                   type="checkbox"
                   checked={settings.emailNotifications}
                   onChange={(e) => setSettings({ ...settings, emailNotifications: e.target.checked })}
-                  className="h-5 w-5 rounded text-orange-600 focus:ring-2 focus:ring-orange-500"
+                  className="h-5 w-5 rounded text-picc-ochre focus:ring-2 focus:ring-picc-ochre-300"
                 />
               </label>
 
@@ -219,16 +217,16 @@ export default function SettingsPage() {
                   type="checkbox"
                   checked={settings.weeklyDigest}
                   onChange={(e) => setSettings({ ...settings, weeklyDigest: e.target.checked })}
-                  className="h-5 w-5 rounded text-orange-600 focus:ring-2 focus:ring-orange-500"
+                  className="h-5 w-5 rounded text-picc-ochre focus:ring-2 focus:ring-picc-ochre-300"
                 />
               </label>
             </div>
           </div>
 
           {/* Storage & Backup */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="bg-white rounded-2xl border border-gray-100 p-6">
             <div className="flex items-center gap-2 mb-4">
-              <Database className="h-5 w-5 text-green-600" />
+              <Database className="h-5 w-5 text-sage-600" />
               <h2 className="text-lg font-semibold text-gray-900">Storage & Backup</h2>
             </div>
             <div className="space-y-4">
@@ -242,7 +240,7 @@ export default function SettingsPage() {
                   onChange={(e) => setSettings({ ...settings, storageLimit: Number(e.target.value) })}
                   min="1"
                   max="1000"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-300 focus:border-transparent"
                 />
               </div>
 
@@ -255,7 +253,7 @@ export default function SettingsPage() {
                   type="checkbox"
                   checked={settings.autoBackup}
                   onChange={(e) => setSettings({ ...settings, autoBackup: e.target.checked })}
-                  className="h-5 w-5 rounded text-green-600 focus:ring-2 focus:ring-green-500"
+                  className="h-5 w-5 rounded text-sage-600 focus:ring-2 focus:ring-sage-300"
                 />
               </label>
 
@@ -267,7 +265,7 @@ export default function SettingsPage() {
                   <select
                     value={settings.backupFrequency}
                     onChange={(e) => setSettings({ ...settings, backupFrequency: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-300 focus:border-transparent"
                   >
                     <option value="hourly">Hourly</option>
                     <option value="daily">Daily</option>
@@ -283,14 +281,14 @@ export default function SettingsPage() {
             <div className="flex items-center justify-between">
               <div className="text-sm text-gray-600">
                 {saved ? (
-                  <span className="text-green-600 font-medium">✓ Settings saved successfully</span>
+                  <span className="text-sage-600 font-medium">✓ Settings saved successfully</span>
                 ) : (
                   <span>Make sure to save your changes</span>
                 )}
               </div>
               <button
                 onClick={handleSave}
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-all flex items-center gap-2"
+                className="bg-picc-red text-white px-6 py-2 rounded-lg font-medium hover:bg-picc-red-700 transition-all flex items-center gap-2"
               >
                 <Save className="h-4 w-4" />
                 Save Settings

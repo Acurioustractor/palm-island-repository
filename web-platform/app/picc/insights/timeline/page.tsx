@@ -29,9 +29,9 @@ export default function TimelinePage() {
       description: 'Palm Island Community Company takes over all services from Queensland Government, becoming 100% community-controlled with 197 staff delivering 16+ integrated services.',
       category: 'milestone',
       icon: Award,
-      color: 'text-amber-700',
-      bgColor: 'bg-amber-50',
-      borderColor: 'border-amber-300',
+      color: 'text-picc-ochre',
+      bgColor: 'bg-picc-ochre-50',
+      borderColor: 'border-picc-ochre-300',
       link: '/wiki/history',
     },
     {
@@ -51,9 +51,9 @@ export default function TimelinePage() {
       description: '26 stories documented from February floods, showcasing 7 innovative recovery programs including $1.9M Movember Men\'s Program. Demonstrated community-led disaster response excellence.',
       category: 'achievement',
       icon: Heart,
-      color: 'text-rose-700',
-      bgColor: 'bg-rose-50',
-      borderColor: 'border-rose-300',
+      color: 'text-picc-red',
+      bgColor: 'bg-warm-50',
+      borderColor: 'border-picc-red-300',
       link: '/wiki/innovation/storm-recovery',
     },
     {
@@ -63,9 +63,9 @@ export default function TimelinePage() {
       description: 'On-country photo studio established with professional equipment. Dignity-centered photography challenging deficit narratives, with cultural protocols built into every step.',
       category: 'innovation',
       icon: Camera,
-      color: 'text-purple-700',
-      bgColor: 'bg-purple-50',
-      borderColor: 'border-purple-300',
+      color: 'text-picc-ochre',
+      bgColor: 'bg-picc-ochre-50',
+      borderColor: 'border-picc-ochre-300',
       link: '/wiki/innovation/photo-studio',
     },
     {
@@ -75,9 +75,9 @@ export default function TimelinePage() {
       description: 'Comprehensive planning for return journeys to traditional country with elders. Multi-media documentation approach designed to strengthen native title and preserve traditional knowledge.',
       category: 'innovation',
       icon: Users,
-      color: 'text-teal-700',
-      bgColor: 'bg-teal-50',
-      borderColor: 'border-teal-300',
+      color: 'text-sage',
+      bgColor: 'bg-sage-50',
+      borderColor: 'border-sage-300',
       link: '/wiki/innovation/elders-trip',
     },
     {
@@ -99,9 +99,9 @@ export default function TimelinePage() {
       description: 'Comprehensive wiki system deployed with innovation showcase, analytics dashboard, profile management, and pattern analysis. Proving Indigenous organizations can lead in technology and knowledge management.',
       category: 'achievement',
       icon: Sparkles,
-      color: 'text-indigo-700',
-      bgColor: 'bg-indigo-50',
-      borderColor: 'border-indigo-300',
+      color: 'text-picc-red',
+      bgColor: 'bg-warm-50',
+      borderColor: 'border-picc-red-300',
       link: '/wiki/innovation',
     },
     {
@@ -111,7 +111,7 @@ export default function TimelinePage() {
       category: 'milestone',
       icon: Globe,
       color: 'text-blue-700',
-      bgColor: 'bg-gradient-to-br from-blue-50 to-purple-50',
+      bgColor: 'bg-gradient-to-br from-blue-50 to-picc-ochre-50',
       borderColor: 'border-blue-300',
     },
   ];
@@ -136,7 +136,7 @@ export default function TimelinePage() {
           The journey from community control to Indigenous excellence in technology, knowledge, and service delivery
         </p>
 
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6">
+        <div className="bg-gradient-to-r from-blue-50 to-picc-ochre-50 border border-blue-200 rounded-lg p-6">
           <p className="text-gray-700 text-lg">
             This timeline showcases Palm Island Community Company's evolution as a leader in Indigenous self-determination,
             innovation, and knowledge management. Each milestone proves that community-controlled organizations can achieve
@@ -148,7 +148,7 @@ export default function TimelinePage() {
       {/* Timeline */}
       <div className="relative">
         {/* Vertical Line */}
-        <div className="absolute left-12 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-200 via-purple-200 to-emerald-200"></div>
+        <div className="absolute left-12 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-200 via-picc-ochre-200 to-emerald-200"></div>
 
         {/* Events */}
         <div className="space-y-12">
@@ -210,7 +210,7 @@ export default function TimelinePage() {
       </div>
 
       {/* Impact Summary */}
-      <div className="mt-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl p-8 text-white">
+      <div className="mt-16 bg-gradient-to-br from-blue-600 to-picc-ochre rounded-xl p-8 text-white">
         <div className="flex items-start gap-6">
           <div className="flex-shrink-0 w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center">
             <Zap className="h-8 w-8" />
@@ -244,10 +244,10 @@ export default function TimelinePage() {
       <div className="mt-8 grid md:grid-cols-3 gap-6">
         <Link
           href="/wiki/innovation"
-          className="block p-6 bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-lg hover:shadow-md transition-all group"
+          className="block p-6 bg-gradient-to-br from-picc-ochre-50 to-orange-50 border border-picc-ochre-200 rounded-lg hover:shadow-md transition-all group"
         >
-          <Lightbulb className="h-8 w-8 text-amber-600 mb-3" />
-          <h3 className="font-bold text-amber-900 mb-2 group-hover:text-amber-700">
+          <Lightbulb className="h-8 w-8 text-picc-ochre mb-3" />
+          <h3 className="font-bold text-picc-earth mb-2 group-hover:text-picc-ochre">
             View All Innovations
           </h3>
           <p className="text-sm text-gray-700">
@@ -257,7 +257,7 @@ export default function TimelinePage() {
 
         <Link
           href="/wiki/achievements"
-          className="block p-6 bg-gradient-to-br from-blue-50 to-teal-50 border border-blue-200 rounded-lg hover:shadow-md transition-all group"
+          className="block p-6 bg-gradient-to-br from-blue-50 to-sage-50 border border-blue-200 rounded-lg hover:shadow-md transition-all group"
         >
           <Award className="h-8 w-8 text-blue-600 mb-3" />
           <h3 className="font-bold text-blue-900 mb-2 group-hover:text-blue-700">
@@ -270,10 +270,10 @@ export default function TimelinePage() {
 
         <Link
           href="/analytics"
-          className="block p-6 bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-lg hover:shadow-md transition-all group"
+          className="block p-6 bg-gradient-to-br from-picc-ochre-50 to-warm-50 border border-picc-ochre-200 rounded-lg hover:shadow-md transition-all group"
         >
-          <BarChart3 className="h-8 w-8 text-purple-600 mb-3" />
-          <h3 className="font-bold text-purple-900 mb-2 group-hover:text-purple-700">
+          <BarChart3 className="h-8 w-8 text-picc-ochre mb-3" />
+          <h3 className="font-bold text-picc-earth mb-2 group-hover:text-picc-ochre">
             Analytics Dashboard
           </h3>
           <p className="text-sm text-gray-700">

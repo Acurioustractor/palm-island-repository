@@ -98,7 +98,7 @@ export default function UploadPhotosPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-sage-50 p-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-6 flex items-center justify-between">
           <div>
@@ -216,7 +216,10 @@ export default function UploadPhotosPage() {
 
         {/* Instructions */}
         <div className="mt-6 bg-blue-50 rounded-lg p-6">
-          <h2 className="text-lg font-bold text-blue-900 mb-3">📸 Photo Upload Instructions</h2>
+          <h2 className="text-lg font-bold text-blue-900 mb-3 flex items-center gap-2">
+            <ImageIcon className="h-5 w-5" />
+            Photo Upload Instructions
+          </h2>
           <ol className="space-y-2 text-sm text-gray-700">
             <li>1. Select a story from the dropdown</li>
             <li>2. Click the upload area to choose a photo from your computer</li>
@@ -225,9 +228,12 @@ export default function UploadPhotosPage() {
             <li>5. The photo will appear on the story card in the Stories Gallery!</li>
           </ol>
           <div className="mt-4 p-4 bg-white rounded border-l-4 border-blue-500">
-            <p className="text-sm font-medium text-gray-800">
-              💡 <strong>Tip:</strong> Photos are stored in Supabase Storage bucket: <code className="bg-gray-100 px-2 py-1 rounded">story-images</code>
-            </p>
+            <div className="flex items-start gap-2 text-sm font-medium text-gray-800">
+              <Upload className="h-4 w-4 flex-shrink-0 mt-0.5" />
+              <p>
+                <strong>Tip:</strong> Photos are stored in Supabase Storage bucket: <code className="bg-gray-100 px-2 py-1 rounded">story-images</code>
+              </p>
+            </div>
           </div>
         </div>
       </div>

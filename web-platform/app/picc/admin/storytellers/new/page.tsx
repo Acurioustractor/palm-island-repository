@@ -559,7 +559,7 @@ export default function NewStorytellerPage() {
           <button
             type="submit"
             disabled={saving}
-            className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg disabled:bg-gray-400"
+            className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-picc-ochre text-white rounded-lg hover:from-blue-700 hover:to-picc-ochre transition-all shadow-lg disabled:bg-gray-400"
           >
             {saving ? (
               <>

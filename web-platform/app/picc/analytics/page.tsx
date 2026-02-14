@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { BarChart3, TrendingUp, Users, BookOpen, Heart, Eye, Award, Sparkles, Globe } from 'lucide-react';
-import Breadcrumbs from '@/components/wiki/Breadcrumbs';
+import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AnalyticsPage() {
@@ -166,7 +165,7 @@ export default function AnalyticsPage() {
       setStats({
         totalStories: storyCount || 0,
         totalStorytellers: uniqueStorytellers.size,
-        totalViews: 0, // Would need analytics table
+        totalViews: 0,
         storiesThisMonth: monthCount || 0,
         elderStories,
         traditionalKnowledge,
@@ -182,101 +181,58 @@ export default function AnalyticsPage() {
     fetchAnalytics();
   }, []);
 
-  const breadcrumbs = [
-    { label: 'Wiki', href: '/wiki', icon: BookOpen },
-    { label: 'Analytics', href: '/analytics' },
-  ];
-
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-xl text-gray-700">Loading analytics...</p>
-        </div>
+      <div className="flex items-center justify-center py-24">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <Breadcrumbs items={breadcrumbs} className="mb-6" />
-
+    <div className="max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4 flex items-center gap-3">
-          <BarChart3 className="h-10 w-10 text-blue-600" />
-          Community Analytics
-        </h1>
-        <p className="text-xl text-gray-600">
-          Insights and metrics about community storytelling and engagement
-        </p>
+        <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Insights</p>
+        <h1 className="text-4xl font-bold text-gray-900 mt-1">Community Analytics</h1>
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg">
-          <div className="flex items-center justify-between mb-4">
-            <BookOpen className="h-8 w-8" />
-            <TrendingUp className="h-6 w-6 opacity-75" />
-          </div>
-          <div className="text-4xl font-bold mb-1">{stats.totalStories}</div>
-          <div className="text-blue-100">Total Stories</div>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-10">
+        <div>
+          <p className="text-3xl font-bold text-gray-900">{stats.totalStories}</p>
+          <p className="text-sm text-gray-500 mt-1">Total stories</p>
         </div>
-
-        <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white shadow-lg">
-          <div className="flex items-center justify-between mb-4">
-            <Users className="h-8 w-8" />
-            <TrendingUp className="h-6 w-6 opacity-75" />
-          </div>
-          <div className="text-4xl font-bold mb-1">{stats.totalStorytellers}</div>
-          <div className="text-purple-100">Active Storytellers</div>
+        <div>
+          <p className="text-3xl font-bold text-gray-900">{stats.totalStorytellers}</p>
+          <p className="text-sm text-gray-500 mt-1">Active storytellers</p>
         </div>
-
-        <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white shadow-lg">
-          <div className="flex items-center justify-between mb-4">
-            <Heart className="h-8 w-8" />
-            <TrendingUp className="h-6 w-6 opacity-75" />
-          </div>
-          <div className="text-4xl font-bold mb-1">{stats.storiesThisMonth}</div>
-          <div className="text-green-100">This Month</div>
+        <div>
+          <p className="text-3xl font-bold text-gray-900">{stats.storiesThisMonth}</p>
+          <p className="text-sm text-gray-500 mt-1">This month</p>
         </div>
       </div>
 
       {/* Cultural Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl p-6 text-white shadow-lg">
-          <div className="flex items-center justify-between mb-4">
-            <Award className="h-8 w-8" />
-            <Globe className="h-6 w-6 opacity-75" />
-          </div>
-          <div className="text-4xl font-bold mb-1">{stats.elderStories}</div>
-          <div className="text-amber-100">Elder Stories</div>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-10">
+        <div>
+          <p className="text-3xl font-bold text-gray-900">{stats.elderStories}</p>
+          <p className="text-sm text-gray-500 mt-1">Elder stories</p>
         </div>
-
-        <div className="bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl p-6 text-white shadow-lg">
-          <div className="flex items-center justify-between mb-4">
-            <Sparkles className="h-8 w-8" />
-            <Globe className="h-6 w-6 opacity-75" />
-          </div>
-          <div className="text-4xl font-bold mb-1">{stats.traditionalKnowledge}</div>
-          <div className="text-teal-100">Traditional Knowledge</div>
+        <div>
+          <p className="text-3xl font-bold text-gray-900">{stats.traditionalKnowledge}</p>
+          <p className="text-sm text-gray-500 mt-1">Traditional knowledge</p>
         </div>
-
-        <div className="bg-gradient-to-br from-rose-500 to-rose-600 rounded-xl p-6 text-white shadow-lg">
-          <div className="flex items-center justify-between mb-4">
-            <Heart className="h-8 w-8" />
-            <TrendingUp className="h-6 w-6 opacity-75" />
-          </div>
-          <div className="text-4xl font-bold mb-1">{stats.serviceCounts.length}</div>
-          <div className="text-rose-100">Active Services</div>
+        <div>
+          <p className="text-3xl font-bold text-gray-900">{stats.serviceCounts.length}</p>
+          <p className="text-sm text-gray-500 mt-1">Active services</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
         {/* Category Breakdown */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Stories by Category</h2>
+        <div className="border border-gray-200 rounded-xl p-6">
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-6">Stories by Category</p>
           <div className="space-y-4">
             {stats.categoryCounts.map((item: any) => {
               const percentage = (item.count / stats.totalStories) * 100;
@@ -286,11 +242,11 @@ export default function AnalyticsPage() {
                     <span className="text-sm font-medium text-gray-900 capitalize">
                       {item.category.replace('_', ' ')}
                     </span>
-                    <span className="text-sm text-gray-600">{item.count} stories</span>
+                    <span className="text-sm text-gray-500">{item.count}</span>
                   </div>
-                  <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-blue-500 to-teal-500"
+                      className="h-full bg-gray-900 rounded-full"
                       style={{ width: `${percentage}%` }}
                     />
                   </div>
@@ -301,28 +257,28 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Recent Activity */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Activity</h2>
+        <div className="border border-gray-200 rounded-xl p-6">
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-6">Recent Activity</p>
           <div className="space-y-4">
             {stats.recentActivity.map((story: any) => (
               <div
                 key={story.id}
                 className="flex items-start gap-3 pb-4 border-b border-gray-100 last:border-0 last:pb-0"
               >
-                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-teal-500 flex-shrink-0 flex items-center justify-center text-white font-bold text-sm">
+                <div className="h-8 w-8 rounded-full bg-gray-100 flex-shrink-0 flex items-center justify-center text-gray-500 font-medium text-xs">
                   {story.title[0]}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-medium text-gray-900 mb-1 line-clamp-1">
+                  <p className="text-sm font-medium text-gray-900 line-clamp-1">
                     {story.title}
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-gray-600">
+                  </p>
+                  <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
                     <span>
                       {story.storyteller?.preferred_name ||
                         story.storyteller?.full_name ||
                         'Community Voice'}
                     </span>
-                    <span>•</span>
+                    <span>&middot;</span>
                     <span>
                       {new Date(story.created_at).toLocaleDateString('en-AU', {
                         day: 'numeric',
@@ -338,13 +294,13 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Service Breakdown & Top Storytellers */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
         {/* Service Breakdown */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="border border-gray-200 rounded-xl p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Stories by Service</h2>
-            <Link href="/wiki/services" className="text-sm text-rose-600 hover:text-rose-700 font-medium">
-              View all →
+            <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Stories by Service</p>
+            <Link href="/wiki/services" className="text-xs text-gray-500 hover:text-gray-900 transition-colors">
+              View all &rarr;
             </Link>
           </div>
           {stats.serviceCounts.length > 0 ? (
@@ -357,11 +313,11 @@ export default function AnalyticsPage() {
                       <span className="text-sm font-medium text-gray-900 truncate">
                         {service.name}
                       </span>
-                      <span className="text-sm text-gray-600 ml-2">{service.count}</span>
+                      <span className="text-sm text-gray-500 ml-2">{service.count}</span>
                     </div>
-                    <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-gradient-to-r from-rose-500 to-pink-500"
+                        className="h-full bg-gray-900 rounded-full"
                         style={{ width: `${percentage}%` }}
                       />
                     </div>
@@ -370,39 +326,36 @@ export default function AnalyticsPage() {
               })}
             </div>
           ) : (
-            <p className="text-gray-500 text-center py-8">No service data available</p>
+            <p className="text-sm text-gray-500 text-center py-8">No service data available</p>
           )}
         </div>
 
         {/* Top Storytellers */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="border border-gray-200 rounded-xl p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Top Contributors</h2>
-            <Link href="/wiki/people" className="text-sm text-purple-600 hover:text-purple-700 font-medium">
-              View all →
+            <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Top Contributors</p>
+            <Link href="/wiki/people" className="text-xs text-gray-500 hover:text-gray-900 transition-colors">
+              View all &rarr;
             </Link>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-1">
             {stats.topStorytellers.map((storyteller: any, idx) => (
               <Link
                 key={storyteller.id}
                 href={`/wiki/people/${storyteller.id}`}
-                className="flex items-center gap-3 p-3 rounded-lg hover:bg-purple-50 transition-colors group"
+                className="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 transition-colors group"
               >
-                <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                <span className="flex-shrink-0 w-6 text-xs font-medium text-gray-400 text-right">
                   {idx + 1}
-                </div>
+                </span>
                 <div className="flex-1 min-w-0">
-                  <div className="font-medium text-gray-900 truncate group-hover:text-purple-700">
+                  <p className="text-sm font-medium text-gray-900 truncate group-hover:text-gray-700">
                     {storyteller.name}
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    {storyteller.count} {storyteller.count === 1 ? 'story' : 'stories'}
-                  </div>
+                  </p>
                 </div>
-                <Award className={`h-5 w-5 flex-shrink-0 ${
-                  idx === 0 ? 'text-amber-500' : idx === 1 ? 'text-gray-400' : idx === 2 ? 'text-amber-700' : 'text-gray-300'
-                }`} />
+                <span className="text-xs text-gray-500">
+                  {storyteller.count} {storyteller.count === 1 ? 'story' : 'stories'}
+                </span>
               </Link>
             ))}
           </div>
@@ -410,29 +363,22 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Growth Insights */}
-      <div className="bg-gradient-to-br from-blue-50 to-teal-50 rounded-xl border-2 border-blue-200 p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <TrendingUp className="h-6 w-6 text-blue-600" />
-          Community Growth
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+      <div className="border border-gray-200 rounded-xl p-6">
+        <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-6">Community Growth</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <div className="text-3xl font-bold text-blue-600 mb-1">
-              {stats.storiesThisMonth}
-            </div>
-            <div className="text-gray-700">Stories this month</div>
+            <p className="text-3xl font-bold text-gray-900">{stats.storiesThisMonth}</p>
+            <p className="text-sm text-gray-500 mt-1">Stories this month</p>
           </div>
           <div>
-            <div className="text-3xl font-bold text-purple-600 mb-1">
+            <p className="text-3xl font-bold text-gray-900">
               {(stats.totalStories / stats.totalStorytellers || 0).toFixed(1)}
-            </div>
-            <div className="text-gray-700">Avg stories per storyteller</div>
+            </p>
+            <p className="text-sm text-gray-500 mt-1">Avg per storyteller</p>
           </div>
           <div>
-            <div className="text-3xl font-bold text-green-600 mb-1">
-              {stats.totalStorytellers}
-            </div>
-            <div className="text-gray-700">Active contributors</div>
+            <p className="text-3xl font-bold text-gray-900">{stats.totalStorytellers}</p>
+            <p className="text-sm text-gray-500 mt-1">Active contributors</p>
           </div>
         </div>
       </div>

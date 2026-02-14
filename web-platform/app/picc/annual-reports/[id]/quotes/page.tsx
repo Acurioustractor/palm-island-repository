@@ -183,7 +183,7 @@ export default function ReportQuotesPage() {
   if (loading) {
     return (
       <div className="p-8 text-center">
-        <Loader2 className="w-8 h-8 animate-spin mx-auto text-blue-600" />
+        <Loader2 className="w-8 h-8 animate-spin mx-auto text-picc-red" />
         <p className="text-gray-500 mt-2">Loading quotes...</p>
       </div>
     );
@@ -193,7 +193,7 @@ export default function ReportQuotesPage() {
     return (
       <div className="p-8 text-center">
         <p className="text-gray-500">Report not found</p>
-        <Link href="/picc/annual-reports" className="text-blue-600 hover:underline mt-2 inline-block">
+        <Link href="/picc/annual-reports" className="text-picc-red hover:underline mt-2 inline-block">
           Back to Reports
         </Link>
       </div>
@@ -206,7 +206,7 @@ export default function ReportQuotesPage() {
       <div className="mb-6">
         <Link
           href={`/picc/annual-reports`}
-          className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-4"
+          className="inline-flex items-center gap-2 text-picc-red hover:text-blue-700 mb-4"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Annual Reports
@@ -220,7 +220,7 @@ export default function ReportQuotesPage() {
           <button
             onClick={saveQuotesToReport}
             disabled={saving}
-            className="px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl hover:from-amber-600 hover:to-orange-600 font-medium flex items-center gap-2 disabled:opacity-50 shadow-lg"
+            className="px-6 py-3 bg-gradient-to-r from-picc-ochre-500 to-orange-500 text-white rounded-xl hover:from-picc-ochre hover:to-orange-600 font-medium flex items-center gap-2 disabled:opacity-50 shadow-lg"
           >
             {saving ? (
               <>
@@ -252,7 +252,7 @@ export default function ReportQuotesPage() {
                     placeholder="Search quotes or storytellers..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre-500"
                   />
                 </div>
               </div>
@@ -261,7 +261,7 @@ export default function ReportQuotesPage() {
               <select
                 value={themeFilter}
                 onChange={(e) => setThemeFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 text-sm"
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre-500 text-sm"
               >
                 <option value="">All Themes</option>
                 {themes.map(theme => (
@@ -273,7 +273,7 @@ export default function ReportQuotesPage() {
               <select
                 value={impactAreaFilter}
                 onChange={(e) => setImpactAreaFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 text-sm"
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre-500 text-sm"
               >
                 <option value="">All Impact Areas</option>
                 {impactAreas.map(area => (
@@ -289,7 +289,7 @@ export default function ReportQuotesPage() {
                   type="checkbox"
                   checked={showValidatedOnly}
                   onChange={(e) => setShowValidatedOnly(e.target.checked)}
-                  className="rounded text-amber-600"
+                  className="rounded text-picc-ochre"
                 />
                 <span className="text-sm text-gray-600">Validated only</span>
               </label>
@@ -298,7 +298,7 @@ export default function ReportQuotesPage() {
                   type="checkbox"
                   checked={showSuggestedOnly}
                   onChange={(e) => setShowSuggestedOnly(e.target.checked)}
-                  className="rounded text-amber-600"
+                  className="rounded text-picc-ochre"
                 />
                 <span className="text-sm text-gray-600">Report-suggested only</span>
               </label>
@@ -323,8 +323,8 @@ export default function ReportQuotesPage() {
                     key={quote.id}
                     className={`bg-white border rounded-xl p-5 transition-all ${
                       isSelected
-                        ? 'border-amber-300 bg-amber-50 ring-2 ring-amber-200'
-                        : 'border-gray-200 hover:border-amber-200'
+                        ? 'border-picc-ochre-300 bg-picc-ochre-50 ring-2 ring-picc-ochre-200'
+                        : 'border-gray-200 hover:border-picc-ochre-200'
                     }`}
                   >
                     {/* Storyteller Info */}
@@ -337,7 +337,7 @@ export default function ReportQuotesPage() {
                             className="w-10 h-10 rounded-full object-cover"
                           />
                         ) : (
-                          <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold">
+                          <div className="w-10 h-10 rounded-full bg-picc-ochre-100 flex items-center justify-center text-picc-ochre font-bold">
                             {(quote.profile.preferred_name || quote.profile.full_name).charAt(0)}
                           </div>
                         )}
@@ -347,7 +347,7 @@ export default function ReportQuotesPage() {
                               {quote.profile.preferred_name || quote.profile.full_name}
                             </span>
                             {quote.profile.is_elder && (
-                              <span className="px-1.5 py-0.5 bg-amber-100 text-amber-700 text-xs rounded">
+                              <span className="px-1.5 py-0.5 bg-picc-ochre-100 text-picc-ochre text-xs rounded">
                                 Elder
                               </span>
                             )}
@@ -366,12 +366,12 @@ export default function ReportQuotesPage() {
                     <div className="flex items-center justify-between">
                       <div className="flex flex-wrap items-center gap-2">
                         {quote.theme && (
-                          <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full">
+                          <span className="px-2 py-0.5 bg-picc-ochre-100 text-picc-ochre text-xs rounded-full">
                             {quote.theme}
                           </span>
                         )}
                         {quote.impact_area && (
-                          <span className="px-2 py-0.5 bg-teal-100 text-teal-700 text-xs rounded-full">
+                          <span className="px-2 py-0.5 bg-sage-100 text-sage-700 text-xs rounded-full">
                             {quote.impact_area.replace(/_/g, ' ')}
                           </span>
                         )}
@@ -382,7 +382,7 @@ export default function ReportQuotesPage() {
                           </span>
                         )}
                         {quote.suggested_for_report && (
-                          <span className="flex items-center gap-1 text-amber-600 text-xs">
+                          <span className="flex items-center gap-1 text-picc-ochre text-xs">
                             <Star className="w-3 h-3" />
                             Suggested
                           </span>
@@ -400,7 +400,7 @@ export default function ReportQuotesPage() {
                       ) : (
                         <button
                           onClick={() => addQuoteToReport(quote)}
-                          className="px-3 py-1.5 bg-amber-100 text-amber-700 rounded-lg text-sm hover:bg-amber-200 flex items-center gap-1"
+                          className="px-3 py-1.5 bg-picc-ochre-100 text-picc-ochre rounded-lg text-sm hover:bg-picc-ochre-200 flex items-center gap-1"
                         >
                           <Plus className="w-4 h-4" />
                           Add to Report
@@ -416,21 +416,21 @@ export default function ReportQuotesPage() {
 
         {/* Selected Quotes - Right side */}
         <div className="lg:col-span-2">
-          <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border border-amber-200 p-6 sticky top-6">
+          <div className="bg-gradient-to-br from-picc-ochre-50 to-orange-50 rounded-xl border border-picc-ochre-200 p-6 sticky top-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-amber-900 flex items-center gap-2">
+              <h2 className="text-lg font-bold text-picc-earth flex items-center gap-2">
                 <FileText className="w-5 h-5" />
                 Report Quotes
               </h2>
-              <span className="px-3 py-1 bg-amber-200 text-amber-800 rounded-full text-sm font-medium">
+              <span className="px-3 py-1 bg-picc-ochre-200 text-picc-earth rounded-full text-sm font-medium">
                 {selectedQuotes.length} selected
               </span>
             </div>
 
             {selectedQuotes.length === 0 ? (
               <div className="text-center py-8">
-                <QuoteIcon className="w-10 h-10 mx-auto text-amber-300 mb-3" />
-                <p className="text-amber-700 text-sm">
+                <QuoteIcon className="w-10 h-10 mx-auto text-picc-ochre-300 mb-3" />
+                <p className="text-picc-ochre text-sm">
                   Click "Add to Report" to select quotes
                 </p>
               </div>
@@ -439,28 +439,28 @@ export default function ReportQuotesPage() {
                 {selectedQuotes.map((quote, index) => (
                   <div
                     key={quote.id}
-                    className="bg-white border border-amber-200 rounded-lg p-4"
+                    className="bg-white border border-picc-ochre-200 rounded-lg p-4"
                   >
                     <div className="flex items-start justify-between gap-2 mb-2">
-                      <span className="w-6 h-6 bg-amber-500 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
+                      <span className="w-6 h-6 bg-picc-ochre-500 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
                         {index + 1}
                       </span>
                       <div className="flex-1">
                         <p className="text-sm text-gray-700 italic line-clamp-3">
                           "{quote.quote_text}"
                         </p>
-                        <p className="text-xs text-amber-700 mt-1">
+                        <p className="text-xs text-picc-ochre mt-1">
                           — {quote.attribution || quote.profile?.preferred_name || quote.profile?.full_name}
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-amber-100">
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-picc-ochre-100">
                       <div className="flex gap-1">
                         <button
                           onClick={() => moveQuote(index, 'up')}
                           disabled={index === 0}
-                          className="p-1 hover:bg-amber-100 rounded disabled:opacity-30"
+                          className="p-1 hover:bg-picc-ochre-100 rounded disabled:opacity-30"
                           title="Move up"
                         >
                           ↑
@@ -468,7 +468,7 @@ export default function ReportQuotesPage() {
                         <button
                           onClick={() => moveQuote(index, 'down')}
                           disabled={index === selectedQuotes.length - 1}
-                          className="p-1 hover:bg-amber-100 rounded disabled:opacity-30"
+                          className="p-1 hover:bg-picc-ochre-100 rounded disabled:opacity-30"
                           title="Move down"
                         >
                           ↓
@@ -491,7 +491,7 @@ export default function ReportQuotesPage() {
               <button
                 onClick={saveQuotesToReport}
                 disabled={saving}
-                className="w-full mt-4 px-4 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl hover:from-amber-600 hover:to-orange-600 font-medium flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full mt-4 px-4 py-3 bg-gradient-to-r from-picc-ochre-500 to-orange-500 text-white rounded-xl hover:from-picc-ochre hover:to-orange-600 font-medium flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {saving ? (
                   <>

@@ -167,14 +167,14 @@ export default function DemoReportPage() {
           <div className="max-w-4xl mx-auto flex items-center justify-between">
             <button
               onClick={() => setViewMode('scroll')}
-              className="flex items-center gap-2 text-sm hover:text-purple-300"
+              className="flex items-center gap-2 text-sm hover:text-picc-ochre-300"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to Interactive View
             </button>
             <button
               onClick={handleExportPDF}
-              className="flex items-center gap-2 px-4 py-2 bg-purple-600 rounded-lg hover:bg-purple-700"
+              className="flex items-center gap-2 px-4 py-2 bg-picc-ochre rounded-lg hover:bg-picc-ochre"
             >
               <Printer className="h-4 w-4" />
               Print / Save PDF
@@ -185,9 +185,9 @@ export default function DemoReportPage() {
         {/* Print Content */}
         <div className="max-w-4xl mx-auto p-8 pt-20 print:pt-0">
           {/* Cover */}
-          <div className="text-center mb-12 pb-8 border-b-4 border-purple-600">
+          <div className="text-center mb-12 pb-8 border-b-4 border-picc-ochre">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">{demoReport.title}</h1>
-            <p className="text-xl text-purple-600 mb-4">{demoReport.subtitle}</p>
+            <p className="text-xl text-picc-ochre mb-4">{demoReport.subtitle}</p>
             <p className="text-gray-600">
               {new Date(demoReport.reporting_period_start).toLocaleDateString()} - {new Date(demoReport.reporting_period_end).toLocaleDateString()}
             </p>
@@ -196,7 +196,7 @@ export default function DemoReportPage() {
           {/* Executive Summary */}
           <section className="mb-12">
             <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <BookOpen className="h-6 w-6 text-purple-600" />
+              <BookOpen className="h-6 w-6 text-picc-ochre" />
               Executive Summary
             </h2>
             <div className="prose max-w-none text-gray-700 whitespace-pre-wrap">
@@ -205,22 +205,22 @@ export default function DemoReportPage() {
           </section>
 
           {/* Impact at a Glance */}
-          <section className="mb-12 bg-purple-50 p-6 rounded-lg">
+          <section className="mb-12 bg-picc-ochre-50 p-6 rounded-lg">
             <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <BarChart3 className="h-6 w-6 text-purple-600" />
+              <BarChart3 className="h-6 w-6 text-picc-ochre" />
               Impact at a Glance
             </h2>
             <div className="grid grid-cols-3 gap-4">
               <div className="text-center p-4 bg-white rounded-lg">
-                <div className="text-3xl font-bold text-purple-600">{demoReport.statistics.total_stories}</div>
+                <div className="text-3xl font-bold text-picc-ochre">{demoReport.statistics.total_stories}</div>
                 <div className="text-sm text-gray-600">Community Stories</div>
               </div>
               <div className="text-center p-4 bg-white rounded-lg">
-                <div className="text-3xl font-bold text-purple-600">{demoReport.statistics.unique_storytellers}</div>
+                <div className="text-3xl font-bold text-picc-ochre">{demoReport.statistics.unique_storytellers}</div>
                 <div className="text-sm text-gray-600">Storytellers</div>
               </div>
               <div className="text-center p-4 bg-white rounded-lg">
-                <div className="text-3xl font-bold text-purple-600">
+                <div className="text-3xl font-bold text-picc-ochre">
                   {Object.keys(demoReport.statistics.stories_by_category).length}
                 </div>
                 <div className="text-sm text-gray-600">Impact Areas</div>
@@ -231,15 +231,15 @@ export default function DemoReportPage() {
           {/* Stories */}
           <section className="mb-12">
             <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <Heart className="h-6 w-6 text-purple-600" />
+              <Heart className="h-6 w-6 text-picc-ochre" />
               Community Voices
             </h2>
             <div className="space-y-8">
               {demoStories.map((story) => (
-                <div key={story.id} className="border-l-4 border-purple-600 pl-4">
+                <div key={story.id} className="border-l-4 border-picc-ochre pl-4">
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">{story.title}</h3>
                   <p className="text-gray-700 mb-2 whitespace-pre-wrap">{story.content}</p>
-                  <p className="text-sm text-purple-600 italic">— {story.storyteller}</p>
+                  <p className="text-sm text-picc-ochre italic">— {story.storyteller}</p>
                 </div>
               ))}
             </div>
@@ -306,7 +306,7 @@ export default function DemoReportPage() {
         />
 
         {/* Impact Stats Section */}
-        <div className="bg-gradient-to-br from-purple-900 to-purple-700 py-24">
+        <div className="bg-gradient-to-br from-picc-earth to-picc-ochre py-24">
           <div className="max-w-4xl mx-auto px-6 text-center">
             <h2 className="text-3xl font-bold text-white mb-12">Impact at a Glance</h2>
             <div className="grid md:grid-cols-4 gap-8">
@@ -314,25 +314,25 @@ export default function DemoReportPage() {
                 <div className="text-5xl font-bold text-white mb-2">
                   {demoReport.statistics.total_stories}
                 </div>
-                <div className="text-purple-200">Stories Collected</div>
+                <div className="text-picc-ochre-200">Stories Collected</div>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8">
                 <div className="text-5xl font-bold text-white mb-2">
                   {demoReport.statistics.unique_storytellers}
                 </div>
-                <div className="text-purple-200">Storytellers</div>
+                <div className="text-picc-ochre-200">Storytellers</div>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8">
                 <div className="text-5xl font-bold text-white mb-2">
                   200+
                 </div>
-                <div className="text-purple-200">Photos Preserved</div>
+                <div className="text-picc-ochre-200">Photos Preserved</div>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8">
                 <div className="text-5xl font-bold text-white mb-2">
                   89%
                 </div>
-                <div className="text-purple-200">Satisfaction Rate</div>
+                <div className="text-picc-ochre-200">Satisfaction Rate</div>
               </div>
             </div>
           </div>
@@ -363,18 +363,18 @@ export default function DemoReportPage() {
           <div className="max-w-4xl mx-auto px-6">
             <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">2024 Timeline</h2>
             <div className="relative">
-              <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-0.5 bg-purple-200" />
+              <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-0.5 bg-picc-ochre-200" />
               <div className="space-y-12">
                 {demoTimeline.map((item, index) => (
                   <div key={index} className={`flex items-center gap-8 ${index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'}`}>
                     <div className={`flex-1 ${index % 2 === 0 ? 'text-right' : 'text-left'}`}>
                       <div className="bg-gray-50 rounded-lg p-6 inline-block">
-                        <div className="text-sm text-purple-600 font-medium mb-1">{item.date}</div>
+                        <div className="text-sm text-picc-ochre font-medium mb-1">{item.date}</div>
                         <h3 className="font-semibold text-gray-900 mb-2">{item.title}</h3>
                         <p className="text-sm text-gray-600">{item.description}</p>
                       </div>
                     </div>
-                    <div className="w-4 h-4 rounded-full bg-purple-600 border-4 border-white shadow relative z-10" />
+                    <div className="w-4 h-4 rounded-full bg-picc-ochre border-4 border-white shadow relative z-10" />
                     <div className="flex-1" />
                   </div>
                 ))}
@@ -399,7 +399,7 @@ export default function DemoReportPage() {
             <div className="max-w-4xl mx-auto px-6">
               <div className="grid md:grid-cols-2 gap-12 items-center">
                 <div>
-                  <span className="text-purple-400 text-sm uppercase tracking-wider mb-2 block">
+                  <span className="text-picc-ochre text-sm uppercase tracking-wider mb-2 block">
                     {story.category}
                   </span>
                   <h3 className="text-2xl font-bold text-white mb-4">{story.title}</h3>
@@ -410,7 +410,7 @@ export default function DemoReportPage() {
                     {story.content.split('\n\n')[1]}
                   </p>
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold">
+                    <div className="w-12 h-12 rounded-full bg-picc-ochre flex items-center justify-center text-white font-bold">
                       {story.storyteller.split(' ').map(n => n[0]).join('')}
                     </div>
                     <div>
@@ -467,7 +467,7 @@ export default function DemoReportPage() {
             <div className="grid md:grid-cols-2 gap-6">
               {otherStories.map((story) => (
                 <div key={story.id} className="bg-gray-50 rounded-xl p-6">
-                  <span className="text-xs text-purple-600 uppercase tracking-wider">{story.category}</span>
+                  <span className="text-xs text-picc-ochre uppercase tracking-wider">{story.category}</span>
                   <h3 className="font-semibold text-gray-900 mt-2 mb-3">{story.title}</h3>
                   <p className="text-gray-600 text-sm mb-4 line-clamp-3">
                     {story.content.substring(0, 200)}...
@@ -489,7 +489,7 @@ export default function DemoReportPage() {
             <div className="grid md:grid-cols-5 gap-4">
               {Object.entries(demoReport.statistics.stories_by_category).map(([category, count]) => (
                 <div key={category} className="bg-white rounded-lg p-4 text-center shadow-sm">
-                  <div className="text-2xl font-bold text-purple-600">{count}</div>
+                  <div className="text-2xl font-bold text-picc-ochre">{count}</div>
                   <div className="text-sm text-gray-600 capitalize">{category}</div>
                 </div>
               ))}

@@ -13,7 +13,7 @@ export default function CreateStoryPage() {
         <Link
           href="/share-voice"
           target="_blank"
-          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-picc-red-600 to-picc-red-500 hover:from-picc-red-700 hover:to-picc-red-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all"
         >
           <Plus className="w-5 h-5" />
           <span>Open Share Your Voice</span>

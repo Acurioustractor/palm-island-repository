@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import { Upload, X, Tag, Calendar, FolderOpen, Sparkles, Users, CheckCircle2, AlertCircle } from 'lucide-react';
+import { useState, useCallback, useEffect } from 'react';
+import { Upload, X, Tag, Calendar, FolderOpen, Sparkles, CheckCircle2, AlertCircle, Star, Building2, Lightbulb } from 'lucide-react';
 import Link from 'next/link';
+import PhotoShootChecklist from './PhotoShootChecklist';
 
 interface UploadFile {
   file: File;
@@ -12,6 +13,30 @@ interface UploadFile {
   skipReason?: string;
   id: string;
 }
+
+interface ServiceOption {
+  id: string;
+  service_name: string;
+  service_slug: string;
+  service_category: string;
+}
+
+const CATEGORY_COLORS: Record<string, string> = {
+  'Health & Wellbeing': 'text-sage-700',
+  'Family & Children': 'text-picc-red',
+  'Justice & Safety': 'text-red-700',
+  'Culture & Community': 'text-picc-ochre',
+  'Education & Training': 'text-picc-ochre',
+  'Economic Development': 'text-sage-700',
+  'Corporate': 'text-gray-700',
+};
+
+const INNOVATION_PROJECTS = [
+  { slug: 'elders-trip', name: 'Elders Trip' },
+  { slug: 'photo-studio', name: 'Photo Studio' },
+  { slug: 'local-server', name: 'Local Server' },
+  { slug: 'storm-recovery', name: 'Storm Recovery' },
+];
 
 export default function BulkUploadPage() {
   const [files, setFiles] = useState<UploadFile[]>([]);
@@ -25,6 +50,50 @@ export default function BulkUploadPage() {
   const [batchCollection, setBatchCollection] = useState('');
   const [batchDescription, setBatchDescription] = useState('');
   const [enableAI, setEnableAI] = useState(true);
+
+  // Service/project selectors
+  const [services, setServices] = useState<ServiceOption[]>([]);
+  const [selectedService, setSelectedService] = useState('');
+  const [selectedProject, setSelectedProject] = useState('');
+  const [isCoverPhoto, setIsCoverPhoto] = useState(false);
+  const [servicesLoading, setServicesLoading] = useState(true);
+
+  // Load services from taxonomy API
+  useEffect(() => {
+    const loadServices = async () => {
+      try {
+        const res = await fetch('/api/media/taxonomy', { cache: 'no-store' });
+        const json = await res.json().catch(() => ({}));
+        if (res.ok) {
+          setServices(json.services || []);
+        }
+      } catch (e) {
+        console.error('Failed to load services:', e);
+      } finally {
+        setServicesLoading(false);
+      }
+    };
+    loadServices();
+  }, []);
+
+  // Auto-manage tags when service/project/cover changes
+  useEffect(() => {
+    setBatchTags(prev => {
+      let tags = prev.filter(t => !t.startsWith('service:') && !t.startsWith('project:') && t !== 'hero');
+      if (selectedService) tags.push(`service:${selectedService}`);
+      if (selectedProject) tags.push(`project:${selectedProject}`);
+      if (isCoverPhoto) tags.push('hero');
+      return tags;
+    });
+  }, [selectedService, selectedProject, isCoverPhoto]);
+
+  // Group services by category
+  const servicesByCategory = services.reduce<Record<string, ServiceOption[]>>((acc, svc) => {
+    const cat = svc.service_category || 'Other';
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat].push(svc);
+    return acc;
+  }, {});
 
   // Handle file selection
   const handleFiles = useCallback((fileList: FileList) => {
@@ -79,6 +148,10 @@ export default function BulkUploadPage() {
 
   // Remove tag
   const removeTag = (tag: string) => {
+    // If removing an auto-managed tag, also clear the selector
+    if (tag.startsWith('service:')) setSelectedService('');
+    if (tag.startsWith('project:')) setSelectedProject('');
+    if (tag === 'hero') setIsCoverPhoto(false);
     setBatchTags(batchTags.filter(t => t !== tag));
   };
 
@@ -89,6 +162,8 @@ export default function BulkUploadPage() {
     setUploading(true);
 
     for (const uploadFile of files) {
+      if (uploadFile.status !== 'pending') continue;
+
       try {
         // Update status to uploading
         setFiles(prev => prev.map(f =>
@@ -106,7 +181,7 @@ export default function BulkUploadPage() {
         const response = await fetch('/api/media/upload', {
           method: 'POST',
           body: formData,
-          signal: AbortSignal.timeout(30000), // 30 second timeout for uploads
+          signal: AbortSignal.timeout(30000),
         });
 
         if (!response.ok) {
@@ -133,7 +208,15 @@ export default function BulkUploadPage() {
           throw new Error(errorData.message || `Upload failed: ${response.status}`);
         }
 
+        // If this is a cover photo upload, set it as the cover
         const data = await response.json();
+        if (isCoverPhoto && selectedService && data?.id) {
+          await fetch('/api/media/set-cover-photo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mediaId: data.id, serviceSlug: selectedService }),
+          }).catch(() => {});
+        }
 
         // Update status to success
         setFiles(prev => prev.map(f =>
@@ -151,10 +234,19 @@ export default function BulkUploadPage() {
     setUploading(false);
   };
 
+  // Reset for next batch
+  const resetForNextService = () => {
+    setFiles([]);
+    setSelectedService('');
+    setSelectedProject('');
+    setIsCoverPhoto(false);
+  };
+
   const successCount = files.filter(f => f.status === 'success').length;
   const errorCount = files.filter(f => f.status === 'error').length;
   const skippedCount = files.filter(f => f.status === 'skipped').length;
   const pendingCount = files.filter(f => f.status === 'pending').length;
+  const allDone = files.length > 0 && pendingCount === 0 && !uploading;
 
   return (
     <div className="p-8 max-w-7xl mx-auto">
@@ -163,19 +255,27 @@ export default function BulkUploadPage() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-              <Upload className="w-8 h-8 text-blue-600" />
+              <Upload className="w-8 h-8 text-picc-red" />
               Bulk Photo Upload
             </h1>
             <p className="text-gray-600 mt-2">
-              Upload hundreds of photos at once with batch tagging and AI analysis
+              Upload photos with service tagging. Select service, drop photos, upload, next service.
             </p>
           </div>
-          <Link
-            href="/picc/media"
-            className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            Back to Media
-          </Link>
+          <div className="flex gap-2">
+            <Link
+              href="/picc/media/cover-photos"
+              className="px-4 py-2 text-picc-red hover:bg-warm-50 rounded-lg transition-colors"
+            >
+              Cover Photos
+            </Link>
+            <Link
+              href="/picc/media"
+              className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              Back to Media
+            </Link>
+          </div>
         </div>
 
         {/* Progress Stats */}
@@ -190,7 +290,7 @@ export default function BulkUploadPage() {
               <div className="text-sm text-gray-600">Uploaded</div>
             </div>
             <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <div className="text-2xl font-bold text-amber-600">{skippedCount}</div>
+              <div className="text-2xl font-bold text-picc-ochre">{skippedCount}</div>
               <div className="text-sm text-gray-600">Skipped</div>
             </div>
             <div className="bg-white rounded-lg border border-gray-200 p-4">
@@ -198,7 +298,7 @@ export default function BulkUploadPage() {
               <div className="text-sm text-gray-600">Failed</div>
             </div>
             <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <div className="text-2xl font-bold text-blue-600">{pendingCount}</div>
+              <div className="text-2xl font-bold text-picc-red">{pendingCount}</div>
               <div className="text-sm text-gray-600">Pending</div>
             </div>
           </div>
@@ -215,18 +315,18 @@ export default function BulkUploadPage() {
             onDrop={handleDrop}
             className={`border-2 border-dashed rounded-xl p-12 text-center transition-colors ${
               isDragging
-                ? 'border-blue-500 bg-blue-50'
+                ? 'border-picc-red bg-warm-50'
                 : 'border-gray-300 bg-gray-50 hover:border-blue-400'
             }`}
           >
-            <Upload className={`w-16 h-16 mx-auto mb-4 ${isDragging ? 'text-blue-500' : 'text-gray-400'}`} />
+            <Upload className={`w-16 h-16 mx-auto mb-4 ${isDragging ? 'text-picc-red' : 'text-gray-400'}`} />
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
               Drop photos here or click to browse
             </h3>
             <p className="text-gray-600 mb-4">
               Upload hundreds of photos at once. JPG, PNG, WebP supported.
             </p>
-            <label className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer transition-colors">
+            <label className="inline-flex items-center gap-2 px-6 py-3 bg-picc-red text-white rounded-lg hover:bg-picc-red cursor-pointer transition-colors">
               <Upload className="w-5 h-5" />
               Choose Photos
               <input
@@ -242,9 +342,19 @@ export default function BulkUploadPage() {
           {/* Photo Grid */}
           {files.length > 0 && (
             <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="font-semibold text-gray-900 mb-4">
-                Selected Photos ({files.length})
-              </h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-gray-900">
+                  Selected Photos ({files.length})
+                </h3>
+                {allDone && (
+                  <button
+                    onClick={resetForNextService}
+                    className="px-4 py-2 bg-picc-red text-white rounded-lg hover:opacity-90 transition-colors text-sm"
+                  >
+                    Clear & Next Service
+                  </button>
+                )}
+              </div>
               <div className="grid grid-cols-4 gap-4 max-h-96 overflow-y-auto">
                 {files.map((uploadFile) => (
                   <div key={uploadFile.id} className="relative group">
@@ -265,8 +375,8 @@ export default function BulkUploadPage() {
                       </div>
                     )}
                     {uploadFile.status === 'skipped' && (
-                      <div className="absolute inset-0 bg-amber-500/20 rounded-lg flex items-center justify-center" title={uploadFile.skipReason}>
-                        <AlertCircle className="w-8 h-8 text-amber-600" />
+                      <div className="absolute inset-0 bg-picc-ochre-500/20 rounded-lg flex items-center justify-center" title={uploadFile.skipReason}>
+                        <AlertCircle className="w-8 h-8 text-picc-ochre" />
                       </div>
                     )}
                     {uploadFile.status === 'error' && (
@@ -275,8 +385,8 @@ export default function BulkUploadPage() {
                       </div>
                     )}
                     {uploadFile.status === 'uploading' && (
-                      <div className="absolute inset-0 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                      <div className="absolute inset-0 bg-picc-red/20 rounded-lg flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-picc-red"></div>
                       </div>
                     )}
                   </div>
@@ -288,15 +398,72 @@ export default function BulkUploadPage() {
 
         {/* Right: Batch Settings */}
         <div className="space-y-6">
+          {/* Service Selector */}
+          <div className="bg-white rounded-lg border-2 border-picc-red p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Building2 className="w-5 h-5 text-picc-red" />
+              <h3 className="font-semibold text-gray-900">Service</h3>
+            </div>
+            <p className="text-sm text-gray-600 mb-3">
+              Auto-adds <code className="text-xs bg-gray-100 px-1 rounded">service:slug</code> tag
+            </p>
+            <select
+              value={selectedService}
+              onChange={(e) => setSelectedService(e.target.value)}
+              disabled={servicesLoading}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red text-sm"
+            >
+              <option value="">Select a service...</option>
+              {Object.entries(servicesByCategory).map(([category, svcs]) => (
+                <optgroup key={category} label={category}>
+                  {svcs.map(svc => (
+                    <option key={svc.id} value={svc.service_slug}>
+                      {svc.service_name}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+
+            {/* Cover photo checkbox */}
+            {selectedService && (
+              <label className="flex items-center gap-2 mt-3 p-2 bg-warm-50 rounded-lg cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isCoverPhoto}
+                  onChange={(e) => setIsCoverPhoto(e.target.checked)}
+                  className="rounded border-gray-300 text-picc-red focus:ring-picc-red"
+                />
+                <Star className="w-4 h-4 text-picc-ochre" />
+                <span className="text-sm font-medium text-gray-700">Cover photo for this service</span>
+              </label>
+            )}
+          </div>
+
+          {/* Innovation Project Selector */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Lightbulb className="w-5 h-5 text-picc-ochre" />
+              <h3 className="font-semibold text-gray-900">Innovation Project</h3>
+            </div>
+            <select
+              value={selectedProject}
+              onChange={(e) => setSelectedProject(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red text-sm"
+            >
+              <option value="">None</option>
+              {INNOVATION_PROJECTS.map(p => (
+                <option key={p.slug} value={p.slug}>{p.name}</option>
+              ))}
+            </select>
+          </div>
+
           {/* Batch Tags */}
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-center gap-2 mb-4">
-              <Tag className="w-5 h-5 text-blue-600" />
+              <Tag className="w-5 h-5 text-picc-red" />
               <h3 className="font-semibold text-gray-900">Batch Tags</h3>
             </div>
-            <p className="text-sm text-gray-600 mb-4">
-              Add tags that will be applied to all photos
-            </p>
 
             {/* Tag Input */}
             <div className="flex gap-2 mb-3">
@@ -304,13 +471,13 @@ export default function BulkUploadPage() {
                 type="text"
                 value={newTag}
                 onChange={(e) => setNewTag(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && addTag()}
-                placeholder="Add tag..."
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                onKeyDown={(e) => e.key === 'Enter' && addTag()}
+                placeholder="Add custom tag..."
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-picc-red"
               />
               <button
                 onClick={addTag}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                className="px-4 py-2 bg-picc-red text-white rounded-lg hover:opacity-90"
               >
                 Add
               </button>
@@ -321,7 +488,12 @@ export default function BulkUploadPage() {
               {batchTags.map((tag) => (
                 <span
                   key={tag}
-                  className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm"
+                  className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm ${
+                    tag.startsWith('service:') ? 'bg-sage-100 text-sage-700' :
+                    tag.startsWith('project:') ? 'bg-picc-ochre-100 text-picc-ochre' :
+                    tag === 'hero' ? 'bg-picc-ochre-100 text-picc-ochre' :
+                    'bg-warm-100 text-picc-red'
+                  }`}
                 >
                   {tag}
                   <button onClick={() => removeTag(tag)}>
@@ -335,13 +507,13 @@ export default function BulkUploadPage() {
           {/* Annual Report Year */}
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-center gap-2 mb-4">
-              <Calendar className="w-5 h-5 text-blue-600" />
+              <Calendar className="w-5 h-5 text-picc-red" />
               <h3 className="font-semibold text-gray-900">Annual Report Year</h3>
             </div>
             <select
               value={batchYear}
               onChange={(e) => setBatchYear(parseInt(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
             >
               {[2024, 2025, 2026].map((year) => (
                 <option key={year} value={year}>{year}</option>
@@ -352,7 +524,7 @@ export default function BulkUploadPage() {
           {/* Collection */}
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-center gap-2 mb-4">
-              <FolderOpen className="w-5 h-5 text-blue-600" />
+              <FolderOpen className="w-5 h-5 text-picc-red" />
               <h3 className="font-semibold text-gray-900">Collection</h3>
             </div>
             <input
@@ -360,7 +532,7 @@ export default function BulkUploadPage() {
               value={batchCollection}
               onChange={(e) => setBatchCollection(e.target.value)}
               placeholder="e.g., Community Events 2024"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
             />
           </div>
 
@@ -372,7 +544,7 @@ export default function BulkUploadPage() {
               onChange={(e) => setBatchDescription(e.target.value)}
               rows={3}
               placeholder="Description for all photos..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
             />
           </div>
 
@@ -380,7 +552,7 @@ export default function BulkUploadPage() {
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-purple-600" />
+                <Sparkles className="w-5 h-5 text-picc-ochre" />
                 <h3 className="font-semibold text-gray-900">AI Analysis</h3>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
@@ -390,7 +562,7 @@ export default function BulkUploadPage() {
                   onChange={(e) => setEnableAI(e.target.checked)}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-picc-red"></div>
               </label>
             </div>
             <p className="text-sm text-gray-600">
@@ -401,8 +573,8 @@ export default function BulkUploadPage() {
           {/* Upload Button */}
           <button
             onClick={uploadAll}
-            disabled={files.length === 0 || uploading}
-            className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            disabled={files.length === 0 || uploading || pendingCount === 0}
+            className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-picc-red text-white rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {uploading ? (
               <>
@@ -416,6 +588,11 @@ export default function BulkUploadPage() {
               </>
             )}
           </button>
+
+          {/* Photo Shoot Checklist */}
+          {services.length > 0 && (
+            <PhotoShootChecklist services={services} />
+          )}
         </div>
       </div>
     </div>

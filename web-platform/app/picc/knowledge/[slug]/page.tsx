@@ -95,9 +95,9 @@ export default function KnowledgeEntryPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-warm-50 to-warm-100 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-picc-red mx-auto mb-4"></div>
           <p className="text-gray-600">Loading...</p>
         </div>
       </div>
@@ -106,7 +106,7 @@ export default function KnowledgeEntryPage() {
 
   if (error || !entry) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-warm-50 to-warm-100 flex items-center justify-center">
         <div className="text-center max-w-md mx-auto p-6">
           <div className="text-red-600 mb-4">
             <FileText className="w-16 h-16 mx-auto" />
@@ -115,7 +115,7 @@ export default function KnowledgeEntryPage() {
           <p className="text-gray-600 mb-6">{error || 'The requested knowledge entry could not be found.'}</p>
           <Link
             href="/picc/knowledge"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-picc-red text-white rounded-lg hover:bg-picc-red transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
             Back to Knowledge Base
@@ -129,14 +129,14 @@ export default function KnowledgeEntryPage() {
   const pdfPath = getPdfPath();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-warm-50 to-warm-100">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <Link
               href={isAnnualReport ? "/annual-reports" : "/picc/knowledge"}
-              className="text-blue-600 hover:text-blue-700 flex items-center gap-2"
+              className="text-picc-red hover:text-picc-red flex items-center gap-2"
             >
               <ArrowLeft className="w-5 h-5" />
               {isAnnualReport ? 'Back to Timeline' : 'Back to Knowledge Base'}
@@ -146,7 +146,7 @@ export default function KnowledgeEntryPage() {
               <a
                 href={pdfPath}
                 download
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-picc-red text-white rounded-lg hover:bg-picc-red transition-colors"
               >
                 <Download className="w-4 h-4" />
                 Download PDF
@@ -161,7 +161,7 @@ export default function KnowledgeEntryPage() {
         {/* Title Section */}
         <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
           {entry.fiscal_year && (
-            <div className="inline-block px-4 py-2 bg-blue-100 text-blue-700 rounded-full font-bold text-lg mb-4">
+            <div className="inline-block px-4 py-2 bg-warm-100 text-picc-red rounded-full font-bold text-lg mb-4">
               {entry.fiscal_year}
             </div>
           )}
@@ -259,7 +259,7 @@ export default function KnowledgeEntryPage() {
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Additional Information</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {Object.entries(entry.structured_data).map(([key, value]) => (
-                <div key={key} className="border-l-4 border-blue-500 pl-4">
+                <div key={key} className="border-l-4 border-picc-red pl-4">
                   <div className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-1">
                     {key.replace(/_/g, ' ')}
                   </div>

@@ -236,14 +236,14 @@ export default function MediaUploadPage() {
       <div className="mb-8">
         <Link
           href="/picc/media"
-          className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-4"
+          className="inline-flex items-center gap-2 text-picc-red hover:text-picc-red mb-4"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Media Library
         </Link>
 
         <div className="flex items-center gap-3 mb-4">
-          <UploadIcon className="w-8 h-8 text-blue-600" />
+          <UploadIcon className="w-8 h-8 text-picc-red" />
           <h1 className="text-3xl font-bold text-gray-900">Upload Media</h1>
         </div>
         <p className="text-gray-600">
@@ -266,7 +266,7 @@ export default function MediaUploadPage() {
               <select
                 value={bucket}
                 onChange={(e) => setBucket(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
               >
                 <option value="story-images">Story Images</option>
                 <option value="profile-images">Profile Photos</option>
@@ -276,7 +276,7 @@ export default function MediaUploadPage() {
 
             {/* File Input */}
             <label className="cursor-pointer block">
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 hover:bg-blue-50 transition-colors">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-picc-red hover:bg-warm-50 transition-colors">
                 <UploadIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-700 font-medium mb-1">Click to upload files</p>
                 <p className="text-sm text-gray-500">or drag and drop</p>
@@ -307,7 +307,7 @@ export default function MediaUploadPage() {
                   type="text"
                   value={metadata.title}
                   onChange={(e) => setMetadata({ ...metadata, title: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
                   placeholder="Descriptive title for these files"
                 />
               </div>
@@ -320,7 +320,7 @@ export default function MediaUploadPage() {
                   value={metadata.description}
                   onChange={(e) => setMetadata({ ...metadata, description: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
                   placeholder="What's in these files?"
                 />
               </div>
@@ -333,7 +333,7 @@ export default function MediaUploadPage() {
                   type="text"
                   value={metadata.tags}
                   onChange={(e) => setMetadata({ ...metadata, tags: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
                   placeholder="e.g., community, event, culture"
                 />
               </div>
@@ -346,7 +346,7 @@ export default function MediaUploadPage() {
                   type="text"
                   value={metadata.location}
                   onChange={(e) => setMetadata({ ...metadata, location: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
                   placeholder="Where were these taken?"
                 />
               </div>
@@ -377,7 +377,7 @@ export default function MediaUploadPage() {
                       className={`border rounded-lg p-3 ${
                         uploadFile.status === 'success' ? 'border-green-300 bg-green-50' :
                         uploadFile.status === 'error' ? 'border-red-300 bg-red-50' :
-                        uploadFile.status === 'uploading' ? 'border-blue-300 bg-blue-50' :
+                        uploadFile.status === 'uploading' ? 'border-picc-red-300 bg-warm-50' :
                         'border-gray-200'
                       }`}
                     >
@@ -411,7 +411,7 @@ export default function MediaUploadPage() {
                             <div className="mt-2">
                               <div className="w-full bg-gray-200 rounded-full h-2">
                                 <div
-                                  className="bg-blue-600 h-2 rounded-full transition-all"
+                                  className="bg-picc-red h-2 rounded-full transition-all"
                                   style={{ width: `${uploadFile.progress}%` }}
                                 />
                               </div>
@@ -454,7 +454,7 @@ export default function MediaUploadPage() {
               <button
                 onClick={uploadFiles}
                 disabled={uploading || files.every(f => f.status === 'success')}
-                className="w-full mt-4 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+                className="w-full mt-4 px-6 py-3 bg-picc-red text-white rounded-lg hover:bg-picc-red disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
               >
                 {uploading ? 'Uploading...' : `Upload ${files.length} File${files.length > 1 ? 's' : ''}`}
               </button>

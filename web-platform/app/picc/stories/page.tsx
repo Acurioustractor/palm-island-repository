@@ -346,7 +346,7 @@ export default function StoriesPage() {
     const statusConfig = STORY_STATUSES.find((s) => s.id === status);
     const colors: Record<string, string> = {
       draft: 'bg-gray-100 text-gray-700',
-      pending: 'bg-amber-100 text-amber-700',
+      pending: 'bg-picc-ochre-100 text-picc-ochre-700',
       published: 'bg-green-100 text-green-700',
       archived: 'bg-red-100 text-red-700',
     };
@@ -694,7 +694,7 @@ export default function StoriesPage() {
                           <div className="flex items-center gap-2 mt-1">
                             {getAccessIcon(story.access_level)}
                             {story.is_featured && (
-                              <span title="Featured"><Star className="w-4 h-4 text-amber-500" /></span>
+                              <span title="Featured"><Star className="w-4 h-4 text-picc-ochre-500" /></span>
                             )}
                           </div>
                         </div>

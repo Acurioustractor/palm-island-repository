@@ -291,7 +291,7 @@ export default function CMODashboard() {
       <div className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-picc-ochre rounded-xl flex items-center justify-center">
               <Bot className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -304,7 +304,7 @@ export default function CMODashboard() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowTemplates(!showTemplates)}
-              className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium"
+              className="flex items-center gap-2 px-4 py-2 bg-picc-ochre text-white rounded-lg hover:bg-picc-ochre transition-colors text-sm font-medium"
             >
               <Plus className="w-4 h-4" />
               New Interview
@@ -325,7 +325,7 @@ export default function CMODashboard() {
                 <button
                   key={t.id}
                   onClick={() => startSession(t.id)}
-                  className="text-left p-4 border border-gray-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-all"
+                  className="text-left p-4 border border-gray-200 rounded-lg hover:border-picc-ochre-300 hover:bg-warm-100 transition-all"
                 >
                   <div className="font-medium text-gray-900">{t.title}</div>
                   <div className="text-sm text-gray-500 mt-1">
@@ -335,7 +335,7 @@ export default function CMODashboard() {
               ))}
               <button
                 onClick={() => startSession()}
-                className="text-left p-4 border border-dashed border-gray-300 rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-all"
+                className="text-left p-4 border border-dashed border-gray-300 rounded-lg hover:border-picc-ochre-300 hover:bg-warm-100 transition-all"
               >
                 <div className="font-medium text-gray-900">Free Chat</div>
                 <div className="text-sm text-gray-500 mt-1">
@@ -351,7 +351,7 @@ export default function CMODashboard() {
       <div className="bg-white border-b border-gray-200 px-6 py-3">
         <div className="max-w-7xl mx-auto flex items-center gap-6 text-sm">
           <div className="flex items-center gap-2 text-gray-600">
-            <Brain className="w-4 h-4 text-purple-500" />
+            <Brain className="w-4 h-4 text-picc-ochre" />
             <span className="font-medium">{knowledge.length}</span> facts
           </div>
           <div className="flex items-center gap-2 text-gray-600">
@@ -360,11 +360,11 @@ export default function CMODashboard() {
             actions
           </div>
           <div className="flex items-center gap-2 text-gray-600">
-            <MessageSquare className="w-4 h-4 text-blue-500" />
+            <MessageSquare className="w-4 h-4 text-picc-red" />
             <span className="font-medium">{sessions.length}</span> sessions
           </div>
           {gaps.length > 0 && (
-            <div className="flex items-center gap-2 text-amber-600">
+            <div className="flex items-center gap-2 text-picc-ochre">
               <AlertTriangle className="w-4 h-4" />
               <span className="font-medium">{gaps.length}</span> knowledge gaps
             </div>
@@ -393,8 +393,8 @@ export default function CMODashboard() {
                       className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}
                     >
                       {msg.role === 'assistant' && (
-                        <div className="flex-shrink-0 w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                          <Bot className="w-4 h-4 text-purple-600" />
+                        <div className="flex-shrink-0 w-8 h-8 bg-warm-100 rounded-full flex items-center justify-center">
+                          <Bot className="w-4 h-4 text-picc-ochre" />
                         </div>
                       )}
                       <div
@@ -417,8 +417,8 @@ export default function CMODashboard() {
                   ))}
                   {isLoading && (
                     <div className="flex gap-3">
-                      <div className="flex-shrink-0 w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                        <Bot className="w-4 h-4 text-purple-600" />
+                      <div className="flex-shrink-0 w-8 h-8 bg-warm-100 rounded-full flex items-center justify-center">
+                        <Bot className="w-4 h-4 text-picc-ochre" />
                       </div>
                       <div className="flex items-center gap-2 text-gray-400">
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -438,13 +438,13 @@ export default function CMODashboard() {
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
                       placeholder="Type your message..."
-                      className="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg focus:border-purple-400 focus:outline-none text-sm"
+                      className="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg focus:border-picc-ochre-300 focus:outline-none text-sm"
                       disabled={isLoading}
                     />
                     <button
                       type="submit"
                       disabled={!input.trim() || isLoading}
-                      className="px-4 py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                      className="px-4 py-2.5 bg-picc-ochre text-white rounded-lg hover:bg-picc-ochre transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                     >
                       <Send className="w-4 h-4" />
                     </button>
@@ -464,7 +464,7 @@ export default function CMODashboard() {
                 </p>
                 <button
                   onClick={() => setShowTemplates(true)}
-                  className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
+                  className="flex items-center gap-2 px-6 py-3 bg-picc-ochre text-white rounded-lg hover:bg-picc-ochre transition-colors font-medium"
                 >
                   <Plus className="w-4 h-4" />
                   Start Interview
@@ -504,7 +504,7 @@ export default function CMODashboard() {
             {/* Knowledge Status */}
             <div className="bg-white rounded-xl border border-gray-200 p-4">
               <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <Brain className="w-4 h-4 text-purple-500" />
+                <Brain className="w-4 h-4 text-picc-ochre" />
                 Knowledge Status
               </h3>
 
@@ -521,12 +521,12 @@ export default function CMODashboard() {
                   key={gap.domain}
                   className="flex items-start gap-2 py-2 border-b border-gray-100 last:border-0"
                 >
-                  <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
+                  <AlertTriangle className="w-4 h-4 text-picc-ochre-500 mt-0.5 flex-shrink-0" />
                   <div>
                     <div className="text-sm font-medium text-gray-900">
                       {gap.domain}
                     </div>
-                    <div className="text-xs text-amber-600">
+                    <div className="text-xs text-picc-ochre">
                       {gap.description}
                     </div>
                   </div>

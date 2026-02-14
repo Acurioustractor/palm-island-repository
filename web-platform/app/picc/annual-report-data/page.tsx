@@ -1,9 +1,9 @@
 'use client';
 
 import { useReducer, useEffect, useCallback, useMemo, useState } from 'react';
+import Link from 'next/link';
 import DashboardHeader from '@/components/annual-report-data/DashboardHeader';
-import OverallProgress from '@/components/annual-report-data/OverallProgress';
-import TabBar from '@/components/annual-report-data/TabBar';
+import DashboardSidebar from '@/components/annual-report-data/DashboardSidebar';
 import ServicesPanel from '@/components/annual-report-data/ServicesPanel';
 import FinancialsPanel from '@/components/annual-report-data/FinancialsPanel';
 import HighlightsPanel from '@/components/annual-report-data/HighlightsPanel';
@@ -14,21 +14,47 @@ import PhotosMediaPanel from '@/components/annual-report-data/PhotosMediaPanel';
 import ProjectsPanel from '@/components/annual-report-data/ProjectsPanel';
 import CountdownPanel from '@/components/annual-report-data/CountdownPanel';
 import OverviewPanel from '@/components/annual-report-data/OverviewPanel';
+import HistoricalTrendsPanel from '@/components/annual-report-data/HistoricalTrendsPanel';
 import DashboardSkeleton from '@/components/annual-report-data/DashboardSkeleton';
+import PagePlannerPanel from '@/components/annual-report-data/PagePlannerPanel';
+import EditionsPanel from '@/components/annual-report-data/EditionsPanel';
+import QuickAddFAB from '@/components/annual-report-data/QuickAddFAB';
 import { useToast, ToastProvider } from '@/components/ui/Toast';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useUndoStack } from '@/hooks/useUndoStack';
+import type { QuickAddType } from '@/components/annual-report-data/QuickAddModal';
 
+// Full 20-year range, grouped for the dropdown
 const FISCAL_YEARS = [
-  { value: 2026, label: '2025-26' },
-  { value: 2025, label: '2024-25' },
-  { value: 2024, label: '2023-24' },
-  { value: 2023, label: '2022-23' },
+  // Current
+  { value: 2026, label: '2025-26', group: 'Current' },
+  { value: 2025, label: '2024-25', group: 'Current' },
+  // Maturation
+  { value: 2024, label: '2023-24', group: 'Maturation (2019-2024)' },
+  { value: 2023, label: '2022-23', group: 'Maturation (2019-2024)' },
+  { value: 2022, label: '2021-22', group: 'Maturation (2019-2024)' },
+  { value: 2021, label: '2020-21', group: 'Maturation (2019-2024)' },
+  { value: 2020, label: '2019-20', group: 'Maturation (2019-2024)' },
+  { value: 2019, label: '2018-19', group: 'Maturation (2019-2024)' },
+  // Growth
+  { value: 2018, label: '2017-18', group: 'Growth (2013-2018)' },
+  { value: 2017, label: '2016-17', group: 'Growth (2013-2018)' },
+  { value: 2016, label: '2015-16', group: 'Growth (2013-2018)' },
+  { value: 2015, label: '2014-15', group: 'Growth (2013-2018)' },
+  { value: 2014, label: '2013-14', group: 'Growth (2013-2018)' },
+  { value: 2013, label: '2012-13', group: 'Growth (2013-2018)' },
+  // Early Years
+  { value: 2012, label: '2011-12', group: 'Early Years (2006-2012)' },
+  { value: 2011, label: '2010-11', group: 'Early Years (2006-2012)' },
+  { value: 2010, label: '2009-10', group: 'Early Years (2006-2012)' },
+  { value: 2009, label: '2008-09', group: 'Early Years (2006-2012)' },
+  { value: 2008, label: '2007-08', group: 'Early Years (2006-2012)' },
+  { value: 2007, label: '2006-07', group: 'Early Years (2006-2012)' },
 ];
 
-type TabId = 'services' | 'financials' | 'highlights' | 'preview' | 'stories' | 'board' | 'photos' | 'projects' | 'countdown' | 'overview';
+type TabId = 'services' | 'financials' | 'highlights' | 'preview' | 'stories' | 'board' | 'photos' | 'projects' | 'countdown' | 'overview' | 'trends' | 'pageplan' | 'editions';
 
-const ALL_TABS: TabId[] = ['overview', 'services', 'financials', 'highlights', 'stories', 'board', 'photos', 'projects', 'countdown', 'preview'];
+const ALL_TABS: TabId[] = ['overview', 'services', 'financials', 'highlights', 'stories', 'board', 'photos', 'projects', 'pageplan', 'editions', 'trends', 'countdown', 'preview'];
 
 interface Highlight {
   id?: string;
@@ -101,14 +127,20 @@ type Action =
   | { type: 'SET_MEDIA_DATA'; media: any[]; sectionCounts: Record<string, number>; gaps: string[] }
   | { type: 'SET_PROJECTS_DATA'; projects: any[]; featuredCount: number; byType: Record<string, number> };
 
-function getInitialTab(): TabId {
-  if (typeof window !== 'undefined') {
-    const hash = window.location.hash.slice(1) as TabId;
-    if (ALL_TABS.includes(hash)) {
-      return hash;
-    }
+function getTabFromUrl(): TabId | null {
+  if (typeof window === 'undefined') return null;
+  // Support ?tab= query param (used by sidebar links)
+  const params = new URLSearchParams(window.location.search);
+  const tabParam = params.get('tab') as TabId;
+  if (tabParam && ALL_TABS.includes(tabParam)) {
+    return tabParam;
   }
-  return 'services';
+  // Fall back to hash
+  const hash = window.location.hash.slice(1) as TabId;
+  if (ALL_TABS.includes(hash)) {
+    return hash;
+  }
+  return null;
 }
 
 function reducer(state: DashboardState, action: Action): DashboardState {
@@ -170,7 +202,7 @@ function AnnualReportDataDashboard() {
   const undoStack = useUndoStack();
   const [state, dispatch] = useReducer(reducer, {
     fiscalYear: 2025,
-    activeTab: getInitialTab(),
+    activeTab: 'services' as TabId,
     services: [],
     previousServices: [],
     financials: null,
@@ -213,7 +245,16 @@ function AnnualReportDataDashboard() {
 
   const fyLabel =
     FISCAL_YEARS.find(f => f.value === state.fiscalYear)?.label ||
-    state.fiscalYear.toString();
+    `${state.fiscalYear - 1}-${String(state.fiscalYear).slice(2)}`;
+
+  // On mount, sync tab from URL (?tab= or #hash) to avoid hydration mismatch
+  useEffect(() => {
+    const tab = getTabFromUrl();
+    if (tab && tab !== state.activeTab) {
+      dispatch({ type: 'SET_TAB', tab });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Sync active tab to URL hash
   useEffect(() => {
@@ -348,8 +389,6 @@ function AnnualReportDataDashboard() {
         if (svc && !svc.metrics) {
           dispatch({ type: 'INCREMENT_SERVICES_WITH_DATA' });
         }
-
-        // Toast is shown by handleCellSaved (with undo) or callers for non-cell saves
       } catch (error) {
         console.error('Save error:', error);
         toast.error('Save failed', error instanceof Error ? error.message : 'Unknown error');
@@ -513,63 +552,37 @@ function AnnualReportDataDashboard() {
     dispatch({ type: 'SET_TAB', tab: tab as TabId });
   }, []);
 
+  // Handle QuickAdd save — refresh the relevant data section
+  const handleQuickAddSaved = useCallback((type: QuickAddType) => {
+    toast.success('Item added successfully');
+    // Re-fetch data for the section that was modified
+    const reportId = state.reportId;
+    fetchNewTabData(reportId, fyLabel, state.fiscalYear);
+  }, [state.reportId, fyLabel, state.fiscalYear, toast]);
+
   const tabs = [
-    {
-      id: 'overview' as TabId,
-      label: 'Overview',
-    },
-    {
-      id: 'services' as TabId,
-      label: 'Services',
-      badge: `${state.servicesWithData}/${state.totalServices}`,
-    },
-    {
-      id: 'financials' as TabId,
-      label: 'Financials',
-      badge: financialsDone ? 'Done' : '--',
-    },
-    {
-      id: 'highlights' as TabId,
-      label: 'Highlights',
-      badge: `${highlightsCount}`,
-    },
-    {
-      id: 'stories' as TabId,
-      label: 'Stories',
-      badge: `${state.stories.length}`,
-    },
-    {
-      id: 'board' as TabId,
-      label: 'Board',
-      badge: `${state.boardMembers.length}`,
-    },
-    {
-      id: 'photos' as TabId,
-      label: 'Photos',
-      badge: `${state.reportMedia.length}`,
-    },
-    {
-      id: 'projects' as TabId,
-      label: 'Innovation Projects',
-      badge: `${state.projects.length}`,
-    },
-    {
-      id: 'countdown' as TabId,
-      label: '20-Year',
-    },
-    {
-      id: 'preview' as TabId,
-      label: 'Readiness',
-    },
+    { id: 'overview' as TabId, label: 'Overview' },
+    { id: 'services' as TabId, label: 'Services', badge: `${state.servicesWithData}/${state.totalServices}` },
+    { id: 'financials' as TabId, label: 'Financials', badge: financialsDone ? 'Done' : '--' },
+    { id: 'highlights' as TabId, label: 'Highlights', badge: `${highlightsCount}` },
+    { id: 'stories' as TabId, label: 'Stories', badge: `${state.stories.length}` },
+    { id: 'board' as TabId, label: 'Board & Leadership', badge: `${state.boardMembers.length}` },
+    { id: 'photos' as TabId, label: 'Photos & Media', badge: `${state.reportMedia.length}` },
+    { id: 'projects' as TabId, label: 'Projects', badge: `${state.projects.length}` },
+    { id: 'pageplan' as TabId, label: 'Page Plan' },
+    { id: 'editions' as TabId, label: 'Editions' },
+    { id: 'trends' as TabId, label: 'Trends' },
+    { id: 'countdown' as TabId, label: '20-Year Countdown' },
+    { id: 'preview' as TabId, label: 'Readiness' },
   ];
 
   // Keyboard shortcuts
   const tabShortcuts = ALL_TABS.map((tab, i) => ({
-    key: i === 9 ? '0' : (i + 1).toString(),
+    key: i >= 10 ? '' : i === 9 ? '0' : (i + 1).toString(),
     alt: true,
     handler: () => dispatch({ type: 'SET_TAB', tab }),
     description: `Go to ${tabs.find(t => t.id === tab)?.label || tab}`,
-  }));
+  })).filter(s => s.key !== '');
 
   const { showHelp, setShowHelp } = useKeyboardShortcuts([
     ...tabShortcuts,
@@ -603,159 +616,219 @@ function AnnualReportDataDashboard() {
   ]);
 
   return (
-    <div className="p-8">
-      <DashboardHeader
-        fiscalYear={state.fiscalYear}
-        onFiscalYearChange={fy => dispatch({ type: 'SET_FISCAL_YEAR', fiscalYear: fy })}
+    <div className="flex h-[calc(100vh-64px)]">
+      {/* Sidebar navigation */}
+      <DashboardSidebar
+        tabs={tabs}
+        activeTab={state.activeTab}
+        onTabChange={tab => dispatch({ type: 'SET_TAB', tab })}
         overallProgress={overallProgress}
-        completeSections={completeSections}
-        totalSections={7}
-        freshnessLabel={freshnessLabel}
       />
 
-      {state.loading ? (
-        <DashboardSkeleton />
-      ) : (
-        <>
-          <OverallProgress
-            servicesWithData={state.servicesWithData}
-            totalServices={state.totalServices}
-            financialsDone={financialsDone}
-            highlightsCount={highlightsCount}
-            storiesCount={state.stories.length}
-            boardMembersCount={state.boardMembers.length}
-            photosCount={state.reportMedia.length}
-            projectsFeaturedCount={state.projectsFeaturedCount}
-            onChipClick={tab => dispatch({ type: 'SET_TAB', tab })}
+      {/* Main content area */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-8">
+          <DashboardHeader
+            fiscalYear={state.fiscalYear}
+            fiscalYears={FISCAL_YEARS}
+            onFiscalYearChange={fy => dispatch({ type: 'SET_FISCAL_YEAR', fiscalYear: fy })}
+            overallProgress={overallProgress}
+            completeSections={completeSections}
+            totalSections={7}
+            freshnessLabel={freshnessLabel}
+            activeTabLabel={tabs.find(t => t.id === state.activeTab)?.label || ''}
+            reportId={state.reportId}
           />
 
-          <TabBar
-            tabs={tabs}
-            activeTab={state.activeTab}
-            onTabChange={tab => dispatch({ type: 'SET_TAB', tab })}
-          />
+          {/* Data Pipeline Quick Links */}
+          <div className="border border-gray-200 rounded-xl divide-y divide-gray-100 mb-6">
+            <Link
+              href="/picc/scraper"
+              className="flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition-colors group"
+            >
+              <div>
+                <p className="text-sm font-medium text-gray-900">Curated Quotes</p>
+                <p className="text-xs text-gray-500 mt-0.5">Extract & validate quotes</p>
+              </div>
+              <span className="text-xs text-gray-400 group-hover:text-gray-600 transition-colors">&rarr;</span>
+            </Link>
+            <Link
+              href="/picc/knowledge/annual-reports"
+              className="flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition-colors group"
+            >
+              <div>
+                <p className="text-sm font-medium text-gray-900">Report Timeline</p>
+                <p className="text-xs text-gray-500 mt-0.5">Past reports & PDFs</p>
+              </div>
+              <span className="text-xs text-gray-400 group-hover:text-gray-600 transition-colors">&rarr;</span>
+            </Link>
+            <Link
+              href="/annual-report/live"
+              className="flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition-colors group"
+            >
+              <div>
+                <p className="text-sm font-medium text-gray-900">View Public Report</p>
+                <p className="text-xs text-gray-500 mt-0.5">Preview live page</p>
+              </div>
+              <span className="text-xs text-gray-400 group-hover:text-gray-600 transition-colors">&rarr;</span>
+            </Link>
+          </div>
 
-          {state.activeTab === 'overview' && (
-            <OverviewPanel
-              reportId={state.reportId}
-              fyLabel={fyLabel}
-              onNavigateTab={tab => dispatch({ type: 'SET_TAB', tab: tab as TabId })}
-            />
-          )}
+          {state.loading ? (
+            <DashboardSkeleton />
+          ) : (
+            <div className="animate-in fade-in duration-200">
+              {state.activeTab === 'overview' && (
+                <OverviewPanel
+                  reportId={state.reportId}
+                  fyLabel={fyLabel}
+                  onNavigateTab={tab => dispatch({ type: 'SET_TAB', tab: tab as TabId })}
+                />
+              )}
 
-          {state.activeTab === 'services' && (
-            <ServicesPanel
-              services={state.services}
-              previousServices={state.previousServices}
-              fiscalYear={state.fiscalYear}
-              onSave={handleServiceSave}
-              onCellSaved={handleCellSaved}
-            />
-          )}
+              {state.activeTab === 'services' && (
+                <ServicesPanel
+                  services={state.services}
+                  previousServices={state.previousServices}
+                  fiscalYear={state.fiscalYear}
+                  onSave={handleServiceSave}
+                  onCellSaved={handleCellSaved}
+                />
+              )}
 
-          {state.activeTab === 'financials' && (
-            <FinancialsPanel
-              initialData={state.financials}
-              fiscalYear={state.fiscalYear}
-              onSave={handleFinancialsSave}
-            />
-          )}
+              {state.activeTab === 'financials' && (
+                <FinancialsPanel
+                  initialData={state.financials}
+                  fiscalYear={state.fiscalYear}
+                  onSave={handleFinancialsSave}
+                />
+              )}
 
-          {state.activeTab === 'highlights' && (
-            <HighlightsPanel
-              highlights={state.highlights}
-              leadership={state.leadership}
-              reportId={state.reportId}
-              onHighlightsChange={highlights =>
-                dispatch({ type: 'SET_HIGHLIGHTS', highlights })
-              }
-              onLeadershipChange={leadership =>
-                dispatch({ type: 'SET_LEADERSHIP', leadership })
-              }
-              onSaveHighlight={handleHighlightSave}
-              onDeleteHighlight={handleHighlightDelete}
-              onSaveLeadership={handleLeadershipSave}
-            />
-          )}
+              {state.activeTab === 'highlights' && (
+                <HighlightsPanel
+                  highlights={state.highlights}
+                  leadership={state.leadership}
+                  reportId={state.reportId}
+                  onHighlightsChange={highlights =>
+                    dispatch({ type: 'SET_HIGHLIGHTS', highlights })
+                  }
+                  onLeadershipChange={leadership =>
+                    dispatch({ type: 'SET_LEADERSHIP', leadership })
+                  }
+                  onSaveHighlight={handleHighlightSave}
+                  onDeleteHighlight={handleHighlightDelete}
+                  onSaveLeadership={handleLeadershipSave}
+                />
+              )}
 
-          {state.activeTab === 'stories' && (
-            <StoriesPanel
-              stories={state.stories}
-              reportId={state.reportId}
-              onStoriesChange={stories =>
-                dispatch({ type: 'SET_STORIES', stories })
-              }
-            />
-          )}
+              {state.activeTab === 'stories' && (
+                <StoriesPanel
+                  stories={state.stories}
+                  reportId={state.reportId}
+                  onStoriesChange={stories =>
+                    dispatch({ type: 'SET_STORIES', stories })
+                  }
+                />
+              )}
 
-          {state.activeTab === 'board' && (
-            <BoardLeadershipPanel
-              boardMembers={state.boardMembers}
-              leadershipMembers={state.boardLeadership}
-              onBoardChange={members =>
-                dispatch({ type: 'SET_BOARD_DATA', boardMembers: members, boardLeadership: state.boardLeadership })
-              }
-              onLeadershipChange={members =>
-                dispatch({ type: 'SET_BOARD_DATA', boardMembers: state.boardMembers, boardLeadership: members })
-              }
-            />
-          )}
+              {state.activeTab === 'board' && (
+                <BoardLeadershipPanel
+                  boardMembers={state.boardMembers}
+                  leadershipMembers={state.boardLeadership}
+                  onBoardChange={members =>
+                    dispatch({ type: 'SET_BOARD_DATA', boardMembers: members, boardLeadership: state.boardLeadership })
+                  }
+                  onLeadershipChange={members =>
+                    dispatch({ type: 'SET_BOARD_DATA', boardMembers: state.boardMembers, boardLeadership: members })
+                  }
+                />
+              )}
 
-          {state.activeTab === 'photos' && (
-            <PhotosMediaPanel
-              media={state.reportMedia}
-              sectionCounts={state.mediaSectionCounts}
-              gaps={state.mediaGaps}
-              fyLabel={fyLabel}
-              onMediaChange={media =>
-                dispatch({
-                  type: 'SET_MEDIA_DATA',
-                  media,
-                  sectionCounts: state.mediaSectionCounts,
-                  gaps: state.mediaGaps,
-                })
-              }
-            />
-          )}
+              {state.activeTab === 'photos' && (
+                <PhotosMediaPanel
+                  media={state.reportMedia}
+                  sectionCounts={state.mediaSectionCounts}
+                  gaps={state.mediaGaps}
+                  fyLabel={fyLabel}
+                  reportId={state.reportId}
+                  onMediaChange={media =>
+                    dispatch({
+                      type: 'SET_MEDIA_DATA',
+                      media,
+                      sectionCounts: state.mediaSectionCounts,
+                      gaps: state.mediaGaps,
+                    })
+                  }
+                />
+              )}
 
-          {state.activeTab === 'projects' && (
-            <ProjectsPanel
-              projects={state.projects}
-              featuredCount={state.projectsFeaturedCount}
-              byType={state.projectsByType}
-              onProjectsChange={projects => {
-                const featured = projects.filter(p => p.featured).length;
-                dispatch({
-                  type: 'SET_PROJECTS_DATA',
-                  projects,
-                  featuredCount: featured,
-                  byType: state.projectsByType,
-                });
-              }}
-            />
-          )}
+              {state.activeTab === 'projects' && (
+                <ProjectsPanel
+                  projects={state.projects}
+                  featuredCount={state.projectsFeaturedCount}
+                  byType={state.projectsByType}
+                  onProjectsChange={projects => {
+                    const featured = projects.filter((p: any) => p.featured).length;
+                    dispatch({
+                      type: 'SET_PROJECTS_DATA',
+                      projects,
+                      featuredCount: featured,
+                      byType: state.projectsByType,
+                    });
+                  }}
+                />
+              )}
 
-          {state.activeTab === 'countdown' && (
-            <CountdownPanel />
-          )}
+              {state.activeTab === 'pageplan' && (
+                <PagePlannerPanel
+                  reportId={state.reportId}
+                  stories={state.stories}
+                />
+              )}
 
-          {state.activeTab === 'preview' && (
-            <PreviewPanel
-              servicesWithData={state.servicesWithData}
-              totalServices={state.totalServices}
-              financialsDone={financialsDone}
-              highlightsCount={highlightsCount}
-              leadershipCount={state.leadership.length}
-              storiesCount={state.stories.length}
-              boardMembersCount={state.boardMembers.length}
-              photosCount={state.reportMedia.length}
-              photoGaps={state.mediaGaps}
-              projectsFeaturedCount={state.projectsFeaturedCount}
-              onNavigateTab={handleNavigateTab}
-            />
+              {state.activeTab === 'editions' && (
+                <EditionsPanel
+                  reportId={state.reportId}
+                  onNavigateToPagePlan={() => dispatch({ type: 'SET_TAB', tab: 'pageplan' })}
+                />
+              )}
+
+              {state.activeTab === 'trends' && (
+                <HistoricalTrendsPanel />
+              )}
+
+              {state.activeTab === 'countdown' && (
+                <CountdownPanel />
+              )}
+
+              {state.activeTab === 'preview' && (
+                <PreviewPanel
+                  servicesWithData={state.servicesWithData}
+                  totalServices={state.totalServices}
+                  financialsDone={financialsDone}
+                  highlightsCount={highlightsCount}
+                  leadershipCount={state.leadership.length}
+                  storiesCount={state.stories.length}
+                  boardMembersCount={state.boardMembers.length}
+                  photosCount={state.reportMedia.length}
+                  photoGaps={state.mediaGaps}
+                  projectsFeaturedCount={state.projectsFeaturedCount}
+                  onNavigateTab={handleNavigateTab}
+                  reportId={state.reportId}
+                  readinessPercent={overallProgress}
+                />
+              )}
+            </div>
           )}
-        </>
-      )}
+        </div>
+      </div>
+
+      {/* Quick Add FAB */}
+      <QuickAddFAB
+        reportId={state.reportId}
+        fiscalYear={state.fiscalYear}
+        onSaved={handleQuickAddSaved}
+      />
 
       {/* Keyboard shortcuts help overlay */}
       {showHelp && (
@@ -763,7 +836,7 @@ function AnnualReportDataDashboard() {
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6" onClick={e => e.stopPropagation()}>
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Keyboard Shortcuts</h3>
             <div className="space-y-2">
-              {ALL_TABS.map((tab, i) => (
+              {ALL_TABS.slice(0, 10).map((tab, i) => (
                 <div key={tab} className="flex items-center justify-between text-sm">
                   <span className="text-gray-600">{tabs.find(t => t.id === tab)?.label || tab}</span>
                   <kbd className="px-2 py-0.5 bg-gray-100 border border-gray-200 rounded text-xs font-mono">

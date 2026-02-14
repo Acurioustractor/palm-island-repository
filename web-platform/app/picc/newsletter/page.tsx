@@ -70,7 +70,7 @@ export default function NewsletterPage() {
           </Link>
 
           <div className="flex items-center gap-3 mb-2">
-            <Mail className="h-8 w-8 text-blue-600" />
+            <Mail className="h-8 w-8 text-picc-red" />
             <h1 className="text-3xl font-bold text-gray-900">Newsletter Builder</h1>
           </div>
           <p className="text-gray-600">Create community newsletters from published stories</p>
@@ -93,7 +93,7 @@ export default function NewsletterPage() {
                       value={newsletterTitle}
                       onChange={(e) => setNewsletterTitle(e.target.value)}
                       placeholder="PICC Stories - January 2024"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent"
                     />
                   </div>
 
@@ -106,7 +106,7 @@ export default function NewsletterPage() {
                       onChange={(e) => setIntroduction(e.target.value)}
                       placeholder="Welcome to this month's newsletter..."
                       rows={4}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent"
                     />
                   </div>
 
@@ -123,7 +123,7 @@ export default function NewsletterPage() {
                     <button
                       onClick={generateNewsletter}
                       disabled={selectedStories.size === 0 || !newsletterTitle}
-                      className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                      className="w-full bg-picc-red text-white px-4 py-2 rounded-lg font-medium hover:bg-picc-red disabled:bg-gray-400 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
                     >
                       <Eye className="h-4 w-4" />
                       Preview Newsletter
@@ -143,7 +143,7 @@ export default function NewsletterPage() {
                     onClick={() => toggleStory(story.id)}
                     className={`bg-white rounded-lg border-2 p-4 cursor-pointer transition-all ${
                       selectedStories.has(story.id)
-                        ? 'border-blue-500 bg-blue-50'
+                        ? 'border-picc-red bg-warm-50'
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
@@ -152,7 +152,7 @@ export default function NewsletterPage() {
                         type="checkbox"
                         checked={selectedStories.has(story.id)}
                         onChange={() => {}}
-                        className="mt-1 h-5 w-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                        className="mt-1 h-5 w-5 text-picc-red rounded focus:ring-2 focus:ring-picc-red"
                       />
                       <div className="flex-1">
                         <h3 className="font-medium text-gray-900 mb-1">{story.title}</h3>
@@ -218,7 +218,7 @@ export default function NewsletterPage() {
                     <p className="text-gray-700 leading-relaxed whitespace-pre-line">
                       {story.content.substring(0, 500)}...
                     </p>
-                    <div className="mt-3 text-sm text-blue-600 hover:text-blue-700 font-medium">
+                    <div className="mt-3 text-sm text-picc-red hover:text-picc-red font-medium">
                       Read full story →
                     </div>
                   </div>

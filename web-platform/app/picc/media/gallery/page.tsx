@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { Suspense, useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { VideoEmbed } from '@/components/report/VideoEmbed';
@@ -13,6 +14,7 @@ import {
 import ServiceTagBar from '@/components/media/ServiceTagBar';
 import { TagDots } from '@/components/media/TagChips';
 import BulkTagRemoveModal from '@/components/media/BulkTagRemoveModal';
+import { ToastProvider, useToast } from '@/components/ui/Toast';
 
 interface MediaFile {
   id: string;
@@ -64,14 +66,36 @@ interface ProjectTaxonomy {
   status?: string | null;
 }
 
-export default function MediaGalleryPage() {
+export default function MediaGalleryPageWrapper() {
+  return (
+    <ToastProvider>
+      <Suspense fallback={<div className="p-8 text-center text-gray-500">Loading gallery...</div>}>
+        <MediaGalleryPage />
+      </Suspense>
+    </ToastProvider>
+  );
+}
+
+function MediaGalleryPage() {
+  const toast = useToast();
   const [media, setMedia] = useState<MediaFile[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
+  // Sorting
+  const [sortBy, setSortBy] = useState<string>('newest');
+  // Inline tag editing in detail modal
+  const [newTagInput, setNewTagInput] = useState('');
+  // Bulk selection: shift+click range and drag-select
+  const [lastClickedIndex, setLastClickedIndex] = useState<number | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartIndexRef = useRef<number | null>(null);
+  const dragSelectedRef = useRef<Set<string>>(new Set());
+
   const [services, setServices] = useState<ServiceTaxonomy[]>([]);
   const [projects, setProjects] = useState<ProjectTaxonomy[]>([]);
   const [taxonomyLoading, setTaxonomyLoading] = useState(false);
   const [taxonomyError, setTaxonomyError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
   const [selectedMedia, setSelectedMedia] = useState<MediaFile | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [analyzing, setAnalyzing] = useState<string | null>(null);
@@ -109,6 +133,18 @@ export default function MediaGalleryPage() {
   const [bulkProject, setBulkProject] = useState<string>('all');
   const [bulkTagging, setBulkTagging] = useState(false);
 
+  // Cover photo
+  const [showCoverDropdown, setShowCoverDropdown] = useState(false);
+  const [settingCover, setSettingCover] = useState(false);
+
+  // Close cover dropdown on outside click
+  useEffect(() => {
+    if (!showCoverDropdown) return;
+    const handler = () => setShowCoverDropdown(false);
+    const timer = setTimeout(() => document.addEventListener('click', handler), 0);
+    return () => { clearTimeout(timer); document.removeEventListener('click', handler); };
+  }, [showCoverDropdown]);
+
   // Tag removal
   const [showRemoveTagsModal, setShowRemoveTagsModal] = useState(false);
   const [untaggedOnly, setUntaggedOnly] = useState(false);
@@ -119,6 +155,24 @@ export default function MediaGalleryPage() {
   const [collections, setCollections] = useState<any[]>([]);
   const [selectedCollectionId, setSelectedCollectionId] = useState<string>('');
   const [addingToCollection, setAddingToCollection] = useState(false);
+
+  // Read URL params for deep-linking (e.g. ?filter=untagged)
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    const filter = searchParams.get('filter');
+    if (filter === 'untagged') {
+      setUntaggedOnly(true);
+    }
+    // Support deep-linking from admin toolbar
+    const serviceParam = searchParams.get('serviceFilter');
+    if (serviceParam && serviceParam !== 'all') {
+      setServiceFilter(serviceParam);
+    }
+    const annualReportParam = searchParams.get('annualReport');
+    if (annualReportParam === 'true') {
+      setAnnualReportOnly(true);
+    }
+  }, [searchParams]);
 
   // Memoize supabase client to prevent recreation on every render
   const supabase = useMemo(() => createClient(), []);
@@ -171,6 +225,10 @@ export default function MediaGalleryPage() {
       params.set('q', q);
     }
 
+    if (sortBy && sortBy !== 'newest') {
+      params.set('sort', sortBy);
+    }
+
     return `/api/media/list?${params.toString()}`;
   };
 
@@ -214,11 +272,12 @@ export default function MediaGalleryPage() {
           } else {
             const payload = await mediaResponse.json().catch(() => ({} as any));
             const mediaData = payload?.data || [];
-            const totalCount = Number(payload?.count || 0);
-            console.log('Media fetch SUCCESS!', { count: mediaData?.length, total: totalCount });
+            const apiTotal = Number(payload?.count || 0);
+            console.log('Media fetch SUCCESS!', { count: mediaData?.length, total: apiTotal });
             setMedia(mediaData);
+            setTotalCount(apiTotal);
             setOffset(PAGE_SIZE);
-            setHasMore(mediaData.length === PAGE_SIZE && totalCount > PAGE_SIZE);
+            setHasMore(mediaData.length === PAGE_SIZE && apiTotal > PAGE_SIZE);
           }
 
           // Fetch profiles (also using fetch to avoid hanging)
@@ -252,7 +311,7 @@ export default function MediaGalleryPage() {
       clearTimeout(timeoutId);
       clearTimeout(failsafeTimeout);
     };
-  }, [fileTypeFilter, searchQuery, tagFilter, personFilter, annualReportOnly, annualReportFiscalYear, serviceFilter, projectFilter, eventFilter, sectionFilter, contentFilter, featuredOnly, supabase]);
+  }, [fileTypeFilter, searchQuery, tagFilter, personFilter, annualReportOnly, annualReportFiscalYear, serviceFilter, projectFilter, eventFilter, sectionFilter, contentFilter, featuredOnly, sortBy, supabase]);
 
   // Load collections for "Add to Collection" feature
   useEffect(() => {
@@ -315,11 +374,12 @@ export default function MediaGalleryPage() {
       } else {
         const payload = await response.json().catch(() => ({} as any));
         const data = payload?.data || [];
-        const totalCount = Number(payload?.count || 0);
-        console.log('loadMedia: SUCCESS!', { count: data?.length, total: totalCount });
+        const apiTotal = Number(payload?.count || 0);
+        console.log('loadMedia: SUCCESS!', { count: data?.length, total: apiTotal });
         setMedia(data);
+        setTotalCount(apiTotal);
         setOffset(PAGE_SIZE);
-        setHasMore(data.length === PAGE_SIZE && totalCount > PAGE_SIZE);
+        setHasMore(data.length === PAGE_SIZE && apiTotal > PAGE_SIZE);
       }
     } catch (err) {
       console.error('loadMedia: Error:', err);
@@ -447,6 +507,32 @@ export default function MediaGalleryPage() {
     }
   };
 
+  const setCoverPhoto = async (serviceSlug: string) => {
+    if (selectedFiles.size !== 1) {
+      toast.warning('Select exactly 1 photo to set as cover.');
+      return;
+    }
+    const mediaId = Array.from(selectedFiles)[0];
+    setSettingCover(true);
+    setShowCoverDropdown(false);
+    try {
+      const res = await fetch('/api/media/set-cover-photo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mediaId, serviceSlug }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json?.error || 'Failed to set cover');
+      toast.success(`Set as cover for ${serviceSlug}`);
+      await loadMedia();
+      setSelectedFiles(new Set());
+    } catch (err: any) {
+      toast.error('Failed to set cover photo', err.message);
+    } finally {
+      setSettingCover(false);
+    }
+  };
+
   const toggleSelectAll = () => {
     if (selectedFiles.size === media.length) {
       setSelectedFiles(new Set());
@@ -484,10 +570,10 @@ export default function MediaGalleryPage() {
 
       await loadMedia();
       setSelectedFiles(new Set());
-      alert(`Successfully deleted ${idsToDelete.length} photos`);
+      toast.success(`Deleted ${idsToDelete.length} photos`);
     } catch (err: any) {
       console.error('Delete error:', err);
-      alert('Failed to delete photos: ' + err.message);
+      toast.error('Failed to delete photos', err.message);
     }
 
     setIsDeleting(false);
@@ -495,7 +581,7 @@ export default function MediaGalleryPage() {
 
   const handleAddToCollection = async () => {
     if (!selectedCollectionId || selectedFiles.size === 0) {
-      alert('Please select a collection');
+      toast.warning('Please select a collection');
       return;
     }
 
@@ -514,13 +600,13 @@ export default function MediaGalleryPage() {
         throw new Error(errorText);
       }
 
-      alert(`Successfully added ${selectedFiles.size} photos to collection!`);
+      toast.success(`Added ${selectedFiles.size} photos to collection`);
       setSelectedFiles(new Set());
       setShowCollectionModal(false);
       setSelectedCollectionId('');
     } catch (err: any) {
       console.error('Error adding to collection:', err);
-      alert('Failed to add photos to collection: ' + err.message);
+      toast.error('Failed to add to collection', err.message);
     }
 
     setAddingToCollection(false);
@@ -579,7 +665,7 @@ export default function MediaGalleryPage() {
     options?: BulkTagHandlerOptions
   ) => {
     if (selectedFiles.size === 0) {
-      alert('Select at least one photo before tagging.');
+      toast.warning('Select at least one photo before tagging.');
       return;
     }
 
@@ -591,7 +677,7 @@ export default function MediaGalleryPage() {
     );
 
     if (!hasAddTags && !hasMergeMetadata && !hasMergeContext) {
-      alert('Choose at least one tag or field to apply.');
+      toast.warning('Choose at least one tag or field to apply.');
       return;
     }
 
@@ -615,7 +701,7 @@ export default function MediaGalleryPage() {
       }
 
       const message = options?.successMessage ?? `Updated ${selectedFiles.size} item(s).`;
-      alert(message);
+      toast.success(message);
 
       if (options?.closeModal ?? true) {
         setShowBulkTagModal(false);
@@ -624,7 +710,7 @@ export default function MediaGalleryPage() {
       await loadMedia();
     } catch (err: any) {
       console.error('Bulk tag error:', err);
-      alert('Failed to apply tags: ' + (err?.message || String(err)));
+      toast.error('Failed to apply tags', err?.message || String(err));
     } finally {
       setBulkTagging(false);
     }
@@ -657,12 +743,12 @@ export default function MediaGalleryPage() {
       });
       const json = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(json?.error || 'Failed to remove tags');
-      alert(`Removed ${tagsToRemove.length} tag(s) from ${selectedFiles.size} item(s)`);
+      toast.success(`Removed ${tagsToRemove.length} tag(s) from ${selectedFiles.size} item(s)`);
       setSelectedFiles(new Set());
       await loadMedia();
     } catch (err: any) {
       console.error('Remove tags error:', err);
-      alert('Failed to remove tags: ' + (err?.message || String(err)));
+      toast.error('Failed to remove tags', err?.message || String(err));
     }
   };
 
@@ -690,6 +776,66 @@ export default function MediaGalleryPage() {
     ? media.filter(m => !m.tags || !m.tags.some(t => t.startsWith('service:')))
     : media;
 
+  // Drag-to-select handlers
+  const handleItemMouseDown = useCallback((e: React.MouseEvent, index: number) => {
+    if (e.button !== 0 || e.shiftKey) return;
+    const target = e.target as HTMLElement;
+    if (target.tagName === 'INPUT' || target.closest('input')) return;
+    dragStartIndexRef.current = index;
+    dragSelectedRef.current = new Set();
+  }, []);
+
+  const handleItemMouseEnter = useCallback((index: number) => {
+    if (dragStartIndexRef.current === null) return;
+    if (dragStartIndexRef.current !== index && !isDragging) {
+      setIsDragging(true);
+    }
+    if (!isDragging && dragStartIndexRef.current === index) return;
+    const start = Math.min(dragStartIndexRef.current, index);
+    const end = Math.max(dragStartIndexRef.current, index);
+    const newDragSelected = new Set<string>();
+    for (let i = start; i <= end; i++) {
+      if (displayMedia[i]) newDragSelected.add(displayMedia[i].id);
+    }
+    dragSelectedRef.current = newDragSelected;
+    setSelectedFiles(prev => {
+      const merged = new Set(prev);
+      newDragSelected.forEach(id => merged.add(id));
+      return merged;
+    });
+  }, [isDragging, displayMedia]);
+
+  useEffect(() => {
+    const handleMouseUp = () => {
+      if (dragStartIndexRef.current !== null) {
+        dragStartIndexRef.current = null;
+        dragSelectedRef.current = new Set();
+        setIsDragging(false);
+      }
+    };
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => window.removeEventListener('mouseup', handleMouseUp);
+  }, []);
+
+  // Shift+click range selection — toggle: if all in range are selected, deselect them
+  const handleShiftClick = useCallback((index: number) => {
+    if (lastClickedIndex === null) return;
+    const start = Math.min(lastClickedIndex, index);
+    const end = Math.max(lastClickedIndex, index);
+    const rangeIds: string[] = [];
+    for (let i = start; i <= end; i++) {
+      if (displayMedia[i]) rangeIds.push(displayMedia[i].id);
+    }
+    const allSelected = rangeIds.every(id => selectedFiles.has(id));
+    const newSelected = new Set(selectedFiles);
+    if (allSelected) {
+      rangeIds.forEach(id => newSelected.delete(id));
+    } else {
+      rangeIds.forEach(id => newSelected.add(id));
+    }
+    setSelectedFiles(newSelected);
+  }, [lastClickedIndex, selectedFiles, displayMedia]);
+
   const hasActiveFilters =
     fileTypeFilter !== 'all' ||
     Boolean(searchQuery.trim()) ||
@@ -711,7 +857,7 @@ export default function MediaGalleryPage() {
       <div className="mb-8">
         <Link
           href="/picc/media"
-          className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-4"
+          className="inline-flex items-center gap-2 text-picc-red hover:text-picc-red mb-4"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Media
@@ -731,29 +877,18 @@ export default function MediaGalleryPage() {
               </Link>
               <Link
                 href="/picc/media/upload"
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="px-4 py-2 bg-picc-red text-white rounded-lg hover:bg-picc-red transition-colors"
               >
                 Upload Media
               </Link>
             </div>
           </div>
 
-        {/* Pagination Info Banner */}
+        {/* Showing count */}
         {media.length > 0 && (
-          <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-blue-900 font-medium">
-                  📸 Showing {media.length} photos (Page 1)
-                </p>
-                <p className="text-blue-700 text-sm mt-1">
-                  <strong> Loading:</strong> 200 photos per page •
-                  <strong> Scroll down</strong> to load more automatically
-                  {hasActiveFilters && ' • Filters active'}
-                </p>
-              </div>
-            </div>
-          </div>
+          <p className="mt-4 text-sm text-gray-500">
+            {totalCount.toLocaleString()} total · showing {displayMedia.length}
+          </p>
         )}
       </div>
 
@@ -769,7 +904,7 @@ export default function MediaGalleryPage() {
                 placeholder="Search photos..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
               />
             </div>
           </div>
@@ -778,7 +913,7 @@ export default function MediaGalleryPage() {
           <select
             value={fileTypeFilter}
             onChange={(e) => setFileTypeFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
           >
             <option value="all">All Types</option>
             <option value="image">Images</option>
@@ -790,7 +925,7 @@ export default function MediaGalleryPage() {
           <select
             value={tagFilter}
             onChange={(e) => setTagFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
             disabled={annualReportOnly}
           >
             <option value="">All Tags</option>
@@ -803,7 +938,7 @@ export default function MediaGalleryPage() {
           <select
             value={personFilter}
             onChange={(e) => setPersonFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
           >
             <option value="all">All People</option>
             {profiles.map((p) => (
@@ -813,17 +948,29 @@ export default function MediaGalleryPage() {
             ))}
           </select>
 
+          {/* Sort */}
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
+          >
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="filename">Filename A-Z</option>
+            <option value="size">Largest first</option>
+          </select>
+
           {/* View Mode */}
           <div className="flex border border-gray-300 rounded-lg overflow-hidden">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-2 ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+              className={`p-2 ${viewMode === 'grid' ? 'bg-picc-red text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
             >
               <Grid className="w-5 h-5" />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-2 ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+              className={`p-2 ${viewMode === 'list' ? 'bg-picc-red text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
             >
               <List className="w-5 h-5" />
             </button>
@@ -854,7 +1001,7 @@ export default function MediaGalleryPage() {
                 setAnnualReportOnly(checked);
                 if (!checked) setAnnualReportFiscalYear('all');
               }}
-              className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
+              className="w-4 h-4 rounded border-gray-300 text-picc-red focus:ring-2 focus:ring-picc-red"
             />
             Annual report media
           </label>
@@ -865,7 +1012,7 @@ export default function MediaGalleryPage() {
               value={annualReportFiscalYear}
               onChange={(e) => setAnnualReportFiscalYear(e.target.value)}
               disabled={!annualReportOnly}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red disabled:bg-gray-100"
             >
               <option value="all">All Years</option>
               {fiscalYearOptions.map((fy) => (
@@ -893,7 +1040,7 @@ export default function MediaGalleryPage() {
             <select
               value={serviceFilter}
               onChange={(e) => setServiceFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
             >
               <option value="all">All Services</option>
               {taxonomyLoading && services.length === 0 && (
@@ -919,7 +1066,7 @@ export default function MediaGalleryPage() {
             <select
               value={projectFilter}
               onChange={(e) => setProjectFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
             >
               <option value="all">All Projects</option>
               {taxonomyLoading && projects.length === 0 && (
@@ -951,11 +1098,11 @@ export default function MediaGalleryPage() {
           </label>
 
           <div className="flex items-center gap-2 pb-1">
-            <Link href="/picc/projects" className="text-sm text-blue-600 hover:text-blue-700">
+            <Link href="/picc/projects" className="text-sm text-picc-red hover:text-picc-red">
               Manage projects
             </Link>
             <span className="text-gray-300">•</span>
-            <Link href="/picc/services" className="text-sm text-blue-600 hover:text-blue-700">
+            <Link href="/picc/services" className="text-sm text-picc-red hover:text-picc-red">
               Manage services
             </Link>
           </div>
@@ -968,7 +1115,7 @@ export default function MediaGalleryPage() {
             <select
               value={eventFilter}
               onChange={(e) => setEventFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
             >
               <option value="all">All Events</option>
               <option value="event:spring-festival-2025">Spring Festival 2025</option>
@@ -983,7 +1130,7 @@ export default function MediaGalleryPage() {
             <select
               value={sectionFilter}
               onChange={(e) => setSectionFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
             >
               <option value="all">All Sections</option>
               <option value="section:cover">Covers</option>
@@ -1002,7 +1149,7 @@ export default function MediaGalleryPage() {
             <select
               value={contentFilter}
               onChange={(e) => setContentFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
             >
               <option value="all">All Content</option>
               <optgroup label="Subject">
@@ -1039,13 +1186,22 @@ export default function MediaGalleryPage() {
         </div>
       </div>
 
-      <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6 text-sm text-yellow-900">
-        Tag selected photos with <code className="bg-white px-1 py-0.5 rounded">project:elders-trips</code>,{' '}
-        <code className="bg-white px-1 py-0.5 rounded">page:elders</code>,{' '}
-        <code className="bg-white px-1 py-0.5 rounded">story:elders-trip</code>, and{' '}
-        <code className="bg-white px-1 py-0.5 rounded">service:culture</code> to surface them in the Elders page
-        hero, gallery, and story highlights.
-      </div>
+      {/* Clear All Filters */}
+      {hasActiveFilters && (
+        <button
+          onClick={() => {
+            setSearchQuery(''); setFileTypeFilter('all'); setTagFilter('');
+            setPersonFilter('all'); setAnnualReportOnly(false);
+            setAnnualReportFiscalYear('all'); setServiceFilter('all');
+            setProjectFilter('all'); setEventFilter('all');
+            setSectionFilter('all'); setContentFilter('all');
+            setFeaturedOnly(false); setUntaggedOnly(false);
+          }}
+          className="mb-4 px-4 py-2 bg-orange-100 text-orange-800 rounded-full text-sm font-medium hover:bg-orange-200"
+        >
+          Clear all filters ×
+        </button>
+      )}
 
       {/* Service Quick-Assign Bar */}
       <ServiceTagBar
@@ -1065,12 +1221,15 @@ export default function MediaGalleryPage() {
                   type="checkbox"
                   checked={selectedFiles.size === displayMedia.length && displayMedia.length > 0}
                   onChange={toggleSelectAll}
-                  className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                  className="w-5 h-5 rounded border-gray-300 text-picc-red focus:ring-2 focus:ring-picc-red"
                 />
                 <span className="text-sm font-medium text-gray-700">
                   {selectedFiles.size === 0 ? 'Select All' : `${selectedFiles.size} selected`}
                 </span>
               </label>
+              <span className="text-xs text-gray-400 hidden md:inline">
+                Shift+click for range · Drag across to select multiple
+              </span>
             </div>
 
             {selectedFiles.size > 0 && (
@@ -1086,7 +1245,7 @@ export default function MediaGalleryPage() {
                     )
                   }
                   disabled={bulkTagging}
-                  className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50"
+                  className="flex items-center gap-2 px-4 py-2 bg-picc-ochre text-white rounded-lg hover:bg-picc-ochre transition-colors disabled:opacity-50"
                 >
                   <Sparkles className="w-4 h-4" />
                   Quick Tag Elders Trip
@@ -1103,7 +1262,7 @@ export default function MediaGalleryPage() {
                     setBulkProject(projectFilter);
                     setShowBulkTagModal(true);
                   }}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-picc-red text-white rounded-lg hover:bg-picc-red transition-colors"
                 >
                   <Tag className="w-4 h-4" />
                   Bulk Tag
@@ -1117,11 +1276,43 @@ export default function MediaGalleryPage() {
                 </button>
                 <button
                   onClick={() => setShowCollectionModal(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-sage-600 text-white rounded-lg hover:bg-sage-700 transition-colors"
                 >
                   <FolderPlus className="w-4 h-4" />
                   Add to Collection
                 </button>
+                {/* Set as Cover Photo */}
+                {selectedFiles.size === 1 && (
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowCoverDropdown(!showCoverDropdown)}
+                      disabled={settingCover}
+                      className="flex items-center gap-2 px-4 py-2 bg-picc-ochre text-white rounded-lg hover:opacity-90 transition-colors disabled:opacity-50"
+                    >
+                      {settingCover ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <ImageIcon className="w-4 h-4" />
+                      )}
+                      Set as Cover
+                    </button>
+                    {showCoverDropdown && (
+                      <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-64 max-h-80 overflow-y-auto">
+                        <div className="p-2 text-xs text-gray-500 font-medium border-b">Select service:</div>
+                        {services.map(svc => (
+                          <button
+                            key={svc.id}
+                            onClick={() => setCoverPhoto(svc.service_slug)}
+                            className="w-full text-left px-3 py-2 text-sm hover:bg-warm-50 transition-colors"
+                          >
+                            {svc.service_name}
+                            <span className="text-xs text-gray-400 ml-1">({svc.service_category})</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
                 <button
                   onClick={bulkDelete}
                   disabled={isDeleting}
@@ -1145,30 +1336,11 @@ export default function MediaGalleryPage() {
         </div>
       )}
 
-      {/* Stats */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
-        <div className="bg-purple-50 rounded-lg p-4 text-center">
-          <div className="text-2xl font-bold text-purple-700">{media.filter(m => m.file_type === 'image').length}</div>
-          <div className="text-sm text-purple-600">Photos</div>
-        </div>
-        <div className="bg-pink-50 rounded-lg p-4 text-center">
-          <div className="text-2xl font-bold text-pink-700">{media.filter(m => m.file_type === 'video').length}</div>
-          <div className="text-sm text-pink-600">Videos</div>
-        </div>
-        <div className="bg-amber-50 rounded-lg p-4 text-center">
-          <div className="text-2xl font-bold text-amber-700">{media.filter(m => m.tags && m.tags.length > 0).length}</div>
-          <div className="text-sm text-amber-600">Tagged</div>
-        </div>
-        <div className="bg-teal-50 rounded-lg p-4 text-center">
-          <div className="text-2xl font-bold text-teal-700">{media.filter(m => m.faces_detected && m.faces_detected.length > 0).length}</div>
-          <div className="text-sm text-teal-600">People Tagged</div>
-        </div>
-      </div>
 
       {/* Content */}
       {loading ? (
         <div className="text-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto text-blue-600 mb-2" />
+          <Loader2 className="w-8 h-8 animate-spin mx-auto text-picc-red mb-2" />
           <p className="text-gray-500">Loading media...</p>
         </div>
       ) : media.length === 0 ? (
@@ -1187,14 +1359,12 @@ export default function MediaGalleryPage() {
               <button
                 type="button"
                 onClick={() => {
-                  setSearchQuery('');
-                  setFileTypeFilter('all');
-                  setTagFilter('');
-                  setPersonFilter('all');
-                  setAnnualReportOnly(false);
-                  setAnnualReportFiscalYear('all');
-                  setServiceFilter('all');
-                  setProjectFilter('all');
+                  setSearchQuery(''); setFileTypeFilter('all'); setTagFilter('');
+                  setPersonFilter('all'); setAnnualReportOnly(false);
+                  setAnnualReportFiscalYear('all'); setServiceFilter('all');
+                  setProjectFilter('all'); setEventFilter('all');
+                  setSectionFilter('all'); setContentFilter('all');
+                  setFeaturedOnly(false); setUntaggedOnly(false);
                 }}
                 className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
               >
@@ -1203,30 +1373,45 @@ export default function MediaGalleryPage() {
             ) : (
               <Link
                 href="/picc/media/upload"
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="px-4 py-2 bg-picc-red text-white rounded-lg hover:bg-picc-red transition-colors"
               >
                 Upload photos
               </Link>
             )}
             <Link
               href="/picc/media/gallery"
-              className="px-4 py-2 text-blue-600 hover:text-blue-700"
+              className="px-4 py-2 text-picc-red hover:text-picc-red"
             >
               Refresh
             </Link>
           </div>
         </div>
       ) : viewMode === 'grid' ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          {displayMedia.map((item) => {
+        <div
+          className={`grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 ${isDragging ? 'select-none' : ''}`}
+        >
+          {displayMedia.map((item, idx) => {
             const Icon = getFileIcon(item.file_type);
             const isAnalyzing = analyzing === item.id;
 
             return (
               <div
                 key={item.id}
-                onClick={() => setSelectedMedia(item)}
-                className="group relative aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-blue-500 transition-all"
+                onClick={(e) => {
+                  if (isDragging) return; // Don't open modal at end of drag
+                  if (e.shiftKey) {
+                    e.preventDefault();
+                    handleShiftClick(idx);
+                    setLastClickedIndex(idx);
+                    return;
+                  }
+                  setSelectedMedia(item); setNewTagInput('');
+                }}
+                onMouseDown={(e) => handleItemMouseDown(e, idx)}
+                onMouseEnter={() => handleItemMouseEnter(idx)}
+                className={`group relative aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer transition-all ${
+                  selectedFiles.has(item.id) ? 'ring-2 ring-picc-red' : 'hover:ring-2 hover:ring-picc-red'
+                }`}
               >
                 {/* Selection Checkbox */}
                 <div className="absolute top-2 left-2 z-20">
@@ -1235,10 +1420,15 @@ export default function MediaGalleryPage() {
                     checked={selectedFiles.has(item.id)}
                     onChange={(e) => {
                       e.stopPropagation();
-                      toggleSelect(item.id);
+                      if (e.nativeEvent instanceof MouseEvent && e.nativeEvent.shiftKey) {
+                        handleShiftClick(idx);
+                      } else {
+                        toggleSelect(item.id);
+                      }
+                      setLastClickedIndex(idx);
                     }}
                     onClick={(e) => e.stopPropagation()}
-                    className="w-5 h-5 rounded border-2 border-white shadow-lg cursor-pointer accent-blue-600"
+                    className="w-5 h-5 rounded border-2 border-white shadow-lg cursor-pointer accent-picc-red"
                   />
                 </div>
 
@@ -1308,7 +1498,7 @@ export default function MediaGalleryPage() {
                 {/* AI Analysis Badge */}
                 {item.metadata?.ai_analysis && (
                   <div className="absolute top-2 right-2">
-                    <div className="p-1 bg-purple-600 rounded-full">
+                    <div className="p-1 bg-picc-ochre rounded-full">
                       <Sparkles className="w-3 h-3 text-white" />
                     </div>
                   </div>
@@ -1328,10 +1518,28 @@ export default function MediaGalleryPage() {
                   </div>
                 )}
 
+                {/* Cover/Hero Badge */}
+                {item.tags && item.tags.includes('hero') && (
+                  <div className="absolute top-10 right-2 z-10">
+                    <div className="px-2 py-0.5 bg-picc-ochre text-white text-xs rounded-full font-medium">
+                      COVER
+                    </div>
+                  </div>
+                )}
+
+                {/* Untagged Badge */}
+                {(!item.tags || item.tags.length === 0) && (
+                  <div className="absolute top-10 right-2 z-10">
+                    <div className="px-2 py-0.5 bg-orange-500 text-white text-xs rounded font-medium">
+                      Untagged
+                    </div>
+                  </div>
+                )}
+
                 {/* Elder Approval Badge - moved down slightly to avoid checkbox */}
                 {item.requires_elder_approval && (
                   <div className="absolute top-10 left-2">
-                    <div className="px-2 py-0.5 bg-amber-500 text-white text-xs rounded">
+                    <div className="px-2 py-0.5 bg-picc-ochre text-white text-xs rounded">
                       Elder Review
                     </div>
                   </div>
@@ -1348,8 +1556,8 @@ export default function MediaGalleryPage() {
             return (
               <div
                 key={item.id}
-                onClick={() => setSelectedMedia(item)}
-                className="flex items-center gap-4 p-4 bg-white rounded-lg border border-gray-200 hover:border-blue-300 cursor-pointer transition-colors"
+                onClick={() => { setSelectedMedia(item); setNewTagInput(''); }}
+                className="flex items-center gap-4 p-4 bg-white rounded-lg border border-gray-200 hover:border-warm-300 cursor-pointer transition-colors"
               >
                 {/* Selection Checkbox */}
                 <input
@@ -1360,7 +1568,7 @@ export default function MediaGalleryPage() {
                     toggleSelect(item.id);
                   }}
                   onClick={(e) => e.stopPropagation()}
-                  className="w-5 h-5 rounded border-gray-300 cursor-pointer accent-blue-600 flex-shrink-0"
+                  className="w-5 h-5 rounded border-gray-300 cursor-pointer accent-picc-red flex-shrink-0"
                 />
 
                 {item.file_type === 'image' ? (
@@ -1415,8 +1623,8 @@ export default function MediaGalleryPage() {
                 </div>
 
                 {item.metadata?.ai_analysis && (
-                  <div className="p-2 bg-purple-100 rounded-full">
-                    <Sparkles className="w-4 h-4 text-purple-600" />
+                  <div className="p-2 bg-warm-100 rounded-full">
+                    <Sparkles className="w-4 h-4 text-picc-ochre" />
                   </div>
                 )}
               </div>
@@ -1431,7 +1639,7 @@ export default function MediaGalleryPage() {
           <button
             onClick={loadMore}
             disabled={loadingMore}
-            className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium inline-flex items-center gap-2"
+            className="px-8 py-3 bg-picc-red text-white rounded-lg hover:bg-picc-red disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium inline-flex items-center gap-2"
           >
             {loadingMore ? (
               <>
@@ -1476,7 +1684,7 @@ export default function MediaGalleryPage() {
                     if (!checked) setBulkFiscalYear('all');
                     if (checked && bulkFiscalYear === 'all') setBulkFiscalYear(fiscalYearOptions[0] || 'all');
                   }}
-                  className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                  className="w-4 h-4 rounded border-gray-300 text-picc-red focus:ring-2 focus:ring-picc-red"
                 />
                 Mark as Annual Report media
               </label>
@@ -1487,7 +1695,7 @@ export default function MediaGalleryPage() {
                   value={bulkFiscalYear}
                   onChange={(e) => setBulkFiscalYear(e.target.value)}
                   disabled={!bulkAnnualReport}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red disabled:bg-gray-100"
                 >
                   <option value="all">No FY tag</option>
                   {fiscalYearOptions.map((fy) => (
@@ -1503,7 +1711,7 @@ export default function MediaGalleryPage() {
                 <select
                   value={bulkService}
                   onChange={(e) => setBulkService(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
                 >
                   <option value="all">No service tag</option>
                   {services.map((s) => (
@@ -1519,7 +1727,7 @@ export default function MediaGalleryPage() {
                 <select
                   value={bulkProject}
                   onChange={(e) => setBulkProject(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
                 >
                   <option value="all">No project tag</option>
                   {projects.map((p) => (
@@ -1542,7 +1750,7 @@ export default function MediaGalleryPage() {
               <button
                 onClick={() => applyBulkTags()}
                 disabled={bulkTagging}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 inline-flex items-center gap-2"
+                className="px-4 py-2 bg-picc-red text-white rounded-lg hover:bg-picc-red disabled:opacity-50 inline-flex items-center gap-2"
               >
                 {bulkTagging ? (
                   <>
@@ -1602,7 +1810,9 @@ export default function MediaGalleryPage() {
             <div className="w-96 flex flex-col bg-white">
               {/* Header */}
               <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-                <h2 className="font-semibold text-gray-900">Photo Details</h2>
+                <h2 className="font-semibold text-gray-900">
+                  {selectedMedia.file_type === 'video' ? 'Video Details' : 'Photo Details'}
+                </h2>
                 <button
                   onClick={() => setSelectedMedia(null)}
                   className="p-1 hover:bg-gray-100 rounded"
@@ -1628,7 +1838,7 @@ export default function MediaGalleryPage() {
                   <button
                     onClick={() => analyzePhoto(selectedMedia)}
                     disabled={analyzing === selectedMedia.id}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 transition-colors"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-picc-ochre to-picc-red text-white rounded-lg hover:from-picc-ochre hover:to-picc-red disabled:opacity-50 transition-colors"
                   >
                     {analyzing === selectedMedia.id ? (
                       <>
@@ -1644,23 +1854,23 @@ export default function MediaGalleryPage() {
                   </button>
 
                   {selectedMedia.metadata?.ai_analysis && (
-                    <div className="mt-3 p-3 bg-purple-50 rounded-lg text-sm">
-                      <div className="flex items-center gap-2 text-purple-700 font-medium mb-2">
+                    <div className="mt-3 p-3 bg-warm-100 rounded-lg text-sm">
+                      <div className="flex items-center gap-2 text-picc-ochre font-medium mb-2">
                         <Sparkles className="w-4 h-4" />
                         AI Analysis
                       </div>
                       {selectedMedia.metadata.ai_analysis.mood && (
-                        <p className="text-purple-600 mb-1">
+                        <p className="text-picc-ochre mb-1">
                           <strong>Mood:</strong> {selectedMedia.metadata.ai_analysis.mood}
                         </p>
                       )}
                       {selectedMedia.metadata.ai_analysis.people_count > 0 && (
-                        <p className="text-purple-600 mb-1">
+                        <p className="text-picc-ochre mb-1">
                           <strong>People:</strong> {selectedMedia.metadata.ai_analysis.people_count} detected
                         </p>
                       )}
                       {selectedMedia.metadata.ai_analysis.suggested_caption && (
-                        <p className="text-purple-600 italic mt-2">
+                        <p className="text-picc-ochre italic mt-2">
                           "{selectedMedia.metadata.ai_analysis.suggested_caption}"
                         </p>
                       )}
@@ -1668,7 +1878,7 @@ export default function MediaGalleryPage() {
                   )}
                 </div>
 
-                {/* Tags */}
+                {/* Tags — inline editable */}
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <Tag className="w-4 h-4 text-gray-400" />
@@ -1679,15 +1889,77 @@ export default function MediaGalleryPage() {
                       {selectedMedia.tags.map((tag, idx) => (
                         <span
                           key={idx}
-                          className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full"
+                          className="group/tag inline-flex items-center gap-1 px-2 py-1 bg-warm-100 text-picc-red text-xs rounded-full"
                         >
                           {tag}
+                          <button
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              try {
+                                const res = await fetch('/api/media/bulk', {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ mediaIds: [selectedMedia.id], removeTags: [tag] }),
+                                });
+                                if (!res.ok) throw new Error('Failed to remove tag');
+                                const updatedTags = (selectedMedia.tags || []).filter(t => t !== tag);
+                                setSelectedMedia({ ...selectedMedia, tags: updatedTags });
+                                setMedia(prev => prev.map(m => m.id === selectedMedia.id ? { ...m, tags: updatedTags } : m));
+                                toast.success(`Removed tag: ${tag}`);
+                              } catch (err) {
+                                toast.error('Failed to remove tag', String(err));
+                              }
+                            }}
+                            className="opacity-0 group-hover/tag:opacity-100 transition-opacity ml-0.5 hover:text-red-700"
+                            title={`Remove ${tag}`}
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
                         </span>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-400">No tags - use AI to generate</p>
+                    <p className="text-sm text-gray-400">No tags yet</p>
                   )}
+                  {/* Add tag input */}
+                  <form
+                    className="mt-2 flex gap-2"
+                    onSubmit={async (e) => {
+                      e.preventDefault();
+                      const tag = newTagInput.trim();
+                      if (!tag) return;
+                      try {
+                        const res = await fetch('/api/media/bulk', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ mediaIds: [selectedMedia.id], addTags: [tag] }),
+                        });
+                        if (!res.ok) throw new Error('Failed to add tag');
+                        const updatedTags = [...(selectedMedia.tags || []), tag];
+                        setSelectedMedia({ ...selectedMedia, tags: updatedTags });
+                        setMedia(prev => prev.map(m => m.id === selectedMedia.id ? { ...m, tags: updatedTags } : m));
+                        setNewTagInput('');
+                        toast.success(`Added tag: ${tag}`);
+                      } catch (err) {
+                        toast.error('Failed to add tag', String(err));
+                      }
+                    }}
+                  >
+                    <input
+                      type="text"
+                      value={newTagInput}
+                      onChange={(e) => setNewTagInput(e.target.value)}
+                      placeholder="Add tag..."
+                      className="flex-1 px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-picc-red focus:border-transparent"
+                    />
+                    <button
+                      type="submit"
+                      disabled={!newTagInput.trim()}
+                      className="px-3 py-1.5 bg-picc-red text-white text-sm rounded-lg hover:bg-picc-red disabled:opacity-50"
+                    >
+                      Add
+                    </button>
+                  </form>
                 </div>
 
                 {/* People Tagged */}
@@ -1702,7 +1974,7 @@ export default function MediaGalleryPage() {
                         setSelectedPeople(selectedMedia.faces_detected || []);
                         setShowPeopleTag(true);
                       }}
-                      className="text-xs text-blue-600 hover:text-blue-700"
+                      className="text-xs text-picc-red hover:text-picc-red"
                     >
                       <UserPlus className="w-4 h-4" />
                     </button>
@@ -1752,7 +2024,7 @@ export default function MediaGalleryPage() {
                             updatePeopleTags(selectedMedia.id, selectedPeople);
                             setShowPeopleTag(false);
                           }}
-                          className="flex-1 px-3 py-1.5 bg-teal-600 text-white text-sm rounded hover:bg-teal-700"
+                          className="flex-1 px-3 py-1.5 bg-picc-ochre text-white text-sm rounded hover:bg-picc-ochre"
                         >
                           Save
                         </button>
@@ -1772,7 +2044,7 @@ export default function MediaGalleryPage() {
                           <Link
                             key={personId}
                             href={`/picc/storytellers/${personId}`}
-                            className="px-2 py-1 bg-teal-100 text-teal-700 text-xs rounded-full hover:bg-teal-200"
+                            className="px-2 py-1 bg-warm-100 text-picc-ochre text-xs rounded-full hover:bg-warm-200"
                           >
                             {person.preferred_name || person.full_name}
                           </Link>
@@ -1783,6 +2055,47 @@ export default function MediaGalleryPage() {
                     <p className="text-sm text-gray-400">No people tagged yet</p>
                   )}
                 </div>
+
+                {/* Video Info */}
+                {selectedMedia.file_type === 'video' && (
+                  <div className="border-t border-gray-100 pt-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Video className="w-4 h-4 text-gray-400" />
+                      <span className="text-sm font-medium text-gray-700">Video</span>
+                    </div>
+                    {selectedMedia.metadata?.external_video?.platform && (
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full font-medium capitalize">
+                          {selectedMedia.metadata.external_video.platform}
+                        </span>
+                        {selectedMedia.metadata?.external_video?.category && (
+                          <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
+                            {selectedMedia.metadata.external_video.category}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                    <div className="flex gap-2">
+                      <a
+                        href={selectedMedia.public_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 text-center px-3 py-1.5 bg-gray-100 text-gray-700 text-xs rounded-lg hover:bg-gray-200"
+                      >
+                        Open in new tab
+                      </a>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(selectedMedia.public_url);
+                          toast.success('Video URL copied');
+                        }}
+                        className="flex-1 px-3 py-1.5 bg-gray-100 text-gray-700 text-xs rounded-lg hover:bg-gray-200"
+                      >
+                        Copy URL
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 {/* Metadata */}
                 <div className="text-xs text-gray-500 space-y-1 border-t border-gray-100 pt-4">
@@ -1810,13 +2123,13 @@ export default function MediaGalleryPage() {
 
                 {/* Cultural Sensitivity */}
                 {selectedMedia.requires_elder_approval && (
-                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                    <div className="flex items-center gap-2 text-amber-700 font-medium text-sm mb-1">
+                  <div className="p-3 bg-picc-ochre-50 border border-picc-ochre-200 rounded-lg">
+                    <div className="flex items-center gap-2 text-picc-ochre font-medium text-sm mb-1">
                       <Eye className="w-4 h-4" />
                       Requires Elder Review
                     </div>
                     {selectedMedia.metadata?.ai_analysis?.sensitivity_notes && (
-                      <p className="text-xs text-amber-600">
+                      <p className="text-xs text-picc-ochre">
                         {selectedMedia.metadata.ai_analysis.sensitivity_notes}
                       </p>
                     )}
@@ -1828,19 +2141,47 @@ export default function MediaGalleryPage() {
               <div className="p-4 border-t border-gray-200 flex gap-2">
                 <a
                   href={selectedMedia.public_url}
-                  download
+                  {...(isExternalVideo(selectedMedia) ? { target: '_blank', rel: 'noopener noreferrer' } : { download: true })}
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm"
                 >
-                  <Download className="w-4 h-4" />
-                  Download
+                  {isExternalVideo(selectedMedia) ? (
+                    <><Play className="w-4 h-4" /> Open Video</>
+                  ) : (
+                    <><Download className="w-4 h-4" /> Download</>
+                  )}
                 </a>
                 <Link
                   href={`/picc/media/${selectedMedia.id}/edit`}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-picc-red text-white rounded-lg hover:bg-picc-red text-sm"
                 >
                   <Edit className="w-4 h-4" />
                   Edit
                 </Link>
+                <button
+                  onClick={async () => {
+                    if (!confirm('Delete this photo? This cannot be undone.')) return;
+                    try {
+                      const res = await fetch('/api/media/bulk', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          mediaIds: [selectedMedia.id],
+                          deletedAt: new Date().toISOString()
+                        }),
+                      });
+                      if (!res.ok) throw new Error('Failed to delete');
+                      setSelectedMedia(null);
+                      toast.success('Photo deleted');
+                      await loadMedia();
+                    } catch (err) {
+                      toast.error('Failed to delete', String(err));
+                    }
+                  }}
+                  className="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Delete
+                </button>
               </div>
             </div>
           </div>
@@ -1886,7 +2227,7 @@ export default function MediaGalleryPage() {
                   <p className="text-gray-600 mb-4">No collections yet</p>
                   <Link
                     href="/picc/media/collections"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-sage-600 text-white rounded-lg hover:bg-sage-700"
                   >
                     Create Collection
                   </Link>
@@ -1901,8 +2242,8 @@ export default function MediaGalleryPage() {
                       key={collection.id}
                       className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all ${
                         selectedCollectionId === collection.id
-                          ? 'border-green-500 bg-green-50'
-                          : 'border-gray-200 hover:border-green-300'
+                          ? 'border-sage-500 bg-sage-50'
+                          : 'border-gray-200 hover:border-sage-300'
                       }`}
                     >
                       <input
@@ -1911,7 +2252,7 @@ export default function MediaGalleryPage() {
                         value={collection.id}
                         checked={selectedCollectionId === collection.id}
                         onChange={(e) => setSelectedCollectionId(e.target.value)}
-                        className="w-4 h-4 text-green-600"
+                        className="w-4 h-4 text-sage-600"
                       />
                       <div className="flex-1">
                         <div className="font-medium text-gray-900">{collection.name}</div>
@@ -1939,7 +2280,7 @@ export default function MediaGalleryPage() {
                 <button
                   onClick={handleAddToCollection}
                   disabled={!selectedCollectionId || addingToCollection}
-                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-2 bg-sage-600 text-white rounded-lg hover:bg-sage-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {addingToCollection ? (
                     <>

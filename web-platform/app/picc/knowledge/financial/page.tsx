@@ -107,7 +107,7 @@ export default function FinancialKnowledgePage() {
             {utilizationRate >= 80 ? (
               <TrendingUp className="w-5 h-5 text-green-600" />
             ) : (
-              <TrendingDown className="w-5 h-5 text-amber-600" />
+              <TrendingDown className="w-5 h-5 text-picc-ochre" />
             )}
             <span className="text-sm">Utilization</span>
           </div>
@@ -207,7 +207,7 @@ export default function FinancialKnowledgePage() {
                     <td className="px-4 py-3 text-right">
                       <span className={`px-2 py-1 text-xs rounded ${
                         util >= 80 ? 'bg-green-100 text-green-700' :
-                        util >= 50 ? 'bg-amber-100 text-amber-700' :
+                        util >= 50 ? 'bg-picc-ochre-100 text-picc-ochre' :
                         'bg-red-100 text-red-700'
                       }`}>
                         {util.toFixed(1)}%

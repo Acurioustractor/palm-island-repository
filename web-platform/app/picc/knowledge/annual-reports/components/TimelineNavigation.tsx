@@ -61,7 +61,7 @@ export default function TimelineNavigation({ timeline, scrollContainerRef }: Tim
           <div className="text-sm font-medium text-gray-700">Timeline Progress:</div>
           <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
             <div
-              className="h-full bg-blue-600 transition-all duration-300"
+              className="h-full bg-picc-red transition-all duration-300"
               style={{ width: `${scrollProgress}%` }}
             />
           </div>
@@ -93,19 +93,19 @@ export default function TimelineNavigation({ timeline, scrollContainerRef }: Tim
 
         <div className="mt-8 flex justify-center gap-4 text-xs">
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-amber-600"></div>
+            <div className="w-4 h-4 rounded bg-picc-ochre"></div>
             <span className="text-gray-600">Foundation</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-purple-600"></div>
+            <div className="w-4 h-4 rounded bg-picc-ochre"></div>
             <span className="text-gray-600">Growth</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-green-600"></div>
+            <div className="w-4 h-4 rounded bg-sage-600"></div>
             <span className="text-gray-600">Transition</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-blue-600"></div>
+            <div className="w-4 h-4 rounded bg-picc-red"></div>
             <span className="text-gray-600">Community Controlled</span>
           </div>
         </div>

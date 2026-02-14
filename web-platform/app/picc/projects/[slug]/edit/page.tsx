@@ -77,18 +77,18 @@ WHERE id = '${project.id}';`;
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
-          <Edit className="w-8 h-8 text-blue-600" />
+          <Edit className="w-8 h-8 text-picc-red" />
           Edit Project (SQL)
         </h1>
         <p className="text-gray-600">Project metadata editor (not the immersive story)</p>
       </div>
 
       {/* Immersive Story Shortcut */}
-      <div className="bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-6 mb-8">
+      <div className="bg-gradient-to-br from-warm-50 to-warm-100 border border-warm-200 rounded-xl p-6 mb-8">
         <div className="flex items-start justify-between gap-6">
           <div>
             <h3 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
-              <FileText className="w-5 h-5 text-purple-700" />
+              <FileText className="w-5 h-5 text-picc-ochre" />
               Editing the immersive story?
             </h3>
             <p className="text-sm text-gray-700">
@@ -99,7 +99,7 @@ WHERE id = '${project.id}';`;
           <div className="flex flex-col gap-2 flex-shrink-0">
             <Link
               href={`/picc/projects/${params.slug}/story-builder`}
-              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all flex items-center gap-2 justify-center"
+              className="px-4 py-2 bg-gradient-to-r from-picc-red to-picc-ochre hover:from-picc-red hover:to-picc-ochre text-white font-semibold rounded-lg transition-all flex items-center gap-2 justify-center"
             >
               <BookOpen className="w-4 h-4" />
               <span>Open Story Builder</span>
@@ -117,16 +117,16 @@ WHERE id = '${project.id}';`;
       </div>
 
       {/* Current Process Notice */}
-      <div className="bg-blue-50 border-l-4 border-blue-600 p-6 rounded-lg mb-8">
+      <div className="bg-warm-50 border-l-4 border-picc-red p-6 rounded-lg mb-8">
         <div className="flex items-start gap-3">
-          <AlertCircle className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+          <AlertCircle className="w-6 h-6 text-picc-red flex-shrink-0 mt-0.5" />
           <div>
-            <h3 className="font-bold text-blue-900 mb-2">Current Setup: Database SQL</h3>
-            <p className="text-blue-800 mb-2">
+            <h3 className="font-bold text-picc-earth mb-2">Current Setup: Database SQL</h3>
+            <p className="text-picc-earth mb-2">
               Project updates are made via SQL in Supabase. This ensures data integrity and allows
               for precise control over all fields.
             </p>
-            <p className="text-sm text-blue-700">
+            <p className="text-sm text-picc-red">
               A visual editor is coming in Phase 2. For now, modify the SQL below and run it in Supabase.
             </p>
           </div>
@@ -171,14 +171,14 @@ WHERE id = '${project.id}';`;
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-semibold text-gray-700 mb-1 block">Status</label>
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-100 text-blue-700 rounded-full text-sm font-medium border border-blue-200 capitalize">
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-warm-100 text-picc-red rounded-full text-sm font-medium border border-warm-200 capitalize">
                     {project.status.replace('_', ' ')}
                   </div>
                 </div>
 
                 <div>
                   <label className="text-sm font-semibold text-gray-700 mb-1 block">Type</label>
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-100 text-purple-700 rounded-full text-sm font-medium border border-purple-200 capitalize">
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-warm-100 text-picc-ochre rounded-full text-sm font-medium border border-warm-200 capitalize">
                     {project.project_type}
                   </div>
                 </div>
@@ -234,9 +234,9 @@ WHERE id = '${project.id}';`;
           </div>
 
           {/* Field Reference */}
-          <div className="bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-200 rounded-xl p-6">
+          <div className="bg-gradient-to-br from-warm-100 to-warm-50 border border-warm-200 rounded-xl p-6">
             <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <Lightbulb className="w-5 h-5 text-purple-600" />
+              <Lightbulb className="w-5 h-5 text-picc-ochre" />
               Editable Fields
             </h3>
             <div className="space-y-3 text-sm">
@@ -252,7 +252,7 @@ WHERE id = '${project.id}';`;
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-purple-200">
+              <div className="pt-3 border-t border-warm-200">
                 <div className="font-semibold text-gray-900">Project Types:</div>
                 <div className="mt-2 space-y-1">
                   {typeOptions.map((type) => (
@@ -264,7 +264,7 @@ WHERE id = '${project.id}';`;
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-purple-200">
+              <div className="pt-3 border-t border-warm-200">
                 <div className="font-semibold text-gray-900 mb-1">Boolean Fields:</div>
                 <div className="text-gray-600">
                   <code className="px-2 py-0.5 bg-white rounded text-xs font-mono">is_public</code> - TRUE (visible to public) or FALSE (staff only)
@@ -375,26 +375,26 @@ WHERE id = '${project.id}';`;
           </div>
 
           {/* Quick Links */}
-          <div className="bg-gradient-to-br from-orange-50 to-pink-50 border border-orange-200 rounded-xl p-6">
+          <div className="bg-gradient-to-br from-picc-ochre-50 to-warm-50 border border-picc-ochre-200 rounded-xl p-6">
             <h3 className="font-bold text-gray-900 mb-4">Quick Links</h3>
             <div className="space-y-2">
               <Link
                 href={`/picc/projects/${project.slug}`}
-                className="block p-3 bg-white hover:bg-gray-50 rounded-lg border border-orange-200 transition-all"
+                className="block p-3 bg-white hover:bg-gray-50 rounded-lg border border-picc-ochre-200 transition-all"
               >
                 <div className="font-semibold text-gray-900 mb-1">View Project Page</div>
                 <div className="text-sm text-gray-600">See how the project appears</div>
               </Link>
               <Link
                 href={`/picc/projects/${project.slug}/updates/new`}
-                className="block p-3 bg-white hover:bg-gray-50 rounded-lg border border-orange-200 transition-all"
+                className="block p-3 bg-white hover:bg-gray-50 rounded-lg border border-picc-ochre-200 transition-all"
               >
                 <div className="font-semibold text-gray-900 mb-1">Add Update</div>
                 <div className="text-sm text-gray-600">Create a new project update</div>
               </Link>
               <Link
                 href="/picc/database"
-                className="block p-3 bg-white hover:bg-gray-50 rounded-lg border border-orange-200 transition-all"
+                className="block p-3 bg-white hover:bg-gray-50 rounded-lg border border-picc-ochre-200 transition-all"
               >
                 <div className="font-semibold text-gray-900 mb-1 flex items-center gap-2">
                   <Database className="w-4 h-4" />

@@ -245,7 +245,7 @@ export default function ProjectUpdateEditor({ projectSlug, projectName }: Projec
           </p>
         </div>
         <div className="text-xs text-gray-600">
-          {autosaveStatus === 'saving' && <span className="inline-flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-blue-500" />Autosaving…</span>}
+          {autosaveStatus === 'saving' && <span className="inline-flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-picc-red" />Autosaving…</span>}
           {autosaveStatus === 'saved' && <span className="inline-flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-green-500" />Saved</span>}
           {autosaveStatus === 'error' && <span className="inline-flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-red-500" />Autosave failed</span>}
         </div>

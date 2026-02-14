@@ -200,9 +200,9 @@ export default function ReportViewerPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-picc-ochre/5 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-purple-600 mx-auto mb-4" />
+          <Loader2 className="h-12 w-12 animate-spin text-picc-ochre mx-auto mb-4" />
           <p className="text-gray-600">Loading report...</p>
         </div>
       </div>
@@ -211,17 +211,17 @@ export default function ReportViewerPage() {
 
   if (error || !report) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 p-6">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-picc-ochre/5 p-6">
         <div className="max-w-2xl mx-auto text-center py-16">
-          <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <FileText className="h-10 w-10 text-purple-500" />
+          <div className="w-20 h-20 bg-picc-ochre/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <FileText className="h-10 w-10 text-picc-ochre" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Report Not Found</h1>
           <p className="text-gray-600 mb-8">{error || 'This report may have been deleted or you may not have permission to view it.'}</p>
           <div className="flex items-center justify-center gap-4">
             <Link
               href="/picc/reports"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-picc-ochre text-white rounded-lg hover:bg-picc-ochre/90 transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to Reports
@@ -251,7 +251,7 @@ export default function ReportViewerPage() {
           <div className="max-w-4xl mx-auto flex items-center justify-between">
             <button
               onClick={() => setViewMode('scroll')}
-              className="flex items-center gap-2 text-sm hover:text-purple-300 transition-colors"
+              className="flex items-center gap-2 text-sm hover:text-picc-ochre/70 transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to Interactive View
@@ -259,7 +259,7 @@ export default function ReportViewerPage() {
             <div className="flex items-center gap-4">
               <button
                 onClick={handleExportPDF}
-                className="flex items-center gap-2 px-4 py-2 bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-picc-ochre rounded-lg hover:bg-picc-ochre/90 transition-colors"
               >
                 <Printer className="h-4 w-4" />
                 Print / Save PDF
@@ -271,9 +271,9 @@ export default function ReportViewerPage() {
         {/* Print Content */}
         <div className="max-w-4xl mx-auto p-8 pt-20 print:pt-0">
           {/* Cover */}
-          <div className="text-center mb-12 pb-8 border-b-4 border-purple-600">
+          <div className="text-center mb-12 pb-8 border-b-4 border-picc-ochre">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">{report.title}</h1>
-            <p className="text-xl text-purple-600 mb-4">{report.subtitle || report.theme}</p>
+            <p className="text-xl text-picc-ochre mb-4">{report.subtitle || report.theme}</p>
             <p className="text-gray-600">
               {new Date(report.reporting_period_start).toLocaleDateString('en-AU')} - {new Date(report.reporting_period_end).toLocaleDateString('en-AU')}
             </p>
@@ -285,7 +285,7 @@ export default function ReportViewerPage() {
           {/* Executive Summary */}
           <section className="mb-12">
             <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <BookOpen className="h-6 w-6 text-purple-600" />
+              <BookOpen className="h-6 w-6 text-picc-ochre" />
               Executive Summary
             </h2>
             <div className="prose max-w-none text-gray-700 whitespace-pre-wrap">
@@ -294,40 +294,40 @@ export default function ReportViewerPage() {
           </section>
 
           {/* Impact at a Glance */}
-          <section className="mb-12 bg-purple-50 p-6 rounded-lg">
+          <section className="mb-12 bg-picc-ochre/5 p-6 rounded-lg">
             <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <BarChart3 className="h-6 w-6 text-purple-600" />
+              <BarChart3 className="h-6 w-6 text-picc-ochre" />
               Impact at a Glance
             </h2>
             <div className="grid grid-cols-4 gap-4 mb-4">
               <div className="text-center p-4 bg-white rounded-lg">
-                <div className="text-2xl font-bold text-purple-600">{(report.statistics as any)?.community_members_served || '850+'}</div>
+                <div className="text-2xl font-bold text-picc-ochre">{(report.statistics as any)?.community_members_served || '850+'}</div>
                 <div className="text-xs text-gray-600">Members Served</div>
               </div>
               <div className="text-center p-4 bg-white rounded-lg">
-                <div className="text-2xl font-bold text-purple-600">{(report.statistics as any)?.staff_members || 45}</div>
+                <div className="text-2xl font-bold text-picc-ochre">{(report.statistics as any)?.staff_members || 45}</div>
                 <div className="text-xs text-gray-600">Staff Members</div>
               </div>
               <div className="text-center p-4 bg-white rounded-lg">
-                <div className="text-2xl font-bold text-purple-600">{(report.statistics as any)?.services_delivered || 48}</div>
+                <div className="text-2xl font-bold text-picc-ochre">{(report.statistics as any)?.services_delivered || 48}</div>
                 <div className="text-xs text-gray-600">Services</div>
               </div>
               <div className="text-center p-4 bg-white rounded-lg">
-                <div className="text-2xl font-bold text-purple-600">{((report.statistics as any)?.volunteer_hours || 2400).toLocaleString()}</div>
+                <div className="text-2xl font-bold text-picc-ochre">{((report.statistics as any)?.volunteer_hours || 2400).toLocaleString()}</div>
                 <div className="text-xs text-gray-600">Volunteer Hours</div>
               </div>
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div className="text-center p-4 bg-white rounded-lg">
-                <div className="text-2xl font-bold text-purple-600">{report.statistics?.total_stories || stories.length}</div>
+                <div className="text-2xl font-bold text-picc-ochre">{report.statistics?.total_stories || stories.length}</div>
                 <div className="text-xs text-gray-600">Stories Collected</div>
               </div>
               <div className="text-center p-4 bg-white rounded-lg">
-                <div className="text-2xl font-bold text-purple-600">{report.statistics?.unique_storytellers || 0}</div>
+                <div className="text-2xl font-bold text-picc-ochre">{report.statistics?.unique_storytellers || 0}</div>
                 <div className="text-xs text-gray-600">Storytellers</div>
               </div>
               <div className="text-center p-4 bg-white rounded-lg">
-                <div className="text-2xl font-bold text-purple-600">{(report.statistics as any)?.elder_stories || 0}</div>
+                <div className="text-2xl font-bold text-picc-ochre">{(report.statistics as any)?.elder_stories || 0}</div>
                 <div className="text-xs text-gray-600">Elder Stories</div>
               </div>
             </div>
@@ -352,16 +352,16 @@ export default function ReportViewerPage() {
           {stories.length > 0 && (
             <section className="mb-12">
               <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <Heart className="h-6 w-6 text-purple-600" />
+                <Heart className="h-6 w-6 text-picc-ochre" />
                 Community Voices
               </h2>
               <div className="space-y-8">
                 {stories.map((storyLink, index) => (
-                  <div key={storyLink.id} className="border-l-4 border-purple-600 pl-4">
+                  <div key={storyLink.id} className="border-l-4 border-picc-ochre pl-4">
                     <h3 className="text-xl font-semibold text-gray-900 mb-2">{storyLink.stories.title}</h3>
                     <p className="text-gray-700 mb-2">{storyLink.stories.content?.substring(0, 400)}...</p>
                     {storyLink.stories.profiles?.full_name && (
-                      <p className="text-sm text-purple-600 italic">— {storyLink.stories.profiles.full_name}</p>
+                      <p className="text-sm text-picc-ochre italic">— {storyLink.stories.profiles.full_name}</p>
                     )}
                   </div>
                 ))}
@@ -429,7 +429,7 @@ export default function ReportViewerPage() {
             </Link>
             <Link
               href={`/picc/report-generator?edit=${id}`}
-              className="flex items-center gap-2 px-3 py-1.5 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              className="flex items-center gap-2 px-3 py-1.5 text-sm bg-picc-ochre text-white rounded-lg hover:bg-picc-ochre/90 transition-colors"
             >
               <Edit className="h-4 w-4" />
               Edit
@@ -440,19 +440,19 @@ export default function ReportViewerPage() {
 
       {/* Empty Report Warning Banner */}
       {isReportEmpty && (
-        <div className="fixed top-16 left-0 right-0 bg-gradient-to-r from-amber-600 to-orange-600 text-white p-4 z-40">
+        <div className="fixed top-16 left-0 right-0 bg-gradient-to-r from-picc-ochre to-picc-ochre/80 text-white p-4 z-40">
           <div className="max-w-4xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-3">
               <AlertCircle className="h-6 w-6 flex-shrink-0" />
               <div>
                 <p className="font-medium">This report is empty</p>
-                <p className="text-sm text-amber-100">Click "Populate Report" to load community stories and generate content from the database.</p>
+                <p className="text-sm text-picc-ochre/50">Click "Populate Report" to load community stories and generate content from the database.</p>
               </div>
             </div>
             <button
               onClick={handlePopulate}
               disabled={populating}
-              className="flex items-center gap-2 px-6 py-2.5 bg-white text-orange-600 rounded-lg font-medium hover:bg-orange-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-6 py-2.5 bg-white text-picc-ochre rounded-lg font-medium hover:bg-picc-ochre/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {populating ? (
                 <>
@@ -472,7 +472,7 @@ export default function ReportViewerPage() {
 
       {/* Success Message */}
       {populateSuccess && (
-        <div className="fixed top-16 left-0 right-0 bg-gradient-to-r from-green-600 to-emerald-600 text-white p-4 z-40">
+        <div className="fixed top-16 left-0 right-0 bg-gradient-to-r from-sage-600 to-sage-500 text-white p-4 z-40">
           <div className="max-w-4xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Check className="h-6 w-6" />
@@ -519,7 +519,7 @@ export default function ReportViewerPage() {
         />
 
         {/* Impact Stats Section */}
-        <div className="bg-gradient-to-br from-purple-900 to-purple-700 py-24">
+        <div className="bg-gradient-to-br from-picc-ochre/90 to-picc-ochre/70 py-24">
           <div className="max-w-6xl mx-auto px-6 text-center">
             <h2 className="text-3xl font-bold text-white mb-12">Impact at a Glance</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
@@ -527,25 +527,25 @@ export default function ReportViewerPage() {
                 <div className="text-4xl font-bold text-white mb-2">
                   {(report.statistics as any)?.community_members_served || (report.statistics?.total_stories || stories.length)}
                 </div>
-                <div className="text-purple-200">Community Members Served</div>
+                <div className="text-picc-ochre/50">Community Members Served</div>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
                 <div className="text-4xl font-bold text-white mb-2">
                   {(report.statistics as any)?.staff_members || report.statistics?.unique_storytellers || 0}
                 </div>
-                <div className="text-purple-200">Staff Members</div>
+                <div className="text-picc-ochre/50">Staff Members</div>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
                 <div className="text-4xl font-bold text-white mb-2">
                   {(report.statistics as any)?.services_delivered || Object.keys(report.statistics?.stories_by_category || {}).length}
                 </div>
-                <div className="text-purple-200">Services Delivered</div>
+                <div className="text-picc-ochre/50">Services Delivered</div>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
                 <div className="text-4xl font-bold text-white mb-2">
                   {((report.statistics as any)?.volunteer_hours || 0).toLocaleString()}
                 </div>
-                <div className="text-purple-200">Volunteer Hours</div>
+                <div className="text-picc-ochre/50">Volunteer Hours</div>
               </div>
             </div>
             <div className="grid grid-cols-3 gap-6">
@@ -553,19 +553,19 @@ export default function ReportViewerPage() {
                 <div className="text-3xl font-bold text-white mb-2">
                   {report.statistics?.total_stories || stories.length}
                 </div>
-                <div className="text-purple-200">Stories Collected</div>
+                <div className="text-picc-ochre/50">Stories Collected</div>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
                 <div className="text-3xl font-bold text-white mb-2">
                   {report.statistics?.unique_storytellers || 0}
                 </div>
-                <div className="text-purple-200">Storytellers</div>
+                <div className="text-picc-ochre/50">Storytellers</div>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
                 <div className="text-3xl font-bold text-white mb-2">
                   {(report.statistics as any)?.elder_stories || 0}
                 </div>
-                <div className="text-purple-200">Elder Stories</div>
+                <div className="text-picc-ochre/50">Elder Stories</div>
               </div>
             </div>
           </div>
@@ -657,8 +657,8 @@ export default function ReportViewerPage() {
               <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Stories by Impact Area</h2>
               <div className="grid md:grid-cols-3 gap-4">
                 {Object.entries(report.statistics.stories_by_category).map(([category, count]) => (
-                  <div key={category} className="bg-gray-50 rounded-lg p-4 text-center hover:bg-purple-50 transition-colors">
-                    <div className="text-2xl font-bold text-purple-600">{count}</div>
+                  <div key={category} className="bg-gray-50 rounded-lg p-4 text-center hover:bg-picc-ochre/5 transition-colors">
+                    <div className="text-2xl font-bold text-picc-ochre">{count}</div>
                     <div className="text-sm text-gray-600 capitalize">{category}</div>
                   </div>
                 ))}

@@ -233,7 +233,7 @@ export default function StorytellerProfilePage() {
   if (loading) {
     return (
       <div className="p-8 text-center">
-        <Loader2 className="w-8 h-8 animate-spin mx-auto text-blue-600" />
+        <Loader2 className="w-8 h-8 animate-spin mx-auto text-picc-red" />
         <p className="text-gray-500 mt-2">Loading profile...</p>
       </div>
     );
@@ -243,7 +243,7 @@ export default function StorytellerProfilePage() {
     return (
       <div className="p-8 text-center">
         <p className="text-gray-500">Storyteller not found</p>
-        <Link href="/picc/storytellers" className="text-blue-600 hover:underline mt-2 inline-block">
+        <Link href="/picc/storytellers" className="text-picc-red hover:underline mt-2 inline-block">
           Back to Storytellers
         </Link>
       </div>
@@ -259,14 +259,14 @@ export default function StorytellerProfilePage() {
       {/* Back Link */}
       <Link
         href="/picc/storytellers"
-        className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6"
+        className="inline-flex items-center gap-2 text-picc-red hover:text-picc-red mb-6"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Storytellers
       </Link>
 
       {/* Profile Header */}
-      <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl p-8 text-white mb-8">
+      <div className="bg-gradient-to-r from-picc-ochre to-picc-red rounded-2xl p-8 text-white mb-8">
         <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
           {/* Avatar */}
           {profile.profile_image_url ? (
@@ -286,22 +286,22 @@ export default function StorytellerProfilePage() {
             <div className="flex items-center gap-3 mb-2">
               <h1 className="text-3xl font-bold">{displayName}</h1>
               {profile.is_elder && (
-                <span className="px-3 py-1 bg-amber-400 text-amber-900 text-sm font-bold rounded-full">
+                <span className="px-3 py-1 bg-picc-ochre text-white text-sm font-bold rounded-full">
                   Elder
                 </span>
               )}
               {profile.is_cultural_advisor && (
-                <span className="px-3 py-1 bg-purple-300 text-purple-900 text-sm font-bold rounded-full">
+                <span className="px-3 py-1 bg-picc-ochre-300 text-picc-earth-600 text-sm font-bold rounded-full">
                   Cultural Advisor
                 </span>
               )}
             </div>
 
             {profile.community_role && (
-              <p className="text-xl text-purple-100 mb-2">{profile.community_role}</p>
+              <p className="text-xl text-warm-100 mb-2">{profile.community_role}</p>
             )}
 
-            <div className="flex flex-wrap items-center gap-4 text-sm text-purple-100">
+            <div className="flex flex-wrap items-center gap-4 text-sm text-warm-100">
               {profile.location && (
                 <span className="flex items-center gap-1">
                   <MapPin className="w-4 h-4" />
@@ -323,7 +323,7 @@ export default function StorytellerProfilePage() {
             </div>
 
             {profile.bio && (
-              <p className="mt-4 text-purple-100 leading-relaxed">{profile.bio}</p>
+              <p className="mt-4 text-warm-100 leading-relaxed">{profile.bio}</p>
             )}
           </div>
 
@@ -365,27 +365,27 @@ export default function StorytellerProfilePage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mt-8 pt-6 border-t border-white/20">
           <div className="text-center">
             <div className="text-3xl font-bold">{quotes.length}</div>
-            <div className="text-sm text-purple-200">Quotes</div>
+            <div className="text-sm text-warm-200">Quotes</div>
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold">{validatedQuotes.length}</div>
-            <div className="text-sm text-purple-200">Validated</div>
+            <div className="text-sm text-warm-200">Validated</div>
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold">{stories.length}</div>
-            <div className="text-sm text-purple-200">Stories</div>
+            <div className="text-sm text-warm-200">Stories</div>
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold">{interviews.length}</div>
-            <div className="text-sm text-purple-200">Interviews</div>
+            <div className="text-sm text-warm-200">Interviews</div>
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold">{photos.length}</div>
-            <div className="text-sm text-purple-200">Photos</div>
+            <div className="text-sm text-warm-200">Photos</div>
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold">{videos.length}</div>
-            <div className="text-sm text-purple-200">Videos</div>
+            <div className="text-sm text-warm-200">Videos</div>
           </div>
         </div>
       </div>
@@ -396,7 +396,7 @@ export default function StorytellerProfilePage() {
           onClick={() => setActiveTab('quotes')}
           className={`px-6 py-3 font-medium text-sm border-b-2 transition-colors ${
             activeTab === 'quotes'
-              ? 'border-purple-600 text-purple-600'
+              ? 'border-picc-ochre text-picc-ochre'
               : 'border-transparent text-gray-500 hover:text-gray-700'
           }`}
         >
@@ -407,7 +407,7 @@ export default function StorytellerProfilePage() {
           onClick={() => setActiveTab('stories')}
           className={`px-6 py-3 font-medium text-sm border-b-2 transition-colors ${
             activeTab === 'stories'
-              ? 'border-purple-600 text-purple-600'
+              ? 'border-picc-ochre text-picc-ochre'
               : 'border-transparent text-gray-500 hover:text-gray-700'
           }`}
         >
@@ -418,7 +418,7 @@ export default function StorytellerProfilePage() {
           onClick={() => setActiveTab('interviews')}
           className={`px-6 py-3 font-medium text-sm border-b-2 transition-colors ${
             activeTab === 'interviews'
-              ? 'border-purple-600 text-purple-600'
+              ? 'border-picc-ochre text-picc-ochre'
               : 'border-transparent text-gray-500 hover:text-gray-700'
           }`}
         >
@@ -429,7 +429,7 @@ export default function StorytellerProfilePage() {
           onClick={() => setActiveTab('media')}
           className={`px-6 py-3 font-medium text-sm border-b-2 transition-colors ${
             activeTab === 'media'
-              ? 'border-purple-600 text-purple-600'
+              ? 'border-picc-ochre text-picc-ochre'
               : 'border-transparent text-gray-500 hover:text-gray-700'
           }`}
         >
@@ -445,14 +445,14 @@ export default function StorytellerProfilePage() {
           {reportQuotes.length > 0 && (
             <div className="mb-8">
               <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <Star className="w-5 h-5 text-amber-500" />
+                <Star className="w-5 h-5 text-picc-ochre" />
                 Report-Ready Quotes ({reportQuotes.length})
               </h2>
               <div className="grid md:grid-cols-2 gap-4">
                 {reportQuotes.map(quote => (
                   <div
                     key={quote.id}
-                    className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-5"
+                    className="bg-gradient-to-br from-picc-ochre-50 to-orange-50 border border-picc-ochre-200 rounded-xl p-5"
                   >
                     <blockquote className="text-gray-700 italic mb-3">
                       "{quote.quote_text}"
@@ -460,17 +460,17 @@ export default function StorytellerProfilePage() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         {quote.theme && (
-                          <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded-full">
+                          <span className="px-2 py-0.5 bg-picc-ochre-100 text-picc-ochre-700 text-xs rounded-full">
                             {quote.theme}
                           </span>
                         )}
                         {quote.is_validated && (
-                          <CheckCircle className="w-4 h-4 text-green-500" />
+                          <CheckCircle className="w-4 h-4 text-sage-500" />
                         )}
                       </div>
                       <button
                         onClick={() => toggleReportSuggestion(quote.id, false)}
-                        className="text-xs text-amber-600 hover:text-amber-700"
+                        className="text-xs text-picc-ochre hover:text-picc-ochre-700"
                       >
                         Remove from reports
                       </button>
@@ -497,7 +497,7 @@ export default function StorytellerProfilePage() {
                 <div
                   key={quote.id}
                   className={`bg-white border rounded-xl p-5 ${
-                    quote.is_validated ? 'border-green-200' : 'border-gray-200'
+                    quote.is_validated ? 'border-sage-200' : 'border-gray-200'
                   }`}
                 >
                   <blockquote className="text-gray-700 italic mb-3 text-lg">
@@ -513,17 +513,17 @@ export default function StorytellerProfilePage() {
                   <div className="flex items-center justify-between">
                     <div className="flex flex-wrap items-center gap-2">
                       {quote.theme && (
-                        <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full">
+                        <span className="px-2 py-0.5 bg-warm-100 text-picc-ochre text-xs rounded-full">
                           {quote.theme}
                         </span>
                       )}
                       {quote.sentiment && (
-                        <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">
+                        <span className="px-2 py-0.5 bg-warm-100 text-picc-red text-xs rounded-full">
                           {quote.sentiment}
                         </span>
                       )}
                       {quote.impact_area && (
-                        <span className="px-2 py-0.5 bg-teal-100 text-teal-700 text-xs rounded-full">
+                        <span className="px-2 py-0.5 bg-warm-100 text-picc-ochre text-xs rounded-full">
                           {quote.impact_area}
                         </span>
                       )}
@@ -534,7 +534,7 @@ export default function StorytellerProfilePage() {
                         onClick={() => validateQuote(quote.id, !quote.is_validated)}
                         className={`flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
                           quote.is_validated
-                            ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                            ? 'bg-sage-100 text-sage-700 hover:bg-sage-200'
                             : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                         }`}
                       >
@@ -545,7 +545,7 @@ export default function StorytellerProfilePage() {
                         onClick={() => toggleReportSuggestion(quote.id, !quote.suggested_for_report)}
                         className={`flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
                           quote.suggested_for_report
-                            ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'
+                            ? 'bg-picc-ochre-100 text-picc-ochre-700 hover:bg-picc-ochre-200'
                             : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                         }`}
                       >
@@ -575,7 +575,7 @@ export default function StorytellerProfilePage() {
               </Link>
               <Link
                 href="/stories/new"
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium flex items-center gap-2"
+                className="px-4 py-2 bg-picc-red text-white rounded-lg hover:bg-picc-red text-sm font-medium flex items-center gap-2"
               >
                 <Plus className="w-4 h-4" />
                 Create Story
@@ -590,13 +590,13 @@ export default function StorytellerProfilePage() {
               <div className="flex items-center justify-center gap-3 flex-wrap">
                 <Link
                   href="/stories/import-transcript"
-                  className="text-blue-600 hover:text-blue-700 font-medium"
+                  className="text-picc-red hover:text-picc-red font-medium"
                 >
                   Import a transcript as a draft story →
                 </Link>
                 <Link
                   href="/stories/new"
-                  className="text-blue-600 hover:text-blue-700 font-medium"
+                  className="text-picc-red hover:text-picc-red font-medium"
                 >
                   Create a new story →
                 </Link>
@@ -620,17 +620,17 @@ export default function StorytellerProfilePage() {
                           </span>
                         )}
                         {s.status && (
-                          <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded capitalize">
+                          <span className="px-2 py-0.5 bg-warm-50 text-picc-red rounded capitalize">
                             {s.status}
                           </span>
                         )}
                         {s.access_level && (
-                          <span className="px-2 py-0.5 bg-purple-50 text-purple-700 rounded capitalize">
+                          <span className="px-2 py-0.5 bg-warm-100 text-picc-ochre rounded capitalize">
                             {s.access_level}
                           </span>
                         )}
                         {s.is_public === true && (
-                          <span className="px-2 py-0.5 bg-green-50 text-green-700 rounded">
+                          <span className="px-2 py-0.5 bg-sage-50 text-sage-700 rounded">
                             public
                           </span>
                         )}
@@ -659,7 +659,7 @@ export default function StorytellerProfilePage() {
             <h2 className="text-lg font-bold text-gray-900">Interviews</h2>
             <Link
               href={`/picc/storytellers/${storytellerId}/interviews`}
-              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm font-medium flex items-center gap-2"
+              className="px-4 py-2 bg-picc-ochre text-white rounded-lg hover:bg-picc-ochre text-sm font-medium flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
               Add Interview
@@ -672,7 +672,7 @@ export default function StorytellerProfilePage() {
               <p className="text-gray-500 mb-4">No interviews recorded yet</p>
               <Link
                 href={`/picc/storytellers/${storytellerId}/interviews`}
-                className="text-purple-600 hover:text-purple-700 font-medium"
+                className="text-picc-ochre hover:text-picc-ochre font-medium"
               >
                 Record first interview →
               </Link>
@@ -696,8 +696,8 @@ export default function StorytellerProfilePage() {
                           {interview.interview_type?.replace(/_/g, ' ')}
                         </span>
                         <span className={`px-2 py-0.5 rounded text-xs ${
-                          interview.status === 'approved' ? 'bg-green-100 text-green-700' :
-                          interview.status === 'transcribed' ? 'bg-blue-100 text-blue-700' :
+                          interview.status === 'approved' ? 'bg-sage-100 text-sage-700' :
+                          interview.status === 'transcribed' ? 'bg-warm-100 text-picc-red' :
                           'bg-gray-100 text-gray-600'
                         }`}>
                           {interview.status}
@@ -709,7 +709,7 @@ export default function StorytellerProfilePage() {
                           {interview.key_themes.map((theme, idx) => (
                             <span
                               key={idx}
-                              className="px-2 py-0.5 bg-purple-50 text-purple-700 text-xs rounded"
+                              className="px-2 py-0.5 bg-warm-100 text-picc-ochre text-xs rounded"
                             >
                               {theme}
                             </span>
@@ -723,7 +723,7 @@ export default function StorytellerProfilePage() {
                         <button
                           onClick={() => analyzeInterview(interview)}
                           disabled={analyzing === interview.id}
-                          className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 text-sm font-medium flex items-center gap-2 disabled:opacity-50"
+                          className="px-4 py-2 bg-gradient-to-r from-picc-ochre to-picc-red text-white rounded-lg hover:from-picc-ochre hover:to-picc-red text-sm font-medium flex items-center gap-2 disabled:opacity-50"
                         >
                           {analyzing === interview.id ? (
                             <>
@@ -767,7 +767,7 @@ export default function StorytellerProfilePage() {
             <h2 className="text-lg font-bold text-gray-900">Tagged Media</h2>
             <Link
               href="/picc/media/gallery"
-              className="text-purple-600 hover:text-purple-700 text-sm font-medium"
+              className="text-picc-ochre hover:text-picc-ochre text-sm font-medium"
             >
               Open Media Gallery →
             </Link>
@@ -776,7 +776,7 @@ export default function StorytellerProfilePage() {
           <div className="grid lg:grid-cols-2 gap-6">
             <div className="bg-white border border-gray-200 rounded-xl p-5">
               <h3 className="font-bold text-gray-900 flex items-center gap-2">
-                <Film className="w-5 h-5 text-purple-600" />
+                <Film className="w-5 h-5 text-picc-ochre" />
                 Videos ({videos.length})
               </h3>
               <p className="text-sm text-gray-600 mt-1">
@@ -812,7 +812,7 @@ export default function StorytellerProfilePage() {
 
             <div className="bg-white border border-gray-200 rounded-xl p-5">
               <h3 className="font-bold text-gray-900 flex items-center gap-2">
-                <ImageIcon className="w-5 h-5 text-purple-600" />
+                <ImageIcon className="w-5 h-5 text-picc-ochre" />
                 Photos ({photos.length})
               </h3>
               <p className="text-sm text-gray-600 mt-1">
@@ -829,7 +829,7 @@ export default function StorytellerProfilePage() {
                     <Link
                       key={photo.id}
                       href="/picc/media/gallery"
-                      className="aspect-square bg-gray-100 rounded-lg overflow-hidden hover:ring-2 hover:ring-purple-500 transition-all"
+                      className="aspect-square bg-gray-100 rounded-lg overflow-hidden hover:ring-2 hover:ring-warm-1000 transition-all"
                       title="Open media gallery to manage tags"
                     >
                       <img

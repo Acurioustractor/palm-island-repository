@@ -13,7 +13,7 @@ export default function StorytellingGuidePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white py-12">
+      <div className="bg-gradient-to-r from-picc-ochre to-picc-red text-white py-12">
         <div className="max-w-4xl mx-auto px-6">
           <Link href="/picc" className="inline-flex items-center gap-2 text-white/80 hover:text-white mb-4 text-sm">
             <ArrowLeft className="w-4 h-4" />
@@ -30,7 +30,7 @@ export default function StorytellingGuidePage() {
 
         {/* Story Structure Template */}
         <Section
-          icon={<FileText className="w-6 h-6 text-purple-600" />}
+          icon={<FileText className="w-6 h-6 text-picc-ochre" />}
           title="Story Structure"
           description="Every good story follows this framework"
         >
@@ -43,7 +43,7 @@ export default function StorytellingGuidePage() {
               { step: '5', label: 'Future', desc: 'What happens next? Ongoing impact.' },
             ].map(({ step, label, desc }) => (
               <div key={step} className="bg-white rounded-xl border border-gray-200 p-4 text-center">
-                <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-600 font-bold flex items-center justify-center mx-auto mb-2">
+                <div className="w-8 h-8 rounded-full bg-warm-100 text-picc-ochre font-bold flex items-center justify-center mx-auto mb-2">
                   {step}
                 </div>
                 <h4 className="font-semibold text-gray-900 text-sm">{label}</h4>
@@ -55,7 +55,7 @@ export default function StorytellingGuidePage() {
 
         {/* Interview Prompts */}
         <Section
-          icon={<MessageSquare className="w-6 h-6 text-blue-600" />}
+          icon={<MessageSquare className="w-6 h-6 text-picc-red" />}
           title="Interview Prompts"
           description="Template questions for different story types"
         >
@@ -109,11 +109,11 @@ export default function StorytellingGuidePage() {
 
         {/* Cultural Protocols */}
         <Section
-          icon={<Shield className="w-6 h-6 text-amber-600" />}
+          icon={<Shield className="w-6 h-6 text-picc-ochre" />}
           title="Cultural Protocols Checklist"
           description="Follow these steps for every story, especially Elder content"
         >
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-6">
+          <div className="bg-picc-ochre-50 border border-picc-ochre-200 rounded-xl p-6">
             <div className="space-y-3">
               {[
                 { text: 'Get verbal consent before recording or note-taking', required: true },
@@ -129,13 +129,13 @@ export default function StorytellingGuidePage() {
               ].map(({ text, required }, i) => (
                 <label key={i} className="flex items-start gap-3 cursor-pointer">
                   <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                    required ? 'border-amber-500' : 'border-gray-300'
+                    required ? 'border-picc-ochre-500' : 'border-gray-300'
                   }`}>
-                    <CheckCircle2 className="w-3 h-3 text-amber-500 opacity-0" />
+                    <CheckCircle2 className="w-3 h-3 text-picc-ochre-500 opacity-0" />
                   </div>
                   <span className="text-sm text-gray-700">
                     {text}
-                    {required && <span className="text-amber-600 font-medium ml-1">(Required)</span>}
+                    {required && <span className="text-picc-ochre font-medium ml-1">(Required)</span>}
                   </span>
                 </label>
               ))}
@@ -145,14 +145,14 @@ export default function StorytellingGuidePage() {
 
         {/* Photo Guidelines */}
         <Section
-          icon={<Camera className="w-6 h-6 text-green-600" />}
+          icon={<Camera className="w-6 h-6 text-sage-600" />}
           title="Photo Guidelines"
           description="Capture moments that complement the story"
         >
           <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-white rounded-xl border border-gray-200 p-5">
               <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-green-600" />
+                <CheckCircle2 className="w-4 h-4 text-sage-600" />
                 Do
               </h4>
               <ul className="space-y-2 text-sm text-gray-600">
@@ -166,7 +166,7 @@ export default function StorytellingGuidePage() {
             </div>
             <div className="bg-white rounded-xl border border-gray-200 p-5">
               <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <Star className="w-4 h-4 text-amber-500" />
+                <Star className="w-4 h-4 text-picc-ochre-500" />
                 Cultural Considerations
               </h4>
               <ul className="space-y-2 text-sm text-gray-600">
@@ -183,7 +183,7 @@ export default function StorytellingGuidePage() {
 
         {/* Example Stories */}
         <Section
-          icon={<BookOpen className="w-6 h-6 text-indigo-600" />}
+          icon={<BookOpen className="w-6 h-6 text-picc-ochre" />}
           title="Example Stories"
           description="What great stories look like"
         >
@@ -262,13 +262,13 @@ export default function StorytellingGuidePage() {
         </Section>
 
         {/* CTA */}
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl p-8 text-center text-white">
+        <div className="bg-gradient-to-r from-picc-ochre to-picc-red rounded-2xl p-8 text-center text-white">
           <Heart className="w-10 h-10 mx-auto mb-3 opacity-90" />
           <h3 className="text-2xl font-bold mb-2">Ready to Create a Story?</h3>
           <p className="text-white/80 mb-6">Use the AI Story Creator in the dashboard to turn interviews into polished stories.</p>
           <Link
             href="/picc/annual-report-data"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-white text-purple-700 rounded-full font-semibold hover:bg-gray-100 transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-white text-picc-ochre rounded-full font-semibold hover:bg-gray-100 transition-colors"
           >
             <BookOpen className="w-5 h-5" />
             Open Dashboard
@@ -305,10 +305,10 @@ function PromptCategory({ title, color, prompts }: {
   prompts: string[];
 }) {
   const colorMap: Record<string, string> = {
-    blue: 'bg-blue-50 border-blue-200',
-    amber: 'bg-amber-50 border-amber-200',
-    green: 'bg-green-50 border-green-200',
-    purple: 'bg-purple-50 border-purple-200',
+    blue: 'bg-warm-50 border-warm-200',
+    amber: 'bg-picc-ochre-50 border-picc-ochre-200',
+    green: 'bg-sage-50 border-sage-200',
+    purple: 'bg-warm-100 border-warm-200',
   };
 
   return (
@@ -336,16 +336,16 @@ function ExampleStory({ title, type, excerpt, whatMakesItGreat }: {
     <div className="bg-white rounded-xl border border-gray-200 p-5">
       <div className="flex items-start justify-between gap-4 mb-2">
         <h4 className="font-semibold text-gray-900">{title}</h4>
-        <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs font-medium rounded-full flex-shrink-0">
+        <span className="px-2 py-0.5 bg-warm-100 text-picc-ochre text-xs font-medium rounded-full flex-shrink-0">
           {type}
         </span>
       </div>
       <p className="text-sm text-gray-600 italic mb-3">{excerpt}</p>
-      <div className="bg-green-50 rounded-lg p-3">
-        <h5 className="text-xs font-semibold text-green-800 mb-1">What makes this great:</h5>
+      <div className="bg-sage-50 rounded-lg p-3">
+        <h5 className="text-xs font-semibold text-sage-800 mb-1">What makes this great:</h5>
         <ul className="space-y-1">
           {whatMakesItGreat.map((item, i) => (
-            <li key={i} className="text-xs text-green-700 flex items-start gap-1.5">
+            <li key={i} className="text-xs text-sage-700 flex items-start gap-1.5">
               <CheckCircle2 className="w-3 h-3 mt-0.5 flex-shrink-0" />
               {item}
             </li>

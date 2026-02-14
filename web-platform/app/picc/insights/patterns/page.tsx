@@ -214,7 +214,7 @@ export default function PatternsPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-              <Network className="w-8 h-8 text-purple-600" />
+              <Network className="w-8 h-8 text-picc-ochre" />
               Story Patterns & Trends
             </h1>
             <p className="text-gray-600 mt-2">
@@ -224,7 +224,7 @@ export default function PatternsPage() {
           <select
             value={selectedTimeframe}
             onChange={(e) => setSelectedTimeframe(e.target.value as any)}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500"
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-picc-ochre"
           >
             <option value="all">All Time</option>
             <option value="year">Past Year</option>
@@ -234,33 +234,33 @@ export default function PatternsPage() {
 
         {/* Cultural Metrics Overview */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-200">
-            <div className="flex items-center gap-2 text-amber-700 mb-2">
+          <div className="bg-gradient-to-br from-picc-ochre-50 to-orange-50 rounded-xl p-4 border border-picc-ochre-200">
+            <div className="flex items-center gap-2 text-picc-ochre-700 mb-2">
               <Users className="w-5 h-5" />
               <span className="text-sm font-medium">Elder Stories</span>
             </div>
-            <p className="text-2xl font-bold text-amber-900">{patterns.culturalMetrics.elderStories}</p>
+            <p className="text-2xl font-bold text-picc-ochre-900">{patterns.culturalMetrics.elderStories}</p>
           </div>
-          <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
-            <div className="flex items-center gap-2 text-purple-700 mb-2">
+          <div className="bg-gradient-to-br from-warm-100 to-warm-100 rounded-xl p-4 border border-warm-200">
+            <div className="flex items-center gap-2 text-picc-ochre mb-2">
               <Heart className="w-5 h-5" />
               <span className="text-sm font-medium">Traditional Knowledge</span>
             </div>
-            <p className="text-2xl font-bold text-purple-900">{patterns.culturalMetrics.traditionalKnowledge}</p>
+            <p className="text-2xl font-bold text-picc-earth-600">{patterns.culturalMetrics.traditionalKnowledge}</p>
           </div>
-          <div className="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-xl p-4 border border-teal-200">
-            <div className="flex items-center gap-2 text-teal-700 mb-2">
+          <div className="bg-gradient-to-br from-warm-50 to-warm-50 rounded-xl p-4 border border-warm-200">
+            <div className="flex items-center gap-2 text-picc-ochre mb-2">
               <Users className="w-5 h-5" />
               <span className="text-sm font-medium">Community Members</span>
             </div>
-            <p className="text-2xl font-bold text-teal-900">{patterns.culturalMetrics.communityMembers}</p>
+            <p className="text-2xl font-bold text-picc-earth-600">{patterns.culturalMetrics.communityMembers}</p>
           </div>
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
-            <div className="flex items-center gap-2 text-blue-700 mb-2">
+          <div className="bg-gradient-to-br from-warm-50 to-warm-50 rounded-xl p-4 border border-warm-200">
+            <div className="flex items-center gap-2 text-picc-red mb-2">
               <Globe className="w-5 h-5" />
               <span className="text-sm font-medium">Languages</span>
             </div>
-            <p className="text-2xl font-bold text-blue-900">{patterns.culturalMetrics.languages}</p>
+            <p className="text-2xl font-bold text-picc-earth">{patterns.culturalMetrics.languages}</p>
           </div>
         </div>
 
@@ -268,13 +268,13 @@ export default function PatternsPage() {
           {/* Top Categories */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-4">
-              <Tag className="w-5 h-5 text-blue-600" />
+              <Tag className="w-5 h-5 text-picc-red" />
               Story Categories
             </h3>
             <div className="space-y-3">
               {patterns.topCategories.map((cat, idx) => (
                 <div key={cat.category} className="flex items-center gap-3">
-                  <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs flex items-center justify-center font-medium">
+                  <span className="w-6 h-6 rounded-full bg-warm-100 text-picc-red text-xs flex items-center justify-center font-medium">
                     {idx + 1}
                   </span>
                   <div className="flex-1">
@@ -284,7 +284,7 @@ export default function PatternsPage() {
                     </div>
                     <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-blue-500 rounded-full"
+                        className="h-full bg-picc-red rounded-full"
                         style={{ width: `${cat.percentage}%` }}
                       />
                     </div>
@@ -318,14 +318,14 @@ export default function PatternsPage() {
           {/* Top Storytellers */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-4">
-              <Users className="w-5 h-5 text-purple-600" />
+              <Users className="w-5 h-5 text-picc-ochre" />
               Active Storytellers
             </h3>
             <div className="space-y-3">
               {patterns.topStorytellers.map((st, idx) => (
                 <div key={st.name} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
                   <div className="flex items-center gap-3">
-                    <span className="w-6 h-6 rounded-full bg-purple-100 text-purple-700 text-xs flex items-center justify-center font-medium">
+                    <span className="w-6 h-6 rounded-full bg-warm-100 text-picc-ochre text-xs flex items-center justify-center font-medium">
                       {idx + 1}
                     </span>
                     <span className="text-sm font-medium text-gray-700">{st.name}</span>
@@ -361,7 +361,7 @@ export default function PatternsPage() {
         {/* Keywords Word Cloud Placeholder */}
         <div className="mt-6 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-4">
-            <Sparkles className="w-5 h-5 text-pink-600" />
+            <Sparkles className="w-5 h-5 text-picc-red" />
             Common Themes & Keywords
           </h3>
           <div className="flex flex-wrap gap-2">
@@ -390,7 +390,7 @@ export default function PatternsPage() {
           </Link>
           <Link
             href="/picc/insights/themes"
-            className="text-purple-600 hover:text-purple-700 font-medium"
+            className="text-picc-ochre hover:text-picc-ochre font-medium"
           >
             View Theme Analysis →
           </Link>

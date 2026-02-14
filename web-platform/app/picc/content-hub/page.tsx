@@ -122,10 +122,10 @@ const releaseTypeLabels: Record<string, string> = {
 
 const releaseTypeColors: Record<string, string> = {
   monthly_update: 'bg-blue-100 text-blue-700',
-  quarterly_thematic: 'bg-purple-100 text-purple-700',
-  service_spotlight: 'bg-amber-100 text-amber-700',
+  quarterly_thematic: 'bg-picc-ochre/10 text-picc-ochre',
+  service_spotlight: 'bg-picc-ochre/10 text-picc-ochre',
   community_milestone: 'bg-green-100 text-green-700',
-  elder_wisdom: 'bg-indigo-100 text-indigo-700',
+  elder_wisdom: 'bg-warm-100 text-picc-red',
   data_snapshot: 'bg-gray-100 text-gray-700',
 };
 
@@ -140,7 +140,7 @@ const conversationStatusColors: Record<string, string> = {
   planned: 'bg-gray-100 text-gray-600',
   conducted: 'bg-blue-100 text-blue-700',
   transcribed: 'bg-yellow-100 text-yellow-700',
-  analyzed: 'bg-purple-100 text-purple-700',
+  analyzed: 'bg-picc-ochre/10 text-picc-ochre',
   integrated: 'bg-green-100 text-green-700',
 };
 
@@ -161,7 +161,7 @@ export default function ContentHubPage() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <div className="p-2 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-lg">
+          <div className="p-2 bg-gradient-to-br from-sage-500 to-sage-600 rounded-lg">
             <Newspaper className="w-6 h-6 text-white" />
           </div>
           <div>
@@ -223,42 +223,42 @@ export default function ContentHubPage() {
       <div className="grid md:grid-cols-3 gap-4 mb-8">
         <Link
           href="/picc/content-hub/releases/new"
-          className="flex items-center gap-4 p-4 bg-gradient-to-r from-teal-500 to-emerald-600 text-white rounded-xl hover:from-teal-600 hover:to-emerald-700 transition-colors group"
+          className="flex items-center gap-4 p-4 bg-gradient-to-r from-sage-500 to-sage-600 text-white rounded-xl hover:from-sage-600 hover:to-sage-700 transition-colors group"
         >
           <div className="p-2 bg-white/20 rounded-lg">
             <Plus className="w-5 h-5" />
           </div>
           <div>
             <div className="font-semibold">New Content Release</div>
-            <div className="text-sm text-teal-100">Monthly, quarterly, or spotlight</div>
+            <div className="text-sm text-sage-100">Monthly, quarterly, or spotlight</div>
           </div>
           <ArrowRight className="w-5 h-5 ml-auto group-hover:translate-x-1 transition-transform" />
         </Link>
 
         <Link
           href="/picc/conversations/new"
-          className="flex items-center gap-4 p-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl hover:from-indigo-600 hover:to-purple-700 transition-colors group"
+          className="flex items-center gap-4 p-4 bg-gradient-to-r from-warm-500 to-picc-ochre text-white rounded-xl hover:from-warm-600 hover:to-picc-ochre/90 transition-colors group"
         >
           <div className="p-2 bg-white/20 rounded-lg">
             <Users className="w-5 h-5" />
           </div>
           <div>
             <div className="font-semibold">Schedule Conversation</div>
-            <div className="text-sm text-indigo-100">Community listening session</div>
+            <div className="text-sm text-warm-100">Community listening session</div>
           </div>
           <ArrowRight className="w-5 h-5 ml-auto group-hover:translate-x-1 transition-transform" />
         </Link>
 
         <Link
           href="/picc/content-hub/data/new"
-          className="flex items-center gap-4 p-4 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-xl hover:from-amber-600 hover:to-orange-700 transition-colors group"
+          className="flex items-center gap-4 p-4 bg-gradient-to-r from-picc-ochre to-picc-ochre/80 text-white rounded-xl hover:from-picc-ochre/90 hover:to-picc-ochre/70 transition-colors group"
         >
           <div className="p-2 bg-white/20 rounded-lg">
             <BarChart3 className="w-5 h-5" />
           </div>
           <div>
             <div className="font-semibold">Add Data Snapshot</div>
-            <div className="text-sm text-amber-100">Service metrics & KPIs</div>
+            <div className="text-sm text-picc-ochre/50">Service metrics & KPIs</div>
           </div>
           <ArrowRight className="w-5 h-5 ml-auto group-hover:translate-x-1 transition-transform" />
         </Link>
@@ -271,7 +271,7 @@ export default function ContentHubPage() {
             onClick={() => setActiveTab('releases')}
             className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
               activeTab === 'releases'
-                ? 'text-teal-600 border-b-2 border-teal-600 bg-teal-50/50'
+                ? 'text-sage-600 border-b-2 border-sage-600 bg-sage-50/50'
                 : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
             }`}
           >
@@ -284,7 +284,7 @@ export default function ContentHubPage() {
             onClick={() => setActiveTab('conversations')}
             className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
               activeTab === 'conversations'
-                ? 'text-teal-600 border-b-2 border-teal-600 bg-teal-50/50'
+                ? 'text-sage-600 border-b-2 border-sage-600 bg-sage-50/50'
                 : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
             }`}
           >
@@ -297,7 +297,7 @@ export default function ContentHubPage() {
             onClick={() => setActiveTab('data')}
             className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
               activeTab === 'data'
-                ? 'text-teal-600 border-b-2 border-teal-600 bg-teal-50/50'
+                ? 'text-sage-600 border-b-2 border-sage-600 bg-sage-50/50'
                 : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
             }`}
           >
@@ -316,13 +316,13 @@ export default function ContentHubPage() {
               <input
                 type="text"
                 placeholder="Search..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sage-500 focus:border-transparent"
               />
             </div>
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sage-500"
             >
               <option value="all">All Status</option>
               <option value="draft">Draft</option>
@@ -390,12 +390,12 @@ export default function ContentHubPage() {
                 href={`/picc/conversations/${conversation.id}`}
                 className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors"
               >
-                <div className="p-3 bg-indigo-100 rounded-lg">
-                  <Users className="w-5 h-5 text-indigo-600" />
+                <div className="p-3 bg-warm-100 rounded-lg">
+                  <Users className="w-5 h-5 text-picc-red" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="px-2 py-0.5 text-xs font-medium rounded bg-indigo-100 text-indigo-700 capitalize">
+                    <span className="px-2 py-0.5 text-xs font-medium rounded bg-warm-100 text-picc-red capitalize">
                       {conversation.conversation_type.replace('_', ' ')}
                     </span>
                     <span className={`px-2 py-0.5 text-xs font-medium rounded ${conversationStatusColors[conversation.status]}`}>
@@ -427,7 +427,7 @@ export default function ContentHubPage() {
                 <p>No community conversations yet</p>
                 <Link
                   href="/picc/conversations/new"
-                  className="inline-flex items-center gap-2 mt-4 text-teal-600 hover:text-teal-700"
+                  className="inline-flex items-center gap-2 mt-4 text-sage-600 hover:text-sage-700"
                 >
                   <Plus className="w-4 h-4" />
                   Schedule your first conversation
@@ -444,7 +444,7 @@ export default function ContentHubPage() {
               {mockSnapshots.map((snapshot) => (
                 <div
                   key={snapshot.id}
-                  className="p-4 border border-gray-200 rounded-lg hover:border-teal-300 hover:shadow-sm transition-all cursor-pointer"
+                  className="p-4 border border-gray-200 rounded-lg hover:border-sage-300 hover:shadow-sm transition-all cursor-pointer"
                 >
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-sm font-medium text-gray-900">{snapshot.service_name}</span>
@@ -490,7 +490,7 @@ export default function ContentHubPage() {
       </div>
 
       {/* We Heard You Preview */}
-      <div className="mt-8 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-6 border border-purple-100">
+      <div className="mt-8 bg-gradient-to-r from-picc-ochre/5 to-warm-50 rounded-xl p-6 border border-picc-ochre/20">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-lg font-bold text-gray-900">We Heard You</h3>
@@ -498,7 +498,7 @@ export default function ContentHubPage() {
           </div>
           <Link
             href="/picc/content-hub/we-heard-you"
-            className="text-sm text-purple-600 hover:text-purple-700 flex items-center gap-1"
+            className="text-sm text-picc-ochre hover:text-picc-ochre/80 flex items-center gap-1"
           >
             View all feedback
             <ArrowRight className="w-4 h-4" />
@@ -508,8 +508,8 @@ export default function ContentHubPage() {
         <div className="space-y-3">
           <div className="bg-white rounded-lg p-4 shadow-sm">
             <div className="flex items-start gap-3">
-              <div className="p-2 bg-purple-100 rounded-full">
-                <MessageSquare className="w-4 h-4 text-purple-600" />
+              <div className="p-2 bg-picc-ochre/10 rounded-full">
+                <MessageSquare className="w-4 h-4 text-picc-ochre" />
               </div>
               <div className="flex-1">
                 <p className="text-sm text-gray-900 font-medium">&ldquo;We need more activities for youth on weekends&rdquo;</p>
@@ -529,8 +529,8 @@ export default function ContentHubPage() {
 
           <div className="bg-white rounded-lg p-4 shadow-sm">
             <div className="flex items-start gap-3">
-              <div className="p-2 bg-amber-100 rounded-full">
-                <AlertCircle className="w-4 h-4 text-amber-600" />
+              <div className="p-2 bg-picc-ochre/10 rounded-full">
+                <AlertCircle className="w-4 h-4 text-picc-ochre" />
               </div>
               <div className="flex-1">
                 <p className="text-sm text-gray-900 font-medium">&ldquo;More support for elders during hot months&rdquo;</p>

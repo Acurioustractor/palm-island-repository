@@ -31,21 +31,21 @@ interface Stats {
 }
 
 const THEMES = [
-  { id: 'community', label: 'Community', icon: Users, color: 'bg-blue-500' },
-  { id: 'services', label: 'Services', icon: Building, color: 'bg-green-500' },
-  { id: 'culture', label: 'Culture', icon: BookOpen, color: 'bg-purple-500' },
-  { id: 'history', label: 'History', icon: BookOpen, color: 'bg-amber-500' },
+  { id: 'community', label: 'Community', icon: Users, color: 'bg-picc-red' },
+  { id: 'services', label: 'Services', icon: Building, color: 'bg-sage-500' },
+  { id: 'culture', label: 'Culture', icon: BookOpen, color: 'bg-picc-ochre' },
+  { id: 'history', label: 'History', icon: BookOpen, color: 'bg-picc-ochre' },
   { id: 'achievement', label: 'Achievement', icon: Star, color: 'bg-yellow-500' },
-  { id: 'youth', label: 'Youth', icon: GraduationCap, color: 'bg-pink-500' },
-  { id: 'employment', label: 'Employment', icon: Briefcase, color: 'bg-indigo-500' },
+  { id: 'youth', label: 'Youth', icon: GraduationCap, color: 'bg-picc-red' },
+  { id: 'employment', label: 'Employment', icon: Briefcase, color: 'bg-picc-ochre' },
   { id: 'health', label: 'Health', icon: Heart, color: 'bg-red-500' },
 ];
 
 const SENTIMENTS = [
-  { id: 'inspiring', label: 'Inspiring', emoji: '✨' },
-  { id: 'positive', label: 'Positive', emoji: '😊' },
-  { id: 'reflective', label: 'Reflective', emoji: '🤔' },
-  { id: 'neutral', label: 'Neutral', emoji: '📝' },
+  { id: 'inspiring', label: 'Inspiring' },
+  { id: 'positive', label: 'Positive' },
+  { id: 'reflective', label: 'Reflective' },
+  { id: 'neutral', label: 'Neutral' },
 ];
 
 export default function QuotesPage() {
@@ -158,7 +158,7 @@ export default function QuotesPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-picc-red" />
       </div>
     );
   }
@@ -176,7 +176,7 @@ export default function QuotesPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="flex items-center gap-2 px-4 py-2 bg-picc-red text-white rounded-lg hover:bg-picc-red"
           >
             <Plus className="h-4 w-4" />
             Add Quote
@@ -196,24 +196,24 @@ export default function QuotesPage() {
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <div className="bg-white rounded-lg p-4 border">
-            <div className="text-2xl font-bold text-blue-600">{stats.totalQuotes}</div>
+            <div className="text-2xl font-bold text-picc-red">{stats.totalQuotes}</div>
             <div className="text-sm text-gray-600">Total Quotes</div>
           </div>
           <div className="bg-white rounded-lg p-4 border">
-            <div className="text-2xl font-bold text-green-600">{stats.validatedQuotes}</div>
+            <div className="text-2xl font-bold text-sage-600">{stats.validatedQuotes}</div>
             <div className="text-sm text-gray-600">Validated</div>
           </div>
           <div className="bg-white rounded-lg p-4 border">
-            <div className="text-2xl font-bold text-purple-600">{stats.totalContent}</div>
+            <div className="text-2xl font-bold text-picc-ochre">{stats.totalContent}</div>
             <div className="text-sm text-gray-600">Articles</div>
           </div>
           <div className="bg-white rounded-lg p-4 border">
-            <div className="text-2xl font-bold text-amber-600">{stats.totalSources}</div>
+            <div className="text-2xl font-bold text-picc-ochre">{stats.totalSources}</div>
             <div className="text-sm text-gray-600">Sources</div>
           </div>
           <div className="bg-white rounded-lg p-4 border flex items-center gap-2">
-            <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
-            <div className="text-sm text-green-600 font-medium">Auto-syncing</div>
+            <div className="h-2 w-2 bg-sage-500 rounded-full animate-pulse"></div>
+            <div className="text-sm text-sage-600 font-medium">Auto-syncing</div>
           </div>
         </div>
       )}
@@ -229,7 +229,7 @@ export default function QuotesPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search quotes..."
-              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent"
             />
           </div>
 
@@ -238,7 +238,7 @@ export default function QuotesPage() {
             <select
               value={themeFilter}
               onChange={(e) => setThemeFilter(e.target.value)}
-              className="appearance-none px-4 py-2 pr-8 border rounded-lg bg-white focus:ring-2 focus:ring-blue-500"
+              className="appearance-none px-4 py-2 pr-8 border rounded-lg bg-white focus:ring-2 focus:ring-picc-red"
             >
               <option value="">All Themes</option>
               {THEMES.map(theme => (
@@ -254,7 +254,7 @@ export default function QuotesPage() {
               type="checkbox"
               checked={validatedOnly}
               onChange={(e) => setValidatedOnly(e.target.checked)}
-              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              className="rounded border-gray-300 text-picc-red focus:ring-picc-red"
             />
             <span className="text-sm text-gray-700">Validated only</span>
           </label>
@@ -299,7 +299,7 @@ export default function QuotesPage() {
                 )}
                 {sentiment && (
                   <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-700">
-                    {sentiment.emoji} {sentiment.label}
+                    {sentiment.label}
                   </span>
                 )}
               </div>
@@ -309,7 +309,7 @@ export default function QuotesPage() {
                 <button
                   onClick={() => toggleValidated(quote)}
                   className={`flex items-center gap-1 text-sm ${
-                    quote.is_validated ? 'text-green-600' : 'text-gray-400 hover:text-green-600'
+                    quote.is_validated ? 'text-sage-600' : 'text-gray-400 hover:text-sage-600'
                   }`}
                 >
                   <CheckCircle className="h-4 w-4" />
@@ -344,7 +344,7 @@ export default function QuotesPage() {
           <button
             onClick={triggerSync}
             disabled={syncing}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-picc-red text-white rounded-lg hover:bg-picc-red disabled:opacity-50"
           >
             <Sparkles className="h-4 w-4" />
             {syncing ? 'Syncing...' : 'Sync Content'}
@@ -415,7 +415,7 @@ function AddQuoteModal({ onClose, onAdd }: { onClose: () => void; onAdd: () => v
               onChange={(e) => setForm({ ...form, quote_text: e.target.value })}
               rows={3}
               required
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-picc-red"
               placeholder="Enter the quote..."
             />
           </div>
@@ -427,7 +427,7 @@ function AddQuoteModal({ onClose, onAdd }: { onClose: () => void; onAdd: () => v
               value={form.attribution}
               onChange={(e) => setForm({ ...form, attribution: e.target.value })}
               required
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-picc-red"
               placeholder="Who said this?"
             />
           </div>
@@ -438,7 +438,7 @@ function AddQuoteModal({ onClose, onAdd }: { onClose: () => void; onAdd: () => v
               type="text"
               value={form.context}
               onChange={(e) => setForm({ ...form, context: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-picc-red"
               placeholder="Where/when was this said?"
             />
           </div>
@@ -449,7 +449,7 @@ function AddQuoteModal({ onClose, onAdd }: { onClose: () => void; onAdd: () => v
               <select
                 value={form.theme}
                 onChange={(e) => setForm({ ...form, theme: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-picc-red"
               >
                 <option value="">Select theme</option>
                 {THEMES.map(t => (
@@ -463,10 +463,10 @@ function AddQuoteModal({ onClose, onAdd }: { onClose: () => void; onAdd: () => v
               <select
                 value={form.sentiment}
                 onChange={(e) => setForm({ ...form, sentiment: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-picc-red"
               >
                 {SENTIMENTS.map(s => (
-                  <option key={s.id} value={s.id}>{s.emoji} {s.label}</option>
+                  <option key={s.id} value={s.id}>{s.label}</option>
                 ))}
               </select>
             </div>
@@ -483,7 +483,7 @@ function AddQuoteModal({ onClose, onAdd }: { onClose: () => void; onAdd: () => v
             <button
               type="submit"
               disabled={saving || !form.quote_text || !form.attribution}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              className="px-4 py-2 bg-picc-red text-white rounded-lg hover:bg-picc-red disabled:opacity-50"
             >
               {saving ? 'Adding...' : 'Add Quote'}
             </button>

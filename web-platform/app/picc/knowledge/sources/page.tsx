@@ -160,7 +160,7 @@ export default function ResearchSourcesPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-              <FileText className="h-8 w-8 text-purple-600" />
+              <FileText className="h-8 w-8 text-picc-ochre" />
               Research Sources
             </h1>
             <p className="mt-2 text-gray-600">
@@ -169,7 +169,7 @@ export default function ResearchSourcesPage() {
           </div>
           <button
             onClick={() => setShowAddForm(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+            className="flex items-center gap-2 px-4 py-2 bg-picc-ochre text-white rounded-lg hover:bg-picc-ochre"
           >
             <Plus className="h-4 w-4" />
             Add Source
@@ -194,7 +194,7 @@ export default function ResearchSourcesPage() {
                   <select
                     value={newSource.source_type}
                     onChange={(e) => setNewSource(prev => ({ ...prev, source_type: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre"
                   >
                     {SOURCE_TYPES.map(type => (
                       <option key={type.value} value={type.value}>{type.label}</option>
@@ -212,7 +212,7 @@ export default function ResearchSourcesPage() {
                     value={newSource.title}
                     onChange={(e) => setNewSource(prev => ({ ...prev, title: e.target.value }))}
                     placeholder="e.g., PICC Annual Report 2023-24"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre"
                   />
                 </div>
 
@@ -225,7 +225,7 @@ export default function ResearchSourcesPage() {
                     value={newSource.author}
                     onChange={(e) => setNewSource(prev => ({ ...prev, author: e.target.value }))}
                     placeholder="e.g., PICC Board"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre"
                   />
                 </div>
 
@@ -238,7 +238,7 @@ export default function ResearchSourcesPage() {
                     value={newSource.publisher}
                     onChange={(e) => setNewSource(prev => ({ ...prev, publisher: e.target.value }))}
                     placeholder="e.g., Palm Island Community Company"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre"
                   />
                 </div>
 
@@ -250,7 +250,7 @@ export default function ResearchSourcesPage() {
                     type="date"
                     value={newSource.publication_date}
                     onChange={(e) => setNewSource(prev => ({ ...prev, publication_date: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre"
                   />
                 </div>
 
@@ -264,7 +264,7 @@ export default function ResearchSourcesPage() {
                     max="100"
                     value={newSource.reliability_score}
                     onChange={(e) => setNewSource(prev => ({ ...prev, reliability_score: parseInt(e.target.value) }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre"
                   />
                 </div>
 
@@ -277,7 +277,7 @@ export default function ResearchSourcesPage() {
                     value={newSource.url}
                     onChange={(e) => setNewSource(prev => ({ ...prev, url: e.target.value }))}
                     placeholder="https://..."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre"
                   />
                 </div>
 
@@ -290,7 +290,7 @@ export default function ResearchSourcesPage() {
                     value={newSource.description}
                     onChange={(e) => setNewSource(prev => ({ ...prev, description: e.target.value }))}
                     placeholder="Brief description of this source..."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre"
                   />
                 </div>
 
@@ -303,7 +303,7 @@ export default function ResearchSourcesPage() {
                     value={newSource.citation_text}
                     onChange={(e) => setNewSource(prev => ({ ...prev, citation_text: e.target.value }))}
                     placeholder="Full citation in preferred format..."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre"
                   />
                 </div>
 
@@ -313,7 +313,7 @@ export default function ResearchSourcesPage() {
                       type="checkbox"
                       checked={newSource.is_primary_source}
                       onChange={(e) => setNewSource(prev => ({ ...prev, is_primary_source: e.target.checked }))}
-                      className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                      className="rounded border-gray-300 text-picc-ochre focus:ring-picc-ochre"
                     />
                     <span className="text-sm text-gray-700">Primary source (original document, firsthand account)</span>
                   </label>
@@ -331,7 +331,7 @@ export default function ResearchSourcesPage() {
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 flex items-center gap-2"
+                  className="px-4 py-2 bg-picc-ochre text-white rounded-lg hover:bg-picc-ochre disabled:opacity-50 flex items-center gap-2"
                 >
                   {isSaving && <RefreshCw className="h-4 w-4 animate-spin" />}
                   {isSaving ? 'Saving...' : 'Add Source'}
@@ -353,7 +353,7 @@ export default function ResearchSourcesPage() {
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
-            className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500"
+            className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-picc-ochre"
           >
             <option value="">All Types</option>
             {SOURCE_TYPES.map(type => (
@@ -364,7 +364,7 @@ export default function ResearchSourcesPage() {
           <select
             value={filterVerified}
             onChange={(e) => setFilterVerified(e.target.value)}
-            className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500"
+            className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-picc-ochre"
           >
             <option value="">All Sources</option>
             <option value="true">Verified Only</option>
@@ -396,7 +396,7 @@ export default function ResearchSourcesPage() {
             </p>
             <button
               onClick={() => setShowAddForm(true)}
-              className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+              className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-picc-ochre text-white rounded-lg hover:bg-picc-ochre"
             >
               <Plus className="h-4 w-4" />
               Add First Source

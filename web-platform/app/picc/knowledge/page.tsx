@@ -95,7 +95,7 @@ export default function KnowledgeBasePage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-              <BookOpen className="h-8 w-8 text-blue-600" />
+              <BookOpen className="h-8 w-8 text-picc-red" />
               Knowledge Base
             </h1>
             <p className="mt-2 text-gray-600">
@@ -106,7 +106,7 @@ export default function KnowledgeBasePage() {
             <button
               onClick={handleImportKnowledgeBase}
               disabled={isImporting}
-              className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 bg-picc-ochre text-white rounded-lg hover:bg-picc-ochre disabled:opacity-50"
             >
               {isImporting ? (
                 <RefreshCw className="h-4 w-4 animate-spin" />
@@ -117,7 +117,7 @@ export default function KnowledgeBasePage() {
             </button>
             <Link
               href="/picc/knowledge/new"
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="flex items-center gap-2 px-4 py-2 bg-picc-red text-white rounded-lg hover:bg-picc-red"
             >
               <Plus className="h-4 w-4" />
               Add Entry
@@ -171,13 +171,13 @@ export default function KnowledgeBasePage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-picc-red"
             />
           </div>
           <button
             onClick={handleSearch}
             disabled={isSearching || searchQuery.length < 2}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+            className="px-6 py-3 bg-picc-red text-white rounded-lg hover:bg-picc-red disabled:opacity-50 flex items-center gap-2"
           >
             {isSearching ? (
               <RefreshCw className="h-4 w-4 animate-spin" />
@@ -205,7 +205,7 @@ export default function KnowledgeBasePage() {
                   <Link
                     key={entry.id}
                     href={`/picc/knowledge/${entry.slug}`}
-                    className="block p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors"
+                    className="block p-4 border border-gray-200 rounded-lg hover:border-warm-300 hover:bg-warm-50 transition-colors"
                   >
                     <div className="flex items-center justify-between">
                       <div>
@@ -288,7 +288,7 @@ export default function KnowledgeBasePage() {
                   <Link
                     key={story.id}
                     href={`/stories/${story.id}`}
-                    className="block p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors"
+                    className="block p-4 border border-gray-200 rounded-lg hover:border-warm-300 hover:bg-warm-50 transition-colors"
                   >
                     <h4 className="font-medium text-gray-900">{story.title}</h4>
                     {story.excerpt && (
@@ -310,11 +310,11 @@ export default function KnowledgeBasePage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Link
           href="/picc/knowledge/new"
-          className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:border-blue-300 hover:shadow-md transition-all"
+          className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:border-warm-300 hover:shadow-md transition-all"
         >
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <Plus className="h-6 w-6 text-blue-600" />
+            <div className="p-3 bg-warm-100 rounded-lg">
+              <Plus className="h-6 w-6 text-picc-red" />
             </div>
             <div>
               <h3 className="font-semibold text-gray-900">Add Knowledge Entry</h3>
@@ -328,8 +328,8 @@ export default function KnowledgeBasePage() {
           className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:border-blue-300 hover:shadow-md transition-all"
         >
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-purple-100 rounded-lg">
-              <FileText className="h-6 w-6 text-purple-600" />
+            <div className="p-3 bg-picc-ochre-100 rounded-lg">
+              <FileText className="h-6 w-6 text-picc-ochre" />
             </div>
             <div>
               <h3 className="font-semibold text-gray-900">Research Sources</h3>
@@ -358,8 +358,8 @@ export default function KnowledgeBasePage() {
           className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:border-blue-300 hover:shadow-md transition-all"
         >
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-amber-100 rounded-lg">
-              <DollarSign className="h-6 w-6 text-amber-600" />
+            <div className="p-3 bg-picc-ochre-100 rounded-lg">
+              <DollarSign className="h-6 w-6 text-picc-ochre" />
             </div>
             <div>
               <h3 className="font-semibold text-gray-900">Financial Data</h3>
@@ -373,8 +373,8 @@ export default function KnowledgeBasePage() {
           className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:border-blue-300 hover:shadow-md transition-all"
         >
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-pink-100 rounded-lg">
-              <Users className="h-6 w-6 text-pink-600" />
+            <div className="p-3 bg-picc-red-100 rounded-lg">
+              <Users className="h-6 w-6 text-picc-red" />
             </div>
             <div>
               <h3 className="font-semibold text-gray-900">People</h3>
@@ -388,8 +388,8 @@ export default function KnowledgeBasePage() {
           className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:border-blue-300 hover:shadow-md transition-all"
         >
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-teal-100 rounded-lg">
-              <Building className="h-6 w-6 text-teal-600" />
+            <div className="p-3 bg-sage-100 rounded-lg">
+              <Building className="h-6 w-6 text-sage-600" />
             </div>
             <div>
               <h3 className="font-semibold text-gray-900">Services</h3>

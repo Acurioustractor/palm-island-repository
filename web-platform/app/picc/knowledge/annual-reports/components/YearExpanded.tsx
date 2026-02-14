@@ -52,10 +52,10 @@ export default function YearExpanded({ fiscalYear, yearData, onClose, onNavigate
   }, []);
 
   const colorSchemes = {
-    amber: 'from-amber-500 to-orange-600',
-    purple: 'from-purple-500 to-pink-600',
-    green: 'from-green-500 to-emerald-600',
-    blue: 'from-blue-500 to-cyan-600'
+    amber: 'from-picc-ochre to-picc-ochre',
+    purple: 'from-picc-ochre to-picc-ochre',
+    green: 'from-sage-500 to-sage-600',
+    blue: 'from-picc-red to-picc-ochre'
   };
 
   const gradient = colorSchemes[yearData?.color as keyof typeof colorSchemes] || colorSchemes.blue;
@@ -159,18 +159,18 @@ export default function YearExpanded({ fiscalYear, yearData, onClose, onNavigate
 
             {loading ? (
               <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-picc-red mx-auto mb-4"></div>
                 <p className="text-gray-600">Loading images...</p>
               </div>
             ) : (
-              <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-8 border-2 border-blue-200 text-center">
-                <ImageIcon className="w-16 h-16 text-blue-400 mx-auto mb-4" />
+              <div className="bg-gradient-to-br from-warm-50 to-warm-100 rounded-lg p-8 border-2 border-warm-200 text-center">
+                <ImageIcon className="w-16 h-16 text-picc-red-300 mx-auto mb-4" />
                 <p className="text-gray-700 mb-4">
                   {yearData?.imageCount || 0} images from this year's annual report
                 </p>
                 <Link
                   href={`/picc/media/gallery?tag=annual-report-${fiscalYear}`}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-picc-red text-white rounded-lg hover:bg-picc-red transition-colors font-medium"
                 >
                   <ImageIcon className="w-5 h-5" />
                   View in Gallery

@@ -129,19 +129,19 @@ export default function AssistantPage() {
       icon: BarChart3,
       label: 'Get Latest Stats',
       query: 'What are the latest statistics across all PICC services?',
-      color: 'from-blue-500 to-cyan-600',
+      color: 'from-blue-500 to-warm-600',
     },
     {
       icon: TrendingUp,
       label: 'Analyze Trends',
       query: 'What trends can you identify in PICC services over the past 3 years?',
-      color: 'from-purple-500 to-pink-600',
+      color: 'from-picc-ochre-500 to-picc-red-600',
     },
     {
       icon: Users,
       label: 'Community Impact',
       query: 'Summarize PICC\'s community impact in the last annual report',
-      color: 'from-green-500 to-emerald-600',
+      color: 'from-green-500 to-sage-600',
     },
     {
       icon: FileBarChart,
@@ -153,13 +153,13 @@ export default function AssistantPage() {
       icon: Calendar,
       label: 'Recent Activity',
       query: 'What major programs or initiatives were launched in the past year?',
-      color: 'from-amber-500 to-orange-600',
+      color: 'from-picc-ochre-500 to-orange-600',
     },
     {
       icon: Search,
       label: 'Find Specific Data',
       query: 'Help me find specific data about [health/housing/education] services',
-      color: 'from-indigo-500 to-blue-600',
+      color: 'from-warm-500 to-blue-600',
     },
   ];
 

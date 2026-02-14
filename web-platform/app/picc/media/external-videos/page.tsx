@@ -248,7 +248,7 @@ export default function ExternalVideosPage() {
       case 'youtube':
         return <Youtube className="w-5 h-5 text-red-600" />;
       default:
-        return <Film className="w-5 h-5 text-purple-600" />;
+        return <Film className="w-5 h-5 text-picc-ochre" />;
     }
   };
 
@@ -266,7 +266,7 @@ export default function ExternalVideosPage() {
 
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-3">
-              <Film className="h-8 w-8 text-purple-600" />
+              <Film className="h-8 w-8 text-picc-ochre" />
               <h1 className="text-3xl font-bold text-gray-900">External Videos</h1>
             </div>
             <button
@@ -542,7 +542,7 @@ export default function ExternalVideosPage() {
         {/* Loading State */}
         {loading && (
           <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-picc-ochre mx-auto"></div>
             <p className="text-gray-600 mt-4">Loading videos...</p>
           </div>
         )}
@@ -603,7 +603,7 @@ export default function ExternalVideosPage() {
                   {/* Meta info */}
                   <div className="flex flex-wrap gap-2 mb-3">
                     {video.category && (
-                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">
+                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-warm-100 text-picc-ochre text-xs rounded-full">
                         <Tag className="w-3 h-3" />
                         {video.category}
                       </span>

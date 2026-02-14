@@ -94,7 +94,7 @@ export default function MediaImagesPage() {
           </Link>
 
           <div className="flex items-center gap-3 mb-2">
-            <ImageIcon className="h-8 w-8 text-pink-600" />
+            <ImageIcon className="h-8 w-8 text-picc-red" />
             <h1 className="text-3xl font-bold text-gray-900">Image Library</h1>
           </div>
           <p className="text-gray-600">Browse all images across story and profile collections</p>
@@ -109,7 +109,7 @@ export default function MediaImagesPage() {
               placeholder="Search images..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent"
             />
           </div>
         </div>
@@ -137,7 +137,7 @@ export default function MediaImagesPage() {
         {/* Loading State */}
         {loading && (
           <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-600 mx-auto"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-picc-red mx-auto"></div>
             <p className="text-gray-600 mt-4">Loading images...</p>
           </div>
         )}

@@ -94,7 +94,7 @@ export default function NotificationsPage() {
       case 'warning':
         return <AlertCircle className="h-5 w-5 text-orange-600" />;
       case 'story':
-        return <FileText className="h-5 w-5 text-purple-600" />;
+        return <FileText className="h-5 w-5 text-picc-ochre-600" />;
       default:
         return <Bell className="h-5 w-5 text-gray-600" />;
     }
@@ -111,7 +111,7 @@ export default function NotificationsPage() {
       case 'warning':
         return 'bg-orange-50';
       case 'story':
-        return 'bg-purple-50';
+        return 'bg-picc-ochre-50';
       default:
         return 'bg-gray-50';
     }

@@ -135,7 +135,7 @@ export default function ReleaseDetailPage() {
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
-              <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
+              <span className="px-3 py-1 bg-picc-ochre/10 text-picc-ochre rounded-full text-sm font-medium">
                 {getReleaseTypeLabel(release.release_type)}
               </span>
               <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(release.status)}`}>
@@ -178,7 +178,7 @@ export default function ReleaseDetailPage() {
           {release.executive_summary && (
             <div className="bg-white rounded-lg border border-gray-200 p-6">
               <h2 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-purple-600" />
+                <Sparkles className="w-5 h-5 text-picc-ochre" />
                 Executive Summary
               </h2>
               <p className="text-gray-700 whitespace-pre-wrap">{release.executive_summary}</p>
@@ -210,7 +210,7 @@ export default function ReleaseDetailPage() {
               <h2 className="text-lg font-bold text-gray-900 mb-4">Included Stories</h2>
               <div className="space-y-4">
                 {stories.map((story) => (
-                  <div key={story.id} className="border-l-4 border-purple-500 pl-4 py-2">
+                  <div key={story.id} className="border-l-4 border-picc-ochre pl-4 py-2">
                     <h3 className="font-semibold text-gray-900">{story.title}</h3>
                     <p className="text-sm text-gray-600 line-clamp-2">{story.content}</p>
                     <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
