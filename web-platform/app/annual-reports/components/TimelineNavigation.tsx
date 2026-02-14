@@ -93,11 +93,11 @@ export default function TimelineNavigation({ timeline, scrollContainerRef }: Tim
 
         <div className="mt-8 flex justify-center gap-4 text-xs">
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-amber-600"></div>
+            <div className="w-4 h-4 rounded bg-picc-ochre"></div>
             <span className="text-gray-600">Foundation</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-purple-600"></div>
+            <div className="w-4 h-4 rounded bg-picc-ochre"></div>
             <span className="text-gray-600">Growth</span>
           </div>
           <div className="flex items-center gap-2">

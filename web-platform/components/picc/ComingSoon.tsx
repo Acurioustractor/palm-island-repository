@@ -13,16 +13,16 @@ export function ComingSoon({ title, description, icon: Icon = Lightbulb, feature
     <div className="p-8">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-            <Icon className="w-8 h-8 text-blue-600" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-warm-100 rounded-full mb-4">
+            <Icon className="w-8 h-8 text-picc-red" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-4">{title}</h1>
           <p className="text-lg text-gray-600">{description}</p>
         </div>
 
-        <div className="bg-gradient-to-r from-blue-900 to-purple-900 text-white p-8 rounded-xl shadow-lg">
+        <div className="bg-gradient-to-r from-picc-earth to-picc-earth-600 text-white p-8 rounded-xl shadow-lg">
           <h2 className="text-xl font-bold mb-4">Coming in Phase 2</h2>
-          <p className="text-blue-100 mb-6">
+          <p className="text-warm-100 mb-6">
             This feature is part of our Phase 2 development plan.
           </p>
 
@@ -32,8 +32,8 @@ export function ComingSoon({ title, description, icon: Icon = Lightbulb, feature
               <ul className="space-y-2">
                 {features.map((feature, index) => (
                   <li key={index} className="flex items-start gap-2">
-                    <div className="w-1.5 h-1.5 bg-blue-300 rounded-full mt-2 flex-shrink-0"></div>
-                    <span className="text-blue-100 text-sm">{feature}</span>
+                    <div className="w-1.5 h-1.5 bg-warm-300 rounded-full mt-2 flex-shrink-0"></div>
+                    <span className="text-warm-100 text-sm">{feature}</span>
                   </li>
                 ))}
               </ul>

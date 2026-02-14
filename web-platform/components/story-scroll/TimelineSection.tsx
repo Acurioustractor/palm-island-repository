@@ -35,7 +35,7 @@ export function TimelineSection({
 
         <div className="relative">
           {/* Timeline line */}
-          <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-600 via-purple-600 to-pink-600" />
+          <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-picc-red via-picc-ochre to-picc-red" />
 
           {/* Events */}
           <div className="space-y-12">
@@ -45,8 +45,8 @@ export function TimelineSection({
                   {/* Icon */}
                   <div className={`absolute left-0 w-16 h-16 rounded-full flex items-center justify-center ${
                     event.isComplete
-                      ? 'bg-gradient-to-br from-green-500 to-emerald-600'
-                      : 'bg-gradient-to-br from-blue-600 to-purple-600'
+                      ? 'bg-gradient-to-br from-sage-500 to-sage-600'
+                      : 'bg-gradient-to-br from-picc-red to-picc-ochre'
                   } shadow-lg`}>
                     {event.icon || (
                       event.isComplete ? (
@@ -59,7 +59,7 @@ export function TimelineSection({
 
                   {/* Content */}
                   <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-shadow">
-                    <div className="text-sm font-semibold text-blue-600 mb-2">
+                    <div className="text-sm font-semibold text-picc-red mb-2">
                       {event.date}
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 mb-2">

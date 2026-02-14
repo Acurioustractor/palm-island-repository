@@ -155,7 +155,7 @@ export default function BoardLeadershipPanel({
           </h2>
           <button
             onClick={addBoardMember}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-picc-ochre border border-warm-200 rounded-lg hover:bg-warm-50 transition-colors"
           >
             <Plus className="w-4 h-4" />
             Add Member
@@ -187,12 +187,12 @@ export default function BoardLeadershipPanel({
                           type="text"
                           value={member.name}
                           onChange={e => updateBoard(idx, { name: e.target.value })}
-                          className="px-2 py-1 border border-gray-200 rounded text-sm w-full focus:border-purple-400 focus:outline-none"
+                          className="px-2 py-1 border border-gray-200 rounded text-sm w-full focus:border-picc-ochre-300 focus:outline-none"
                           placeholder="Full name"
                         />
                       ) : (
                         <span
-                          className="cursor-pointer hover:text-purple-600"
+                          className="cursor-pointer hover:text-picc-ochre"
                           onClick={() => setEditingBoard(member.id || 'new')}
                         >
                           {member.name || 'Unnamed'}
@@ -205,7 +205,7 @@ export default function BoardLeadershipPanel({
                           type="text"
                           value={member.role || ''}
                           onChange={e => updateBoard(idx, { role: e.target.value || null })}
-                          className="px-2 py-1 border border-gray-200 rounded text-sm w-full focus:border-purple-400 focus:outline-none"
+                          className="px-2 py-1 border border-gray-200 rounded text-sm w-full focus:border-picc-ochre-300 focus:outline-none"
                           placeholder="Role"
                         />
                       ) : (
@@ -227,7 +227,7 @@ export default function BoardLeadershipPanel({
                           <button
                             onClick={() => saveBoardMember(member, idx)}
                             disabled={saving === (member.id || 'new-board')}
-                            className="p-1.5 text-purple-600 hover:bg-purple-50 rounded transition-colors"
+                            className="p-1.5 text-picc-ochre hover:bg-warm-50 rounded transition-colors"
                           >
                             <Save className="w-4 h-4" />
                           </button>
@@ -289,11 +289,11 @@ export default function BoardLeadershipPanel({
                         type="text"
                         value={leader.name}
                         onChange={e => updateLeader(leader.id!, { name: e.target.value })}
-                        className="px-2 py-1 border border-gray-200 rounded text-sm w-full font-medium focus:border-purple-400 focus:outline-none"
+                        className="px-2 py-1 border border-gray-200 rounded text-sm w-full font-medium focus:border-picc-ochre-300 focus:outline-none"
                       />
                     ) : (
                       <div
-                        className="font-medium text-gray-900 cursor-pointer hover:text-purple-600"
+                        className="font-medium text-gray-900 cursor-pointer hover:text-picc-ochre"
                         onClick={() => setEditingLeader(leader.id!)}
                       >
                         {leader.name}
@@ -315,7 +315,7 @@ export default function BoardLeadershipPanel({
                           type="text"
                           value={leader.position}
                           onChange={e => updateLeader(leader.id!, { position: e.target.value })}
-                          className="w-full px-2 py-1.5 border border-gray-200 rounded text-sm focus:border-purple-400 focus:outline-none"
+                          className="w-full px-2 py-1.5 border border-gray-200 rounded text-sm focus:border-picc-ochre-300 focus:outline-none"
                         />
                       </div>
                       <div>
@@ -323,7 +323,7 @@ export default function BoardLeadershipPanel({
                         <select
                           value={leader.leadership_type}
                           onChange={e => updateLeader(leader.id!, { leadership_type: e.target.value })}
-                          className="w-full px-2 py-1.5 border border-gray-200 rounded text-sm focus:border-purple-400 focus:outline-none"
+                          className="w-full px-2 py-1.5 border border-gray-200 rounded text-sm focus:border-picc-ochre-300 focus:outline-none"
                         >
                           <option value="board">Board</option>
                           <option value="executive">Executive</option>
@@ -336,7 +336,7 @@ export default function BoardLeadershipPanel({
                         value={leader.bio || ''}
                         onChange={e => updateLeader(leader.id!, { bio: e.target.value || null })}
                         rows={3}
-                        className="w-full px-2 py-1.5 border border-gray-200 rounded text-sm focus:border-purple-400 focus:outline-none"
+                        className="w-full px-2 py-1.5 border border-gray-200 rounded text-sm focus:border-picc-ochre-300 focus:outline-none"
                         placeholder="Short biography..."
                       />
                     </div>
@@ -350,7 +350,7 @@ export default function BoardLeadershipPanel({
                       <button
                         onClick={() => saveLeader(leader)}
                         disabled={saving === leader.id}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 disabled:opacity-50 transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-picc-ochre rounded-lg hover:bg-picc-ochre-600 disabled:opacity-50 transition-colors"
                       >
                         <Save className="w-3.5 h-3.5" />
                         Save

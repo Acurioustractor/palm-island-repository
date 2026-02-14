@@ -42,12 +42,12 @@ export function ImageGallery({
         <div className={`grid ${gridClasses[columns]} gap-6`}>
           {images.map((image, index) => (
             <ScrollReveal key={index} direction="up" delay={index * 0.1}>
-              <div className="group relative aspect-square overflow-hidden rounded-lg shadow-lg hover:shadow-2xl transition-shadow">
+              <div className="group relative aspect-square overflow-hidden rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 ease-elegant">
                 <Image
                   src={image.url}
                   alt={image.alt}
                   fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="object-cover group-hover:scale-105 transition-transform duration-700 ease-elegant"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
                 {image.caption && (

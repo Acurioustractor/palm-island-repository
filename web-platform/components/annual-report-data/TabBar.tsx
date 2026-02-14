@@ -2,7 +2,7 @@
 
 import { useRef, useCallback } from 'react';
 
-type TabId = 'services' | 'financials' | 'highlights' | 'preview' | 'stories' | 'board' | 'photos' | 'projects' | 'countdown' | 'overview';
+type TabId = 'services' | 'financials' | 'highlights' | 'preview' | 'stories' | 'board' | 'photos' | 'projects' | 'countdown' | 'overview' | 'trends' | 'pageplan' | 'editions';
 
 interface Tab {
   id: TabId;
@@ -66,7 +66,7 @@ export default function TabBar({ tabs, activeTab, onTabChange }: TabBarProps) {
                 tabIndex={isActive ? 0 : -1}
                 className={`flex-shrink-0 px-5 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                   isActive
-                    ? 'border-purple-600 text-purple-600'
+                    ? 'border-picc-ochre text-picc-ochre'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -75,7 +75,7 @@ export default function TabBar({ tabs, activeTab, onTabChange }: TabBarProps) {
                   <span
                     className={`ml-2 px-1.5 py-0.5 text-xs rounded-full ${
                       isActive
-                        ? 'bg-purple-100 text-purple-700'
+                        ? 'bg-warm-100 text-picc-ochre'
                         : 'bg-gray-100 text-gray-600'
                     }`}
                   >

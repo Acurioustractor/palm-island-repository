@@ -10,12 +10,12 @@ interface TagChipsProps {
 }
 
 const TAG_COLORS: Record<string, string> = {
-  'service:': 'bg-emerald-500',
-  'project:': 'bg-blue-500',
-  'fy:': 'bg-purple-500',
-  'page:': 'bg-amber-500',
-  'annual-report': 'bg-pink-500',
-  'story:': 'bg-cyan-500',
+  'service:': 'bg-sage-500',
+  'project:': 'bg-picc-red',
+  'fy:': 'bg-picc-ochre',
+  'page:': 'bg-picc-ochre',
+  'annual-report': 'bg-picc-red',
+  'story:': 'bg-picc-ochre',
 };
 
 function getTagColor(tag: string): string {

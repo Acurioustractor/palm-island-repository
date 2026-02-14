@@ -2,7 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { BarChart3, Shield, Database, Zap, Globe, Lightbulb, Award, Heart } from 'lucide-react';
+import { BarChart3, Shield, Database, Zap, Globe, Lightbulb, Award, Heart, AlertTriangle, Building2, Lock, DollarSign, GraduationCap } from 'lucide-react';
+import { BespokeIcon } from '@/components/ui/BespokeIcon';
 import Breadcrumbs from '@/components/wiki/Breadcrumbs';
 
 export default function LocalServerPage() {
@@ -19,7 +20,7 @@ export default function LocalServerPage() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-4">
-          <BarChart3 className="h-10 w-10 text-emerald-600" />
+          <BarChart3 className="h-10 w-10 text-sage-600" />
           <h1 className="text-4xl font-bold text-gray-900">
             Palm Island Local Server
           </h1>
@@ -28,22 +29,22 @@ export default function LocalServerPage() {
           Community-controlled data infrastructure ensuring data sovereignty
         </p>
         <div className="flex flex-wrap gap-3">
-          <span className="px-4 py-2 bg-amber-100 text-amber-800 rounded-lg border border-amber-300 font-medium">
+          <span className="px-4 py-2 bg-picc-ochre-100 text-picc-earth rounded-lg border border-picc-ochre-300 font-medium">
             Status: Planning
           </span>
-          <span className="px-4 py-2 bg-emerald-100 text-emerald-800 rounded-lg border border-emerald-300 font-medium">
+          <span className="px-4 py-2 bg-sage-100 text-emerald-800 rounded-lg border border-sage-300 font-medium">
             Year Started: 2024
           </span>
-          <span className="px-4 py-2 bg-blue-100 text-blue-800 rounded-lg border border-blue-300 font-medium">
+          <span className="px-4 py-2 bg-warm-100 text-blue-800 rounded-lg border border-picc-red-300 font-medium">
             Impact: Data Sovereignty
           </span>
         </div>
       </div>
 
       {/* Vision Statement */}
-      <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-lg p-8 mb-8">
+      <div className="bg-gradient-to-r from-sage-50 to-picc-ochre-50 border border-sage-200 rounded-lg p-8 mb-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <Shield className="h-6 w-6 text-emerald-600" />
+          <Shield className="h-6 w-6 text-sage-600" />
           Vision: Community Data Sovereignty
         </h2>
         <p className="text-gray-700 text-lg mb-4">
@@ -61,13 +62,13 @@ export default function LocalServerPage() {
 
       {/* Why Data Sovereignty Matters */}
       <div className="bg-white rounded-lg border border-stone-300 shadow-sm overflow-hidden mb-8">
-        <div className="bg-gradient-to-r from-stone-100 to-emerald-50 border-b border-stone-200 px-6 py-4">
+        <div className="bg-gradient-to-r from-stone-100 to-sage-50 border-b border-stone-200 px-6 py-4">
           <h2 className="text-2xl font-bold text-gray-900">Why Data Sovereignty Matters</h2>
         </div>
         <div className="p-6">
-          <div className="bg-rose-50 border-l-4 border-rose-400 p-6 mb-6">
-            <h3 className="font-bold text-rose-900 mb-2 flex items-center gap-2">
-              <span className="text-2xl">⚠️</span>
+          <div className="bg-warm-50 border-l-4 border-picc-red p-6 mb-6">
+            <h3 className="font-bold text-picc-earth mb-2 flex items-center gap-2">
+              <AlertTriangle className="h-6 w-6" />
               The Problem: External Control
             </h3>
             <p className="text-gray-700 text-sm mb-3">
@@ -76,31 +77,31 @@ export default function LocalServerPage() {
             </p>
             <ul className="space-y-2 text-sm text-gray-700 ml-6">
               <li className="flex items-start gap-2">
-                <span className="text-rose-600 mt-1">•</span>
+                <span className="text-picc-red mt-1">•</span>
                 <span><strong>Privacy risks:</strong> External platforms can be subpoenaed, hacked,
                 or accessed by government agencies</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-rose-600 mt-1">•</span>
+                <span className="text-picc-red mt-1">•</span>
                 <span><strong>Cultural protocol failures:</strong> Cloud platforms don't understand
                 or enforce cultural sensitivity around restricted knowledge</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-rose-600 mt-1">•</span>
+                <span className="text-picc-red mt-1">•</span>
                 <span><strong>Service dependencies:</strong> If the platform shuts down or changes
                 pricing, communities lose access to their own data</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-rose-600 mt-1">•</span>
+                <span className="text-picc-red mt-1">•</span>
                 <span><strong>Internet dependency:</strong> When internet fails (common in remote
                 areas), communities can't access their own records</span>
               </li>
             </ul>
           </div>
 
-          <div className="bg-emerald-50 border-l-4 border-emerald-400 p-6">
-            <h3 className="font-bold text-emerald-900 mb-2 flex items-center gap-2">
-              <span className="text-2xl">🏛️</span>
+          <div className="bg-sage-50 border-l-4 border-sage-400 p-6">
+            <h3 className="font-bold text-sage-900 mb-2 flex items-center gap-2">
+              <BespokeIcon name="governance" size={24} />
               The Solution: Local Infrastructure
             </h3>
             <p className="text-gray-700 text-sm mb-3">
@@ -108,22 +109,22 @@ export default function LocalServerPage() {
             </p>
             <ul className="space-y-2 text-sm text-gray-700 ml-6">
               <li className="flex items-start gap-2">
-                <span className="text-emerald-600 mt-1">•</span>
+                <span className="text-sage-600 mt-1">•</span>
                 <span><strong>Physical sovereignty:</strong> Data lives on community-owned hardware
                 in a community-controlled location</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-emerald-600 mt-1">•</span>
+                <span className="text-sage-600 mt-1">•</span>
                 <span><strong>Cultural protocols enforced:</strong> Access controls and permissions
                 built into the infrastructure itself</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-emerald-600 mt-1">•</span>
+                <span className="text-sage-600 mt-1">•</span>
                 <span><strong>Resilient access:</strong> Local network works even when internet fails,
                 ensuring continuity of services</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-emerald-600 mt-1">•</span>
+                <span className="text-sage-600 mt-1">•</span>
                 <span><strong>No external dependencies:</strong> Community isn't beholden to cloud
                 platforms or external technology companies</span>
               </li>
@@ -135,14 +136,14 @@ export default function LocalServerPage() {
       {/* Technical Architecture */}
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-          <Database className="h-6 w-6 text-blue-600" />
+          <Database className="h-6 w-6 text-picc-red" />
           Technical Architecture
         </h2>
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+          <div className="bg-warm-50 border border-warm-200 rounded-lg p-6">
             <div className="flex items-center gap-3 mb-3">
-              <Database className="h-8 w-8 text-blue-600" />
-              <h3 className="font-bold text-blue-900">Local Data Storage</h3>
+              <Database className="h-8 w-8 text-picc-red" />
+              <h3 className="font-bold text-picc-earth">Local Data Storage</h3>
             </div>
             <p className="text-gray-700 text-sm mb-3">
               High-capacity server hardware stores all community data locally: stories, photos,
@@ -156,10 +157,10 @@ export default function LocalServerPage() {
             </ul>
           </div>
 
-          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-6">
+          <div className="bg-sage-50 border border-sage-200 rounded-lg p-6">
             <div className="flex items-center gap-3 mb-3">
-              <Zap className="h-8 w-8 text-emerald-600" />
-              <h3 className="font-bold text-emerald-900">Fast Local Network</h3>
+              <Zap className="h-8 w-8 text-sage-600" />
+              <h3 className="font-bold text-sage-900">Fast Local Network</h3>
             </div>
             <p className="text-gray-700 text-sm mb-3">
               Gigabit local network provides fast access to data for all PICC services and
@@ -173,10 +174,10 @@ export default function LocalServerPage() {
             </ul>
           </div>
 
-          <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
+          <div className="bg-warm-100 border border-warm-200 rounded-lg p-6">
             <div className="flex items-center gap-3 mb-3">
-              <Shield className="h-8 w-8 text-purple-600" />
-              <h3 className="font-bold text-purple-900">Security & Permissions</h3>
+              <Shield className="h-8 w-8 text-picc-ochre" />
+              <h3 className="font-bold text-picc-earth-600">Security & Permissions</h3>
             </div>
             <p className="text-gray-700 text-sm mb-3">
               Cultural protocols and access controls enforced at the infrastructure level,
@@ -190,10 +191,10 @@ export default function LocalServerPage() {
             </ul>
           </div>
 
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-6">
+          <div className="bg-picc-ochre-50 border border-picc-ochre-200 rounded-lg p-6">
             <div className="flex items-center gap-3 mb-3">
-              <Globe className="h-8 w-8 text-amber-600" />
-              <h3 className="font-bold text-amber-900">Hybrid Cloud Model</h3>
+              <Globe className="h-8 w-8 text-picc-ochre" />
+              <h3 className="font-bold text-picc-earth">Hybrid Cloud Model</h3>
             </div>
             <p className="text-gray-700 text-sm mb-3">
               Combines local server with selective cloud sync, giving best of both worlds:
@@ -211,15 +212,15 @@ export default function LocalServerPage() {
 
       {/* Innovation Elements */}
       <div className="bg-white rounded-lg border border-stone-300 shadow-sm overflow-hidden mb-8">
-        <div className="bg-gradient-to-r from-stone-100 to-amber-50 border-b border-stone-200 px-6 py-4">
+        <div className="bg-gradient-to-r from-stone-100 to-picc-ochre-50 border-b border-stone-200 px-6 py-4">
           <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Lightbulb className="h-6 w-6 text-amber-600" />
+            <Lightbulb className="h-6 w-6 text-picc-ochre" />
             What Makes This Innovative
           </h2>
         </div>
         <div className="p-6 space-y-4">
           <div className="flex gap-4">
-            <Shield className="h-6 w-6 text-emerald-600 flex-shrink-0 mt-1" />
+            <Shield className="h-6 w-6 text-sage-600 flex-shrink-0 mt-1" />
             <div>
               <h3 className="font-bold text-gray-900 mb-2">True Indigenous Data Sovereignty</h3>
               <p className="text-sm text-gray-600">
@@ -232,7 +233,7 @@ export default function LocalServerPage() {
           </div>
 
           <div className="flex gap-4">
-            <Database className="h-6 w-6 text-blue-600 flex-shrink-0 mt-1" />
+            <Database className="h-6 w-6 text-picc-red flex-shrink-0 mt-1" />
             <div>
               <h3 className="font-bold text-gray-900 mb-2">Cultural Protocols in Hardware</h3>
               <p className="text-sm text-gray-600">
@@ -245,7 +246,7 @@ export default function LocalServerPage() {
           </div>
 
           <div className="flex gap-4">
-            <Zap className="h-6 w-6 text-purple-600 flex-shrink-0 mt-1" />
+            <Zap className="h-6 w-6 text-picc-ochre flex-shrink-0 mt-1" />
             <div>
               <h3 className="font-bold text-gray-900 mb-2">Resilience by Design</h3>
               <p className="text-sm text-gray-600">
@@ -257,7 +258,7 @@ export default function LocalServerPage() {
           </div>
 
           <div className="flex gap-4">
-            <Award className="h-6 w-6 text-amber-600 flex-shrink-0 mt-1" />
+            <Award className="h-6 w-6 text-picc-ochre flex-shrink-0 mt-1" />
             <div>
               <h3 className="font-bold text-gray-900 mb-2">Replicable Model</h3>
               <p className="text-sm text-gray-600">
@@ -275,54 +276,66 @@ export default function LocalServerPage() {
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Community Benefits</h2>
         <div className="grid md:grid-cols-2 gap-4">
-          <div className="bg-gradient-to-br from-blue-50 to-teal-50 rounded-lg p-6 border border-blue-200">
-            <div className="text-3xl mb-3">🏢</div>
-            <h3 className="font-bold text-blue-900 mb-2">Service Continuity</h3>
+          <div className="bg-gradient-to-br from-warm-50 to-picc-ochre-50 rounded-lg p-6 border border-warm-200">
+            <div className="mb-3">
+              <Building2 className="h-8 w-8 text-picc-ochre" />
+            </div>
+            <h3 className="font-bold text-picc-earth mb-2">Service Continuity</h3>
             <p className="text-sm text-gray-700">
               PICC services can continue operating even during internet outages - accessing client
               records, service delivery data, and essential systems from local network.
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-lg p-6 border border-emerald-200">
-            <div className="text-3xl mb-3">🔒</div>
-            <h3 className="font-bold text-emerald-900 mb-2">Privacy Protection</h3>
+          <div className="bg-gradient-to-br from-sage-50 to-picc-ochre-50 rounded-lg p-6 border border-sage-200">
+            <div className="mb-3">
+              <Lock className="h-8 w-8 text-sage-600" />
+            </div>
+            <h3 className="font-bold text-sage-900 mb-2">Privacy Protection</h3>
             <p className="text-sm text-gray-700">
               Community members' personal information, health records, and sensitive data protected
               by physical isolation rather than just software permissions.
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-6 border border-purple-200">
-            <div className="text-3xl mb-3">💰</div>
-            <h3 className="font-bold text-purple-900 mb-2">Cost Savings</h3>
+          <div className="bg-gradient-to-br from-warm-100 to-warm-50 rounded-lg p-6 border border-warm-200">
+            <div className="mb-3">
+              <DollarSign className="h-8 w-8 text-picc-ochre" />
+            </div>
+            <h3 className="font-bold text-picc-earth-600 mb-2">Cost Savings</h3>
             <p className="text-sm text-gray-700">
               Reduces ongoing cloud hosting costs. One-time hardware investment replaces recurring
               monthly fees to external platforms.
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg p-6 border border-amber-200">
-            <div className="text-3xl mb-3">📚</div>
-            <h3 className="font-bold text-amber-900 mb-2">Knowledge Preservation</h3>
+          <div className="bg-gradient-to-br from-picc-ochre-50 to-orange-50 rounded-lg p-6 border border-picc-ochre-200">
+            <div className="mb-3">
+              <BespokeIcon name="knowledge" size={32} />
+            </div>
+            <h3 className="font-bold text-picc-earth mb-2">Knowledge Preservation</h3>
             <p className="text-sm text-gray-700">
               Cultural knowledge, elder recordings, and traditional practices stored locally under
               community control, ensuring they're never lost or inaccessible.
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-rose-50 to-pink-50 rounded-lg p-6 border border-rose-200">
-            <div className="text-3xl mb-3">⚡</div>
-            <h3 className="font-bold text-rose-900 mb-2">Fast Access</h3>
+          <div className="bg-gradient-to-br from-warm-50 to-warm-50 rounded-lg p-6 border border-picc-red-200">
+            <div className="mb-3">
+              <Zap className="h-8 w-8 text-picc-ochre" />
+            </div>
+            <h3 className="font-bold text-picc-earth mb-2">Fast Access</h3>
             <p className="text-sm text-gray-700">
               Gigabit local network provides much faster access to photos, videos, and large files
               than internet connections, improving user experience.
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-lg p-6 border border-indigo-200">
-            <div className="text-3xl mb-3">🎓</div>
-            <h3 className="font-bold text-indigo-900 mb-2">Skills Development</h3>
+          <div className="bg-gradient-to-br from-warm-50 to-warm-100 rounded-lg p-6 border border-warm-200">
+            <div className="mb-3">
+              <GraduationCap className="h-8 w-8 text-picc-ochre" />
+            </div>
+            <h3 className="font-bold text-picc-earth mb-2">Skills Development</h3>
             <p className="text-sm text-gray-700">
               Training community members in server administration, networking, and data management
               builds valuable technical skills and local capacity.
@@ -332,15 +345,15 @@ export default function LocalServerPage() {
       </div>
 
       {/* Implementation Roadmap */}
-      <div className="bg-gradient-to-r from-blue-50 to-emerald-50 border border-blue-200 rounded-lg p-8 mb-8">
+      <div className="bg-gradient-to-r from-warm-50 to-sage-50 border border-warm-200 rounded-lg p-8 mb-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Implementation Roadmap</h2>
         <div className="space-y-4">
           <div className="flex gap-4">
-            <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center border-2 border-blue-400">
-              <span className="text-blue-700 font-bold text-sm">1</span>
+            <div className="flex-shrink-0 w-8 h-8 bg-warm-100 rounded-full flex items-center justify-center border-2 border-picc-red-300">
+              <span className="text-picc-red font-bold text-sm">1</span>
             </div>
             <div>
-              <h3 className="font-bold text-blue-900 mb-1">Hardware Procurement (Month 1-2)</h3>
+              <h3 className="font-bold text-picc-earth mb-1">Hardware Procurement (Month 1-2)</h3>
               <p className="text-sm text-gray-700">
                 Purchase server hardware, storage drives, networking equipment, and uninterruptible
                 power supply (UPS) for protection against outages.
@@ -349,11 +362,11 @@ export default function LocalServerPage() {
           </div>
 
           <div className="flex gap-4">
-            <div className="flex-shrink-0 w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center border-2 border-emerald-400">
-              <span className="text-emerald-700 font-bold text-sm">2</span>
+            <div className="flex-shrink-0 w-8 h-8 bg-sage-100 rounded-full flex items-center justify-center border-2 border-sage-400">
+              <span className="text-sage-700 font-bold text-sm">2</span>
             </div>
             <div>
-              <h3 className="font-bold text-emerald-900 mb-1">Installation & Configuration (Month 2-3)</h3>
+              <h3 className="font-bold text-sage-900 mb-1">Installation & Configuration (Month 2-3)</h3>
               <p className="text-sm text-gray-700">
                 Set up server in secure location, install operating system and database software,
                 configure network access and security protocols.
@@ -362,11 +375,11 @@ export default function LocalServerPage() {
           </div>
 
           <div className="flex gap-4">
-            <div className="flex-shrink-0 w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center border-2 border-purple-400">
-              <span className="text-purple-700 font-bold text-sm">3</span>
+            <div className="flex-shrink-0 w-8 h-8 bg-warm-100 rounded-full flex items-center justify-center border-2 border-picc-ochre-300">
+              <span className="text-picc-ochre-700 font-bold text-sm">3</span>
             </div>
             <div>
-              <h3 className="font-bold text-purple-900 mb-1">Data Migration (Month 3-4)</h3>
+              <h3 className="font-bold text-picc-earth-600 mb-1">Data Migration (Month 3-4)</h3>
               <p className="text-sm text-gray-700">
                 Migrate existing data from cloud platforms to local server, verify data integrity,
                 set up synchronization with cloud backup.
@@ -375,11 +388,11 @@ export default function LocalServerPage() {
           </div>
 
           <div className="flex gap-4">
-            <div className="flex-shrink-0 w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center border-2 border-amber-400">
-              <span className="text-amber-700 font-bold text-sm">4</span>
+            <div className="flex-shrink-0 w-8 h-8 bg-picc-ochre-100 rounded-full flex items-center justify-center border-2 border-picc-ochre-300">
+              <span className="text-picc-ochre font-bold text-sm">4</span>
             </div>
             <div>
-              <h3 className="font-bold text-amber-900 mb-1">Training & Handover (Month 4-5)</h3>
+              <h3 className="font-bold text-picc-earth mb-1">Training & Handover (Month 4-5)</h3>
               <p className="text-sm text-gray-700">
                 Train PICC IT staff in server management, backup procedures, troubleshooting, and
                 security protocols. Establish ongoing maintenance schedule.
@@ -393,10 +406,10 @@ export default function LocalServerPage() {
       <div className="grid md:grid-cols-3 gap-4">
         <Link
           href="/wiki/culture"
-          className="block p-6 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-lg hover:shadow-md transition-all group"
+          className="block p-6 bg-gradient-to-r from-sage-50 to-picc-ochre-50 border border-sage-200 rounded-lg hover:shadow-md transition-all group"
         >
-          <Shield className="h-8 w-8 text-emerald-600 mb-2" />
-          <h3 className="font-bold text-emerald-900 mb-2 group-hover:text-emerald-700">
+          <Shield className="h-8 w-8 text-sage-600 mb-2" />
+          <h3 className="font-bold text-sage-900 mb-2 group-hover:text-sage-700">
             Culture & Language
           </h3>
           <p className="text-sm text-gray-700">
@@ -405,10 +418,10 @@ export default function LocalServerPage() {
         </Link>
         <Link
           href="/wiki/services"
-          className="block p-6 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg hover:shadow-md transition-all group"
+          className="block p-6 bg-gradient-to-r from-warm-50 to-warm-100 border border-warm-200 rounded-lg hover:shadow-md transition-all group"
         >
-          <Heart className="h-8 w-8 text-blue-600 mb-2" />
-          <h3 className="font-bold text-blue-900 mb-2 group-hover:text-blue-700">
+          <Heart className="h-8 w-8 text-picc-red mb-2" />
+          <h3 className="font-bold text-picc-earth mb-2 group-hover:text-picc-red">
             Services & Programs
           </h3>
           <p className="text-sm text-gray-700">
@@ -417,10 +430,10 @@ export default function LocalServerPage() {
         </Link>
         <Link
           href="/wiki/innovation"
-          className="block p-6 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg hover:shadow-md transition-all group"
+          className="block p-6 bg-gradient-to-r from-picc-ochre-50 to-orange-50 border border-picc-ochre-200 rounded-lg hover:shadow-md transition-all group"
         >
-          <Lightbulb className="h-8 w-8 text-amber-600 mb-2" />
-          <h3 className="font-bold text-amber-900 mb-2 group-hover:text-amber-700">
+          <Lightbulb className="h-8 w-8 text-picc-ochre mb-2" />
+          <h3 className="font-bold text-picc-earth mb-2 group-hover:text-picc-ochre">
             All Innovation Projects
           </h3>
           <p className="text-sm text-gray-700">

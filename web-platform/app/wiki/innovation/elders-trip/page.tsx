@@ -2,7 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Users, MapPin, BookOpen, Camera, Heart, Lightbulb, Award, Globe } from 'lucide-react';
+import { Users, MapPin, BookOpen, Camera, Heart, Lightbulb, Award, Globe, Video, Map } from 'lucide-react';
+import { BespokeIcon } from '@/components/ui/BespokeIcon';
 import Breadcrumbs from '@/components/wiki/Breadcrumbs';
 
 export default function EldersTripPage() {
@@ -19,7 +20,7 @@ export default function EldersTripPage() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-4">
-          <Users className="h-10 w-10 text-blue-600" />
+          <Users className="h-10 w-10 text-picc-red" />
           <h1 className="text-4xl font-bold text-gray-900">
             Elders Trip to Hull River
           </h1>
@@ -28,22 +29,22 @@ export default function EldersTripPage() {
           Recording traditional knowledge through return journeys to traditional country
         </p>
         <div className="flex flex-wrap gap-3">
-          <span className="px-4 py-2 bg-amber-100 text-amber-800 rounded-lg border border-amber-300 font-medium">
+          <span className="px-4 py-2 bg-picc-ochre-100 text-picc-earth rounded-lg border border-picc-ochre-300 font-medium">
             Status: Planning
           </span>
-          <span className="px-4 py-2 bg-blue-100 text-blue-800 rounded-lg border border-blue-300 font-medium">
+          <span className="px-4 py-2 bg-warm-100 text-picc-earth rounded-lg border border-picc-red-300 font-medium">
             Year Started: 2024
           </span>
-          <span className="px-4 py-2 bg-emerald-100 text-emerald-800 rounded-lg border border-emerald-300 font-medium">
+          <span className="px-4 py-2 bg-sage-100 text-emerald-800 rounded-lg border border-sage-300 font-medium">
             Impact: Cultural Preservation & Native Title
           </span>
         </div>
       </div>
 
       {/* Vision Statement */}
-      <div className="bg-gradient-to-r from-blue-50 to-teal-50 border border-blue-200 rounded-lg p-8 mb-8">
+      <div className="bg-gradient-to-r from-warm-50 to-picc-ochre-50 border border-warm-200 rounded-lg p-8 mb-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <Globe className="h-6 w-6 text-blue-600" />
+          <Globe className="h-6 w-6 text-picc-red" />
           Vision
         </h2>
         <p className="text-gray-700 text-lg mb-4">
@@ -60,13 +61,13 @@ export default function EldersTripPage() {
 
       {/* Key Objectives */}
       <div className="bg-white rounded-lg border border-stone-300 shadow-sm overflow-hidden mb-8">
-        <div className="bg-gradient-to-r from-stone-100 to-blue-50 border-b border-stone-200 px-6 py-4">
+        <div className="bg-gradient-to-r from-stone-100 to-warm-50 border-b border-stone-200 px-6 py-4">
           <h2 className="text-2xl font-bold text-gray-900">Key Objectives</h2>
         </div>
         <div className="p-6">
           <div className="grid md:grid-cols-2 gap-6">
             <div className="flex gap-4">
-              <BookOpen className="h-6 w-6 text-blue-600 flex-shrink-0 mt-1" />
+              <BookOpen className="h-6 w-6 text-picc-red flex-shrink-0 mt-1" />
               <div>
                 <h3 className="font-bold text-gray-900 mb-2">Knowledge Preservation</h3>
                 <p className="text-sm text-gray-600">
@@ -77,7 +78,7 @@ export default function EldersTripPage() {
               </div>
             </div>
             <div className="flex gap-4">
-              <Award className="h-6 w-6 text-emerald-600 flex-shrink-0 mt-1" />
+              <Award className="h-6 w-6 text-sage-600 flex-shrink-0 mt-1" />
               <div>
                 <h3 className="font-bold text-gray-900 mb-2">Native Title Evidence</h3>
                 <p className="text-sm text-gray-600">
@@ -88,7 +89,7 @@ export default function EldersTripPage() {
               </div>
             </div>
             <div className="flex gap-4">
-              <Users className="h-6 w-6 text-purple-600 flex-shrink-0 mt-1" />
+              <Users className="h-6 w-6 text-picc-ochre flex-shrink-0 mt-1" />
               <div>
                 <h3 className="font-bold text-gray-900 mb-2">Intergenerational Learning</h3>
                 <p className="text-sm text-gray-600">
@@ -98,7 +99,7 @@ export default function EldersTripPage() {
               </div>
             </div>
             <div className="flex gap-4">
-              <Heart className="h-6 w-6 text-rose-600 flex-shrink-0 mt-1" />
+              <Heart className="h-6 w-6 text-picc-red flex-shrink-0 mt-1" />
               <div>
                 <h3 className="font-bold text-gray-900 mb-2">Elder Wellbeing</h3>
                 <p className="text-sm text-gray-600">
@@ -114,36 +115,48 @@ export default function EldersTripPage() {
       {/* Innovation Elements */}
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <Lightbulb className="h-6 w-6 text-amber-600" />
+          <Lightbulb className="h-6 w-6 text-picc-ochre" />
           What Makes This Innovative
         </h2>
         <div className="space-y-4">
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-6">
-            <h3 className="font-bold text-amber-900 mb-2">🎥 Multi-Media Documentation</h3>
+          <div className="bg-picc-ochre-50 border border-picc-ochre-200 rounded-lg p-6">
+            <h3 className="font-bold text-picc-earth mb-2 flex items-center gap-2">
+              <Video className="h-5 w-5 inline" />
+              Multi-Media Documentation
+            </h3>
             <p className="text-gray-700 text-sm">
               Using professional-grade recording equipment (4K video, spatial audio, GPS mapping)
               to create archival-quality records that meet both cultural and legal evidentiary standards.
               All recordings managed under strict cultural protocols with elder control over access and use.
             </p>
           </div>
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-            <h3 className="font-bold text-blue-900 mb-2">🗺️ Digital Mapping Integration</h3>
+          <div className="bg-warm-50 border border-warm-200 rounded-lg p-6">
+            <h3 className="font-bold text-picc-earth mb-2 flex items-center gap-2">
+              <Map className="h-5 w-5 inline" />
+              Digital Mapping Integration
+            </h3>
             <p className="text-gray-700 text-sm">
               GPS-tagged traditional place names and cultural sites, integrated into GIS systems
               for native title purposes while maintaining cultural sensitivity. Community controls
               what information is public vs. restricted.
             </p>
           </div>
-          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-6">
-            <h3 className="font-bold text-emerald-900 mb-2">📚 Living Knowledge Base</h3>
+          <div className="bg-sage-50 border border-sage-200 rounded-lg p-6">
+            <h3 className="font-bold text-sage-900 mb-2 flex items-center gap-2">
+              <BespokeIcon name="knowledge" size={20} className="inline" />
+              Living Knowledge Base
+            </h3>
             <p className="text-gray-700 text-sm">
               Recordings stored in community-controlled digital infrastructure (Palm Island Local Server),
               not external platforms. Ensures data sovereignty and cultural safety while enabling future
               access for education, research, and legal purposes.
             </p>
           </div>
-          <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
-            <h3 className="font-bold text-purple-900 mb-2">🤝 Collaborative Methodology</h3>
+          <div className="bg-warm-100 border border-warm-200 rounded-lg p-6">
+            <h3 className="font-bold text-picc-earth-600 mb-2 flex items-center gap-2">
+              <Users className="h-5 w-5 inline" />
+              Collaborative Methodology
+            </h3>
             <p className="text-gray-700 text-sm">
               Co-designed with elders to ensure cultural protocols are followed. Elders decide what
               is recorded, who can access recordings, and how knowledge is shared. This isn't extractive
@@ -155,14 +168,14 @@ export default function EldersTripPage() {
 
       {/* Implementation Plan */}
       <div className="bg-white rounded-lg border border-stone-300 shadow-sm overflow-hidden mb-8">
-        <div className="bg-gradient-to-r from-stone-100 to-amber-50 border-b border-stone-200 px-6 py-4">
+        <div className="bg-gradient-to-r from-stone-100 to-picc-ochre-50 border-b border-stone-200 px-6 py-4">
           <h2 className="text-2xl font-bold text-gray-900">Implementation Plan</h2>
         </div>
         <div className="p-6">
           <div className="space-y-6">
             <div className="flex gap-4">
-              <div className="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center border border-blue-300">
-                <span className="text-blue-700 font-bold">1</span>
+              <div className="flex-shrink-0 w-12 h-12 bg-warm-100 rounded-lg flex items-center justify-center border border-picc-red-300">
+                <span className="text-picc-red font-bold">1</span>
               </div>
               <div className="flex-1">
                 <h3 className="font-bold text-gray-900 mb-1">Elder Consultation (Current Phase)</h3>
@@ -174,8 +187,8 @@ export default function EldersTripPage() {
               </div>
             </div>
             <div className="flex gap-4">
-              <div className="flex-shrink-0 w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center border border-amber-300">
-                <span className="text-amber-700 font-bold">2</span>
+              <div className="flex-shrink-0 w-12 h-12 bg-picc-ochre-100 rounded-lg flex items-center justify-center border border-picc-ochre-300">
+                <span className="text-picc-ochre font-bold">2</span>
               </div>
               <div className="flex-1">
                 <h3 className="font-bold text-gray-900 mb-1">Equipment & Training</h3>
@@ -187,8 +200,8 @@ export default function EldersTripPage() {
               </div>
             </div>
             <div className="flex gap-4">
-              <div className="flex-shrink-0 w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center border border-emerald-300">
-                <span className="text-emerald-700 font-bold">3</span>
+              <div className="flex-shrink-0 w-12 h-12 bg-sage-100 rounded-lg flex items-center justify-center border border-sage-300">
+                <span className="text-sage-700 font-bold">3</span>
               </div>
               <div className="flex-1">
                 <h3 className="font-bold text-gray-900 mb-1">Pilot Trip</h3>
@@ -199,8 +212,8 @@ export default function EldersTripPage() {
               </div>
             </div>
             <div className="flex gap-4">
-              <div className="flex-shrink-0 w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center border border-purple-300">
-                <span className="text-purple-700 font-bold">4</span>
+              <div className="flex-shrink-0 w-12 h-12 bg-warm-100 rounded-lg flex items-center justify-center border border-picc-ochre-300">
+                <span className="text-picc-ochre-700 font-bold">4</span>
               </div>
               <div className="flex-1">
                 <h3 className="font-bold text-gray-900 mb-1">Ongoing Program</h3>
@@ -215,41 +228,41 @@ export default function EldersTripPage() {
       </div>
 
       {/* Expected Outcomes */}
-      <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-lg p-8 mb-8">
+      <div className="bg-gradient-to-r from-sage-50 to-picc-ochre-50 border border-sage-200 rounded-lg p-8 mb-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Expected Outcomes</h2>
         <div className="grid md:grid-cols-2 gap-4 text-sm">
           <div className="flex items-start gap-2">
-            <span className="text-emerald-600 text-lg">✓</span>
+            <span className="text-sage-600 text-lg">✓</span>
             <p className="text-gray-700">
               <strong>100+ hours</strong> of elder knowledge recordings archived with cultural protocols
             </p>
           </div>
           <div className="flex items-start gap-2">
-            <span className="text-emerald-600 text-lg">✓</span>
+            <span className="text-sage-600 text-lg">✓</span>
             <p className="text-gray-700">
               <strong>200+ traditional place names</strong> documented and GPS-mapped for native title
             </p>
           </div>
           <div className="flex items-start gap-2">
-            <span className="text-emerald-600 text-lg">✓</span>
+            <span className="text-sage-600 text-lg">✓</span>
             <p className="text-gray-700">
               <strong>20+ young people</strong> trained in cultural knowledge and documentation
             </p>
           </div>
           <div className="flex items-start gap-2">
-            <span className="text-emerald-600 text-lg">✓</span>
+            <span className="text-sage-600 text-lg">✓</span>
             <p className="text-gray-700">
               <strong>Strengthened native title</strong> evidence through documented continuous connection
             </p>
           </div>
           <div className="flex items-start gap-2">
-            <span className="text-emerald-600 text-lg">✓</span>
+            <span className="text-sage-600 text-lg">✓</span>
             <p className="text-gray-700">
               <strong>Educational resources</strong> for schools, cultural programs, and community
             </p>
           </div>
           <div className="flex items-start gap-2">
-            <span className="text-emerald-600 text-lg">✓</span>
+            <span className="text-sage-600 text-lg">✓</span>
             <p className="text-gray-700">
               <strong>Replicable model</strong> for other Indigenous communities to preserve knowledge
             </p>
@@ -261,10 +274,10 @@ export default function EldersTripPage() {
       <div className="grid md:grid-cols-3 gap-4">
         <Link
           href="/wiki/culture"
-          className="block p-6 bg-gradient-to-r from-blue-50 to-teal-50 border border-blue-200 rounded-lg hover:shadow-md transition-all group"
+          className="block p-6 bg-gradient-to-r from-warm-50 to-picc-ochre-50 border border-warm-200 rounded-lg hover:shadow-md transition-all group"
         >
-          <Globe className="h-8 w-8 text-blue-600 mb-2" />
-          <h3 className="font-bold text-blue-900 mb-2 group-hover:text-blue-700">
+          <Globe className="h-8 w-8 text-picc-red mb-2" />
+          <h3 className="font-bold text-picc-earth mb-2 group-hover:text-picc-red">
             Culture & Language
           </h3>
           <p className="text-sm text-gray-700">
@@ -273,10 +286,10 @@ export default function EldersTripPage() {
         </Link>
         <Link
           href="/wiki/people?filter=elder"
-          className="block p-6 bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg hover:shadow-md transition-all group"
+          className="block p-6 bg-gradient-to-r from-warm-100 to-warm-50 border border-warm-200 rounded-lg hover:shadow-md transition-all group"
         >
-          <Users className="h-8 w-8 text-purple-600 mb-2" />
-          <h3 className="font-bold text-purple-900 mb-2 group-hover:text-purple-700">
+          <Users className="h-8 w-8 text-picc-ochre mb-2" />
+          <h3 className="font-bold text-picc-earth-600 mb-2 group-hover:text-picc-ochre-700">
             Meet Our Elders
           </h3>
           <p className="text-sm text-gray-700">
@@ -285,10 +298,10 @@ export default function EldersTripPage() {
         </Link>
         <Link
           href="/wiki/innovation"
-          className="block p-6 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg hover:shadow-md transition-all group"
+          className="block p-6 bg-gradient-to-r from-picc-ochre-50 to-orange-50 border border-picc-ochre-200 rounded-lg hover:shadow-md transition-all group"
         >
-          <Lightbulb className="h-8 w-8 text-amber-600 mb-2" />
-          <h3 className="font-bold text-amber-900 mb-2 group-hover:text-amber-700">
+          <Lightbulb className="h-8 w-8 text-picc-ochre mb-2" />
+          <h3 className="font-bold text-picc-earth mb-2 group-hover:text-picc-ochre">
             All Innovation Projects
           </h3>
           <p className="text-sm text-gray-700">

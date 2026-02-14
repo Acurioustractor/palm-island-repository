@@ -138,7 +138,7 @@ export default function StoryCreatorPanel({ onStoryCreated, onClose }: StoryCrea
       {/* Header */}
       <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between z-10">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-purple-600" />
+          <Sparkles className="w-5 h-5 text-picc-ochre" />
           <h2 className="text-lg font-semibold text-gray-900">AI Story Creator</h2>
         </div>
         {onClose && (
@@ -169,7 +169,7 @@ export default function StoryCreatorPanel({ onStoryCreated, onClose }: StoryCrea
                   value={storytellerName}
                   onChange={e => setStorytellerName(e.target.value)}
                   placeholder="e.g., Uncle Allan, Sarah Jones"
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-400 focus:outline-none"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-picc-ochre-300 focus:outline-none"
                 />
               </div>
               <div className="flex items-end">
@@ -178,7 +178,7 @@ export default function StoryCreatorPanel({ onStoryCreated, onClose }: StoryCrea
                     type="checkbox"
                     checked={isElder}
                     onChange={e => setIsElder(e.target.checked)}
-                    className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                    className="rounded border-gray-300 text-picc-ochre focus:ring-picc-ochre-300"
                   />
                   <span className="text-sm text-gray-700">This person is an Elder</span>
                 </label>
@@ -212,7 +212,7 @@ export default function StoryCreatorPanel({ onStoryCreated, onClose }: StoryCrea
                   onChange={e => setTranscript(e.target.value)}
                   placeholder="Paste the interview transcript, raw notes, or summary here. The AI will extract a story from whatever you provide..."
                   rows={10}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-400 focus:outline-none resize-y"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-picc-ochre-300 focus:outline-none resize-y"
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Tip: Include direct quotes for better results. The AI will preserve the storyteller&apos;s voice.
@@ -244,7 +244,7 @@ export default function StoryCreatorPanel({ onStoryCreated, onClose }: StoryCrea
             <button
               onClick={handleGenerate}
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 disabled:opacity-50 transition-colors"
+              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-picc-ochre text-white rounded-xl font-semibold hover:bg-picc-ochre-600 disabled:opacity-50 transition-colors"
             >
               {loading ? (
                 <>
@@ -276,7 +276,7 @@ function TabButton({ active, onClick, icon, label }: {
       onClick={onClick}
       className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
         active
-          ? 'bg-purple-50 text-purple-700 border-b-2 border-purple-600'
+          ? 'bg-warm-50 text-picc-ochre border-b-2 border-picc-ochre'
           : 'text-gray-500 hover:text-gray-700'
       }`}
     >
@@ -304,7 +304,7 @@ function Field({ label, value, onChange, placeholder, required }: {
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-400 focus:outline-none"
+        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-picc-ochre-300 focus:outline-none"
       />
     </div>
   );
@@ -321,7 +321,7 @@ function StoryPreview({ story, onSave, saving, onBack, error }: {
     <div className="space-y-4">
       <button
         onClick={onBack}
-        className="text-sm text-purple-600 hover:text-purple-700 font-medium"
+        className="text-sm text-picc-ochre hover:text-picc-ochre-600 font-medium"
       >
         &larr; Back to editor
       </button>
@@ -350,7 +350,7 @@ function StoryPreview({ story, onSave, saving, onBack, error }: {
           <span className="text-gray-500">Sensitivity:</span>{' '}
           <span className={`font-medium ${
             story.cultural_sensitivity_level === 'high' ? 'text-red-600' :
-            story.cultural_sensitivity_level === 'medium' ? 'text-amber-600' : 'text-green-600'
+            story.cultural_sensitivity_level === 'medium' ? 'text-picc-ochre' : 'text-sage-600'
           }`}>
             {story.cultural_sensitivity_level}
           </span>
@@ -363,15 +363,15 @@ function StoryPreview({ story, onSave, saving, onBack, error }: {
 
       {/* Cultural Flags */}
       {(story.contains_traditional_knowledge || story.elder_approval_needed) && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 space-y-1">
+        <div className="bg-picc-ochre-50 border border-picc-ochre-200 rounded-lg p-3 space-y-1">
           {story.contains_traditional_knowledge && (
-            <p className="text-sm text-amber-800 flex items-center gap-2">
+            <p className="text-sm text-picc-ochre flex items-center gap-2">
               <AlertTriangle className="w-4 h-4" />
               Contains traditional knowledge - review required
             </p>
           )}
           {story.elder_approval_needed && (
-            <p className="text-sm text-amber-800 flex items-center gap-2">
+            <p className="text-sm text-picc-ochre flex items-center gap-2">
               <AlertTriangle className="w-4 h-4" />
               Elder approval required before publishing
             </p>
@@ -383,7 +383,7 @@ function StoryPreview({ story, onSave, saving, onBack, error }: {
       {story.suggested_tags?.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {story.suggested_tags.map(tag => (
-            <span key={tag} className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+            <span key={tag} className="px-2 py-0.5 bg-warm-100 text-picc-ochre rounded-full text-xs font-medium">
               {tag}
             </span>
           ))}
@@ -395,7 +395,7 @@ function StoryPreview({ story, onSave, saving, onBack, error }: {
         <div className="space-y-2">
           <h4 className="text-sm font-medium text-gray-700">Key Quotes:</h4>
           {story.key_quotes.map((q, i) => (
-            <blockquote key={i} className="text-sm italic text-gray-600 border-l-2 border-purple-300 pl-3">
+            <blockquote key={i} className="text-sm italic text-gray-600 border-l-2 border-picc-ochre-300 pl-3">
               &ldquo;{q}&rdquo;
             </blockquote>
           ))}
@@ -413,7 +413,7 @@ function StoryPreview({ story, onSave, saving, onBack, error }: {
         <button
           onClick={onSave}
           disabled={saving}
-          className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 disabled:opacity-50 transition-colors"
+          className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-sage-600 text-white rounded-xl font-semibold hover:bg-sage-700 disabled:opacity-50 transition-colors"
         >
           {saving ? (
             <Loader2 className="w-5 h-5 animate-spin" />

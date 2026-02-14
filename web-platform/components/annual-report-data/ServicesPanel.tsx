@@ -107,14 +107,14 @@ export default function ServicesPanel({
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="Search services..."
-            className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-400 focus:outline-none"
+            className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-picc-ochre-300 focus:outline-none"
           />
         </div>
 
         <select
           value={categoryFilter}
           onChange={e => setCategoryFilter(e.target.value)}
-          className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-400 focus:outline-none"
+          className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-picc-ochre-300 focus:outline-none"
         >
           <option value="all">All Categories</option>
           {categories.map(cat => (

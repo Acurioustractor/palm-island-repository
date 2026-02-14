@@ -22,15 +22,15 @@ interface CulturalCalendarProps {
 }
 
 const EVENT_TYPE_COLORS: Record<string, string> = {
-  community: 'bg-blue-500',
-  cultural: 'bg-purple-500',
+  community: 'bg-picc-red',
+  cultural: 'bg-picc-ochre',
   national: 'bg-yellow-500',
-  local: 'bg-green-500',
+  local: 'bg-sage-500',
   health: 'bg-red-500',
-  education: 'bg-indigo-500',
+  education: 'bg-picc-ochre',
   sports: 'bg-orange-500',
   memorial: 'bg-gray-500',
-  celebration: 'bg-pink-500'
+  celebration: 'bg-warm-500'
 };
 
 export default function CulturalCalendar({
@@ -109,7 +109,7 @@ export default function CulturalCalendar({
     return (
       <div className="bg-white rounded-xl border border-gray-200 p-4">
         <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-          <Calendar className="w-5 h-5 text-purple-600" />
+          <Calendar className="w-5 h-5 text-picc-ochre" />
           Upcoming Events
         </h3>
         <div className="space-y-3">
@@ -138,7 +138,7 @@ export default function CulturalCalendar({
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-4">
+      <div className="bg-gradient-to-r from-picc-ochre to-picc-ochre p-4">
         <div className="flex items-center justify-between">
           <button
             onClick={prevMonth}
@@ -188,12 +188,12 @@ export default function CulturalCalendar({
                 onClick={() => setSelectedDate(isSelected ? null : dateStr)}
                 className={`
                   aspect-square p-1 rounded-lg transition-all
-                  ${isToday ? 'ring-2 ring-purple-500' : ''}
-                  ${isSelected ? 'bg-purple-100' : 'hover:bg-gray-100'}
+                  ${isToday ? 'ring-2 ring-picc-ochre' : ''}
+                  ${isSelected ? 'bg-warm-100' : 'hover:bg-gray-100'}
                 `}
               >
                 <div className="h-full flex flex-col">
-                  <span className={`text-sm ${isToday ? 'font-bold text-purple-600' : 'text-gray-700'}`}>
+                  <span className={`text-sm ${isToday ? 'font-bold text-picc-ochre' : 'text-gray-700'}`}>
                     {day}
                   </span>
                   {dayEvents.length > 0 && (
@@ -240,7 +240,7 @@ export default function CulturalCalendar({
                       </p>
                     )}
                     {event.culturalSignificance && (
-                      <div className="mt-2 p-2 bg-purple-50 rounded text-xs text-purple-700">
+                      <div className="mt-2 p-2 bg-warm-100 rounded text-xs text-picc-ochre">
                         <Star className="w-3 h-3 inline mr-1" />
                         {event.culturalSignificance}
                       </div>

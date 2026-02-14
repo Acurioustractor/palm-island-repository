@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { FileText, Printer, CheckCircle, Circle, ArrowRight } from 'lucide-react';
+import { FileText, CheckCircle, Circle, ArrowRight } from 'lucide-react';
+import GeneratePdfButton from './GeneratePdfButton';
 
 type TabId = 'services' | 'financials' | 'highlights' | 'preview' | 'stories' | 'board' | 'photos' | 'projects' | 'countdown' | 'overview';
 
@@ -17,6 +18,8 @@ interface PreviewPanelProps {
   photoGaps: string[];
   projectsFeaturedCount: number;
   onNavigateTab: (tab: string) => void;
+  reportId?: string | null;
+  readinessPercent?: number;
 }
 
 export default function PreviewPanel({
@@ -31,6 +34,8 @@ export default function PreviewPanel({
   photoGaps,
   projectsFeaturedCount,
   onNavigateTab,
+  reportId,
+  readinessPercent = 0,
 }: PreviewPanelProps) {
   const items: { label: string; done: boolean; detail: string; targetTab: TabId }[] = [
     {
@@ -116,7 +121,7 @@ export default function PreviewPanel({
               <circle
                 cx="32" cy="32" r={radius}
                 fill="none"
-                stroke={completenessScore === 100 ? '#10b981' : '#8b5cf6'}
+                stroke={completenessScore === 100 ? '#5B7B5E' : '#C8922A'}
                 strokeWidth="4"
                 strokeLinecap="round"
                 strokeDasharray={circumference}
@@ -125,7 +130,7 @@ export default function PreviewPanel({
               />
             </svg>
             <span className={`absolute inset-0 flex items-center justify-center text-xs font-bold ${
-              completenessScore === 100 ? 'text-emerald-600' : 'text-gray-700'
+              completenessScore === 100 ? 'text-sage-600' : 'text-gray-700'
             }`}>
               {completenessScore}%
             </span>
@@ -145,7 +150,7 @@ export default function PreviewPanel({
             >
               <div className="flex items-center gap-3">
                 {item.done ? (
-                  <CheckCircle className="w-5 h-5 text-emerald-500" />
+                  <CheckCircle className="w-5 h-5 text-sage-500" />
                 ) : (
                   <Circle className="w-5 h-5 text-gray-300" />
                 )}
@@ -168,34 +173,31 @@ export default function PreviewPanel({
         </div>
 
         {allDone && (
-          <div className="mt-4 flex items-center gap-2 text-emerald-700 bg-emerald-50 rounded-lg px-4 py-2">
+          <div className="mt-4 flex items-center gap-2 text-sage-700 bg-sage-50 rounded-lg px-4 py-2">
             <CheckCircle className="w-5 h-5" />
             <span className="text-sm font-medium">
-              All data entered — report is ready to preview
+              All data entered — report is ready to generate
             </span>
           </div>
         )}
       </div>
 
-      {/* Export links */}
+      {/* Export actions */}
       <div className="bg-gray-50 rounded-xl p-6">
         <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
           Preview &amp; Export
         </h3>
         <div className="flex flex-wrap gap-3">
+          <GeneratePdfButton
+            reportId={reportId || null}
+            readinessPercent={readinessPercent}
+          />
           <Link
             href="/annual-report/live"
-            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:border-purple-300 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:border-picc-ochre-300 transition-colors"
           >
             <FileText className="w-4 h-4" />
             Live Dashboard
-          </Link>
-          <Link
-            href="/annual-report/print"
-            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:border-purple-300 transition-colors"
-          >
-            <Printer className="w-4 h-4" />
-            Print Report
           </Link>
         </div>
       </div>

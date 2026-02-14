@@ -15,11 +15,11 @@ export default function TopicsPage() {
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <Breadcrumbs items={breadcrumbs} className="mb-6" />
 
-      <div className="text-center py-16 bg-white rounded-xl border border-amber-200 shadow-sm">
-        <Construction className="h-24 w-24 text-amber-600 mx-auto mb-6" />
+      <div className="text-center py-16 bg-white rounded-xl border border-picc-ochre-200 shadow-sm">
+        <Construction className="h-24 w-24 text-picc-ochre mx-auto mb-6" />
 
         <h1 className="text-4xl font-bold text-gray-900 mb-4 flex items-center justify-center gap-3">
-          <Globe className="h-10 w-10 text-amber-600" />
+          <Globe className="h-10 w-10 text-picc-ochre" />
           Topics
         </h1>
 
@@ -27,7 +27,7 @@ export default function TopicsPage() {
           Browse stories by topic and theme
         </p>
 
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 max-w-2xl mx-auto mb-8">
+        <div className="bg-picc-ochre-50 border border-picc-ochre-200 rounded-lg p-6 max-w-2xl mx-auto mb-8">
           <p className="text-gray-700 mb-4">
             This page is under construction. Topics will allow you to explore stories
             organized by themes like:
@@ -46,7 +46,7 @@ export default function TopicsPage() {
           <div className="flex flex-wrap gap-3 justify-center">
             <Link
               href="/wiki/categories"
-              className="px-6 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors font-semibold"
+              className="px-6 py-3 bg-picc-ochre text-white rounded-lg hover:bg-picc-ochre transition-colors font-semibold"
             >
               Browse by Category
             </Link>

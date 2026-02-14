@@ -2,7 +2,7 @@ import { getRecentStories, getFeaturedStories, getElderStories } from '@/lib/sto
 import { StoryCard, StoryGrid } from '@/components/stories/StoryCard';
 import { getPageMedia } from '@/lib/media/utils';
 import Link from 'next/link';
-import { Plus, Sparkles, Shield } from 'lucide-react';
+import { ArrowRight, Shield } from 'lucide-react';
 
 export const revalidate = 300; // Revalidate every 5 minutes
 
@@ -18,101 +18,110 @@ export default async function StoriesPage() {
   const heroImage = heroMedia && heroMedia.length > 0 ? heroMedia[0].public_url : null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
+    <div className="min-h-screen bg-white">
+      {/* Editorial Hero */}
       <section
-        className="relative bg-white border-b border-gray-100 py-20"
+        className="relative py-24 md:py-32 lg:py-40"
         style={heroImage ? {
           backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.98)), url(${heroImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
-        } : undefined}
+        } : {
+          background: 'linear-gradient(135deg, #f8f6f4 0%, #ede8e3 50%, #f0ece8 100%)'
+        }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 text-gray-900">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <p className="text-sm font-medium tracking-[0.2em] uppercase text-gray-400 mb-5">
+            Manbarra & Bwgcolman Country
+          </p>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 tracking-[-0.02em] leading-[1.05] mb-6 max-w-3xl">
             Community Stories
           </h1>
-          <p className="text-xl md:text-2xl mb-8 text-gray-700 max-w-3xl mx-auto">
+          <p className="text-lg md:text-xl text-gray-500 max-w-2xl leading-relaxed mb-10">
             Every voice matters. Every story shapes our future.
           </p>
-          <p className="text-lg text-gray-600 italic mb-10">
-            Manbarra & Bwgcolman Country • Palm Island
-          </p>
-
-          <div className="flex justify-center gap-4 flex-wrap">
-            <Link
-              href="/share-voice"
-              className="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-800 transition-all"
-            >
-              <Plus className="w-5 h-5" />
-              Share Your Story
-            </Link>
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 border-2 border-gray-900 text-gray-900 px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-900 hover:text-white transition-all"
-            >
-              Back to Home
-            </Link>
-          </div>
+          <Link
+            href="/share-voice"
+            className="inline-flex items-center gap-3 px-7 py-3.5 bg-gray-900 text-white text-sm font-semibold rounded-full hover:bg-gray-800 hover:scale-[0.97] active:scale-95 transition-all duration-300 ease-elegant"
+          >
+            Share Your Story
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
       </section>
 
-      {/* Stats Bar */}
-      <section className="bg-white border-b border-gray-100 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            <div>
-              <div className="text-4xl font-bold text-gray-900">{recentStories.length}+</div>
-              <div className="text-sm text-gray-600 mt-1">Community Stories</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-purple-600">{elderStories.length}+</div>
-              <div className="text-sm text-gray-600 mt-1">Elder Wisdom</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-gray-900">100%</div>
-              <div className="text-sm text-gray-600 mt-1">Community Controlled</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-gray-900">∞</div>
-              <div className="text-sm text-gray-600 mt-1">Impact</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Featured Stories */}
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 pb-24">
+        {/* Featured Stories — Magazine grid: first large, rest smaller */}
         {featuredStories && featuredStories.length > 0 && (
-          <section className="mb-16">
-            <div className="flex items-center gap-3 mb-8">
-              <Sparkles className="w-8 h-8 text-picc-primary" />
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Featured Stories</h2>
+          <section className="mb-20">
+            <div className="mb-10">
+              <p className="text-sm font-medium tracking-[0.15em] uppercase text-picc-red mb-3">
+                Featured
+              </p>
+              <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">
+                Featured Stories
+              </h2>
             </div>
-            <StoryGrid columns={3}>
-              {featuredStories.map((story) => (
+            {featuredStories.length >= 3 ? (
+              <div className="grid md:grid-cols-2 gap-5 lg:gap-6">
+                <div className="md:row-span-2">
+                  <StoryCard
+                    story={featuredStories[0]}
+                    variant="featured"
+                    showExcerpt={true}
+                    showStorytellerInfo={true}
+                    showQuote={true}
+                    className="h-full"
+                  />
+                </div>
                 <StoryCard
-                  key={story.id}
-                  story={story}
+                  story={featuredStories[1]}
                   variant="featured"
                   showExcerpt={true}
                   showStorytellerInfo={true}
                   showQuote={true}
                 />
-              ))}
-            </StoryGrid>
+                <StoryCard
+                  story={featuredStories[2]}
+                  variant="featured"
+                  showExcerpt={true}
+                  showStorytellerInfo={true}
+                  showQuote={true}
+                />
+              </div>
+            ) : (
+              <StoryGrid columns={3}>
+                {featuredStories.map((story) => (
+                  <StoryCard
+                    key={story.id}
+                    story={story}
+                    variant="featured"
+                    showExcerpt={true}
+                    showStorytellerInfo={true}
+                    showQuote={true}
+                  />
+                ))}
+              </StoryGrid>
+            )}
           </section>
         )}
 
         {/* Elder Stories */}
         {elderStories && elderStories.length > 0 && (
-          <section className="mb-16">
-            <div className="flex items-center gap-3 mb-8">
-              <Shield className="w-8 h-8 text-purple-600" />
-              <div>
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Voices of Our Elders</h2>
-                <p className="text-lg text-gray-600 mt-2">Wisdom, knowledge, and guidance from community elders</p>
+          <section className="mb-20">
+            <div className="mb-10">
+              <div className="flex items-center gap-2.5 mb-3">
+                <Shield className="w-4 h-4 text-picc-ochre" />
+                <p className="text-sm font-medium tracking-[0.15em] uppercase text-picc-ochre">
+                  Elder Wisdom
+                </p>
               </div>
+              <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight mb-2">
+                Voices of Our Elders
+              </h2>
+              <p className="text-base text-gray-500 leading-relaxed">
+                Wisdom, knowledge, and guidance from community elders
+              </p>
             </div>
             <StoryGrid columns={3}>
               {elderStories.map((story) => (
@@ -132,9 +141,16 @@ export default async function StoriesPage() {
         {/* Recent Stories */}
         {recentStories && recentStories.length > 0 && (
           <section>
-            <div className="mb-8">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Recent Stories</h2>
-              <p className="text-lg text-gray-600">Latest voices from our community</p>
+            <div className="mb-10">
+              <p className="text-sm font-medium tracking-[0.15em] uppercase text-gray-400 mb-3">
+                Latest
+              </p>
+              <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight mb-2">
+                Recent Stories
+              </h2>
+              <p className="text-base text-gray-500 leading-relaxed">
+                Latest voices from our community
+              </p>
             </div>
             <StoryGrid columns={3}>
               {recentStories.map((story) => (
@@ -153,33 +169,35 @@ export default async function StoriesPage() {
 
         {/* No Stories Message */}
         {(!recentStories || recentStories.length === 0) && (!featuredStories || featuredStories.length === 0) && (
-          <div className="text-center py-20 bg-white rounded-2xl border border-gray-200">
-            <p className="text-2xl text-gray-600 mb-4">No stories available yet.</p>
+          <div className="text-center py-24">
+            <p className="text-xl text-gray-400 mb-6">No stories available yet.</p>
             <Link
               href="/share-voice"
-              className="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-800 transition-all"
+              className="inline-flex items-center gap-3 px-7 py-3.5 bg-gray-900 text-white text-sm font-semibold rounded-full hover:bg-gray-800 transition-all duration-300 ease-elegant"
             >
-              <Plus className="w-5 h-5" />
               Be the First to Share
+              <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         )}
       </div>
 
       {/* CTA Section */}
-      <section className="bg-gradient-to-r from-gray-900 to-gray-800 text-white py-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">Your Story Matters</h2>
-          <p className="text-xl mb-8 text-gray-300">
-            Whether it's a moment of pride, a lesson learned, or a vision for the future—
+      <section className="bg-gray-950 text-white py-20 md:py-24">
+        <div className="max-w-3xl mx-auto px-6 lg:px-8 text-center">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-[-0.02em] leading-tight mb-5">
+            Your Story Matters
+          </h2>
+          <p className="text-base md:text-lg text-gray-400 mb-10 leading-relaxed">
+            Whether it&apos;s a moment of pride, a lesson learned, or a vision for the future &mdash;
             your voice strengthens our community.
           </p>
           <Link
             href="/share-voice"
-            className="inline-flex items-center gap-2 bg-white text-gray-900 px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-100 transition-all"
+            className="inline-flex items-center gap-3 px-8 py-4 bg-white text-gray-900 rounded-full font-semibold hover:scale-[0.97] active:scale-95 transition-all duration-300 ease-elegant"
           >
-            <Plus className="w-5 h-5" />
-            Share Your Story Now
+            Share Your Story
+            <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </section>

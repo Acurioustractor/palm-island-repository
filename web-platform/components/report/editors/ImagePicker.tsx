@@ -222,7 +222,7 @@ export default function ImagePicker({
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-transparent"
                 placeholder={searchHint}
                 autoFocus
               />
@@ -233,7 +233,7 @@ export default function ImagePicker({
               className={`
                 flex items-center gap-2 px-4 py-2.5 rounded-lg border transition-colors
                 ${showFilters || activeFilterCount > 0
-                  ? 'bg-purple-50 border-purple-300 text-purple-700'
+                  ? 'bg-warm-100 border-picc-ochre-300 text-picc-ochre'
                   : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
                 }
               `}
@@ -241,7 +241,7 @@ export default function ImagePicker({
               <Filter className="w-4 h-4" />
               Filters
               {activeFilterCount > 0 && (
-                <span className="px-1.5 py-0.5 bg-purple-600 text-white text-xs rounded-full">
+                <span className="px-1.5 py-0.5 bg-picc-ochre text-white text-xs rounded-full">
                   {activeFilterCount}
                 </span>
               )}
@@ -261,7 +261,7 @@ export default function ImagePicker({
                   <select
                     value={personFilter}
                     onChange={(e) => setPersonFilter(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-picc-ochre focus:border-transparent"
                   >
                     <option value="all">All People</option>
                     {profiles.map((p) => (
@@ -281,7 +281,7 @@ export default function ImagePicker({
                   <select
                     value={serviceFilter}
                     onChange={(e) => setServiceFilter(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-picc-ochre focus:border-transparent"
                   >
                     <option value="all">All Services</option>
                     {services.map((s) => (
@@ -301,7 +301,7 @@ export default function ImagePicker({
                   <select
                     value={projectFilter}
                     onChange={(e) => setProjectFilter(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-picc-ochre focus:border-transparent"
                   >
                     <option value="all">All Projects</option>
                     {projects.map((p) => (
@@ -327,7 +327,7 @@ export default function ImagePicker({
                           setAnnualReportOnly(e.target.checked)
                           if (!e.target.checked) setFiscalYearFilter('all')
                         }}
-                        className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                        className="rounded border-gray-300 text-picc-ochre focus:ring-picc-ochre"
                       />
                       <span className="text-sm text-gray-700">AR Only</span>
                     </label>
@@ -335,7 +335,7 @@ export default function ImagePicker({
                       value={fiscalYearFilter}
                       onChange={(e) => setFiscalYearFilter(e.target.value)}
                       disabled={!annualReportOnly}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 disabled:bg-gray-100 disabled:text-gray-400"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-picc-ochre disabled:bg-gray-100 disabled:text-gray-400"
                     >
                       <option value="all">All Years</option>
                       {fiscalYearOptions.map((fy) => (
@@ -353,7 +353,7 @@ export default function ImagePicker({
                 <div className="flex justify-end">
                   <button
                     onClick={clearFilters}
-                    className="text-sm text-purple-600 hover:text-purple-700 font-medium"
+                    className="text-sm text-picc-ochre hover:text-picc-ochre font-medium"
                   >
                     Clear all filters
                   </button>
@@ -371,7 +371,7 @@ export default function ImagePicker({
 
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 text-purple-600 animate-spin" />
+              <Loader2 className="w-8 h-8 text-picc-ochre animate-spin" />
             </div>
           ) : results.length === 0 ? (
             <div className="text-center py-12 text-gray-500">
@@ -387,7 +387,7 @@ export default function ImagePicker({
                     onSelect(item)
                     onClose()
                   }}
-                  className="text-left rounded-xl border border-gray-200 overflow-hidden hover:border-purple-400 hover:shadow-md transition-all group"
+                  className="text-left rounded-xl border border-gray-200 overflow-hidden hover:border-picc-ochre-300 hover:shadow-md transition-all group"
                 >
                   {item.file_type === 'video' ? (
                     <div className="w-full h-32 bg-gray-100 flex items-center justify-center">

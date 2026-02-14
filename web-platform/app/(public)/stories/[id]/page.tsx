@@ -6,8 +6,11 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import {
   Calendar, User, MapPin, ArrowLeft, Share2, BookOpen,
-  Heart, MessageCircle, Eye
+  Heart, MessageCircle, Eye, Play
 } from 'lucide-react';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { ScrollReveal } from '@/components/story-scroll/ScrollReveal';
+import { getEmbedUrl, isDirectVideoFile, guessVideoMimeType } from '@/components/story-scroll/videoEmbed';
 import Breadcrumbs from '@/components/wiki/Breadcrumbs';
 import StoryInfobox from '@/components/wiki/StoryInfobox';
 import RelatedContent from '@/components/wiki/RelatedContent';
@@ -151,8 +154,8 @@ export default function StoryDetailPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-xl text-gray-700">Loading story...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-lg text-gray-500">Loading story...</p>
         </div>
       </div>
     );
@@ -163,8 +166,8 @@ export default function StoryDetailPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Story not found</h1>
-          <Link href="/stories" className="text-blue-600 hover:text-blue-800">
-            ← Back to Stories
+          <Link href="/stories" className="animated-underline text-gray-500 hover:text-gray-900 transition-colors duration-300">
+            &larr; Back to Stories
           </Link>
         </div>
       </div>
@@ -202,48 +205,91 @@ export default function StoryDetailPage() {
     },
   };
 
+  // Separate media by type
+  const photos = story.story_media?.filter(m => m.media_type === 'photo') || [];
+  const videos = story.story_media?.filter(m => m.media_type === 'video') || [];
+  const featuredPhoto = photos[0];
+  const galleryPhotos = photos.slice(featuredPhoto ? 1 : 0);
+
+  const getMediaUrl = (media: { supabase_bucket: string; file_path: string }) =>
+    `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${media.supabase_bucket}/${media.file_path}`;
+
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
-      {/* Breadcrumbs */}
-      <Breadcrumbs items={breadcrumbs} className="mb-6" />
+    <div className="min-h-screen bg-white">
+      {/* Hero Section — full-width with featured image */}
+      {featuredPhoto ? (
+        <StoryHero
+          title={story.title}
+          category={getCategoryLabel(story.category || '')}
+          imageUrl={getMediaUrl(featuredPhoto)}
+          storyteller={story.storyteller}
+          date={story.created_at}
+        />
+      ) : (
+        /* Minimal hero without image */
+        <div className="bg-white pt-8 pb-4">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+            <Breadcrumbs items={breadcrumbs} className="mb-6" />
+            <Link
+              href="/stories"
+              className="animated-underline inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 text-sm font-medium transition-colors duration-300 mb-10"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              Back to Stories
+            </Link>
+          </div>
+        </div>
+      )}
 
-      {/* Back button */}
-      <Link
-        href="/stories"
-        className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-6 transition-colors"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to Stories
-      </Link>
+      {/* Story Header — below hero */}
+      <ScrollReveal>
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 pt-10 pb-10">
+          {!featuredPhoto && (
+            <div className="max-w-3xl">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 tracking-[-0.02em] leading-[1.1] mb-5">
+                {story.title}
+              </h1>
+            </div>
+          )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Content */}
-        <div className="lg:col-span-2 space-y-8">
-          {/* Header */}
-          <div>
-            <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-              {story.title}
-            </h1>
+          {featuredPhoto && (
+            <div className="max-w-7xl">
+              <Breadcrumbs items={breadcrumbs} className="mb-6" />
+              <Link
+                href="/stories"
+                className="animated-underline inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 text-sm font-medium transition-colors duration-300"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" />
+                Back to Stories
+              </Link>
+            </div>
+          )}
 
-            {story.summary && (
-              <p className="text-xl text-gray-600 mb-6 leading-relaxed">
-                {story.summary}
-              </p>
-            )}
+          {/* Pull Quote — summary as editorial quote */}
+          {story.summary && (
+            <div className="max-w-3xl mt-8">
+              <blockquote className="relative pl-6 border-l-4 border-gray-900">
+                <p className="text-xl md:text-2xl font-extrabold text-gray-900 tracking-[-0.02em] leading-[1.2] italic">
+                  &ldquo;{story.summary}&rdquo;
+                </p>
+              </blockquote>
+            </div>
+          )}
 
-            {/* Meta info */}
-            <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 pb-6 border-b border-gray-200">
+          {/* Meta info */}
+          <div className="max-w-3xl mt-8">
+            <div className="flex flex-wrap items-center gap-5 text-sm text-gray-400 pb-8 border-b border-gray-100">
               {story.storyteller && (
                 <Link
                   href={`/wiki/people/${story.storyteller.id}`}
-                  className="flex items-center gap-2 hover:text-blue-600 transition-colors"
+                  className="animated-underline flex items-center gap-2 hover:text-gray-900 transition-colors duration-300"
                 >
-                  <User className="h-4 w-4" />
+                  <User className="h-3.5 w-3.5" />
                   {story.storyteller.preferred_name || story.storyteller.full_name}
                 </Link>
               )}
               <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
+                <Calendar className="h-3.5 w-3.5" />
                 {new Date(story.created_at).toLocaleDateString('en-AU', {
                   day: 'numeric',
                   month: 'long',
@@ -252,82 +298,212 @@ export default function StoryDetailPage() {
               </div>
               {story.location && (
                 <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4" />
+                  <MapPin className="h-3.5 w-3.5" />
                   {story.location}
                 </div>
               )}
               <div className="flex items-center gap-2">
-                <Eye className="h-4 w-4" />
+                <Eye className="h-3.5 w-3.5" />
                 {story.views || 0} views
               </div>
             </div>
           </div>
-
-          {/* Media Gallery */}
-          {story.story_media && story.story_media.length > 0 && (
-            <div className="space-y-4">
-              <h2 id="media" className="text-2xl font-bold text-gray-900">Media</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {story.story_media
-                  .filter(m => m.media_type === 'photo')
-                  .map((media) => (
-                    <div key={media.id} className="relative rounded-lg overflow-hidden">
-                      <img
-                        src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${media.supabase_bucket}/${media.file_path}`}
-                        alt={media.caption || story.title}
-                        className="w-full h-64 object-cover"
-                      />
-                      {media.caption && (
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                          <p className="text-white text-sm">{media.caption}</p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-              </div>
-            </div>
-          )}
-
-          {/* Story Content */}
-          <div className="prose prose-lg max-w-none">
-            <h2 id="story">The Story</h2>
-            <div className="whitespace-pre-wrap leading-relaxed text-gray-800">
-              {story.content}
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="flex items-center gap-4 pt-6 border-t border-gray-200">
-            <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-              <Heart className="h-4 w-4" />
-              Like
-            </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-              <Share2 className="h-4 w-4" />
-              Share
-            </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-              <MessageCircle className="h-4 w-4" />
-              Comment
-            </button>
-          </div>
         </div>
+      </ScrollReveal>
 
-        {/* Sidebar */}
-        <aside className="space-y-6">
-          <StoryInfobox data={infoboxData} />
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 pb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16">
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-12">
+            {/* Photo Gallery */}
+            {galleryPhotos.length > 0 && (
+              <ScrollReveal>
+                <div className="space-y-4">
+                  <div className={`grid gap-4 ${galleryPhotos.length === 1 ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
+                    {galleryPhotos.map((media, index) => (
+                      <ScrollReveal key={media.id} delay={index * 0.1}>
+                        <div className="relative rounded-2xl overflow-hidden group aspect-[4/3]">
+                          <img
+                            src={getMediaUrl(media)}
+                            alt={media.caption || story.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-elegant"
+                          />
+                          {media.caption && (
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+                              <p className="text-white text-sm p-4 font-medium">{media.caption}</p>
+                            </div>
+                          )}
+                        </div>
+                      </ScrollReveal>
+                    ))}
+                  </div>
+                </div>
+              </ScrollReveal>
+            )}
 
-          {relatedStories.length > 0 && (
-            <RelatedContent
-              items={relatedStories}
-              title="Related Stories"
-              maxItems={5}
-            />
-          )}
+            {/* Video Sections */}
+            {videos.map((video, index) => (
+              <ScrollReveal key={video.id} delay={0.2}>
+                <div className="rounded-2xl overflow-hidden shadow-xl bg-gray-900">
+                  <div className="aspect-video">
+                    {isDirectVideoFile(getMediaUrl(video)) ? (
+                      <video
+                        className="w-full h-full object-cover"
+                        controls
+                        playsInline
+                      >
+                        <source
+                          src={getMediaUrl(video)}
+                          {...(guessVideoMimeType(getMediaUrl(video)) ? { type: guessVideoMimeType(getMediaUrl(video)) } : {})}
+                        />
+                        Your browser does not support the video tag.
+                      </video>
+                    ) : (
+                      <iframe
+                        src={getEmbedUrl(getMediaUrl(video))}
+                        title={video.caption || 'Story video'}
+                        className="w-full h-full"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    )}
+                  </div>
+                  {video.caption && (
+                    <div className="px-6 py-4">
+                      <p className="text-gray-400 text-sm">{video.caption}</p>
+                    </div>
+                  )}
+                </div>
+              </ScrollReveal>
+            ))}
 
-          <TableOfContents sticky />
-        </aside>
+            {/* Story Content */}
+            <ScrollReveal>
+              <div className="prose prose-lg max-w-none">
+                <div className="whitespace-pre-wrap leading-[1.8] text-gray-700 text-lg">
+                  {story.content}
+                </div>
+              </div>
+            </ScrollReveal>
+
+            {/* Actions */}
+            <ScrollReveal>
+              <div className="flex items-center gap-3 pt-8 border-t border-gray-100">
+                <button className="flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-full hover:bg-gray-800 hover:scale-[0.97] active:scale-95 transition-all duration-300 ease-elegant">
+                  <Heart className="h-4 w-4" />
+                  Like
+                </button>
+                <button className="flex items-center gap-2 px-5 py-2.5 bg-gray-100 text-gray-600 text-sm font-medium rounded-full hover:bg-gray-200 transition-all duration-300 ease-elegant">
+                  <Share2 className="h-4 w-4" />
+                  Share
+                </button>
+                <button className="flex items-center gap-2 px-5 py-2.5 bg-gray-100 text-gray-600 text-sm font-medium rounded-full hover:bg-gray-200 transition-all duration-300 ease-elegant">
+                  <MessageCircle className="h-4 w-4" />
+                  Comment
+                </button>
+              </div>
+            </ScrollReveal>
+          </div>
+
+          {/* Sidebar */}
+          <aside className="space-y-8">
+            <ScrollReveal direction="right" delay={0.3}>
+              <StoryInfobox data={infoboxData} />
+            </ScrollReveal>
+
+            {relatedStories.length > 0 && (
+              <ScrollReveal direction="right" delay={0.4}>
+                <RelatedContent
+                  items={relatedStories}
+                  title="Related Stories"
+                  maxItems={5}
+                />
+              </ScrollReveal>
+            )}
+
+            <ScrollReveal direction="right" delay={0.5}>
+              <TableOfContents sticky />
+            </ScrollReveal>
+          </aside>
+        </div>
       </div>
+    </div>
+  );
+}
+
+/** Full-width hero with parallax effect for stories with a featured image */
+function StoryHero({
+  title,
+  category,
+  imageUrl,
+  storyteller,
+  date,
+}: {
+  title: string;
+  category: string;
+  imageUrl: string;
+  storyteller?: Story['storyteller'];
+  date: string;
+}) {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start start', 'end start'],
+  });
+  const scale = useTransform(scrollYProgress, [0, 0.5], [1, 1.05]);
+  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+
+  return (
+    <div ref={ref} className="relative h-[70vh] md:h-[80vh] overflow-hidden">
+      {/* Background Image with parallax */}
+      <motion.div style={{ scale }} className="absolute inset-0 w-full h-full">
+        <div
+          className="w-full h-full bg-cover bg-center"
+          style={{ backgroundImage: `url(${imageUrl})` }}
+        />
+      </motion.div>
+
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+
+      {/* Content */}
+      <motion.div
+        style={{ opacity }}
+        className="relative z-10 h-full flex flex-col justify-end px-6 lg:px-8 pb-16 max-w-7xl mx-auto"
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        >
+          {category && (
+            <div className="inline-block mb-4">
+              <span className="text-xs font-semibold uppercase tracking-[0.15em] text-white/70">
+                {category}
+              </span>
+            </div>
+          )}
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-[-0.02em] leading-[1.05] max-w-4xl mb-6">
+            {title}
+          </h1>
+          <div className="flex flex-wrap items-center gap-4 text-sm text-white/60">
+            {storyteller && (
+              <span className="flex items-center gap-2">
+                <User className="h-3.5 w-3.5" />
+                {storyteller.preferred_name || storyteller.full_name}
+              </span>
+            )}
+            <span className="flex items-center gap-2">
+              <Calendar className="h-3.5 w-3.5" />
+              {new Date(date).toLocaleDateString('en-AU', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              })}
+            </span>
+          </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }

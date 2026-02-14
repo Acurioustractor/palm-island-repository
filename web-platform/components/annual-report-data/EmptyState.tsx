@@ -28,7 +28,7 @@ export default function EmptyState({
         {action && (
           <button
             onClick={action.onClick}
-            className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors"
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-picc-ochre rounded-lg hover:bg-picc-ochre-600 transition-colors"
           >
             {action.label}
           </button>
@@ -36,7 +36,7 @@ export default function EmptyState({
         {secondaryAction && (
           <a
             href={secondaryAction.href}
-            className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors"
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-picc-ochre border border-warm-200 rounded-lg hover:bg-warm-100 transition-colors"
           >
             {secondaryAction.label}
           </a>

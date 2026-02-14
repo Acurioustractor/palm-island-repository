@@ -17,7 +17,7 @@ export function QuoteSection({
   author,
   role,
   photoUrl,
-  backgroundColor = 'bg-gradient-to-br from-blue-50 to-purple-50',
+  backgroundColor = 'bg-gradient-to-br from-warm-50 to-warm-100',
   textColor = 'text-gray-900',
   size = 'large',
 }: QuoteSectionProps) {
@@ -28,23 +28,23 @@ export function QuoteSection({
   };
 
   return (
-    <section className={`${backgroundColor} py-24`}>
-      <div className="max-w-5xl mx-auto px-8">
+    <section className={`${backgroundColor} py-24 md:py-32 lg:py-40 relative overflow-hidden`}>
+      <div className="max-w-4xl mx-auto px-6 lg:px-8 relative">
         <ScrollReveal direction="up">
           <div className="text-center">
             {photoUrl && (
-              <div className="mb-8 flex justify-center">
+              <div className="mb-10 flex justify-center">
                 <img
                   src={photoUrl}
                   alt={author || 'Portrait'}
-                  className="w-24 h-24 rounded-full object-cover ring-4 ring-white shadow-xl"
+                  className="w-20 h-20 rounded-full object-cover ring-4 ring-white/80 shadow-lg"
                   loading="lazy"
                 />
               </div>
             )}
-            <div className="mb-8">
+            <div className="mb-10">
               <svg
-                className="w-16 h-16 text-blue-600/20 mx-auto"
+                className="w-12 h-12 text-gray-300 mx-auto"
                 fill="currentColor"
                 viewBox="0 0 32 32"
               >
@@ -52,16 +52,16 @@ export function QuoteSection({
               </svg>
             </div>
             <blockquote
-              className={`${sizeClasses[size]} font-bold ${textColor} mb-8 leading-tight`}
+              className={`${sizeClasses[size]} font-extrabold ${textColor} mb-10 leading-tight tracking-[-0.02em]`}
             >
-              "{quote}"
+              &ldquo;{quote}&rdquo;
             </blockquote>
             {(author || role) && (
-              <div className="text-lg text-gray-600">
+              <div>
                 {author && (
-                  <div className="font-semibold text-gray-900">{author}</div>
+                  <div className="font-semibold text-gray-900 text-sm">{author}</div>
                 )}
-                {role && <div className="text-gray-600">{role}</div>}
+                {role && <div className="text-gray-500 text-sm mt-1">{role}</div>}
               </div>
             )}
           </div>

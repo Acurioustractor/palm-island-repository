@@ -57,33 +57,33 @@ export function WeHeardYouSection({
     },
     in_progress: {
       label: 'In Progress',
-      color: 'bg-blue-100 text-blue-700',
+      color: 'bg-warm-100 text-picc-red',
       icon: Clock,
     },
     planned: {
       label: 'Planned',
-      color: 'bg-amber-100 text-amber-700',
+      color: 'bg-picc-ochre-100 text-picc-ochre',
       icon: AlertCircle,
     },
   };
 
   const priorityColors = {
     high: 'border-l-red-500',
-    medium: 'border-l-amber-500',
-    low: 'border-l-blue-500',
+    medium: 'border-l-picc-ochre',
+    low: 'border-l-picc-red',
   };
 
   return (
-    <div className="bg-gradient-to-b from-purple-50 to-indigo-50 rounded-2xl overflow-hidden">
+    <div className="bg-gradient-to-b from-warm-100 to-warm-50 rounded-2xl overflow-hidden">
       {/* Header */}
-      <div className="p-6 md:p-8 bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
+      <div className="p-6 md:p-8 bg-gradient-to-r from-picc-ochre to-picc-ochre text-white">
         <div className="flex items-center gap-3 mb-4">
           <div className="p-3 bg-white/20 rounded-xl">
             <MessageSquare className="w-8 h-8" />
           </div>
           <div>
             <h2 className="text-2xl md:text-3xl font-bold">{title}</h2>
-            <p className="text-purple-100 mt-1">{description}</p>
+            <p className="text-warm-100 mt-1">{description}</p>
           </div>
         </div>
 
@@ -91,35 +91,35 @@ export function WeHeardYouSection({
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
           <div className="bg-white/10 rounded-lg p-4">
             <div className="text-3xl font-bold">{stats.total}</div>
-            <div className="text-sm text-purple-100">Issues Raised</div>
+            <div className="text-sm text-warm-100">Issues Raised</div>
           </div>
           <div className="bg-white/10 rounded-lg p-4">
             <div className="text-3xl font-bold">{stats.completed}</div>
-            <div className="text-sm text-purple-100">Fully Addressed</div>
+            <div className="text-sm text-warm-100">Fully Addressed</div>
           </div>
           <div className="bg-white/10 rounded-lg p-4">
             <div className="text-3xl font-bold">{stats.inProgress}</div>
-            <div className="text-sm text-purple-100">In Progress</div>
+            <div className="text-sm text-warm-100">In Progress</div>
           </div>
           <div className="bg-white/10 rounded-lg p-4">
             <div className="text-3xl font-bold">
               ${(stats.totalInvestment / 1000).toFixed(0)}k
             </div>
-            <div className="text-sm text-purple-100">Invested</div>
+            <div className="text-sm text-warm-100">Invested</div>
           </div>
         </div>
       </div>
 
       {/* Filter */}
-      <div className="p-4 border-b border-purple-100 bg-white/50 flex flex-wrap gap-2">
+      <div className="p-4 border-b border-warm-100 bg-white/50 flex flex-wrap gap-2">
         {['all', 'completed', 'in_progress', 'planned'].map((status) => (
           <button
             key={status}
             onClick={() => setFilterStatus(status)}
             className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
               filterStatus === status
-                ? 'bg-purple-600 text-white'
-                : 'bg-white text-gray-600 hover:bg-purple-100'
+                ? 'bg-picc-ochre text-white'
+                : 'bg-white text-gray-600 hover:bg-warm-100'
             }`}
           >
             {status === 'all' ? 'All Feedback' : statusConfig[status as keyof typeof statusConfig]?.label}
@@ -150,8 +150,8 @@ export function WeHeardYouSection({
                   className="w-full p-4 md:p-6 text-left hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="p-2 bg-purple-100 rounded-lg shrink-0">
-                      <MessageSquare className="w-5 h-5 text-purple-600" />
+                    <div className="p-2 bg-warm-100 rounded-lg shrink-0">
+                      <MessageSquare className="w-5 h-5 text-picc-ochre" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap mb-2">
@@ -196,14 +196,14 @@ export function WeHeardYouSection({
                         {item.quotes.length > 0 && (
                           <div className="mb-6">
                             <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                              <Sparkles className="w-4 h-4 text-purple-500" />
+                              <Sparkles className="w-4 h-4 text-picc-ochre" />
                               What You Said
                             </h4>
                             <div className="space-y-2">
                               {item.quotes.map((quote, i) => (
                                 <blockquote
                                   key={i}
-                                  className="pl-4 border-l-2 border-purple-300 text-gray-600 italic"
+                                  className="pl-4 border-l-2 border-picc-ochre-300 text-gray-600 italic"
                                 >
                                   &ldquo;{quote}&rdquo;
                                 </blockquote>
@@ -218,7 +218,7 @@ export function WeHeardYouSection({
                             <Heart className="w-4 h-4 text-red-500" />
                             Our Response
                           </h4>
-                          <p className="text-gray-700 bg-purple-50 p-4 rounded-lg">
+                          <p className="text-gray-700 bg-warm-100 p-4 rounded-lg">
                             {item.response}
                           </p>
                         </div>
@@ -236,15 +236,15 @@ export function WeHeardYouSection({
                           )}
 
                           {item.investment && (
-                            <div className="bg-blue-50 p-4 rounded-lg">
-                              <h4 className="text-sm font-semibold text-blue-800 mb-2 flex items-center gap-2">
+                            <div className="bg-warm-50 p-4 rounded-lg">
+                              <h4 className="text-sm font-semibold text-picc-earth mb-2 flex items-center gap-2">
                                 <DollarSign className="w-4 h-4" />
                                 Investment
                               </h4>
-                              <p className="text-2xl font-bold text-blue-700">
+                              <p className="text-2xl font-bold text-picc-red">
                                 ${item.investment.toLocaleString()}
                               </p>
-                              <p className="text-blue-600 text-sm">committed to this initiative</p>
+                              <p className="text-picc-red text-sm">committed to this initiative</p>
                             </div>
                           )}
                         </div>
@@ -266,7 +266,7 @@ export function WeHeardYouSection({
       </div>
 
       {/* Call to Action */}
-      <div className="p-6 bg-white border-t border-purple-100">
+      <div className="p-6 bg-white border-t border-warm-100">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div>
             <h3 className="font-semibold text-gray-900">Your Voice Matters</h3>
@@ -276,7 +276,7 @@ export function WeHeardYouSection({
           </div>
           <a
             href="/share-voice"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-picc-ochre text-white rounded-lg hover:bg-picc-ochre transition-colors"
           >
             Share Your Voice
             <ArrowRight className="w-4 h-4" />

@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 
 import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
-import { useAuth } from '@/components/providers/AuthProvider'
+import { createClient } from '@/lib/supabase/client'
 import { Loader2, ArrowLeft, Mail, Check } from 'lucide-react'
 
 function ForgotPasswordContent() {
@@ -16,7 +16,7 @@ function ForgotPasswordContent() {
 
   if (!mounted) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-warm-50">
         <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
       </div>
     )
@@ -26,7 +26,7 @@ function ForgotPasswordContent() {
 }
 
 function ForgotPasswordForm() {
-  const { resetPassword } = useAuth()
+  const supabase = createClient()
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
@@ -37,10 +37,12 @@ function ForgotPasswordForm() {
     setError('')
     setIsSubmitting(true)
 
-    const result = await resetPassword(email)
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    })
 
-    if (result.error) {
-      setError(result.error.message)
+    if (error) {
+      setError(error.message)
     } else {
       setSuccess(true)
     }
@@ -51,7 +53,7 @@ function ForgotPasswordForm() {
   // Success state
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-warm-50">
         <div className="max-w-md w-full mx-4">
           <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 text-center">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -94,7 +96,7 @@ function ForgotPasswordForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-warm-50">
       <div className="max-w-md w-full mx-4">
         {/* Back to login link */}
         <Link
@@ -179,7 +181,7 @@ export default function ForgotPasswordPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-warm-50">
           <div className="text-center">
             <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
             <p className="text-gray-600">Loading...</p>

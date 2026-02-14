@@ -284,12 +284,12 @@ export default function ShareYourVoicePage() {
         </div>
 
         {/* Cultural Protocol Notice */}
-        <div className="bg-amber-50 border-l-4 border-amber-500 p-6 rounded-lg mb-8">
+        <div className="bg-picc-ochre-50 border-l-4 border-picc-ochre-500 p-6 rounded-lg mb-8">
           <div className="flex items-start gap-3">
-            <Heart className="h-6 w-6 text-amber-700 flex-shrink-0 mt-1" />
+            <Heart className="h-6 w-6 text-picc-ochre flex-shrink-0 mt-1" />
             <div>
-              <h3 className="font-bold text-amber-900 mb-2">Cultural Protocols</h3>
-              <p className="text-amber-800 text-sm">
+              <h3 className="font-bold text-picc-earth mb-2">Cultural Protocols</h3>
+              <p className="text-picc-earth text-sm">
                 Stories containing traditional knowledge or sensitive cultural content will be reviewed by
                 Elders and Cultural Advisors before being shared. Your voice will be respected and protected.
               </p>
@@ -351,11 +351,11 @@ export default function ShareYourVoicePage() {
                   type="checkbox"
                   checked={isAnonymous}
                   onChange={(e) => setIsAnonymous(e.target.checked)}
-                  className="w-5 h-5 text-blue-600 border-gray-300 rounded mt-1"
+                  className="w-5 h-5 text-picc-red border-gray-300 rounded mt-1"
                 />
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <Shield className="h-5 w-5 text-blue-600" />
+                    <Shield className="h-5 w-5 text-picc-red" />
                     <span className="font-bold text-gray-900">Share Anonymously as "Community Voice"</span>
                   </div>
                   <p className="text-sm text-gray-600">
@@ -454,11 +454,11 @@ export default function ShareYourVoicePage() {
                     )}
                   </div>
                 ) : (
-                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
+                  <div className="bg-warm-100 border border-warm-200 rounded-lg p-6">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <CheckCircle className="h-6 w-6 text-purple-600" />
-                        <span className="font-medium text-purple-900">Recording Complete</span>
+                        <CheckCircle className="h-6 w-6 text-picc-ochre" />
+                        <span className="font-medium text-picc-earth-600">Recording Complete</span>
                       </div>
                       <button
                         type="button"
@@ -466,7 +466,7 @@ export default function ShareYourVoicePage() {
                           setAudioBlob(null);
                           setRecordingTime(0);
                         }}
-                        className="text-purple-600 hover:text-purple-700"
+                        className="text-picc-ochre hover:text-picc-ochre"
                       >
                         <X className="h-5 w-5" />
                       </button>
@@ -498,7 +498,7 @@ export default function ShareYourVoicePage() {
                 </label>
 
                 {!videoFile ? (
-                  <label className="block border-2 border-dashed border-gray-300 rounded-lg p-12 text-center cursor-pointer hover:border-teal-500 hover:bg-teal-50 transition-colors">
+                  <label className="block border-2 border-dashed border-gray-300 rounded-lg p-12 text-center cursor-pointer hover:border-picc-ochre hover:bg-warm-50 transition-colors">
                     <Video className="h-16 w-16 text-gray-400 mx-auto mb-4" />
                     <span className="text-lg font-medium text-gray-700 block mb-2">
                       Click to Upload Video
@@ -518,13 +518,13 @@ export default function ShareYourVoicePage() {
                     />
                   </label>
                 ) : (
-                  <div className="bg-teal-50 border border-teal-200 rounded-lg p-6">
+                  <div className="bg-warm-50 border border-warm-200 rounded-lg p-6">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <CheckCircle className="h-6 w-6 text-teal-600" />
+                        <CheckCircle className="h-6 w-6 text-picc-ochre" />
                         <div>
-                          <p className="font-medium text-teal-900">{videoFile.name}</p>
-                          <p className="text-sm text-teal-700">
+                          <p className="font-medium text-picc-ochre">{videoFile.name}</p>
+                          <p className="text-sm text-picc-ochre">
                             {(videoFile.size / 1024 / 1024).toFixed(2)} MB
                           </p>
                         </div>
@@ -532,7 +532,7 @@ export default function ShareYourVoicePage() {
                       <button
                         type="button"
                         onClick={() => setVideoFile(null)}
-                        className="text-teal-600 hover:text-teal-700"
+                        className="text-picc-ochre hover:text-picc-ochre"
                       >
                         <X className="h-5 w-5" />
                       </button>
@@ -590,7 +590,7 @@ export default function ShareYourVoicePage() {
                   required
                   checked={formData.consent}
                   onChange={(e) => setFormData({ ...formData, consent: e.target.checked })}
-                  className="w-5 h-5 text-blue-600 border-gray-300 rounded mt-1"
+                  className="w-5 h-5 text-picc-red border-gray-300 rounded mt-1"
                 />
                 <div className="text-sm text-gray-700">
                   <span className="font-medium">I consent to sharing this story</span>

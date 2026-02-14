@@ -17,12 +17,12 @@ interface ServiceTagBarProps {
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  'Health & Wellbeing': 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border-emerald-200',
-  'Family & Children': 'bg-blue-100 text-blue-700 hover:bg-blue-200 border-blue-200',
+  'Health & Wellbeing': 'bg-sage-100 text-sage-700 hover:bg-sage-200 border-sage-200',
+  'Family & Children': 'bg-warm-100 text-picc-red hover:bg-warm-200 border-warm-200',
   'Justice & Safety': 'bg-red-100 text-red-700 hover:bg-red-200 border-red-200',
-  'Culture & Community': 'bg-amber-100 text-amber-700 hover:bg-amber-200 border-amber-200',
-  'Education & Training': 'bg-purple-100 text-purple-700 hover:bg-purple-200 border-purple-200',
-  'Economic Development': 'bg-cyan-100 text-cyan-700 hover:bg-cyan-200 border-cyan-200',
+  'Culture & Community': 'bg-picc-ochre-100 text-picc-ochre-700 hover:bg-picc-ochre-200 border-picc-ochre-200',
+  'Education & Training': 'bg-warm-100 text-picc-ochre hover:bg-warm-200 border-warm-200',
+  'Economic Development': 'bg-sage-100 text-sage-700 hover:bg-sage-200 border-sage-200',
   'Corporate': 'bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-200',
 };
 

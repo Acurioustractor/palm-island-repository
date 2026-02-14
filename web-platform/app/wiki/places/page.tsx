@@ -91,7 +91,7 @@ export default function PlacesPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-amber-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-picc-ochre mx-auto mb-4"></div>
           <p className="text-xl text-gray-700">Loading places...</p>
         </div>
       </div>
@@ -105,7 +105,7 @@ export default function PlacesPage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-gray-900 mb-4 flex items-center gap-3">
-          <MapPin className="h-10 w-10 text-emerald-600" />
+          <MapPin className="h-10 w-10 text-sage-600" />
           Stories by Place
         </h1>
         <p className="text-xl text-gray-600">
@@ -122,25 +122,25 @@ export default function PlacesPage() {
             placeholder="Search locations..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre-300 focus:border-transparent"
           />
         </div>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-        <div className="bg-emerald-50 rounded-lg p-4 text-center border border-emerald-200">
-          <div className="text-3xl font-bold text-emerald-600">{locations.length}</div>
+        <div className="bg-sage-50 rounded-lg p-4 text-center border border-sage-200">
+          <div className="text-3xl font-bold text-sage-600">{locations.length}</div>
           <div className="text-sm text-gray-600">Locations</div>
         </div>
-        <div className="bg-blue-50 rounded-lg p-4 text-center border border-blue-200">
-          <div className="text-3xl font-bold text-blue-600">
+        <div className="bg-warm-50 rounded-lg p-4 text-center border border-warm-200">
+          <div className="text-3xl font-bold text-picc-red">
             {locations.reduce((sum, loc) => sum + loc.story_count, 0)}
           </div>
           <div className="text-sm text-gray-600">Total Stories</div>
         </div>
-        <div className="bg-amber-50 rounded-lg p-4 text-center border border-amber-200">
-          <div className="text-3xl font-bold text-amber-600">
+        <div className="bg-picc-ochre-50 rounded-lg p-4 text-center border border-picc-ochre-200">
+          <div className="text-3xl font-bold text-picc-ochre">
             {filteredLocations.length}
           </div>
           <div className="text-sm text-gray-600">Showing</div>
@@ -155,10 +155,10 @@ export default function PlacesPage() {
             className="bg-white rounded-lg border border-stone-300 shadow-sm overflow-hidden"
           >
             {/* Location Header */}
-            <div className="bg-gradient-to-r from-stone-100 to-amber-50 border-b border-stone-200 px-6 py-4">
+            <div className="bg-gradient-to-r from-stone-100 to-picc-ochre-50 border-b border-stone-200 px-6 py-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <MapPin className="h-6 w-6 text-emerald-600" />
+                  <MapPin className="h-6 w-6 text-sage-600" />
                   <div>
                     <h2 className="text-2xl font-bold text-gray-900">
                       {location.location}
@@ -178,12 +178,12 @@ export default function PlacesPage() {
                   <Link
                     key={story.id}
                     href={`/stories/${story.id}`}
-                    className="block p-4 border border-gray-200 rounded-lg hover:border-amber-300 hover:bg-amber-50/50 transition-all group"
+                    className="block p-4 border border-gray-200 rounded-lg hover:border-picc-ochre-300 hover:bg-picc-ochre-50/50 transition-all group"
                   >
                     <div className="flex items-start gap-3">
-                      <BookOpen className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                      <BookOpen className="h-5 w-5 text-picc-ochre mt-0.5 flex-shrink-0" />
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 group-hover:text-amber-700 mb-1">
+                        <h3 className="font-semibold text-gray-900 group-hover:text-picc-ochre mb-1">
                           {story.title}
                         </h3>
                         {story.summary && (
@@ -209,7 +209,7 @@ export default function PlacesPage() {
                 {location.stories.length > 5 && (
                   <Link
                     href={`/stories?location=${encodeURIComponent(location.location)}`}
-                    className="block text-center py-3 text-amber-700 hover:text-amber-900 font-medium hover:bg-amber-50 rounded-lg transition-all"
+                    className="block text-center py-3 text-picc-ochre hover:text-picc-earth font-medium hover:bg-picc-ochre-50 rounded-lg transition-all"
                   >
                     View all {location.story_count} stories from {location.location} →
                   </Link>

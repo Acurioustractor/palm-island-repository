@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { Tag, BookOpen, TrendingUp, ArrowRight } from 'lucide-react';
+import { BespokeIcon } from '@/components/ui/BespokeIcon';
 import Breadcrumbs from '@/components/wiki/Breadcrumbs';
 
 interface Category {
@@ -48,7 +49,7 @@ export default function CategoriesPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-picc-red mx-auto mb-4"></div>
           <p className="text-xl text-gray-700">Loading categories...</p>
         </div>
       </div>
@@ -62,7 +63,7 @@ export default function CategoriesPage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-gray-900 mb-4 flex items-center gap-3">
-          <Tag className="h-10 w-10 text-blue-600" />
+          <Tag className="h-10 w-10 text-picc-red" />
           Story Categories
         </h1>
         <p className="text-xl text-gray-600">
@@ -76,14 +77,14 @@ export default function CategoriesPage() {
           <Link
             key={category.id}
             href={`/wiki/categories/${category.slug}`}
-            className="group bg-white rounded-xl border-2 border-gray-200 hover:border-blue-500 p-6 transition-all hover:shadow-lg"
+            className="group bg-white rounded-xl border-2 border-gray-200 hover:border-picc-red p-6 transition-all hover:shadow-lg"
           >
             <div className="flex items-start justify-between mb-4">
               <div
                 className="h-12 w-12 rounded-lg flex items-center justify-center text-2xl"
                 style={{ backgroundColor: `${category.color}20` }}
               >
-                {category.icon || '📚'}
+                {category.icon || <BespokeIcon name="knowledge" size={28} />}
               </div>
               <div className="text-right">
                 <div className="text-2xl font-bold text-gray-900">
@@ -93,7 +94,7 @@ export default function CategoriesPage() {
               </div>
             </div>
 
-            <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors mb-2">
+            <h3 className="text-xl font-bold text-gray-900 group-hover:text-picc-red transition-colors mb-2">
               {category.name}
             </h3>
 
@@ -103,7 +104,7 @@ export default function CategoriesPage() {
               </p>
             )}
 
-            <div className="flex items-center text-blue-600 font-medium text-sm group-hover:gap-2 transition-all">
+            <div className="flex items-center text-picc-red font-medium text-sm group-hover:gap-2 transition-all">
               <span>Explore</span>
               <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </div>

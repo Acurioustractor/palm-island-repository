@@ -107,7 +107,7 @@ export default function EditableSection({
       data-section-type={sectionType}
       className={`
         relative group
-        ${isActive ? 'ring-2 ring-purple-500 ring-offset-2' : ''}
+        ${isActive ? 'ring-2 ring-picc-ochre ring-offset-2' : ''}
         ${className}
       `}
     >
@@ -127,7 +127,7 @@ export default function EditableSection({
 
         <button
           onClick={handleEdit}
-          className="p-1.5 rounded hover:bg-purple-100 text-gray-600 hover:text-purple-700 transition-colors"
+          className="p-1.5 rounded hover:bg-warm-100 text-gray-600 hover:text-picc-ochre transition-colors"
           title="Edit section"
         >
           <Edit3 className="w-4 h-4" />
@@ -186,7 +186,7 @@ export default function EditableSection({
           absolute inset-0 z-30 cursor-pointer
           border-2 border-transparent rounded-lg
           transition-colors duration-150
-          ${isActive ? 'border-purple-500 bg-purple-500/5' : 'hover:border-purple-300 hover:bg-purple-50/30'}
+          ${isActive ? 'border-picc-ochre bg-picc-ochre/5' : 'hover:border-picc-ochre-300 hover:bg-warm-100/30'}
           print:hidden
         `}
       />

@@ -222,7 +222,7 @@ export function MediaUpload({
             setPickerOpen(true);
             void loadFromLibrary({ reset: true });
           }}
-          className="text-xs font-semibold text-blue-600 hover:text-blue-700"
+          className="text-xs font-semibold text-picc-red hover:text-picc-red"
         >
           Choose from Library
         </button>
@@ -274,13 +274,13 @@ export function MediaUpload({
             className={`
               block border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
               transition-colors
-              ${uploading ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'}
+              ${uploading ? 'border-picc-red-300 bg-warm-50' : 'border-gray-300 hover:border-picc-red-300 hover:bg-gray-50'}
             `}
           >
             {uploading ? (
               <>
-                <Loader2 className="w-12 h-12 text-blue-600 mx-auto mb-3 animate-spin" />
-                <p className="text-blue-600 font-medium">Uploading...</p>
+                <Loader2 className="w-12 h-12 text-picc-red mx-auto mb-3 animate-spin" />
+                <p className="text-picc-red font-medium">Uploading...</p>
               </>
             ) : (
               <>
@@ -344,7 +344,7 @@ export function MediaUpload({
               <button
                 type="button"
                 onClick={() => void loadFromLibrary({ reset: true })}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-sm"
+                className="px-4 py-2 bg-picc-red hover:bg-picc-red text-white font-semibold rounded-lg text-sm"
               >
                 Search
               </button>
@@ -374,7 +374,7 @@ export function MediaUpload({
                         onUpload(item.public_url, type);
                         setPickerOpen(false);
                       }}
-                      className="group text-left border border-gray-200 rounded-lg overflow-hidden hover:border-blue-400 hover:shadow-sm transition-all bg-white"
+                      className="group text-left border border-gray-200 rounded-lg overflow-hidden hover:border-picc-red-300 hover:shadow-sm transition-all bg-white"
                     >
                       <div className="aspect-video bg-gray-100 overflow-hidden">
                         {item.file_type === 'video' ? (

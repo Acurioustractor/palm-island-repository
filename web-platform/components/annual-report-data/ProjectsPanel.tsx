@@ -103,9 +103,9 @@ export default function ProjectsPanel({
                 <td className="px-4 py-3">
                   <span className={`px-2 py-0.5 text-xs font-medium rounded ${
                     project.status === 'completed'
-                      ? 'bg-emerald-100 text-emerald-700'
+                      ? 'bg-sage-100 text-sage-700'
                       : project.status === 'active'
-                        ? 'bg-blue-100 text-blue-700'
+                        ? 'bg-warm-100 text-picc-red'
                         : 'bg-gray-100 text-gray-600'
                   }`}>
                     {project.status || 'Unknown'}
@@ -122,7 +122,7 @@ export default function ProjectsPanel({
                     disabled={saving === project.id}
                     className={`p-1.5 rounded transition-colors ${
                       project.featured
-                        ? 'text-amber-500 hover:text-amber-600 bg-amber-50'
+                        ? 'text-picc-ochre hover:text-picc-ochre bg-picc-ochre-50'
                         : 'text-gray-300 hover:text-gray-500'
                     }`}
                   >
@@ -132,7 +132,7 @@ export default function ProjectsPanel({
                 <td className="px-4 py-3 text-right">
                   <a
                     href={`/picc/projects/${project.slug}/edit`}
-                    className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-purple-600 hover:bg-purple-50 rounded transition-colors"
+                    className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-picc-ochre hover:bg-warm-50 rounded transition-colors"
                   >
                     <ExternalLink className="w-3 h-3" />
                     Edit

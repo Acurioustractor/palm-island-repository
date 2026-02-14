@@ -128,11 +128,11 @@ export default function MediaPickerDialog({ open, kind, onClose, onPick }: Props
                 <div className="text-lg font-semibold text-gray-900">{title}</div>
                 <div className="text-xs text-gray-500">
                   Browse your repository,{' '}
-                  <Link href="/picc/media/gallery" className="text-blue-600 hover:underline" target="_blank" rel="noreferrer">
+                  <Link href="/picc/media/gallery" className="text-picc-red hover:underline" target="_blank" rel="noreferrer">
                     Media Gallery
                   </Link>
                   , or{' '}
-                  <Link href="/picc/media/upload" className="text-blue-600 hover:underline" target="_blank" rel="noreferrer">
+                  <Link href="/picc/media/upload" className="text-picc-red hover:underline" target="_blank" rel="noreferrer">
                     upload new media
                   </Link>
                   .
@@ -157,7 +157,7 @@ export default function MediaPickerDialog({ open, kind, onClose, onPick }: Props
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={kind === 'image' ? 'Search photos...' : 'Search videos...'}
-                className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-picc-red focus:border-transparent"
               />
             </div>
           </div>
@@ -174,7 +174,7 @@ export default function MediaPickerDialog({ open, kind, onClose, onPick }: Props
                 <div className="text-sm text-gray-600 mb-4">{error}</div>
                 <div className="text-xs text-gray-500">
                   If you’re not signed in, this works on localhost dev only. You can also open{' '}
-                  <Link href="/picc/media/gallery" className="text-blue-600 hover:underline" target="_blank" rel="noreferrer">
+                  <Link href="/picc/media/gallery" className="text-picc-red hover:underline" target="_blank" rel="noreferrer">
                     `/picc/media/gallery`
                   </Link>
                   .
@@ -191,7 +191,7 @@ export default function MediaPickerDialog({ open, kind, onClose, onPick }: Props
                       key={m.id}
                       type="button"
                       onClick={() => onPick(m)}
-                      className="group text-left rounded-xl border border-gray-200 overflow-hidden hover:shadow-md hover:border-blue-200 transition-all bg-white"
+                      className="group text-left rounded-xl border border-gray-200 overflow-hidden hover:shadow-md hover:border-warm-200 transition-all bg-white"
                       title={String(alt)}
                     >
                       <div className="aspect-square bg-gray-100 overflow-hidden">
@@ -217,7 +217,7 @@ export default function MediaPickerDialog({ open, kind, onClose, onPick }: Props
                       type="button"
                       onClick={() => onPick(m)}
                       className={classNames(
-                        'group w-full text-left rounded-xl border border-gray-200 overflow-hidden hover:shadow-md hover:border-blue-200 transition-all bg-white',
+                        'group w-full text-left rounded-xl border border-gray-200 overflow-hidden hover:shadow-md hover:border-warm-200 transition-all bg-white',
                         'flex gap-3 p-3'
                       )}
                       title={label}

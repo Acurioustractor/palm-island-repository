@@ -123,7 +123,7 @@ function InterviewsSection({ interviews }: { interviews: InterviewData[] }) {
           href={i.href}
           className="flex items-center gap-4 p-4 rounded-2xl border border-stone-200 bg-white hover:bg-stone-50 transition-colors"
         >
-          <div className="w-10 h-10 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0">
+          <div className="w-10 h-10 rounded-full bg-picc-ochre-100 text-picc-ochre-700 flex items-center justify-center flex-shrink-0">
             <Mic className="w-5 h-5" />
           </div>
           <div className="min-w-0 flex-1">
@@ -134,7 +134,7 @@ function InterviewsSection({ interviews }: { interviews: InterviewData[] }) {
               {i.status && (
                 <span className={`px-2 py-0.5 rounded text-xs font-medium ${
                   i.status === 'approved' ? 'bg-green-100 text-green-700' :
-                  i.status === 'edited' ? 'bg-purple-100 text-purple-700' :
+                  i.status === 'edited' ? 'bg-warm-100 text-picc-ochre' :
                   'bg-stone-100 text-stone-700'
                 }`}>
                   {i.status}
@@ -213,7 +213,7 @@ function EventsSection({ events }: { events: EventData[] }) {
           key={e.id}
           className="flex items-start gap-3 p-3 rounded-xl border border-stone-200 bg-white"
         >
-          <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center flex-shrink-0">
+          <div className="w-10 h-10 rounded-full bg-warm-100 text-picc-red flex items-center justify-center flex-shrink-0">
             <Calendar className="w-5 h-5" />
           </div>
           <div className="min-w-0">
@@ -249,7 +249,7 @@ function ConnectionsSection({ connections }: { connections: ConnectionData[] }) 
           {c.imageUrl ? (
             <img src={c.imageUrl} alt="" className="w-6 h-6 rounded-full object-cover" />
           ) : (
-            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-400 to-amber-400 flex items-center justify-center text-white text-xs font-bold">
+            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-picc-ochre-300 to-picc-ochre flex items-center justify-center text-white text-xs font-bold">
               {c.name[0]}
             </div>
           )}
@@ -416,7 +416,7 @@ function ContentSection({
   return (
     <div>
       <h4 className="flex items-center gap-2 text-lg font-bold text-gray-900 mb-4">
-        <span className="text-purple-600">{section.icon}</span>
+        <span className="text-picc-ochre">{section.icon}</span>
         {section.title}
         {items.length > 0 && (
           <span className="text-sm font-normal text-gray-500">({items.length})</span>

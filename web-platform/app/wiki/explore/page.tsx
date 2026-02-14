@@ -14,7 +14,7 @@ function GraphLoading() {
   return (
     <div className="flex items-center justify-center h-[600px] bg-gray-50 rounded-xl border border-gray-200">
       <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600 mx-auto mb-4"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-picc-red mx-auto mb-4"></div>
         <p className="text-gray-600">Loading knowledge graph...</p>
       </div>
     </div>
@@ -51,10 +51,10 @@ export default function ExplorePage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <div className="border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-purple-50">
+      <div className="border-b border-gray-200 bg-gradient-to-r from-warm-50 to-warm-100">
         <div className="max-w-7xl mx-auto px-4 py-8">
           <nav className="text-sm mb-4">
-            <Link href="/wiki" className="text-indigo-600 hover:underline">
+            <Link href="/wiki" className="text-picc-ochre hover:underline">
               Wiki
             </Link>
             <span className="mx-2 text-gray-400">/</span>
@@ -97,7 +97,7 @@ export default function ExplorePage() {
                 {getNodeUrl(selectedNode) && (
                   <Link
                     href={getNodeUrl(selectedNode)!}
-                    className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+                    className="inline-flex items-center px-4 py-2 bg-picc-ochre text-white text-sm font-medium rounded-lg hover:bg-picc-ochre transition-colors"
                   >
                     View Details
                     <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,19 +119,19 @@ export default function ExplorePage() {
               <h3 className="font-semibold text-gray-900 mb-3">How to Use</h3>
               <ul className="text-sm text-gray-600 space-y-2">
                 <li className="flex items-start gap-2">
-                  <span className="text-indigo-600">•</span>
+                  <span className="text-picc-ochre">•</span>
                   <span>Drag nodes to rearrange the graph</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-indigo-600">•</span>
+                  <span className="text-picc-ochre">•</span>
                   <span>Scroll to zoom in and out</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-indigo-600">•</span>
+                  <span className="text-picc-ochre">•</span>
                   <span>Click a node to see details</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-indigo-600">•</span>
+                  <span className="text-picc-ochre">•</span>
                   <span>Use Reset View to center the graph</span>
                 </li>
               </ul>
@@ -141,20 +141,20 @@ export default function ExplorePage() {
             <div className="bg-white rounded-xl border border-gray-200 p-4">
               <h3 className="font-semibold text-gray-900 mb-3">Graph Stats</h3>
               <div className="grid grid-cols-2 gap-3 text-sm">
-                <div className="bg-blue-50 rounded-lg p-3 text-center">
-                  <div className="text-2xl font-bold text-blue-600">Stories</div>
+                <div className="bg-warm-50 rounded-lg p-3 text-center">
+                  <div className="text-2xl font-bold text-picc-red">Stories</div>
                   <div className="text-gray-600">Narratives</div>
                 </div>
-                <div className="bg-emerald-50 rounded-lg p-3 text-center">
-                  <div className="text-2xl font-bold text-emerald-600">People</div>
+                <div className="bg-sage-50 rounded-lg p-3 text-center">
+                  <div className="text-2xl font-bold text-sage-600">People</div>
                   <div className="text-gray-600">Community</div>
                 </div>
-                <div className="bg-amber-50 rounded-lg p-3 text-center">
-                  <div className="text-2xl font-bold text-amber-600">Places</div>
+                <div className="bg-picc-ochre-50 rounded-lg p-3 text-center">
+                  <div className="text-2xl font-bold text-picc-ochre">Places</div>
                   <div className="text-gray-600">Locations</div>
                 </div>
-                <div className="bg-indigo-50 rounded-lg p-3 text-center">
-                  <div className="text-2xl font-bold text-indigo-600">Knowledge</div>
+                <div className="bg-warm-50 rounded-lg p-3 text-center">
+                  <div className="text-2xl font-bold text-picc-ochre">Knowledge</div>
                   <div className="text-gray-600">Entries</div>
                 </div>
               </div>

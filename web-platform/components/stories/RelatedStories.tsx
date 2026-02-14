@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Story } from '@/lib/stories/types';
+import { BespokeIcon } from '@/components/ui/BespokeIcon';
 
 interface RelatedStoriesProps {
   stories: Story[];
@@ -81,7 +82,7 @@ function StoryCard({ story, variant }: StoryCardProps) {
           )}
           <div className="flex items-center gap-2 text-sm text-gray-500">
             {story.storyteller?.is_elder && (
-              <span className="text-purple-600 font-medium">Elder</span>
+              <span className="text-picc-ochre font-medium">Elder</span>
             )}
             <span>{story.storyteller?.preferred_name || story.storyteller?.full_name}</span>
           </div>
@@ -107,7 +108,7 @@ function StoryCard({ story, variant }: StoryCardProps) {
       )}
       <div className="flex-1 min-w-0">
         {story.storyteller?.is_elder && (
-          <span className="inline-block px-2 py-0.5 bg-purple-100 text-purple-700 text-xs font-medium rounded mb-1">
+          <span className="inline-block px-2 py-0.5 bg-warm-100 text-picc-ochre text-xs font-medium rounded mb-1">
             Elder
           </span>
         )}
@@ -119,7 +120,7 @@ function StoryCard({ story, variant }: StoryCardProps) {
         </p>
         {story.contains_traditional_knowledge && (
           <div className="mt-1">
-            <span className="text-xs text-purple-600">🛡️ Traditional Knowledge</span>
+            <span className="text-xs text-picc-ochre flex items-center gap-1"><BespokeIcon name="traditional-knowledge" size={14} /> Traditional Knowledge</span>
           </div>
         )}
       </div>

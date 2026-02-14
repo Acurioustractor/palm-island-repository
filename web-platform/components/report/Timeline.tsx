@@ -27,11 +27,11 @@ export function Timeline({ events, variant = 'vertical', showImages = true }: Ti
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   const categoryColors = {
-    milestone: { bg: 'bg-purple-100', text: 'text-purple-700', icon: Flag },
-    achievement: { bg: 'bg-amber-100', text: 'text-amber-700', icon: Award },
-    event: { bg: 'bg-blue-100', text: 'text-blue-700', icon: Calendar },
-    launch: { bg: 'bg-green-100', text: 'text-green-700', icon: Sparkles },
-    partnership: { bg: 'bg-rose-100', text: 'text-rose-700', icon: Users },
+    milestone: { bg: 'bg-picc-ochre-100', text: 'text-picc-ochre', icon: Flag },
+    achievement: { bg: 'bg-picc-ochre-100', text: 'text-picc-ochre', icon: Award },
+    event: { bg: 'bg-warm-100', text: 'text-picc-red', icon: Calendar },
+    launch: { bg: 'bg-sage-100', text: 'text-sage-600', icon: Sparkles },
+    partnership: { bg: 'bg-picc-red-100', text: 'text-picc-red', icon: Users },
   };
 
   if (variant === 'horizontal') {
@@ -217,7 +217,7 @@ export function YearInReview({ year, highlights }: YearInReviewProps) {
               <div className="space-y-3">
                 {monthData.events.map((event, eventIndex) => (
                   <div key={eventIndex} className="flex items-start gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <CheckCircle className="w-5 h-5 text-sage-500 flex-shrink-0 mt-0.5" />
                     <div>
                       <h5 className="font-medium text-gray-900">{event.title}</h5>
                       {event.description && (

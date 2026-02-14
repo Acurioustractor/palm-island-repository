@@ -246,7 +246,7 @@ export default function NewStoryPage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-gray-900 flex items-center gap-3 mb-2">
-          <BookOpen className="h-10 w-10 text-blue-600" />
+          <BookOpen className="h-10 w-10 text-picc-red" />
           Create New Story
         </h1>
         <p className="text-xl text-gray-600">
@@ -268,7 +268,7 @@ export default function NewStoryPage() {
         {/* Authorship */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <Users className="h-6 w-6 text-blue-600" />
+            <Users className="h-6 w-6 text-picc-red" />
             Authorship
           </h2>
 
@@ -281,7 +281,7 @@ export default function NewStoryPage() {
                 required
                 value={formData.storyteller_id}
                 onChange={(e) => setFormData({ ...formData, storyteller_id: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent"
               >
                 <option value="">Select storyteller...</option>
                 {storytellers.map(st => (
@@ -299,7 +299,7 @@ export default function NewStoryPage() {
               <select
                 value={formData.collected_by}
                 onChange={(e) => setFormData({ ...formData, collected_by: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent"
               >
                 <option value="">Select collector...</option>
                 {storytellers.map(st => (
@@ -316,7 +316,7 @@ export default function NewStoryPage() {
         {/* Story Content */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <BookOpen className="h-6 w-6 text-blue-600" />
+            <BookOpen className="h-6 w-6 text-picc-red" />
             Story Content
           </h2>
 
@@ -331,7 +331,7 @@ export default function NewStoryPage() {
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 placeholder="Give your story a compelling title..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent"
               />
             </div>
 
@@ -344,7 +344,7 @@ export default function NewStoryPage() {
                 onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
                 rows={2}
                 placeholder="Brief summary for previews and cards..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent"
               />
             </div>
 
@@ -358,7 +358,7 @@ export default function NewStoryPage() {
                 onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                 rows={12}
                 placeholder="Tell the full story here. Include details, context, and what makes this story meaningful..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-serif"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent font-serif"
               />
               <p className="text-xs text-gray-500 mt-1">
                 {formData.content.length} characters
@@ -370,12 +370,12 @@ export default function NewStoryPage() {
         {/* Media Upload */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <Image className="h-6 w-6 text-blue-600" />
+            <Image className="h-6 w-6 text-picc-red" />
             Photos & Videos
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <label className="flex flex-col items-center justify-center gap-2 px-4 py-8 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 cursor-pointer transition-colors">
+            <label className="flex flex-col items-center justify-center gap-2 px-4 py-8 border-2 border-dashed border-gray-300 rounded-lg hover:border-picc-red hover:bg-warm-50 cursor-pointer transition-colors">
               <Image className="h-8 w-8 text-gray-400" />
               <span className="text-sm font-medium text-gray-700">Upload Photos</span>
               <span className="text-xs text-gray-500">JPG, PNG, HEIC</span>
@@ -387,7 +387,7 @@ export default function NewStoryPage() {
               />
             </label>
 
-            <label className="flex flex-col items-center justify-center gap-2 px-4 py-8 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-500 hover:bg-purple-50 cursor-pointer transition-colors">
+            <label className="flex flex-col items-center justify-center gap-2 px-4 py-8 border-2 border-dashed border-gray-300 rounded-lg hover:border-picc-ochre hover:bg-warm-100 cursor-pointer transition-colors">
               <Video className="h-8 w-8 text-gray-400" />
               <span className="text-sm font-medium text-gray-700">Upload Videos</span>
               <span className="text-xs text-gray-500">MP4, MOV</span>
@@ -451,7 +451,7 @@ export default function NewStoryPage() {
         {/* Categorization */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <Tag className="h-6 w-6 text-blue-600" />
+            <Tag className="h-6 w-6 text-picc-red" />
             Categorization
           </h2>
 
@@ -464,7 +464,7 @@ export default function NewStoryPage() {
                 required
                 value={formData.story_type}
                 onChange={(e) => setFormData({ ...formData, story_type: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent"
               >
                 <option value="community_story">Community Story</option>
                 <option value="elder_wisdom">Elder Wisdom</option>
@@ -483,7 +483,7 @@ export default function NewStoryPage() {
                 required
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent"
               >
                 <option value="culture">Culture & Language</option>
                 <option value="health">Health & Wellbeing</option>
@@ -504,7 +504,7 @@ export default function NewStoryPage() {
                 value={formData.related_service}
                 onChange={(e) => setFormData({ ...formData, related_service: e.target.value })}
                 placeholder="e.g., Bwgcolman Healing Service"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent"
               />
             </div>
 
@@ -515,7 +515,7 @@ export default function NewStoryPage() {
               <select
                 value={formData.innovation_link}
                 onChange={(e) => setFormData({ ...formData, innovation_link: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent"
               >
                 <option value="">None</option>
                 <option value="elders-trip">Elders Trip to Hull River</option>
@@ -536,7 +536,7 @@ export default function NewStoryPage() {
                 value={formData.tags}
                 onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
                 placeholder="Comma-separated: health, family, innovation"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent"
               />
             </div>
 
@@ -549,7 +549,7 @@ export default function NewStoryPage() {
                 value={formData.keywords}
                 onChange={(e) => setFormData({ ...formData, keywords: e.target.value })}
                 placeholder="Comma-separated keywords"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent"
               />
             </div>
           </div>
@@ -558,7 +558,7 @@ export default function NewStoryPage() {
         {/* Impact & Outcomes */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <Award className="h-6 w-6 text-blue-600" />
+            <Award className="h-6 w-6 text-picc-red" />
             Impact & Outcomes
           </h2>
 
@@ -586,7 +586,7 @@ export default function NewStoryPage() {
                           });
                         }
                       }}
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded"
+                      className="w-4 h-4 text-picc-red border-gray-300 rounded"
                     />
                     <span className="text-sm text-gray-700 capitalize">
                       {option.replace(/_/g, ' ')}
@@ -606,7 +606,7 @@ export default function NewStoryPage() {
                   onChange={(e) => setFormData({ ...formData, outcome_achieved: e.target.value })}
                   rows={3}
                   placeholder="Describe the outcome or achievement..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent"
                 />
               </div>
 
@@ -619,7 +619,7 @@ export default function NewStoryPage() {
                   value={formData.people_affected}
                   onChange={(e) => setFormData({ ...formData, people_affected: e.target.value })}
                   placeholder="Number of people impacted"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent"
                 />
               </div>
             </div>
@@ -629,7 +629,7 @@ export default function NewStoryPage() {
         {/* Location & Date */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <MapPin className="h-6 w-6 text-blue-600" />
+            <MapPin className="h-6 w-6 text-picc-red" />
             Location & Date
           </h2>
 
@@ -643,7 +643,7 @@ export default function NewStoryPage() {
                 value={formData.location}
                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                 placeholder="e.g., Community Hall, Beach"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent"
               />
             </div>
 
@@ -656,7 +656,7 @@ export default function NewStoryPage() {
                 value={formData.location_type}
                 onChange={(e) => setFormData({ ...formData, location_type: e.target.value })}
                 placeholder="e.g., health_service, beach"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent"
               />
             </div>
 
@@ -669,7 +669,7 @@ export default function NewStoryPage() {
                 type="date"
                 value={formData.story_date}
                 onChange={(e) => setFormData({ ...formData, story_date: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent"
               />
             </div>
           </div>
@@ -678,7 +678,7 @@ export default function NewStoryPage() {
         {/* Cultural Protocols */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <Heart className="h-6 w-6 text-blue-600" />
+            <Heart className="h-6 w-6 text-picc-red" />
             Cultural Protocols & Permissions
           </h2>
 
@@ -691,7 +691,7 @@ export default function NewStoryPage() {
                   ...formData,
                   contains_traditional_knowledge: e.target.checked
                 })}
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded mt-1"
+                className="w-4 h-4 text-picc-red border-gray-300 rounded mt-1"
               />
               <div>
                 <span className="text-sm font-medium text-gray-700">
@@ -710,7 +710,7 @@ export default function NewStoryPage() {
               <select
                 value={formData.cultural_sensitivity_level}
                 onChange={(e) => setFormData({ ...formData, cultural_sensitivity_level: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent"
               >
                 <option value="low">Low - General community content</option>
                 <option value="medium">Medium - Some cultural considerations</option>
@@ -727,7 +727,7 @@ export default function NewStoryPage() {
                   ...formData,
                   elder_approval_required: e.target.checked
                 })}
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded mt-1"
+                className="w-4 h-4 text-picc-red border-gray-300 rounded mt-1"
               />
               <div>
                 <span className="text-sm font-medium text-gray-700">
@@ -747,7 +747,7 @@ export default function NewStoryPage() {
                 required
                 value={formData.access_level}
                 onChange={(e) => setFormData({ ...formData, access_level: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent"
               >
                 <option value="public">Public - Visible to everyone</option>
                 <option value="community">Community - Authenticated users only</option>
@@ -760,7 +760,7 @@ export default function NewStoryPage() {
         {/* Publication Settings */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <Sparkles className="h-6 w-6 text-blue-600" />
+            <Sparkles className="h-6 w-6 text-picc-red" />
             Publication Settings
           </h2>
 
@@ -773,7 +773,7 @@ export default function NewStoryPage() {
                 required
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent"
               >
                 <option value="draft">Draft - Save for later</option>
                 <option value="submitted">Submitted - Ready for review</option>
@@ -787,7 +787,7 @@ export default function NewStoryPage() {
                 type="checkbox"
                 checked={formData.is_featured}
                 onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded"
+                className="w-4 h-4 text-picc-red border-gray-300 rounded"
               />
               <span className="text-sm font-medium text-gray-700">Feature this story</span>
             </label>
@@ -807,7 +807,7 @@ export default function NewStoryPage() {
           <button
             type="submit"
             disabled={saving || uploadingMedia}
-            className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg disabled:bg-gray-400"
+            className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-picc-red to-picc-ochre text-white rounded-lg hover:from-picc-red hover:to-picc-ochre transition-all shadow-lg disabled:bg-gray-400"
           >
             {(saving || uploadingMedia) ? (
               <>

@@ -726,14 +726,14 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
               <>
                 <Link
                   href={`/picc/report-generator?edit=${report.id}`}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-purple-700 hover:text-purple-900 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-picc-ochre hover:text-picc-earth-600 bg-warm-100 hover:bg-warm-100 rounded-lg transition-colors"
                 >
                   <Edit3 className="w-4 h-4" />
                   Edit Sections
                 </Link>
                 <Link
                   href={`/picc/annual-reports/${report.id}/images`}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-teal-700 hover:text-teal-900 bg-teal-50 hover:bg-teal-100 rounded-lg transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-picc-ochre hover:text-picc-ochre bg-warm-50 hover:bg-warm-100 rounded-lg transition-colors"
                 >
                   <Image className="w-4 h-4" />
                   Images
@@ -744,7 +744,7 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
             {!isEditMode && (
               <Link
                 href={`/annual-report/${year}?edit=1`}
-                className="p-2 text-gray-500 hover:text-purple-700 hover:bg-purple-50 rounded-lg transition-colors"
+                className="p-2 text-gray-500 hover:text-picc-ochre hover:bg-warm-100 rounded-lg transition-colors"
                 title="Edit Mode"
               >
                 <Settings className="w-5 h-5" />
@@ -1232,16 +1232,16 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
           <div className="mt-12 bg-white rounded-2xl p-8 border border-gray-100">
             <h3 className="text-xl font-bold text-gray-900 mb-4">Financial Highlights</h3>
             <div className="grid md:grid-cols-3 gap-6">
-              <div className="text-center p-4 bg-green-50 rounded-xl">
-                <div className="text-3xl font-bold text-green-700 mb-1">60%</div>
+              <div className="text-center p-4 bg-sage-50 rounded-xl">
+                <div className="text-3xl font-bold text-sage-600 mb-1">60%</div>
                 <div className="text-sm text-gray-600">Spent on local wages</div>
               </div>
-              <div className="text-center p-4 bg-blue-50 rounded-xl">
-                <div className="text-3xl font-bold text-blue-700 mb-1">90%</div>
+              <div className="text-center p-4 bg-warm-50 rounded-xl">
+                <div className="text-3xl font-bold text-picc-red mb-1">90%</div>
                 <div className="text-sm text-gray-600">Local employment rate</div>
               </div>
-              <div className="text-center p-4 bg-purple-50 rounded-xl">
-                <div className="text-3xl font-bold text-purple-700 mb-1">30%</div>
+              <div className="text-center p-4 bg-warm-100 rounded-xl">
+                <div className="text-3xl font-bold text-picc-ochre mb-1">30%</div>
                 <div className="text-sm text-gray-600">Staff growth this year</div>
               </div>
             </div>
@@ -1558,17 +1558,17 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
 
       {/* Demo Mode Warning */}
       {isEditMode && report.id === 'demo' && (
-        <div className="fixed bottom-20 left-4 right-4 sm:left-auto sm:right-4 sm:w-96 z-50 bg-amber-50 border border-amber-200 rounded-xl p-4 shadow-lg print:hidden">
+        <div className="fixed bottom-20 left-4 right-4 sm:left-auto sm:right-4 sm:w-96 z-50 bg-picc-ochre-50 border border-picc-ochre-200 rounded-xl p-4 shadow-lg print:hidden">
           <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+            <AlertCircle className="w-5 h-5 text-picc-ochre flex-shrink-0 mt-0.5" />
             <div>
-              <h4 className="font-semibold text-amber-800 mb-1">Demo Mode</h4>
-              <p className="text-sm text-amber-700">
+              <h4 className="font-semibold text-picc-earth mb-1">Demo Mode</h4>
+              <p className="text-sm text-picc-ochre">
                 This is a preview report. To add or edit sections, create a real report in the admin panel first.
               </p>
               <Link
                 href="/picc/reports/new"
-                className="inline-block mt-2 text-sm font-medium text-amber-800 hover:text-amber-900 underline"
+                className="inline-block mt-2 text-sm font-medium text-picc-earth hover:text-picc-earth underline"
               >
                 Create Real Report →
               </Link>

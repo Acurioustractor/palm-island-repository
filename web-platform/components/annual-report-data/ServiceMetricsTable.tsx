@@ -180,7 +180,7 @@ export default function ServiceMetricsTable({
           onChange={e => setEditValue(e.target.value)}
           onBlur={() => handleBlur(svc.organization_service_id, field)}
           onKeyDown={e => handleKeyDown(e, svc.organization_service_id, field)}
-          className="w-full px-2 py-1 text-sm border-2 border-purple-400 rounded focus:outline-none"
+          className="w-full px-2 py-1 text-sm border-2 border-picc-ochre-300 rounded focus:outline-none"
         />
       );
     }
@@ -239,13 +239,13 @@ export default function ServiceMetricsTable({
                   <tr
                     key={svc.organization_service_id}
                     className={`border-b border-gray-100 ${
-                      saving === svc.organization_service_id ? 'bg-purple-50' : ''
+                      saving === svc.organization_service_id ? 'bg-warm-50' : ''
                     }`}
                   >
                     <td className="px-3 py-2">
                       <div className="flex items-center gap-2">
                         {hasData(svc) ? (
-                          <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                          <CheckCircle className="w-4 h-4 text-sage-500 flex-shrink-0" />
                         ) : (
                           <Circle className="w-4 h-4 text-gray-300 flex-shrink-0" />
                         )}
@@ -264,7 +264,7 @@ export default function ServiceMetricsTable({
                       {previousYearServices && (
                         <button
                           onClick={() => copyFromLastYear(svc)}
-                          className="p-1 text-gray-400 hover:text-purple-600 transition-colors"
+                          className="p-1 text-gray-400 hover:text-picc-ochre transition-colors"
                           title="Copy from last year"
                         >
                           <Copy className="w-4 h-4" />

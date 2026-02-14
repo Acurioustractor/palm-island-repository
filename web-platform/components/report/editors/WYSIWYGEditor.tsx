@@ -168,7 +168,7 @@ export default function WYSIWYGEditor({
               <input
                 value={data.title || ''}
                 onChange={(e) => updateData('title', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre"
                 placeholder="Section title"
               />
             </div>
@@ -177,7 +177,7 @@ export default function WYSIWYGEditor({
               <textarea
                 value={data.content || ''}
                 onChange={(e) => updateData('content', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 min-h-[200px]"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre min-h-[200px]"
                 placeholder="Enter content..."
               />
             </div>
@@ -192,7 +192,7 @@ export default function WYSIWYGEditor({
               <textarea
                 value={data.quote || ''}
                 onChange={(e) => updateData('quote', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 min-h-[100px]"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre min-h-[100px]"
                 placeholder="The quote text..."
               />
             </div>
@@ -228,7 +228,7 @@ export default function WYSIWYGEditor({
                 )}
                 <button
                   onClick={() => setImagePicker({ open: true, field: 'imageUrl', title: 'Select Photo' })}
-                  className="text-sm text-purple-600 hover:text-purple-800"
+                  className="text-sm text-picc-ochre hover:text-picc-earth-500"
                 >
                   {data.imageUrl ? 'Change' : 'Select'} photo
                 </button>
@@ -275,7 +275,7 @@ export default function WYSIWYGEditor({
                 )}
                 <button
                   onClick={() => setImagePicker({ open: true, field: 'imageUrl', title: 'Select Leadership Photo' })}
-                  className="text-sm text-purple-600 hover:text-purple-800"
+                  className="text-sm text-picc-ochre hover:text-picc-earth-500"
                 >
                   {data.imageUrl ? 'Change' : 'Select'} photo
                 </button>
@@ -286,7 +286,7 @@ export default function WYSIWYGEditor({
               <textarea
                 value={data.message || ''}
                 onChange={(e) => updateData('message', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 min-h-[200px]"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre min-h-[200px]"
                 placeholder="Leadership message..."
               />
             </div>
@@ -338,7 +338,7 @@ export default function WYSIWYGEditor({
                 {data.imageUrl ? (
                   <img src={data.imageUrl} alt="" className="w-full h-48 object-cover rounded-lg hover:opacity-90" />
                 ) : (
-                  <div className="w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center hover:border-purple-400">
+                  <div className="w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center hover:border-picc-ochre-300">
                     <div className="text-center">
                       <ImageIcon className="w-10 h-10 text-gray-400 mx-auto mb-2" />
                       <span className="text-sm text-gray-500">Click to select</span>
@@ -375,16 +375,16 @@ export default function WYSIWYGEditor({
       {/* Editor Slide-in Panel */}
       {activeEditor && (
         <div className="fixed inset-y-0 right-0 w-full sm:w-[400px] z-[75] bg-white shadow-2xl border-l border-gray-200 flex flex-col print:hidden">
-          <div className="px-4 py-3 border-b border-gray-200 bg-purple-50 flex items-center justify-between">
+          <div className="px-4 py-3 border-b border-gray-200 bg-warm-100 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Edit3 className="w-5 h-5 text-purple-700" />
-              <span className="font-semibold text-purple-900">Edit Section</span>
+              <Edit3 className="w-5 h-5 text-picc-ochre" />
+              <span className="font-semibold text-picc-earth-600">Edit Section</span>
             </div>
             <button
               onClick={closeEditor}
-              className="p-1.5 rounded-lg hover:bg-purple-100 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-warm-100 transition-colors"
             >
-              <X className="w-5 h-5 text-purple-700" />
+              <X className="w-5 h-5 text-picc-ochre" />
             </button>
           </div>
 
@@ -410,7 +410,7 @@ export default function WYSIWYGEditor({
             <button
               onClick={saveChanges}
               disabled={saving}
-              className="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-60"
+              className="px-4 py-2 text-sm font-medium text-white bg-picc-ochre hover:bg-picc-ochre rounded-lg transition-colors flex items-center gap-2 disabled:opacity-60"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               Save Changes
@@ -426,7 +426,7 @@ export default function WYSIWYGEditor({
             <button
               onClick={() => setAddSectionOpen(!addSectionOpen)}
               disabled={saving}
-              className="flex items-center gap-2 px-5 py-3 bg-purple-600 text-white rounded-full shadow-lg hover:bg-purple-700 transition-all font-medium hover:scale-105"
+              className="flex items-center gap-2 px-5 py-3 bg-picc-ochre text-white rounded-full shadow-lg hover:bg-picc-ochre transition-all font-medium hover:scale-105"
             >
               <Plus className="w-5 h-5" />
               Add Section
@@ -443,9 +443,9 @@ export default function WYSIWYGEditor({
                         key={type.id}
                         onClick={() => addSection(type.id)}
                         disabled={saving}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-purple-50 text-left"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-warm-100 text-left"
                       >
-                        <Icon className="w-4 h-4 text-purple-600" />
+                        <Icon className="w-4 h-4 text-picc-ochre" />
                         <span className="text-sm font-medium text-gray-900">{type.label}</span>
                       </button>
                     )

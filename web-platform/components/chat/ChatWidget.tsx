@@ -118,7 +118,7 @@ export default function ChatWidget({
       {/* Chat Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-4 sm:bottom-6 ${positionClasses} z-50 p-4 bg-purple-600 text-white rounded-full shadow-lg hover:bg-purple-700 transition-all hover:scale-105 ${isOpen ? 'hidden' : ''}`}
+        className={`fixed bottom-4 sm:bottom-6 ${positionClasses} z-50 p-4 bg-picc-ochre text-white rounded-full shadow-lg hover:bg-picc-ochre transition-all hover:scale-105 ${isOpen ? 'hidden' : ''}`}
         aria-label="Open chat"
       >
         <MessageCircle className="w-6 h-6" />
@@ -128,7 +128,7 @@ export default function ChatWidget({
       {isOpen && (
         <div className={`fixed bottom-4 sm:bottom-6 ${positionClasses} z-50 w-[calc(100vw-2rem)] sm:w-96 h-[500px] max-h-[80vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200`}>
           {/* Header */}
-          <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-3 flex items-center justify-between">
+          <div className="bg-gradient-to-r from-picc-ochre to-picc-ochre-600 text-white px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Sparkles className="w-5 h-5" />
               <span className="font-semibold">Palm Island Assistant</span>
@@ -148,7 +148,7 @@ export default function ChatWidget({
               <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-[85%] rounded-2xl px-4 py-2 ${
                   msg.role === 'user'
-                    ? 'bg-purple-600 text-white rounded-br-md'
+                    ? 'bg-picc-ochre text-white rounded-br-md'
                     : 'bg-gray-100 text-gray-800 rounded-bl-md'
                 }`}>
                   <p className="whitespace-pre-wrap text-sm">{msg.content}</p>
@@ -179,7 +179,7 @@ export default function ChatWidget({
             {isLoading && (
               <div className="flex justify-start">
                 <div className="bg-gray-100 rounded-2xl rounded-bl-md px-4 py-3">
-                  <Loader2 className="w-5 h-5 animate-spin text-purple-600" />
+                  <Loader2 className="w-5 h-5 animate-spin text-picc-ochre" />
                 </div>
               </div>
             )}
@@ -193,7 +193,7 @@ export default function ChatWidget({
                     <button
                       key={idx}
                       onClick={() => sendMessage(starter)}
-                      className="text-xs bg-purple-50 text-purple-700 px-3 py-1.5 rounded-full hover:bg-purple-100 transition-colors"
+                      className="text-xs bg-warm-100 text-picc-ochre px-3 py-1.5 rounded-full hover:bg-warm-100 transition-colors"
                     >
                       {starter}
                     </button>
@@ -220,13 +220,13 @@ export default function ChatWidget({
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask about Palm Island..."
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-full text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-full text-sm focus:ring-2 focus:ring-picc-ochre focus:border-picc-ochre outline-none"
                 disabled={isLoading}
               />
               <button
                 type="submit"
                 disabled={!input.trim() || isLoading}
-                className="p-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-2 bg-picc-ochre text-white rounded-full hover:bg-picc-ochre transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Send message"
               >
                 <Send className="w-5 h-5" />

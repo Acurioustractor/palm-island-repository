@@ -120,7 +120,7 @@ export default function KnowledgeGraphPage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-gray-900 mb-4 flex items-center gap-3">
-          <Network className="h-10 w-10 text-blue-600" />
+          <Network className="h-10 w-10 text-picc-red" />
           Knowledge Graph
         </h1>
         <p className="text-xl text-gray-600">
@@ -132,7 +132,7 @@ export default function KnowledgeGraphPage() {
       {loading ? (
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-picc-red mx-auto mb-4"></div>
             <p className="text-gray-600">Building knowledge graph...</p>
           </div>
         </div>
@@ -154,7 +154,7 @@ export default function KnowledgeGraphPage() {
       )}
 
       {/* Instructions */}
-      <div className="mt-8 bg-blue-50 rounded-lg p-6">
+      <div className="mt-8 bg-warm-50 rounded-lg p-6">
         <h3 className="font-semibold text-gray-900 mb-3">How to use the knowledge graph:</h3>
         <ul className="space-y-2 text-gray-700">
           <li>• <strong>Nodes</strong> represent stories (blue), people (purple), places (green), topics (orange), services (pink)</li>

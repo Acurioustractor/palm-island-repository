@@ -42,13 +42,13 @@ const ICON_MAP: Record<string, any> = {
 };
 
 const COLOR_MAP: Record<string, string> = {
-  achievement: 'from-amber-400 to-orange-500',
-  growth: 'from-green-400 to-emerald-500',
-  community: 'from-blue-400 to-indigo-500',
-  health: 'from-rose-400 to-pink-500',
-  innovation: 'from-purple-400 to-violet-500',
-  milestone: 'from-amber-300 to-yellow-500',
-  impact: 'from-teal-400 to-cyan-500',
+  achievement: 'from-picc-ochre-300 to-orange-500',
+  growth: 'from-green-400 to-sage-500',
+  community: 'from-picc-red-300 to-picc-ochre',
+  health: 'from-picc-red to-warm-500',
+  innovation: 'from-picc-ochre-300 to-picc-ochre',
+  milestone: 'from-picc-ochre-300 to-yellow-500',
+  impact: 'from-picc-ochre-300 to-picc-ochre',
   default: 'from-gray-400 to-gray-500',
 };
 
@@ -71,16 +71,16 @@ export default function HighlightsShowcase({ highlights, leadership }: Highlight
                   <img
                     src={leader.photo_url}
                     alt={leader.full_name}
-                    className="w-16 h-16 rounded-full object-cover border-2 border-purple-100"
+                    className="w-16 h-16 rounded-full object-cover border-2 border-warm-100"
                   />
                 ) : (
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-400 to-indigo-400 flex items-center justify-center text-white text-2xl font-bold flex-shrink-0">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-picc-ochre-300 to-picc-red flex items-center justify-center text-white text-2xl font-bold flex-shrink-0">
                     {leader.full_name?.charAt(0) || 'P'}
                   </div>
                 )}
                 <div>
                   <h3 className="text-lg font-bold text-gray-900">{leader.full_name}</h3>
-                  <p className="text-sm text-purple-600 font-medium">{leader.position}</p>
+                  <p className="text-sm text-picc-ochre font-medium">{leader.position}</p>
                 </div>
               </div>
 
@@ -89,7 +89,7 @@ export default function HighlightsShowcase({ highlights, leadership }: Highlight
               )}
 
               {leader.featured_quote && (
-                <blockquote className="text-gray-700 italic border-l-4 border-purple-300 pl-4 mb-4">
+                <blockquote className="text-gray-700 italic border-l-4 border-picc-ochre-300 pl-4 mb-4">
                   &ldquo;{leader.featured_quote}&rdquo;
                 </blockquote>
               )}
@@ -116,7 +116,7 @@ export default function HighlightsShowcase({ highlights, leadership }: Highlight
               <div
                 key={highlight.id}
                 className={`bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg transition-all ${
-                  highlight.is_featured ? 'ring-2 ring-purple-200' : ''
+                  highlight.is_featured ? 'ring-2 ring-warm-200' : ''
                 }`}
               >
                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-4`}>
@@ -126,7 +126,7 @@ export default function HighlightsShowcase({ highlights, leadership }: Highlight
                 <h3 className="text-lg font-bold text-gray-900 mb-1">{highlight.title}</h3>
 
                 {highlight.subtitle && (
-                  <p className="text-sm text-purple-600 font-medium mb-2">{highlight.subtitle}</p>
+                  <p className="text-sm text-picc-ochre font-medium mb-2">{highlight.subtitle}</p>
                 )}
 
                 {highlight.description && (
@@ -155,7 +155,7 @@ export default function HighlightsShowcase({ highlights, leadership }: Highlight
                 )}
 
                 {highlight.is_featured && (
-                  <div className="mt-3 flex items-center gap-1 text-xs text-purple-600 font-medium">
+                  <div className="mt-3 flex items-center gap-1 text-xs text-picc-ochre font-medium">
                     <Star className="w-3 h-3" fill="currentColor" />
                     Featured
                   </div>

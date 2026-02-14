@@ -250,7 +250,7 @@ export default function PhotoStudioJourneyPage() {
         quote="My great-grandmother never had a photo. My grandmother has one. My mother has a few. Now my children have hundreds—all taken with respect, all telling our truth."
         author="Sarah Williams"
         role="Mother of four & Studio Volunteer"
-        backgroundColor="bg-gradient-to-br from-purple-50 to-pink-50"
+        backgroundColor="bg-gradient-to-br from-picc-ochre-50 to-warm-50"
         size="medium"
       />
 

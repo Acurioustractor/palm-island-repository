@@ -104,7 +104,7 @@ export function DollarBreakdown({
                   {item.linkedStory && (
                     <a
                       href={`#story-${item.linkedStory.id}`}
-                      className="ml-2 text-blue-600 hover:text-blue-700 underline"
+                      className="ml-2 text-picc-red hover:text-picc-red underline"
                     >
                       Read story →
                     </a>

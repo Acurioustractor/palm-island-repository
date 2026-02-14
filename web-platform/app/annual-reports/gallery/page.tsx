@@ -74,7 +74,7 @@ function GalleryContent() {
     : images.filter(img => img.metadata?.fiscal_year === selectedYear);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-picc-ochre-50">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4">
@@ -192,7 +192,7 @@ function GalleryContent() {
                   })}
                   <button
                     onClick={() => setSelectedYear('all')}
-                    className="px-4 py-3 bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg border-2 border-blue-300 hover:border-blue-500 hover:shadow-lg transition-all text-center"
+                    className="px-4 py-3 bg-gradient-to-br from-blue-50 to-picc-ochre-50 rounded-lg border-2 border-blue-300 hover:border-blue-500 hover:shadow-lg transition-all text-center"
                   >
                     <div className="font-semibold text-blue-700">All Years</div>
                     <div className="text-xs text-blue-600">{images.length} images</div>
@@ -211,7 +211,7 @@ export default function AnnualReportsGallery() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-picc-ochre-50">
           <div className="text-center">
             <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
             <p className="text-gray-600">Loading gallery...</p>

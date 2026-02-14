@@ -249,7 +249,7 @@ export default function PhotoStudioStoryPage() {
         quote="[Another powerful quote from different person]"
         author="[Full Name]"
         role="[Their role]"
-        backgroundColor="bg-gradient-to-br from-purple-50 to-pink-50"
+        backgroundColor="bg-gradient-to-br from-picc-ochre-50 to-warm-50"
         size="medium"
       />
 

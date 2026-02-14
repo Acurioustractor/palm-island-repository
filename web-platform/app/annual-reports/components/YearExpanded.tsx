@@ -58,10 +58,10 @@ export default function YearExpanded({ fiscalYear, yearData, onClose, onNavigate
   }, []);
 
   const colorSchemes = {
-    amber: 'from-amber-500 to-orange-600',
-    purple: 'from-purple-500 to-pink-600',
+    amber: 'from-picc-ochre-500 to-orange-600',
+    purple: 'from-picc-ochre-500 to-picc-red',
     green: 'from-green-500 to-emerald-600',
-    blue: 'from-blue-500 to-cyan-600'
+    blue: 'from-blue-500 to-sage'
   };
 
   const gradient = colorSchemes[yearData?.color as keyof typeof colorSchemes] || colorSchemes.blue;
@@ -201,7 +201,7 @@ export default function YearExpanded({ fiscalYear, yearData, onClose, onNavigate
                 <div className="text-center">
                   <Link
                     href={`/annual-reports/gallery?year=${fiscalYear}`}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all font-medium shadow-lg hover:shadow-xl"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-picc-ochre text-white rounded-lg hover:from-blue-700 hover:to-picc-ochre transition-all font-medium shadow-lg hover:shadow-xl"
                   >
                     <ImageIcon className="w-5 h-5" />
                     See More Images
@@ -209,7 +209,7 @@ export default function YearExpanded({ fiscalYear, yearData, onClose, onNavigate
                 </div>
               </div>
             ) : (
-              <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-8 border-2 border-blue-200 text-center">
+              <div className="bg-gradient-to-br from-blue-50 to-picc-ochre-50 rounded-lg p-8 border-2 border-blue-200 text-center">
                 <ImageIcon className="w-16 h-16 text-blue-400 mx-auto mb-4" />
                 <p className="text-gray-700 mb-4">
                   No preview images available for this report yet

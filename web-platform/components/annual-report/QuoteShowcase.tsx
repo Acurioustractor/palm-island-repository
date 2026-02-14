@@ -45,14 +45,14 @@ export function QuoteShowcase({
   }, [autoPlay, autoPlayInterval, quotes.length, layout]);
 
   const themeGradients: Record<string, string> = {
-    community: 'from-purple-600 to-pink-600',
-    services: 'from-blue-600 to-cyan-600',
-    culture: 'from-amber-600 to-orange-600',
-    history: 'from-emerald-600 to-teal-600',
-    achievement: 'from-yellow-500 to-amber-600',
-    youth: 'from-pink-600 to-rose-600',
-    employment: 'from-indigo-600 to-purple-600',
-    health: 'from-green-600 to-emerald-600',
+    community: 'from-picc-ochre to-picc-red',
+    services: 'from-picc-red to-picc-ochre',
+    culture: 'from-picc-ochre to-picc-earth',
+    history: 'from-sage-600 to-picc-ochre',
+    achievement: 'from-yellow-500 to-picc-ochre',
+    youth: 'from-picc-red to-picc-red-300',
+    employment: 'from-picc-ochre to-picc-ochre',
+    health: 'from-sage-600 to-sage-600',
   };
 
   if (quotes.length === 0) return null;
@@ -68,7 +68,7 @@ export function QuoteShowcase({
           <div className="relative">
             <div
               className={`relative rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br ${
-                themeGradients[quote.theme || ''] || 'from-purple-600 to-pink-600'
+                themeGradients[quote.theme || ''] || 'from-picc-ochre to-picc-red'
               }`}
             >
               {/* Background Pattern */}
@@ -182,7 +182,7 @@ export function QuoteShowcase({
                   onClick={() => setActiveIndex(index)}
                   className={`w-3 h-3 rounded-full transition-all ${
                     index === activeIndex
-                      ? 'bg-purple-600 w-8'
+                      ? 'bg-picc-ochre w-8'
                       : 'bg-gray-300 hover:bg-gray-400'
                   }`}
                   aria-label={`Go to quote ${index + 1}`}
@@ -256,7 +256,7 @@ export function QuoteShowcase({
           {/* Featured Quote */}
           <div
             className={`relative rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br ${
-              themeGradients[featured.theme || ''] || 'from-purple-600 to-pink-600'
+              themeGradients[featured.theme || ''] || 'from-picc-ochre to-picc-red'
             }`}
           >
             <div className="grid grid-cols-1 md:grid-cols-2 min-h-[500px]">

@@ -66,20 +66,20 @@ export function EmptyState({
   const displayActionHref = actionHref || defaults.actionHref;
 
   return (
-    <div className={`text-center py-12 px-6 ${className}`}>
+    <div className={`text-center py-16 px-8 ${className}`}>
       {/* Icon with decorative background */}
-      <div className="relative inline-block mb-6">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-teal-100 rounded-full blur-xl opacity-50" />
-        <div className="relative p-4 bg-gradient-to-br from-blue-50 to-teal-50 rounded-full border border-blue-200">
-          <Icon className="w-12 h-12 text-blue-600" />
+      <div className="relative inline-block mb-8">
+        <div className="absolute inset-0 bg-gradient-to-br from-warm-100 to-picc-ochre-100 rounded-full blur-xl opacity-40" />
+        <div className="relative p-5 bg-gradient-to-br from-warm-50 to-picc-ochre-50 rounded-full border border-warm-100">
+          <Icon className="w-10 h-10 text-picc-red" />
         </div>
       </div>
 
       {/* Title */}
-      <h3 className="text-xl font-bold text-gray-900 mb-2">{displayTitle}</h3>
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">{displayTitle}</h3>
 
       {/* Description */}
-      <p className="text-gray-600 max-w-md mx-auto mb-6">{displayDescription}</p>
+      <p className="text-gray-500 text-sm max-w-sm mx-auto mb-8">{displayDescription}</p>
 
       {/* Action Button */}
       {(displayActionHref || onAction) && displayActionLabel && (
@@ -94,7 +94,7 @@ export function EmptyState({
       )}
 
       {/* Encouraging message */}
-      <p className="mt-8 text-sm text-gray-500 italic">
+      <p className="mt-10 text-xs text-gray-400 italic">
         Every voice strengthens our community.
       </p>
     </div>

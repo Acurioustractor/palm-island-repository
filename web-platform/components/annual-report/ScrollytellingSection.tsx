@@ -262,7 +262,7 @@ function FinalMessage({
       style={{ opacity, scale }}
     >
       <div className="text-center">
-        <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
+        <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-br from-picc-ochre-300 to-picc-ochre flex items-center justify-center">
           <svg
             className="w-8 h-8 text-white"
             fill="none"

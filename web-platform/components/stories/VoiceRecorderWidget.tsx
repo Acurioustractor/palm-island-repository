@@ -349,7 +349,7 @@ export default function VoiceRecorderWidget({
                 {[...Array(20)].map((_, i) => (
                   <div
                     key={i}
-                    className={`w-1 bg-purple-500 rounded-full transition-all ${
+                    className={`w-1 bg-picc-ochre rounded-full transition-all ${
                       isPaused ? 'h-2' : ''
                     }`}
                     style={{
@@ -374,7 +374,7 @@ export default function VoiceRecorderWidget({
               {isPaused ? (
                 <button
                   onClick={resumeRecording}
-                  className="p-4 bg-purple-600 hover:bg-purple-700 text-white rounded-full transition-colors"
+                  className="p-4 bg-picc-ochre hover:bg-picc-ochre text-white rounded-full transition-colors"
                   aria-label="Resume"
                 >
                   <Play className="w-6 h-6" />
@@ -432,7 +432,7 @@ export default function VoiceRecorderWidget({
               <button
                 onClick={processRecording}
                 disabled={isProcessing}
-                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-picc-ochre text-white rounded-lg hover:bg-picc-ochre transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isProcessing ? (
                   <>

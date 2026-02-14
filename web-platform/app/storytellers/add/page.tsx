@@ -192,13 +192,13 @@ export default function AddStorytellerPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-blue-50 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-sage-50 to-blue-50 p-4">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="mb-6">
           <Link
             href="/storytellers"
-            className="inline-flex items-center text-teal-600 hover:text-teal-800 mb-4"
+            className="inline-flex items-center text-sage hover:text-sage-800 mb-4"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Storytellers
@@ -206,8 +206,8 @@ export default function AddStorytellerPage() {
 
           <div className="bg-white rounded-xl shadow-lg p-6">
             <div className="flex items-center mb-2">
-              <User className="w-8 h-8 text-teal-600 mr-3" />
-              <h1 className="text-3xl font-bold text-teal-900">
+              <User className="w-8 h-8 text-sage mr-3" />
+              <h1 className="text-3xl font-bold text-sage-900">
                 Add New Storyteller
               </h1>
             </div>
@@ -239,7 +239,7 @@ export default function AddStorytellerPage() {
                   required
                   value={formData.full_name}
                   onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
                   placeholder="Enter full name..."
                 />
               </div>
@@ -252,7 +252,7 @@ export default function AddStorytellerPage() {
                   type="text"
                   value={formData.preferred_name}
                   onChange={(e) => setFormData({ ...formData, preferred_name: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
                   placeholder="What do they like to be called?"
                 />
               </div>
@@ -266,7 +266,7 @@ export default function AddStorytellerPage() {
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
                     placeholder="email@example.com"
                   />
                 </div>
@@ -279,7 +279,7 @@ export default function AddStorytellerPage() {
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
                     placeholder="Phone number"
                   />
                 </div>
@@ -293,7 +293,7 @@ export default function AddStorytellerPage() {
                   type="text"
                   value={formData.community_role}
                   onChange={(e) => setFormData({ ...formData, community_role: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
                   placeholder="e.g., Youth Worker, Health Worker, Community Leader..."
                 />
               </div>
@@ -314,13 +314,13 @@ export default function AddStorytellerPage() {
                     onClick={() => setFormData({ ...formData, storyteller_type: type.value })}
                     className={`p-4 rounded-lg border-2 transition-all text-left ${
                       formData.storyteller_type === type.value
-                        ? 'border-teal-500 bg-teal-50'
+                        ? 'border-sage-500 bg-sage-50'
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
                     <div className="flex items-center gap-3">
                       <Icon className={`w-5 h-5 ${
-                        formData.storyteller_type === type.value ? 'text-teal-600' : 'text-gray-400'
+                        formData.storyteller_type === type.value ? 'text-sage' : 'text-gray-400'
                       }`} />
                       <div>
                         <div className="font-medium text-gray-800">{type.label}</div>
@@ -345,7 +345,7 @@ export default function AddStorytellerPage() {
                 <select
                   value={formData.service_id}
                   onChange={(e) => setFormData({ ...formData, service_id: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
                 >
                   <option value="">No specific service</option>
                   {services.map(service => (
@@ -366,7 +366,7 @@ export default function AddStorytellerPage() {
                 <select
                   value={formData.org_role}
                   onChange={(e) => setFormData({ ...formData, org_role: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
                 >
                   {orgRoles.map(role => (
                     <option key={role.value} value={role.value}>
@@ -386,7 +386,7 @@ export default function AddStorytellerPage() {
               value={formData.bio}
               onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
               rows={4}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
               placeholder="A brief description of this person and their connection to Palm Island community..."
             />
           </div>
@@ -394,7 +394,7 @@ export default function AddStorytellerPage() {
           {/* Consent & Permissions */}
           <div className="bg-white rounded-xl shadow-lg p-6">
             <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <Shield className="w-5 h-5 text-teal-600" />
+              <Shield className="w-5 h-5 text-sage" />
               Consent & Permissions
             </h2>
 
@@ -404,7 +404,7 @@ export default function AddStorytellerPage() {
                   type="checkbox"
                   checked={formData.consent_given}
                   onChange={(e) => setFormData({ ...formData, consent_given: e.target.checked })}
-                  className="mt-1 h-5 w-5 text-teal-600 rounded"
+                  className="mt-1 h-5 w-5 text-sage rounded"
                 />
                 <div>
                   <div className="font-medium text-gray-800">Consent Given *</div>
@@ -419,7 +419,7 @@ export default function AddStorytellerPage() {
                   type="checkbox"
                   checked={formData.can_share_stories}
                   onChange={(e) => setFormData({ ...formData, can_share_stories: e.target.checked })}
-                  className="mt-1 h-5 w-5 text-teal-600 rounded"
+                  className="mt-1 h-5 w-5 text-sage rounded"
                 />
                 <div>
                   <div className="font-medium text-gray-800">Can Share Stories</div>
@@ -434,7 +434,7 @@ export default function AddStorytellerPage() {
                   type="checkbox"
                   checked={formData.show_in_directory}
                   onChange={(e) => setFormData({ ...formData, show_in_directory: e.target.checked })}
-                  className="mt-1 h-5 w-5 text-teal-600 rounded"
+                  className="mt-1 h-5 w-5 text-sage rounded"
                 />
                 <div>
                   <div className="font-medium text-gray-800">Show in Directory</div>
@@ -449,7 +449,7 @@ export default function AddStorytellerPage() {
                   type="checkbox"
                   checked={formData.can_share_traditional_knowledge}
                   onChange={(e) => setFormData({ ...formData, can_share_traditional_knowledge: e.target.checked })}
-                  className="mt-1 h-5 w-5 text-teal-600 rounded"
+                  className="mt-1 h-5 w-5 text-sage rounded"
                 />
                 <div>
                   <div className="font-medium text-gray-800">Can Share Traditional Knowledge</div>
@@ -462,9 +462,9 @@ export default function AddStorytellerPage() {
           </div>
 
           {/* Cultural Protocol Notice */}
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-6">
-            <h3 className="font-bold text-amber-800 mb-2">Cultural Protocol Reminder</h3>
-            <ul className="text-sm text-amber-700 space-y-1">
+          <div className="bg-picc-ochre-50 border border-picc-ochre-200 rounded-xl p-6">
+            <h3 className="font-bold text-picc-earth mb-2">Cultural Protocol Reminder</h3>
+            <ul className="text-sm text-picc-ochre space-y-1">
               <li>• Ensure proper consent has been obtained in a culturally appropriate manner</li>
               <li>• Elder stories may require additional cultural review before publishing</li>
               <li>• Traditional knowledge content should be flagged for cultural advisor review</li>
@@ -477,7 +477,7 @@ export default function AddStorytellerPage() {
             <button
               type="submit"
               disabled={loading || !formData.consent_given}
-              className="flex-1 bg-teal-600 hover:bg-teal-700 disabled:bg-gray-400 text-white font-bold py-4 px-8 rounded-lg shadow-lg transition-all transform hover:scale-105 disabled:transform-none"
+              className="flex-1 bg-sage hover:bg-sage disabled:bg-gray-400 text-white font-bold py-4 px-8 rounded-lg shadow-lg transition-all transform hover:scale-105 disabled:transform-none"
             >
               {loading ? 'Adding Storyteller...' : 'Add Storyteller'}
             </button>

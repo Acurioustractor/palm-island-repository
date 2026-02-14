@@ -219,7 +219,7 @@ export default function KnowledgeGraph({
   if (loading) {
     return (
       <div className="flex items-center justify-center" style={{ width, height }}>
-        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-picc-red"></div>
       </div>
     );
   }

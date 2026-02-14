@@ -73,7 +73,7 @@ export function ErrorFallback({
       {resetError && (
         <button
           onClick={resetError}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-picc-red text-white rounded-lg hover:bg-picc-red transition-colors"
         >
           <RefreshCw className="w-4 h-4" />
           Try Again
@@ -162,7 +162,7 @@ export function LoadingState({
     return (
       <div className={containerClass}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4" />
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-picc-red mx-auto mb-4" />
           <p className="text-gray-600">Loading...</p>
         </div>
       </div>
@@ -187,7 +187,7 @@ export function LoadingState({
           {onRetry && (
             <button
               onClick={onRetry}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-picc-red text-white rounded-lg hover:bg-picc-red transition-colors"
             >
               <RefreshCw className="w-4 h-4" />
               Try Again

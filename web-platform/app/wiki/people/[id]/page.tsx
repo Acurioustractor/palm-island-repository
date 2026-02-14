@@ -135,7 +135,7 @@ export default function PersonProfilePage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-picc-ochre mx-auto mb-4"></div>
           <p className="text-xl text-gray-700">Loading profile...</p>
         </div>
       </div>
@@ -153,7 +153,7 @@ export default function PersonProfilePage() {
           <p className="text-gray-600 mb-6">This person's profile could not be found.</p>
           <Link
             href="/wiki/people"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-picc-ochre text-white rounded-lg hover:bg-picc-ochre-700 transition-colors"
           >
             <ArrowLeft className="h-5 w-5" />
             Back to People
@@ -246,7 +246,7 @@ export default function PersonProfilePage() {
       {/* Profile Header */}
       <div className="bg-white rounded-xl border border-stone-300 shadow-sm overflow-hidden mb-8">
         {/* Cover/Banner */}
-        <div className="h-48 bg-gradient-to-r from-purple-400 via-blue-400 to-teal-400 relative">
+        <div className="h-48 bg-gradient-to-r from-picc-ochre-300 via-picc-red-300 to-picc-ochre-300 relative">
           <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/50 to-transparent"></div>
         </div>
 
@@ -262,7 +262,7 @@ export default function PersonProfilePage() {
                   className="w-32 h-32 rounded-full border-4 border-white shadow-xl object-cover bg-white"
                 />
               ) : (
-                <div className="w-32 h-32 rounded-full border-4 border-white shadow-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white font-bold text-4xl">
+                <div className="w-32 h-32 rounded-full border-4 border-white shadow-xl bg-gradient-to-br from-picc-ochre to-picc-red flex items-center justify-center text-white font-bold text-4xl">
                   {(profile.preferred_name || profile.full_name)
                     .split(' ')
                     .map((n) => n[0])
@@ -272,7 +272,7 @@ export default function PersonProfilePage() {
                 </div>
               )}
               {profile.is_elder && (
-                <div className="absolute -bottom-2 -right-2 bg-amber-500 text-white px-3 py-1 rounded-full text-xs font-bold border-2 border-white shadow">
+                <div className="absolute -bottom-2 -right-2 bg-picc-ochre-500 text-white px-3 py-1 rounded-full text-xs font-bold border-2 border-white shadow">
                   Elder
                 </div>
               )}
@@ -281,7 +281,7 @@ export default function PersonProfilePage() {
             {/* Edit Button */}
             <button
               onClick={() => setEditMode(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium shadow-sm"
+              className="flex items-center gap-2 px-4 py-2 bg-picc-ochre text-white rounded-lg hover:bg-picc-ochre-700 transition-colors font-medium shadow-sm"
             >
               <Edit2 className="h-4 w-4" />
               Edit Profile
@@ -297,7 +297,7 @@ export default function PersonProfilePage() {
               <p className="text-lg text-gray-600 mb-2">{profile.full_name}</p>
             )}
             {profile.community_role && (
-              <p className="text-lg text-purple-700 font-medium">{profile.community_role}</p>
+              <p className="text-lg text-picc-ochre-700 font-medium">{profile.community_role}</p>
             )}
           </div>
 
@@ -363,7 +363,7 @@ export default function PersonProfilePage() {
                     {profile.languages_spoken.map((lang, idx) => (
                       <span
                         key={idx}
-                        className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm border border-blue-200"
+                        className="px-3 py-1 bg-warm-50 text-picc-red rounded-full text-sm border border-warm-200"
                       >
                         {lang}
                       </span>
@@ -379,7 +379,7 @@ export default function PersonProfilePage() {
                     {profile.expertise_areas.map((expertise, idx) => (
                       <span
                         key={idx}
-                        className="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm border border-purple-200"
+                        className="px-3 py-1 bg-warm-100 text-picc-ochre-700 rounded-full text-sm border border-warm-200"
                       >
                         {expertise}
                       </span>
@@ -394,9 +394,9 @@ export default function PersonProfilePage() {
 
       {/* Stories Section */}
       <div className="bg-white rounded-xl border border-stone-300 shadow-sm overflow-hidden">
-        <div className="bg-gradient-to-r from-stone-100 to-purple-50 border-b border-stone-200 px-6 py-4">
+        <div className="bg-gradient-to-r from-stone-100 to-warm-100 border-b border-stone-200 px-6 py-4">
           <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <BookOpen className="h-6 w-6 text-purple-600" />
+            <BookOpen className="h-6 w-6 text-picc-ochre" />
             Stories ({stories.length})
           </h2>
         </div>
@@ -407,12 +407,12 @@ export default function PersonProfilePage() {
                 <Link
                   key={story.id}
                   href={`/stories/${story.id}`}
-                  className="block p-4 border border-gray-200 rounded-lg hover:border-purple-300 hover:bg-purple-50/50 transition-all group"
+                  className="block p-4 border border-gray-200 rounded-lg hover:border-picc-ochre-300 hover:bg-warm-100/50 transition-all group"
                 >
                   <div className="flex items-start gap-3">
-                    <Heart className="h-5 w-5 text-purple-600 mt-0.5 flex-shrink-0" />
+                    <Heart className="h-5 w-5 text-picc-ochre mt-0.5 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 group-hover:text-purple-700 mb-1">
+                      <h3 className="font-semibold text-gray-900 group-hover:text-picc-ochre-700 mb-1">
                       {story.title}
                     </h3>
                       {story.excerpt && (
@@ -445,9 +445,9 @@ export default function PersonProfilePage() {
 
       {/* Featured In Section */}
       <div className="mt-6 bg-white rounded-xl border border-stone-300 shadow-sm overflow-hidden">
-        <div className="bg-gradient-to-r from-stone-100 to-amber-50 border-b border-stone-200 px-6 py-4">
+        <div className="bg-gradient-to-r from-stone-100 to-picc-ochre-50 border-b border-stone-200 px-6 py-4">
           <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Heart className="h-6 w-6 text-amber-600" />
+            <Heart className="h-6 w-6 text-picc-ochre" />
             Featured in ({featuredInStories.length})
           </h2>
         </div>
@@ -458,12 +458,12 @@ export default function PersonProfilePage() {
                 <Link
                   key={story.id}
                   href={`/stories/${story.id}`}
-                  className="block p-4 border border-gray-200 rounded-lg hover:border-amber-300 hover:bg-amber-50/50 transition-all group"
+                  className="block p-4 border border-gray-200 rounded-lg hover:border-picc-ochre-300 hover:bg-picc-ochre-50/50 transition-all group"
                 >
                   <div className="flex items-start gap-3">
-                    <BookOpen className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                    <BookOpen className="h-5 w-5 text-picc-ochre mt-0.5 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 group-hover:text-amber-800 mb-1">
+                      <h3 className="font-semibold text-gray-900 group-hover:text-picc-earth mb-1">
                       {story.title}
                     </h3>
                       {story.excerpt && (

@@ -130,7 +130,7 @@ export function ServiceStoryPage({
                   icon={<Activity className="w-6 h-6" />}
                   value={latestMetrics.clients_served.toLocaleString()}
                   label="People Served"
-                  color={service.service_color || '#6366f1'}
+                  color={service.service_color || '#C8922A'}
                 />
               )}
               {latestMetrics.staff_count != null && (
@@ -138,7 +138,7 @@ export function ServiceStoryPage({
                   icon={<Users className="w-6 h-6" />}
                   value={latestMetrics.staff_count.toString()}
                   label="Staff Members"
-                  color={service.service_color || '#6366f1'}
+                  color={service.service_color || '#C8922A'}
                 />
               )}
               {latestMetrics.sessions_delivered != null && (
@@ -146,7 +146,7 @@ export function ServiceStoryPage({
                   icon={<Calendar className="w-6 h-6" />}
                   value={latestMetrics.sessions_delivered.toLocaleString()}
                   label="Sessions Delivered"
-                  color={service.service_color || '#6366f1'}
+                  color={service.service_color || '#C8922A'}
                 />
               )}
               {latestMetrics.key_achievement && (
@@ -154,7 +154,7 @@ export function ServiceStoryPage({
                   icon={<Award className="w-6 h-6" />}
                   value=""
                   label={latestMetrics.key_achievement}
-                  color={service.service_color || '#6366f1'}
+                  color={service.service_color || '#C8922A'}
                   isText
                 />
               )}
@@ -214,8 +214,8 @@ export function ServiceStoryPage({
                   href={`/stories/${story.id}`}
                   className="group block"
                 >
-                  <div className="bg-white border border-gray-200 rounded-2xl p-6 hover:border-purple-300 hover:shadow-xl transition-all h-full">
-                    <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors line-clamp-2">
+                  <div className="bg-white border border-gray-200 rounded-2xl p-6 hover:border-picc-ochre-300 hover:shadow-xl transition-all h-full">
+                    <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-picc-ochre transition-colors line-clamp-2">
                       {story.title}
                     </h3>
                     {story.storyteller && (
@@ -226,7 +226,7 @@ export function ServiceStoryPage({
                     <p className="text-gray-600 text-sm line-clamp-3">
                       {story.summary || (story.content || '').slice(0, 180)}
                     </p>
-                    <div className="mt-4 flex items-center gap-1 text-purple-700 font-semibold text-sm">
+                    <div className="mt-4 flex items-center gap-1 text-picc-ochre font-semibold text-sm">
                       Read story
                       <ExternalLink className="w-3.5 h-3.5" />
                     </div>
@@ -239,7 +239,7 @@ export function ServiceStoryPage({
       )}
 
       {/* CTA */}
-      <section className="py-20 bg-gradient-to-br from-purple-900 to-indigo-900 text-white">
+      <section className="py-20 bg-gradient-to-br from-picc-earth-600 to-picc-earth text-white">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-3xl font-bold mb-4">Share Your Experience</h2>
           <p className="text-lg opacity-90 mb-8 max-w-2xl mx-auto">
@@ -249,14 +249,14 @@ export function ServiceStoryPage({
           <div className="flex flex-wrap gap-4 justify-center">
             <Link
               href="/share-voice"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-purple-900 rounded-full font-semibold text-lg hover:bg-gray-100 transition-all"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-picc-earth-600 rounded-full font-semibold text-lg hover:bg-gray-100 transition-all"
             >
               <Mic className="w-5 h-5" />
               Share Your Voice
             </Link>
             <Link
               href="/annual-report/live"
-              className="inline-flex items-center gap-2 px-8 py-4 border-2 border-white text-white rounded-full font-semibold text-lg hover:bg-white hover:text-purple-900 transition-all"
+              className="inline-flex items-center gap-2 px-8 py-4 border-2 border-white text-white rounded-full font-semibold text-lg hover:bg-white hover:text-picc-earth-600 transition-all"
             >
               Back to Dashboard
             </Link>

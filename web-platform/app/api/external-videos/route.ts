@@ -1,12 +1,14 @@
 import { NextResponse, NextRequest } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { createRouteHandlerClient } from '@/lib/supabase/server'
 
 export const runtime = 'nodejs'
 
-function isDev(request: NextRequest) {
-  if (process.env.NODE_ENV === 'production') return false
-  const host = request.headers.get('host') || ''
-  return host.includes('localhost') || host.includes('127.0.0.1')
+async function requireAuth() {
+  if (process.env.NODE_ENV === 'development') return { id: 'dev' } as any
+  const supabaseAuth = await createRouteHandlerClient()
+  const { data: { user } } = await supabaseAuth.auth.getUser()
+  return user
 }
 
 // Server-side Supabase client with service role (bypasses RLS)
@@ -70,6 +72,17 @@ function extractVideoId(url: string): { platform: string; videoId: string | null
 function getThumbnailUrl(platform: string, videoId: string | null): string | null {
   if (platform === 'youtube' && videoId) return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
   return null
+}
+
+async function fetchDescriptThumbnail(url: string): Promise<string | null> {
+  try {
+    const res = await fetch(url, { signal: AbortSignal.timeout(5000), redirect: 'follow' })
+    const html = await res.text()
+    const match = html.match(/og:image"\s+content="([^"]+)"/)
+    return match?.[1] || null
+  } catch {
+    return null
+  }
 }
 
 function toExternalVideoRow(media: any) {
@@ -136,7 +149,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    if (!isDev(request)) return NextResponse.json({ error: 'Not available' }, { status: 403 })
+    const user = await requireAuth()
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const supabase = getServerClient()
     const body = await request.json().catch(() => ({} as any))
@@ -147,7 +161,9 @@ export async function POST(request: NextRequest) {
     if (!title) return NextResponse.json({ error: 'title required' }, { status: 400 })
 
     const { platform, videoId } = extractVideoId(videoUrl)
-    const thumbnail = body.thumbnail_url || getThumbnailUrl(platform, videoId)
+    const thumbnail = body.thumbnail_url
+      || getThumbnailUrl(platform, videoId)
+      || (platform === 'descript' ? await fetchDescriptThumbnail(videoUrl) : null)
 
     const baseSlug = slugify(title) || slugify(videoUrl) || 'external-video'
     const stamp = Date.now()
@@ -216,7 +232,8 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
-    if (!isDev(request)) return NextResponse.json({ error: 'Not available' }, { status: 403 })
+    const user = await requireAuth()
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const supabase = getServerClient()
     const body = await request.json().catch(() => ({} as any))
@@ -292,7 +309,8 @@ export async function PATCH(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    if (!isDev(request)) return NextResponse.json({ error: 'Not available' }, { status: 403 })
+    const user = await requireAuth()
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const supabase = getServerClient()
     const { searchParams } = new URL(request.url)

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Calendar, Star, MapPin, ArrowRight, Filter } from 'lucide-react';
+import { Calendar, Star, MapPin, ArrowRight } from 'lucide-react';
 import CulturalCalendar from '@/components/calendar/CulturalCalendar';
 
 interface CulturalEvent {
@@ -60,35 +60,40 @@ export default function CalendarPage() {
     : upcomingEvents.filter(e => e.type === filter);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-16">
-        <div className="container mx-auto px-4">
-          <h1 className="text-4xl font-bold mb-4">Cultural Calendar</h1>
-          <p className="text-xl text-purple-100 max-w-2xl">
+    <div className="min-h-screen bg-white">
+      {/* Editorial Hero */}
+      <section className="editorial-section border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <span className="text-xs font-semibold uppercase tracking-[0.15em] text-gray-400">
+            Community
+          </span>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 tracking-[-0.02em] leading-[1.1] mt-4 mb-6">
+            Cultural Calendar
+          </h1>
+          <p className="text-lg text-gray-500 max-w-2xl leading-relaxed">
             Stay connected with community events, cultural celebrations, and important dates
             for Palm Island and First Nations peoples across Australia.
           </p>
         </div>
-      </div>
+      </section>
 
       {/* Today's Significance */}
       {todayInfo?.message && (
-        <div className="bg-yellow-50 border-b border-yellow-100">
-          <div className="container mx-auto px-4 py-4">
+        <div className="border-b border-gray-100">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8 py-5">
             <div className="flex items-start gap-3">
-              <Star className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+              <Star className="w-5 h-5 text-gray-900 flex-shrink-0 mt-0.5" />
               <div>
-                <h2 className="font-semibold text-yellow-800">Today's Significance</h2>
-                <p className="text-yellow-700">{todayInfo.message}</p>
+                <h2 className="font-semibold text-gray-900 text-sm">Today&apos;s Significance</h2>
+                <p className="text-gray-500 text-sm">{todayInfo.message}</p>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16 md:py-24">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           {/* Calendar Widget */}
           <div className="lg:col-span-2">
             <CulturalCalendar />
@@ -96,19 +101,18 @@ export default function CalendarPage() {
 
           {/* Upcoming Events */}
           <div>
-            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-              <div className="p-4 border-b border-gray-200">
-                <h2 className="font-semibold text-gray-900 flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-purple-600" />
+            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+              <div className="p-5 border-b border-gray-100">
+                <h2 className="font-semibold text-gray-900 flex items-center gap-2 text-sm">
+                  <Calendar className="w-4 h-4" />
                   Upcoming Events
                 </h2>
 
-                {/* Filter */}
                 <div className="mt-3">
                   <select
                     value={filter}
                     onChange={(e) => setFilter(e.target.value)}
-                    className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2 focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition-all duration-300 ease-elegant"
                   >
                     {EVENT_TYPES.map(type => (
                       <option key={type.value} value={type.value}>
@@ -119,48 +123,48 @@ export default function CalendarPage() {
                 </div>
               </div>
 
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-gray-50">
                 {loading ? (
-                  <div className="p-8 text-center text-gray-500">
+                  <div className="p-8 text-center text-gray-400 text-sm">
                     Loading events...
                   </div>
                 ) : filteredEvents.length === 0 ? (
-                  <div className="p-8 text-center text-gray-500">
+                  <div className="p-8 text-center text-gray-400 text-sm">
                     No upcoming events
                   </div>
                 ) : (
                   filteredEvents.map(event => (
-                    <div key={event.id} className="p-4 hover:bg-gray-50 transition-colors">
+                    <div key={event.id} className="p-4 hover:bg-gray-50/50 transition-colors duration-300 ease-elegant">
                       <div className="flex items-start gap-3">
                         <div className="text-center min-w-[50px]">
-                          <div className="text-2xl font-bold text-purple-600">
+                          <div className="text-2xl font-extrabold text-gray-900 tracking-[-0.02em]">
                             {new Date(event.date).getDate()}
                           </div>
-                          <div className="text-xs text-gray-500 uppercase">
+                          <div className="text-xs text-gray-400 uppercase tracking-wide font-medium">
                             {new Date(event.date).toLocaleDateString('en-AU', { month: 'short' })}
                           </div>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-medium text-gray-900 truncate">
+                          <h3 className="font-medium text-gray-900 truncate text-sm">
                             {event.title}
                           </h3>
                           {event.description && (
-                            <p className="text-sm text-gray-600 line-clamp-2 mt-1">
+                            <p className="text-sm text-gray-500 line-clamp-2 mt-1">
                               {event.description}
                             </p>
                           )}
                           {event.location && (
-                            <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                            <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
                               <MapPin className="w-3 h-3" />
                               {event.location}
                             </p>
                           )}
                           <span className={`
-                            inline-block mt-2 text-xs px-2 py-0.5 rounded capitalize
-                            ${event.type === 'national' ? 'bg-yellow-100 text-yellow-800' :
-                              event.type === 'cultural' ? 'bg-purple-100 text-purple-800' :
-                              event.type === 'health' ? 'bg-red-100 text-red-800' :
-                              'bg-gray-100 text-gray-800'}
+                            inline-block mt-2 text-xs px-2 py-0.5 rounded-full capitalize font-medium
+                            ${event.type === 'national' ? 'bg-gray-100 text-gray-700' :
+                              event.type === 'cultural' ? 'bg-gray-100 text-gray-700' :
+                              event.type === 'health' ? 'bg-gray-100 text-gray-700' :
+                              'bg-gray-100 text-gray-700'}
                           `}>
                             {event.type}
                           </span>
@@ -172,26 +176,24 @@ export default function CalendarPage() {
               </div>
             </div>
 
-            {/* Quick Links */}
-            <div className="mt-6 bg-white rounded-xl border border-gray-200 p-4">
-              <h3 className="font-semibold text-gray-900 mb-3">Important Dates</h3>
-              <div className="space-y-2 text-sm">
-                <a href="#" className="flex items-center justify-between text-gray-600 hover:text-purple-600">
-                  <span>NAIDOC Week 2024</span>
-                  <span className="text-gray-400">Jul 7-14</span>
-                </a>
-                <a href="#" className="flex items-center justify-between text-gray-600 hover:text-purple-600">
-                  <span>National Sorry Day</span>
-                  <span className="text-gray-400">May 26</span>
-                </a>
-                <a href="#" className="flex items-center justify-between text-gray-600 hover:text-purple-600">
-                  <span>Reconciliation Week</span>
-                  <span className="text-gray-400">May 27 - Jun 3</span>
-                </a>
-                <a href="#" className="flex items-center justify-between text-gray-600 hover:text-purple-600">
-                  <span>Mabo Day</span>
-                  <span className="text-gray-400">Jun 3</span>
-                </a>
+            {/* Important Dates */}
+            <div className="mt-6 bg-white rounded-2xl border border-gray-100 p-5">
+              <h3 className="text-xs font-semibold uppercase tracking-[0.15em] text-gray-400 mb-4">
+                Important Dates
+              </h3>
+              <div className="space-y-3 text-sm">
+                {[
+                  { name: `NAIDOC Week ${new Date().getFullYear()}`, date: 'First week of July' },
+                  { name: 'National Sorry Day', date: 'May 26' },
+                  { name: 'Reconciliation Week', date: 'May 27 - Jun 3' },
+                  { name: 'Mabo Day', date: 'Jun 3' },
+                  { name: 'Coming of the Light', date: 'Jul 1' },
+                ].map((item) => (
+                  <div key={item.name} className="flex items-center justify-between text-gray-600">
+                    <span className="animated-underline cursor-pointer hover:text-gray-900 transition-colors duration-300">{item.name}</span>
+                    <span className="text-gray-400 text-xs">{item.date}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

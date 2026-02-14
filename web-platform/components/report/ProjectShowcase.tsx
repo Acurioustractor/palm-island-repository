@@ -44,9 +44,9 @@ export function ProjectShowcase({
   const statusColors: Record<string, { bg: string; text: string; label: string }> = {
     active: { bg: 'bg-green-100', text: 'text-green-700', label: 'Active' },
     in_progress: { bg: 'bg-green-100', text: 'text-green-700', label: 'In Progress' },
-    completed: { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Completed' },
-    upcoming: { bg: 'bg-amber-100', text: 'text-amber-700', label: 'Coming Soon' },
-    planning: { bg: 'bg-purple-100', text: 'text-purple-700', label: 'Planning' },
+    completed: { bg: 'bg-warm-100', text: 'text-picc-red', label: 'Completed' },
+    upcoming: { bg: 'bg-picc-ochre-100', text: 'text-picc-ochre', label: 'Coming Soon' },
+    planning: { bg: 'bg-warm-100', text: 'text-picc-ochre', label: 'Planning' },
     on_hold: { bg: 'bg-gray-100', text: 'text-gray-700', label: 'On Hold' },
     archived: { bg: 'bg-gray-100', text: 'text-gray-500', label: 'Archived' },
   };
@@ -442,16 +442,16 @@ export function ProjectStatsSummary({
           <div className="text-sm text-gray-600">Total Projects</div>
         </div>
         <div>
-          <div className="text-3xl font-bold text-green-600 mb-1">{activeProjects}</div>
+          <div className="text-3xl font-bold text-sage-600 mb-1">{activeProjects}</div>
           <div className="text-sm text-gray-600">Active</div>
         </div>
         <div>
-          <div className="text-3xl font-bold text-blue-600 mb-1">{completedProjects}</div>
+          <div className="text-3xl font-bold text-picc-red mb-1">{completedProjects}</div>
           <div className="text-sm text-gray-600">Completed</div>
         </div>
         {totalImpact && (
           <div>
-            <div className="text-3xl font-bold text-amber-600 mb-1">{totalImpact}</div>
+            <div className="text-3xl font-bold text-picc-ochre mb-1">{totalImpact}</div>
             <div className="text-sm text-gray-600">People Impacted</div>
           </div>
         )}

@@ -108,7 +108,7 @@ export default function HighlightsPanel({
           {reportId && (
             <button
               onClick={addHighlight}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-picc-ochre border border-warm-200 rounded-lg hover:bg-warm-50 transition-colors"
             >
               <Plus className="w-4 h-4" />
               Add
@@ -117,7 +117,7 @@ export default function HighlightsPanel({
         </div>
 
         {!reportId && (
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-800">
+          <div className="bg-picc-ochre-50 border border-picc-ochre-200 rounded-lg p-4 text-sm text-picc-ochre">
             No annual report found for this fiscal year. Create one first in the Annual
             Reports section.
           </div>
@@ -147,7 +147,7 @@ export default function HighlightsPanel({
                     type="text"
                     value={hl.title}
                     onChange={e => updateHighlight(idx, { title: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-400 focus:outline-none"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-picc-ochre-300 focus:outline-none"
                     placeholder="Achievement title"
                   />
                 </div>
@@ -160,7 +160,7 @@ export default function HighlightsPanel({
                     onChange={e =>
                       updateHighlight(idx, { highlight_type: e.target.value })
                     }
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-400 focus:outline-none"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-picc-ochre-300 focus:outline-none"
                   >
                     <option value="achievement">Achievement</option>
                     <option value="innovation">Innovation</option>
@@ -181,7 +181,7 @@ export default function HighlightsPanel({
                     })
                   }
                   rows={2}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-400 focus:outline-none"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-picc-ochre-300 focus:outline-none"
                   placeholder="Describe the achievement..."
                 />
               </div>
@@ -197,7 +197,7 @@ export default function HighlightsPanel({
                       impact_achieved: e.target.value || null,
                     })
                   }
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-400 focus:outline-none"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-picc-ochre-300 focus:outline-none"
                   placeholder="e.g., 500 community members served"
                 />
               </div>
@@ -209,7 +209,7 @@ export default function HighlightsPanel({
                     onChange={e =>
                       updateHighlight(idx, { is_featured: e.target.checked })
                     }
-                    className="rounded border-gray-300 text-purple-600"
+                    className="rounded border-gray-300 text-picc-ochre"
                   />
                   Featured
                 </label>
@@ -225,7 +225,7 @@ export default function HighlightsPanel({
                   <button
                     onClick={() => handleSaveHighlight(hl)}
                     disabled={saving === (hl.id || 'new')}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 disabled:opacity-50 transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-picc-ochre rounded-lg hover:bg-picc-ochre-600 disabled:opacity-50 transition-colors"
                   >
                     {saving === (hl.id || 'new') ? (
                       <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -277,7 +277,7 @@ export default function HighlightsPanel({
                         message_title: e.target.value || null,
                       })
                     }
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-400 focus:outline-none"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-picc-ochre-300 focus:outline-none"
                     placeholder="e.g., Message from the CEO"
                   />
                 </div>
@@ -293,7 +293,7 @@ export default function HighlightsPanel({
                       })
                     }
                     rows={5}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-400 focus:outline-none"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-picc-ochre-300 focus:outline-none"
                     placeholder="Full message content..."
                   />
                 </div>
@@ -309,7 +309,7 @@ export default function HighlightsPanel({
                         featured_quote: e.target.value || null,
                       })
                     }
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-400 focus:outline-none"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-picc-ochre-300 focus:outline-none"
                     placeholder="Pull quote from the message..."
                   />
                 </div>
@@ -319,7 +319,7 @@ export default function HighlightsPanel({
                 <button
                   onClick={() => handleSaveLeadership(leader)}
                   disabled={saving === leader.id}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 disabled:opacity-50 transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-picc-ochre rounded-lg hover:bg-picc-ochre-600 disabled:opacity-50 transition-colors"
                 >
                   {saving === leader.id ? (
                     <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

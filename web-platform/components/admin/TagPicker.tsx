@@ -92,7 +92,7 @@ export function TagPicker({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={placeholder}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-picc-red focus:border-transparent"
             />
             {searchQuery && (
               <button
@@ -165,7 +165,7 @@ export function TagPicker({
                     )}
                     <span className="text-sm font-medium text-gray-700">{category.label}</span>
                     {selectedInCategory > 0 && (
-                      <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">
+                      <span className="px-1.5 py-0.5 bg-warm-100 text-picc-red text-xs rounded-full">
                         {selectedInCategory}
                       </span>
                     )}
@@ -180,7 +180,7 @@ export function TagPicker({
                     <div className="flex items-center gap-2 mb-2 text-xs">
                       <button
                         onClick={() => selectAll(category.tags)}
-                        className="text-blue-600 hover:text-blue-700"
+                        className="text-picc-red hover:text-picc-red"
                       >
                         Select all
                       </button>
@@ -201,14 +201,14 @@ export function TagPicker({
                           <label
                             key={tag.id}
                             className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${
-                              isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'
+                              isSelected ? 'bg-warm-50' : 'hover:bg-gray-50'
                             }`}
                           >
                             <input
                               type="checkbox"
                               checked={isSelected}
                               onChange={() => toggleTag(tag.id)}
-                              className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                              className="w-4 h-4 rounded border-gray-300 text-picc-red focus:ring-picc-red"
                             />
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2">
@@ -224,7 +224,7 @@ export function TagPicker({
                                 </p>
                               )}
                             </div>
-                            {isSelected && <Check className="w-4 h-4 text-blue-600" />}
+                            {isSelected && <Check className="w-4 h-4 text-picc-red" />}
                           </label>
                         );
                       })}
@@ -243,21 +243,21 @@ export function TagPicker({
                 <label
                   key={tag.id}
                   className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${
-                    isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'
+                    isSelected ? 'bg-warm-50' : 'hover:bg-gray-50'
                   }`}
                 >
                   <input
                     type="checkbox"
                     checked={isSelected}
                     onChange={() => toggleTag(tag.id)}
-                    className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="w-4 h-4 rounded border-gray-300 text-picc-red focus:ring-picc-red"
                   />
                   <span
                     className={`px-2 py-0.5 text-xs rounded-full ${getTagColorClass(tag.id)} ${getTagColorClass(tag.id, 'text')}`}
                   >
                     {tag.label}
                   </span>
-                  {isSelected && <Check className="w-4 h-4 text-blue-600 ml-auto" />}
+                  {isSelected && <Check className="w-4 h-4 text-picc-red ml-auto" />}
                 </label>
               );
             })}

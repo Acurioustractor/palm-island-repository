@@ -80,7 +80,7 @@ export function StoryCard({
     if (!story.contains_traditional_knowledge) return null;
 
     return (
-      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-medium shadow-sm">
+      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-picc-ochre-100 text-picc-ochre-800 rounded-full text-xs font-medium shadow-sm">
         <Shield className="w-3 h-3" />
         Traditional Knowledge
       </div>
@@ -92,7 +92,7 @@ export function StoryCard({
     if (!story.storyteller?.is_elder) return null;
 
     return (
-      <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-full text-xs font-semibold shadow-md">
+      <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-picc-ochre to-picc-ochre text-white rounded-full text-xs font-semibold shadow-md">
         <Shield className="w-3.5 h-3.5" />
         Elder Wisdom
       </div>
@@ -112,7 +112,7 @@ export function StoryCard({
         {/* Avatar - profile image or initial */}
         <div className={`flex-shrink-0 w-10 h-10 rounded-full overflow-hidden ${
           isElder
-            ? 'ring-2 ring-purple-200'
+            ? 'ring-2 ring-warm-200'
             : ''
         }`}>
           {profileImageUrl ? (
@@ -126,7 +126,7 @@ export function StoryCard({
           ) : (
             <div className={`w-full h-full flex items-center justify-center text-white font-semibold text-sm ${
               isElder
-                ? 'bg-gradient-to-br from-purple-600 to-purple-700'
+                ? 'bg-gradient-to-br from-picc-ochre to-picc-ochre'
                 : 'bg-gradient-to-br from-picc-primary to-picc-secondary'
             }`}>
               {storytellerName.charAt(0)}
@@ -140,7 +140,7 @@ export function StoryCard({
             {storytellerName}
           </p>
           {showRole && (isElder || isCulturalAdvisor) && (
-            <p className="text-xs font-medium text-purple-600 flex items-center gap-1">
+            <p className="text-xs font-medium text-picc-ochre flex items-center gap-1">
               <Shield className="w-3 h-3" />
               {isElder ? 'Elder' : 'Cultural Advisor'}
             </p>
@@ -173,7 +173,7 @@ export function StoryCard({
     const profileImageUrl = story.storyteller?.profile_image_url;
     const backgroundImageUrl = storyImage || profileImageUrl;
     const bgGradient = isElder
-      ? 'from-purple-900 via-purple-800 to-purple-900'
+      ? 'from-picc-earth-600 via-picc-earth-500 to-picc-earth-600'
       : 'from-picc-primary via-picc-secondary to-picc-primary';
 
     return (
@@ -181,18 +181,17 @@ export function StoryCard({
         href={storyUrl}
         className={`group block ${className}`}
       >
-        <div className="relative aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-500">
+        <div className="relative aspect-[16/10] md:aspect-[4/5] rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 ease-elegant">
           {/* Background - storyteller profile image or gradient */}
           {backgroundImageUrl ? (
             <Image
               src={backgroundImageUrl}
               alt={story.title}
               fill
-              className="object-cover"
+              className="object-cover group-hover:scale-105 transition-transform duration-700 ease-elegant"
             />
           ) : (
             <div className={`absolute inset-0 bg-gradient-to-br ${bgGradient}`}>
-              {/* Large initial watermark */}
               <div className="absolute inset-0 flex items-center justify-center opacity-5">
                 <span className="text-[20rem] font-bold text-white">
                   {storytellerName.charAt(0)}
@@ -201,43 +200,43 @@ export function StoryCard({
             </div>
           )}
 
-          {/* Gradient overlay for text readability - lighter */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+          {/* Gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
 
-          {/* Combined badge - top left, smaller */}
-          <div className="absolute top-4 left-4">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-md">
-              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-              {isElder && <Shield className="w-3.5 h-3.5 text-purple-600" />}
-              <span className="text-xs font-bold text-gray-900">
-                {isElder ? 'Featured Elder' : 'Featured'}
-              </span>
-            </div>
+          {/* Category label — top left */}
+          <div className="absolute top-5 left-5">
+            <span className="text-[10px] font-semibold tracking-[0.2em] uppercase text-white/80">
+              {isElder ? 'Elder Wisdom' : 'Featured'}
+            </span>
           </div>
 
-          {/* Content - simplified bottom section */}
+          {/* Elder badge */}
+          {isElder && (
+            <div className="absolute top-5 right-5">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white/15 backdrop-blur-sm rounded-full border border-white/10">
+                <Shield className="w-3 h-3 text-warm-300" />
+                <span className="text-[10px] font-semibold text-white/90">Elder</span>
+              </div>
+            </div>
+          )}
+
+          {/* Content */}
           <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-            {/* Story title - larger and more prominent */}
-            <h3 className="text-2xl font-bold mb-3 line-clamp-2 group-hover:text-white transition-colors">
+            <h3 className="text-xl md:text-2xl font-bold mb-2 line-clamp-2 tracking-tight leading-tight">
               {story.title}
             </h3>
 
-            {/* Simple storyteller name */}
             {showStorytellerInfo && story.storyteller && (
-              <p className="text-base text-white/90 mb-2">
+              <p className="text-sm text-white/70 font-medium mb-3">
                 {storytellerName}
               </p>
             )}
 
-            {/* Read more indicator */}
-            <div className="flex items-center gap-2 text-white/80 text-sm font-medium group-hover:text-white transition-colors">
+            <div className="flex items-center gap-2 text-white/50 text-xs font-medium group-hover:text-white/80 transition-colors duration-300">
               <span>Read story</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform duration-300 ease-elegant" />
             </div>
           </div>
-
-          {/* Hover effect overlay */}
-          <div className="absolute inset-0 bg-picc-primary/0 group-hover:bg-picc-primary/10 transition-colors duration-300" />
         </div>
       </Link>
     );
@@ -268,7 +267,7 @@ export function StoryCard({
               {story.title}
             </h4>
             {story.storyteller?.is_elder && (
-              <Shield className="w-4 h-4 text-purple-600 flex-shrink-0" />
+              <Shield className="w-4 h-4 text-picc-ochre flex-shrink-0" />
             )}
           </div>
 
@@ -307,7 +306,7 @@ export function StoryCard({
             {story.title}
           </h4>
           {story.storyteller?.is_elder && (
-            <Shield className="w-4 h-4 text-purple-600 flex-shrink-0" />
+            <Shield className="w-4 h-4 text-picc-ochre flex-shrink-0" />
           )}
         </div>
 
@@ -334,7 +333,7 @@ export function StoryCard({
   const profileImageUrl = story.storyteller?.profile_image_url;
   const backgroundImageUrl = storyImage || profileImageUrl;
   const bgGradient = isElder
-    ? 'from-purple-900 via-purple-800 to-purple-900'
+    ? 'from-picc-earth-600 via-picc-earth-500 to-picc-earth-600'
     : 'from-picc-primary via-picc-secondary to-picc-primary';
 
   return (
@@ -342,18 +341,17 @@ export function StoryCard({
       href={storyUrl}
       className={`group block ${className}`}
     >
-      <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500">
-        {/* Background - storyteller profile image or gradient */}
+      <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 ease-elegant">
+        {/* Background */}
         {backgroundImageUrl ? (
           <Image
             src={backgroundImageUrl}
             alt={story.title}
             fill
-            className="object-cover"
+            className="object-cover group-hover:scale-105 transition-transform duration-700 ease-elegant"
           />
         ) : (
           <div className={`absolute inset-0 bg-gradient-to-br ${bgGradient}`}>
-            {/* Large initial watermark */}
             <div className="absolute inset-0 flex items-center justify-center opacity-5">
               <span className="text-[16rem] font-bold text-white">
                 {storytellerName.charAt(0)}
@@ -362,46 +360,46 @@ export function StoryCard({
           </div>
         )}
 
-        {/* Gradient overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
 
-        {/* Elder badge - top corner */}
+        {/* Elder badge */}
         {isElder && (
-          <div className="absolute top-4 left-4">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white/90 backdrop-blur-sm rounded-full">
-              <Shield className="w-3.5 h-3.5 text-purple-600" />
-              <span className="text-xs font-bold text-purple-900">Elder</span>
+          <div className="absolute top-4 right-4">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white/15 backdrop-blur-sm rounded-full border border-white/10">
+              <Shield className="w-3 h-3 text-warm-300" />
+              <span className="text-[10px] font-semibold text-white/90">Elder</span>
             </div>
           </div>
         )}
 
-        {/* Content - bottom of card */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-          {/* Quote - if available and short */}
-          {keyQuote && keyQuote.length < 150 && (
-            <blockquote className="text-lg italic mb-4 leading-relaxed line-clamp-2">
-              "{keyQuote.replace(/^["']|["']$/g, '')}"
-            </blockquote>
-          )}
+        {/* TK badge */}
+        {story.contains_traditional_knowledge && (
+          <div className="absolute top-4 left-4">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-picc-ochre/20 backdrop-blur-sm rounded-full border border-picc-ochre/20">
+              <Shield className="w-3 h-3 text-picc-ochre-300" />
+              <span className="text-[10px] font-semibold text-picc-ochre-100">TK</span>
+            </div>
+          </div>
+        )}
 
-          {/* Title */}
-          <h3 className="text-xl font-bold mb-2 line-clamp-2 group-hover:text-white transition-colors">
-            {story.title}
-          </h3>
-
-          {/* Storyteller name */}
-          {showStorytellerInfo && (
-            <p className="text-sm text-white/80 font-medium">
-              — {storytellerName}
+        {/* Content */}
+        <div className="absolute bottom-0 left-0 right-0 p-5 text-white">
+          {keyQuote && keyQuote.length < 100 && (
+            <p className="text-sm italic text-white/70 mb-3 line-clamp-2 leading-relaxed">
+              &ldquo;{keyQuote.replace(/^["']|["']$/g, '')}&rdquo;
             </p>
           )}
 
-          {/* Hover arrow */}
-          <div className="absolute top-0 right-6 opacity-0 group-hover:opacity-100 transition-opacity transform -translate-y-full -mt-6">
-            <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-              <ArrowRight className="w-5 h-5" />
-            </div>
-          </div>
+          <h3 className="text-lg font-bold mb-2 line-clamp-2 tracking-tight leading-snug">
+            {story.title}
+          </h3>
+
+          {showStorytellerInfo && (
+            <p className="text-xs text-white/60 font-medium">
+              {storytellerName}
+            </p>
+          )}
         </div>
       </div>
     </Link>
@@ -428,7 +426,7 @@ export function StoryGrid({
   };
 
   return (
-    <div className={`grid ${columnStyles[columns]} gap-6 ${className}`}>
+    <div className={`grid ${columnStyles[columns]} gap-5 lg:gap-6 ${className}`}>
       {children}
     </div>
   );

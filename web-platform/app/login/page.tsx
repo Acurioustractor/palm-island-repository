@@ -1,41 +1,55 @@
 'use client';
 
 import { useState, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
+import Link from 'next/link';
 
 function LoginPageContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [mode, setMode] = useState<'password' | 'magic'>('password');
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+      const supabase = createClient();
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        setError(data?.error || 'Invalid login');
+      if (mode === 'magic') {
+        const { error } = await supabase.auth.signInWithOtp({
+          email,
+          options: {
+            emailRedirectTo: `${window.location.origin}/picc/dashboard`,
+          },
+        });
+        if (error) {
+          setError(error.message);
+        } else {
+          setSuccess('Check your email for a magic sign-in link.');
+        }
+        setLoading(false);
+        return;
+      }
+
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        setError(error.message);
         setLoading(false);
         return;
       }
 
       const redirect = searchParams.get('redirect');
       const safeRedirect = redirect && redirect.startsWith('/') ? redirect : '/picc/dashboard';
-
-      // Success! Redirect to the intended page
-      router.push(safeRedirect);
-      router.refresh();
+      window.location.href = safeRedirect;
     } catch (err: any) {
       setError(err.message || 'An error occurred');
       setLoading(false);
@@ -43,25 +57,61 @@ function LoginPageContent() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="max-w-md w-full mx-4">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Palm Island Repository
+    <div className="min-h-screen bg-white flex flex-col">
+      <nav className="border-b border-gray-100 px-6 py-4">
+        <Link href="/" className="animated-underline text-sm font-semibold text-gray-900 tracking-[-0.01em]">
+          Palm Island Community Company
+        </Link>
+      </nav>
+
+      <div className="flex-1 flex items-center justify-center px-6">
+        <div className="max-w-md w-full">
+          <div className="mb-10">
+            <span className="text-xs font-semibold uppercase tracking-[0.15em] text-gray-400">
+              Admin
+            </span>
+            <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-[-0.02em] leading-[1.1] mt-2">
+              Sign in
             </h1>
-            <p className="text-gray-600">Admin Login</p>
+            <p className="text-gray-500 text-sm mt-2">Access the PICC admin dashboard</p>
+          </div>
+
+          {/* Mode toggle */}
+          <div className="flex gap-1 p-1 bg-gray-100 rounded-full mb-8">
+            <button
+              type="button"
+              onClick={() => { setMode('password'); setError(''); setSuccess(''); }}
+              className={`flex-1 py-2 text-sm font-medium rounded-full transition-all ${
+                mode === 'password' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+              }`}
+            >
+              Password
+            </button>
+            <button
+              type="button"
+              onClick={() => { setMode('magic'); setError(''); setSuccess(''); }}
+              className={`flex-1 py-2 text-sm font-medium rounded-full transition-all ${
+                mode === 'magic' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+              }`}
+            >
+              Magic Link
+            </button>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+              <div className="bg-red-50 border border-red-100 text-red-700 px-4 py-3 rounded-2xl text-sm">
                 {error}
+              </div>
+            )}
+            {success && (
+              <div className="bg-green-50 border border-green-100 text-green-700 px-4 py-3 rounded-2xl text-sm">
+                {success}
               </div>
             )}
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="email" className="block text-xs font-semibold uppercase tracking-[0.1em] text-gray-400 mb-2">
                 Email
               </label>
               <input
@@ -70,39 +120,50 @@ function LoginPageContent() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="admin@palmisland.test"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition-all duration-300 ease-elegant"
+                placeholder="you@example.com"
               />
             </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="••••••••"
-              />
-            </div>
+            {mode === 'password' && (
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label htmlFor="password" className="block text-xs font-semibold uppercase tracking-[0.1em] text-gray-400">
+                    Password
+                  </label>
+                  <Link href="/forgot-password" className="text-xs text-gray-500 hover:text-gray-900 transition-colors">
+                    Forgot password?
+                  </Link>
+                </div>
+                <input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition-all duration-300 ease-elegant"
+                  placeholder="••••••••"
+                />
+              </div>
+            )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full bg-gray-900 text-white py-3.5 px-4 rounded-full font-semibold hover:bg-gray-800 hover:scale-[0.98] active:scale-95 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 ease-elegant"
             >
-              {loading ? 'Logging in...' : 'Login'}
+              {loading
+                ? (mode === 'magic' ? 'Sending link...' : 'Signing in...')
+                : (mode === 'magic' ? 'Send magic link' : 'Sign in')
+              }
             </button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-gray-600">
-            <p>Test Account:</p>
-            <p className="font-mono text-xs mt-1">admin@palmisland.test</p>
-          </div>
+          {mode === 'magic' && (
+            <p className="text-center text-xs text-gray-400 mt-4">
+              We'll email you a one-click sign-in link. No password needed.
+            </p>
+          )}
         </div>
       </div>
     </div>

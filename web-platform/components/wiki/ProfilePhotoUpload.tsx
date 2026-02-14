@@ -111,7 +111,7 @@ export function ProfilePhotoUpload({ profileId, currentPhotoUrl, onPhotoUpdate }
               className="w-32 h-32 rounded-full object-cover border-4 border-gray-200"
             />
           ) : (
-            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white font-bold text-4xl border-4 border-gray-200">
+            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-picc-red to-picc-ochre flex items-center justify-center text-white font-bold text-4xl border-4 border-gray-200">
               <Camera className="h-12 w-12" />
             </div>
           )}
@@ -123,7 +123,7 @@ export function ProfilePhotoUpload({ profileId, currentPhotoUrl, onPhotoUpdate }
             Upload a photo of yourself. Recommended: square image, at least 400x400px, max 5MB.
           </p>
 
-          <label className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors cursor-pointer text-sm font-medium">
+          <label className="inline-flex items-center gap-2 px-4 py-2 bg-picc-ochre text-white rounded-lg hover:bg-picc-ochre transition-colors cursor-pointer text-sm font-medium">
             <Upload className="h-4 w-4" />
             Choose Photo
             <input
@@ -138,23 +138,23 @@ export function ProfilePhotoUpload({ profileId, currentPhotoUrl, onPhotoUpdate }
 
       {/* Preview */}
       {preview && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="bg-warm-50 border border-warm-200 rounded-lg p-4">
           <div className="flex items-start gap-4">
             <img
               src={preview}
               alt="Preview"
-              className="w-24 h-24 rounded-full object-cover border-2 border-blue-400"
+              className="w-24 h-24 rounded-full object-cover border-2 border-picc-red-300"
             />
             <div className="flex-1">
-              <h4 className="font-semibold text-blue-900 mb-1">Ready to upload</h4>
-              <p className="text-sm text-blue-700 mb-3">
+              <h4 className="font-semibold text-picc-earth mb-1">Ready to upload</h4>
+              <p className="text-sm text-picc-red mb-3">
                 {selectedFile?.name} ({(selectedFile!.size / 1024).toFixed(0)} KB)
               </p>
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleUpload}
                   disabled={uploading}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium flex items-center gap-2"
+                  className="px-4 py-2 bg-picc-red text-white rounded-lg hover:bg-picc-red transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium flex items-center gap-2"
                 >
                   {uploading ? (
                     <>
@@ -184,26 +184,26 @@ export function ProfilePhotoUpload({ profileId, currentPhotoUrl, onPhotoUpdate }
 
       {/* Success Message */}
       {success && (
-        <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 flex items-center gap-3">
-          <div className="h-8 w-8 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
+        <div className="bg-sage-50 border border-sage-200 rounded-lg p-4 flex items-center gap-3">
+          <div className="h-8 w-8 bg-sage-500 rounded-full flex items-center justify-center flex-shrink-0">
             <Check className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h4 className="font-semibold text-emerald-900">Photo uploaded successfully!</h4>
-            <p className="text-sm text-emerald-700">Your profile photo has been updated.</p>
+            <h4 className="font-semibold text-sage-900">Photo uploaded successfully!</h4>
+            <p className="text-sm text-sage-700">Your profile photo has been updated.</p>
           </div>
         </div>
       )}
 
       {/* Error Message */}
       {error && (
-        <div className="bg-rose-50 border border-rose-200 rounded-lg p-4 flex items-center gap-3">
-          <div className="h-8 w-8 bg-rose-500 rounded-full flex items-center justify-center flex-shrink-0">
+        <div className="bg-warm-50 border border-picc-red-200 rounded-lg p-4 flex items-center gap-3">
+          <div className="h-8 w-8 bg-warm-500 rounded-full flex items-center justify-center flex-shrink-0">
             <X className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h4 className="font-semibold text-rose-900">Upload failed</h4>
-            <p className="text-sm text-rose-700">{error}</p>
+            <h4 className="font-semibold text-picc-earth">Upload failed</h4>
+            <p className="text-sm text-picc-red">{error}</p>
           </div>
         </div>
       )}

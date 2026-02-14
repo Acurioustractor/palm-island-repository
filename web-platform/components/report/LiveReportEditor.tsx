@@ -172,7 +172,7 @@ export default function LiveReportEditor(props: {
                 </div>
                 <button
                   onClick={() => setPicker({ open: true, mode: 'hero', q: '', loading: false, results: [] })}
-                  className="text-sm text-blue-600 hover:text-blue-700"
+                  className="text-sm text-picc-red hover:text-picc-red"
                   disabled={Boolean(busy)}
                 >
                   Change
@@ -194,7 +194,7 @@ export default function LiveReportEditor(props: {
                 </div>
                 <button
                   onClick={() => setPicker({ open: true, mode: 'map', q: '', loading: false, results: [] })}
-                  className="text-sm text-blue-600 hover:text-blue-700"
+                  className="text-sm text-picc-red hover:text-picc-red"
                   disabled={Boolean(busy)}
                 >
                   Change
@@ -214,7 +214,7 @@ export default function LiveReportEditor(props: {
                 <div className="text-sm font-semibold text-gray-900">Board gallery</div>
                 <button
                   onClick={() => setPicker({ open: true, mode: 'board', q: '', loading: false, results: [] })}
-                  className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700"
+                  className="inline-flex items-center gap-1 text-sm text-picc-red hover:text-picc-red"
                   disabled={Boolean(busy)}
                 >
                   <Plus className="w-4 h-4" /> Add
@@ -277,7 +277,7 @@ export default function LiveReportEditor(props: {
               <input
                 value={picker.q}
                 onChange={(e) => setPicker((p) => ({ ...p, q: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
                 placeholder="Search by title/caption…"
               />
               <div className="text-xs text-gray-500 mt-2">
@@ -295,7 +295,7 @@ export default function LiveReportEditor(props: {
                     <button
                       key={m.id}
                       onClick={() => onPick(m)}
-                      className="text-left rounded-xl border border-gray-200 overflow-hidden hover:border-blue-400 hover:shadow-sm transition-all"
+                      className="text-left rounded-xl border border-gray-200 overflow-hidden hover:border-picc-red-300 hover:shadow-sm transition-all"
                       title={m.title || m.caption || m.alt_text || ''}
                     >
                       <img src={m.public_url} alt="" className="w-full h-28 object-cover bg-gray-50" />

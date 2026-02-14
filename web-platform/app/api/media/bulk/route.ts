@@ -1,13 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { createRouteHandlerClient } from '@/lib/supabase/server'
 
 export const runtime = 'nodejs'
-
-function isDev(request: NextRequest) {
-  if (process.env.NODE_ENV === 'production') return false
-  const host = request.headers.get('host') || ''
-  return host.includes('localhost') || host.includes('127.0.0.1')
-}
 
 function getServerClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -51,9 +46,14 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 
 export async function POST(request: NextRequest) {
   try {
-    // Safety: this endpoint bypasses RLS using the service role; keep it dev-only.
-    if (!isDev(request)) {
-      return NextResponse.json({ error: 'Not available' }, { status: 403 })
+    // Auth: allow in dev, require login in production
+    const isDev = process.env.NODE_ENV === 'development'
+    if (!isDev) {
+      const supabaseAuth = await createRouteHandlerClient()
+      const { data: { user } } = await supabaseAuth.auth.getUser()
+      if (!user) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      }
     }
 
     const body = (await request.json().catch(() => ({}))) as BulkBody

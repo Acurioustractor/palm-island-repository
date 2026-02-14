@@ -99,7 +99,7 @@ const variantStyles = {
   success: 'bg-green-50 border-green-200',
   error: 'bg-red-50 border-red-200',
   warning: 'bg-yellow-50 border-yellow-200',
-  info: 'bg-blue-50 border-blue-200',
+  info: 'bg-warm-50 border-warm-200',
 }
 
 const variantIcons = {
@@ -107,7 +107,7 @@ const variantIcons = {
   success: <CheckCircle className="h-5 w-5 text-green-600" />,
   error: <AlertCircle className="h-5 w-5 text-red-600" />,
   warning: <AlertTriangle className="h-5 w-5 text-yellow-600" />,
-  info: <Info className="h-5 w-5 text-blue-600" />,
+  info: <Info className="h-5 w-5 text-picc-red" />,
 }
 
 const variantTextColors = {
@@ -115,7 +115,7 @@ const variantTextColors = {
   success: 'text-green-900',
   error: 'text-red-900',
   warning: 'text-yellow-900',
-  info: 'text-blue-900',
+  info: 'text-picc-earth',
 }
 
 interface ToastItemProps extends Toast {

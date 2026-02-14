@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Eye, Heart, Link2 } from 'lucide-react';
 import type { Story } from '@/lib/stories/types';
+import { BespokeIcon } from '@/components/ui/BespokeIcon';
 
 interface StoryCarouselProps {
   stories: Story[];
@@ -98,8 +99,8 @@ export default function StoryCarousel({
         )}
 
         {currentStory.contains_traditional_knowledge && (
-          <div className="absolute top-4 right-4 bg-purple-900/90 backdrop-blur-sm text-white px-4 py-2 rounded-lg text-sm">
-            🛡️ Traditional Knowledge
+          <div className="absolute top-4 right-4 bg-picc-earth-600/90 backdrop-blur-sm text-white px-4 py-2 rounded-lg text-sm">
+            <BespokeIcon name="traditional-knowledge" size={16} darkMode /> Traditional Knowledge
           </div>
         )}
       </div>
@@ -216,9 +217,9 @@ function StorySlide({ story }: { story: Story }) {
 
               {(story.views || story.likes || story.shares) && (
                 <div className="ml-auto flex gap-4 text-sm text-white/70">
-                  {(story.views ?? 0) > 0 && <span>👁 {story.views}</span>}
-                  {(story.likes ?? 0) > 0 && <span>❤️ {story.likes}</span>}
-                  {(story.shares ?? 0) > 0 && <span>🔗 {story.shares}</span>}
+                  {(story.views ?? 0) > 0 && <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" /> {story.views}</span>}
+                  {(story.likes ?? 0) > 0 && <span className="flex items-center gap-1"><Heart className="w-3.5 h-3.5" /> {story.likes}</span>}
+                  {(story.shares ?? 0) > 0 && <span className="flex items-center gap-1"><Link2 className="w-3.5 h-3.5" /> {story.shares}</span>}
                 </div>
               )}
             </div>

@@ -173,11 +173,11 @@ export default function FinancialsForm({ initialData, fiscalYear, onSave }: Fina
 
       {/* Warnings */}
       {warnings.length > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+        <div className="bg-picc-ochre-50 border border-picc-ochre-200 rounded-lg p-4 flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 text-picc-ochre flex-shrink-0 mt-0.5" />
           <div>
             {warnings.map((w, i) => (
-              <div key={i} className="text-sm text-amber-800">{w}</div>
+              <div key={i} className="text-sm text-picc-ochre">{w}</div>
             ))}
           </div>
         </div>
@@ -213,7 +213,7 @@ export default function FinancialsForm({ initialData, fiscalYear, onSave }: Fina
                       className={`w-full pl-7 pr-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-1 ${
                         fieldError
                           ? 'border-red-300 focus:border-red-400 focus:ring-red-400'
-                          : 'border-gray-200 focus:border-purple-400 focus:ring-purple-400'
+                          : 'border-gray-200 focus:border-picc-ochre-300 focus:ring-picc-ochre-300'
                       }`}
                       placeholder="0.00"
                     />
@@ -237,9 +237,9 @@ export default function FinancialsForm({ initialData, fiscalYear, onSave }: Fina
                 <div className="text-xs text-gray-500">Total Liabilities</div>
                 <div className="text-lg font-bold text-gray-900">${totalLiabilities.toLocaleString()}</div>
               </div>
-              <div className={`rounded-lg p-3 ${netAssets >= 0 ? 'bg-emerald-50' : 'bg-red-50'}`}>
+              <div className={`rounded-lg p-3 ${netAssets >= 0 ? 'bg-sage-50' : 'bg-red-50'}`}>
                 <div className="text-xs text-gray-500">Net Assets</div>
-                <div className={`text-lg font-bold ${netAssets >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
+                <div className={`text-lg font-bold ${netAssets >= 0 ? 'text-sage-700' : 'text-red-700'}`}>
                   ${netAssets.toLocaleString()}
                 </div>
               </div>
@@ -256,9 +256,9 @@ export default function FinancialsForm({ initialData, fiscalYear, onSave }: Fina
                 <div className="text-xs text-gray-500">Total Expenditure</div>
                 <div className="text-lg font-bold text-gray-900">${totalExpenditure.toLocaleString()}</div>
               </div>
-              <div className={`rounded-lg p-3 ${netSurplus >= 0 ? 'bg-emerald-50' : 'bg-red-50'}`}>
+              <div className={`rounded-lg p-3 ${netSurplus >= 0 ? 'bg-sage-50' : 'bg-red-50'}`}>
                 <div className="text-xs text-gray-500">Net Surplus/Deficit</div>
-                <div className={`text-lg font-bold ${netSurplus >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
+                <div className={`text-lg font-bold ${netSurplus >= 0 ? 'text-sage-700' : 'text-red-700'}`}>
                   ${netSurplus.toLocaleString()}
                 </div>
               </div>
@@ -279,7 +279,7 @@ export default function FinancialsForm({ initialData, fiscalYear, onSave }: Fina
               id="audited"
               checked={formData.audited || false}
               onChange={e => handleChange('audited', e.target.checked)}
-              className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+              className="w-4 h-4 rounded border-gray-300 text-picc-ochre focus:ring-picc-ochre-300"
             />
             <label htmlFor="audited" className="text-sm font-medium text-gray-700">
               Audited
@@ -296,7 +296,7 @@ export default function FinancialsForm({ initialData, fiscalYear, onSave }: Fina
               className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none ${
                 errors.auditor_name
                   ? 'border-red-300 focus:border-red-400'
-                  : 'border-gray-200 focus:border-purple-400'
+                  : 'border-gray-200 focus:border-picc-ochre-300'
               }`}
               placeholder="Auditor name"
             />
@@ -315,7 +315,7 @@ export default function FinancialsForm({ initialData, fiscalYear, onSave }: Fina
               className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none ${
                 errors.audit_date
                   ? 'border-red-300 focus:border-red-400'
-                  : 'border-gray-200 focus:border-purple-400'
+                  : 'border-gray-200 focus:border-picc-ochre-300'
               }`}
             />
             {errors.audit_date && (
@@ -332,7 +332,7 @@ export default function FinancialsForm({ initialData, fiscalYear, onSave }: Fina
           value={formData.notes || ''}
           onChange={e => setFormData(prev => ({ ...prev, notes: e.target.value || null }))}
           rows={3}
-          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-400 focus:outline-none"
+          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-picc-ochre-300 focus:outline-none"
           placeholder="Additional notes..."
         />
       </div>
@@ -342,7 +342,7 @@ export default function FinancialsForm({ initialData, fiscalYear, onSave }: Fina
         <button
           type="submit"
           disabled={saving || hasErrors}
-          className="flex items-center gap-2 px-6 py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 font-medium"
+          className="flex items-center gap-2 px-6 py-2.5 bg-picc-ochre text-white rounded-lg hover:bg-picc-ochre-600 transition-colors disabled:opacity-50 font-medium"
         >
           {saving ? (
             <>
@@ -357,7 +357,7 @@ export default function FinancialsForm({ initialData, fiscalYear, onSave }: Fina
           )}
         </button>
         {saved && (
-          <span className="flex items-center gap-1 text-emerald-600 text-sm">
+          <span className="flex items-center gap-1 text-sage-600 text-sm">
             <CheckCircle className="w-4 h-4" /> Saved
           </span>
         )}

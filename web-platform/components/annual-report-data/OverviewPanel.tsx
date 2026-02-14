@@ -50,12 +50,12 @@ const ICON_MAP: Record<string, React.ReactNode> = {
 };
 
 const THEME_COLORS = [
-  { bg: 'bg-purple-50', border: 'border-purple-200', icon: 'text-purple-600', badge: 'bg-purple-100 text-purple-700' },
-  { bg: 'bg-emerald-50', border: 'border-emerald-200', icon: 'text-emerald-600', badge: 'bg-emerald-100 text-emerald-700' },
-  { bg: 'bg-blue-50', border: 'border-blue-200', icon: 'text-blue-600', badge: 'bg-blue-100 text-blue-700' },
-  { bg: 'bg-amber-50', border: 'border-amber-200', icon: 'text-amber-600', badge: 'bg-amber-100 text-amber-700' },
-  { bg: 'bg-rose-50', border: 'border-rose-200', icon: 'text-rose-600', badge: 'bg-rose-100 text-rose-700' },
-  { bg: 'bg-teal-50', border: 'border-teal-200', icon: 'text-teal-600', badge: 'bg-teal-100 text-teal-700' },
+  { bg: 'bg-warm-50', border: 'border-warm-200', icon: 'text-picc-ochre', badge: 'bg-warm-100 text-picc-ochre' },
+  { bg: 'bg-sage-50', border: 'border-sage-200', icon: 'text-sage-600', badge: 'bg-sage-100 text-sage-700' },
+  { bg: 'bg-warm-50', border: 'border-warm-200', icon: 'text-picc-red', badge: 'bg-warm-100 text-picc-red' },
+  { bg: 'bg-picc-ochre-50', border: 'border-picc-ochre-200', icon: 'text-picc-ochre', badge: 'bg-picc-ochre-100 text-picc-ochre' },
+  { bg: 'bg-warm-50', border: 'border-picc-red-200', icon: 'text-picc-red', badge: 'bg-warm-100 text-picc-red' },
+  { bg: 'bg-warm-50', border: 'border-warm-200', icon: 'text-picc-ochre', badge: 'bg-warm-100 text-picc-ochre' },
 ];
 
 export default function OverviewPanel({ reportId, fyLabel, onNavigateTab }: OverviewPanelProps) {
@@ -90,8 +90,8 @@ export default function OverviewPanel({ reportId, fyLabel, onNavigateTab }: Over
   if (!overview && !loading && !error) {
     return (
       <div className="max-w-4xl">
-        <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl border border-purple-200 p-12 text-center">
-          <Sparkles className="w-12 h-12 text-purple-400 mx-auto mb-4" />
+        <div className="bg-gradient-to-br from-warm-50 to-warm-100 rounded-2xl border border-warm-200 p-12 text-center">
+          <Sparkles className="w-12 h-12 text-picc-ochre-300 mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-gray-900 mb-2">
             AI-Generated Thematic Overview
           </h2>
@@ -101,7 +101,7 @@ export default function OverviewPanel({ reportId, fyLabel, onNavigateTab }: Over
           </p>
           <button
             onClick={generate}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white font-medium rounded-xl hover:bg-purple-700 transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-picc-ochre text-white font-medium rounded-xl hover:bg-picc-ochre-600 transition-colors"
           >
             <Sparkles className="w-4 h-4" />
             Generate Overview
@@ -115,7 +115,7 @@ export default function OverviewPanel({ reportId, fyLabel, onNavigateTab }: Over
     return (
       <div className="max-w-4xl">
         <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-600 mx-auto mb-4" />
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-picc-ochre mx-auto mb-4" />
           <p className="text-sm text-gray-600">Analysing report data and generating thematic overview...</p>
           <p className="text-xs text-gray-400 mt-1">This may take 10-15 seconds</p>
         </div>
@@ -135,7 +135,7 @@ export default function OverviewPanel({ reportId, fyLabel, onNavigateTab }: Over
         </div>
         <button
           onClick={generate}
-          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-picc-ochre border border-warm-200 rounded-lg hover:bg-warm-50 transition-colors"
         >
           <RefreshCw className="w-4 h-4" />
           Try Again
@@ -152,7 +152,7 @@ export default function OverviewPanel({ reportId, fyLabel, onNavigateTab }: Over
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-purple-500" />
+            <Sparkles className="w-5 h-5 text-picc-ochre" />
             Thematic Overview — FY {fyLabel}
           </h2>
           {generatedAt && (
@@ -164,7 +164,7 @@ export default function OverviewPanel({ reportId, fyLabel, onNavigateTab }: Over
         <button
           onClick={generate}
           disabled={loading}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors disabled:opacity-50"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-picc-ochre border border-warm-200 rounded-lg hover:bg-warm-50 transition-colors disabled:opacity-50"
         >
           <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           Regenerate
@@ -172,8 +172,8 @@ export default function OverviewPanel({ reportId, fyLabel, onNavigateTab }: Over
       </div>
 
       {/* Executive Summary */}
-      <div className="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl p-6 text-white">
-        <h3 className="text-sm font-medium text-purple-200 uppercase tracking-wider mb-2">
+      <div className="bg-gradient-to-br from-picc-ochre to-picc-earth rounded-2xl p-6 text-white">
+        <h3 className="text-sm font-medium text-warm-200 uppercase tracking-wider mb-2">
           Executive Summary
         </h3>
         <p className="text-base leading-relaxed">
@@ -230,14 +230,14 @@ export default function OverviewPanel({ reportId, fyLabel, onNavigateTab }: Over
       {/* Strengths & Opportunities */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <h3 className="text-sm font-semibold text-emerald-700 uppercase tracking-wider mb-3 flex items-center gap-2">
+          <h3 className="text-sm font-semibold text-sage-700 uppercase tracking-wider mb-3 flex items-center gap-2">
             <TrendingUp className="w-4 h-4" />
             Key Strengths
           </h3>
           <ul className="space-y-2">
             {overview.strengths.map((s, i) => (
               <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0 mt-1.5" />
+                <span className="w-1.5 h-1.5 rounded-full bg-sage-400 flex-shrink-0 mt-1.5" />
                 {s}
               </li>
             ))}
@@ -245,14 +245,14 @@ export default function OverviewPanel({ reportId, fyLabel, onNavigateTab }: Over
         </div>
 
         <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <h3 className="text-sm font-semibold text-blue-700 uppercase tracking-wider mb-3 flex items-center gap-2">
+          <h3 className="text-sm font-semibold text-picc-red uppercase tracking-wider mb-3 flex items-center gap-2">
             <Lightbulb className="w-4 h-4" />
             Opportunities
           </h3>
           <ul className="space-y-2">
             {overview.opportunities.map((o, i) => (
               <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0 mt-1.5" />
+                <span className="w-1.5 h-1.5 rounded-full bg-picc-red-300 flex-shrink-0 mt-1.5" />
                 {o}
               </li>
             ))}

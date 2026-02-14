@@ -4,7 +4,9 @@ import {
   TrendingUp, Target, Award, Building2, Calendar, DollarSign,
   Activity, Sparkles, ExternalLink, MapPin, Camera
 } from 'lucide-react';
+import { BespokeIcon } from '@/components/ui/BespokeIcon';
 import { createServerSupabase } from '@/lib/supabase/client';
+import { FALLBACKS } from '@/lib/stats/current-stats';
 import { getFeaturedStories } from '@/lib/stories/utils';
 import { getHeroImage } from '@/lib/media/utils';
 import { PhotoGallery } from '@/components/report';
@@ -188,7 +190,7 @@ export default async function LiveAnnualReportPage({
       </section>
 
       {/* Real-Time Stats Banner */}
-      <section className="bg-gradient-to-r from-purple-600 to-blue-600 text-white py-8">
+      <section className="bg-gradient-to-r from-picc-ochre to-picc-red text-white py-8">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <StatCard
@@ -246,9 +248,9 @@ export default async function LiveAnnualReportPage({
         <section className="py-20 bg-white">
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 rounded-full mb-4">
-                <Award className="w-5 h-5 text-purple-600" />
-                <span className="text-sm font-semibold text-purple-600 uppercase tracking-wide">Highlights</span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-warm-100 rounded-full mb-4">
+                <Award className="w-5 h-5 text-picc-ochre" />
+                <span className="text-sm font-semibold text-picc-ochre uppercase tracking-wide">Highlights</span>
               </div>
               <h2 className="text-4xl font-bold text-gray-900 mb-4">
                 Key Achievements & Messages
@@ -289,12 +291,12 @@ export default async function LiveAnnualReportPage({
       </section>
 
       {/* Innovation Projects */}
-      <section id="projects" className="py-20 bg-gradient-to-br from-indigo-50 to-purple-50">
+      <section id="projects" className="py-20 bg-gradient-to-br from-warm-50 to-warm-100">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 rounded-full mb-4">
-              <Sparkles className="w-5 h-5 text-purple-600" />
-              <span className="text-sm font-semibold text-purple-600 uppercase tracking-wide">Innovation</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-warm-100 rounded-full mb-4">
+              <Sparkles className="w-5 h-5 text-picc-ochre" />
+              <span className="text-sm font-semibold text-picc-ochre uppercase tracking-wide">Innovation</span>
             </div>
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
               Innovation Projects ({currentFiscalYear})
@@ -313,7 +315,7 @@ export default async function LiveAnnualReportPage({
           <div className="text-center mt-12">
             <Link
               href="/picc/projects"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-purple-600 text-white rounded-full font-semibold text-lg hover:bg-purple-700 transition-all"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-picc-ochre text-white rounded-full font-semibold text-lg hover:bg-picc-ochre transition-all"
             >
               View all projects
               <ExternalLink className="w-5 h-5" />
@@ -359,7 +361,7 @@ export default async function LiveAnnualReportPage({
 
       {/* Elder Quotes */}
       {elderQuotes.length > 0 && (
-        <section className="py-20 bg-gradient-to-br from-amber-50 to-orange-50">
+        <section className="py-20 bg-gradient-to-br from-warm-50 to-warm-100">
           <div className="max-w-5xl mx-auto px-6">
             <div className="text-center mb-12">
               <h2 className="text-4xl font-bold text-gray-900 mb-4">
@@ -372,16 +374,16 @@ export default async function LiveAnnualReportPage({
 
             <div className="grid md:grid-cols-2 gap-8">
               {elderQuotes.map((quote: any) => (
-                <div key={quote.id} className="bg-white rounded-2xl p-8 shadow-sm border border-amber-100 hover:shadow-lg transition-all">
+                <div key={quote.id} className="bg-white rounded-2xl p-8 shadow-sm border border-picc-ochre-100 hover:shadow-lg transition-all">
                   <div className="flex items-start gap-4">
                     {quote.photo_url ? (
                       <img
                         src={quote.photo_url}
                         alt={quote.attribution || quote.speaker_name}
-                        className="w-14 h-14 rounded-full object-cover border-2 border-amber-200 flex-shrink-0"
+                        className="w-14 h-14 rounded-full object-cover border-2 border-picc-ochre-200 flex-shrink-0"
                       />
                     ) : (
-                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-400 to-orange-400 flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-picc-ochre-300 to-picc-ochre flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
                         {(quote.attribution || quote.speaker_name || '?').charAt(0)}
                       </div>
                     )}
@@ -389,11 +391,11 @@ export default async function LiveAnnualReportPage({
                       <blockquote className="text-gray-800 text-lg italic leading-relaxed mb-3">
                         &ldquo;{quote.quote_text || quote.text}&rdquo;
                       </blockquote>
-                      <p className="text-amber-700 font-semibold">
+                      <p className="text-picc-ochre font-semibold">
                         — {quote.attribution || quote.speaker_name}
                       </p>
                       {quote.theme && (
-                        <span className="inline-block mt-2 px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">
+                        <span className="inline-block mt-2 px-3 py-1 bg-picc-ochre-100 text-picc-ochre rounded-full text-xs font-medium">
                           {quote.theme}
                         </span>
                       )}
@@ -432,7 +434,7 @@ export default async function LiveAnnualReportPage({
                 in the Media Library.
               </p>
               <div className="mt-4">
-                <Link href="/picc/media/gallery" className="text-blue-600 hover:text-blue-700 font-medium">
+                <Link href="/picc/media/gallery" className="text-picc-red hover:text-picc-red font-medium">
                   Open Media Gallery →
                 </Link>
               </div>
@@ -445,9 +447,9 @@ export default async function LiveAnnualReportPage({
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 rounded-full mb-4">
-              <MapPin className="w-5 h-5 text-blue-700" />
-              <span className="text-sm font-semibold text-blue-700 uppercase tracking-wide">Explore</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-warm-100 rounded-full mb-4">
+              <MapPin className="w-5 h-5 text-picc-red" />
+              <span className="text-sm font-semibold text-picc-red uppercase tracking-wide">Explore</span>
             </div>
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
               Service Map
@@ -523,7 +525,7 @@ export default async function LiveAnnualReportPage({
       <section className="py-20 bg-white">
         <div className="max-w-5xl mx-auto px-6">
           <div className="text-center mb-12">
-            <DollarSign className="w-16 h-16 mx-auto mb-4 text-green-600" />
+            <DollarSign className="w-16 h-16 mx-auto mb-4 text-sage-600" />
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
               Financial Summary
             </h2>
@@ -557,8 +559,8 @@ export default async function LiveAnnualReportPage({
       {audience !== 'public' && (
         <section className={`py-4 text-center text-sm font-medium ${
           audience === 'government'
-            ? 'bg-blue-600 text-white'
-            : 'bg-amber-500 text-white'
+            ? 'bg-picc-red text-white'
+            : 'bg-picc-ochre text-white'
         }`}>
           {audience === 'government'
             ? 'Viewing: Government & Funders Perspective — Emphasis on accountability, compliance, and outcomes'
@@ -597,24 +599,19 @@ function StatCard({ icon: Icon, value, label, change }: any) {
 }
 
 function ServiceCard({ service, index }: any) {
-  const icon = getServiceIcon(service);
+  const iconName = getServiceIconName(service);
   return (
     <div
-      className="bg-white border-2 border-gray-100 rounded-2xl p-6 hover:border-purple-300 hover:shadow-xl transition-all"
+      className="bg-white border-2 border-gray-100 rounded-2xl p-6 hover:border-picc-ochre-300 hover:shadow-xl transition-all"
       style={{ animationDelay: `${index * 50}ms` }}
     >
-      <div
-        className="w-12 h-12 rounded-xl mb-4 flex items-center justify-center"
-        style={{ backgroundColor: service.service_color || '#6366f1' }}
-      >
-        <span className="text-2xl">
-          {icon}
-        </span>
+      <div className="w-12 h-12 rounded-xl mb-4 flex items-center justify-center bg-stone-50 border border-stone-100">
+        <BespokeIcon name={iconName} size={28} />
       </div>
       <h3 className="text-xl font-bold text-gray-900 mb-2">{service.name}</h3>
       <p className="text-gray-600 mb-4 line-clamp-3">{service.description}</p>
       <div className="flex items-center justify-between text-sm">
-        <span className="text-purple-600 font-semibold">
+        <span className="text-picc-ochre font-semibold">
           {service.staff_count || 0} staff
         </span>
         <span className="text-gray-500">
@@ -639,8 +636,8 @@ function ProjectCard({ project }: any) {
       )}
       <div className="p-8">
         <div className="flex items-start justify-between mb-4">
-          <Target className="w-10 h-10 text-purple-600" />
-          <span className="px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-sm font-semibold">
+          <Target className="w-10 h-10 text-picc-ochre" />
+          <span className="px-3 py-1 bg-warm-100 text-picc-ochre rounded-full text-sm font-semibold">
             {project.status || 'in_progress'}
           </span>
         </div>
@@ -655,7 +652,7 @@ function ProjectCard({ project }: any) {
           <div className="mt-6">
             <Link
               href={`/picc/projects/${project.slug}`}
-              className="inline-flex items-center gap-2 text-purple-700 hover:text-purple-900 font-semibold"
+              className="inline-flex items-center gap-2 text-picc-ochre hover:text-picc-earth-600 font-semibold"
             >
               View project
               <ExternalLink className="w-4 h-4" />
@@ -674,7 +671,7 @@ function StoryCard({ story, storyImage, isFeatured }: any) {
 
   return (
     <Link href={`/stories/${story.id}`} className="group block">
-      <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:border-purple-300 hover:shadow-xl transition-all">
+      <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:border-picc-ochre-300 hover:shadow-xl transition-all">
         {storyImage && (
           <div className="relative h-44 bg-gray-100 overflow-hidden">
             <img
@@ -683,7 +680,7 @@ function StoryCard({ story, storyImage, isFeatured }: any) {
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
             {isFeatured && (
-              <span className="absolute top-2 right-2 px-2 py-1 bg-amber-500 text-white text-xs font-bold rounded-full">
+              <span className="absolute top-2 right-2 px-2 py-1 bg-picc-ochre text-white text-xs font-bold rounded-full">
                 Featured
               </span>
             )}
@@ -698,7 +695,7 @@ function StoryCard({ story, storyImage, isFeatured }: any) {
                 className="w-10 h-10 rounded-full object-cover border border-gray-200"
               />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-indigo-400 flex items-center justify-center text-white font-bold">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-picc-ochre-300 to-picc-ochre flex items-center justify-center text-white font-bold">
                 {storytellerName.charAt(0)}
               </div>
             )}
@@ -709,7 +706,7 @@ function StoryCard({ story, storyImage, isFeatured }: any) {
               </div>
             </div>
           </div>
-          <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-purple-600 transition-colors">
+          <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-picc-ochre transition-colors">
             {story.title}
           </h3>
           <p className="text-gray-600 text-sm line-clamp-3">
@@ -723,20 +720,20 @@ function StoryCard({ story, storyImage, isFeatured }: any) {
 
 function LeaderCard({ member }: any) {
   return (
-    <div className="bg-white rounded-xl p-6 text-center border border-gray-100 hover:border-purple-300 hover:shadow-lg transition-all">
+    <div className="bg-white rounded-xl p-6 text-center border border-gray-100 hover:border-picc-ochre-300 hover:shadow-lg transition-all">
       {member.photo_url ? (
         <img
           src={member.photo_url}
           alt={member.full_name}
-          className="w-20 h-20 rounded-full mx-auto mb-4 object-cover border-2 border-purple-100"
+          className="w-20 h-20 rounded-full mx-auto mb-4 object-cover border-2 border-warm-100"
         />
       ) : (
-        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-400 to-indigo-400 mx-auto mb-4 flex items-center justify-center text-white text-3xl font-bold">
+        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-picc-ochre-300 to-picc-ochre mx-auto mb-4 flex items-center justify-center text-white text-3xl font-bold">
           {member.full_name?.charAt(0) || 'P'}
         </div>
       )}
       <h4 className="font-bold text-gray-900 mb-1">{member.full_name}</h4>
-      <p className="text-sm text-purple-600 font-medium mb-2">{member.position}</p>
+      <p className="text-sm text-picc-ochre font-medium mb-2">{member.position}</p>
       {member.bio && (
         <p className="text-xs text-gray-600 line-clamp-3">{member.bio}</p>
       )}
@@ -755,8 +752,8 @@ async function fetchCurrentYearStats(supabase: any) {
     .single();
 
   return {
-    totalStaff: stats?.staff_count || 197,
-    totalServices: stats?.service_count || 16,
+    totalStaff: stats?.staff_count || FALLBACKS.staffCount,
+    totalServices: stats?.service_count || FALLBACKS.serviceCount,
     communityReach: stats?.people_served || '3,000+',
     annualBudget: stats?.annual_budget || 45000000
   };
@@ -776,36 +773,44 @@ async function fetchAllServices(supabase: any) {
     .order('name');
 
   return services || [
-    { id: 1, name: 'Child Safety Services', description: 'Protecting and nurturing our youngest community members', icon: '👶', service_color: '#10b981', staff_count: 15, clients_served: 250 },
-    { id: 2, name: 'Youth & Education', description: 'Empowering the next generation through learning', icon: '🎓', service_color: '#3b82f6', staff_count: 22, clients_served: 400 },
-    { id: 3, name: 'Health Services', description: 'Comprehensive primary healthcare and wellbeing', icon: '🏥', service_color: '#ef4444', staff_count: 35, clients_served: 2800 },
-    { id: 4, name: 'Housing & Infrastructure', description: 'Safe, quality homes for all community members', icon: '🏠', service_color: '#f59e0b', staff_count: 18, clients_served: 350 },
-    { id: 5, name: 'Employment Services', description: 'Creating pathways to meaningful work', icon: '💼', service_color: '#8b5cf6', staff_count: 12, clients_served: 180 },
-    { id: 6, name: 'Justice Support', description: 'Legal assistance and rehabilitation programs', icon: '⚖️', service_color: '#6366f1', staff_count: 8, clients_served: 120 },
-    { id: 7, name: 'Family Support', description: 'Strengthening family connections and wellbeing', icon: '👨‍👩‍👧‍👦', service_color: '#ec4899', staff_count: 14, clients_served: 200 },
-    { id: 8, name: 'Elder Care', description: 'Honoring and supporting our elders', icon: '🌳', service_color: '#14b8a6', staff_count: 10, clients_served: 85 },
-    { id: 9, name: 'Cultural Programs', description: 'Preserving and celebrating our heritage', icon: '🎨', service_color: '#f97316', staff_count: 9, clients_served: 500 },
-    { id: 10, name: 'Sport & Recreation', description: 'Promoting health through active lifestyles', icon: '⚽', service_color: '#06b6d4', staff_count: 11, clients_served: 600 },
-    { id: 11, name: 'Mental Health', description: 'Culturally-informed counseling and support', icon: '💚', service_color: '#10b981', staff_count: 13, clients_served: 220 },
-    { id: 12, name: 'Disability Services', description: 'Inclusive support for all abilities', icon: '♿', service_color: '#8b5cf6', staff_count: 10, clients_served: 90 },
-    { id: 13, name: 'Community Safety', description: 'Creating a secure environment for all', icon: '🛡️', service_color: '#dc2626', staff_count: 16, clients_served: 3000 },
-    { id: 14, name: 'Environmental Programs', description: 'Caring for country and sustainability', icon: '🌿', service_color: '#22c55e', staff_count: 7, clients_served: 1000 },
-    { id: 15, name: 'Economic Development', description: 'Building financial independence', icon: '📈', service_color: '#eab308', staff_count: 9, clients_served: 150 },
-    { id: 16, name: 'Governance & Admin', description: 'Community-led decision making', icon: '🏛️', service_color: '#6366f1', staff_count: 18, clients_served: 3000 },
+    { id: 1, name: 'Child Safety Services', description: 'Protecting and nurturing our youngest community members', service_category: 'children', service_color: '#10b981', staff_count: 15, clients_served: 250 },
+    { id: 2, name: 'Youth & Education', description: 'Empowering the next generation through learning', service_category: 'youth', service_color: '#3b82f6', staff_count: 22, clients_served: 400 },
+    { id: 3, name: 'Health Services', description: 'Comprehensive primary healthcare and wellbeing', service_category: 'health', service_color: '#ef4444', staff_count: 35, clients_served: 2800 },
+    { id: 4, name: 'Housing & Infrastructure', description: 'Safe, quality homes for all community members', service_category: 'housing', service_color: '#f59e0b', staff_count: 18, clients_served: 350 },
+    { id: 5, name: 'Employment Services', description: 'Creating pathways to meaningful work', service_category: 'employment', service_color: '#8b5cf6', staff_count: 12, clients_served: 180 },
+    { id: 6, name: 'Justice Support', description: 'Legal assistance and rehabilitation programs', service_category: 'justice', service_color: '#6366f1', staff_count: 8, clients_served: 120 },
+    { id: 7, name: 'Family Support', description: 'Strengthening family connections and wellbeing', service_category: 'family', service_color: '#ec4899', staff_count: 14, clients_served: 200 },
+    { id: 8, name: 'Elder Care', description: 'Honoring and supporting our elders', service_category: 'aged', service_color: '#14b8a6', staff_count: 10, clients_served: 85 },
+    { id: 9, name: 'Cultural Programs', description: 'Preserving and celebrating our heritage', service_category: 'culture', service_color: '#f97316', staff_count: 9, clients_served: 500 },
+    { id: 10, name: 'Sport & Recreation', description: 'Promoting health through active lifestyles', service_category: 'sport', service_color: '#06b6d4', staff_count: 11, clients_served: 600 },
+    { id: 11, name: 'Mental Health', description: 'Culturally-informed counseling and support', service_category: 'mental', service_color: '#10b981', staff_count: 13, clients_served: 220 },
+    { id: 12, name: 'Disability Services', description: 'Inclusive support for all abilities', service_category: 'disability', service_color: '#8b5cf6', staff_count: 10, clients_served: 90 },
+    { id: 13, name: 'Community Safety', description: 'Creating a secure environment for all', service_category: 'safety', service_color: '#dc2626', staff_count: 16, clients_served: 3000 },
+    { id: 14, name: 'Environmental Programs', description: 'Caring for country and sustainability', service_category: 'environment', service_color: '#22c55e', staff_count: 7, clients_served: 1000 },
+    { id: 15, name: 'Economic Development', description: 'Building financial independence', service_category: 'economic', service_color: '#eab308', staff_count: 9, clients_served: 150 },
+    { id: 16, name: 'Governance & Admin', description: 'Community-led decision making', service_category: 'governance', service_color: '#6366f1', staff_count: 18, clients_served: 3000 },
   ];
 }
 
-function getServiceIcon(service: any) {
+function getServiceIconName(service: any): import('@/components/ui/BespokeIcon').BespokeIconName {
   const category = String(service?.service_category || '').toLowerCase()
   const iconName = String(service?.icon_name || '').toLowerCase()
-  if (iconName.includes('heart') || category.includes('health')) return '❤️'
-  if (iconName.includes('users') || category.includes('youth') || category.includes('family')) return '👥'
-  if (iconName.includes('star') || category.includes('culture')) return '⭐'
-  if (iconName.includes('home') || category.includes('housing')) return '🏠'
-  if (iconName.includes('shield') || category.includes('safety')) return '🛡️'
-  if (iconName.includes('briefcase') || category.includes('employment')) return '💼'
-  if (iconName.includes('graduation') || category.includes('education')) return '🎓'
-  return '🏢'
+  if (iconName.includes('heart') || category.includes('health')) return 'health'
+  if (iconName.includes('users') || category.includes('youth')) return 'youth'
+  if (category.includes('family')) return 'family'
+  if (iconName.includes('star') || category.includes('culture')) return 'culture'
+  if (iconName.includes('home') || category.includes('housing')) return 'housing'
+  if (iconName.includes('shield') || category.includes('safety')) return 'crisis'
+  if (iconName.includes('briefcase') || category.includes('employment')) return 'economic'
+  if (iconName.includes('graduation') || category.includes('education')) return 'education'
+  if (category.includes('justice')) return 'justice'
+  if (category.includes('elder') || category.includes('aged')) return 'aged-care'
+  if (category.includes('mental')) return 'mental-health'
+  if (category.includes('sport')) return 'sport'
+  if (category.includes('disab')) return 'disability'
+  if (category.includes('governance')) return 'governance'
+  if (category.includes('digital')) return 'digital'
+  return 'community'
 }
 
 async function fetchInnovationProjects(supabase: any, reportYear: number) {
@@ -1208,7 +1213,7 @@ async function PdfDownloadSection({ reportYear, fiscalYear, totalServices }: { r
   const pdf = await fetchPdfUrl(reportYear);
 
   return (
-    <section className="py-20 bg-gradient-to-br from-purple-900 to-indigo-900 text-white">
+    <section className="py-20 bg-gradient-to-br from-picc-earth-600 to-picc-earth text-white">
       <div className="max-w-4xl mx-auto px-6 text-center">
         <Download className="w-16 h-16 mx-auto mb-6" />
         <h2 className="text-4xl font-bold mb-6">
@@ -1231,7 +1236,7 @@ async function PdfDownloadSection({ reportYear, fiscalYear, totalServices }: { r
               'Innovation project highlights',
             ].map((item) => (
               <div key={item} className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <div className="w-6 h-6 rounded-full bg-sage-500 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <span className="text-white text-sm">&#10003;</span>
                 </div>
                 <span>{item}</span>
@@ -1246,7 +1251,7 @@ async function PdfDownloadSection({ reportYear, fiscalYear, totalServices }: { r
               href={pdf.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-12 py-5 bg-white text-purple-900 rounded-full font-bold text-xl hover:bg-gray-100 transition-all shadow-2xl inline-flex items-center gap-3"
+              className="px-12 py-5 bg-white text-picc-earth-600 rounded-full font-bold text-xl hover:bg-gray-100 transition-all shadow-2xl inline-flex items-center gap-3"
             >
               <Download className="w-6 h-6" />
               Download Annual Report PDF
@@ -1261,7 +1266,7 @@ async function PdfDownloadSection({ reportYear, fiscalYear, totalServices }: { r
           <div>
             <Link
               href="/picc/report-generator"
-              className="px-12 py-5 bg-white text-purple-900 rounded-full font-bold text-xl hover:bg-gray-100 transition-all shadow-2xl inline-flex items-center gap-3"
+              className="px-12 py-5 bg-white text-picc-earth-600 rounded-full font-bold text-xl hover:bg-gray-100 transition-all shadow-2xl inline-flex items-center gap-3"
             >
               <Sparkles className="w-6 h-6" />
               Generate Report PDF

@@ -17,13 +17,13 @@ interface OverallProgressProps {
 }
 
 const SEGMENT_COLORS = [
-  'bg-blue-500',      // Services
-  'bg-emerald-500',   // Financials
-  'bg-amber-500',     // Highlights
-  'bg-purple-500',    // Stories
-  'bg-pink-500',      // Board
-  'bg-cyan-500',      // Photos
-  'bg-orange-500',    // Projects
+  'bg-picc-red',       // Services
+  'bg-sage-500',       // Financials
+  'bg-picc-ochre',     // Highlights
+  'bg-picc-ochre',     // Stories
+  'bg-picc-red-300',   // Board
+  'bg-picc-ochre-300', // Photos
+  'bg-picc-earth-500', // Projects
 ];
 
 export default function OverallProgress({

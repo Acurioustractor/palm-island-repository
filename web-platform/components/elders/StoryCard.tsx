@@ -52,7 +52,7 @@ export default function StoryCard({
     return (
       <Link
         href={story.href}
-        className={`inline-flex items-center gap-2 text-purple-700 hover:text-purple-900 font-medium transition-colors ${className}`}
+        className={`inline-flex items-center gap-2 text-picc-ochre hover:text-picc-earth-500 font-medium transition-colors ${className}`}
       >
         <BookOpen className="w-4 h-4" />
         <span className="truncate">{story.title}</span>
@@ -78,7 +78,7 @@ export default function StoryCard({
           </div>
         )}
         <div className="p-6">
-          <h4 className="text-xl font-bold text-gray-900 group-hover:text-purple-700 transition-colors">
+          <h4 className="text-xl font-bold text-gray-900 group-hover:text-picc-ochre transition-colors">
             {story.title}
           </h4>
           {story.summary && (
@@ -161,7 +161,7 @@ export function StoryList({
         <div className="mt-4">
           <Link
             href={viewAllHref}
-            className="inline-flex items-center gap-2 text-purple-700 hover:text-purple-900 font-medium"
+            className="inline-flex items-center gap-2 text-picc-ochre hover:text-picc-earth-500 font-medium"
           >
             {viewAllLabel} ({remaining} more) <ArrowRight className="w-4 h-4" />
           </Link>

@@ -6,6 +6,7 @@ import {
   MessageSquareQuote, BookOpen, Sparkles, TrendingUp,
   Users, Heart, Briefcase, GraduationCap, Building2, Leaf
 } from 'lucide-react';
+import { BespokeIcon } from '@/components/ui/BespokeIcon';
 
 interface AnalysisResult {
   summary: {
@@ -48,14 +49,14 @@ const impactIcons: Record<string, React.ElementType> = {
 };
 
 const themeColors: Record<string, { bg: string; text: string; border: string }> = {
-  community: { bg: 'bg-purple-100', text: 'text-purple-700', border: 'border-purple-200' },
-  services: { bg: 'bg-blue-100', text: 'text-blue-700', border: 'border-blue-200' },
-  culture: { bg: 'bg-amber-100', text: 'text-amber-700', border: 'border-amber-200' },
-  history: { bg: 'bg-emerald-100', text: 'text-emerald-700', border: 'border-emerald-200' },
+  community: { bg: 'bg-warm-100', text: 'text-picc-ochre', border: 'border-warm-200' },
+  services: { bg: 'bg-warm-100', text: 'text-picc-red', border: 'border-warm-200' },
+  culture: { bg: 'bg-picc-ochre-100', text: 'text-picc-ochre', border: 'border-picc-ochre-200' },
+  history: { bg: 'bg-sage-100', text: 'text-sage-600', border: 'border-sage-200' },
   achievement: { bg: 'bg-yellow-100', text: 'text-yellow-700', border: 'border-yellow-200' },
-  youth: { bg: 'bg-pink-100', text: 'text-pink-700', border: 'border-pink-200' },
-  employment: { bg: 'bg-indigo-100', text: 'text-indigo-700', border: 'border-indigo-200' },
-  health: { bg: 'bg-green-100', text: 'text-green-700', border: 'border-green-200' },
+  youth: { bg: 'bg-picc-red-100', text: 'text-picc-red', border: 'border-picc-red-200' },
+  employment: { bg: 'bg-warm-100', text: 'text-picc-ochre', border: 'border-warm-200' },
+  health: { bg: 'bg-sage-100', text: 'text-sage-600', border: 'border-sage-200' },
 };
 
 export function ReportAnalysisDashboard({
@@ -127,7 +128,7 @@ export function ReportAnalysisDashboard({
     return (
       <div className="flex items-center justify-center py-16">
         <div className="text-center">
-          <Loader2 className="w-10 h-10 animate-spin text-purple-600 mx-auto mb-4" />
+          <Loader2 className="w-10 h-10 animate-spin text-picc-ochre mx-auto mb-4" />
           <p className="text-gray-600">Analyzing report content...</p>
         </div>
       </div>
@@ -157,8 +158,8 @@ export function ReportAnalysisDashboard({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-purple-100 rounded-xl">
-            <BarChart3 className="w-6 h-6 text-purple-600" />
+          <div className="p-2 bg-warm-100 rounded-xl">
+            <BarChart3 className="w-6 h-6 text-picc-ochre" />
           </div>
           <div>
             <h2 className="text-xl font-bold text-gray-900">Content Analysis</h2>
@@ -207,12 +208,12 @@ export function ReportAnalysisDashboard({
 
       {/* AI Narrative */}
       {analysis.ai_narrative && (
-        <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-200 p-6">
+        <div className="bg-gradient-to-br from-warm-100 to-warm-50 rounded-xl border border-warm-200 p-6">
           <div className="flex items-center gap-2 mb-4">
-            <Sparkles className="w-5 h-5 text-purple-600" />
+            <Sparkles className="w-5 h-5 text-picc-ochre" />
             <h3 className="font-semibold text-gray-900">AI-Generated Narrative</h3>
           </div>
-          <div className="prose prose-purple max-w-none">
+          <div className="prose prose-picc-ochre max-w-none">
             {analysis.ai_narrative.split('\n\n').map((paragraph, i) => (
               <p key={i} className="text-gray-700 leading-relaxed">
                 {paragraph}
@@ -223,7 +224,7 @@ export function ReportAnalysisDashboard({
             <button
               onClick={() => generateSection('executive_summary')}
               disabled={generatingType === 'executive_summary'}
-              className="mt-4 flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors disabled:opacity-50"
+              className="mt-4 flex items-center gap-2 px-4 py-2 bg-picc-ochre hover:bg-picc-ochre text-white rounded-lg transition-colors disabled:opacity-50"
             >
               {generatingType === 'executive_summary' ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -241,7 +242,7 @@ export function ReportAnalysisDashboard({
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           <div className="p-4 border-b border-gray-200 bg-gray-50">
             <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-              <PieChart className="w-5 h-5 text-amber-600" />
+              <PieChart className="w-5 h-5 text-picc-ochre" />
               Theme Breakdown
             </h3>
           </div>
@@ -310,15 +311,13 @@ export function ReportAnalysisDashboard({
                   key={sentiment}
                   className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-lg"
                 >
-                  <span className="text-2xl">
-                    {sentiment === 'positive'
-                      ? '✨'
-                      : sentiment === 'inspiring'
-                      ? '🌟'
-                      : sentiment === 'reflective'
-                      ? '💭'
-                      : '📝'}
-                  </span>
+                  <BespokeIcon
+                    name={sentiment === 'positive' ? 'positive'
+                      : sentiment === 'inspiring' ? 'inspiring'
+                      : sentiment === 'reflective' ? 'reflective'
+                      : 'story'}
+                    size={28}
+                  />
                   <div>
                     <div className="font-medium text-gray-900 capitalize">
                       {sentiment}
@@ -339,7 +338,7 @@ export function ReportAnalysisDashboard({
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           <div className="p-4 border-b border-gray-200 bg-gray-50">
             <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-green-600" />
+              <TrendingUp className="w-5 h-5 text-sage-600" />
               Impact Areas
             </h3>
           </div>
@@ -355,19 +354,19 @@ export function ReportAnalysisDashboard({
                     key={impact.area}
                     className={`p-4 rounded-xl border transition-all ${
                       hasContent
-                        ? 'border-green-200 bg-green-50 hover:border-green-300'
+                        ? 'border-sage-200 bg-sage-50 hover:border-green-300'
                         : 'border-gray-200 bg-gray-50'
                     }`}
                   >
                     <div className="flex items-center gap-3 mb-3">
                       <div
                         className={`p-2 rounded-lg ${
-                          hasContent ? 'bg-green-100' : 'bg-gray-100'
+                          hasContent ? 'bg-sage-100' : 'bg-gray-100'
                         }`}
                       >
                         <Icon
                           className={`w-5 h-5 ${
-                            hasContent ? 'text-green-600' : 'text-gray-400'
+                            hasContent ? 'text-sage-600' : 'text-gray-400'
                           }`}
                         />
                       </div>
@@ -392,7 +391,7 @@ export function ReportAnalysisDashboard({
                     </div>
 
                     {impact.highlights.length > 0 && (
-                      <div className="border-t border-green-200 pt-3 mt-3">
+                      <div className="border-t border-sage-200 pt-3 mt-3">
                         <p className="text-xs text-gray-600 italic line-clamp-2">
                           &ldquo;{impact.highlights[0]}&rdquo;
                         </p>
@@ -408,15 +407,15 @@ export function ReportAnalysisDashboard({
 
       {/* Recommendations */}
       {analysis.recommendations.length > 0 && (
-        <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl border border-amber-200 p-6">
+        <div className="bg-gradient-to-br from-picc-ochre-50 to-warm-50 rounded-xl border border-picc-ochre-200 p-6">
           <div className="flex items-center gap-2 mb-4">
-            <Lightbulb className="w-5 h-5 text-amber-600" />
+            <Lightbulb className="w-5 h-5 text-picc-ochre" />
             <h3 className="font-semibold text-gray-900">AI Recommendations</h3>
           </div>
           <ul className="space-y-3">
             {analysis.recommendations.map((rec, index) => (
               <li key={index} className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-200 text-amber-800 text-sm font-bold flex items-center justify-center">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-picc-ochre-200 text-picc-ochre text-sm font-bold flex items-center justify-center">
                   {index + 1}
                 </span>
                 <p className="text-gray-700">{rec}</p>
@@ -455,10 +454,10 @@ function StatCard({
   color: 'purple' | 'blue' | 'amber' | 'green';
 }) {
   const colorClasses = {
-    purple: 'bg-purple-100 text-purple-600',
-    blue: 'bg-blue-100 text-blue-600',
-    amber: 'bg-amber-100 text-amber-600',
-    green: 'bg-green-100 text-green-600',
+    purple: 'bg-warm-100 text-picc-ochre',
+    blue: 'bg-warm-100 text-picc-red',
+    amber: 'bg-picc-ochre-100 text-picc-ochre',
+    green: 'bg-sage-100 text-sage-600',
   };
 
   return (

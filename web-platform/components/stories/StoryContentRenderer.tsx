@@ -106,7 +106,7 @@ function renderInline(text: string): React.ReactNode[] {
               href={href}
               target="_blank"
               rel="noreferrer"
-              className="text-blue-700 hover:text-blue-900 underline underline-offset-2"
+              className="text-picc-red hover:text-picc-earth underline underline-offset-2"
             >
               {label || href}
             </a>
@@ -338,7 +338,7 @@ function renderSafeHtml(content: string): HtmlNode[] {
     if (tag === 'li') return <li key={key} className="leading-relaxed">{children}</li>
     if (tag === 'blockquote') {
       return (
-        <blockquote key={key} className="border-l-4 border-purple-300 bg-purple-50/40 px-4 py-3 rounded-r-lg">
+        <blockquote key={key} className="border-l-4 border-picc-ochre-300 bg-warm-100/40 px-4 py-3 rounded-r-lg">
           <div className="text-gray-800 italic leading-relaxed">{children}</div>
         </blockquote>
       )
@@ -352,7 +352,7 @@ function renderSafeHtml(content: string): HtmlNode[] {
           href={href}
           target="_blank"
           rel="noreferrer"
-          className="text-blue-700 hover:text-blue-900 underline underline-offset-2"
+          className="text-picc-red hover:text-picc-earth underline underline-offset-2"
         >
           {children.length ? children : href}
         </a>
@@ -452,7 +452,7 @@ export default function StoryContentRenderer({ content }: { content: string }) {
 
         if (b.type === 'quote') {
           return (
-            <blockquote key={`q-${idx}`} className="border-l-4 border-purple-300 bg-purple-50/40 px-4 py-3 rounded-r-lg">
+            <blockquote key={`q-${idx}`} className="border-l-4 border-picc-ochre-300 bg-warm-100/40 px-4 py-3 rounded-r-lg">
               <p className="text-gray-800 italic leading-relaxed">{renderInline(b.text)}</p>
             </blockquote>
           )
@@ -503,7 +503,7 @@ export default function StoryContentRenderer({ content }: { content: string }) {
                   href={parsed.src}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-blue-700 hover:text-blue-900 underline underline-offset-2"
+                  className="text-picc-red hover:text-picc-earth underline underline-offset-2"
                 >
                   {parsed.src}
                 </a>

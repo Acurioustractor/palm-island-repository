@@ -105,7 +105,7 @@ export default function PeoplePage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-picc-red mx-auto mb-4"></div>
           <p className="text-xl text-gray-700">Loading people...</p>
         </div>
       </div>
@@ -120,7 +120,7 @@ export default function PeoplePage() {
       <div className="mb-8 flex items-start justify-between gap-6">
         <div>
           <h1 className="text-4xl font-bold text-gray-900 mb-4 flex items-center gap-3">
-            <Users className="h-10 w-10 text-purple-600" />
+            <Users className="h-10 w-10 text-picc-ochre" />
             Community Storytellers
           </h1>
           <p className="text-xl text-gray-600">
@@ -129,7 +129,7 @@ export default function PeoplePage() {
         </div>
         <Link
           href="/wiki/people/add"
-          className="flex items-center gap-2 px-6 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors font-semibold shadow-sm whitespace-nowrap"
+          className="flex items-center gap-2 px-6 py-3 bg-picc-ochre text-white rounded-lg hover:bg-picc-ochre transition-colors font-semibold shadow-sm whitespace-nowrap"
         >
           <UserPlus className="h-5 w-5" />
           Add Person
@@ -147,7 +147,7 @@ export default function PeoplePage() {
               placeholder="Search by name or location..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-transparent"
             />
           </div>
 
@@ -157,7 +157,7 @@ export default function PeoplePage() {
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-transparent"
             >
               <option value="all">All Storytellers</option>
               <option value="elder">Elders</option>
@@ -171,18 +171,18 @@ export default function PeoplePage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-purple-50 rounded-lg p-4 text-center">
-          <div className="text-3xl font-bold text-purple-600">{people.length}</div>
+        <div className="bg-warm-100 rounded-lg p-4 text-center">
+          <div className="text-3xl font-bold text-picc-ochre">{people.length}</div>
           <div className="text-sm text-gray-600">Total Storytellers</div>
         </div>
-        <div className="bg-blue-50 rounded-lg p-4 text-center">
-          <div className="text-3xl font-bold text-blue-600">
+        <div className="bg-warm-50 rounded-lg p-4 text-center">
+          <div className="text-3xl font-bold text-picc-red">
             {people.reduce((sum, p) => sum + p.story_count, 0)}
           </div>
           <div className="text-sm text-gray-600">Total Stories</div>
         </div>
-        <div className="bg-green-50 rounded-lg p-4 text-center">
-          <div className="text-3xl font-bold text-green-600">
+        <div className="bg-sage-50 rounded-lg p-4 text-center">
+          <div className="text-3xl font-bold text-sage-600">
             {people.filter((p) => p.storyteller_type === 'elder').length}
           </div>
           <div className="text-sm text-gray-600">Elders</div>
@@ -201,10 +201,10 @@ export default function PeoplePage() {
           <Link
             key={person.id}
             href={`/wiki/people/${person.id}`}
-            className="group bg-white rounded-xl border-2 border-gray-200 hover:border-purple-500 overflow-hidden transition-all hover:shadow-lg"
+            className="group bg-white rounded-xl border-2 border-gray-200 hover:border-picc-ochre overflow-hidden transition-all hover:shadow-lg"
           >
             {/* Profile Image */}
-            <div className="h-48 bg-gradient-to-br from-purple-100 to-blue-100 relative">
+            <div className="h-48 bg-gradient-to-br from-warm-100 to-warm-100 relative">
               {person.profile_image_url ? (
                 <img
                   src={person.profile_image_url}
@@ -213,7 +213,7 @@ export default function PeoplePage() {
                 />
               ) : (
                 <div className="h-full flex items-center justify-center">
-                  <div className="h-24 w-24 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white font-bold text-4xl shadow-xl">
+                  <div className="h-24 w-24 rounded-full bg-gradient-to-br from-picc-ochre to-picc-red flex items-center justify-center text-white font-bold text-4xl shadow-xl">
                     {(person.preferred_name || person.full_name)
                       .split(' ')
                       .map((n) => n[0])
@@ -227,7 +227,7 @@ export default function PeoplePage() {
 
             {/* Content */}
             <div className="p-6">
-              <h3 className="text-xl font-bold text-gray-900 group-hover:text-purple-600 transition-colors mb-1">
+              <h3 className="text-xl font-bold text-gray-900 group-hover:text-picc-ochre transition-colors mb-1">
                 {person.preferred_name || person.full_name}
               </h3>
 
@@ -241,7 +241,7 @@ export default function PeoplePage() {
               )}
 
               <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                <div className="flex items-center text-purple-600">
+                <div className="flex items-center text-picc-ochre">
                   <BookOpen className="h-5 w-5 mr-2" />
                   <span className="font-bold text-lg">{person.story_count}</span>
                   <span className="text-sm ml-1 text-gray-600">

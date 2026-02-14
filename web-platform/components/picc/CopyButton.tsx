@@ -22,7 +22,7 @@ export default function CopyButton({ text, label = 'Copy', className = '' }: Cop
     <button
       onClick={handleCopy}
       className={`text-sm font-medium flex items-center gap-1 ${
-        copied ? 'text-green-600' : 'text-blue-600 hover:text-blue-700'
+        copied ? 'text-sage-600' : 'text-picc-red hover:text-picc-red'
       } ${className}`}
     >
       {copied ? (

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { BespokeIcon, type BespokeIconName } from '@/components/ui/BespokeIcon';
 
 interface RelatedItem {
   id: string;
@@ -21,18 +22,18 @@ interface RelatedContentSidebarProps {
   className?: string;
 }
 
-const TYPE_ICONS: Record<string, string> = {
-  story: '📖',
-  person: '👤',
-  knowledge: '📚',
-  media: '🖼️'
+const TYPE_ICONS: Record<string, BespokeIconName> = {
+  story: 'story',
+  person: 'person',
+  knowledge: 'knowledge',
+  media: 'photo'
 };
 
 const TYPE_COLORS: Record<string, string> = {
-  story: 'bg-blue-100 text-blue-800',
-  person: 'bg-emerald-100 text-emerald-800',
-  knowledge: 'bg-indigo-100 text-indigo-800',
-  media: 'bg-amber-100 text-amber-800'
+  story: 'bg-warm-100 text-picc-earth',
+  person: 'bg-sage-50 text-sage-600',
+  knowledge: 'bg-warm-50 text-picc-ochre',
+  media: 'bg-picc-ochre-100 text-picc-ochre-800'
 };
 
 export default function RelatedContentSidebar({
@@ -93,7 +94,7 @@ export default function RelatedContentSidebar({
   return (
     <div className={`bg-white rounded-xl border border-gray-200 p-4 ${className}`}>
       <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-        <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-5 h-5 text-picc-ochre" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
         </svg>
         Related Content
@@ -117,12 +118,12 @@ export default function RelatedContentSidebar({
                   />
                 </div>
               ) : (
-                <div className="w-12 h-12 rounded-lg bg-gray-200 flex items-center justify-center flex-shrink-0 text-xl">
-                  {TYPE_ICONS[item.type]}
+                <div className="w-12 h-12 rounded-lg bg-gray-200 flex items-center justify-center flex-shrink-0">
+                  <BespokeIcon name={TYPE_ICONS[item.type] || 'story'} size={24} />
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <h4 className="font-medium text-gray-900 text-sm group-hover:text-indigo-600 transition-colors line-clamp-2">
+                <h4 className="font-medium text-gray-900 text-sm group-hover:text-picc-ochre transition-colors line-clamp-2">
                   {item.title}
                 </h4>
                 <div className="flex items-center gap-2 mt-1">
@@ -144,7 +145,7 @@ export default function RelatedContentSidebar({
       {/* Explore more link */}
       <Link
         href="/wiki/explore"
-        className="mt-4 block text-center text-sm text-indigo-600 hover:text-indigo-800 font-medium"
+        className="mt-4 block text-center text-sm text-picc-ochre hover:text-picc-ochre font-medium"
       >
         Explore Knowledge Graph →
       </Link>

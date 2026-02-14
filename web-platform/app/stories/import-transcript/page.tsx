@@ -231,7 +231,7 @@ export default function ImportTranscriptPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-picc-ochre-50 p-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-6">
@@ -584,12 +584,12 @@ Or just paste the full text without speaker labels."
 
           {/* Cultural Warning */}
           {(formData.requires_cultural_review || formData.contains_traditional_knowledge) && (
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-6">
-              <h3 className="font-bold text-amber-800 mb-2 flex items-center gap-2">
+            <div className="bg-picc-ochre-50 border border-picc-ochre-200 rounded-xl p-6">
+              <h3 className="font-bold text-picc-earth mb-2 flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5" />
                 Cultural Review Required
               </h3>
-              <ul className="text-sm text-amber-700 space-y-1">
+              <ul className="text-sm text-picc-ochre space-y-1">
                 <li>• This transcript will be saved as a draft pending cultural review</li>
                 <li>• An elder or cultural advisor must approve before it can be published</li>
                 <li>• Traditional knowledge content may have restricted access</li>

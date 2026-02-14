@@ -24,12 +24,12 @@ export function AcknowledgmentBanner({ text }: AcknowledgmentBannerProps) {
         >
           {/* Decorative line */}
           <div className="flex items-center justify-center gap-4 mb-8">
-            <div className="w-12 h-px bg-amber-700/40" />
-            <div className="w-2 h-2 rounded-full bg-amber-700/40" />
-            <div className="w-12 h-px bg-amber-700/40" />
+            <div className="w-12 h-px bg-picc-ochre/40" />
+            <div className="w-2 h-2 rounded-full bg-picc-ochre/40" />
+            <div className="w-12 h-px bg-picc-ochre/40" />
           </div>
 
-          <h2 className="text-sm uppercase tracking-[0.3em] text-amber-800/70 font-medium mb-6">
+          <h2 className="text-sm uppercase tracking-[0.3em] text-picc-earth/70 font-medium mb-6">
             Acknowledgment of Country
           </h2>
 
@@ -39,9 +39,9 @@ export function AcknowledgmentBanner({ text }: AcknowledgmentBannerProps) {
 
           {/* Decorative line */}
           <div className="flex items-center justify-center gap-4 mt-8">
-            <div className="w-12 h-px bg-amber-700/40" />
-            <div className="w-2 h-2 rounded-full bg-amber-700/40" />
-            <div className="w-12 h-px bg-amber-700/40" />
+            <div className="w-12 h-px bg-picc-ochre/40" />
+            <div className="w-2 h-2 rounded-full bg-picc-ochre/40" />
+            <div className="w-12 h-px bg-picc-ochre/40" />
           </div>
         </motion.div>
       </div>

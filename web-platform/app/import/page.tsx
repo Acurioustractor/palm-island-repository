@@ -105,22 +105,22 @@ export default function ImportHubPage() {
           {importOptions.map((option) => {
             const Icon = option.icon;
             const colorClasses = {
-              teal: 'bg-teal-50 border-teal-200 hover:border-teal-400',
+              teal: 'bg-sage-50 border-sage-200 hover:border-sage-400',
               orange: 'bg-orange-50 border-orange-200 hover:border-orange-400',
               blue: 'bg-blue-50 border-blue-200 hover:border-blue-400',
-              purple: 'bg-purple-50 border-purple-200',
+              purple: 'bg-picc-ochre-50 border-picc-ochre-200',
               green: 'bg-green-50 border-green-200',
-              pink: 'bg-pink-50 border-pink-200',
-              indigo: 'bg-indigo-50 border-indigo-200'
+              pink: 'bg-picc-red-50 border-picc-red-200',
+              indigo: 'bg-warm-50 border-warm-200'
             };
             const iconColors = {
-              teal: 'text-teal-600',
+              teal: 'text-sage-600',
               orange: 'text-orange-600',
               blue: 'text-blue-600',
-              purple: 'text-purple-400',
+              purple: 'text-picc-ochre',
               green: 'text-green-400',
-              pink: 'text-pink-400',
-              indigo: 'text-indigo-400'
+              pink: 'text-picc-red',
+              indigo: 'text-picc-red'
             };
 
             if (option.available) {
@@ -201,9 +201,9 @@ export default function ImportHubPage() {
         </div>
 
         {/* Cultural Protocol Reminder */}
-        <div className="mt-6 bg-amber-50 border border-amber-200 rounded-xl p-6">
-          <h3 className="font-bold text-amber-800 mb-2">Cultural Protocol Reminder</h3>
-          <p className="text-sm text-amber-700">
+        <div className="mt-6 bg-picc-ochre-50 border border-picc-ochre-200 rounded-xl p-6">
+          <h3 className="font-bold text-picc-earth mb-2">Cultural Protocol Reminder</h3>
+          <p className="text-sm text-picc-ochre">
             All content imported to this platform must follow cultural protocols. Elder stories and traditional
             knowledge require cultural advisor approval before publishing. The community maintains full ownership
             and control over all content.

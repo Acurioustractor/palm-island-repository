@@ -32,11 +32,11 @@ export function TextSection({
   };
 
   return (
-    <section className={`${backgroundColor} py-20`}>
+    <section className={`${backgroundColor} editorial-section`}>
       <div className={`${maxWidthClasses[maxWidth]} mx-auto px-8`}>
         {title && (
           <ScrollReveal direction="up">
-            <h2 className={`text-3xl md:text-5xl font-bold text-gray-900 mb-4 ${alignClasses[textAlign]}`}>
+            <h2 className={`text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 mb-5 tracking-[-0.02em] leading-[1.1] ${alignClasses[textAlign]}`}>
               {title}
             </h2>
           </ScrollReveal>

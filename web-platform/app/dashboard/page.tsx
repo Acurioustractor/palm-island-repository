@@ -129,7 +129,7 @@ export default function StoryServerDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-sage-50 p-4">
       {/* Header */}
       <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
@@ -157,7 +157,7 @@ export default function StoryServerDashboard() {
               </Link>
               <Link
                 href="/storytellers/add"
-                className="flex items-center space-x-2 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-lg"
+                className="flex items-center space-x-2 bg-sage-600 hover:bg-sage-700 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-lg"
                 title="Add Storyteller"
               >
                 <UserPlus className="w-4 h-4" />
@@ -165,7 +165,7 @@ export default function StoryServerDashboard() {
               </Link>
               <Link
                 href="/import"
-                className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-lg"
+                className="flex items-center space-x-2 bg-picc-ochre hover:bg-picc-ochre text-white px-4 py-2 rounded-lg font-medium transition-all shadow-lg"
                 title="All Import Options"
               >
                 <FolderOpen className="w-4 h-4" />
@@ -214,7 +214,7 @@ export default function StoryServerDashboard() {
             <h2 className="text-2xl font-bold text-blue-900 mb-4">Community-Owned Digital Infrastructure</h2>
 
             <div className="grid md:grid-cols-2 gap-6 mb-6">
-              <div className="bg-gradient-to-r from-blue-500 to-teal-500 text-white p-6 rounded-lg">
+              <div className="bg-gradient-to-r from-blue-500 to-sage-500 text-white p-6 rounded-lg">
                 <h3 className="text-xl font-bold mb-2">The Vision</h3>
                 <p className="mb-4">
                   A community-built platform where Palm Islanders share their stories, creating a living
@@ -245,10 +245,10 @@ export default function StoryServerDashboard() {
                 <div className="text-sm text-gray-600">PICC Staff Members</div>
                 <div className="text-xs text-green-600">+30% from last year</div>
               </div>
-              <div className="text-center p-4 bg-purple-50 rounded-lg">
-                <div className="text-2xl font-bold text-purple-800">80%+</div>
+              <div className="text-center p-4 bg-picc-ochre-50 rounded-lg">
+                <div className="text-2xl font-bold text-picc-ochre">80%+</div>
                 <div className="text-sm text-gray-600">Aboriginal Staff</div>
-                <div className="text-xs text-purple-600">Community-controlled</div>
+                <div className="text-xs text-picc-ochre">Community-controlled</div>
               </div>
               <div className="text-center p-4 bg-orange-50 rounded-lg">
                 <div className="text-2xl font-bold text-orange-800">16+</div>
@@ -322,7 +322,7 @@ export default function StoryServerDashboard() {
                           <div className="font-medium text-blue-800">{story.title}</div>
                           <div className="text-sm text-gray-600">by {story.author} • {story.location}</div>
                           <div className="text-xs text-gray-500 mt-1">
-                            <span className="bg-pink-100 text-pink-700 px-2 py-1 rounded-full">{story.emotion}</span>
+                            <span className="bg-picc-red-100 text-picc-red px-2 py-1 rounded-full">{story.emotion}</span>
                             <span className="ml-2">{story.timestamp}</span>
                           </div>
                         </div>
@@ -344,15 +344,15 @@ export default function StoryServerDashboard() {
           <div>
             <h2 className="text-2xl font-bold text-blue-900 mb-4">Community Stories Archive</h2>
 
-            <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-6 rounded-lg mb-6">
-              <h3 className="text-lg font-bold text-purple-800 mb-2">Story Themes</h3>
+            <div className="bg-gradient-to-r from-picc-red-50 to-picc-ochre-50 p-6 rounded-lg mb-6">
+              <h3 className="text-lg font-bold text-picc-ochre mb-2">Story Themes</h3>
               <div className="grid md:grid-cols-4 gap-4">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-pink-600">Hope & Aspiration</div>
+                  <div className="text-2xl font-bold text-picc-red">Hope & Aspiration</div>
                   <div className="text-sm text-gray-600">Youth dreams, career paths, cultural leadership</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-600">Pride & Achievement</div>
+                  <div className="text-2xl font-bold text-picc-ochre">Pride & Achievement</div>
                   <div className="text-sm text-gray-600">PICC growth, service excellence, innovation</div>
                 </div>
                 <div className="text-center">
@@ -453,8 +453,8 @@ export default function StoryServerDashboard() {
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
-              <div className="bg-teal-50 p-6 rounded-lg">
-                <h3 className="text-lg font-bold text-teal-800 mb-3">PICC Growth Journey</h3>
+              <div className="bg-sage-50 p-6 rounded-lg">
+                <h3 className="text-lg font-bold text-sage-800 mb-3">PICC Growth Journey</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span>2007: Started with 1 employee</span>
@@ -479,8 +479,8 @@ export default function StoryServerDashboard() {
                 </div>
               </div>
 
-              <div className="bg-purple-50 p-6 rounded-lg">
-                <h3 className="text-lg font-bold text-purple-800 mb-3">Platform Innovation</h3>
+              <div className="bg-picc-ochre-50 p-6 rounded-lg">
+                <h3 className="text-lg font-bold text-picc-earth mb-3">Platform Innovation</h3>
                 <p className="text-sm text-gray-700 mb-3">
                   The Story Server project positions Palm Island as a leader in community-controlled
                   digital infrastructure, demonstrating that remote communities can build cutting-edge

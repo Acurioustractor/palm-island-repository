@@ -75,7 +75,7 @@ export default function ServicesPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-amber-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-picc-ochre mx-auto mb-4"></div>
           <p className="text-xl text-gray-700">Loading services...</p>
         </div>
       </div>
@@ -89,7 +89,7 @@ export default function ServicesPage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-gray-900 mb-4 flex items-center gap-3">
-          <Heart className="h-10 w-10 text-rose-600" />
+          <Heart className="h-10 w-10 text-picc-red" />
           PICC Services & Programs
         </h1>
         <p className="text-xl text-gray-600">
@@ -106,27 +106,27 @@ export default function ServicesPage() {
             placeholder="Search services and programs..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre-300 focus:border-transparent"
           />
         </div>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-rose-50 rounded-lg p-4 text-center border border-rose-200">
-          <div className="text-3xl font-bold text-rose-600">{services.length}</div>
+        <div className="bg-warm-50 rounded-lg p-4 text-center border border-picc-red-200">
+          <div className="text-3xl font-bold text-picc-red">{services.length}</div>
           <div className="text-sm text-gray-600">Total Services</div>
         </div>
-        <div className="bg-blue-50 rounded-lg p-4 text-center border border-blue-200">
-          <div className="text-3xl font-bold text-blue-600">{totalStories}</div>
+        <div className="bg-warm-50 rounded-lg p-4 text-center border border-warm-200">
+          <div className="text-3xl font-bold text-picc-red">{totalStories}</div>
           <div className="text-sm text-gray-600">Related Stories</div>
         </div>
-        <div className="bg-green-50 rounded-lg p-4 text-center border border-green-200">
-          <div className="text-3xl font-bold text-green-600">197</div>
+        <div className="bg-sage-50 rounded-lg p-4 text-center border border-sage-200">
+          <div className="text-3xl font-bold text-sage-600">197</div>
           <div className="text-sm text-gray-600">Staff Members</div>
         </div>
-        <div className="bg-amber-50 rounded-lg p-4 text-center border border-amber-200">
-          <div className="text-3xl font-bold text-amber-600">
+        <div className="bg-picc-ochre-50 rounded-lg p-4 text-center border border-picc-ochre-200">
+          <div className="text-3xl font-bold text-picc-ochre">
             {filteredServices.length}
           </div>
           <div className="text-sm text-gray-600">Showing</div>
@@ -138,7 +138,7 @@ export default function ServicesPage() {
         {filteredServices.map((service) => (
           <div
             key={service.id}
-            className="bg-white rounded-xl border-2 border-gray-200 hover:border-amber-500 overflow-hidden transition-all hover:shadow-lg group"
+            className="bg-white rounded-xl border-2 border-gray-200 hover:border-picc-ochre-500 overflow-hidden transition-all hover:shadow-lg group"
           >
             {/* Service Header */}
             <div
@@ -159,7 +159,7 @@ export default function ServicesPage() {
 
             {/* Service Content */}
             <div className="p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-amber-700 transition-colors">
+              <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-picc-ochre transition-colors">
                 {service.service_name}
               </h3>
 
@@ -171,7 +171,7 @@ export default function ServicesPage() {
 
               {/* Story Count */}
               <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                <div className="flex items-center text-amber-600">
+                <div className="flex items-center text-picc-ochre">
                   <BookOpen className="h-5 w-5 mr-2" />
                   <span className="font-bold text-lg">{service.story_count}</span>
                   <span className="text-sm ml-1 text-gray-600">
@@ -182,7 +182,7 @@ export default function ServicesPage() {
                 {service.story_count > 0 && (
                   <Link
                     href={`/stories?service=${service.id}`}
-                    className="text-sm font-medium text-amber-700 hover:text-amber-900 hover:underline"
+                    className="text-sm font-medium text-picc-ochre hover:text-picc-earth hover:underline"
                   >
                     View stories →
                   </Link>
@@ -205,11 +205,11 @@ export default function ServicesPage() {
       )}
 
       {/* Info Box */}
-      <div className="mt-8 bg-gradient-to-r from-blue-50 to-teal-50 border border-blue-200 rounded-lg p-6">
+      <div className="mt-8 bg-gradient-to-r from-warm-50 to-picc-ochre-50 border border-warm-200 rounded-lg p-6">
         <div className="flex items-start gap-4">
-          <Users className="h-8 w-8 text-blue-600 flex-shrink-0" />
+          <Users className="h-8 w-8 text-picc-red flex-shrink-0" />
           <div>
-            <h3 className="text-lg font-bold text-blue-900 mb-2">
+            <h3 className="text-lg font-bold text-picc-earth mb-2">
               About PICC Services
             </h3>
             <p className="text-gray-700 text-sm mb-2">

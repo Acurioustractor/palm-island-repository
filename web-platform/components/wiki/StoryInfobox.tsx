@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import {
-  User, Calendar, MapPin, Tag, Heart, Eye,
+  User, Calendar, MapPin, Tag, Heart, Eye, Camera, Film, Music,
   Users as UsersIcon, Building, TrendingUp, Shield
 } from 'lucide-react';
 
@@ -47,9 +47,9 @@ export function StoryInfobox({ data, className = '' }: StoryInfoboxProps) {
   const getSensitivityBadge = (level?: string) => {
     const badges = {
       low: { color: 'bg-emerald-50 text-emerald-700 border border-emerald-200', label: 'General Content' },
-      medium: { color: 'bg-amber-50 text-amber-700 border border-amber-200', label: 'Cultural Awareness' },
+      medium: { color: 'bg-picc-ochre-50 text-picc-ochre border border-picc-ochre-200', label: 'Cultural Awareness' },
       high: { color: 'bg-orange-50 text-orange-700 border border-orange-200', label: 'Cultural Sensitive' },
-      restricted: { color: 'bg-rose-50 text-rose-700 border border-rose-200', label: 'Restricted' },
+      restricted: { color: 'bg-warm-50 text-picc-red border border-picc-red-200', label: 'Restricted' },
     };
     return badges[level as keyof typeof badges] || badges.low;
   };
@@ -57,8 +57,8 @@ export function StoryInfobox({ data, className = '' }: StoryInfoboxProps) {
   const getAccessBadge = (level: string) => {
     const badges = {
       public: { color: 'bg-sky-50 text-sky-700 border border-sky-200', label: 'Public' },
-      community: { color: 'bg-violet-50 text-violet-700 border border-violet-200', label: 'Community Only' },
-      restricted: { color: 'bg-rose-50 text-rose-700 border border-rose-200', label: 'Restricted' },
+      community: { color: 'bg-picc-ochre-50 text-picc-ochre border border-picc-ochre-200', label: 'Community Only' },
+      restricted: { color: 'bg-warm-50 text-picc-red border border-picc-red-200', label: 'Restricted' },
     };
     return badges[level as keyof typeof badges] || badges.public;
   };
@@ -83,7 +83,7 @@ export function StoryInfobox({ data, className = '' }: StoryInfoboxProps) {
   return (
     <div className={`bg-white rounded-lg border border-stone-300 shadow-sm overflow-hidden ${className}`}>
       {/* Header */}
-      <div className="bg-gradient-to-r from-stone-100 to-amber-50 border-b border-stone-200 px-4 py-3">
+      <div className="bg-gradient-to-r from-stone-100 to-picc-ochre-50 border-b border-stone-200 px-4 py-3">
         <h3 className="text-stone-800 font-semibold flex items-center gap-2">
           <Shield className="h-5 w-5" />
           Story Information
@@ -95,7 +95,7 @@ export function StoryInfobox({ data, className = '' }: StoryInfoboxProps) {
         {/* Storyteller */}
         {data.shared_by_label ? (
           <div className="flex items-start gap-3 pb-3 border-b border-stone-200">
-            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-stone-400 to-amber-400 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-stone-400 to-picc-ochre-300 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
               <UsersIcon className="h-5 w-5" />
             </div>
             <div className="flex-1 min-w-0">
@@ -106,7 +106,7 @@ export function StoryInfobox({ data, className = '' }: StoryInfoboxProps) {
               {data.shared_by_href ? (
                 <Link
                   href={data.shared_by_href}
-                  className="text-sm font-medium text-amber-700 hover:text-amber-900 hover:underline block truncate"
+                  className="text-sm font-medium text-picc-ochre hover:text-picc-earth hover:underline block truncate"
                 >
                   {data.shared_by_label}
                 </Link>
@@ -124,7 +124,7 @@ export function StoryInfobox({ data, className = '' }: StoryInfoboxProps) {
                 className="h-12 w-12 rounded-full object-cover border-2 border-stone-300"
               />
             ) : (
-              <div className="h-12 w-12 rounded-full bg-gradient-to-br from-stone-400 to-amber-400 flex items-center justify-center text-white font-bold text-sm">
+              <div className="h-12 w-12 rounded-full bg-gradient-to-br from-stone-400 to-picc-ochre-300 flex items-center justify-center text-white font-bold text-sm">
                 {(data.storyteller.preferred_name || data.storyteller.name)
                   .split(' ')
                   .map((n) => n[0])
@@ -140,7 +140,7 @@ export function StoryInfobox({ data, className = '' }: StoryInfoboxProps) {
               </div>
               <Link
                 href={`/wiki/people/${data.storyteller.id}`}
-                className="text-sm font-medium text-amber-700 hover:text-amber-900 hover:underline block truncate"
+                className="text-sm font-medium text-picc-ochre hover:text-picc-earth hover:underline block truncate"
               >
                 {data.storyteller.preferred_name || data.storyteller.name}
               </Link>
@@ -189,7 +189,7 @@ export function StoryInfobox({ data, className = '' }: StoryInfoboxProps) {
               <div className="text-xs text-gray-600">Location</div>
               <Link
                 href={`/wiki/places?location=${encodeURIComponent(data.location)}`}
-                className="text-sm text-amber-700 hover:text-amber-900 hover:underline"
+                className="text-sm text-picc-ochre hover:text-picc-earth hover:underline"
               >
                 {data.location}
               </Link>
@@ -254,7 +254,7 @@ export function StoryInfobox({ data, className = '' }: StoryInfoboxProps) {
                 <div key={person.id} className="text-sm">
                   <Link
                     href={`/wiki/people/${person.id}`}
-                    className="text-amber-700 hover:text-amber-900 hover:underline"
+                    className="text-picc-ochre hover:text-picc-earth hover:underline"
                   >
                     {person.name}
                   </Link>
@@ -329,18 +329,18 @@ export function StoryInfobox({ data, className = '' }: StoryInfoboxProps) {
             <div className="text-xs text-gray-600 mb-2">Media</div>
             <div className="flex gap-3 text-sm text-gray-900">
               {data.media_count.photos && data.media_count.photos > 0 && (
-                <div>
-                  📸 <span className="font-medium">{data.media_count.photos}</span>
+                <div className="flex items-center gap-1">
+                  <Camera className="h-3.5 w-3.5 text-gray-500" /> <span className="font-medium">{data.media_count.photos}</span>
                 </div>
               )}
               {data.media_count.videos && data.media_count.videos > 0 && (
-                <div>
-                  🎥 <span className="font-medium">{data.media_count.videos}</span>
+                <div className="flex items-center gap-1">
+                  <Film className="h-3.5 w-3.5 text-gray-500" /> <span className="font-medium">{data.media_count.videos}</span>
                 </div>
               )}
               {data.media_count.audio && data.media_count.audio > 0 && (
-                <div>
-                  🎵 <span className="font-medium">{data.media_count.audio}</span>
+                <div className="flex items-center gap-1">
+                  <Music className="h-3.5 w-3.5 text-gray-500" /> <span className="font-medium">{data.media_count.audio}</span>
                 </div>
               )}
             </div>

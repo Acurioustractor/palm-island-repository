@@ -111,20 +111,20 @@ export function ReportQuoteGallery({
   });
 
   const themeColors: Record<string, string> = {
-    community: 'bg-purple-100 text-purple-700 border-purple-200',
-    services: 'bg-blue-100 text-blue-700 border-blue-200',
-    culture: 'bg-amber-100 text-amber-700 border-amber-200',
-    history: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+    community: 'bg-warm-100 text-picc-ochre border-warm-200',
+    services: 'bg-warm-100 text-picc-red border-warm-200',
+    culture: 'bg-picc-ochre-100 text-picc-ochre border-picc-ochre-200',
+    history: 'bg-sage-100 text-sage-600 border-sage-200',
     achievement: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-    youth: 'bg-pink-100 text-pink-700 border-pink-200',
-    employment: 'bg-indigo-100 text-indigo-700 border-indigo-200',
-    health: 'bg-green-100 text-green-700 border-green-200',
+    youth: 'bg-picc-red-100 text-picc-red border-picc-red-200',
+    employment: 'bg-warm-100 text-picc-ochre border-warm-200',
+    health: 'bg-sage-100 text-sage-600 border-sage-200',
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-picc-ochre" />
       </div>
     );
   }
@@ -139,12 +139,12 @@ export function ReportQuoteGallery({
 
       {/* Assigned Quotes Section */}
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-200">
+        <div className="p-4 bg-gradient-to-r from-warm-100 to-warm-50 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <MessageSquareQuote className="w-5 h-5 text-purple-600" />
+              <MessageSquareQuote className="w-5 h-5 text-picc-ochre" />
               <h3 className="font-semibold text-gray-900">Report Quotes</h3>
-              <span className="px-2 py-0.5 bg-purple-600 text-white text-xs rounded-full">
+              <span className="px-2 py-0.5 bg-picc-ochre text-white text-xs rounded-full">
                 {assignedQuotes.length}/{maxQuotes}
               </span>
             </div>
@@ -181,7 +181,7 @@ export function ReportQuoteGallery({
             <h3 className="font-semibold text-gray-900">Quote Gallery</h3>
             <button
               onClick={() => setShowAddQuote(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-picc-ochre hover:bg-picc-ochre text-white rounded-lg transition-colors"
             >
               <Plus className="w-4 h-4" />
               Add Manual Quote
@@ -198,7 +198,7 @@ export function ReportQuoteGallery({
                   placeholder="Search quotes..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-transparent"
                 />
               </div>
             </div>
@@ -206,7 +206,7 @@ export function ReportQuoteGallery({
               <select
                 value={themeFilter}
                 onChange={(e) => setThemeFilter(e.target.value)}
-                className="appearance-none pl-4 pr-10 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
+                className="appearance-none pl-4 pr-10 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-transparent bg-white"
               >
                 <option value="">All Themes</option>
                 {themes.map((theme) => (
@@ -284,7 +284,7 @@ function QuoteCard({
   themeColors: Record<string, string>;
 }) {
   return (
-    <div className="group relative bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-200 p-4 hover:border-purple-300 transition-all">
+    <div className="group relative bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-200 p-4 hover:border-picc-ochre-300 transition-all">
       <div className="flex gap-4">
         {/* Photo or placeholder */}
         <div className="flex-shrink-0">
@@ -298,8 +298,8 @@ function QuoteCard({
               />
             </div>
           ) : (
-            <div className="w-20 h-20 rounded-lg bg-purple-100 flex items-center justify-center">
-              <MessageSquareQuote className="w-8 h-8 text-purple-400" />
+            <div className="w-20 h-20 rounded-lg bg-warm-100 flex items-center justify-center">
+              <MessageSquareQuote className="w-8 h-8 text-picc-ochre-300" />
             </div>
           )}
         </div>
@@ -310,7 +310,7 @@ function QuoteCard({
             <p className="text-gray-900 font-medium line-clamp-2">
               &ldquo;{quote.quote_text}&rdquo;
             </p>
-            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-purple-600 text-white text-xs flex items-center justify-center font-bold">
+            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-picc-ochre text-white text-xs flex items-center justify-center font-bold">
               {index}
             </span>
           </div>
@@ -365,7 +365,7 @@ function AvailableQuoteCard({
   themeColors: Record<string, string>;
 }) {
   return (
-    <div className="group flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:border-purple-300 hover:bg-purple-50/30 transition-all">
+    <div className="group flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:border-picc-ochre-300 hover:bg-warm-100/30 transition-all">
       {/* Photo */}
       {quote.photo_url ? (
         <div className="relative w-14 h-14 rounded-lg overflow-hidden flex-shrink-0">
@@ -412,7 +412,7 @@ function AvailableQuoteCard({
         className={`flex-shrink-0 p-2 rounded-lg transition-colors ${
           disabled
             ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-            : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
+            : 'bg-warm-100 text-picc-ochre hover:bg-warm-200'
         }`}
         title={disabled ? 'Max quotes reached' : 'Add to report'}
       >
@@ -478,7 +478,7 @@ function AddQuoteModal({
                 setFormData({ ...formData, quote_text: e.target.value })
               }
               rows={3}
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-transparent"
               placeholder="Enter the quote..."
               required
             />
@@ -495,7 +495,7 @@ function AddQuoteModal({
                 onChange={(e) =>
                   setFormData({ ...formData, attribution: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-transparent"
                 placeholder="Who said it?"
               />
             </div>
@@ -508,7 +508,7 @@ function AddQuoteModal({
                 onChange={(e) =>
                   setFormData({ ...formData, theme: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-transparent"
               >
                 <option value="">Select theme...</option>
                 {themes.map((theme) => (
@@ -530,7 +530,7 @@ function AddQuoteModal({
               onChange={(e) =>
                 setFormData({ ...formData, context: e.target.value })
               }
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-transparent"
               placeholder="When or where was this said?"
             />
           </div>
@@ -545,7 +545,7 @@ function AddQuoteModal({
                 onChange={(e) =>
                   setFormData({ ...formData, sentiment: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-transparent"
               >
                 <option value="positive">Positive</option>
                 <option value="inspiring">Inspiring</option>
@@ -562,7 +562,7 @@ function AddQuoteModal({
                 onChange={(e) =>
                   setFormData({ ...formData, impact_area: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-transparent"
               >
                 <option value="">Select area...</option>
                 <option value="employment">Employment</option>
@@ -586,7 +586,7 @@ function AddQuoteModal({
                 onChange={(e) =>
                   setFormData({ ...formData, photo_url: e.target.value })
                 }
-                className="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-transparent"
                 placeholder="https://..."
               />
               <button
@@ -621,7 +621,7 @@ function AddQuoteModal({
             <button
               type="submit"
               disabled={saving || !formData.quote_text.trim()}
-              className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-6 py-2 bg-picc-ochre hover:bg-picc-ochre text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
               Add Quote

@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { ArrowRight, Calendar, Users, Heart, Award, BookOpen } from 'lucide-react';
 import MilestoneTimeline, { Milestone } from '@/components/road-to-20-years/MilestoneTimeline';
 import VisionSection from '@/components/road-to-20-years/VisionSection';
+import { STAFF, SERVICES, FINANCIALS } from '@/lib/stats/current-stats';
+import VideoHero from '@/components/video/VideoHero';
 
 export const metadata: Metadata = {
   title: 'Road to 20 Years | Palm Island Community Company',
@@ -54,8 +56,8 @@ const MILESTONES: Milestone[] = [
   },
   {
     year: '2025',
-    title: '197 Staff, 33 Services',
-    description: 'PICC grows to 197 staff members delivering 33 services across health, family, justice, culture, education, and economic development. Total income reaches $23.4 million.',
+    title: `${STAFF.total} Staff, ${SERVICES.total} Services`,
+    description: `PICC grows to ${STAFF.total} staff members delivering ${SERVICES.total} services across health, family, justice, culture, education, and economic development. Total income reaches ${FINANCIALS.incomeDisplay}.`,
     era: 'today',
   },
   {
@@ -69,7 +71,7 @@ const MILESTONES: Milestone[] = [
 const VISION_GOALS = [
   {
     title: 'Service Expansion',
-    description: 'Grow from 33 to 40+ community services, including new mental health, aged care, and youth development programs designed by and for Palm Islanders.',
+    description: `Grow from ${SERVICES.total} to ${SERVICES.target2029}+ community services, including new mental health, aged care, and youth development programs designed by and for Palm Islanders.`,
     icon: 'expansion' as const,
   },
   {
@@ -90,9 +92,9 @@ const VISION_GOALS = [
 ];
 
 const BY_THE_NUMBERS = [
-  { value: '197', label: 'Staff Members', icon: Users },
-  { value: '33', label: 'Services Delivered', icon: Heart },
-  { value: '$23.4M', label: 'Annual Income', icon: Award },
+  { value: `${STAFF.total}`, label: 'Staff Members', icon: Users },
+  { value: `${SERVICES.total}`, label: 'Services Delivered', icon: Heart },
+  { value: FINANCIALS.incomeDisplay, label: 'Annual Income', icon: Award },
   { value: '42', label: 'Language Groups United', icon: BookOpen },
   { value: '2,283', label: 'Health Clients Served', icon: Heart },
   { value: '6,698', label: 'Placement Nights (Family Care)', icon: Users },
@@ -102,22 +104,22 @@ const INNOVATION_SPOTLIGHTS = [
   {
     title: 'Digital Service Centre',
     description: 'Bridging the digital divide on Palm Island with technology access, literacy programs, and connected government services.',
-    color: 'from-purple-600 to-indigo-600',
+    color: 'from-picc-ochre to-picc-ochre',
   },
   {
     title: 'Elders Cultural Trips',
     description: 'Reconnecting Elders with Country through cultural trips that strengthen identity, share knowledge across generations, and honour traditional connections.',
-    color: 'from-amber-600 to-orange-600',
+    color: 'from-picc-ochre to-orange-600',
   },
   {
     title: 'Delegated Authority',
     description: 'A nationally-recognised model putting community in control of child protection decisions — designed on Palm Island, now inspiring others.',
-    color: 'from-emerald-600 to-teal-600',
+    color: 'from-sage-600 to-picc-ochre',
   },
   {
     title: 'First 1,000 Days',
     description: 'Supporting families during the most critical developmental window, combining maternal health, nutrition, and cultural connection from pregnancy to age two.',
-    color: 'from-rose-600 to-pink-600',
+    color: 'from-picc-red to-picc-red',
   },
 ];
 
@@ -125,31 +127,34 @@ export default function RoadTo20YearsPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero */}
-      <section className="relative bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-white py-24 px-4 overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0" style={{
-            backgroundImage: 'radial-gradient(circle at 25% 25%, rgba(139,92,246,0.3) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(59,130,246,0.3) 0%, transparent 50%)',
-          }} />
-        </div>
-        <div className="max-w-4xl mx-auto text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full text-sm font-medium mb-6">
+      <VideoHero
+        videoSrc="/video/road-to-20-years.mp4"
+        videoSrcMobile="/video/road-to-20-years-mobile.mp4"
+        poster="/video/road-to-20-years-poster.jpg"
+        overlay="cinematic"
+        height="tall"
+        parallax
+        aria-label="Road to 20 Years"
+      >
+        <div className="text-center text-white max-w-4xl mx-auto">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium mb-6">
             <Calendar className="w-4 h-4" />
             Community Control Since 2021
           </div>
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
             The Road to<br />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-picc-ochre-300 to-picc-red-300">
               20 Years
             </span>
           </h1>
           <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
             From Hull River to community control — Palm Island Community Company&apos;s journey of resilience, self-determination, and community-led innovation.
           </p>
-          <p className="mt-6 text-lg text-purple-300 italic">
+          <p className="mt-6 text-lg text-picc-ochre-300 italic">
             &ldquo;Our Community, Our Future, Our Way&rdquo;
           </p>
         </div>
-      </section>
+      </VideoHero>
 
       {/* Interactive Timeline */}
       <section className="py-20 px-4 bg-gray-50">
@@ -178,7 +183,7 @@ export default function RoadTo20YearsPage() {
               const Icon = stat.icon;
               return (
                 <div key={idx} className="text-center p-6 bg-gray-50 rounded-2xl">
-                  <Icon className="w-8 h-8 text-purple-600 mx-auto mb-3" />
+                  <Icon className="w-8 h-8 text-picc-ochre mx-auto mb-3" />
                   <div className="text-3xl md:text-4xl font-bold text-gray-900 mb-1">
                     {stat.value}
                   </div>
@@ -227,11 +232,11 @@ export default function RoadTo20YearsPage() {
       </section>
 
       {/* Community Voices */}
-      <section className="py-20 px-4 bg-gradient-to-br from-purple-900 to-gray-900 text-white">
+      <section className="py-20 px-4 bg-gradient-to-br from-picc-earth-600 to-gray-900 text-white">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold mb-4">Community Voices</h2>
-            <p className="text-xl text-purple-200">
+            <p className="text-xl text-warm-200">
               What Palm Islanders say about their community company
             </p>
           </div>
@@ -240,19 +245,19 @@ export default function RoadTo20YearsPage() {
               <p className="text-white/90 italic mb-4 leading-relaxed">
                 &ldquo;For the first time, we&apos;re making decisions about our own community. That&apos;s what self-determination looks like.&rdquo;
               </p>
-              <p className="text-purple-300 text-sm font-semibold">— Community Elder</p>
+              <p className="text-picc-ochre-300 text-sm font-semibold">— Community Elder</p>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
               <p className="text-white/90 italic mb-4 leading-relaxed">
                 &ldquo;PICC brought healing services that understand our culture. They don&apos;t just treat the body — they heal the spirit.&rdquo;
               </p>
-              <p className="text-purple-300 text-sm font-semibold">— Health Service Client</p>
+              <p className="text-picc-ochre-300 text-sm font-semibold">— Health Service Client</p>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
               <p className="text-white/90 italic mb-4 leading-relaxed">
                 &ldquo;Working at PICC means working for my own people. Every day I know I&apos;m making a difference for Palm Island families.&rdquo;
               </p>
-              <p className="text-purple-300 text-sm font-semibold">— PICC Staff Member</p>
+              <p className="text-picc-ochre-300 text-sm font-semibold">— PICC Staff Member</p>
             </div>
           </div>
         </div>
@@ -265,14 +270,14 @@ export default function RoadTo20YearsPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/share-voice"
-              className="inline-flex items-center gap-2 px-8 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-semibold"
+              className="inline-flex items-center gap-2 px-8 py-3 bg-picc-ochre text-white rounded-xl hover:bg-picc-ochre transition-colors font-semibold"
             >
               Share Your Story
               <ArrowRight className="w-5 h-5" />
             </Link>
             <Link
               href="/annual-report/live"
-              className="inline-flex items-center gap-2 px-8 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:border-purple-300 hover:text-purple-700 transition-colors font-semibold"
+              className="inline-flex items-center gap-2 px-8 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:border-picc-ochre-300 hover:text-picc-ochre transition-colors font-semibold"
             >
               View Annual Report
               <ArrowRight className="w-5 h-5" />

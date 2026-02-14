@@ -36,7 +36,7 @@ export function ElderPortraitSection({ elders }: ElderPortraitSectionProps) {
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <h2 className="text-sm uppercase tracking-[0.3em] text-amber-400/80 font-medium mb-4">
+          <h2 className="text-sm uppercase tracking-[0.3em] text-picc-ochre-300/80 font-medium mb-4">
             Our Elders
           </h2>
           <p className="text-3xl md:text-5xl font-bold text-white">
@@ -55,7 +55,7 @@ export function ElderPortraitSection({ elders }: ElderPortraitSectionProps) {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="flex flex-col md:flex-row items-center gap-10 mb-16"
         >
-          <div className="w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden flex-shrink-0 ring-4 ring-amber-500/30 shadow-2xl">
+          <div className="w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden flex-shrink-0 ring-4 ring-picc-ochre/30 shadow-2xl">
             {featured.photoUrl ? (
               <img
                 src={featured.photoUrl}
@@ -64,7 +64,7 @@ export function ElderPortraitSection({ elders }: ElderPortraitSectionProps) {
                 loading="lazy"
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-amber-700 to-amber-900 flex items-center justify-center">
+              <div className="w-full h-full bg-gradient-to-br from-picc-ochre to-picc-earth flex items-center justify-center">
                 <span className="text-4xl font-bold text-white/60">
                   {featured.name.split(' ').map((w) => w[0]).join('')}
                 </span>
@@ -78,7 +78,7 @@ export function ElderPortraitSection({ elders }: ElderPortraitSectionProps) {
             <div className="mt-6">
               <div className="font-semibold text-white text-lg">{featured.name}</div>
               {featured.role && (
-                <div className="text-amber-400/80 text-sm">{featured.role}</div>
+                <div className="text-picc-ochre-300/80 text-sm">{featured.role}</div>
               )}
             </div>
           </div>
@@ -96,7 +96,7 @@ export function ElderPortraitSection({ elders }: ElderPortraitSectionProps) {
                 className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10"
               >
                 <div className="flex items-start gap-4">
-                  <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-amber-500/20">
+                  <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-picc-ochre/20">
                     {elder.photoUrl ? (
                       <img
                         src={elder.photoUrl}
@@ -105,7 +105,7 @@ export function ElderPortraitSection({ elders }: ElderPortraitSectionProps) {
                         loading="lazy"
                       />
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-amber-700 to-amber-900 flex items-center justify-center">
+                      <div className="w-full h-full bg-gradient-to-br from-picc-ochre to-picc-earth flex items-center justify-center">
                         <span className="text-sm font-bold text-white/60">
                           {elder.name.split(' ').map((w) => w[0]).join('')}
                         </span>
@@ -115,7 +115,7 @@ export function ElderPortraitSection({ elders }: ElderPortraitSectionProps) {
                   <div>
                     <div className="font-semibold text-white">{elder.name}</div>
                     {elder.role && (
-                      <div className="text-amber-400/60 text-xs">{elder.role}</div>
+                      <div className="text-picc-ochre-300/60 text-xs">{elder.role}</div>
                     )}
                   </div>
                 </div>

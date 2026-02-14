@@ -175,7 +175,7 @@ export function StoryImageUpload({
         className={cn(
           'relative cursor-pointer rounded-lg border-2 border-dashed p-8 transition-colors',
           isDragging
-            ? 'border-blue-500 bg-blue-50'
+            ? 'border-picc-red bg-warm-50'
             : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50',
           images.length >= maxFiles && 'pointer-events-none opacity-50'
         )}

@@ -73,11 +73,11 @@ export default async function EmbedImpactPage({
   const borderColor = isDark ? '#334155' : '#e2e8f0';
 
   const allStats = [
-    { key: 'staff', value: stats.staff, label: 'Staff Members', icon: '👥' },
-    { key: 'services', value: stats.services, label: 'Integrated Services', icon: '🏢' },
-    { key: 'clients', value: stats.clients, label: 'People Served', icon: '❤️' },
-    { key: 'since', value: stats.since, label: 'Community-Controlled Since', icon: '🌟' },
-    { key: 'budget', value: stats.budget, label: 'Annual Investment', icon: '💰' },
+    { key: 'staff', value: stats.staff, label: 'Staff Members' },
+    { key: 'services', value: stats.services, label: 'Integrated Services' },
+    { key: 'clients', value: stats.clients, label: 'People Served' },
+    { key: 'since', value: stats.since, label: 'Community-Controlled Since' },
+    { key: 'budget', value: stats.budget, label: 'Annual Investment' },
   ];
 
   const displayStats = requestedStats.length > 0
@@ -129,7 +129,6 @@ export default async function EmbedImpactPage({
             border-radius: 8px;
             background: ${isDark ? '#1e293b' : '#f8fafc'};
           }
-          .stat .icon { font-size: 20px; margin-bottom: 4px; }
           .stat .value {
             font-size: 24px;
             font-weight: 800;
@@ -162,7 +161,6 @@ export default async function EmbedImpactPage({
           <div className="stats-grid">
             {displayStats.map(stat => (
               <div key={stat.key} className="stat">
-                <div className="icon">{stat.icon}</div>
                 <div className="value">{stat.value}</div>
                 <div className="label">{stat.label}</div>
               </div>

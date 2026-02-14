@@ -13,10 +13,10 @@ export interface Milestone {
 }
 
 const ERA_COLORS = {
-  founding: { bg: 'bg-amber-500', text: 'text-amber-700', light: 'bg-amber-50', border: 'border-amber-200' },
-  growth: { bg: 'bg-emerald-500', text: 'text-emerald-700', light: 'bg-emerald-50', border: 'border-emerald-200' },
-  innovation: { bg: 'bg-purple-500', text: 'text-purple-700', light: 'bg-purple-50', border: 'border-purple-200' },
-  today: { bg: 'bg-blue-500', text: 'text-blue-700', light: 'bg-blue-50', border: 'border-blue-200' },
+  founding: { bg: 'bg-picc-ochre-500', text: 'text-picc-ochre', light: 'bg-picc-ochre-50', border: 'border-picc-ochre-200' },
+  growth: { bg: 'bg-sage-500', text: 'text-emerald-700', light: 'bg-sage-50', border: 'border-emerald-200' },
+  innovation: { bg: 'bg-picc-ochre', text: 'text-picc-ochre', light: 'bg-warm-100', border: 'border-warm-200' },
+  today: { bg: 'bg-picc-red', text: 'text-picc-red', light: 'bg-warm-50', border: 'border-warm-200' },
 };
 
 const ERA_LABELS = {
@@ -92,7 +92,7 @@ export default function MilestoneTimeline({ milestones }: { milestones: Mileston
 
                 {/* Dot */}
                 <div className="absolute left-6 md:left-1/2 -translate-x-1/2 w-4 h-4 rounded-full border-4 border-white shadow-md z-10"
-                  style={{ backgroundColor: milestone.era === 'founding' ? '#f59e0b' : milestone.era === 'growth' ? '#10b981' : milestone.era === 'innovation' ? '#8b5cf6' : '#3b82f6' }}
+                  style={{ backgroundColor: milestone.era === 'founding' ? '#f59e0b' : milestone.era === 'growth' ? '#5B7B5E' : milestone.era === 'innovation' ? '#C8922A' : '#8B1A1A' }}
                 />
 
                 {/* Spacer for other side */}

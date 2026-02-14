@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { createServerSupabase } from '@/lib/supabase/client';
 import { Mic, BookOpen, Users, Heart, ArrowRight, Sparkles, Image as ImageIcon } from 'lucide-react';
+import { FALLBACKS } from '@/lib/stats/current-stats';
 import { getHeroImage, getPageMedia } from '@/lib/media/utils';
 
 export default async function CommunityPage() {
@@ -28,6 +29,12 @@ export default async function CommunityPage() {
     .eq('access_level', 'public')
     .eq('status', 'published');
 
+  // Get storyteller count
+  const { count: storytellerCount } = await supabase
+    .from('profiles')
+    .select('*', { count: 'exact', head: true })
+    .eq('role', 'storyteller');
+
   // Get recent stories (latest 3)
   const { data: recentStories } = await supabase
     .from('stories')
@@ -48,18 +55,23 @@ export default async function CommunityPage() {
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
       <section
-        className="relative bg-white border-b border-gray-100 py-20 lg:py-32"
+        className="relative bg-white border-b border-gray-100 editorial-section"
         style={heroImage ? {
           backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.95)), url(${heroImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
-        } : undefined}
+        } : {
+          background: 'linear-gradient(135deg, #f8f6f4 0%, #ede8e3 50%, #f0ece8 100%)'
+        }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 text-gray-900">
+          <span className="text-xs font-semibold uppercase tracking-[0.15em] text-gray-400">
+            Community
+          </span>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-[-0.02em] leading-[1.1] mt-4 mb-6 text-gray-900">
             This Is YOUR Community
           </h1>
-          <p className="text-xl md:text-2xl mb-4 text-gray-600">
+          <p className="text-xl md:text-2xl mb-4 text-gray-500">
             YOUR Stories, YOUR Voice, YOUR Future
           </p>
           <p className="text-lg max-w-3xl mx-auto text-gray-600 mb-12 leading-relaxed">
@@ -88,7 +100,7 @@ export default async function CommunityPage() {
       </section>
 
       {/* Impact Stats */}
-      <section className="py-20 bg-white">
+      <section className="editorial-section bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
@@ -98,12 +110,12 @@ export default async function CommunityPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center p-8 bg-white border border-gray-100 rounded-2xl">
-              <div className="text-5xl font-bold text-gray-900 mb-2">{storyCount || 31}+</div>
+              <div className="text-5xl font-bold text-gray-900 mb-2">{storyCount || FALLBACKS.storyCount}+</div>
               <div className="text-sm text-gray-500 uppercase tracking-wide font-semibold">Stories Shared</div>
               <div className="text-xs text-gray-400 mt-1">And growing every day</div>
             </div>
             <div className="text-center p-8 bg-white border border-gray-100 rounded-2xl">
-              <div className="text-5xl font-bold text-gray-900 mb-2">28+</div>
+              <div className="text-5xl font-bold text-gray-900 mb-2">{storytellerCount || 28}+</div>
               <div className="text-sm text-gray-500 uppercase tracking-wide font-semibold">Community Voices</div>
               <div className="text-xs text-gray-400 mt-1">Real stories, real people</div>
             </div>
@@ -117,7 +129,7 @@ export default async function CommunityPage() {
       </section>
 
       {/* Latest Stories */}
-      <section className="py-20 bg-white border-t border-gray-100">
+      <section className="editorial-section bg-white border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -183,7 +195,7 @@ export default async function CommunityPage() {
       </section>
 
       {/* How to Share Your Voice */}
-      <section className="py-20 bg-white border-t border-gray-100">
+      <section className="editorial-section bg-white border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -206,9 +218,8 @@ export default async function CommunityPage() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
-                    <BookOpen className="w-16 h-16 mb-2" />
-                    <p className="text-sm">Write story image</p>
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+                    <BookOpen className="w-12 h-12 text-gray-300" />
                   </div>
                 )}
               </div>
@@ -235,9 +246,8 @@ export default async function CommunityPage() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
-                    <Mic className="w-16 h-16 mb-2" />
-                    <p className="text-sm">Record voice image</p>
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+                    <Mic className="w-12 h-12 text-gray-300" />
                   </div>
                 )}
               </div>
@@ -264,9 +274,8 @@ export default async function CommunityPage() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
-                    <Sparkles className="w-16 h-16 mb-2" />
-                    <p className="text-sm">Upload video image</p>
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+                    <Sparkles className="w-12 h-12 text-gray-300" />
                   </div>
                 )}
               </div>
@@ -319,7 +328,7 @@ export default async function CommunityPage() {
       </section>
 
       {/* Storytellers */}
-      <section className="py-20 bg-white border-t border-gray-100">
+      <section className="editorial-section bg-white border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
@@ -358,7 +367,7 @@ export default async function CommunityPage() {
 
               <div className="p-8">
                 <div className="text-center mb-6">
-                <div className="text-6xl font-bold text-gray-900 mb-2">28+</div>
+                <div className="text-6xl font-bold text-gray-900 mb-2">{storytellerCount || 28}+</div>
                 <div className="text-sm text-gray-500 uppercase tracking-wide font-semibold">Community Members Sharing Their Stories</div>
               </div>
               <div className="space-y-4">
@@ -369,7 +378,7 @@ export default async function CommunityPage() {
                     </div>
                     <div>
                       <div className="font-semibold text-gray-900">Community Voice</div>
-                      <div className="text-sm text-gray-600">23 anonymous stories</div>
+                      <div className="text-sm text-gray-600">Share anonymously</div>
                     </div>
                   </div>
                 </div>

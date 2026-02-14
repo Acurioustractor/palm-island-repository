@@ -38,7 +38,7 @@ export default function CompletionTracker({
             className="h-3 rounded-full transition-all duration-500"
             style={{
               width: `${servicePercent}%`,
-              backgroundColor: servicePercent === 100 ? '#059669' : servicePercent > 50 ? '#d97706' : '#dc2626',
+              backgroundColor: servicePercent === 100 ? '#5B7B5E' : servicePercent > 50 ? '#d97706' : '#dc2626',
             }}
           />
         </div>
@@ -48,29 +48,29 @@ export default function CompletionTracker({
       <div className="flex gap-6">
         <div className="flex items-center gap-2">
           {financialsDone ? (
-            <CheckCircle className="w-5 h-5 text-emerald-600" />
+            <CheckCircle className="w-5 h-5 text-sage-600" />
           ) : (
             <Circle className="w-5 h-5 text-gray-300" />
           )}
-          <span className={`text-sm ${financialsDone ? 'text-emerald-700 font-medium' : 'text-gray-500'}`}>
+          <span className={`text-sm ${financialsDone ? 'text-sage-700 font-medium' : 'text-gray-500'}`}>
             Financials
           </span>
         </div>
 
         <div className="flex items-center gap-2">
           {highlightsDone ? (
-            <CheckCircle className="w-5 h-5 text-emerald-600" />
+            <CheckCircle className="w-5 h-5 text-sage-600" />
           ) : (
             <Circle className="w-5 h-5 text-gray-300" />
           )}
-          <span className={`text-sm ${highlightsDone ? 'text-emerald-700 font-medium' : 'text-gray-500'}`}>
+          <span className={`text-sm ${highlightsDone ? 'text-sage-700 font-medium' : 'text-gray-500'}`}>
             Highlights
           </span>
         </div>
       </div>
 
       {servicePercent === 100 && financialsDone && highlightsDone && (
-        <div className="mt-4 flex items-center gap-2 text-emerald-700 bg-emerald-50 rounded-lg px-4 py-2">
+        <div className="mt-4 flex items-center gap-2 text-sage-700 bg-sage-50 rounded-lg px-4 py-2">
           <CheckCircle className="w-5 h-5" />
           <span className="text-sm font-medium">All data entered for this fiscal year</span>
         </div>

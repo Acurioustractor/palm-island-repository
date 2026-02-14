@@ -37,7 +37,7 @@ export default function QuoteCard({
   if (variant === 'compact') {
     return (
       <div className={`flex items-start gap-3 ${className}`}>
-        <Quote className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+        <Quote className="w-5 h-5 text-picc-ochre flex-shrink-0 mt-0.5" />
         <p className="text-gray-800 italic line-clamp-4">"{quote.quoteText}"</p>
       </div>
     )
@@ -46,8 +46,8 @@ export default function QuoteCard({
   if (variant === 'featured') {
     return (
       <div className={`relative ${className}`}>
-        <Quote className="absolute -left-2 -top-2 w-10 h-10 text-purple-200" />
-        <blockquote className="relative pl-4 border-l-4 border-purple-500">
+        <Quote className="absolute -left-2 -top-2 w-10 h-10 text-warm-200" />
+        <blockquote className="relative pl-4 border-l-4 border-picc-ochre">
           <p className="text-xl md:text-2xl text-gray-900 italic leading-relaxed">
             "{quote.quoteText}"
           </p>
@@ -57,7 +57,7 @@ export default function QuoteCard({
             </footer>
           )}
           {showTheme && quote.theme && (
-            <div className="mt-3 inline-flex px-3 py-1 bg-purple-100 text-purple-700 text-sm font-semibold rounded-full">
+            <div className="mt-3 inline-flex px-3 py-1 bg-warm-100 text-picc-ochre text-sm font-semibold rounded-full">
               {quote.theme}
             </div>
           )}
@@ -70,14 +70,14 @@ export default function QuoteCard({
   return (
     <div className={`rounded-2xl border border-stone-200 bg-stone-50 p-4 ${className}`}>
       <div className="flex items-start gap-3">
-        <Quote className="w-4 h-4 text-purple-600 flex-shrink-0 mt-0.5" />
+        <Quote className="w-4 h-4 text-picc-ochre flex-shrink-0 mt-0.5" />
         <div className="min-w-0">
           <p className="text-gray-900 italic">"{quote.quoteText}"</p>
           {showAttribution && quote.attribution && (
             <p className="mt-2 text-sm text-gray-600">— {quote.attribution}</p>
           )}
           {showTheme && quote.theme && (
-            <div className="mt-2 text-xs font-semibold text-purple-700 uppercase tracking-wide">
+            <div className="mt-2 text-xs font-semibold text-picc-ochre uppercase tracking-wide">
               {quote.theme}
             </div>
           )}
@@ -118,7 +118,7 @@ export function QuotesByTheme({ quotes, maxPerTheme = 3, showAllThemes = false }
     <div className="space-y-6">
       {displayThemes.map((theme) => (
         <div key={theme}>
-          <h5 className="text-sm font-bold text-purple-700 uppercase tracking-wide mb-3">
+          <h5 className="text-sm font-bold text-picc-ochre uppercase tracking-wide mb-3">
             {theme}
           </h5>
           <div className="space-y-3">

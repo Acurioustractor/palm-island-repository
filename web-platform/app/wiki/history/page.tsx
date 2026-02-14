@@ -82,7 +82,7 @@ export default function HistoryPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-amber-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-picc-ochre mx-auto mb-4"></div>
           <p className="text-xl text-gray-700">Loading history...</p>
         </div>
       </div>
@@ -96,7 +96,7 @@ export default function HistoryPage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-gray-900 mb-4 flex items-center gap-3">
-          <Clock className="h-10 w-10 text-amber-600" />
+          <Clock className="h-10 w-10 text-picc-ochre" />
           History & Heritage
         </h1>
         <p className="text-xl text-gray-600">
@@ -106,24 +106,24 @@ export default function HistoryPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-        <div className="bg-amber-50 rounded-lg p-4 text-center border border-amber-200">
-          <div className="text-3xl font-bold text-amber-600">{stories.length}</div>
+        <div className="bg-picc-ochre-50 rounded-lg p-4 text-center border border-picc-ochre-200">
+          <div className="text-3xl font-bold text-picc-ochre">{stories.length}</div>
           <div className="text-sm text-gray-600">Historical Stories</div>
         </div>
-        <div className="bg-blue-50 rounded-lg p-4 text-center border border-blue-200">
-          <div className="text-3xl font-bold text-blue-600">{elderStories.length}</div>
+        <div className="bg-warm-50 rounded-lg p-4 text-center border border-warm-200">
+          <div className="text-3xl font-bold text-picc-red">{elderStories.length}</div>
           <div className="text-sm text-gray-600">Elder Stories</div>
         </div>
-        <div className="bg-green-50 rounded-lg p-4 text-center border border-green-200">
-          <div className="text-3xl font-bold text-green-600">2021</div>
+        <div className="bg-sage-50 rounded-lg p-4 text-center border border-sage-200">
+          <div className="text-3xl font-bold text-sage-600">2021</div>
           <div className="text-sm text-gray-600">PICC Established</div>
         </div>
       </div>
 
       {/* Historical Context */}
-      <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-8 mb-8">
+      <div className="bg-gradient-to-r from-picc-ochre-50 to-orange-50 border border-picc-ochre-200 rounded-lg p-8 mb-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <MapPin className="h-6 w-6 text-amber-600" />
+          <MapPin className="h-6 w-6 text-picc-ochre" />
           Palm Island: Manbarra & Bwgcolman Country
         </h2>
         <div className="prose max-w-none text-gray-700 space-y-4">
@@ -132,15 +132,15 @@ export default function HistoryPage() {
             is one of resilience, resistance, and the ongoing journey toward self-determination.
           </p>
           <div className="grid md:grid-cols-2 gap-6 mt-6">
-            <div className="bg-white rounded-lg p-6 border border-amber-200">
-              <h3 className="font-bold text-amber-900 mb-2">Traditional Owners</h3>
+            <div className="bg-white rounded-lg p-6 border border-picc-ochre-200">
+              <h3 className="font-bold text-picc-earth mb-2">Traditional Owners</h3>
               <p className="text-sm text-gray-600">
                 The Manbarra people are the traditional owners of Palm Island, with deep
                 cultural connections to land and sea spanning thousands of years.
               </p>
             </div>
-            <div className="bg-white rounded-lg p-6 border border-amber-200">
-              <h3 className="font-bold text-amber-900 mb-2">Community Sovereignty</h3>
+            <div className="bg-white rounded-lg p-6 border border-picc-ochre-200">
+              <h3 className="font-bold text-picc-earth mb-2">Community Sovereignty</h3>
               <p className="text-sm text-gray-600">
                 In 2021, PICC achieved 100% community control, operating 16+ integrated
                 services with 197 staff members - proving Indigenous self-determination works.
@@ -152,16 +152,16 @@ export default function HistoryPage() {
 
       {/* Timeline of Key Events */}
       <div className="bg-white rounded-lg border border-stone-300 shadow-sm overflow-hidden mb-8">
-        <div className="bg-gradient-to-r from-stone-100 to-amber-50 border-b border-stone-200 px-6 py-4">
+        <div className="bg-gradient-to-r from-stone-100 to-picc-ochre-50 border-b border-stone-200 px-6 py-4">
           <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Calendar className="h-6 w-6 text-amber-600" />
+            <Calendar className="h-6 w-6 text-picc-ochre" />
             Key Milestones
           </h2>
         </div>
         <div className="p-6">
           <div className="space-y-4">
             <div className="flex gap-4 pb-4 border-b border-gray-200">
-              <div className="flex-shrink-0 w-24 font-bold text-amber-600">2021</div>
+              <div className="flex-shrink-0 w-24 font-bold text-picc-ochre">2021</div>
               <div className="flex-1">
                 <h3 className="font-semibold text-gray-900">PICC Achieves Full Community Control</h3>
                 <p className="text-sm text-gray-600">
@@ -170,7 +170,7 @@ export default function HistoryPage() {
               </div>
             </div>
             <div className="flex gap-4 pb-4 border-b border-gray-200">
-              <div className="flex-shrink-0 w-24 font-bold text-amber-600">2024</div>
+              <div className="flex-shrink-0 w-24 font-bold text-picc-ochre">2024</div>
               <div className="flex-1">
                 <h3 className="font-semibold text-gray-900">February Floods</h3>
                 <p className="text-sm text-gray-600">
@@ -179,7 +179,7 @@ export default function HistoryPage() {
               </div>
             </div>
             <div className="flex gap-4">
-              <div className="flex-shrink-0 w-24 font-bold text-amber-600">Present</div>
+              <div className="flex-shrink-0 w-24 font-bold text-picc-ochre">Present</div>
               <div className="flex-1">
                 <h3 className="font-semibold text-gray-900">Ongoing Journey</h3>
                 <p className="text-sm text-gray-600">
@@ -198,7 +198,7 @@ export default function HistoryPage() {
             <h2 className="text-2xl font-bold text-gray-900">Elder Knowledge & Wisdom</h2>
             <Link
               href="/wiki/people?filter=elder"
-              className="text-amber-700 hover:text-amber-900 font-medium text-sm"
+              className="text-picc-ochre hover:text-picc-earth font-medium text-sm"
             >
               View all elders →
             </Link>
@@ -208,12 +208,12 @@ export default function HistoryPage() {
               <Link
                 key={story.id}
                 href={`/stories/${story.id}`}
-                className="block p-4 bg-white border border-stone-300 rounded-lg hover:border-amber-400 hover:bg-amber-50/50 transition-all group"
+                className="block p-4 bg-white border border-stone-300 rounded-lg hover:border-picc-ochre-300 hover:bg-picc-ochre-50/50 transition-all group"
               >
                 <div className="flex items-start gap-3">
-                  <BookOpen className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                  <BookOpen className="h-5 w-5 text-picc-ochre mt-0.5 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 group-hover:text-amber-700 mb-1">
+                    <h3 className="font-semibold text-gray-900 group-hover:text-picc-ochre mb-1">
                       {story.title}
                     </h3>
                     {story.summary && (
@@ -237,7 +237,7 @@ export default function HistoryPage() {
 
       {/* All Historical Stories */}
       <div className="bg-white rounded-lg border border-stone-300 shadow-sm overflow-hidden">
-        <div className="bg-gradient-to-r from-stone-100 to-amber-50 border-b border-stone-200 px-6 py-4">
+        <div className="bg-gradient-to-r from-stone-100 to-picc-ochre-50 border-b border-stone-200 px-6 py-4">
           <h2 className="text-2xl font-bold text-gray-900">Historical Stories & Accounts</h2>
         </div>
         <div className="p-6">
@@ -247,11 +247,11 @@ export default function HistoryPage() {
                 <Link
                   key={story.id}
                   href={`/stories/${story.id}`}
-                  className="block p-4 border border-gray-200 rounded-lg hover:border-amber-300 hover:bg-amber-50/50 transition-all group"
+                  className="block p-4 border border-gray-200 rounded-lg hover:border-picc-ochre-300 hover:bg-picc-ochre-50/50 transition-all group"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 group-hover:text-amber-700">
+                      <h3 className="font-semibold text-gray-900 group-hover:text-picc-ochre">
                         {story.title}
                       </h3>
                       {story.summary && (
@@ -261,19 +261,19 @@ export default function HistoryPage() {
                       )}
                       <div className="flex flex-wrap gap-2 mt-2 text-xs text-gray-500">
                         {story.story_date && (
-                          <span className="px-2 py-1 bg-amber-50 text-amber-700 rounded border border-amber-200">
+                          <span className="px-2 py-1 bg-picc-ochre-50 text-picc-ochre rounded border border-picc-ochre-200">
                             {new Date(story.story_date).toLocaleDateString()}
                           </span>
                         )}
                         {story.location && (
-                          <span className="px-2 py-1 bg-emerald-50 text-emerald-700 rounded border border-emerald-200">
+                          <span className="px-2 py-1 bg-sage-50 text-sage-700 rounded border border-sage-200">
                             {story.location}
                           </span>
                         )}
                         {(() => {
                           const teller = Array.isArray(story.storyteller) ? story.storyteller[0] : story.storyteller;
                           return teller?.is_elder ? (
-                            <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded border border-blue-200">
+                            <span className="px-2 py-1 bg-warm-50 text-picc-red rounded border border-warm-200">
                               Elder Story
                             </span>
                           ) : null;
@@ -296,10 +296,10 @@ export default function HistoryPage() {
       <div className="mt-8 grid md:grid-cols-2 gap-4">
         <Link
           href="/wiki/timeline"
-          className="block p-6 bg-gradient-to-r from-blue-50 to-teal-50 border border-blue-200 rounded-lg hover:shadow-md transition-all group"
+          className="block p-6 bg-gradient-to-r from-warm-50 to-picc-ochre-50 border border-warm-200 rounded-lg hover:shadow-md transition-all group"
         >
-          <Clock className="h-8 w-8 text-blue-600 mb-2" />
-          <h3 className="font-bold text-blue-900 mb-2 group-hover:text-blue-700">
+          <Clock className="h-8 w-8 text-picc-red mb-2" />
+          <h3 className="font-bold text-picc-earth mb-2 group-hover:text-picc-red">
             View Timeline
           </h3>
           <p className="text-sm text-gray-700">
@@ -308,10 +308,10 @@ export default function HistoryPage() {
         </Link>
         <Link
           href="/wiki/people?filter=elder"
-          className="block p-6 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg hover:shadow-md transition-all group"
+          className="block p-6 bg-gradient-to-r from-picc-ochre-50 to-orange-50 border border-picc-ochre-200 rounded-lg hover:shadow-md transition-all group"
         >
-          <BookOpen className="h-8 w-8 text-amber-600 mb-2" />
-          <h3 className="font-bold text-amber-900 mb-2 group-hover:text-amber-700">
+          <BookOpen className="h-8 w-8 text-picc-ochre mb-2" />
+          <h3 className="font-bold text-picc-earth mb-2 group-hover:text-picc-ochre">
             Meet Our Elders
           </h3>
           <p className="text-sm text-gray-700">

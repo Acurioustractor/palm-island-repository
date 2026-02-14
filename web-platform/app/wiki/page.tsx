@@ -155,9 +155,9 @@ export default function WikiIndexPage() {
       description: 'First-person narratives from community members',
       href: '/wiki/stories',
       icon: BookOpen,
-      color: 'bg-blue-500',
-      lightColor: 'bg-blue-50',
-      textColor: 'text-blue-700',
+      color: 'bg-picc-red',
+      lightColor: 'bg-warm-50',
+      textColor: 'text-picc-red',
       count: stats.stories
     },
     {
@@ -165,9 +165,9 @@ export default function WikiIndexPage() {
       description: 'Storytellers, Elders, and community members',
       href: '/wiki/people',
       icon: Users,
-      color: 'bg-emerald-500',
-      lightColor: 'bg-emerald-50',
-      textColor: 'text-emerald-700',
+      color: 'bg-sage-500',
+      lightColor: 'bg-sage-50',
+      textColor: 'text-sage-700',
       count: stats.people
     },
     {
@@ -175,9 +175,9 @@ export default function WikiIndexPage() {
       description: 'PICC programs and community services',
       href: '/wiki/services',
       icon: Heart,
-      color: 'bg-pink-500',
-      lightColor: 'bg-pink-50',
-      textColor: 'text-pink-700',
+      color: 'bg-warm-500',
+      lightColor: 'bg-warm-50',
+      textColor: 'text-picc-red',
       count: stats.services
     },
     {
@@ -185,36 +185,36 @@ export default function WikiIndexPage() {
       description: 'Palm Island heritage and milestones',
       href: '/wiki/history',
       icon: Clock,
-      color: 'bg-amber-500',
-      lightColor: 'bg-amber-50',
-      textColor: 'text-amber-700',
+      color: 'bg-picc-ochre-500',
+      lightColor: 'bg-picc-ochre-50',
+      textColor: 'text-picc-ochre',
     },
     {
       title: 'Culture',
       description: 'Language, traditions, and cultural knowledge',
       href: '/wiki/culture',
       icon: Globe,
-      color: 'bg-purple-500',
-      lightColor: 'bg-purple-50',
-      textColor: 'text-purple-700',
+      color: 'bg-picc-ochre',
+      lightColor: 'bg-warm-100',
+      textColor: 'text-picc-ochre',
     },
     {
       title: 'Places',
       description: 'Significant locations and landmarks',
       href: '/wiki/places',
       icon: MapPin,
-      color: 'bg-rose-500',
-      lightColor: 'bg-rose-50',
-      textColor: 'text-rose-700',
+      color: 'bg-warm-500',
+      lightColor: 'bg-warm-50',
+      textColor: 'text-picc-red',
     },
     {
       title: 'Timeline',
       description: 'Chronological journey through history',
       href: '/wiki/timeline',
       icon: Calendar,
-      color: 'bg-indigo-500',
-      lightColor: 'bg-indigo-50',
-      textColor: 'text-indigo-700',
+      color: 'bg-picc-ochre',
+      lightColor: 'bg-warm-50',
+      textColor: 'text-picc-ochre',
     },
     {
       title: 'Achievements',
@@ -241,7 +241,7 @@ export default function WikiIndexPage() {
       <div className="max-w-7xl mx-auto px-4 py-8">
 
         {/* Hero Section with AI Search */}
-        <div className="relative mb-12 rounded-3xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 p-8 md:p-12 overflow-hidden">
+        <div className="relative mb-12 rounded-3xl bg-gradient-to-br from-picc-red via-picc-ochre to-picc-ochre p-8 md:p-12 overflow-hidden">
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2" />
@@ -257,13 +257,13 @@ export default function WikiIndexPage() {
                 <h1 className="text-3xl md:text-4xl font-bold text-white">
                   Palm Island Knowledge Base
                 </h1>
-                <p className="text-blue-100">
+                <p className="text-warm-100">
                   Manbarra & Bwgcolman Country
                 </p>
               </div>
             </div>
 
-            <p className="text-lg text-blue-100 mb-8 max-w-2xl">
+            <p className="text-lg text-warm-100 mb-8 max-w-2xl">
               Explore 15+ years of community stories, cultural knowledge, and collective wisdom.
               Search naturally - our AI understands what you're looking for.
             </p>
@@ -282,7 +282,7 @@ export default function WikiIndexPage() {
                 <button
                   type="submit"
                   disabled={isSearching}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all disabled:opacity-50"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 bg-gradient-to-r from-picc-red to-picc-ochre text-white font-medium rounded-xl hover:from-picc-red hover:to-picc-ochre transition-all disabled:opacity-50"
                 >
                   {isSearching ? 'Searching...' : 'Search'}
                 </button>
@@ -290,7 +290,7 @@ export default function WikiIndexPage() {
 
               {/* Search Suggestions */}
               <div className="flex flex-wrap gap-2 mt-4">
-                <span className="text-sm text-blue-200">Try:</span>
+                <span className="text-sm text-warm-200">Try:</span>
                 {['Elder stories', 'Youth programs', 'Cultural heritage', 'Health services'].map((suggestion) => (
                   <button
                     key={suggestion}
@@ -319,9 +319,9 @@ export default function WikiIndexPage() {
                     const subtitle = result.summary || result.bio || result.description;
                     const badge = result.resultType === 'person' ? 'Person' :
                                   result.resultType === 'knowledge' ? 'Knowledge' : 'Story';
-                    const badgeColor = result.resultType === 'person' ? 'bg-emerald-100 text-emerald-700' :
-                                       result.resultType === 'knowledge' ? 'bg-purple-100 text-purple-700' :
-                                       'bg-blue-100 text-blue-700';
+                    const badgeColor = result.resultType === 'person' ? 'bg-sage-100 text-sage-700' :
+                                       result.resultType === 'knowledge' ? 'bg-warm-100 text-picc-ochre' :
+                                       'bg-warm-100 text-picc-red';
 
                     return (
                       <Link
@@ -344,7 +344,7 @@ export default function WikiIndexPage() {
                 </div>
                 <Link
                   href={`/search?q=${encodeURIComponent(searchQuery)}`}
-                  className="block mt-3 text-center text-sm text-blue-600 hover:text-blue-700 font-medium"
+                  className="block mt-3 text-center text-sm text-picc-red hover:text-picc-red font-medium"
                 >
                   View all results →
                 </Link>
@@ -356,10 +356,10 @@ export default function WikiIndexPage() {
         {/* Quick Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
           {[
-            { label: 'Stories', value: stats.stories, icon: BookOpen, color: 'text-blue-600' },
-            { label: 'People', value: stats.people, icon: Users, color: 'text-emerald-600' },
-            { label: 'Services', value: stats.services, icon: Heart, color: 'text-pink-600' },
-            { label: 'Topics', value: stats.topics, icon: Tag, color: 'text-purple-600' },
+            { label: 'Stories', value: stats.stories, icon: BookOpen, color: 'text-picc-red' },
+            { label: 'People', value: stats.people, icon: Users, color: 'text-sage-600' },
+            { label: 'Services', value: stats.services, icon: Heart, color: 'text-picc-red' },
+            { label: 'Topics', value: stats.topics, icon: Tag, color: 'text-picc-ochre' },
           ].map((stat) => (
             <div key={stat.label} className="bg-white rounded-xl border border-gray-200 p-4 text-center">
               <stat.icon className={`h-6 w-6 ${stat.color} mx-auto mb-2`} />
@@ -373,7 +373,7 @@ export default function WikiIndexPage() {
         <section className="mb-12">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900">Explore by Category</h2>
-            <Link href="/wiki/categories" className="text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1">
+            <Link href="/wiki/categories" className="text-picc-red hover:text-picc-red font-medium flex items-center gap-1">
               View all <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -391,7 +391,7 @@ export default function WikiIndexPage() {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                      <h3 className="font-semibold text-gray-900 group-hover:text-picc-red transition-colors">
                         {category.title}
                       </h3>
                       {category.count !== undefined && (
@@ -421,7 +421,7 @@ export default function WikiIndexPage() {
                   <Link
                     key={story.id}
                     href={`/stories/${story.id}`}
-                    className="block bg-white rounded-xl border border-gray-200 p-5 hover:border-blue-300 hover:shadow-md transition-all"
+                    className="block bg-white rounded-xl border border-gray-200 p-5 hover:border-picc-red-300 hover:shadow-md transition-all"
                   >
                     <h3 className="font-semibold text-gray-900 mb-2 line-clamp-1">{story.title}</h3>
                     {story.summary && (
@@ -449,7 +449,7 @@ export default function WikiIndexPage() {
           {/* Recent Activity */}
           <section>
             <div className="flex items-center gap-2 mb-4">
-              <Clock className="h-5 w-5 text-blue-500" />
+              <Clock className="h-5 w-5 text-picc-red" />
               <h2 className="text-xl font-bold text-gray-900">Recent Additions</h2>
             </div>
             <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
@@ -460,8 +460,8 @@ export default function WikiIndexPage() {
                     href={`/stories/${item.id}`}
                     className="flex items-center gap-3 p-4 hover:bg-gray-50 transition-colors"
                   >
-                    <div className="p-2 bg-blue-50 rounded-lg">
-                      <BookOpen className="h-4 w-4 text-blue-600" />
+                    <div className="p-2 bg-warm-50 rounded-lg">
+                      <BookOpen className="h-4 w-4 text-picc-red" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-gray-900 truncate">{item.title}</p>
@@ -485,7 +485,7 @@ export default function WikiIndexPage() {
 
         {/* AI Assistant CTA */}
         <section className="mb-12">
-          <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-2xl p-8 text-white">
+          <div className="bg-gradient-to-r from-picc-ochre via-picc-ochre to-warm-500 rounded-2xl p-8 text-white">
             <div className="flex flex-col md:flex-row items-center gap-6">
               <div className="p-4 bg-white/20 rounded-2xl backdrop-blur-sm">
                 <Bot className="h-12 w-12" />
@@ -498,7 +498,7 @@ export default function WikiIndexPage() {
                 </p>
                 <Link
                   href="/chat"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-white text-purple-600 font-semibold rounded-xl hover:bg-gray-100 transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-white text-picc-ochre font-semibold rounded-xl hover:bg-gray-100 transition-colors"
                 >
                   <Bot className="h-5 w-5" />
                   Start a Conversation
@@ -509,10 +509,10 @@ export default function WikiIndexPage() {
         </section>
 
         {/* Contribute CTA */}
-        <section className="bg-gradient-to-br from-rose-50 to-pink-50 rounded-2xl border border-rose-200 p-8">
+        <section className="bg-gradient-to-br from-warm-50 to-warm-50 rounded-2xl border border-picc-red-200 p-8">
           <div className="flex flex-col md:flex-row items-center gap-6">
-            <div className="p-4 bg-rose-100 rounded-2xl">
-              <Mic className="h-10 w-10 text-rose-600" />
+            <div className="p-4 bg-picc-red-100 rounded-2xl">
+              <Mic className="h-10 w-10 text-picc-red" />
             </div>
             <div className="flex-1 text-center md:text-left">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Share Your Voice</h2>
@@ -522,7 +522,7 @@ export default function WikiIndexPage() {
               </p>
               <Link
                 href="/share-voice"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-rose-600 text-white font-semibold rounded-xl hover:bg-rose-700 transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-picc-red text-white font-semibold rounded-xl hover:bg-picc-red transition-colors"
               >
                 <Mic className="h-5 w-5" />
                 Share Your Story

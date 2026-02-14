@@ -9,9 +9,9 @@ import {
 // Category configuration
 const categoryConfig: Record<string, { label: string; icon: any; color: string; bgColor: string }> = {
   health: { label: 'Health & Wellbeing', icon: Heart, color: 'text-red-600', bgColor: 'bg-red-100' },
-  report: { label: 'Annual Report', icon: FileText, color: 'text-blue-600', bgColor: 'bg-blue-100' },
-  research: { label: 'Research', icon: BookOpen, color: 'text-purple-600', bgColor: 'bg-purple-100' },
-  community: { label: 'Community', icon: Users, color: 'text-green-600', bgColor: 'bg-green-100' },
+  report: { label: 'Annual Report', icon: FileText, color: 'text-picc-red', bgColor: 'bg-warm-100' },
+  research: { label: 'Research', icon: BookOpen, color: 'text-picc-ochre', bgColor: 'bg-warm-100' },
+  community: { label: 'Community', icon: Users, color: 'text-sage-600', bgColor: 'bg-sage-100' },
   policy: { label: 'Policy', icon: TrendingUp, color: 'text-orange-600', bgColor: 'bg-orange-100' },
 };
 
@@ -128,7 +128,7 @@ export default async function PublicationPage({ params }: { params: { slug: stri
 
             {/* Subtitle */}
             {publication.subtitle && (
-              <p className="text-2xl text-indigo-300 font-medium mb-6">
+              <p className="text-2xl text-picc-ochre-300 font-medium mb-6">
                 {publication.subtitle}
               </p>
             )}
@@ -216,7 +216,7 @@ export default async function PublicationPage({ params }: { params: { slug: stri
               </p>
               <Link
                 href="/publications"
-                className="inline-flex items-center gap-2 mt-4 text-indigo-600 font-medium hover:text-indigo-700"
+                className="inline-flex items-center gap-2 mt-4 text-picc-ochre font-medium hover:text-picc-ochre"
               >
                 View more publications
                 <ArrowLeft className="w-4 h-4 rotate-180" />
@@ -249,7 +249,7 @@ export default async function PublicationPage({ params }: { params: { slug: stri
                 {publication.pdf_url && (
                   <a
                     href={publication.pdf_url}
-                    className="flex items-center gap-3 p-4 bg-indigo-50 rounded-xl text-indigo-700 hover:bg-indigo-100 transition-colors"
+                    className="flex items-center gap-3 p-4 bg-warm-50 rounded-xl text-picc-ochre hover:bg-warm-100 transition-colors"
                   >
                     <Download className="w-5 h-5" />
                     <span className="font-medium">Download PDF</span>
@@ -267,13 +267,13 @@ export default async function PublicationPage({ params }: { params: { slug: stri
                   Related
                 </h3>
                 <div className="space-y-3">
-                  <Link href="/annual-reports" className="block text-sm text-gray-600 hover:text-indigo-600">
+                  <Link href="/annual-reports" className="block text-sm text-gray-600 hover:text-picc-ochre">
                     Annual Reports Timeline
                   </Link>
-                  <Link href="/stories" className="block text-sm text-gray-600 hover:text-indigo-600">
+                  <Link href="/stories" className="block text-sm text-gray-600 hover:text-picc-ochre">
                     Community Stories
                   </Link>
-                  <Link href="/wiki/stories" className="block text-sm text-gray-600 hover:text-indigo-600">
+                  <Link href="/wiki/stories" className="block text-sm text-gray-600 hover:text-picc-ochre">
                     Knowledge Base
                   </Link>
                 </div>
@@ -299,8 +299,8 @@ function PublicationSection({ section, index }: { section: any; index: number })
           <h2 className="text-2xl font-bold text-gray-900 mb-6">{section.title}</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {section.stats?.map((stat: any, idx: number) => (
-              <div key={idx} className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 text-center">
-                <div className="text-3xl font-bold text-indigo-600 mb-1">{stat.value}</div>
+              <div key={idx} className="bg-gradient-to-br from-warm-50 to-warm-100 rounded-2xl p-6 text-center">
+                <div className="text-3xl font-bold text-picc-ochre mb-1">{stat.value}</div>
                 <div className="text-sm font-semibold text-gray-900 mb-1">{stat.label}</div>
                 <div className="text-xs text-gray-500">{stat.description}</div>
               </div>
@@ -354,12 +354,12 @@ function PublicationSection({ section, index }: { section: any; index: number })
       return (
         <div className="mb-12" id={`section-${index}`}>
           <h2 className="text-2xl font-bold text-gray-900 mb-6">{section.title}</h2>
-          <div className="relative pl-8 border-l-2 border-indigo-200 space-y-8">
+          <div className="relative pl-8 border-l-2 border-warm-200 space-y-8">
             {section.events?.map((event: any, idx: number) => (
               <div key={idx} className="relative">
-                <div className="absolute -left-[41px] w-5 h-5 rounded-full bg-indigo-600 border-4 border-white" />
+                <div className="absolute -left-[41px] w-5 h-5 rounded-full bg-picc-ochre border-4 border-white" />
                 <div className="bg-gray-50 rounded-xl p-4">
-                  <div className="text-sm font-bold text-indigo-600 mb-1">{event.year}</div>
+                  <div className="text-sm font-bold text-picc-ochre mb-1">{event.year}</div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-1">{event.title}</h3>
                   <p className="text-gray-600 text-sm">{event.description}</p>
                 </div>
@@ -371,12 +371,12 @@ function PublicationSection({ section, index }: { section: any; index: number })
 
     case 'quote':
       return (
-        <div className="mb-12 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-8">
+        <div className="mb-12 bg-gradient-to-br from-warm-50 to-warm-100 rounded-2xl p-8">
           <blockquote className="text-xl md:text-2xl font-medium text-gray-900 italic mb-4">
             &ldquo;{section.quote}&rdquo;
           </blockquote>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold">
+            <div className="w-10 h-10 rounded-full bg-picc-ochre flex items-center justify-center text-white font-bold">
               {section.author?.charAt(0) || 'P'}
             </div>
             <div>

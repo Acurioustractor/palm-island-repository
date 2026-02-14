@@ -17,8 +17,8 @@ export function ShareVoiceCTA() {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
         >
-          <div className="w-16 h-16 mx-auto mb-8 rounded-full bg-amber-500/20 flex items-center justify-center">
-            <MessageCircle className="w-8 h-8 text-amber-400" />
+          <div className="w-16 h-16 mx-auto mb-8 rounded-full bg-picc-ochre/20 flex items-center justify-center">
+            <MessageCircle className="w-8 h-8 text-picc-ochre-300" />
           </div>
 
           <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
@@ -32,7 +32,7 @@ export function ShareVoiceCTA() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/share-voice"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-amber-500 text-gray-900 font-semibold rounded-xl hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/20"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-picc-ochre text-white font-semibold rounded-xl hover:bg-picc-ochre-300 transition-colors shadow-lg shadow-picc-ochre/20"
             >
               <MessageCircle className="w-5 h-5" />
               Share Your Voice

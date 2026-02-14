@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { BookOpen, Link2, Unlink, Star, Image, MessageSquare, Search, Filter, Calendar, Plus, CheckSquare, Square, X } from 'lucide-react';
+import { BookOpen, Link2, Unlink, Star, Image, MessageSquare, Search, Filter, Calendar, Plus, CheckSquare, Square, X, ThumbsUp, Heart } from 'lucide-react';
 import StoryCreatorPanel from './StoryCreatorPanel';
 import EmptyState from './EmptyState';
 
@@ -48,6 +48,9 @@ export default function StoriesPanel({ stories, reportId, onStoriesChange }: Sto
   const [bulkMode, setBulkMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkSaving, setBulkSaving] = useState(false);
+  const [voteCounts, setVoteCounts] = useState<Record<string, { total_votes: number; upvotes: number; loves: number }>>({});
+  const [userVotes, setUserVotes] = useState<Set<string>>(new Set());
+  const [votingId, setVotingId] = useState<string | null>(null);
 
   // Fetch all historical stories when switching to "all" filter
   useEffect(() => {
@@ -67,6 +70,90 @@ export default function StoriesPanel({ stories, reportId, onStoriesChange }: Sto
       setAllStories([]);
     } finally {
       setLoadingAll(false);
+    }
+  };
+
+  // Fetch vote counts when reportId changes
+  useEffect(() => {
+    if (!reportId) return;
+    fetch(`/api/annual-report-data/votes?report_id=${reportId}&content_type=story`)
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data.counts)) {
+          const map: Record<string, { total_votes: number; upvotes: number; loves: number }> = {};
+          for (const c of data.counts) {
+            map[c.content_id] = { total_votes: c.total_votes, upvotes: c.upvotes, loves: c.loves };
+          }
+          setVoteCounts(map);
+        } else if (data.counts && typeof data.counts === 'object') {
+          // Aggregated format from fallback
+          const map: Record<string, { total_votes: number; upvotes: number; loves: number }> = {};
+          for (const [key, val] of Object.entries(data.counts as Record<string, any>)) {
+            const contentId = key.replace('story:', '');
+            map[contentId] = val;
+          }
+          setVoteCounts(map);
+        }
+        if (data.user_votes) {
+          setUserVotes(new Set(data.user_votes));
+        }
+      })
+      .catch(() => {});
+  }, [reportId]);
+
+  const handleVote = async (storyId: string, voteType: 'upvote' | 'love') => {
+    if (!reportId) return;
+    const voteKey = `story:${storyId}:${voteType}`;
+    const hasVoted = userVotes.has(voteKey);
+    setVotingId(storyId);
+
+    try {
+      if (hasVoted) {
+        await fetch(
+          `/api/annual-report-data/votes?report_id=${reportId}&content_type=story&content_id=${storyId}&user_id=anonymous`,
+          { method: 'DELETE' }
+        );
+        setUserVotes(prev => { const next = new Set(prev); next.delete(voteKey); return next; });
+        setVoteCounts(prev => {
+          const current = prev[storyId] || { total_votes: 0, upvotes: 0, loves: 0 };
+          return {
+            ...prev,
+            [storyId]: {
+              ...current,
+              total_votes: Math.max(0, current.total_votes - 1),
+              [voteType === 'upvote' ? 'upvotes' : 'loves']: Math.max(0, (current[voteType === 'upvote' ? 'upvotes' : 'loves'] || 0) - 1),
+            },
+          };
+        });
+      } else {
+        await fetch('/api/annual-report-data/votes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            report_id: reportId,
+            content_type: 'story',
+            content_id: storyId,
+            user_id: 'anonymous',
+            vote_type: voteType,
+          }),
+        });
+        setUserVotes(prev => new Set(prev).add(voteKey));
+        setVoteCounts(prev => {
+          const current = prev[storyId] || { total_votes: 0, upvotes: 0, loves: 0 };
+          return {
+            ...prev,
+            [storyId]: {
+              ...current,
+              total_votes: current.total_votes + 1,
+              [voteType === 'upvote' ? 'upvotes' : 'loves']: (current[voteType === 'upvote' ? 'upvotes' : 'loves'] || 0) + 1,
+            },
+          };
+        });
+      }
+    } catch {
+      // Silently fail
+    } finally {
+      setVotingId(null);
     }
   };
 
@@ -274,7 +361,7 @@ export default function StoriesPanel({ stories, reportId, onStoriesChange }: Sto
 
   if (!reportId) {
     return (
-      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-800">
+      <div className="bg-picc-ochre-50 border border-picc-ochre-200 rounded-lg p-4 text-sm text-picc-ochre">
         No annual report found for this fiscal year. Create one first.
       </div>
     );
@@ -304,7 +391,7 @@ export default function StoriesPanel({ stories, reportId, onStoriesChange }: Sto
             <select
               value={yearFilter}
               onChange={e => setYearFilter(e.target.value)}
-              className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:border-purple-400 focus:outline-none"
+              className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:border-picc-ochre-300 focus:outline-none"
             >
               <option value="current">Current Report</option>
               <option value="all">All Years ({allStories.length || '...'})</option>
@@ -337,7 +424,7 @@ export default function StoriesPanel({ stories, reportId, onStoriesChange }: Sto
                 onClick={() => { setBulkMode(!bulkMode); setSelectedIds(new Set()); }}
                 className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
                   bulkMode
-                    ? 'text-purple-700 bg-purple-100 border border-purple-300'
+                    ? 'text-picc-ochre bg-warm-100 border border-warm-300'
                     : 'text-gray-600 border border-gray-200 hover:bg-gray-50'
                 }`}
               >
@@ -347,14 +434,14 @@ export default function StoriesPanel({ stories, reportId, onStoriesChange }: Sto
             )}
             <button
               onClick={() => setShowCreator(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-green-600 border border-green-200 rounded-lg hover:bg-green-50 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-sage-600 border border-sage-200 rounded-lg hover:bg-sage-50 transition-colors"
             >
               <Plus className="w-4 h-4" />
               Create New Story
             </button>
             <button
               onClick={() => { setShowPicker(true); fetchAvailable(); }}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-picc-ochre border border-warm-200 rounded-lg hover:bg-warm-50 transition-colors"
             >
               <Link2 className="w-4 h-4" />
               Link More Stories
@@ -366,7 +453,7 @@ export default function StoriesPanel({ stories, reportId, onStoriesChange }: Sto
       {/* Loading state for all stories */}
       {loadingAll && !isCurrentView && (
         <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600" />
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-picc-ochre" />
         </div>
       )}
 
@@ -374,15 +461,15 @@ export default function StoriesPanel({ stories, reportId, onStoriesChange }: Sto
       <div className="space-y-3">
         {displayStories.map(story => (
           <div key={story.link_id} className={`bg-white rounded-xl border p-4 flex items-start gap-4 ${
-            bulkMode && selectedIds.has(story.link_id) ? 'border-purple-300 bg-purple-50/30' : 'border-gray-200'
+            bulkMode && selectedIds.has(story.link_id) ? 'border-warm-300 bg-warm-50/30' : 'border-gray-200'
           }`}>
             {bulkMode && isCurrentView && (
               <button
                 onClick={() => toggleSelected(story.link_id)}
-                className="flex-shrink-0 mt-1 text-gray-400 hover:text-purple-600 transition-colors"
+                className="flex-shrink-0 mt-1 text-gray-400 hover:text-picc-ochre transition-colors"
               >
                 {selectedIds.has(story.link_id) ? (
-                  <CheckSquare className="w-5 h-5 text-purple-600" />
+                  <CheckSquare className="w-5 h-5 text-picc-ochre" />
                 ) : (
                   <Square className="w-5 h-5" />
                 )}
@@ -424,7 +511,7 @@ export default function StoriesPanel({ stories, reportId, onStoriesChange }: Sto
                       disabled={saving === story.link_id}
                       className={`p-1.5 rounded transition-colors ${
                         story.is_featured
-                          ? 'text-amber-500 hover:text-amber-600 bg-amber-50'
+                          ? 'text-picc-ochre hover:text-picc-ochre bg-picc-ochre-50'
                           : 'text-gray-300 hover:text-gray-500'
                       }`}
                       title={story.is_featured ? 'Unfeature' : 'Feature'}
@@ -449,12 +536,47 @@ export default function StoriesPanel({ stories, reportId, onStoriesChange }: Sto
                 </p>
               )}
 
+              {/* Vote buttons */}
+              <div className="flex items-center gap-3 mt-2">
+                <button
+                  onClick={() => handleVote(story.story_id, 'upvote')}
+                  disabled={votingId === story.story_id}
+                  className={`flex items-center gap-1 px-2 py-1 text-xs rounded-md transition-colors ${
+                    userVotes.has(`story:${story.story_id}:upvote`)
+                      ? 'text-blue-600 bg-blue-50 border border-blue-200'
+                      : 'text-gray-400 hover:text-blue-500 border border-gray-100 hover:border-blue-200'
+                  }`}
+                  title="Upvote for report inclusion"
+                >
+                  <ThumbsUp className="w-3.5 h-3.5" fill={userVotes.has(`story:${story.story_id}:upvote`) ? 'currentColor' : 'none'} />
+                  <span>{voteCounts[story.story_id]?.upvotes || 0}</span>
+                </button>
+                <button
+                  onClick={() => handleVote(story.story_id, 'love')}
+                  disabled={votingId === story.story_id}
+                  className={`flex items-center gap-1 px-2 py-1 text-xs rounded-md transition-colors ${
+                    userVotes.has(`story:${story.story_id}:love`)
+                      ? 'text-pink-600 bg-pink-50 border border-pink-200'
+                      : 'text-gray-400 hover:text-pink-500 border border-gray-100 hover:border-pink-200'
+                  }`}
+                  title="Love this story"
+                >
+                  <Heart className="w-3.5 h-3.5" fill={userVotes.has(`story:${story.story_id}:love`) ? 'currentColor' : 'none'} />
+                  <span>{voteCounts[story.story_id]?.loves || 0}</span>
+                </button>
+                {(voteCounts[story.story_id]?.total_votes || 0) > 0 && (
+                  <span className="text-[10px] text-gray-400">
+                    {voteCounts[story.story_id].total_votes} vote{voteCounts[story.story_id].total_votes !== 1 ? 's' : ''}
+                  </span>
+                )}
+              </div>
+
               {isCurrentView && (
                 <div className="mt-2">
                   <select
                     value={story.section_placement || ''}
                     onChange={e => handleSectionChange(story.link_id, e.target.value)}
-                    className="px-2 py-1 text-xs border border-gray-200 rounded-md focus:border-purple-400 focus:outline-none"
+                    className="px-2 py-1 text-xs border border-gray-200 rounded-md focus:border-picc-ochre-300 focus:outline-none"
                   >
                     <option value="">No section</option>
                     {SECTIONS.map(s => (
@@ -488,14 +610,14 @@ export default function StoriesPanel({ stories, reportId, onStoriesChange }: Sto
 
       {/* Bulk Action Bar */}
       {bulkMode && selectedIds.size > 0 && (
-        <div className="sticky bottom-4 mx-auto max-w-3xl bg-white rounded-xl border border-purple-200 shadow-lg p-3 flex items-center gap-3 z-40">
-          <div className="flex items-center gap-2 text-sm font-medium text-purple-700">
+        <div className="sticky bottom-4 mx-auto max-w-3xl bg-white rounded-xl border border-warm-200 shadow-lg p-3 flex items-center gap-3 z-40">
+          <div className="flex items-center gap-2 text-sm font-medium text-picc-ochre">
             <CheckSquare className="w-4 h-4" />
             {selectedIds.size} selected
           </div>
           <button
             onClick={selectAll}
-            className="text-xs text-purple-600 hover:underline"
+            className="text-xs text-picc-ochre hover:underline"
           >
             Select all
           </button>
@@ -503,7 +625,7 @@ export default function StoriesPanel({ stories, reportId, onStoriesChange }: Sto
           <select
             onChange={e => { if (e.target.value) bulkSetSection(e.target.value); e.target.value = ''; }}
             disabled={bulkSaving}
-            className="px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:border-purple-400 focus:outline-none"
+            className="px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:border-picc-ochre-300 focus:outline-none"
             defaultValue=""
           >
             <option value="" disabled>Set Section...</option>
@@ -515,7 +637,7 @@ export default function StoriesPanel({ stories, reportId, onStoriesChange }: Sto
           <button
             onClick={() => bulkFeature(true)}
             disabled={bulkSaving}
-            className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-amber-600 border border-amber-200 rounded-lg hover:bg-amber-50 disabled:opacity-50 transition-colors"
+            className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-picc-ochre border border-picc-ochre-200 rounded-lg hover:bg-picc-ochre-50 disabled:opacity-50 transition-colors"
           >
             <Star className="w-3.5 h-3.5" />
             Feature All
@@ -558,7 +680,7 @@ export default function StoriesPanel({ stories, reportId, onStoriesChange }: Sto
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   placeholder="Search stories..."
-                  className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-400 focus:outline-none"
+                  className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-picc-ochre-300 focus:outline-none"
                 />
               </div>
             </div>
@@ -572,7 +694,7 @@ export default function StoriesPanel({ stories, reportId, onStoriesChange }: Sto
                 .map((story: any) => (
                   <div
                     key={story.id}
-                    className="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:border-purple-200 transition-colors"
+                    className="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:border-warm-200 transition-colors"
                   >
                     <div className="min-w-0">
                       <div className="text-sm font-medium text-gray-900 truncate">
@@ -586,7 +708,7 @@ export default function StoriesPanel({ stories, reportId, onStoriesChange }: Sto
                     <button
                       onClick={() => handleLink(story.id)}
                       disabled={saving === story.id}
-                      className="flex items-center gap-1 px-3 py-1 text-xs font-medium text-purple-600 border border-purple-200 rounded-md hover:bg-purple-50 disabled:opacity-50 transition-colors"
+                      className="flex items-center gap-1 px-3 py-1 text-xs font-medium text-picc-ochre border border-warm-200 rounded-md hover:bg-warm-50 disabled:opacity-50 transition-colors"
                     >
                       <Link2 className="w-3 h-3" />
                       Link

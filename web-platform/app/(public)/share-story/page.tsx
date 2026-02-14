@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { BookOpen, ArrowLeft, Check, AlertCircle, Mic, PenTool } from 'lucide-react';
+import { BespokeIcon } from '@/components/ui/BespokeIcon';
 import StoryBuilder from '@/components/stories/StoryBuilder';
 import VoiceRecorderWidget from '@/components/stories/VoiceRecorderWidget';
 
@@ -65,12 +66,12 @@ export default function ShareStoryPage() {
               <p className="text-sm text-gray-600">{savedStory.summary}</p>
             </div>
 
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-left mb-6">
+            <div className="bg-picc-ochre-50 border border-picc-ochre-200 rounded-lg p-4 text-left mb-6">
               <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                <AlertCircle className="w-5 h-5 text-picc-ochre flex-shrink-0 mt-0.5" />
                 <div className="text-sm">
-                  <p className="font-medium text-amber-800">What happens next?</p>
-                  <ul className="mt-1 text-amber-700 space-y-1">
+                  <p className="font-medium text-picc-earth">What happens next?</p>
+                  <ul className="mt-1 text-picc-ochre space-y-1">
                     <li>• Our team will review your story</li>
                     <li>• We may contact you for any clarifications</li>
                     <li>• Once approved, your story will be published</li>
@@ -83,7 +84,7 @@ export default function ShareStoryPage() {
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link
                 href="/stories"
-                className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                className="px-6 py-2 bg-picc-ochre text-white rounded-lg hover:bg-picc-ochre transition-colors"
               >
                 View All Stories
               </Link>
@@ -107,11 +108,11 @@ export default function ShareStoryPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-12">
+      <div className="bg-gradient-to-r from-picc-ochre to-picc-ochre text-white py-12">
         <div className="container mx-auto px-4">
           <Link
             href="/stories"
-            className="inline-flex items-center gap-2 text-purple-200 hover:text-white mb-4"
+            className="inline-flex items-center gap-2 text-warm-200 hover:text-white mb-4"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Stories
@@ -120,7 +121,7 @@ export default function ShareStoryPage() {
             <BookOpen className="w-8 h-8" />
             Share Your Story
           </h1>
-          <p className="text-purple-100 max-w-xl">
+          <p className="text-warm-100 max-w-xl">
             Your stories matter. Share your experiences, wisdom, and memories
             with the Palm Island community and future generations.
           </p>
@@ -137,10 +138,10 @@ export default function ShareStoryPage() {
             <div className="grid md:grid-cols-2 gap-6">
               <button
                 onClick={() => setMode('voice')}
-                className="bg-white border-2 border-gray-200 rounded-xl p-8 hover:border-purple-500 hover:shadow-lg transition-all text-left group"
+                className="bg-white border-2 border-gray-200 rounded-xl p-8 hover:border-picc-ochre hover:shadow-lg transition-all text-left group"
               >
-                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4 group-hover:bg-purple-200 transition-colors">
-                  <Mic className="w-8 h-8 text-purple-600" />
+                <div className="w-16 h-16 bg-warm-100 rounded-full flex items-center justify-center mb-4 group-hover:bg-warm-200 transition-colors">
+                  <Mic className="w-8 h-8 text-picc-ochre" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   Record Your Voice
@@ -153,10 +154,10 @@ export default function ShareStoryPage() {
 
               <button
                 onClick={() => setMode('written')}
-                className="bg-white border-2 border-gray-200 rounded-xl p-8 hover:border-purple-500 hover:shadow-lg transition-all text-left group"
+                className="bg-white border-2 border-gray-200 rounded-xl p-8 hover:border-picc-ochre hover:shadow-lg transition-all text-left group"
               >
-                <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mb-4 group-hover:bg-indigo-200 transition-colors">
-                  <PenTool className="w-8 h-8 text-indigo-600" />
+                <div className="w-16 h-16 bg-warm-100 rounded-full flex items-center justify-center mb-4 group-hover:bg-warm-200 transition-colors">
+                  <PenTool className="w-8 h-8 text-picc-ochre" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   Write Your Story
@@ -210,8 +211,8 @@ export default function ShareStoryPage() {
           </h2>
           <div className="grid md:grid-cols-3 gap-6">
             <div className="text-center">
-              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">🌟</span>
+              <div className="w-12 h-12 bg-warm-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <BespokeIcon name="culture" size={28} />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">Preserve Culture</h3>
               <p className="text-sm text-gray-600">
@@ -220,8 +221,8 @@ export default function ShareStoryPage() {
               </p>
             </div>
             <div className="text-center">
-              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">🤝</span>
+              <div className="w-12 h-12 bg-warm-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <BespokeIcon name="community" size={28} />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">Connect Community</h3>
               <p className="text-sm text-gray-600">
@@ -230,8 +231,8 @@ export default function ShareStoryPage() {
               </p>
             </div>
             <div className="text-center">
-              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">💪</span>
+              <div className="w-12 h-12 bg-warm-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <BespokeIcon name="determined" size={28} />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">Inspire Others</h3>
               <p className="text-sm text-gray-600">

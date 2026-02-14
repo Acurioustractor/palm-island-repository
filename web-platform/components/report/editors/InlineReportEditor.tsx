@@ -315,13 +315,13 @@ export default function InlineReportEditor({
       {isEditMode && activeSection && editingData && (
         <div className="fixed inset-y-0 right-0 z-[70] w-96 bg-white border-l border-gray-200 shadow-2xl flex flex-col print:hidden">
           {/* Header */}
-          <div className="px-4 py-3 border-b border-gray-200 bg-purple-50 flex items-center justify-between flex-shrink-0">
-            <div className="font-semibold text-purple-900">{getSectionLabel()}</div>
+          <div className="px-4 py-3 border-b border-gray-200 bg-warm-100 flex items-center justify-between flex-shrink-0">
+            <div className="font-semibold text-picc-earth-600">{getSectionLabel()}</div>
             <button
               onClick={cancelEdit}
-              className="p-1.5 rounded-lg hover:bg-purple-100 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-warm-100 transition-colors"
             >
-              <X className="w-4 h-4 text-purple-700" />
+              <X className="w-4 h-4 text-picc-ochre" />
             </button>
           </div>
 
@@ -349,7 +349,7 @@ export default function InlineReportEditor({
             <button
               onClick={saveSection}
               disabled={saving}
-              className="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-60"
+              className="px-4 py-2 text-sm font-medium text-white bg-picc-ochre hover:bg-picc-ochre rounded-lg transition-colors flex items-center gap-2 disabled:opacity-60"
             >
               {saving ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -368,7 +368,7 @@ export default function InlineReportEditor({
           <div className="relative">
             <button
               onClick={() => openAddSectionMenu()}
-              className="flex items-center gap-2 px-4 py-3 bg-purple-600 text-white rounded-full shadow-lg hover:bg-purple-700 transition-colors font-medium"
+              className="flex items-center gap-2 px-4 py-3 bg-picc-ochre text-white rounded-full shadow-lg hover:bg-picc-ochre transition-colors font-medium"
             >
               <Plus className="w-5 h-5" />
               Add Section
@@ -379,8 +379,8 @@ export default function InlineReportEditor({
                 <div className="fixed inset-0 z-10" onClick={closeAddSectionMenu} />
                 <div className="absolute bottom-full right-0 mb-2 w-72 bg-white rounded-xl border border-gray-200 shadow-xl z-20 overflow-hidden">
                   {/* Header showing where we're inserting */}
-                  <div className="px-4 py-2 bg-purple-50 border-b border-purple-100">
-                    <div className="text-xs font-medium text-purple-700">
+                  <div className="px-4 py-2 bg-warm-100 border-b border-warm-100">
+                    <div className="text-xs font-medium text-picc-ochre">
                       {insertAfterSectionId ? 'Insert after this section' : 'Add at end of report'}
                     </div>
                   </div>
@@ -392,9 +392,9 @@ export default function InlineReportEditor({
                           key={type.id}
                           onClick={() => addSection(type.id)}
                           disabled={saving}
-                          className="w-full flex items-start gap-3 px-4 py-2.5 hover:bg-purple-50 text-left disabled:opacity-50 transition-colors"
+                          className="w-full flex items-start gap-3 px-4 py-2.5 hover:bg-warm-100 text-left disabled:opacity-50 transition-colors"
                         >
-                          <Icon className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" />
+                          <Icon className="w-4 h-4 text-picc-ochre mt-0.5 flex-shrink-0" />
                           <div>
                             <div className="text-sm font-medium text-gray-900">{type.label}</div>
                             <div className="text-xs text-gray-500">{type.description}</div>

@@ -42,7 +42,55 @@ export async function POST(request: Request) {
       { status: 200 }
     )
 
-    cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options))
+    // If supabase/ssr called setAll, use those cookies
+    if (cookiesToSet.length > 0) {
+      cookiesToSet.forEach(({ name, value, options }) => {
+        response.cookies.set(name, value, {
+          ...options,
+          path: options?.path || '/',
+          sameSite: options?.sameSite || 'lax',
+          secure: process.env.NODE_ENV === 'production',
+        })
+      })
+    } else if (data.session) {
+      // Fallback: manually set the session cookies that supabase/ssr expects
+      const cookieName = `sb-${new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!).hostname.split('.')[0]}-auth-token`
+      const cookieValue = JSON.stringify({
+        access_token: data.session.access_token,
+        refresh_token: data.session.refresh_token,
+        expires_at: Math.floor(Date.now() / 1000) + data.session.expires_in,
+        expires_in: data.session.expires_in,
+        token_type: 'bearer',
+      })
+
+      // Supabase SSR splits large cookies into chunks
+      const maxChunkSize = 3180
+      const chunks = []
+      for (let i = 0; i < cookieValue.length; i += maxChunkSize) {
+        chunks.push(cookieValue.slice(i, i + maxChunkSize))
+      }
+
+      if (chunks.length === 1) {
+        response.cookies.set(cookieName, chunks[0], {
+          path: '/',
+          httpOnly: true,
+          sameSite: 'lax',
+          secure: process.env.NODE_ENV === 'production',
+          maxAge: data.session.expires_in,
+        })
+      } else {
+        chunks.forEach((chunk, index) => {
+          response.cookies.set(`${cookieName}.${index}`, chunk, {
+            path: '/',
+            httpOnly: true,
+            sameSite: 'lax',
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: data.session.expires_in,
+          })
+        })
+      }
+    }
+
     return response
   } catch (error: any) {
     return NextResponse.json(

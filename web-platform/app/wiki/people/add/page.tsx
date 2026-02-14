@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import {
   User, ArrowLeft, Save, UserPlus, AlertCircle,
-  CheckCircle, ChevronDown, ChevronUp
+  CheckCircle, ChevronDown, ChevronUp, Lightbulb
 } from 'lucide-react';
 import Link from 'next/link';
 import Breadcrumbs from '@/components/wiki/Breadcrumbs';
@@ -149,12 +149,12 @@ export default function AddPersonPage() {
   if (success) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-2xl">
-        <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-8 text-center">
-          <CheckCircle className="h-16 w-16 text-emerald-600 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-emerald-900 mb-2">
+        <div className="bg-sage-50 border border-sage-200 rounded-lg p-8 text-center">
+          <CheckCircle className="h-16 w-16 text-sage-600 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-sage-900 mb-2">
             Person Added Successfully!
           </h2>
-          <p className="text-emerald-700">
+          <p className="text-sage-700">
             Redirecting to their profile...
           </p>
         </div>
@@ -170,7 +170,7 @@ export default function AddPersonPage() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-4xl font-bold text-gray-900 mb-2 flex items-center gap-3">
-            <UserPlus className="h-10 w-10 text-amber-600" />
+            <UserPlus className="h-10 w-10 text-picc-ochre" />
             Add New Person
           </h1>
           <p className="text-xl text-gray-600">
@@ -188,11 +188,11 @@ export default function AddPersonPage() {
 
       {/* Error Message */}
       {error && (
-        <div className="mb-6 bg-rose-50 border border-rose-200 rounded-lg p-4 flex items-start gap-3">
-          <AlertCircle className="h-5 w-5 text-rose-600 flex-shrink-0 mt-0.5" />
+        <div className="mb-6 bg-warm-50 border border-picc-red-200 rounded-lg p-4 flex items-start gap-3">
+          <AlertCircle className="h-5 w-5 text-picc-red flex-shrink-0 mt-0.5" />
           <div>
-            <div className="font-medium text-rose-900">Error</div>
-            <div className="text-sm text-rose-700">{error}</div>
+            <div className="font-medium text-picc-earth">Error</div>
+            <div className="text-sm text-picc-red">{error}</div>
           </div>
         </div>
       )}
@@ -200,7 +200,7 @@ export default function AddPersonPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Essential Information Card */}
         <div className="bg-white rounded-lg border border-stone-300 shadow-sm overflow-hidden">
-          <div className="bg-gradient-to-r from-stone-100 to-amber-50 border-b border-stone-200 px-6 py-4">
+          <div className="bg-gradient-to-r from-stone-100 to-picc-ochre-50 border-b border-stone-200 px-6 py-4">
             <h2 className="text-xl font-semibold text-stone-800 flex items-center gap-2">
               <User className="h-5 w-5" />
               Essential Information
@@ -212,13 +212,13 @@ export default function AddPersonPage() {
             {/* Full Name - REQUIRED */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Full Name <span className="text-rose-600">*</span>
+                Full Name <span className="text-picc-red">*</span>
               </label>
               <input
                 type="text"
                 value={formData.full_name}
                 onChange={(e) => updateField('full_name', e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-transparent text-lg"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre-300 focus:border-transparent text-lg"
                 placeholder="e.g., Aunty Rose Johnson"
                 required
               />
@@ -233,7 +233,7 @@ export default function AddPersonPage() {
                 type="text"
                 value={formData.preferred_name}
                 onChange={(e) => updateField('preferred_name', e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre-300 focus:border-transparent"
                 placeholder="e.g., Aunty Rose"
               />
             </div>
@@ -247,7 +247,7 @@ export default function AddPersonPage() {
                 <select
                   value={formData.storyteller_type}
                   onChange={(e) => updateField('storyteller_type', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre-300 focus:border-transparent"
                 >
                   <option value="community_member">Community Member</option>
                   <option value="elder">Elder</option>
@@ -264,7 +264,7 @@ export default function AddPersonPage() {
                     type="checkbox"
                     checked={formData.is_elder}
                     onChange={(e) => updateField('is_elder', e.target.checked)}
-                    className="h-5 w-5 text-amber-600 rounded border-gray-300 focus:ring-amber-300"
+                    className="h-5 w-5 text-picc-ochre rounded border-gray-300 focus:ring-picc-ochre-300"
                   />
                   <span className="text-sm font-medium text-gray-700">
                     This person is an Elder
@@ -282,7 +282,7 @@ export default function AddPersonPage() {
                 type="text"
                 value={formData.location}
                 onChange={(e) => updateField('location', e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre-300 focus:border-transparent"
                 placeholder="Palm Island"
               />
             </div>
@@ -294,7 +294,7 @@ export default function AddPersonPage() {
           <button
             type="button"
             onClick={() => setShowAdvanced(!showAdvanced)}
-            className="w-full bg-gradient-to-r from-stone-50 to-amber-50/30 border-b border-stone-200 px-6 py-4 flex items-center justify-between hover:bg-stone-100 transition-colors"
+            className="w-full bg-gradient-to-r from-stone-50 to-picc-ochre-50/30 border-b border-stone-200 px-6 py-4 flex items-center justify-between hover:bg-stone-100 transition-colors"
           >
             <div className="flex items-center gap-2">
               <h2 className="text-xl font-semibold text-stone-800">
@@ -321,7 +321,7 @@ export default function AddPersonPage() {
                     type="email"
                     value={formData.email}
                     onChange={(e) => updateField('email', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre-300 focus:border-transparent"
                     placeholder="email@picc.com.au"
                   />
                 </div>
@@ -334,7 +334,7 @@ export default function AddPersonPage() {
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => updateField('phone', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre-300 focus:border-transparent"
                     placeholder="04XX XXX XXX"
                   />
                 </div>
@@ -350,7 +350,7 @@ export default function AddPersonPage() {
                     type="text"
                     value={formData.traditional_country}
                     onChange={(e) => updateField('traditional_country', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre-300 focus:border-transparent"
                     placeholder="e.g., Manbarra Country"
                   />
                 </div>
@@ -363,7 +363,7 @@ export default function AddPersonPage() {
                     type="text"
                     value={formData.language_group}
                     onChange={(e) => updateField('language_group', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre-300 focus:border-transparent"
                     placeholder="e.g., Bwgcolman"
                   />
                 </div>
@@ -378,7 +378,7 @@ export default function AddPersonPage() {
                   type="text"
                   value={formData.community_role}
                   onChange={(e) => updateField('community_role', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre-300 focus:border-transparent"
                   placeholder="e.g., Health Worker, Cultural Advisor, Teacher"
                 />
               </div>
@@ -392,7 +392,7 @@ export default function AddPersonPage() {
                   value={formData.bio}
                   onChange={(e) => updateField('bio', e.target.value)}
                   rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-transparent resize-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre-300 focus:border-transparent resize-none"
                   placeholder="Share their story, background, and what makes them special to the community..."
                 />
               </div>
@@ -407,7 +407,7 @@ export default function AddPersonPage() {
                   type="text"
                   value={formData.expertise_areas}
                   onChange={(e) => updateField('expertise_areas', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre-300 focus:border-transparent"
                   placeholder="e.g., Traditional Healing, Fishing, Storytelling"
                 />
               </div>
@@ -422,7 +422,7 @@ export default function AddPersonPage() {
                   type="text"
                   value={formData.languages_spoken}
                   onChange={(e) => updateField('languages_spoken', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre-300 focus:border-transparent"
                   placeholder="e.g., English, Traditional Language"
                 />
               </div>
@@ -435,7 +435,7 @@ export default function AddPersonPage() {
           <button
             type="submit"
             disabled={saving}
-            className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold text-lg"
+            className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-picc-ochre text-white rounded-lg hover:bg-picc-ochre disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold text-lg"
           >
             {saving ? (
               <>
@@ -460,9 +460,9 @@ export default function AddPersonPage() {
       </form>
 
       {/* Help Text */}
-      <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h3 className="font-semibold text-blue-900 mb-2">💡 Tips</h3>
-        <ul className="text-sm text-blue-800 space-y-1">
+      <div className="mt-8 bg-warm-50 border border-warm-200 rounded-lg p-4">
+        <h3 className="font-semibold text-picc-earth mb-2 flex items-center gap-2"><Lightbulb className="h-4 w-4" /> Tips</h3>
+        <ul className="text-sm text-picc-earth space-y-1">
           <li>• Only <strong>Full Name</strong> is required - you can add more details later</li>
           <li>• Click "Additional Information" to add contact details, cultural info, and biography</li>
           <li>• For expertise and languages, separate items with commas</li>

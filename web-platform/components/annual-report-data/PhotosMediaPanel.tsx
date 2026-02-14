@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Image, Tag, ExternalLink, AlertCircle, CheckSquare, Square, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Image, Tag, ExternalLink, AlertCircle, CheckSquare, Square, X, Heart, ArrowUpDown } from 'lucide-react';
 import EmptyState from './EmptyState';
 
 interface MediaFile {
@@ -22,6 +22,7 @@ interface PhotosMediaPanelProps {
   gaps: string[];
   fyLabel: string;
   onMediaChange: (media: MediaFile[]) => void;
+  reportId?: string | null;
 }
 
 const REPORT_SECTIONS = [
@@ -39,12 +40,73 @@ export default function PhotosMediaPanel({
   gaps,
   fyLabel,
   onMediaChange,
+  reportId,
 }: PhotosMediaPanelProps) {
   const [saving, setSaving] = useState<string | null>(null);
   const [filterSection, setFilterSection] = useState<string>('all');
   const [bulkMode, setBulkMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkSaving, setBulkSaving] = useState(false);
+  const [sortBy, setSortBy] = useState<'recent' | 'most_voted'>('recent');
+  const [photoVotes, setPhotoVotes] = useState<Record<string, number>>({});
+  const [userPhotoVotes, setUserPhotoVotes] = useState<Set<string>>(new Set());
+  const [votingId, setVotingId] = useState<string | null>(null);
+
+  // Fetch vote counts for photos
+  useEffect(() => {
+    if (!reportId) return;
+    fetch(`/api/annual-report-data/votes?report_id=${reportId}&content_type=media`)
+      .then(r => r.json())
+      .then(data => {
+        const counts: Record<string, number> = {};
+        if (Array.isArray(data.counts)) {
+          for (const c of data.counts) counts[c.content_id] = c.total_votes;
+        } else if (data.counts && typeof data.counts === 'object') {
+          for (const [key, val] of Object.entries(data.counts as Record<string, any>)) {
+            counts[key.replace('media:', '')] = (val as any).total_votes || 0;
+          }
+        }
+        setPhotoVotes(counts);
+        if (data.user_votes) setUserPhotoVotes(new Set(data.user_votes));
+      })
+      .catch(() => {});
+  }, [reportId]);
+
+  const handlePhotoVote = async (mediaId: string) => {
+    if (!reportId) return;
+    const voteKey = `media:${mediaId}:love`;
+    const hasVoted = userPhotoVotes.has(voteKey);
+    setVotingId(mediaId);
+
+    try {
+      if (hasVoted) {
+        await fetch(
+          `/api/annual-report-data/votes?report_id=${reportId}&content_type=media&content_id=${mediaId}&user_id=anonymous`,
+          { method: 'DELETE' }
+        );
+        setUserPhotoVotes(prev => { const next = new Set(prev); next.delete(voteKey); return next; });
+        setPhotoVotes(prev => ({ ...prev, [mediaId]: Math.max(0, (prev[mediaId] || 0) - 1) }));
+      } else {
+        await fetch('/api/annual-report-data/votes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            report_id: reportId,
+            content_type: 'media',
+            content_id: mediaId,
+            user_id: 'anonymous',
+            vote_type: 'love',
+          }),
+        });
+        setUserPhotoVotes(prev => new Set(prev).add(voteKey));
+        setPhotoVotes(prev => ({ ...prev, [mediaId]: (prev[mediaId] || 0) + 1 }));
+      }
+    } catch {
+      // Silently fail
+    } finally {
+      setVotingId(null);
+    }
+  };
 
   const handleToggleSection = async (mediaId: string, sectionTag: string, currentTags: string[]) => {
     const hasTag = currentTags.includes(sectionTag);
@@ -69,9 +131,15 @@ export default function PhotosMediaPanel({
     }
   };
 
-  const filteredMedia = filterSection === 'all'
-    ? media
-    : media.filter(m => m.tags.includes(`section:${filterSection}`));
+  const filteredMedia = (() => {
+    let result = filterSection === 'all'
+      ? media
+      : media.filter(m => m.tags.includes(`section:${filterSection}`));
+    if (sortBy === 'most_voted') {
+      result = [...result].sort((a, b) => (photoVotes[b.id] || 0) - (photoVotes[a.id] || 0));
+    }
+    return result;
+  })();
 
   const toggleSelected = (id: string) => {
     setSelectedIds(prev => {
@@ -165,11 +233,11 @@ export default function PhotosMediaPanel({
 
       {/* Gaps warning */}
       {gaps.length > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+        <div className="bg-picc-ochre-50 border border-picc-ochre-200 rounded-lg p-4 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-picc-ochre flex-shrink-0 mt-0.5" />
           <div>
-            <div className="text-sm font-medium text-amber-800">Missing photos for sections</div>
-            <div className="text-sm text-amber-700 mt-1">
+            <div className="text-sm font-medium text-picc-ochre">Missing photos for sections</div>
+            <div className="text-sm text-picc-ochre mt-1">
               {gaps.map(g => REPORT_SECTIONS.find(s => s.id === g)?.label || g).join(', ')}
             </div>
           </div>
@@ -178,20 +246,33 @@ export default function PhotosMediaPanel({
 
       {/* Section filter + link to gallery */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-gray-600">Filter:</label>
-          <select
-            value={filterSection}
-            onChange={e => setFilterSection(e.target.value)}
-            className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:border-purple-400 focus:outline-none"
-          >
-            <option value="all">All ({media.length})</option>
-            {REPORT_SECTIONS.map(s => (
-              <option key={s.id} value={s.id}>
-                {s.label} ({sectionCounts[s.id] || 0})
-              </option>
-            ))}
-          </select>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-600">Filter:</label>
+            <select
+              value={filterSection}
+              onChange={e => setFilterSection(e.target.value)}
+              className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:border-picc-ochre-300 focus:outline-none"
+            >
+              <option value="all">All ({media.length})</option>
+              {REPORT_SECTIONS.map(s => (
+                <option key={s.id} value={s.id}>
+                  {s.label} ({sectionCounts[s.id] || 0})
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <ArrowUpDown className="w-4 h-4 text-gray-400" />
+            <select
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value as 'recent' | 'most_voted')}
+              className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:border-picc-ochre-300 focus:outline-none"
+            >
+              <option value="recent">Most Recent</option>
+              <option value="most_voted">Most Voted</option>
+            </select>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           {filteredMedia.length > 0 && (
@@ -199,7 +280,7 @@ export default function PhotosMediaPanel({
               onClick={() => { setBulkMode(!bulkMode); setSelectedIds(new Set()); }}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
                 bulkMode
-                  ? 'text-purple-700 bg-purple-100 border border-purple-300'
+                  ? 'text-picc-ochre bg-warm-100 border border-warm-300'
                   : 'text-gray-600 border border-gray-200 hover:bg-gray-50'
               }`}
             >
@@ -209,7 +290,7 @@ export default function PhotosMediaPanel({
           )}
           <a
             href="/picc/media/gallery"
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-picc-ochre border border-warm-200 rounded-lg hover:bg-warm-50 transition-colors"
           >
             <ExternalLink className="w-4 h-4" />
             Full Media Gallery
@@ -223,19 +304,36 @@ export default function PhotosMediaPanel({
           <div
             key={file.id}
             className={`bg-white rounded-xl border overflow-hidden ${
-              bulkMode && selectedIds.has(file.id) ? 'border-purple-300 ring-2 ring-purple-100' : 'border-gray-200'
+              bulkMode && selectedIds.has(file.id) ? 'border-warm-300 ring-2 ring-warm-100' : 'border-gray-200'
             }`}
             onClick={bulkMode ? () => toggleSelected(file.id) : undefined}
           >
-            <div className="aspect-square bg-gray-100 relative">
+            <div className="aspect-square bg-gray-100 relative group">
               {bulkMode && (
                 <div className="absolute top-2 left-2 z-10">
                   {selectedIds.has(file.id) ? (
-                    <CheckSquare className="w-5 h-5 text-purple-600 drop-shadow" />
+                    <CheckSquare className="w-5 h-5 text-picc-ochre drop-shadow" />
                   ) : (
                     <Square className="w-5 h-5 text-white drop-shadow" />
                   )}
                 </div>
+              )}
+              {/* Vote heart overlay */}
+              {!bulkMode && reportId && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); handlePhotoVote(file.id); }}
+                  disabled={votingId === file.id}
+                  className={`absolute top-2 right-2 z-10 flex items-center gap-1 px-1.5 py-1 rounded-full text-xs font-medium backdrop-blur-sm transition-all ${
+                    userPhotoVotes.has(`media:${file.id}:love`)
+                      ? 'bg-pink-500/90 text-white'
+                      : 'bg-black/40 text-white opacity-0 group-hover:opacity-100'
+                  }`}
+                >
+                  <Heart className="w-3.5 h-3.5" fill={userPhotoVotes.has(`media:${file.id}:love`) ? 'currentColor' : 'none'} />
+                  {(photoVotes[file.id] || 0) > 0 && (
+                    <span>{photoVotes[file.id]}</span>
+                  )}
+                </button>
               )}
               {file.public_url ? (
                 <img
@@ -265,7 +363,7 @@ export default function PhotosMediaPanel({
                       disabled={saving === file.id}
                       className={`px-1.5 py-0.5 text-[10px] font-medium rounded transition-colors ${
                         hasTag
-                          ? 'bg-purple-100 text-purple-700 border border-purple-200'
+                          ? 'bg-warm-100 text-picc-ochre border border-warm-200'
                           : 'bg-gray-50 text-gray-400 border border-gray-100 hover:border-gray-300'
                       }`}
                     >
@@ -281,14 +379,14 @@ export default function PhotosMediaPanel({
 
       {/* Bulk Action Bar */}
       {bulkMode && selectedIds.size > 0 && (
-        <div className="sticky bottom-4 mx-auto max-w-3xl bg-white rounded-xl border border-purple-200 shadow-lg p-3 flex items-center gap-3 z-40">
-          <div className="flex items-center gap-2 text-sm font-medium text-purple-700">
+        <div className="sticky bottom-4 mx-auto max-w-3xl bg-white rounded-xl border border-warm-200 shadow-lg p-3 flex items-center gap-3 z-40">
+          <div className="flex items-center gap-2 text-sm font-medium text-picc-ochre">
             <CheckSquare className="w-4 h-4" />
             {selectedIds.size} selected
           </div>
           <button
             onClick={selectAll}
-            className="text-xs text-purple-600 hover:underline"
+            className="text-xs text-picc-ochre hover:underline"
           >
             Select all
           </button>
@@ -296,7 +394,7 @@ export default function PhotosMediaPanel({
           <select
             onChange={e => { if (e.target.value) bulkAddTag(`section:${e.target.value}`); e.target.value = ''; }}
             disabled={bulkSaving}
-            className="px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:border-purple-400 focus:outline-none"
+            className="px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:border-picc-ochre-300 focus:outline-none"
             defaultValue=""
           >
             <option value="" disabled>Add Tag...</option>
@@ -307,7 +405,7 @@ export default function PhotosMediaPanel({
           <select
             onChange={e => { if (e.target.value) bulkRemoveTag(`section:${e.target.value}`); e.target.value = ''; }}
             disabled={bulkSaving}
-            className="px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:border-purple-400 focus:outline-none"
+            className="px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:border-picc-ochre-300 focus:outline-none"
             defaultValue=""
           >
             <option value="" disabled>Remove Tag...</option>

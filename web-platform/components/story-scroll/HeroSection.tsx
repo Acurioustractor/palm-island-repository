@@ -35,7 +35,7 @@ export function HeroSection({
   });
 
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.5], [1, 1.1]);
+  const scale = useTransform(scrollYProgress, [0, 0.5], [1, 1.05]);
 
   const heightClasses = {
     screen: 'h-screen',
@@ -82,7 +82,7 @@ export function HeroSection({
             style={{ backgroundImage: `url(${backgroundImage})` }}
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-blue-600 to-purple-600" />
+          <div className="w-full h-full bg-gradient-to-br from-picc-earth to-picc-red" />
         )}
       </motion.div>
 
@@ -99,8 +99,8 @@ export function HeroSection({
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.3 }}
-          className="text-5xl md:text-7xl font-bold text-white mb-6 max-w-5xl"
+          transition={{ duration: 1, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          className="text-5xl md:text-7xl lg:text-8xl font-extrabold text-white mb-6 max-w-5xl tracking-[-0.02em] leading-[0.95]"
         >
           {title}
         </motion.h1>
@@ -108,8 +108,8 @@ export function HeroSection({
           <motion.p
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.6 }}
-            className="text-xl md:text-2xl text-white/90 max-w-3xl"
+            transition={{ duration: 1, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="text-lg md:text-xl text-white/70 max-w-3xl leading-relaxed"
           >
             {subtitle}
           </motion.p>

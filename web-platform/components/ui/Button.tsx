@@ -24,18 +24,18 @@ interface ButtonProps {
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
-  primary: 'bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg',
-  secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300',
-  cta: 'bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white shadow-md hover:shadow-lg',
-  ghost: 'text-blue-600 hover:bg-blue-50',
-  danger: 'bg-red-600 hover:bg-red-700 text-white shadow-md hover:shadow-lg',
-  outline: 'border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white',
+  primary: 'bg-picc-red hover:bg-picc-red text-white shadow-sm hover:shadow-md',
+  secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200',
+  cta: 'bg-gradient-to-r from-picc-red to-picc-red hover:from-picc-red hover:to-picc-red text-white shadow-sm hover:shadow-md',
+  ghost: 'text-picc-red hover:bg-warm-50',
+  danger: 'bg-red-600 hover:bg-red-700 text-white shadow-sm hover:shadow-md',
+  outline: 'border-2 border-picc-red text-picc-red hover:bg-picc-red hover:text-white',
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
-  sm: 'px-3 py-1.5 text-sm',
-  md: 'px-4 py-2 text-base',
-  lg: 'px-6 py-3 text-lg',
+  sm: 'px-3.5 py-1.5 text-sm',
+  md: 'px-5 py-2.5 text-sm',
+  lg: 'px-7 py-3 text-base',
 };
 
 export function Button({
@@ -55,10 +55,11 @@ export function Button({
 }: ButtonProps) {
   const baseStyles = `
     inline-flex items-center justify-center gap-2
-    font-medium rounded-lg
-    transition-all duration-200
-    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-    disabled:opacity-50 disabled:cursor-not-allowed
+    font-medium rounded-xl
+    transition-all duration-150 ease-elegant
+    hover:scale-[0.96] active:scale-[0.94]
+    focus:outline-none focus:ring-2 focus:ring-picc-red/40 focus:ring-offset-2
+    disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
   `;
 
   const combinedClassName = `

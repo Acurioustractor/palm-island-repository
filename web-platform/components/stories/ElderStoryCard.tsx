@@ -37,7 +37,7 @@ export default function ElderStoryCard({
             />
           </div>
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-purple-800 to-purple-900">
+          <div className="absolute inset-0 bg-gradient-to-br from-picc-earth-600 via-picc-earth-500 to-picc-earth-600">
             <div className="absolute inset-0 flex items-center justify-center opacity-10">
               <span className="text-[20rem] font-bold text-white">
                 {storytellerName.charAt(0)}

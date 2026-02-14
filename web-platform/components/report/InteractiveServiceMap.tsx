@@ -162,7 +162,7 @@ export function InteractiveServiceMap({
               <div className="flex items-center gap-3">
                 <div
                   className="w-10 h-10 rounded-full flex items-center justify-center"
-                  style={{ backgroundColor: activeService.service_color || '#6366f1' }}
+                  style={{ backgroundColor: activeService.service_color || '#C8922A' }}
                 >
                   <MapPin className="w-5 h-5 text-white" />
                 </div>
@@ -189,7 +189,7 @@ export function InteractiveServiceMap({
             <div className="flex gap-6 mb-4">
               {(getMetric(activeService, 'staff_count') || activeService.staff_count) && (
                 <div className="flex items-center gap-2 text-sm">
-                  <Users className="w-4 h-4 text-purple-600" />
+                  <Users className="w-4 h-4 text-picc-ochre" />
                   <span className="font-semibold">
                     {getMetric(activeService, 'staff_count') || activeService.staff_count}
                   </span>
@@ -198,7 +198,7 @@ export function InteractiveServiceMap({
               )}
               {(getMetric(activeService, 'clients_served') || activeService.clients_served) && (
                 <div className="flex items-center gap-2 text-sm">
-                  <Activity className="w-4 h-4 text-blue-600" />
+                  <Activity className="w-4 h-4 text-picc-red" />
                   <span className="font-semibold">
                     {getMetric(activeService, 'clients_served') || activeService.clients_served}
                   </span>
@@ -214,12 +214,12 @@ export function InteractiveServiceMap({
 
             {/* Story Quote */}
             {storyQuote && (
-              <div className="bg-purple-50 rounded-xl p-4 mb-4 border-l-4 border-purple-400">
-                <Quote className="w-5 h-5 text-purple-400 mb-2" />
+              <div className="bg-warm-100 rounded-xl p-4 mb-4 border-l-4 border-picc-ochre-300">
+                <Quote className="w-5 h-5 text-picc-ochre-300 mb-2" />
                 <p className="text-gray-800 italic text-sm leading-relaxed mb-2">
                   &ldquo;{storyQuote.text}&rdquo;
                 </p>
-                <p className="text-purple-700 text-xs font-semibold">
+                <p className="text-picc-ochre text-xs font-semibold">
                   — {storyQuote.author}
                 </p>
               </div>
@@ -246,7 +246,7 @@ export function InteractiveServiceMap({
             {(activeService.slug || activeService.metadata?.slug) && (
               <Link
                 href={`/services/${activeService.slug || activeService.metadata?.slug}`}
-                className="inline-flex items-center gap-2 text-purple-700 hover:text-purple-900 font-semibold text-sm"
+                className="inline-flex items-center gap-2 text-picc-ochre hover:text-picc-earth-600 font-semibold text-sm"
               >
                 View full service page
                 <ExternalLink className="w-4 h-4" />
@@ -274,7 +274,7 @@ function ServiceMarker({
   const icon = useMemo(() => {
     if (typeof window === 'undefined') return undefined;
     const L = require('leaflet');
-    const color = service.service_color || '#6366f1';
+    const color = service.service_color || '#C8922A';
     const size = isActive ? 40 : 32;
     return L.divIcon({
       className: '',

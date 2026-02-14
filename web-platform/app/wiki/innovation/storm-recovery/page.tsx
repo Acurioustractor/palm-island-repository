@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
-import { Heart, TrendingUp, Award, BookOpen, Users, Lightbulb, Sparkles } from 'lucide-react';
+import { Heart, TrendingUp, Award, BookOpen, Users, Lightbulb, Sparkles, Bed, Package, Truck, Apple } from 'lucide-react';
+import { BespokeIcon } from '@/components/ui/BespokeIcon';
 import Breadcrumbs from '@/components/wiki/Breadcrumbs';
 
 interface StormStory {
@@ -56,7 +57,7 @@ export default function StormRecoveryPage() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-4">
-          <Heart className="h-10 w-10 text-rose-600" />
+          <Heart className="h-10 w-10 text-picc-red" />
           <h1 className="text-4xl font-bold text-gray-900">
             Storm Recovery Innovations
           </h1>
@@ -65,22 +66,22 @@ export default function StormRecoveryPage() {
           Community resilience and innovation during 2024 February floods
         </p>
         <div className="flex flex-wrap gap-3">
-          <span className="px-4 py-2 bg-blue-100 text-blue-800 rounded-lg border border-blue-300 font-medium">
+          <span className="px-4 py-2 bg-warm-100 text-picc-earth rounded-lg border border-picc-red-300 font-medium">
             Status: Completed
           </span>
-          <span className="px-4 py-2 bg-rose-100 text-rose-800 rounded-lg border border-rose-300 font-medium">
+          <span className="px-4 py-2 bg-picc-red-100 text-picc-earth rounded-lg border border-picc-red-300 font-medium">
             Event: February 2024 Floods
           </span>
-          <span className="px-4 py-2 bg-emerald-100 text-emerald-800 rounded-lg border border-emerald-300 font-medium">
+          <span className="px-4 py-2 bg-sage-100 text-sage-800 rounded-lg border border-sage-300 font-medium">
             Impact: Resilience & Recovery
           </span>
         </div>
       </div>
 
       {/* Context */}
-      <div className="bg-gradient-to-r from-rose-50 to-orange-50 border border-rose-200 rounded-lg p-8 mb-8">
+      <div className="bg-gradient-to-r from-warm-50 to-orange-50 border border-picc-red-200 rounded-lg p-8 mb-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <Award className="h-6 w-6 text-rose-600" />
+          <Award className="h-6 w-6 text-picc-red" />
           The Story
         </h2>
         <p className="text-gray-700 text-lg mb-4">
@@ -99,39 +100,41 @@ export default function StormRecoveryPage() {
 
       {/* Key Statistics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-rose-50 rounded-lg p-4 text-center border border-rose-200">
-          <div className="text-3xl font-bold text-rose-600">26</div>
+        <div className="bg-warm-50 rounded-lg p-4 text-center border border-picc-red-200">
+          <div className="text-3xl font-bold text-picc-red">26</div>
           <div className="text-sm text-gray-600">Stories Documented</div>
         </div>
-        <div className="bg-blue-50 rounded-lg p-4 text-center border border-blue-200">
-          <div className="text-3xl font-bold text-blue-600">7</div>
+        <div className="bg-warm-50 rounded-lg p-4 text-center border border-warm-200">
+          <div className="text-3xl font-bold text-picc-red">7</div>
           <div className="text-sm text-gray-600">Innovation Programs</div>
         </div>
-        <div className="bg-emerald-50 rounded-lg p-4 text-center border border-emerald-200">
-          <div className="text-3xl font-bold text-emerald-600">6</div>
+        <div className="bg-sage-50 rounded-lg p-4 text-center border border-sage-200">
+          <div className="text-3xl font-bold text-sage-600">6</div>
           <div className="text-sm text-gray-600">Story Categories</div>
         </div>
-        <div className="bg-amber-50 rounded-lg p-4 text-center border border-amber-200">
-          <div className="text-3xl font-bold text-amber-600">100%</div>
+        <div className="bg-picc-ochre-50 rounded-lg p-4 text-center border border-picc-ochre-200">
+          <div className="text-3xl font-bold text-picc-ochre">100%</div>
           <div className="text-sm text-gray-600">Community-Led</div>
         </div>
       </div>
 
       {/* Innovation Programs */}
       <div className="bg-white rounded-lg border border-stone-300 shadow-sm overflow-hidden mb-8">
-        <div className="bg-gradient-to-r from-stone-100 to-rose-50 border-b border-stone-200 px-6 py-4">
+        <div className="bg-gradient-to-r from-stone-100 to-warm-50 border-b border-stone-200 px-6 py-4">
           <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Lightbulb className="h-6 w-6 text-amber-600" />
+            <Lightbulb className="h-6 w-6 text-picc-ochre" />
             Innovative Recovery Programs
           </h2>
         </div>
         <div className="p-6 space-y-6">
           {/* Movember Men's Program */}
-          <div className="border-l-4 border-blue-400 bg-blue-50 p-6 rounded-r-lg">
+          <div className="border-l-4 border-picc-red-300 bg-warm-50 p-6 rounded-r-lg">
             <div className="flex items-start gap-4">
-              <div className="text-4xl">👨</div>
+              <div>
+                <BespokeIcon name="person" size={40} />
+              </div>
               <div className="flex-1">
-                <h3 className="font-bold text-blue-900 text-lg mb-2">
+                <h3 className="font-bold text-picc-earth text-lg mb-2">
                   Movember Men's Recovery Program
                 </h3>
                 <p className="text-gray-700 text-sm mb-3">
@@ -149,11 +152,13 @@ export default function StormRecoveryPage() {
           </div>
 
           {/* Collapsible Beds */}
-          <div className="border-l-4 border-emerald-400 bg-emerald-50 p-6 rounded-r-lg">
+          <div className="border-l-4 border-sage-400 bg-sage-50 p-6 rounded-r-lg">
             <div className="flex items-start gap-4">
-              <div className="text-4xl">🛏️</div>
+              <div>
+                <Bed className="h-10 w-10 text-sage-600" />
+              </div>
               <div className="flex-1">
-                <h3 className="font-bold text-emerald-900 text-lg mb-2">
+                <h3 className="font-bold text-sage-900 text-lg mb-2">
                   Experimental Collapsible Beds
                 </h3>
                 <p className="text-gray-700 text-sm mb-3">
@@ -171,11 +176,13 @@ export default function StormRecoveryPage() {
           </div>
 
           {/* Washing Machine Distribution */}
-          <div className="border-l-4 border-purple-400 bg-purple-50 p-6 rounded-r-lg">
+          <div className="border-l-4 border-picc-ochre-300 bg-warm-100 p-6 rounded-r-lg">
             <div className="flex items-start gap-4">
-              <div className="text-4xl">🧺</div>
+              <div>
+                <Package className="h-10 w-10 text-picc-ochre" />
+              </div>
               <div className="flex-1">
-                <h3 className="font-bold text-purple-900 text-lg mb-2">
+                <h3 className="font-bold text-picc-earth-600 text-lg mb-2">
                   Washing Machine Distribution
                 </h3>
                 <p className="text-gray-700 text-sm mb-3">
@@ -192,11 +199,13 @@ export default function StormRecoveryPage() {
           </div>
 
           {/* Orange Sky Partnership */}
-          <div className="border-l-4 border-amber-400 bg-amber-50 p-6 rounded-r-lg">
+          <div className="border-l-4 border-picc-ochre-300 bg-picc-ochre-50 p-6 rounded-r-lg">
             <div className="flex items-start gap-4">
-              <div className="text-4xl">🚐</div>
+              <div>
+                <Truck className="h-10 w-10 text-picc-ochre" />
+              </div>
               <div className="flex-1">
-                <h3 className="font-bold text-amber-900 text-lg mb-2">
+                <h3 className="font-bold text-picc-earth text-lg mb-2">
                   Orange Sky Mobile Laundry
                 </h3>
                 <p className="text-gray-700 text-sm mb-3">
@@ -213,11 +222,13 @@ export default function StormRecoveryPage() {
           </div>
 
           {/* Food Distribution */}
-          <div className="border-l-4 border-rose-400 bg-rose-50 p-6 rounded-r-lg">
+          <div className="border-l-4 border-picc-red bg-warm-50 p-6 rounded-r-lg">
             <div className="flex items-start gap-4">
-              <div className="text-4xl">🍌</div>
+              <div>
+                <Apple className="h-10 w-10 text-picc-red" />
+              </div>
               <div className="flex-1">
-                <h3 className="font-bold text-rose-900 text-lg mb-2">
+                <h3 className="font-bold text-picc-earth text-lg mb-2">
                   Quality Food Distribution Network
                 </h3>
                 <p className="text-gray-700 text-sm mb-3">
@@ -235,11 +246,13 @@ export default function StormRecoveryPage() {
           </div>
 
           {/* Elder Governance */}
-          <div className="border-l-4 border-teal-400 bg-teal-50 p-6 rounded-r-lg">
+          <div className="border-l-4 border-picc-ochre-300 bg-picc-ochre-50 p-6 rounded-r-lg">
             <div className="flex items-start gap-4">
-              <div className="text-4xl">👴</div>
+              <div>
+                <BespokeIcon name="person" size={40} />
+              </div>
               <div className="flex-1">
-                <h3 className="font-bold text-teal-900 text-lg mb-2">
+                <h3 className="font-bold text-picc-earth text-lg mb-2">
                   Elder-Led Recovery Governance
                 </h3>
                 <p className="text-gray-700 text-sm mb-3">
@@ -256,11 +269,13 @@ export default function StormRecoveryPage() {
           </div>
 
           {/* Documentation Innovation */}
-          <div className="border-l-4 border-indigo-400 bg-indigo-50 p-6 rounded-r-lg">
+          <div className="border-l-4 border-picc-ochre-300 bg-warm-50 p-6 rounded-r-lg">
             <div className="flex items-start gap-4">
-              <div className="text-4xl">📖</div>
+              <div>
+                <BespokeIcon name="story" size={40} />
+              </div>
               <div className="flex-1">
-                <h3 className="font-bold text-indigo-900 text-lg mb-2">
+                <h3 className="font-bold text-picc-earth text-lg mb-2">
                   Systematic Story Documentation
                 </h3>
                 <p className="text-gray-700 text-sm mb-3">
@@ -282,47 +297,47 @@ export default function StormRecoveryPage() {
       {/* Story Categories */}
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-          <BookOpen className="h-6 w-6 text-blue-600" />
+          <BookOpen className="h-6 w-6 text-picc-red" />
           Documented Story Categories
         </h2>
         <div className="grid md:grid-cols-2 gap-4">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-            <h3 className="font-bold text-blue-900 mb-2">Men's Programs & Recovery (4 stories)</h3>
+          <div className="bg-warm-50 border border-warm-200 rounded-lg p-6">
+            <h3 className="font-bold text-picc-earth mb-2">Men's Programs & Recovery (4 stories)</h3>
             <p className="text-sm text-gray-700">
               Movember partnership, men's group activities, trauma support, and recovery programs
               specifically designed for Aboriginal men.
             </p>
           </div>
-          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-6">
-            <h3 className="font-bold text-emerald-900 mb-2">Infrastructure & Housing (7 stories)</h3>
+          <div className="bg-sage-50 border border-sage-200 rounded-lg p-6">
+            <h3 className="font-bold text-sage-900 mb-2">Infrastructure & Housing (7 stories)</h3>
             <p className="text-sm text-gray-700">
               Damage assessment, housing repairs, collapsible beds, washing machines, and material
               support for affected families.
             </p>
           </div>
-          <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
-            <h3 className="font-bold text-purple-900 mb-2">Elder Wisdom & Governance (4 stories)</h3>
+          <div className="bg-warm-100 border border-warm-200 rounded-lg p-6">
+            <h3 className="font-bold text-picc-earth-600 mb-2">Elder Wisdom & Governance (4 stories)</h3>
             <p className="text-sm text-gray-700">
               Elder leadership during crisis, cultural protocols in recovery, traditional knowledge
               applied to modern challenges.
             </p>
           </div>
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-6">
-            <h3 className="font-bold text-amber-900 mb-2">Community Services (3 stories)</h3>
+          <div className="bg-picc-ochre-50 border border-picc-ochre-200 rounded-lg p-6">
+            <h3 className="font-bold text-picc-earth mb-2">Community Services (3 stories)</h3>
             <p className="text-sm text-gray-700">
               PICC service continuity during crisis, playgroup support for children, family
               wellbeing programs during stress.
             </p>
           </div>
-          <div className="bg-rose-50 border border-rose-200 rounded-lg p-6">
-            <h3 className="font-bold text-rose-900 mb-2">Historical Context & Systems (4 stories)</h3>
+          <div className="bg-warm-50 border border-picc-red-200 rounded-lg p-6">
+            <h3 className="font-bold text-picc-earth mb-2">Historical Context & Systems (4 stories)</h3>
             <p className="text-sm text-gray-700">
               How historical trauma and systemic disadvantage compound natural disasters, and why
               self-determination is the solution.
             </p>
           </div>
-          <div className="bg-teal-50 border border-teal-200 rounded-lg p-6">
-            <h3 className="font-bold text-teal-900 mb-2">Cultural Preservation (4 stories)</h3>
+          <div className="bg-picc-ochre-50 border border-picc-ochre-200 rounded-lg p-6">
+            <h3 className="font-bold text-picc-earth mb-2">Cultural Preservation (4 stories)</h3>
             <p className="text-sm text-gray-700">
               Protecting cultural items and knowledge during floods, land rights issues, traditional
               connections to country.
@@ -332,9 +347,9 @@ export default function StormRecoveryPage() {
       </div>
 
       {/* Policy Impact */}
-      <div className="bg-gradient-to-r from-blue-50 to-emerald-50 border border-blue-200 rounded-lg p-8 mb-8">
+      <div className="bg-gradient-to-r from-warm-50 to-sage-50 border border-warm-200 rounded-lg p-8 mb-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <TrendingUp className="h-6 w-6 text-emerald-600" />
+          <TrendingUp className="h-6 w-6 text-sage-600" />
           Policy & Funding Impact
         </h2>
         <p className="text-gray-700 mb-4">
@@ -342,7 +357,7 @@ export default function StormRecoveryPage() {
         </p>
         <ul className="space-y-3">
           <li className="flex items-start gap-3">
-            <span className="text-emerald-600 text-xl">✓</span>
+            <span className="text-sage-600 text-xl">✓</span>
             <div>
               <strong className="text-gray-900">$1.9M Movember Funding:</strong>
               <span className="text-gray-700 text-sm ml-2">
@@ -351,7 +366,7 @@ export default function StormRecoveryPage() {
             </div>
           </li>
           <li className="flex items-start gap-3">
-            <span className="text-emerald-600 text-xl">✓</span>
+            <span className="text-sage-600 text-xl">✓</span>
             <div>
               <strong className="text-gray-900">Government Disaster Response:</strong>
               <span className="text-gray-700 text-sm ml-2">
@@ -361,7 +376,7 @@ export default function StormRecoveryPage() {
             </div>
           </li>
           <li className="flex items-start gap-3">
-            <span className="text-emerald-600 text-xl">✓</span>
+            <span className="text-sage-600 text-xl">✓</span>
             <div>
               <strong className="text-gray-900">Replication by Other Communities:</strong>
               <span className="text-gray-700 text-sm ml-2">
@@ -371,7 +386,7 @@ export default function StormRecoveryPage() {
             </div>
           </li>
           <li className="flex items-start gap-3">
-            <span className="text-emerald-600 text-xl">✓</span>
+            <span className="text-sage-600 text-xl">✓</span>
             <div>
               <strong className="text-gray-900">Academic Recognition:</strong>
               <span className="text-gray-700 text-sm ml-2">
@@ -385,7 +400,7 @@ export default function StormRecoveryPage() {
       {/* Storm Stories (if loaded) */}
       {!loading && stormStories.length > 0 && (
         <div className="bg-white rounded-lg border border-stone-300 shadow-sm overflow-hidden mb-8">
-          <div className="bg-gradient-to-r from-stone-100 to-blue-50 border-b border-stone-200 px-6 py-4">
+          <div className="bg-gradient-to-r from-stone-100 to-warm-50 border-b border-stone-200 px-6 py-4">
             <h2 className="text-2xl font-bold text-gray-900">Browse Storm Recovery Stories</h2>
           </div>
           <div className="p-6">
@@ -394,12 +409,12 @@ export default function StormRecoveryPage() {
                 <Link
                   key={story.id}
                   href={`/stories/${story.id}`}
-                  className="block p-4 border border-gray-200 rounded-lg hover:border-rose-300 hover:bg-rose-50/50 transition-all group"
+                  className="block p-4 border border-gray-200 rounded-lg hover:border-picc-red-300 hover:bg-warm-50/50 transition-all group"
                 >
                   <div className="flex items-start gap-3">
-                    <Heart className="h-5 w-5 text-rose-600 mt-0.5 flex-shrink-0" />
+                    <Heart className="h-5 w-5 text-picc-red mt-0.5 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 group-hover:text-rose-700 mb-1">
+                      <h3 className="font-semibold text-gray-900 group-hover:text-picc-red mb-1">
                         {story.title}
                       </h3>
                       {story.summary && (
@@ -415,7 +430,7 @@ export default function StormRecoveryPage() {
             <div className="mt-6 text-center">
               <Link
                 href="/stories"
-                className="inline-block px-6 py-3 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors font-semibold"
+                className="inline-block px-6 py-3 bg-picc-red text-white rounded-lg hover:bg-picc-red transition-colors font-semibold"
               >
                 View All Stories →
               </Link>
@@ -428,10 +443,10 @@ export default function StormRecoveryPage() {
       <div className="grid md:grid-cols-3 gap-4">
         <Link
           href="/wiki/services"
-          className="block p-6 bg-gradient-to-r from-rose-50 to-pink-50 border border-rose-200 rounded-lg hover:shadow-md transition-all group"
+          className="block p-6 bg-gradient-to-r from-warm-50 to-warm-50 border border-picc-red-200 rounded-lg hover:shadow-md transition-all group"
         >
-          <Heart className="h-8 w-8 text-rose-600 mb-2" />
-          <h3 className="font-bold text-rose-900 mb-2 group-hover:text-rose-700">
+          <Heart className="h-8 w-8 text-picc-red mb-2" />
+          <h3 className="font-bold text-picc-earth mb-2 group-hover:text-picc-red">
             PICC Services
           </h3>
           <p className="text-sm text-gray-700">
@@ -440,10 +455,10 @@ export default function StormRecoveryPage() {
         </Link>
         <Link
           href="/wiki/achievements"
-          className="block p-6 bg-gradient-to-r from-blue-50 to-teal-50 border border-blue-200 rounded-lg hover:shadow-md transition-all group"
+          className="block p-6 bg-gradient-to-r from-warm-50 to-picc-ochre-50 border border-warm-200 rounded-lg hover:shadow-md transition-all group"
         >
-          <Award className="h-8 w-8 text-blue-600 mb-2" />
-          <h3 className="font-bold text-blue-900 mb-2 group-hover:text-blue-700">
+          <Award className="h-8 w-8 text-picc-red mb-2" />
+          <h3 className="font-bold text-picc-earth mb-2 group-hover:text-picc-red">
             Achievements
           </h3>
           <p className="text-sm text-gray-700">
@@ -452,10 +467,10 @@ export default function StormRecoveryPage() {
         </Link>
         <Link
           href="/wiki/innovation"
-          className="block p-6 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg hover:shadow-md transition-all group"
+          className="block p-6 bg-gradient-to-r from-picc-ochre-50 to-orange-50 border border-picc-ochre-200 rounded-lg hover:shadow-md transition-all group"
         >
-          <Lightbulb className="h-8 w-8 text-amber-600 mb-2" />
-          <h3 className="font-bold text-amber-900 mb-2 group-hover:text-amber-700">
+          <Lightbulb className="h-8 w-8 text-picc-ochre mb-2" />
+          <h3 className="font-bold text-picc-earth mb-2 group-hover:text-picc-ochre">
             All Innovation Projects
           </h3>
           <p className="text-sm text-gray-700">

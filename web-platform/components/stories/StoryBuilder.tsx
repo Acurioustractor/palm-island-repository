@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import {
   BookOpen, ArrowRight, ArrowLeft, Sparkles, Check, Loader2,
-  AlertCircle, HelpCircle, Edit3, Save, Send
+  AlertCircle, HelpCircle, Edit3, Save, Send, MessageCircle, PenLine
 } from 'lucide-react';
+import { BespokeIcon } from '@/components/ui/BespokeIcon';
 
 interface StoryPrompt {
   id: string;
@@ -172,7 +173,7 @@ export default function StoryBuilder({ onComplete, initialTemplate }: StoryBuild
   if (loading) {
     return (
       <div className="flex items-center justify-center p-12">
-        <Loader2 className="w-8 h-8 text-purple-600 animate-spin" />
+        <Loader2 className="w-8 h-8 text-picc-ochre animate-spin" />
       </div>
     );
   }
@@ -193,14 +194,14 @@ export default function StoryBuilder({ onComplete, initialTemplate }: StoryBuild
             <button
               key={template.id}
               onClick={() => selectTemplate(template)}
-              className="bg-white rounded-xl border border-gray-200 p-6 text-left hover:border-purple-300 hover:shadow-md transition-all group"
+              className="bg-white rounded-xl border border-gray-200 p-6 text-left hover:border-picc-ochre-300 hover:shadow-md transition-all group"
             >
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center group-hover:bg-purple-200 transition-colors">
-                  <BookOpen className="w-6 h-6 text-purple-600" />
+                <div className="w-12 h-12 rounded-xl bg-picc-ochre-100 flex items-center justify-center group-hover:bg-picc-ochre-200 transition-colors">
+                  <BookOpen className="w-6 h-6 text-picc-ochre" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 group-hover:text-purple-600 transition-colors">
+                  <h3 className="font-semibold text-gray-900 group-hover:text-picc-ochre transition-colors">
                     {template.name}
                   </h3>
                   <p className="text-sm text-gray-600 mt-1">{template.description}</p>
@@ -221,9 +222,9 @@ export default function StoryBuilder({ onComplete, initialTemplate }: StoryBuild
     return (
       <div className="max-w-3xl mx-auto">
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-6">
+          <div className="bg-gradient-to-r from-picc-ochre to-picc-red p-6">
             <h2 className="text-xl font-bold text-white">Your Story</h2>
-            <p className="text-purple-100 text-sm mt-1">
+            <p className="text-picc-ochre-100 text-sm mt-1">
               Review and edit before saving
             </p>
           </div>
@@ -239,7 +240,7 @@ export default function StoryBuilder({ onComplete, initialTemplate }: StoryBuild
                 onChange={(e) => setGeneratedStory(prev =>
                   prev ? { ...prev, title: e.target.value } : null
                 )}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-picc-ochre"
               />
             </div>
 
@@ -253,7 +254,7 @@ export default function StoryBuilder({ onComplete, initialTemplate }: StoryBuild
                   prev ? { ...prev, summary: e.target.value } : null
                 )}
                 rows={2}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-picc-ochre"
               />
             </div>
 
@@ -267,7 +268,7 @@ export default function StoryBuilder({ onComplete, initialTemplate }: StoryBuild
                   prev ? { ...prev, content: e.target.value } : null
                 )}
                 rows={12}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-picc-ochre"
               />
             </div>
 
@@ -281,7 +282,7 @@ export default function StoryBuilder({ onComplete, initialTemplate }: StoryBuild
               </button>
               <button
                 onClick={handleComplete}
-                className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2"
+                className="px-6 py-2 bg-picc-ochre text-white rounded-lg hover:bg-picc-ochre-700 transition-colors flex items-center gap-2"
               >
                 <Save className="w-4 h-4" />
                 Save Story
@@ -306,7 +307,7 @@ export default function StoryBuilder({ onComplete, initialTemplate }: StoryBuild
         </div>
         <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 transition-all duration-300"
+            className="h-full bg-gradient-to-r from-picc-ochre to-picc-red transition-all duration-300"
             style={{ width: `${((currentStep + 1) / totalSteps) * 100}%` }}
           />
         </div>
@@ -314,13 +315,13 @@ export default function StoryBuilder({ onComplete, initialTemplate }: StoryBuild
 
       {/* Cultural Guidance */}
       {culturalGuidance.length > 0 && currentStep === 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+        <div className="bg-picc-ochre-50 border border-picc-ochre-200 rounded-lg p-4 mb-6">
           <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+            <AlertCircle className="w-5 h-5 text-picc-ochre flex-shrink-0 mt-0.5" />
             <div>
-              <h4 className="font-medium text-amber-800">Cultural Guidance</h4>
+              <h4 className="font-medium text-picc-ochre-800">Cultural Guidance</h4>
               {culturalGuidance.map((guidance, i) => (
-                <p key={i} className="text-sm text-amber-700 mt-1">{guidance}</p>
+                <p key={i} className="text-sm text-picc-ochre-700 mt-1">{guidance}</p>
               ))}
             </div>
           </div>
@@ -334,13 +335,14 @@ export default function StoryBuilder({ onComplete, initialTemplate }: StoryBuild
             <div className="flex items-start gap-4 mb-6">
               <div className={`
                 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0
-                ${activePrompt.type === 'feeling' ? 'bg-pink-100' :
-                  activePrompt.type === 'reflection' ? 'bg-purple-100' :
+                ${activePrompt.type === 'feeling' ? 'bg-picc-red-100' :
+                  activePrompt.type === 'reflection' ? 'bg-picc-ochre-100' :
                   activePrompt.type === 'detail' ? 'bg-blue-100' : 'bg-green-100'}
               `}>
-                {activePrompt.type === 'feeling' ? '💭' :
-                 activePrompt.type === 'reflection' ? '✨' :
-                 activePrompt.type === 'detail' ? '📝' : '💬'}
+                {activePrompt.type === 'feeling' ? <BespokeIcon name="reflective" size={20} /> :
+                 activePrompt.type === 'reflection' ? <BespokeIcon name="inspiring" size={20} /> :
+                 activePrompt.type === 'detail' ? <PenLine className="w-5 h-5 text-blue-600" /> :
+                 <MessageCircle className="w-5 h-5 text-green-600" />}
               </div>
               <div>
                 <h3 className="text-xl font-semibold text-gray-900">
@@ -360,7 +362,7 @@ export default function StoryBuilder({ onComplete, initialTemplate }: StoryBuild
               onChange={(e) => handleAnswer(e.target.value)}
               placeholder="Share your thoughts..."
               rows={6}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 resize-none"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-picc-ochre resize-none"
             />
           </div>
 
@@ -377,7 +379,7 @@ export default function StoryBuilder({ onComplete, initialTemplate }: StoryBuild
             <button
               onClick={nextStep}
               disabled={!answers[activePrompt.question]?.trim()}
-              className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+              className="px-6 py-2 bg-picc-ochre text-white rounded-lg hover:bg-picc-ochre-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
             >
               {generating ? (
                 <>

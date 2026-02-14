@@ -138,7 +138,113 @@ export async function POST(request: NextRequest) {
       },
     }))
 
-    const folders = [...serviceFolders, ...projectFolders, ...yearFolders, ...annualReportYearFolders]
+    // Event / collection folders — where the real photos live
+    const eventFolders = [
+      {
+        name: 'Spring Festival 2025',
+        slug: 'event-spring-festival-2025',
+        description: 'Photos from the PICC Spring Festival 2025, including photobooth shots.',
+        icon: 'Star',
+        color: 'amber',
+        is_system: true,
+        query_rules: {
+          filters: [{ field: 'tags', operator: 'contains', value: 'event:spring-festival-2025' }],
+        },
+      },
+      {
+        name: 'Photo Shoot Oct 2025',
+        slug: 'event-photo-shoot-oct-2025',
+        description: 'Professional photography session — staff, services, and community portraits.',
+        icon: 'Star',
+        color: 'amber',
+        is_system: true,
+        query_rules: {
+          filters: [{ field: 'tags', operator: 'contains', value: 'event:photo-shoot-oct-2025' }],
+        },
+      },
+      {
+        name: 'Community Visit Jun 2025',
+        slug: 'event-community-visit-jun-2025',
+        description: 'On-country community visit photos from June 2025.',
+        icon: 'Users',
+        color: 'green',
+        is_system: true,
+        query_rules: {
+          filters: [{ field: 'tags', operator: 'contains', value: 'event:community-visit-jun-2025' }],
+        },
+      },
+      {
+        name: 'Daycare Opening 2025',
+        slug: 'event-daycare-opening-2025',
+        description: 'Photos from the new daycare centre opening ceremony.',
+        icon: 'Heart',
+        color: 'pink',
+        is_system: true,
+        query_rules: {
+          filters: [{ field: 'tags', operator: 'contains', value: 'event:daycare-opening-2025' }],
+        },
+      },
+      {
+        name: 'Elders Conference',
+        slug: 'event-elders-conference',
+        description: 'Photos from Elder gatherings and conferences.',
+        icon: 'Users',
+        color: 'purple',
+        is_system: true,
+        query_rules: {
+          filters: [{ field: 'tags', operator: 'contains', value: 'event:elders-conference' }],
+        },
+      },
+      {
+        name: 'PICC Website Photos',
+        slug: 'source-picc-website',
+        description: 'Photos sourced from the original PICC website — staff, services, and community.',
+        icon: 'Folder',
+        color: 'blue',
+        is_system: true,
+        query_rules: {
+          filters: [{ field: 'tags', operator: 'contains', value: 'source:picc-website' }],
+        },
+      },
+      {
+        name: 'Profile Photos',
+        slug: 'profile-photos',
+        description: 'Staff and storyteller profile photos.',
+        icon: 'Users',
+        color: 'green',
+        is_system: true,
+        query_rules: {
+          filters: [{ field: 'tags', operator: 'contains', value: 'profile-image' }],
+        },
+      },
+      {
+        name: 'Needs Review (Junk)',
+        slug: 'audit-junk',
+        description: 'Small PDF extracts and page renders flagged for cleanup. Safe to archive or delete.',
+        icon: 'AlertCircle',
+        color: 'red',
+        is_system: true,
+        query_rules: {
+          filters: [{ field: 'tags', operator: 'contains', value: 'audit:junk' }],
+        },
+      },
+      {
+        name: 'PDF Archives (Usable)',
+        slug: 'pdf-useful',
+        description: 'Larger images extracted from annual report PDFs — real photos worth keeping.',
+        icon: 'FileText',
+        color: 'purple',
+        is_system: true,
+        query_rules: {
+          filters: [
+            { field: 'tags', operator: 'contains', value: 'pdf-extract' },
+            { field: 'tags', operator: 'not_contains', value: 'audit:junk' },
+          ],
+        },
+      },
+    ]
+
+    const folders = [...eventFolders, ...serviceFolders, ...projectFolders, ...yearFolders, ...annualReportYearFolders]
 
     // Ensure icons exist in UI mapping; fall back gracefully.
     const safeFolders = folders.map((f) => ({

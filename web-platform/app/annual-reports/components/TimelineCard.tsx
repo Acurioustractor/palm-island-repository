@@ -24,18 +24,18 @@ export default function TimelineCard({ year, index, onExpand }: TimelineCardProp
   // Color schemes by era
   const colorSchemes = {
     amber: {
-      gradient: 'from-amber-50 to-orange-50',
-      border: 'border-amber-300',
-      badge: 'bg-amber-100 text-amber-700 border-amber-300',
-      button: 'bg-amber-600 hover:bg-amber-700',
-      text: 'text-amber-700'
+      gradient: 'from-picc-ochre-50 to-orange-50',
+      border: 'border-picc-ochre-300',
+      badge: 'bg-picc-ochre-100 text-picc-ochre border-picc-ochre-300',
+      button: 'bg-picc-ochre hover:bg-picc-ochre',
+      text: 'text-picc-ochre'
     },
     purple: {
-      gradient: 'from-purple-50 to-pink-50',
-      border: 'border-purple-300',
-      badge: 'bg-purple-100 text-purple-700 border-purple-300',
-      button: 'bg-purple-600 hover:bg-purple-700',
-      text: 'text-purple-700'
+      gradient: 'from-picc-ochre-50 to-warm-50',
+      border: 'border-picc-ochre-300',
+      badge: 'bg-picc-ochre-100 text-picc-ochre border-picc-ochre-300',
+      button: 'bg-picc-ochre hover:bg-picc-ochre',
+      text: 'text-picc-ochre'
     },
     green: {
       gradient: 'from-green-50 to-emerald-50',
@@ -45,7 +45,7 @@ export default function TimelineCard({ year, index, onExpand }: TimelineCardProp
       text: 'text-green-700'
     },
     blue: {
-      gradient: 'from-blue-50 to-cyan-50',
+      gradient: 'from-blue-50 to-sage-50',
       border: 'border-blue-300',
       badge: 'bg-blue-100 text-blue-700 border-blue-300',
       button: 'bg-blue-600 hover:bg-blue-700',

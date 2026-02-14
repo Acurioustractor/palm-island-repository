@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Tag, AlertCircle, CheckCircle, Sparkles, Eye, EyeOff } from 'lucide-react';
+import { BespokeIcon, type BespokeIconName } from '@/components/ui/BespokeIcon';
 
 interface Story {
   id: string;
@@ -35,11 +36,11 @@ const COMMON_THEMES = [
   { value: 'family_kinship', label: 'Family & Kinship', color: 'rose' },
 ];
 
-const PRIVACY_LEVELS = [
-  { value: 'public', label: 'Public', description: 'Anyone can view', icon: '🌍' },
-  { value: 'community', label: 'Community', description: 'Registered members only', icon: '👥' },
-  { value: 'restricted', label: 'Restricted', description: 'PICC staff only', icon: '🔒' },
-  { value: 'private', label: 'Private', description: 'Special permissions', icon: '🚫' },
+const PRIVACY_LEVELS: { value: string; label: string; description: string; icon: BespokeIconName }[] = [
+  { value: 'public', label: 'Public', description: 'Anyone can view', icon: 'public' },
+  { value: 'community', label: 'Community', description: 'Registered members only', icon: 'community-only' },
+  { value: 'restricted', label: 'Restricted', description: 'PICC staff only', icon: 'restricted' },
+  { value: 'private', label: 'Private', description: 'Special permissions', icon: 'restricted' },
 ];
 
 export default function ThematicAnalysisPanel({ story, onUpdate }: ThematicAnalysisPanelProps) {
@@ -83,13 +84,13 @@ export default function ThematicAnalysisPanel({ story, onUpdate }: ThematicAnaly
     <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-purple-600" />
+          <Sparkles className="w-5 h-5 text-picc-ochre" />
           Thematic Analysis
         </h3>
         {hasChanges && (
           <button
             onClick={handleSave}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+            className="px-4 py-2 bg-sage-600 text-white rounded-lg hover:bg-sage-600 transition-colors text-sm font-medium"
           >
             Save Changes
           </button>
@@ -97,26 +98,26 @@ export default function ThematicAnalysisPanel({ story, onUpdate }: ThematicAnaly
       </div>
 
       {/* Privacy Review */}
-      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-        <h4 className="font-bold text-amber-900 mb-2 flex items-center gap-2">
+      <div className="bg-picc-ochre-50 border border-picc-ochre-200 rounded-lg p-4">
+        <h4 className="font-bold text-picc-ochre-900 mb-2 flex items-center gap-2">
           <AlertCircle className="w-4 h-4" />
           Privacy Review
         </h4>
 
         {privacyWarnings.length > 0 ? (
           <div className="space-y-1">
-            <p className="text-sm text-amber-800 font-medium">⚠️ Potential identifying information detected:</p>
-            <ul className="text-sm text-amber-700 list-disc list-inside">
+            <p className="text-sm text-picc-ochre-800 font-medium">⚠️ Potential identifying information detected:</p>
+            <ul className="text-sm text-picc-ochre-700 list-disc list-inside">
               {privacyWarnings.map((warning, i) => (
                 <li key={i}>{warning}</li>
               ))}
             </ul>
-            <p className="text-xs text-amber-600 mt-2">
+            <p className="text-xs text-picc-ochre mt-2">
               Review before publishing or including in reports. Consider using "Community Voice" or de-identifying content.
             </p>
           </div>
         ) : (
-          <p className="text-sm text-green-700 flex items-center gap-2">
+          <p className="text-sm text-sage-600 flex items-center gap-2">
             <CheckCircle className="w-4 h-4" />
             No obvious identifying information detected
           </p>
@@ -124,7 +125,7 @@ export default function ThematicAnalysisPanel({ story, onUpdate }: ThematicAnaly
 
         {/* Access Level */}
         <div className="mt-4">
-          <label className="block text-sm font-medium text-amber-900 mb-2">Access Level</label>
+          <label className="block text-sm font-medium text-picc-ochre-900 mb-2">Access Level</label>
           <div className="grid grid-cols-2 gap-2">
             {PRIVACY_LEVELS.map(level => (
               <button
@@ -132,12 +133,12 @@ export default function ThematicAnalysisPanel({ story, onUpdate }: ThematicAnaly
                 onClick={() => handleUpdate('access_level', level.value)}
                 className={`p-3 rounded-lg border-2 text-left transition-all ${
                   localStory.access_level === level.value
-                    ? 'border-amber-500 bg-amber-100'
-                    : 'border-gray-200 bg-white hover:border-amber-300'
+                    ? 'border-picc-ochre-500 bg-picc-ochre-100'
+                    : 'border-gray-200 bg-white hover:border-picc-ochre-300'
                 }`}
               >
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-lg">{level.icon}</span>
+                  <BespokeIcon name={level.icon} size={20} />
                   <span className="font-medium text-sm">{level.label}</span>
                 </div>
                 <p className="text-xs text-gray-600">{level.description}</p>
@@ -180,7 +181,7 @@ export default function ThematicAnalysisPanel({ story, onUpdate }: ThematicAnaly
                 (e.target as HTMLInputElement).value = '';
               }
             }}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-picc-ochre focus:border-transparent"
           />
           <p className="text-xs text-gray-500 mt-1">Press Enter to add custom tags</p>
         </div>
@@ -191,13 +192,13 @@ export default function ThematicAnalysisPanel({ story, onUpdate }: ThematicAnaly
             {localStory.tags.map(tag => (
               <span
                 key={tag}
-                className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium flex items-center gap-1"
+                className="px-3 py-1 bg-warm-100 text-picc-ochre rounded-full text-xs font-medium flex items-center gap-1"
               >
                 <Tag className="w-3 h-3" />
                 {tag}
                 <button
                   onClick={() => toggleTag(tag)}
-                  className="ml-1 hover:text-purple-900"
+                  className="ml-1 hover:text-picc-earth-600"
                 >
                   ×
                 </button>
@@ -214,7 +215,7 @@ export default function ThematicAnalysisPanel({ story, onUpdate }: ThematicAnaly
           <select
             value={localStory.report_section || ''}
             onChange={(e) => handleUpdate('report_section', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-transparent"
           >
             <option value="">Not for reports</option>
             <option value="community_resilience">Community Resilience</option>
@@ -241,7 +242,7 @@ export default function ThematicAnalysisPanel({ story, onUpdate }: ThematicAnaly
           />
           <div className="flex justify-between text-xs text-gray-500 mt-1">
             <span>Low</span>
-            <span className="font-bold text-purple-600">{localStory.quality_score || 50}</span>
+            <span className="font-bold text-picc-ochre">{localStory.quality_score || 50}</span>
             <span>High</span>
           </div>
         </div>
@@ -254,7 +255,7 @@ export default function ThematicAnalysisPanel({ story, onUpdate }: ThematicAnaly
           id="report-worthy"
           checked={localStory.report_worthy || false}
           onChange={(e) => handleUpdate('report_worthy', e.target.checked)}
-          className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500"
+          className="w-5 h-5 text-picc-ochre rounded focus:ring-picc-ochre"
         />
         <label htmlFor="report-worthy" className="flex-1">
           <div className="font-medium text-gray-900">Include in Annual Report</div>
@@ -266,17 +267,17 @@ export default function ThematicAnalysisPanel({ story, onUpdate }: ThematicAnaly
 
       {/* Summary for Reports */}
       {localStory.report_worthy && (
-        <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-          <h4 className="font-bold text-purple-900 mb-2">De-identified Summary</h4>
-          <p className="text-sm text-purple-700 mb-3">
+        <div className="bg-warm-100 border border-warm-200 rounded-lg p-4">
+          <h4 className="font-bold text-picc-earth-600 mb-2">De-identified Summary</h4>
+          <p className="text-sm text-picc-ochre mb-3">
             This summary will be used in reports instead of the full story to protect privacy:
           </p>
           <textarea
             placeholder="Optional: Write a de-identified version of this story for use in reports..."
             rows={4}
-            className="w-full px-3 py-2 border border-purple-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-picc-ochre-300 rounded-lg text-sm focus:ring-2 focus:ring-picc-ochre focus:border-transparent"
           />
-          <p className="text-xs text-purple-600 mt-2">
+          <p className="text-xs text-picc-ochre mt-2">
             💡 Tip: Remove names, dates, and specific details. Focus on themes, feelings, and general outcomes.
           </p>
         </div>
@@ -293,7 +294,7 @@ export default function ThematicAnalysisPanel({ story, onUpdate }: ThematicAnaly
           <div className="text-xs text-gray-600">Quality</div>
         </div>
         <div className="text-center">
-          <div className="text-2xl font-bold text-purple-600">
+          <div className="text-2xl font-bold text-picc-ochre">
             {localStory.report_worthy ? '✓' : '—'}
           </div>
           <div className="text-xs text-gray-600">Report Ready</div>

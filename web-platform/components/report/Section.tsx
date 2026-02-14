@@ -24,7 +24,7 @@ export function Section({
     white: 'bg-white print:bg-white',
     light: 'bg-[#f8f6f3] print:bg-gray-50',
     dark: 'bg-gray-900 text-white print:bg-gray-900',
-    earth: 'bg-gradient-to-br from-[#fdf8f3] to-[#f5e6d3] print:bg-amber-50',
+    earth: 'bg-gradient-to-br from-[#fdf8f3] to-[#f5e6d3] print:bg-picc-ochre-50',
     gradient: 'bg-gradient-to-br from-[#1e3a5f] via-[#2d4a6f] to-[#2d6a4f] text-white print:bg-[#1e3a5f]',
     ocean: 'bg-gradient-to-br from-[#1e3a5f] to-[#0c1a22] text-white print:bg-[#1e3a5f]',
   };

@@ -56,7 +56,7 @@ export function BulkActionsBar({
             let variantClasses = '';
             switch (action.variant) {
               case 'primary':
-                variantClasses = 'bg-blue-600 text-white hover:bg-blue-700';
+                variantClasses = 'bg-picc-red text-white hover:bg-picc-red';
                 break;
               case 'danger':
                 variantClasses = 'bg-red-600 text-white hover:bg-red-700';

@@ -36,11 +36,11 @@ const typeIcons = {
 };
 
 const typeColors = {
-  story: 'bg-blue-50 text-blue-700 border-blue-200',
-  person: 'bg-purple-50 text-purple-700 border-purple-200',
-  place: 'bg-green-50 text-green-700 border-green-200',
+  story: 'bg-warm-50 text-picc-red border-warm-200',
+  person: 'bg-warm-100 text-picc-ochre border-warm-200',
+  place: 'bg-sage-50 text-sage-700 border-sage-200',
   topic: 'bg-orange-50 text-orange-700 border-orange-200',
-  category: 'bg-pink-50 text-pink-700 border-pink-200',
+  category: 'bg-warm-50 text-picc-red border-picc-red-200',
 };
 
 export function RelatedContent({
@@ -97,7 +97,7 @@ export function RelatedContent({
                 {/* Content */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2">
-                    <h4 className="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">
+                    <h4 className="text-sm font-medium text-gray-900 group-hover:text-picc-red transition-colors line-clamp-2">
                       {item.title}
                     </h4>
                     {showType && (
@@ -150,7 +150,7 @@ export function RelatedContent({
       {/* Footer - Show More Link */}
       {items.length > maxItems && (
         <div className="px-4 py-3 border-t border-gray-200 bg-gray-50">
-          <button className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1">
+          <button className="text-sm text-picc-red hover:text-picc-earth font-medium flex items-center gap-1">
             View all {items.length} related items
             <ArrowRight className="h-4 w-4" />
           </button>

@@ -76,7 +76,7 @@ export default function AuthConfirmPage() {
   }, [supabase, router])
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-warm-50">
       <div className="max-w-md w-full mx-4">
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 text-center">
           {status === 'loading' && (

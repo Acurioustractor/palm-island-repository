@@ -85,7 +85,7 @@ export default function AdminAIDashboard() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-indigo-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-picc-red"></div>
       </div>
     );
   }
@@ -97,7 +97,7 @@ export default function AdminAIDashboard() {
           <p className="text-red-600 mb-4">Error: {error}</p>
           <button
             onClick={fetchStats}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+            className="px-4 py-2 bg-picc-red text-white rounded-lg hover:bg-picc-red"
           >
             Retry
           </button>
@@ -114,7 +114,7 @@ export default function AdminAIDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <nav className="text-sm mb-2">
-                <Link href="/admin" className="text-indigo-600 hover:underline">
+                <Link href="/admin" className="text-picc-red hover:underline">
                   Admin
                 </Link>
                 <span className="mx-2 text-gray-400">/</span>
@@ -179,8 +179,8 @@ export default function AdminAIDashboard() {
           <div className="bg-white rounded-xl border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-medium text-gray-500">Tracked Users</h3>
-              <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
-                <svg className="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-8 h-8 bg-picc-ochre-100 rounded-lg flex items-center justify-center">
+                <svg className="w-4 h-4 text-picc-ochre" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
               </div>
@@ -213,7 +213,7 @@ export default function AdminAIDashboard() {
                 <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 text-xs font-medium bg-indigo-100 text-indigo-700 rounded">
+                      <span className="px-2 py-0.5 text-xs font-medium bg-warm-100 text-picc-red rounded">
                         {endpoint.method}
                       </span>
                       <code className="text-sm text-gray-700">{endpoint.path}</code>
@@ -261,7 +261,7 @@ export default function AdminAIDashboard() {
             </button>
             <button
               onClick={() => performAction('clear-cache')}
-              className="px-4 py-2 bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 transition-colors"
+              className="px-4 py-2 bg-picc-ochre-100 text-picc-ochre rounded-lg hover:bg-picc-ochre-200 transition-colors"
             >
               Clear All Cache
             </button>
@@ -278,11 +278,11 @@ export default function AdminAIDashboard() {
         <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
           <Link
             href="/wiki/explore"
-            className="p-4 bg-white rounded-xl border border-gray-200 hover:border-indigo-300 hover:shadow-sm transition-all"
+            className="p-4 bg-white rounded-xl border border-gray-200 hover:border-picc-red-300 hover:shadow-sm transition-all"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-10 h-10 bg-warm-100 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-picc-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                 </svg>
               </div>
@@ -295,7 +295,7 @@ export default function AdminAIDashboard() {
 
           <Link
             href="/api/ai/expand-query"
-            className="p-4 bg-white rounded-xl border border-gray-200 hover:border-indigo-300 hover:shadow-sm transition-all"
+            className="p-4 bg-white rounded-xl border border-gray-200 hover:border-picc-red-300 hover:shadow-sm transition-all"
           >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
@@ -312,11 +312,11 @@ export default function AdminAIDashboard() {
 
           <Link
             href="/api/ai/vision"
-            className="p-4 bg-white rounded-xl border border-gray-200 hover:border-indigo-300 hover:shadow-sm transition-all"
+            className="p-4 bg-white rounded-xl border border-gray-200 hover:border-picc-red-300 hover:shadow-sm transition-all"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-10 h-10 bg-picc-ochre-100 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-picc-ochre" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>

@@ -131,7 +131,7 @@ export default function ChatPage() {
       >
         <div className="max-w-4xl mx-auto px-6 sm:px-8">
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mb-6">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-picc-ochre rounded-2xl mb-6">
               <Bot className="w-8 h-8 text-white" />
             </div>
             <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-4">

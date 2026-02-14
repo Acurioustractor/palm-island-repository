@@ -442,7 +442,7 @@ export default function StoryRichTextEditor({ value, onChange, placeholder }: Pr
 
       {mode === 'rich' ? (
         <div
-          className="border border-gray-300 rounded-lg bg-white p-4 min-h-[320px] focus-within:ring-2 focus-within:ring-blue-500"
+          className="border border-gray-300 rounded-lg bg-white p-4 min-h-[320px] focus-within:ring-2 focus-within:ring-picc-red"
           onMouseUp={saveRange}
           onKeyUp={saveRange}
         >
@@ -473,7 +473,7 @@ export default function StoryRichTextEditor({ value, onChange, placeholder }: Pr
           value={isHtml(value) ? value : richHtmlValue}
           onChange={(e) => onChange(e.target.value)}
           rows={16}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y font-mono text-sm"
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent resize-y font-mono text-sm"
           placeholder="<p>...</p>"
         />
       ) : (

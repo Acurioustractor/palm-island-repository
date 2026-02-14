@@ -46,9 +46,9 @@ export function KnowledgeGraph({
 
   // Node type colors
   const typeColors: Record<string, string> = {
-    story: '#3B82F6', // blue
-    person: '#8B5CF6', // purple
-    place: '#10B981', // green
+    story: '#A4343A', // picc-red
+    person: '#C8963E', // picc-ochre
+    place: '#6B8F71', // sage
     topic: '#F59E0B', // orange
     service: '#EC4899', // pink
     event: '#EF4444', // red
@@ -129,7 +129,7 @@ export function KnowledgeGraph({
 
         // Highlight selected/hovered nodes
         if (isSelected || isHovered) {
-          ctx.strokeStyle = isSelected ? '#1E40AF' : '#60A5FA';
+          ctx.strokeStyle = isSelected ? '#7A2A2F' : '#C8963E';
           ctx.lineWidth = 3;
           ctx.stroke();
         }
@@ -203,10 +203,10 @@ export function KnowledgeGraph({
   return (
     <div className={`relative bg-white rounded-lg border border-gray-200 overflow-hidden ${className}`}>
       {/* Header */}
-      <div className="px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-teal-50">
+      <div className="px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-warm-50 to-picc-ochre-50">
         <div className="flex items-center justify-between">
           <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-            <Network className="h-5 w-5 text-blue-600" />
+            <Network className="h-5 w-5 text-picc-red" />
             Knowledge Graph
           </h3>
           <div className="flex items-center gap-2">

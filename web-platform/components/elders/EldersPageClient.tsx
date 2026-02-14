@@ -26,7 +26,7 @@ const EldersTripMap = dynamic(() => import('@/components/elders/EldersTripMap'),
   loading: () => (
     <div className="rounded-2xl border border-stone-200 bg-stone-50 h-[420px] flex items-center justify-center">
       <div className="text-center text-gray-500">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-3" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-picc-ochre mx-auto mb-3" />
         <p className="text-sm">Loading map...</p>
       </div>
     </div>
@@ -415,7 +415,7 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
                         loading="lazy"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-950 via-rose-800 to-purple-700 text-white text-xl font-semibold tracking-wide">
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-picc-earth via-picc-red to-picc-ochre text-white text-xl font-semibold tracking-wide">
                         {tile.initials}
                       </div>
                     )}
@@ -489,7 +489,7 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
 
       <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="rounded-3xl border border-stone-200 bg-white/90 p-6 shadow-lg">
-          <div className="text-xs font-semibold text-purple-700 mb-2">Elders Trip overview</div>
+          <div className="text-xs font-semibold text-picc-ochre mb-2">Elders Trip overview</div>
           <p className="text-gray-800 leading-relaxed">
             In 2024, members of the Palm Island Elders Advisory Group made a significant journey from Palm Island through Townsville
             and Ingham to Hull River in the Mission Beach region. The trip brought together Elders to walk country where their
@@ -578,10 +578,10 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
 
       {/* Transcript Insights */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-6">
-        <div className="rounded-3xl border border-stone-200 bg-gradient-to-br from-amber-50 via-white to-purple-50 shadow-sm p-8">
+        <div className="rounded-3xl border border-stone-200 bg-gradient-to-br from-picc-ochre-50 via-white to-warm-100 shadow-sm p-8">
           <div className="flex items-start justify-between gap-6 flex-wrap">
             <div className="max-w-2xl">
-              <p className="text-xs uppercase tracking-wide font-semibold text-purple-700">Transcript insights</p>
+              <p className="text-xs uppercase tracking-wide font-semibold text-picc-ochre">Transcript insights</p>
               <h2 className="text-3xl font-bold text-gray-900 mt-1">What Elders are speaking about</h2>
               <p className="mt-2 text-gray-700">
                 Based on {insights.stats.totalQuotes || 0} quotes and {insights.stats.totalInterviews || 0} interviews logged so far.
@@ -593,7 +593,7 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
                   key={card.label}
                   className="flex items-start gap-3 bg-white/80 border border-stone-200 rounded-2xl px-4 py-3 shadow-sm"
                 >
-                  <div className="p-2 rounded-xl bg-purple-100 text-purple-700">
+                  <div className="p-2 rounded-xl bg-warm-100 text-picc-ochre">
                     <card.icon className="w-4 h-4" />
                   </div>
                   <div>
@@ -636,7 +636,7 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
                         </div>
                         <div className="mt-3 h-2 rounded-full bg-stone-100 overflow-hidden">
                           <div
-                            className="h-full bg-gradient-to-r from-purple-600 via-amber-500 to-orange-400"
+                            className="h-full bg-gradient-to-r from-picc-ochre via-picc-ochre to-picc-ochre-400"
                             style={{ width: `${Math.min(width, 100)}%` }}
                           />
                         </div>
@@ -656,7 +656,7 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
 
               <div className="bg-white rounded-2xl border border-stone-200 p-5 shadow-sm">
                 <div className="flex items-center gap-2">
-                  <MessageSquareQuote className="w-4 h-4 text-purple-700" />
+                  <MessageSquareQuote className="w-4 h-4 text-picc-ochre" />
                   <h3 className="text-lg font-bold text-gray-900">Highlighted quotes</h3>
                 </div>
                 <div className="mt-4 space-y-4">
@@ -680,7 +680,7 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
                           <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-gray-600">
                             {q.elderName && <span>{q.elderName}</span>}
                             {q.theme && (
-                              <span className="px-2 py-1 rounded-full bg-purple-100 text-purple-700 font-semibold">
+                              <span className="px-2 py-1 rounded-full bg-warm-100 text-picc-ochre font-semibold">
                                 {q.theme}
                               </span>
                             )}
@@ -725,7 +725,7 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
               placeholder="Search elders by name, role, or language..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 rounded-xl border border-stone-200 bg-white focus:border-purple-400 focus:ring-2 focus:ring-purple-100 focus:outline-none transition-colors"
+              className="w-full pl-12 pr-4 py-3 rounded-xl border border-stone-200 bg-white focus:border-picc-ochre-300 focus:ring-2 focus:ring-warm-100 focus:outline-none transition-colors"
               aria-label="Search elders"
             />
             {searchQuery && (
@@ -746,14 +746,14 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
             onClick={() => setShowFilters(!showFilters)}
             className={`inline-flex items-center gap-2 px-5 py-3 rounded-xl border font-medium transition-colors ${
               showFilters || hasActiveFilters
-                ? 'border-purple-300 bg-purple-50 text-purple-700'
+                ? 'border-picc-ochre-300 bg-warm-100 text-picc-ochre'
                 : 'border-stone-200 bg-white text-gray-700 hover:bg-stone-50'
             }`}
           >
             <Filter className="w-4 h-4" />
             Filters
             {hasActiveFilters && (
-              <span className="w-5 h-5 rounded-full bg-purple-600 text-white text-xs flex items-center justify-center">
+              <span className="w-5 h-5 rounded-full bg-picc-ochre text-white text-xs flex items-center justify-center">
                 {[activeFilters.role, activeFilters.language, activeFilters.location].filter(Boolean).length}
               </span>
             )}
@@ -763,7 +763,7 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
             <button
               type="button"
               onClick={clearFilters}
-              className="inline-flex items-center gap-2 px-4 py-2 text-purple-700 hover:text-purple-900 font-medium"
+              className="inline-flex items-center gap-2 px-4 py-2 text-picc-ochre hover:text-picc-ochre-900 font-medium"
             >
               Clear all
             </button>
@@ -779,7 +779,7 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
               <select
                 value={activeFilters.role || ''}
                 onChange={(e) => setActiveFilters({ ...activeFilters, role: e.target.value || null })}
-                className="w-full px-4 py-2 rounded-lg border border-stone-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 focus:outline-none"
+                className="w-full px-4 py-2 rounded-lg border border-stone-200 focus:border-picc-ochre-300 focus:ring-2 focus:ring-warm-100 focus:outline-none"
               >
                 <option value="">All roles</option>
                 {filterOptions.roles.map((role) => (
@@ -796,7 +796,7 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
               <select
                 value={activeFilters.language || ''}
                 onChange={(e) => setActiveFilters({ ...activeFilters, language: e.target.value || null })}
-                className="w-full px-4 py-2 rounded-lg border border-stone-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 focus:outline-none"
+                className="w-full px-4 py-2 rounded-lg border border-stone-200 focus:border-picc-ochre-300 focus:ring-2 focus:ring-warm-100 focus:outline-none"
               >
                 <option value="">All languages</option>
                 {filterOptions.languages.map((lang) => (
@@ -813,7 +813,7 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
               <select
                 value={activeFilters.location || ''}
                 onChange={(e) => setActiveFilters({ ...activeFilters, location: e.target.value || null })}
-                className="w-full px-4 py-2 rounded-lg border border-stone-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 focus:outline-none"
+                className="w-full px-4 py-2 rounded-lg border border-stone-200 focus:border-picc-ochre-300 focus:ring-2 focus:ring-warm-100 focus:outline-none"
               >
                 <option value="">All locations</option>
                 {filterOptions.locations.map((loc) => (
@@ -835,7 +835,7 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
             <button
               type="button"
               onClick={clearFilters}
-              className="mt-4 inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-purple-600 text-white font-semibold hover:bg-purple-700 transition-colors"
+              className="mt-4 inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-picc-ochre text-white font-semibold hover:bg-picc-ochre transition-colors"
             >
               Clear all filters
             </button>
@@ -864,10 +864,10 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
                   key={e.id}
                   type="button"
                   onClick={() => setActiveElderId(e.id)}
-                  className="group text-left bg-white rounded-2xl border border-stone-200 hover:border-stone-300 shadow-sm hover:shadow-md transition-all overflow-hidden focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2"
+                  className="group text-left bg-white rounded-2xl border border-stone-200 hover:border-stone-300 shadow-sm hover:shadow-md transition-all overflow-hidden focus:outline-none focus:ring-2 focus:ring-picc-ochre-300 focus:ring-offset-2"
                   aria-label={`View details for ${e.name}`}
                 >
-                  <div className="h-72 relative overflow-hidden bg-gradient-to-br from-stone-100 via-amber-50 to-orange-50">
+                  <div className="h-72 relative overflow-hidden bg-gradient-to-br from-stone-100 via-picc-ochre-50 to-orange-50">
                     {e.profileImageUrl ? (
                       <img
                         src={e.profileImageUrl}
@@ -877,7 +877,7 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
                       />
                     ) : (
                       <div className="h-full flex items-center justify-center">
-                        <div className="h-28 w-28 rounded-full bg-gradient-to-br from-purple-500 to-amber-500 flex items-center justify-center text-white font-bold text-3xl shadow-2xl">
+                        <div className="h-28 w-28 rounded-full bg-gradient-to-br from-warm-1000 to-picc-ochre flex items-center justify-center text-white font-bold text-3xl shadow-2xl">
                           {initials(e.name)}
                         </div>
                       </div>
@@ -990,7 +990,7 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
                         key={img.id}
                         type="button"
                         onClick={() => openLightbox(idx)}
-                        className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-stone-200 bg-stone-100 hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2"
+                        className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-stone-200 bg-stone-100 hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-picc-ochre-300 focus:ring-offset-2"
                         aria-label={img.title || `View photo ${idx + 1}`}
                       >
                         <img src={img.url} alt={img.title || 'Trip photo'} className="w-full h-full object-cover" />
@@ -1043,7 +1043,7 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
                   className="w-16 h-16 rounded-2xl object-cover border border-stone-200 flex-shrink-0"
                 />
               ) : (
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-amber-500 text-white flex items-center justify-center font-bold text-lg flex-shrink-0">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-warm-1000 to-picc-ochre text-white flex items-center justify-center font-bold text-lg flex-shrink-0">
                   {initials(activeElder.name)}
                 </div>
               )}
@@ -1099,7 +1099,7 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
             />
 
             {/* Add Content Prompt */}
-            <div className="mt-8 rounded-2xl border border-stone-200 bg-gradient-to-br from-stone-50 to-amber-50 p-5">
+            <div className="mt-8 rounded-2xl border border-stone-200 bg-gradient-to-br from-stone-50 to-picc-ochre-50 p-5">
               <div className="font-bold text-gray-900">Want to add more Elder stories?</div>
               <p className="text-sm text-gray-700 mt-1">
                 Upload transcripts, extract quotes, and publish stories to build a richer profile over time.

@@ -20,7 +20,7 @@ export function TextEditor() {
         <input
           value={editingData.title || ''}
           onChange={(e) => updateEditingData({ title: e.target.value })}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-transparent"
           placeholder="Section title"
         />
       </div>
@@ -30,7 +30,7 @@ export function TextEditor() {
           <input
             value={editingData.subtitle || ''}
             onChange={(e) => updateEditingData({ subtitle: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-transparent"
             placeholder="Section subtitle"
           />
         </div>
@@ -40,7 +40,7 @@ export function TextEditor() {
         <textarea
           value={editingData.content || ''}
           onChange={(e) => updateEditingData({ content: e.target.value })}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent min-h-[200px] resize-y"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-transparent min-h-[200px] resize-y"
           placeholder="Enter content..."
         />
       </div>
@@ -64,7 +64,7 @@ export function QuoteEditor() {
         <textarea
           value={editingData.quote || ''}
           onChange={(e) => updateEditingData({ quote: e.target.value })}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent min-h-[100px] resize-y"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-transparent min-h-[100px] resize-y"
           placeholder="The quote text..."
         />
       </div>
@@ -74,7 +74,7 @@ export function QuoteEditor() {
           <input
             value={editingData.author || ''}
             onChange={(e) => updateEditingData({ author: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-transparent"
             placeholder="Person's name"
           />
         </div>
@@ -83,7 +83,7 @@ export function QuoteEditor() {
           <input
             value={editingData.role || ''}
             onChange={(e) => updateEditingData({ role: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-transparent"
             placeholder="Community Elder"
           />
         </div>
@@ -104,14 +104,14 @@ export function QuoteEditor() {
           ) : (
             <button
               onClick={() => setShowImagePicker(true)}
-              className="w-20 h-20 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center hover:border-purple-400 hover:bg-purple-50 transition-colors"
+              className="w-20 h-20 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center hover:border-picc-ochre-300 hover:bg-warm-100 transition-colors"
             >
               <ImageIcon className="w-6 h-6 text-gray-400" />
             </button>
           )}
           <button
             onClick={() => setShowImagePicker(true)}
-            className="text-sm text-purple-600 hover:text-purple-800"
+            className="text-sm text-picc-ochre hover:text-picc-earth-500"
           >
             {editingData.image ? 'Change' : 'Add'} photo
           </button>
@@ -147,7 +147,7 @@ export function LeadershipEditor() {
           <input
             value={editingData.name || ''}
             onChange={(e) => updateEditingData({ name: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-transparent"
             placeholder="Rachel Atkinson"
           />
         </div>
@@ -156,7 +156,7 @@ export function LeadershipEditor() {
           <select
             value={editingData.role || 'ceo'}
             onChange={(e) => updateEditingData({ role: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-transparent bg-white"
           >
             <option value="ceo">Chief Executive Officer</option>
             <option value="chair">Board Chairperson</option>
@@ -182,14 +182,14 @@ export function LeadershipEditor() {
           ) : (
             <button
               onClick={() => setShowImagePicker(true)}
-              className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center hover:border-purple-400 hover:bg-purple-50 transition-colors"
+              className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center hover:border-picc-ochre-300 hover:bg-warm-100 transition-colors"
             >
               <ImageIcon className="w-8 h-8 text-gray-400" />
             </button>
           )}
           <button
             onClick={() => setShowImagePicker(true)}
-            className="text-sm text-purple-600 hover:text-purple-800"
+            className="text-sm text-picc-ochre hover:text-picc-earth-500"
           >
             {editingData.image ? 'Change' : 'Add'} photo
           </button>
@@ -201,7 +201,7 @@ export function LeadershipEditor() {
         <textarea
           value={editingData.message || ''}
           onChange={(e) => updateEditingData({ message: e.target.value })}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent min-h-[200px] resize-y"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-transparent min-h-[200px] resize-y"
           placeholder="Leadership message content..."
         />
       </div>
@@ -211,7 +211,7 @@ export function LeadershipEditor() {
         <input
           value={editingData.signature || ''}
           onChange={(e) => updateEditingData({ signature: e.target.value })}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-transparent"
           placeholder="Rachel"
         />
       </div>
@@ -292,7 +292,7 @@ export function StatsEditor() {
 
       <button
         onClick={addStat}
-        className="flex items-center gap-1 text-sm text-purple-600 hover:text-purple-800"
+        className="flex items-center gap-1 text-sm text-picc-ochre hover:text-picc-earth-500"
       >
         <Plus className="w-4 h-4" /> Add stat
       </button>
@@ -316,7 +316,7 @@ export function VideoEditor() {
         <input
           value={editingData.title || ''}
           onChange={(e) => updateEditingData({ title: e.target.value })}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-transparent"
           placeholder="Video title"
         />
       </div>
@@ -325,7 +325,7 @@ export function VideoEditor() {
         <input
           value={editingData.url || ''}
           onChange={(e) => updateEditingData({ url: e.target.value })}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-transparent"
           placeholder="https://youtube.com/watch?v=..."
         />
       </div>
@@ -334,7 +334,7 @@ export function VideoEditor() {
         <textarea
           value={editingData.description || ''}
           onChange={(e) => updateEditingData({ description: e.target.value })}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-y"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-transparent resize-y"
           rows={2}
           placeholder="Video description..."
         />
@@ -355,14 +355,14 @@ export function VideoEditor() {
           ) : (
             <button
               onClick={() => setShowImagePicker(true)}
-              className="w-32 h-20 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center hover:border-purple-400 hover:bg-purple-50 transition-colors"
+              className="w-32 h-20 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center hover:border-picc-ochre-300 hover:bg-warm-100 transition-colors"
             >
               <ImageIcon className="w-6 h-6 text-gray-400" />
             </button>
           )}
           <button
             onClick={() => setShowImagePicker(true)}
-            className="text-sm text-purple-600 hover:text-purple-800"
+            className="text-sm text-picc-ochre hover:text-picc-earth-500"
           >
             {editingData.thumbnail ? 'Change' : 'Add'} thumbnail
           </button>
@@ -408,7 +408,7 @@ export function ImageSectionEditor() {
               </div>
             </div>
           ) : (
-            <div className="w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center hover:border-purple-400 hover:bg-purple-50 transition-colors">
+            <div className="w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center hover:border-picc-ochre-300 hover:bg-warm-100 transition-colors">
               <div className="text-center">
                 <ImageIcon className="w-10 h-10 text-gray-400 mx-auto mb-2" />
                 <span className="text-sm text-gray-500">Click to select image</span>
@@ -423,7 +423,7 @@ export function ImageSectionEditor() {
         <input
           value={editingData.title || ''}
           onChange={(e) => updateEditingData({ title: e.target.value })}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-transparent"
           placeholder="Image title"
         />
       </div>
@@ -433,7 +433,7 @@ export function ImageSectionEditor() {
         <input
           value={editingData.subtitle || ''}
           onChange={(e) => updateEditingData({ subtitle: e.target.value })}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-transparent"
           placeholder="Image subtitle"
         />
       </div>

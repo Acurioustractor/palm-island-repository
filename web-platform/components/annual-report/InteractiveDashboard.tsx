@@ -53,11 +53,11 @@ export function InteractiveDashboard({
   return (
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
       {/* Header */}
-      <div className="p-6 bg-gradient-to-r from-teal-600 to-emerald-600 text-white">
+      <div className="p-6 bg-gradient-to-r from-picc-ochre to-sage-600 text-white">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-2xl font-bold">{title}</h2>
-            <p className="text-teal-100 mt-1">{description}</p>
+            <p className="text-warm-100 mt-1">{description}</p>
           </div>
           <div className="flex items-center gap-2">
             <span className="px-3 py-1 bg-white/20 rounded-full text-sm font-medium">
@@ -74,7 +74,7 @@ export function InteractiveDashboard({
               onClick={() => setViewMode(mode)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 viewMode === mode
-                  ? 'bg-white text-teal-700'
+                  ? 'bg-white text-picc-ochre'
                   : 'bg-white/20 text-white hover:bg-white/30'
               }`}
             >
@@ -93,7 +93,7 @@ export function InteractiveDashboard({
             <select
               value={selectedService || ''}
               onChange={(e) => setSelectedService(e.target.value || null)}
-              className="appearance-none pl-4 pr-10 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="appearance-none pl-4 pr-10 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-picc-ochre"
             >
               <option value="">All Services</option>
               {data.map((service) => (
@@ -111,7 +111,7 @@ export function InteractiveDashboard({
             type="checkbox"
             checked={showComparison}
             onChange={(e) => setShowComparison(e.target.checked)}
-            className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+            className="rounded border-gray-300 text-picc-ochre focus:ring-picc-ochre"
           />
           Compare with {year - 1}
         </label>
@@ -121,7 +121,7 @@ export function InteractiveDashboard({
             <Filter className="w-4 h-4" />
             Filter
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 text-sm text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors">
+          <button className="flex items-center gap-2 px-4 py-2 text-sm text-white bg-picc-ochre hover:bg-picc-ochre rounded-lg transition-colors">
             <Download className="w-4 h-4" />
             Export
           </button>
@@ -165,10 +165,10 @@ export function InteractiveDashboard({
           <span>Data collected from community services throughout {year}</span>
         </div>
         <div className="flex gap-4">
-          <button className="text-teal-600 hover:text-teal-700">
+          <button className="text-picc-ochre hover:text-picc-ochre">
             Download as CSV
           </button>
-          <button className="text-teal-600 hover:text-teal-700">
+          <button className="text-picc-ochre hover:text-picc-ochre">
             Download as Excel
           </button>
         </div>
@@ -275,7 +275,7 @@ function ServiceView({
             key={service.id}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="p-4 border border-gray-200 rounded-xl hover:border-teal-300 hover:shadow-md transition-all cursor-pointer"
+            className="p-4 border border-gray-200 rounded-xl hover:border-picc-ochre-300 hover:shadow-md transition-all cursor-pointer"
           >
             <div className="flex items-center justify-between mb-3">
               <h4 className="font-semibold text-gray-900">{service.name}</h4>
@@ -319,7 +319,7 @@ function ServiceView({
                   return (
                     <div
                       key={i}
-                      className="flex-1 bg-teal-200 hover:bg-teal-400 transition-colors rounded-t"
+                      className="flex-1 bg-warm-200 hover:bg-picc-ochre-300 transition-colors rounded-t"
                       style={{ height: `${height}%` }}
                       title={`Month ${i + 1}: ${value}`}
                     />
@@ -360,7 +360,7 @@ function TimelineView({ data, year }: { data: ServiceMetric[]; year: number }) {
                 initial={{ height: 0 }}
                 animate={{ height: `${height}%` }}
                 transition={{ delay: i * 0.05, duration: 0.5 }}
-                className="w-full bg-gradient-to-t from-teal-600 to-teal-400 rounded-t hover:from-teal-700 hover:to-teal-500 transition-colors cursor-pointer group relative"
+                className="w-full bg-gradient-to-t from-picc-ochre to-picc-ochre-300 rounded-t hover:from-picc-ochre hover:to-picc-ochre transition-colors cursor-pointer group relative"
               >
                 <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                   {value.toLocaleString()} people
@@ -404,9 +404,9 @@ function MetricCard({
   color: string;
 }) {
   const colorClasses: Record<string, { bg: string; text: string; icon: string }> = {
-    teal: { bg: 'bg-teal-50', text: 'text-teal-700', icon: 'text-teal-600' },
-    blue: { bg: 'bg-blue-50', text: 'text-blue-700', icon: 'text-blue-600' },
-    amber: { bg: 'bg-amber-50', text: 'text-amber-700', icon: 'text-amber-600' },
+    teal: { bg: 'bg-warm-50', text: 'text-picc-ochre', icon: 'text-picc-ochre' },
+    blue: { bg: 'bg-warm-50', text: 'text-picc-red', icon: 'text-picc-red' },
+    amber: { bg: 'bg-picc-ochre-50', text: 'text-picc-ochre', icon: 'text-picc-ochre' },
     green: { bg: 'bg-green-50', text: 'text-green-700', icon: 'text-green-600' },
   };
 
@@ -461,7 +461,7 @@ function ServiceBar({
   return (
     <div className="group cursor-pointer">
       <div className="flex items-center justify-between mb-1">
-        <span className="text-sm font-medium text-gray-700 group-hover:text-teal-600 transition-colors">
+        <span className="text-sm font-medium text-gray-700 group-hover:text-picc-ochre transition-colors">
           {service.name}
         </span>
         <span className="text-sm text-gray-500">
@@ -473,7 +473,7 @@ function ServiceBar({
           initial={{ width: 0 }}
           animate={{ width: `${percentage}%` }}
           transition={{ duration: 0.8, delay: 0.1 }}
-          className="h-full bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full group-hover:from-teal-600 group-hover:to-emerald-600 transition-colors"
+          className="h-full bg-gradient-to-r from-picc-ochre to-sage-500 rounded-full group-hover:from-picc-ochre group-hover:to-sage-600 transition-colors"
         />
       </div>
     </div>

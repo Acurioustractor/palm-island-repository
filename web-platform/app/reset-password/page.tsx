@@ -4,7 +4,6 @@ export const dynamic = 'force-dynamic';
 
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/components/providers/AuthProvider'
 import { createClient } from '@/lib/supabase/client'
 import { Loader2, Lock, Check, Eye, EyeOff, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
@@ -18,7 +17,7 @@ function ResetPasswordContent() {
 
   if (!mounted) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-warm-50">
         <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
       </div>
     )
@@ -29,7 +28,6 @@ function ResetPasswordContent() {
 
 function ResetPasswordForm() {
   const router = useRouter()
-  const { updatePassword } = useAuth()
   const supabase = createClient()
 
   const [password, setPassword] = useState('')
@@ -104,10 +102,10 @@ function ResetPasswordForm() {
 
     setIsSubmitting(true)
 
-    const result = await updatePassword(password)
+    const { error } = await supabase.auth.updateUser({ password })
 
-    if (result.error) {
-      setError(result.error.message)
+    if (error) {
+      setError(error.message)
     } else {
       setSuccess(true)
       // Redirect after showing success
@@ -122,7 +120,7 @@ function ResetPasswordForm() {
   // Loading state while checking session
   if (hasValidSession === null) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-warm-50">
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
           <p className="text-gray-600">Verifying your reset link...</p>
@@ -162,7 +160,7 @@ function ResetPasswordForm() {
   // Success state
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-white to-emerald-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-white to-sage-50">
         <div className="max-w-md w-full mx-4">
           <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 text-center">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -184,7 +182,7 @@ function ResetPasswordForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-warm-50">
       <div className="max-w-md w-full mx-4">
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
           {/* Header */}
@@ -324,7 +322,7 @@ export default function ResetPasswordPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-warm-50">
           <div className="text-center">
             <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
             <p className="text-gray-600">Loading...</p>

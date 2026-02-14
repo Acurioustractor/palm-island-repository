@@ -73,7 +73,7 @@ export function WikiNavigation() {
       {/* Mobile Menu Button */}
       <button
         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 bg-blue-600 text-white p-3 rounded-lg shadow-lg hover:bg-blue-700 transition-all"
+        className="lg:hidden fixed top-4 left-4 z-50 bg-picc-red text-white p-3 rounded-lg shadow-lg hover:bg-picc-red transition-all"
         aria-label="Toggle navigation menu"
       >
         {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -89,10 +89,10 @@ export function WikiNavigation() {
         `}
       >
         {/* Header */}
-        <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-teal-600">
+        <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-picc-red to-picc-ochre">
           <Link href="/" className="block">
             <h1 className="text-xl font-bold text-white mb-1">Palm Island Wiki</h1>
-            <p className="text-sm text-blue-100">Community Knowledge Base</p>
+            <p className="text-sm text-warm-100">Community Knowledge Base</p>
           </Link>
         </div>
 
@@ -102,8 +102,8 @@ export function WikiNavigation() {
             href="/search"
             className="flex items-center gap-2 w-full px-4 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-300 rounded-lg transition-all group"
           >
-            <Search className="h-4 w-4 text-gray-400 group-hover:text-blue-600" />
-            <span className="text-sm text-gray-600 group-hover:text-blue-600">
+            <Search className="h-4 w-4 text-gray-400 group-hover:text-picc-red" />
+            <span className="text-sm text-gray-600 group-hover:text-picc-red">
               Search wiki...
             </span>
           </Link>
@@ -116,7 +116,7 @@ export function WikiNavigation() {
             href="/"
             className={`
               flex items-center gap-3 px-4 py-2 rounded-lg transition-all
-              ${isActive('/') ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700 hover:bg-gray-50'}
+              ${isActive('/') ? 'bg-warm-50 text-picc-red font-medium' : 'text-gray-700 hover:bg-gray-50'}
             `}
           >
             <Home className="h-5 w-5" />
@@ -130,7 +130,7 @@ export function WikiNavigation() {
               className="flex items-center justify-between w-full px-4 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50 rounded-lg transition-all"
             >
               <span className="flex items-center gap-2">
-                <BookOpen className="h-5 w-5 text-blue-600" />
+                <BookOpen className="h-5 w-5 text-picc-red" />
                 Explore
               </span>
               {expandedSections.has('explore') ? (
@@ -149,7 +149,7 @@ export function WikiNavigation() {
                       flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all
                       ${
                         isActive(item.href)
-                          ? 'bg-blue-50 text-blue-700 font-medium'
+                          ? 'bg-warm-50 text-picc-red font-medium'
                           : 'text-gray-700 hover:bg-gray-50'
                       }
                     `}
@@ -157,7 +157,7 @@ export function WikiNavigation() {
                     <item.icon className="h-4 w-4" />
                     <span>{item.label}</span>
                     {item.badge && (
-                      <span className="ml-auto bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full">
+                      <span className="ml-auto bg-warm-100 text-picc-red text-xs px-2 py-0.5 rounded-full">
                         {item.badge}
                       </span>
                     )}
@@ -174,7 +174,7 @@ export function WikiNavigation() {
               className="flex items-center justify-between w-full px-4 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50 rounded-lg transition-all"
             >
               <span className="flex items-center gap-2">
-                <Heart className="h-5 w-5 text-pink-600" />
+                <Heart className="h-5 w-5 text-picc-red" />
                 Contribute
               </span>
               {expandedSections.has('contribute') ? (
@@ -193,7 +193,7 @@ export function WikiNavigation() {
                       flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all
                       ${
                         isActive(item.href)
-                          ? 'bg-pink-50 text-pink-700 font-medium'
+                          ? 'bg-warm-50 text-picc-red font-medium'
                           : 'text-gray-700 hover:bg-gray-50'
                       }
                     `}
@@ -213,7 +213,7 @@ export function WikiNavigation() {
               className="flex items-center justify-between w-full px-4 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50 rounded-lg transition-all"
             >
               <span className="flex items-center gap-2">
-                <Globe className="h-5 w-5 text-green-600" />
+                <Globe className="h-5 w-5 text-sage-600" />
                 Knowledge
               </span>
               {expandedSections.has('knowledge') ? (
@@ -232,7 +232,7 @@ export function WikiNavigation() {
                       flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all
                       ${
                         isActive(item.href)
-                          ? 'bg-green-50 text-green-700 font-medium'
+                          ? 'bg-sage-50 text-sage-700 font-medium'
                           : 'text-gray-700 hover:bg-gray-50'
                       }
                     `}
@@ -252,7 +252,7 @@ export function WikiNavigation() {
               className="flex items-center justify-between w-full px-4 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50 rounded-lg transition-all"
             >
               <span className="flex items-center gap-2">
-                <Lightbulb className="h-5 w-5 text-amber-600" />
+                <Lightbulb className="h-5 w-5 text-picc-ochre" />
                 Innovation
               </span>
               {expandedSections.has('innovation') ? (
@@ -271,7 +271,7 @@ export function WikiNavigation() {
                       flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all
                       ${
                         isActive(item.href)
-                          ? 'bg-amber-50 text-amber-700 font-medium'
+                          ? 'bg-picc-ochre-50 text-picc-ochre font-medium'
                           : 'text-gray-700 hover:bg-gray-50'
                       }
                     `}
@@ -291,7 +291,7 @@ export function WikiNavigation() {
               className="flex items-center justify-between w-full px-4 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50 rounded-lg transition-all"
             >
               <span className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5 text-purple-600" />
+                <BarChart3 className="h-5 w-5 text-picc-ochre" />
                 Insights
               </span>
               {expandedSections.has('insights') ? (
@@ -310,7 +310,7 @@ export function WikiNavigation() {
                       flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all
                       ${
                         isActive(item.href)
-                          ? 'bg-purple-50 text-purple-700 font-medium'
+                          ? 'bg-warm-100 text-picc-ochre font-medium'
                           : 'text-gray-700 hover:bg-gray-50'
                       }
                     `}
@@ -329,7 +329,7 @@ export function WikiNavigation() {
           {/* Share Your Voice CTA Button */}
           <Link
             href="/share-voice"
-            className="flex items-center justify-center gap-2 w-full mb-4 px-4 py-3 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all group"
+            className="flex items-center justify-center gap-2 w-full mb-4 px-4 py-3 bg-gradient-to-r from-picc-red to-picc-red hover:from-picc-red hover:to-picc-red text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all group"
           >
             <Mic className="h-5 w-5 group-hover:scale-110 transition-transform" />
             <span>Share Your Voice</span>

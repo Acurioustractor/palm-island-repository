@@ -82,19 +82,45 @@ export async function GET(request: NextRequest) {
       .select('*', { count: 'exact' })
       .eq('is_public', true)
       .is('deleted_at', null)
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1)
+
+    // Sorting
+    const sortParam = (searchParams.get('sort') || '').trim()
+    switch (sortParam) {
+      case 'oldest':
+        query = query.order('created_at', { ascending: true })
+        break
+      case 'filename':
+        query = query.order('original_filename', { ascending: true })
+        break
+      case 'size':
+        query = query.order('file_size', { ascending: false })
+        break
+      case 'newest':
+      default:
+        query = query.order('created_at', { ascending: false })
+        break
+    }
+
+    query = query.range(offset, offset + limit - 1)
 
     const featured = searchParams.get('featured')
+    const pageContext = (searchParams.get('pageContext') || '').trim()
+    const pageSection = (searchParams.get('pageSection') || '').trim()
 
     if (fileType && fileType !== 'all') query = query.eq('file_type', fileType)
     if (tags.length > 0) query = query.contains('tags', tags)
     if (featured === 'true') query = query.eq('is_featured', true)
+    if (pageContext) query = query.eq('page_context', pageContext)
+    if (pageSection) query = query.eq('page_section', pageSection)
 
     if (person && person !== 'all') {
       // faces_detected is stored as an array of profile IDs.
       query = query.contains('faces_detected', [person])
     }
+
+    // Service tag filter (shortcut for contains('tags', ['service:{slug}']))
+    const service = (searchParams.get('service') || '').trim()
+    if (service) query = query.contains('tags', [`service:${service}`])
 
     if (q) {
       const like = `%${q.replace(/%/g, '\\%')}%`

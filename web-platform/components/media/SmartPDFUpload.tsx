@@ -219,7 +219,7 @@ export default function SmartPDFUpload({
                     <label className="block text-sm font-medium text-gray-700 mb-2">Key Topics</label>
                     <div className="flex flex-wrap gap-2">
                       {analysis.keyTopics.map((topic, i) => (
-                        <span key={i} className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm">
+                        <span key={i} className="px-2 py-1 bg-warm-100 text-picc-ochre rounded-full text-sm">
                           {topic}
                         </span>
                       ))}

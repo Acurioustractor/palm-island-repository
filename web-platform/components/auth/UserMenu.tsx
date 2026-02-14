@@ -46,7 +46,7 @@ export function UserMenu() {
     return (
       <Link
         href="/login"
-        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors"
+        className="inline-flex items-center gap-2 px-4 py-2 bg-picc-red hover:bg-picc-red text-white font-medium rounded-md transition-colors"
       >
         <LogIn className="h-4 w-4" />
         <span>Login</span>
@@ -61,7 +61,7 @@ export function UserMenu() {
         onClick={() => setMenuOpen(!menuOpen)}
         className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100 transition-colors"
       >
-        <div className="flex items-center justify-center w-8 h-8 bg-blue-600 text-white rounded-full font-medium text-sm">
+        <div className="flex items-center justify-center w-8 h-8 bg-picc-red text-white rounded-full font-medium text-sm">
           {user.email?.[0]?.toUpperCase() || 'U'}
         </div>
         <div className="hidden md:block text-left">

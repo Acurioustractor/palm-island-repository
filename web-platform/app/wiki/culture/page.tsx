@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { Globe, BookOpen, Heart, Users, Sparkles } from 'lucide-react';
+import { BespokeIcon } from '@/components/ui/BespokeIcon';
 import Breadcrumbs from '@/components/wiki/Breadcrumbs';
 
 interface CulturalStory {
@@ -89,7 +90,7 @@ export default function CulturePage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-amber-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-picc-ochre mx-auto mb-4"></div>
           <p className="text-xl text-gray-700">Loading cultural content...</p>
         </div>
       </div>
@@ -103,7 +104,7 @@ export default function CulturePage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-gray-900 mb-4 flex items-center gap-3">
-          <Globe className="h-10 w-10 text-teal-600" />
+          <Globe className="h-10 w-10 text-picc-ochre" />
           Culture & Language
         </h1>
         <p className="text-xl text-gray-600">
@@ -113,30 +114,30 @@ export default function CulturePage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-teal-50 rounded-lg p-4 text-center border border-teal-200">
-          <div className="text-3xl font-bold text-teal-600">{culturalStories.length}</div>
+        <div className="bg-picc-ochre-50 rounded-lg p-4 text-center border border-picc-ochre-200">
+          <div className="text-3xl font-bold text-picc-ochre">{culturalStories.length}</div>
           <div className="text-sm text-gray-600">Cultural Stories</div>
         </div>
-        <div className="bg-blue-50 rounded-lg p-4 text-center border border-blue-200">
-          <div className="text-3xl font-bold text-blue-600">{elderStories.length}</div>
+        <div className="bg-warm-50 rounded-lg p-4 text-center border border-warm-200">
+          <div className="text-3xl font-bold text-picc-red">{elderStories.length}</div>
           <div className="text-sm text-gray-600">Elder Knowledge</div>
         </div>
-        <div className="bg-purple-50 rounded-lg p-4 text-center border border-purple-200">
-          <div className="text-3xl font-bold text-purple-600">
+        <div className="bg-warm-100 rounded-lg p-4 text-center border border-warm-200">
+          <div className="text-3xl font-bold text-picc-ochre">
             {stories.filter(s => s.traditional_knowledge).length}
           </div>
           <div className="text-sm text-gray-600">Traditional Knowledge</div>
         </div>
-        <div className="bg-amber-50 rounded-lg p-4 text-center border border-amber-200">
-          <div className="text-3xl font-bold text-amber-600">{stories.length}</div>
+        <div className="bg-picc-ochre-50 rounded-lg p-4 text-center border border-picc-ochre-200">
+          <div className="text-3xl font-bold text-picc-ochre">{stories.length}</div>
           <div className="text-sm text-gray-600">Total Stories</div>
         </div>
       </div>
 
       {/* Cultural Overview */}
-      <div className="bg-gradient-to-r from-teal-50 to-blue-50 border border-teal-200 rounded-lg p-8 mb-8">
+      <div className="bg-gradient-to-r from-picc-ochre-50 to-warm-50 border border-picc-ochre-200 rounded-lg p-8 mb-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <Heart className="h-6 w-6 text-teal-600" />
+          <Heart className="h-6 w-6 text-picc-ochre" />
           Our Cultural Heritage
         </h2>
         <div className="prose max-w-none text-gray-700 space-y-4">
@@ -145,25 +146,25 @@ export default function CulturePage() {
             to land, sea, and traditional practices that have been passed down through generations.
           </p>
           <div className="grid md:grid-cols-3 gap-6 mt-6">
-            <div className="bg-white rounded-lg p-6 border border-teal-200">
-              <div className="text-3xl mb-2">🌊</div>
-              <h3 className="font-bold text-teal-900 mb-2">Traditional Country</h3>
+            <div className="bg-white rounded-lg p-6 border border-picc-ochre-200">
+              <div className="mb-2"><BespokeIcon name="ocean" size={32} /></div>
+              <h3 className="font-bold text-picc-ochre-900 mb-2">Traditional Country</h3>
               <p className="text-sm text-gray-600">
                 Manbarra Country encompasses Palm Island and surrounding waters,
                 with deep spiritual and cultural significance.
               </p>
             </div>
-            <div className="bg-white rounded-lg p-6 border border-teal-200">
-              <div className="text-3xl mb-2">🗣️</div>
-              <h3 className="font-bold text-teal-900 mb-2">Language Preservation</h3>
+            <div className="bg-white rounded-lg p-6 border border-picc-ochre-200">
+              <div className="mb-2"><BespokeIcon name="culture" size={32} /></div>
+              <h3 className="font-bold text-picc-ochre-900 mb-2">Language Preservation</h3>
               <p className="text-sm text-gray-600">
                 Efforts to preserve and revitalize traditional languages and Bwgcolman
                 Creole are central to cultural maintenance.
               </p>
             </div>
-            <div className="bg-white rounded-lg p-6 border border-teal-200">
-              <div className="text-3xl mb-2">👴</div>
-              <h3 className="font-bold text-teal-900 mb-2">Elder Knowledge</h3>
+            <div className="bg-white rounded-lg p-6 border border-picc-ochre-200">
+              <div className="mb-2"><BespokeIcon name="knowledge" size={32} /></div>
+              <h3 className="font-bold text-picc-ochre-900 mb-2">Elder Knowledge</h3>
               <p className="text-sm text-gray-600">
                 Elders hold and share traditional knowledge, ensuring cultural
                 continuity for future generations.
@@ -177,19 +178,19 @@ export default function CulturePage() {
       {stories.filter(s => s.traditional_knowledge).length > 0 && (
         <div className="mb-8">
           <div className="bg-white rounded-lg border border-stone-300 shadow-sm overflow-hidden">
-            <div className="bg-gradient-to-r from-stone-100 to-amber-50 border-b border-stone-200 px-6 py-4">
+            <div className="bg-gradient-to-r from-stone-100 to-picc-ochre-50 border-b border-stone-200 px-6 py-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                  <Sparkles className="h-6 w-6 text-amber-600" />
+                  <Sparkles className="h-6 w-6 text-picc-ochre" />
                   Traditional Knowledge
                 </h2>
-                <span className="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm font-medium border border-amber-300">
+                <span className="px-3 py-1 bg-picc-ochre-100 text-picc-ochre-800 rounded-full text-sm font-medium border border-picc-ochre-300">
                   Cultural Sensitivity
                 </span>
               </div>
             </div>
             <div className="p-6">
-              <p className="text-sm text-gray-600 mb-4 bg-amber-50 border border-amber-200 rounded p-3">
+              <p className="text-sm text-gray-600 mb-4 bg-picc-ochre-50 border border-picc-ochre-200 rounded p-3">
                 These stories contain traditional knowledge shared with permission from elders
                 and knowledge keepers. Please treat with respect and cultural sensitivity.
               </p>
@@ -198,12 +199,12 @@ export default function CulturePage() {
                   <Link
                     key={story.id}
                     href={`/stories/${story.id}`}
-                    className="block p-4 border border-gray-200 rounded-lg hover:border-teal-300 hover:bg-teal-50/50 transition-all group"
+                    className="block p-4 border border-gray-200 rounded-lg hover:border-picc-ochre-300 hover:bg-picc-ochre-50/50 transition-all group"
                   >
                     <div className="flex items-start gap-3">
-                      <Sparkles className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                      <Sparkles className="h-5 w-5 text-picc-ochre mt-0.5 flex-shrink-0" />
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 group-hover:text-teal-700">
+                        <h3 className="font-semibold text-gray-900 group-hover:text-picc-ochre-700">
                           {story.title}
                         </h3>
                         {story.summary && (
@@ -217,17 +218,17 @@ export default function CulturePage() {
                             return (
                               <>
                                 {storyteller?.is_elder && (
-                                  <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded border border-blue-200">
+                                  <span className="px-2 py-1 bg-warm-50 text-picc-red rounded border border-warm-200">
                                     Elder Knowledge
                                   </span>
                                 )}
                                 {story.language_used && (
-                                  <span className="px-2 py-1 bg-purple-50 text-purple-700 rounded border border-purple-200">
+                                  <span className="px-2 py-1 bg-warm-100 text-picc-ochre rounded border border-warm-200">
                                     {story.language_used}
                                   </span>
                                 )}
                                 {storyteller?.traditional_country && (
-                                  <span className="px-2 py-1 bg-emerald-50 text-emerald-700 rounded border border-emerald-200">
+                                  <span className="px-2 py-1 bg-sage-50 text-sage-700 rounded border border-sage-200">
                                     {storyteller.traditional_country}
                                   </span>
                                 )}
@@ -250,12 +251,12 @@ export default function CulturePage() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <Users className="h-6 w-6 text-blue-600" />
+              <Users className="h-6 w-6 text-picc-red" />
               Stories from Elders
             </h2>
             <Link
               href="/wiki/people?filter=elder"
-              className="text-teal-700 hover:text-teal-900 font-medium text-sm"
+              className="text-picc-ochre-700 hover:text-picc-ochre-900 font-medium text-sm"
             >
               View all elders →
             </Link>
@@ -265,12 +266,12 @@ export default function CulturePage() {
               <Link
                 key={story.id}
                 href={`/stories/${story.id}`}
-                className="block p-4 bg-white border border-stone-300 rounded-lg hover:border-teal-400 hover:bg-teal-50/50 transition-all group"
+                className="block p-4 bg-white border border-stone-300 rounded-lg hover:border-picc-ochre-400 hover:bg-picc-ochre-50/50 transition-all group"
               >
                 <div className="flex items-start gap-3">
-                  <BookOpen className="h-5 w-5 text-teal-600 mt-0.5 flex-shrink-0" />
+                  <BookOpen className="h-5 w-5 text-picc-ochre mt-0.5 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 group-hover:text-teal-700 mb-1">
+                    <h3 className="font-semibold text-gray-900 group-hover:text-picc-ochre-700 mb-1">
                       {story.title}
                     </h3>
                     {story.summary && (
@@ -296,7 +297,7 @@ export default function CulturePage() {
 
       {/* All Cultural Stories */}
       <div className="bg-white rounded-lg border border-stone-300 shadow-sm overflow-hidden">
-        <div className="bg-gradient-to-r from-stone-100 to-teal-50 border-b border-stone-200 px-6 py-4">
+        <div className="bg-gradient-to-r from-stone-100 to-picc-ochre-50 border-b border-stone-200 px-6 py-4">
           <h2 className="text-2xl font-bold text-gray-900">All Cultural Stories</h2>
         </div>
         <div className="p-6">
@@ -306,11 +307,11 @@ export default function CulturePage() {
                 <Link
                   key={story.id}
                   href={`/stories/${story.id}`}
-                  className="block p-4 border border-gray-200 rounded-lg hover:border-teal-300 hover:bg-teal-50/50 transition-all group"
+                  className="block p-4 border border-gray-200 rounded-lg hover:border-picc-ochre-300 hover:bg-picc-ochre-50/50 transition-all group"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 group-hover:text-teal-700">
+                      <h3 className="font-semibold text-gray-900 group-hover:text-picc-ochre-700">
                         {story.title}
                       </h3>
                       {story.summary && (
@@ -350,10 +351,10 @@ export default function CulturePage() {
       <div className="mt-8 grid md:grid-cols-3 gap-4">
         <Link
           href="/wiki/people?filter=elder"
-          className="block p-6 bg-gradient-to-r from-blue-50 to-teal-50 border border-blue-200 rounded-lg hover:shadow-md transition-all group"
+          className="block p-6 bg-gradient-to-r from-warm-50 to-picc-ochre-50 border border-warm-200 rounded-lg hover:shadow-md transition-all group"
         >
-          <Users className="h-8 w-8 text-blue-600 mb-2" />
-          <h3 className="font-bold text-blue-900 mb-2 group-hover:text-blue-700">
+          <Users className="h-8 w-8 text-picc-red mb-2" />
+          <h3 className="font-bold text-picc-earth mb-2 group-hover:text-picc-red">
             Meet Our Elders
           </h3>
           <p className="text-sm text-gray-700">
@@ -362,10 +363,10 @@ export default function CulturePage() {
         </Link>
         <Link
           href="/wiki/history"
-          className="block p-6 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg hover:shadow-md transition-all group"
+          className="block p-6 bg-gradient-to-r from-picc-ochre-50 to-orange-50 border border-picc-ochre-200 rounded-lg hover:shadow-md transition-all group"
         >
-          <BookOpen className="h-8 w-8 text-amber-600 mb-2" />
-          <h3 className="font-bold text-amber-900 mb-2 group-hover:text-amber-700">
+          <BookOpen className="h-8 w-8 text-picc-ochre mb-2" />
+          <h3 className="font-bold text-picc-earth mb-2 group-hover:text-picc-ochre">
             History & Heritage
           </h3>
           <p className="text-sm text-gray-700">
@@ -374,10 +375,10 @@ export default function CulturePage() {
         </Link>
         <Link
           href="/stories"
-          className="block p-6 bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg hover:shadow-md transition-all group"
+          className="block p-6 bg-gradient-to-r from-warm-100 to-warm-50 border border-warm-200 rounded-lg hover:shadow-md transition-all group"
         >
-          <Heart className="h-8 w-8 text-purple-600 mb-2" />
-          <h3 className="font-bold text-purple-900 mb-2 group-hover:text-purple-700">
+          <Heart className="h-8 w-8 text-picc-ochre mb-2" />
+          <h3 className="font-bold text-picc-earth-600 mb-2 group-hover:text-picc-ochre">
             All Stories
           </h3>
           <p className="text-sm text-gray-700">

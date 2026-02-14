@@ -279,12 +279,18 @@ export function AnnualReportContent({ reportData, knowledgeBase, media }: Annual
               </div>
               <ScrollReveal direction="right">
                 <div className="aspect-[3/4] bg-gray-100 rounded-sm overflow-hidden">
-                  <img
-                    src={media.ceoPhotoUrl || '/placeholders/person-placeholder.jpg'}
-                    alt={ceoMessage?.person_name || 'CEO'}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
+                  {media.ceoPhotoUrl ? (
+                    <img
+                      src={media.ceoPhotoUrl}
+                      alt={ceoMessage?.person_name || 'CEO'}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                      <div className="w-24 h-24 rounded-full bg-gray-300" />
+                    </div>
+                  )}
                 </div>
               </ScrollReveal>
             </div>
@@ -302,12 +308,18 @@ export function AnnualReportContent({ reportData, knowledgeBase, media }: Annual
             <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-start">
               <ScrollReveal direction="left">
                 <div className="aspect-[3/4] bg-gray-100 rounded-sm overflow-hidden">
-                  <img
-                    src={media.chairPhotoUrl || '/placeholders/person-placeholder.jpg'}
-                    alt={chairMessage.person_name}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
+                  {media.chairPhotoUrl ? (
+                    <img
+                      src={media.chairPhotoUrl}
+                      alt={chairMessage.person_name}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                      <div className="w-24 h-24 rounded-full bg-gray-300" />
+                    </div>
+                  )}
                 </div>
               </ScrollReveal>
               <div>

@@ -96,7 +96,7 @@ export default function WikiStoriesPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-picc-red mx-auto mb-4"></div>
           <p className="text-xl text-gray-700">Loading stories...</p>
         </div>
       </div>
@@ -110,7 +110,7 @@ export default function WikiStoriesPage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-gray-900 mb-4 flex items-center gap-3">
-          <BookOpen className="h-10 w-10 text-blue-600" />
+          <BookOpen className="h-10 w-10 text-picc-red" />
           Community Stories
         </h1>
         <p className="text-xl text-gray-600">
@@ -120,20 +120,20 @@ export default function WikiStoriesPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-blue-50 rounded-lg p-4 text-center border border-blue-200">
-          <div className="text-3xl font-bold text-blue-600">{stories.length}</div>
+        <div className="bg-warm-50 rounded-lg p-4 text-center border border-warm-200">
+          <div className="text-3xl font-bold text-picc-red">{stories.length}</div>
           <div className="text-sm text-gray-600">Total Stories</div>
         </div>
-        <div className="bg-purple-50 rounded-lg p-4 text-center border border-purple-200">
-          <div className="text-3xl font-bold text-purple-600">{elderStories.length}</div>
+        <div className="bg-warm-100 rounded-lg p-4 text-center border border-warm-200">
+          <div className="text-3xl font-bold text-picc-ochre">{elderStories.length}</div>
           <div className="text-sm text-gray-600">Elder Stories</div>
         </div>
-        <div className="bg-amber-50 rounded-lg p-4 text-center border border-amber-200">
-          <div className="text-3xl font-bold text-amber-600">{traditionalKnowledge.length}</div>
+        <div className="bg-picc-ochre-50 rounded-lg p-4 text-center border border-picc-ochre-200">
+          <div className="text-3xl font-bold text-picc-ochre">{traditionalKnowledge.length}</div>
           <div className="text-sm text-gray-600">Traditional Knowledge</div>
         </div>
-        <div className="bg-teal-50 rounded-lg p-4 text-center border border-teal-200">
-          <div className="text-3xl font-bold text-teal-600">
+        <div className="bg-picc-ochre-50 rounded-lg p-4 text-center border border-picc-ochre-200">
+          <div className="text-3xl font-bold text-picc-ochre">
             {Object.keys(categoryCounts).length}
           </div>
           <div className="text-sm text-gray-600">Categories</div>
@@ -144,19 +144,19 @@ export default function WikiStoriesPage() {
       {traditionalKnowledge.length > 0 && (
         <div className="mb-8">
           <div className="bg-white rounded-lg border border-stone-300 shadow-sm overflow-hidden">
-            <div className="bg-gradient-to-r from-stone-100 to-amber-50 border-b border-stone-200 px-6 py-4">
+            <div className="bg-gradient-to-r from-stone-100 to-picc-ochre-50 border-b border-stone-200 px-6 py-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                  <Sparkles className="h-6 w-6 text-amber-600" />
+                  <Sparkles className="h-6 w-6 text-picc-ochre" />
                   Traditional Knowledge
                 </h2>
-                <span className="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm font-medium border border-amber-300">
+                <span className="px-3 py-1 bg-picc-ochre-100 text-picc-earth rounded-full text-sm font-medium border border-picc-ochre-300">
                   Cultural Sensitivity
                 </span>
               </div>
             </div>
             <div className="p-6">
-              <p className="text-sm text-gray-600 mb-4 bg-amber-50 border border-amber-200 rounded p-3">
+              <p className="text-sm text-gray-600 mb-4 bg-picc-ochre-50 border border-picc-ochre-200 rounded p-3">
                 These stories contain traditional knowledge shared with permission from elders
                 and knowledge keepers. Please treat with respect and cultural sensitivity.
               </p>
@@ -165,12 +165,12 @@ export default function WikiStoriesPage() {
                   <Link
                     key={story.id}
                     href={`/stories/${story.id}`}
-                    className="block p-4 border border-gray-200 rounded-lg hover:border-amber-300 hover:bg-amber-50/50 transition-all group"
+                    className="block p-4 border border-gray-200 rounded-lg hover:border-picc-ochre-300 hover:bg-picc-ochre-50/50 transition-all group"
                   >
                     <div className="flex items-start gap-3">
-                      <Sparkles className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                      <Sparkles className="h-5 w-5 text-picc-ochre mt-0.5 flex-shrink-0" />
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 group-hover:text-amber-700">
+                        <h3 className="font-semibold text-gray-900 group-hover:text-picc-ochre">
                           {story.title}
                         </h3>
                         {story.summary && (
@@ -196,7 +196,7 @@ export default function WikiStoriesPage() {
 
       {/* All Stories */}
       <div className="bg-white rounded-lg border border-stone-300 shadow-sm overflow-hidden">
-        <div className="bg-gradient-to-r from-stone-100 to-blue-50 border-b border-stone-200 px-6 py-4">
+        <div className="bg-gradient-to-r from-stone-100 to-warm-50 border-b border-stone-200 px-6 py-4">
           <h2 className="text-2xl font-bold text-gray-900">All Stories</h2>
         </div>
         <div className="p-6">
@@ -206,11 +206,11 @@ export default function WikiStoriesPage() {
                 <Link
                   key={story.id}
                   href={`/stories/${story.id}`}
-                  className="block p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50/50 transition-all group"
+                  className="block p-4 border border-gray-200 rounded-lg hover:border-picc-red-300 hover:bg-warm-50/50 transition-all group"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 group-hover:text-blue-700">
+                      <h3 className="font-semibold text-gray-900 group-hover:text-picc-red">
                         {story.title}
                       </h3>
                       {story.summary && (
@@ -261,10 +261,10 @@ export default function WikiStoriesPage() {
       <div className="mt-8 grid md:grid-cols-3 gap-4">
         <Link
           href="/stories"
-          className="block p-6 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg hover:shadow-md transition-all group"
+          className="block p-6 bg-gradient-to-r from-warm-50 to-warm-100 border border-warm-200 rounded-lg hover:shadow-md transition-all group"
         >
-          <Heart className="h-8 w-8 text-blue-600 mb-2" />
-          <h3 className="font-bold text-blue-900 mb-2 group-hover:text-blue-700">
+          <Heart className="h-8 w-8 text-picc-red mb-2" />
+          <h3 className="font-bold text-picc-earth mb-2 group-hover:text-picc-red">
             Public Gallery
           </h3>
           <p className="text-sm text-gray-700">
@@ -273,10 +273,10 @@ export default function WikiStoriesPage() {
         </Link>
         <Link
           href="/wiki/culture"
-          className="block p-6 bg-gradient-to-r from-teal-50 to-blue-50 border border-teal-200 rounded-lg hover:shadow-md transition-all group"
+          className="block p-6 bg-gradient-to-r from-picc-ochre-50 to-warm-50 border border-picc-ochre-200 rounded-lg hover:shadow-md transition-all group"
         >
-          <Sparkles className="h-8 w-8 text-teal-600 mb-2" />
-          <h3 className="font-bold text-teal-900 mb-2 group-hover:text-teal-700">
+          <Sparkles className="h-8 w-8 text-picc-ochre mb-2" />
+          <h3 className="font-bold text-picc-ochre-900 mb-2 group-hover:text-picc-ochre-700">
             Culture & Language
           </h3>
           <p className="text-sm text-gray-700">
@@ -285,10 +285,10 @@ export default function WikiStoriesPage() {
         </Link>
         <Link
           href="/wiki/people?filter=elder"
-          className="block p-6 bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg hover:shadow-md transition-all group"
+          className="block p-6 bg-gradient-to-r from-warm-100 to-warm-50 border border-warm-200 rounded-lg hover:shadow-md transition-all group"
         >
-          <Users className="h-8 w-8 text-purple-600 mb-2" />
-          <h3 className="font-bold text-purple-900 mb-2 group-hover:text-purple-700">
+          <Users className="h-8 w-8 text-picc-ochre mb-2" />
+          <h3 className="font-bold text-picc-earth-600 mb-2 group-hover:text-picc-ochre">
             Meet Our Storytellers
           </h3>
           <p className="text-sm text-gray-700">

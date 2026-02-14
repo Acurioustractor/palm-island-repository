@@ -43,7 +43,7 @@ export function VideoSection({
         )}
 
         <ScrollReveal direction="up" delay={0.2}>
-          <div className={`w-full ${aspectClasses[aspectRatio]} rounded-xl overflow-hidden shadow-2xl`}>
+          <div className={`w-full ${aspectClasses[aspectRatio]} rounded-2xl overflow-hidden shadow-xl`}>
             {isDirectVideoFile(videoUrl) ? (
               <video
                 className="w-full h-full object-cover"

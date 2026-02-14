@@ -1,7 +1,9 @@
 import Link from 'next/link';
-import { MapPin, Users, Activity, ArrowRight } from 'lucide-react';
+import Image from 'next/image';
+import { MapPin, Users, Activity, ArrowRight, Camera, Film } from 'lucide-react';
 import { createServerSupabase } from '@/lib/supabase/client';
 import nextDynamic from 'next/dynamic';
+import AdminServiceCard from '@/components/admin/AdminServiceCard';
 
 const InteractiveServiceMap = nextDynamic(
   () => import('@/components/report/InteractiveServiceMap'),
@@ -10,7 +12,7 @@ const InteractiveServiceMap = nextDynamic(
 
 export const metadata = {
   title: 'Our Services — Palm Island Community Company',
-  description: 'Explore PICC\'s 16 integrated services supporting the Palm Island community.',
+  description: 'Explore PICC\'s integrated services supporting the Palm Island community.',
 };
 
 export const runtime = 'nodejs';
@@ -20,7 +22,7 @@ export const revalidate = 0;
 export default async function ServicesIndexPage() {
   const supabase = createServerSupabase();
 
-  // Fetch services (separate from metrics to avoid FK join failures)
+  // Fetch services
   const { data: services } = await supabase
     .from('organization_services')
     .select(`
@@ -30,7 +32,7 @@ export default async function ServicesIndexPage() {
     .eq('is_active', true)
     .order('name');
 
-  // Fetch metrics separately to avoid join errors if FK not defined
+  // Fetch metrics separately
   const serviceIds = (services || []).map((s: any) => s.id);
   const { data: metrics } = serviceIds.length > 0
     ? await supabase
@@ -48,6 +50,49 @@ export default async function ServicesIndexPage() {
     }
   }
 
+  // Fetch cover photos and photo counts per service via tags
+  const coverPhotoMap = new Map<string, { public_url: string; alt_text: string | null }>();
+  const photoCountMap = new Map<string, number>();
+  const videoCountMap = new Map<string, number>();
+
+  for (const s of (services || [])) {
+    const serviceTag = `service:${(s as any).slug}`;
+
+    // Cover photo: tagged with service:{slug} AND hero
+    const { data: heroPhotos } = await supabase
+      .from('media_files')
+      .select('public_url, alt_text, title')
+      .contains('tags', [serviceTag, 'hero'])
+      .eq('file_type', 'image')
+      .is('deleted_at', null)
+      .limit(1);
+
+    if (heroPhotos && heroPhotos.length > 0) {
+      coverPhotoMap.set((s as any).slug, {
+        public_url: heroPhotos[0].public_url,
+        alt_text: heroPhotos[0].alt_text || heroPhotos[0].title || null,
+      });
+    }
+
+    // Photo count
+    const { count: photoCount } = await supabase
+      .from('media_files')
+      .select('id', { count: 'exact', head: true })
+      .contains('tags', [serviceTag])
+      .eq('file_type', 'image')
+      .is('deleted_at', null);
+    photoCountMap.set((s as any).slug, photoCount || 0);
+
+    // Video count
+    const { count: videoCount } = await supabase
+      .from('media_files')
+      .select('id', { count: 'exact', head: true })
+      .contains('tags', [serviceTag])
+      .eq('file_type', 'video')
+      .is('deleted_at', null);
+    videoCountMap.set((s as any).slug, videoCount || 0);
+  }
+
   const allServices = (services || []).map((s: any) => {
     const m = metricsMap.get(s.id);
     return {
@@ -61,20 +106,23 @@ export default async function ServicesIndexPage() {
       metadata: s.metadata,
       staff_count: m?.staff_count || null,
       clients_served: m?.clients_served || null,
+      cover_photo: coverPhotoMap.get(s.slug) || null,
+      photo_count: photoCountMap.get(s.slug) || 0,
+      has_video: (videoCountMap.get(s.slug) || 0) > 0,
     };
   });
 
   return (
     <div className="min-h-screen bg-white">
       {/* Hero */}
-      <section className="bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 text-white py-20">
+      <section className="bg-gradient-to-br from-picc-earth-600 via-picc-earth-600 to-picc-earth text-white py-20">
         <div className="max-w-7xl mx-auto px-6 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full mb-6">
             <MapPin className="w-4 h-4" />
             <span className="text-sm font-semibold uppercase tracking-wide">Our Services</span>
           </div>
           <h1 className="text-5xl md:text-6xl font-bold mb-4">
-            16 Integrated Services
+            {allServices.length} Integrated Services
           </h1>
           <p className="text-xl md:text-2xl font-light max-w-3xl mx-auto opacity-90">
             Comprehensive, culturally-informed support across every aspect of community life on Palm Island
@@ -98,48 +146,97 @@ export default async function ServicesIndexPage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {allServices.map((service: any) => (
-              <Link
-                key={service.id}
-                href={`/services/${service.slug}`}
-                className="group block"
-              >
-                <div className="bg-white border-2 border-gray-100 rounded-2xl p-6 hover:border-purple-300 hover:shadow-xl transition-all h-full">
-                  <div
-                    className="w-12 h-12 rounded-xl mb-4 flex items-center justify-center"
-                    style={{ backgroundColor: service.service_color || '#6366f1' }}
-                  >
-                    <MapPin className="w-6 h-6 text-white" />
+              <AdminServiceCard key={service.id} serviceSlug={service.slug}>
+                <Link
+                  href={`/services/${service.slug}`}
+                  className="group block"
+                >
+                  <div className="bg-white border-2 border-gray-100 rounded-2xl overflow-hidden hover:border-picc-ochre-300 hover:shadow-xl transition-all h-full">
+                    {/* Cover Photo */}
+                    {service.cover_photo ? (
+                      <div className="aspect-[16/9] relative overflow-hidden">
+                        <Image
+                          src={service.cover_photo.public_url}
+                          alt={service.cover_photo.alt_text || service.name}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-700"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                        {/* Photo/video badges on cover */}
+                        <div className="absolute bottom-3 right-3 flex gap-2">
+                          {service.photo_count > 0 && (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-black/50 backdrop-blur-sm rounded-full text-white text-xs font-medium">
+                              <Camera className="w-3 h-3" />
+                              {service.photo_count}
+                            </span>
+                          )}
+                          {service.has_video && (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-black/50 backdrop-blur-sm rounded-full text-white text-xs font-medium">
+                              <Film className="w-3 h-3" />
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="aspect-[16/9] relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center">
+                        <div
+                          className="w-16 h-16 rounded-2xl flex items-center justify-center"
+                          style={{ backgroundColor: service.service_color || '#6366f1' }}
+                        >
+                          <MapPin className="w-8 h-8 text-white" />
+                        </div>
+                        {/* Photo/video badges on placeholder */}
+                        {(service.photo_count > 0 || service.has_video) && (
+                          <div className="absolute bottom-3 right-3 flex gap-2">
+                            {service.photo_count > 0 && (
+                              <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-200 rounded-full text-gray-600 text-xs font-medium">
+                                <Camera className="w-3 h-3" />
+                                {service.photo_count}
+                              </span>
+                            )}
+                            {service.has_video && (
+                              <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-200 rounded-full text-gray-600 text-xs font-medium">
+                                <Film className="w-3 h-3" />
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="p-6">
+                      <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-picc-ochre transition-colors">
+                        {service.name}
+                      </h3>
+
+                      <p className="text-gray-600 mb-4 line-clamp-3">
+                        {service.description || 'Supporting the Palm Island community.'}
+                      </p>
+
+                      <div className="flex items-center justify-between text-sm mb-4">
+                        {service.staff_count ? (
+                          <span className="flex items-center gap-1 text-picc-ochre font-semibold">
+                            <Users className="w-4 h-4" />
+                            {service.staff_count} staff
+                          </span>
+                        ) : <span />}
+                        {service.clients_served ? (
+                          <span className="flex items-center gap-1 text-gray-500">
+                            <Activity className="w-4 h-4" />
+                            {service.clients_served} served
+                          </span>
+                        ) : <span />}
+                      </div>
+
+                      <div className="flex items-center gap-1 text-picc-ochre font-semibold text-sm group-hover:gap-2 transition-all">
+                        View service
+                        <ArrowRight className="w-4 h-4" />
+                      </div>
+                    </div>
                   </div>
-
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">
-                    {service.name}
-                  </h3>
-
-                  <p className="text-gray-600 mb-4 line-clamp-3">
-                    {service.description || 'Supporting the Palm Island community.'}
-                  </p>
-
-                  <div className="flex items-center justify-between text-sm mb-4">
-                    {service.staff_count ? (
-                      <span className="flex items-center gap-1 text-purple-600 font-semibold">
-                        <Users className="w-4 h-4" />
-                        {service.staff_count} staff
-                      </span>
-                    ) : <span />}
-                    {service.clients_served ? (
-                      <span className="flex items-center gap-1 text-gray-500">
-                        <Activity className="w-4 h-4" />
-                        {service.clients_served} served
-                      </span>
-                    ) : <span />}
-                  </div>
-
-                  <div className="flex items-center gap-1 text-purple-700 font-semibold text-sm group-hover:gap-2 transition-all">
-                    View service
-                    <ArrowRight className="w-4 h-4" />
-                  </div>
-                </div>
-              </Link>
+                </Link>
+              </AdminServiceCard>
             ))}
           </div>
         </div>

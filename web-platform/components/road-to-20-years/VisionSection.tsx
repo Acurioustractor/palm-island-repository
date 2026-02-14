@@ -14,10 +14,10 @@ const ICON_MAP = {
 };
 
 const COLOR_MAP = {
-  expansion: 'bg-blue-100 text-blue-600',
-  technology: 'bg-purple-100 text-purple-600',
-  community: 'bg-emerald-100 text-emerald-600',
-  wellbeing: 'bg-rose-100 text-rose-600',
+  expansion: 'bg-warm-100 text-picc-red',
+  technology: 'bg-warm-100 text-picc-ochre',
+  community: 'bg-sage-50 text-sage-600',
+  wellbeing: 'bg-picc-red-100 text-picc-red',
 };
 
 export default function VisionSection({ goals }: { goals: VisionGoal[] }) {

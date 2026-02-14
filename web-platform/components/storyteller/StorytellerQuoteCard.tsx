@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Quote, Star, BookOpen, Calendar, MapPin, Sparkles, CheckCircle } from 'lucide-react';
+import { BespokeIcon, type BespokeIconName } from '@/components/ui/BespokeIcon';
 
 interface ExtractedQuote {
   id: string;
@@ -37,26 +38,26 @@ interface StorytellerQuoteCardProps {
 }
 
 const themeColors: Record<string, { bg: string; text: string; border: string }> = {
-  community: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200' },
-  culture: { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200' },
-  services: { bg: 'bg-teal-50', text: 'text-teal-700', border: 'border-teal-200' },
-  history: { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200' },
-  achievement: { bg: 'bg-green-50', text: 'text-green-700', border: 'border-green-200' },
-  resilience: { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-200' },
-  youth: { bg: 'bg-pink-50', text: 'text-pink-700', border: 'border-pink-200' },
+  community: { bg: 'bg-warm-50', text: 'text-picc-red', border: 'border-warm-200' },
+  culture: { bg: 'bg-warm-100', text: 'text-picc-ochre', border: 'border-warm-200' },
+  services: { bg: 'bg-warm-50', text: 'text-picc-ochre', border: 'border-warm-200' },
+  history: { bg: 'bg-picc-ochre-50', text: 'text-picc-ochre-700', border: 'border-picc-ochre-200' },
+  achievement: { bg: 'bg-sage-50', text: 'text-sage-600', border: 'border-green-200' },
+  resilience: { bg: 'bg-picc-red-50', text: 'text-picc-red-700', border: 'border-picc-red-200' },
+  youth: { bg: 'bg-picc-red-50', text: 'text-picc-red-700', border: 'border-picc-red-200' },
   elders: { bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200' },
-  innovation: { bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-200' },
-  connection: { bg: 'bg-cyan-50', text: 'text-cyan-700', border: 'border-cyan-200' },
+  innovation: { bg: 'bg-warm-50', text: 'text-picc-ochre', border: 'border-warm-200' },
+  connection: { bg: 'bg-warm-50', text: 'text-picc-ochre', border: 'border-warm-200' },
 };
 
-const sentimentEmoji: Record<string, string> = {
-  positive: '😊',
-  inspiring: '✨',
-  reflective: '💭',
-  grateful: '🙏',
-  hopeful: '🌟',
-  determined: '💪',
-  proud: '🎉',
+const sentimentIcons: Record<string, BespokeIconName> = {
+  positive: 'positive',
+  inspiring: 'inspiring',
+  reflective: 'reflective',
+  grateful: 'grateful',
+  hopeful: 'hopeful',
+  determined: 'determined',
+  proud: 'proud',
 };
 
 export function StorytellerQuoteCard({
@@ -85,7 +86,7 @@ export function StorytellerQuoteCard({
                 className="w-12 h-12 rounded-full object-cover"
               />
             ) : (
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-bold text-lg">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-picc-ochre to-picc-red flex items-center justify-center text-white font-bold text-lg">
                 {displayName.charAt(0)}
               </div>
             )}
@@ -96,7 +97,7 @@ export function StorytellerQuoteCard({
             <div className="flex items-center gap-2 mb-1">
               <h3 className="font-semibold text-gray-900 truncate">{displayName}</h3>
               {storyteller.is_elder && (
-                <span className="px-1.5 py-0.5 bg-amber-100 text-amber-700 text-xs rounded">Elder</span>
+                <span className="px-1.5 py-0.5 bg-picc-ochre-100 text-picc-ochre-700 text-xs rounded">Elder</span>
               )}
             </div>
             {quote && (
@@ -107,7 +108,7 @@ export function StorytellerQuoteCard({
             <div className="flex items-center gap-2 mt-2 text-xs text-gray-400">
               <span>{quotes.length} quotes</span>
               {validatedQuotes.length > 0 && (
-                <span className="flex items-center gap-1 text-green-600">
+                <span className="flex items-center gap-1 text-sage-600">
                   <CheckCircle className="w-3 h-3" />
                   {validatedQuotes.length} validated
                 </span>
@@ -147,7 +148,7 @@ export function StorytellerQuoteCard({
                 className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg"
               />
             ) : (
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-2xl border-4 border-white shadow-lg">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-warm-1000 to-picc-red flex items-center justify-center text-white font-bold text-2xl border-4 border-white shadow-lg">
                 {displayName.charAt(0)}
               </div>
             )}
@@ -155,7 +156,7 @@ export function StorytellerQuoteCard({
               <h2 className="text-2xl font-bold text-gray-900">{displayName}</h2>
               <div className="flex items-center gap-2 mt-1">
                 {storyteller.is_elder && (
-                  <span className="px-2 py-0.5 bg-amber-500 text-white text-xs font-medium rounded-full">
+                  <span className="px-2 py-0.5 bg-picc-ochre text-white text-xs font-medium rounded-full">
                     Elder
                   </span>
                 )}
@@ -184,11 +185,11 @@ export function StorytellerQuoteCard({
                     {quote.theme}
                   </span>
                 )}
-                {quote.sentiment && sentimentEmoji[quote.sentiment] && (
-                  <span className="text-lg">{sentimentEmoji[quote.sentiment]}</span>
+                {quote.sentiment && sentimentIcons[quote.sentiment] && (
+                  <BespokeIcon name={sentimentIcons[quote.sentiment]} size={20} />
                 )}
                 {quote.is_validated && (
-                  <span className="flex items-center gap-1 text-green-600 text-sm">
+                  <span className="flex items-center gap-1 text-sage-600 text-sm">
                     <CheckCircle className="w-4 h-4" />
                     Validated
                   </span>
@@ -210,7 +211,7 @@ export function StorytellerQuoteCard({
               </div>
             )}
             {reportQuotes.length > 0 && (
-              <div className="flex items-center gap-2 text-amber-600">
+              <div className="flex items-center gap-2 text-picc-ochre">
                 <Star className="w-5 h-5" />
                 <span className="font-medium">{reportQuotes.length} Report-Ready</span>
               </div>
@@ -234,7 +235,7 @@ export function StorytellerQuoteCard({
   return (
     <div className={`bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow ${className}`}>
       {/* Header with Profile */}
-      <div className="p-6 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-100">
+      <div className="p-6 bg-gradient-to-r from-warm-100 to-warm-50 border-b border-gray-100">
         <div className="flex items-center gap-4">
           {storyteller.profile_image_url ? (
             <img
@@ -243,7 +244,7 @@ export function StorytellerQuoteCard({
               className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-md"
             />
           ) : (
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xl border-2 border-white shadow-md">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-warm-1000 to-picc-red flex items-center justify-center text-white font-bold text-xl border-2 border-white shadow-md">
               {displayName.charAt(0)}
             </div>
           )}
@@ -251,7 +252,7 @@ export function StorytellerQuoteCard({
             <div className="flex items-center gap-2">
               <h3 className="text-lg font-bold text-gray-900">{displayName}</h3>
               {storyteller.is_elder && (
-                <span className="px-2 py-0.5 bg-amber-500 text-white text-xs font-medium rounded-full">
+                <span className="px-2 py-0.5 bg-picc-ochre text-white text-xs font-medium rounded-full">
                   Elder
                 </span>
               )}
@@ -274,7 +275,7 @@ export function StorytellerQuoteCard({
         {quote ? (
           <>
             <div className="relative">
-              <Quote className="absolute -top-2 -left-2 w-8 h-8 text-purple-200" />
+              <Quote className="absolute -top-2 -left-2 w-8 h-8 text-warm-200" />
               <blockquote className="pl-6 text-gray-700 italic leading-relaxed">
                 "{quote.quote_text}"
               </blockquote>
@@ -287,11 +288,11 @@ export function StorytellerQuoteCard({
                   {quote.theme}
                 </span>
               )}
-              {quote.sentiment && sentimentEmoji[quote.sentiment] && (
-                <span className="text-sm">{sentimentEmoji[quote.sentiment]}</span>
+              {quote.sentiment && sentimentIcons[quote.sentiment] && (
+                <BespokeIcon name={sentimentIcons[quote.sentiment]} size={16} />
               )}
               {quote.suggested_for_report && (
-                <span className="flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded-full">
+                <span className="flex items-center gap-1 px-2 py-0.5 bg-picc-ochre-100 text-picc-ochre-700 text-xs rounded-full">
                   <Star className="w-3 h-3" />
                   Report Ready
                 </span>
@@ -314,7 +315,7 @@ export function StorytellerQuoteCard({
               </div>
             ))}
             {quotes.length > 4 && (
-              <p className="text-xs text-blue-600">+{quotes.length - 4} more quotes</p>
+              <p className="text-xs text-picc-red">+{quotes.length - 4} more quotes</p>
             )}
           </div>
         </div>
@@ -328,7 +329,7 @@ export function StorytellerQuoteCard({
             {quotes.length}
           </span>
           {validatedQuotes.length > 0 && (
-            <span className="flex items-center gap-1 text-green-600">
+            <span className="flex items-center gap-1 text-sage-600">
               <CheckCircle className="w-4 h-4" />
               {validatedQuotes.length}
             </span>
@@ -342,7 +343,7 @@ export function StorytellerQuoteCard({
         </div>
         <Link
           href={`/picc/storytellers/${storyteller.id}`}
-          className="text-sm text-purple-600 hover:text-purple-700 font-medium"
+          className="text-sm text-picc-ochre hover:text-picc-ochre font-medium"
         >
           View Profile →
         </Link>

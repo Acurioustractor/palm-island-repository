@@ -32,7 +32,7 @@ export default function AdminAnnualReports() {
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <nav className="text-sm mb-2">
-            <Link href="/admin" className="text-indigo-600 hover:underline">
+            <Link href="/admin" className="text-picc-red hover:underline">
               Admin
             </Link>
             <span className="mx-2 text-gray-400">/</span>
@@ -64,7 +64,7 @@ export default function AdminAnnualReports() {
           <div>
             <div className="bg-white rounded-xl border border-gray-200 p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-indigo-600" />
+                <Sparkles className="w-5 h-5 text-picc-red" />
                 Smart PDF Upload
               </h2>
               <p className="text-gray-600 text-sm mb-4">
@@ -126,7 +126,7 @@ export default function AdminAnnualReports() {
                           {report.keyTopics.slice(0, 5).map((topic, i) => (
                             <span
                               key={i}
-                              className="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded"
+                              className="text-xs bg-warm-100 text-picc-red px-2 py-0.5 rounded"
                             >
                               {topic}
                             </span>

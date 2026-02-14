@@ -24,9 +24,9 @@ dotenv.config({ path: path.join(__dirname, '../.env.local') });
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const BUCKET = 'media';
+const BUCKET = 'story-media';
 
-const PDF_DIR = path.join(__dirname, '../public/documents/annual-reports');
+const PDF_DIR = path.join(__dirname, '../../annual-reports/source-pdfs');
 const TMP_DIR = path.join(__dirname, '../.tmp-pdf-images');
 
 // Minimum dimensions — skip tiny icons/logos
@@ -239,10 +239,14 @@ async function main() {
         // Insert media_files record
         const { error: insertError } = await supabase.from('media_files').insert({
           filename,
+          file_path: storagePath,
+          bucket_name: BUCKET,
           public_url: urlData.publicUrl,
           mime_type: 'image/jpeg',
+          file_type: 'image',
           width: img.width,
           height: img.height,
+          is_public: true,
           tags: [
             'annual-report',
             `fy:${img.fyLabel}`,

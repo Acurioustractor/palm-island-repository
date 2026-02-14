@@ -51,14 +51,14 @@ export function ReportWorthySettings({
   if (compact) {
     return (
       <div className="space-y-3">
-        <label className="flex items-center gap-3 p-3 bg-purple-50 border border-purple-200 rounded-lg cursor-pointer hover:bg-purple-100 transition-colors">
+        <label className="flex items-center gap-3 p-3 bg-warm-100 border border-warm-200 rounded-lg cursor-pointer hover:bg-warm-100 transition-colors">
           <input
             type="checkbox"
             checked={reportWorthy}
             onChange={(e) => setReportWorthy(e.target.checked)}
-            className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
+            className="w-4 h-4 text-picc-ochre rounded focus:ring-picc-ochre"
           />
-          <FileText className="h-5 w-5 text-purple-600" />
+          <FileText className="h-5 w-5 text-picc-ochre" />
           <div className="flex-1">
             <span className="font-medium text-gray-900">Include in Annual Reports</span>
             <p className="text-xs text-gray-500">Mark this story as suitable for reporting</p>
@@ -76,7 +76,7 @@ export function ReportWorthySettings({
                 step="25"
                 value={qualityScore}
                 onChange={(e) => setQualityScore(Number(e.target.value))}
-                className="w-full accent-purple-600"
+                className="w-full accent-picc-ochre"
               />
               <div className="flex justify-between text-xs text-gray-500 mt-1">
                 <span>{qualityScore}%</span>
@@ -92,7 +92,7 @@ export function ReportWorthySettings({
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-6">
       <div className="flex items-center gap-3 mb-2">
-        <FileText className="h-6 w-6 text-purple-600" />
+        <FileText className="h-6 w-6 text-picc-ochre" />
         <h3 className="text-lg font-semibold text-gray-900">Annual Report Settings</h3>
       </div>
 
@@ -110,7 +110,7 @@ export function ReportWorthySettings({
             onChange={(e) => setReportWorthy(e.target.checked)}
             className="sr-only peer"
           />
-          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-picc-ochre-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-picc-ochre"></div>
         </label>
         <div>
           <div className="font-medium text-gray-900">Mark as Report Worthy</div>
@@ -144,7 +144,7 @@ export function ReportWorthySettings({
               step="5"
               value={qualityScore}
               onChange={(e) => setQualityScore(Number(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-picc-ochre"
             />
             <div className="flex justify-between mt-2">
               <span className="text-sm text-gray-500">
@@ -164,7 +164,7 @@ export function ReportWorthySettings({
             <select
               value={reportSection}
               onChange={(e) => setReportSection(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-ochre focus:border-transparent"
             >
               {reportSections.map(section => (
                 <option key={section.value} value={section.value}>
@@ -178,7 +178,7 @@ export function ReportWorthySettings({
           </div>
 
           {/* Auto-Include Toggle */}
-          <div className="flex items-start gap-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div className="flex items-start gap-4 p-4 bg-sage-50 border border-sage-200 rounded-lg">
             <label className="relative inline-flex items-center cursor-pointer mt-1">
               <input
                 type="checkbox"
@@ -186,11 +186,11 @@ export function ReportWorthySettings({
                 onChange={(e) => setAutoInclude(e.target.checked)}
                 className="sr-only peer"
               />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sage-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sage-600"></div>
             </label>
             <div>
               <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-green-600" />
+                <Sparkles className="h-4 w-4 text-sage-600" />
                 <span className="font-medium text-gray-900">Auto-Include in Reports</span>
               </div>
               <p className="text-sm text-gray-600 mt-1">
@@ -201,9 +201,9 @@ export function ReportWorthySettings({
           </div>
 
           {/* Info Box */}
-          <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
-            <div className="text-sm text-blue-800">
+          <div className="flex items-start gap-3 p-4 bg-warm-50 border border-warm-200 rounded-lg">
+            <Info className="h-5 w-5 text-picc-red flex-shrink-0 mt-0.5" />
+            <div className="text-sm text-picc-earth">
               <strong>Living Ledger System:</strong> Stories marked as report-worthy are
               automatically tracked throughout the year. When you generate an annual report,
               these stories will be suggested for inclusion based on their quality scores,

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { Award, TrendingUp, Users, Heart, BookOpen, Sparkles } from 'lucide-react';
+import { BespokeIcon } from '@/components/ui/BespokeIcon';
 import Breadcrumbs from '@/components/wiki/Breadcrumbs';
 
 interface AchievementStory {
@@ -91,7 +92,7 @@ export default function AchievementsPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-amber-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-picc-ochre mx-auto mb-4"></div>
           <p className="text-xl text-gray-700">Loading achievements...</p>
         </div>
       </div>
@@ -105,7 +106,7 @@ export default function AchievementsPage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-gray-900 mb-4 flex items-center gap-3">
-          <Award className="h-10 w-10 text-amber-600" />
+          <Award className="h-10 w-10 text-picc-ochre" />
           Community Achievements
         </h1>
         <p className="text-xl text-gray-600">
@@ -115,28 +116,28 @@ export default function AchievementsPage() {
 
       {/* Key Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-amber-50 rounded-lg p-4 text-center border border-amber-200">
-          <div className="text-3xl font-bold text-amber-600">197</div>
+        <div className="bg-picc-ochre-50 rounded-lg p-4 text-center border border-picc-ochre-200">
+          <div className="text-3xl font-bold text-picc-ochre">197</div>
           <div className="text-sm text-gray-600">PICC Staff</div>
         </div>
-        <div className="bg-rose-50 rounded-lg p-4 text-center border border-rose-200">
-          <div className="text-3xl font-bold text-rose-600">16+</div>
+        <div className="bg-warm-50 rounded-lg p-4 text-center border border-picc-red-200">
+          <div className="text-3xl font-bold text-picc-red">16+</div>
           <div className="text-sm text-gray-600">Integrated Services</div>
         </div>
-        <div className="bg-emerald-50 rounded-lg p-4 text-center border border-emerald-200">
-          <div className="text-3xl font-bold text-emerald-600">100%</div>
+        <div className="bg-sage-50 rounded-lg p-4 text-center border border-sage-200">
+          <div className="text-3xl font-bold text-sage-600">100%</div>
           <div className="text-sm text-gray-600">Community Control</div>
         </div>
-        <div className="bg-blue-50 rounded-lg p-4 text-center border border-blue-200">
-          <div className="text-3xl font-bold text-blue-600">{stories.length}</div>
+        <div className="bg-warm-50 rounded-lg p-4 text-center border border-warm-200">
+          <div className="text-3xl font-bold text-picc-red">{stories.length}</div>
           <div className="text-sm text-gray-600">Impact Stories</div>
         </div>
       </div>
 
       {/* PICC Achievement Highlight */}
-      <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-8 mb-8">
+      <div className="bg-gradient-to-r from-picc-ochre-50 to-orange-50 border border-picc-ochre-200 rounded-lg p-8 mb-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <Sparkles className="h-6 w-6 text-amber-600" />
+          <Sparkles className="h-6 w-6 text-picc-ochre" />
           PICC: Proving Indigenous Self-Determination Works
         </h2>
         <div className="prose max-w-none text-gray-700 space-y-4">
@@ -146,25 +147,25 @@ export default function AchievementsPage() {
             services deliver better outcomes at scale.
           </p>
           <div className="grid md:grid-cols-3 gap-6 mt-6">
-            <div className="bg-white rounded-lg p-6 border border-amber-200">
-              <div className="text-3xl mb-2">💼</div>
-              <h3 className="font-bold text-amber-900 mb-2">Employment</h3>
+            <div className="bg-white rounded-lg p-6 border border-picc-ochre-200">
+              <div className="mb-2"><BespokeIcon name="economic" size={32} /></div>
+              <h3 className="font-bold text-picc-earth mb-2">Employment</h3>
               <p className="text-sm text-gray-600">
                 197 staff members employed across integrated services, creating local
                 economic opportunities and building community capacity.
               </p>
             </div>
-            <div className="bg-white rounded-lg p-6 border border-amber-200">
-              <div className="text-3xl mb-2">🏛️</div>
-              <h3 className="font-bold text-amber-900 mb-2">Service Integration</h3>
+            <div className="bg-white rounded-lg p-6 border border-picc-ochre-200">
+              <div className="mb-2"><BespokeIcon name="governance" size={32} /></div>
+              <h3 className="font-bold text-picc-earth mb-2">Service Integration</h3>
               <p className="text-sm text-gray-600">
                 Over 16 integrated services operating under community control,
                 from health and education to cultural programs.
               </p>
             </div>
-            <div className="bg-white rounded-lg p-6 border border-amber-200">
-              <div className="text-3xl mb-2">🌟</div>
-              <h3 className="font-bold text-amber-900 mb-2">Excellence</h3>
+            <div className="bg-white rounded-lg p-6 border border-picc-ochre-200">
+              <div className="mb-2"><BespokeIcon name="proud" size={32} /></div>
+              <h3 className="font-bold text-picc-earth mb-2">Excellence</h3>
               <p className="text-sm text-gray-600">
                 Demonstrating that Indigenous-led organizations can deliver
                 world-class services at scale with 100% community governance.
@@ -178,9 +179,9 @@ export default function AchievementsPage() {
       {recentAchievements.length > 0 && (
         <div className="mb-8">
           <div className="bg-white rounded-lg border border-stone-300 shadow-sm overflow-hidden">
-            <div className="bg-gradient-to-r from-stone-100 to-amber-50 border-b border-stone-200 px-6 py-4">
+            <div className="bg-gradient-to-r from-stone-100 to-picc-ochre-50 border-b border-stone-200 px-6 py-4">
               <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                <TrendingUp className="h-6 w-6 text-emerald-600" />
+                <TrendingUp className="h-6 w-6 text-sage-600" />
                 Recent Achievements & Impact
               </h2>
             </div>
@@ -190,12 +191,12 @@ export default function AchievementsPage() {
                   <Link
                     key={story.id}
                     href={`/stories/${story.id}`}
-                    className="block p-4 border border-gray-200 rounded-lg hover:border-amber-300 hover:bg-amber-50/50 transition-all group"
+                    className="block p-4 border border-gray-200 rounded-lg hover:border-picc-ochre-300 hover:bg-picc-ochre-50/50 transition-all group"
                   >
                     <div className="flex items-start gap-3">
-                      <Award className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                      <Award className="h-5 w-5 text-picc-ochre mt-0.5 flex-shrink-0" />
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 group-hover:text-amber-700 mb-1">
+                        <h3 className="font-semibold text-gray-900 group-hover:text-picc-ochre mb-1">
                           {story.title}
                         </h3>
                         {story.summary && (
@@ -207,13 +208,13 @@ export default function AchievementsPage() {
                           {(() => {
                             const service = Array.isArray(story.service) ? story.service[0] : story.service;
                             return service && (
-                              <span className="px-2 py-1 bg-rose-50 text-rose-700 rounded border border-rose-200">
+                              <span className="px-2 py-1 bg-warm-50 text-picc-red rounded border border-picc-red-200">
                                 {service.service_name}
                               </span>
                             );
                           })()}
                           {story.location && (
-                            <span className="px-2 py-1 bg-emerald-50 text-emerald-700 rounded border border-emerald-200">
+                            <span className="px-2 py-1 bg-sage-50 text-sage-700 rounded border border-sage-200">
                               {story.location}
                             </span>
                           )}
@@ -240,7 +241,7 @@ export default function AchievementsPage() {
       {successStories.length > 0 && (
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <Heart className="h-6 w-6 text-rose-600" />
+            <Heart className="h-6 w-6 text-picc-red" />
             Community Success Stories
           </h2>
           <div className="space-y-3">
@@ -248,12 +249,12 @@ export default function AchievementsPage() {
               <Link
                 key={story.id}
                 href={`/stories/${story.id}`}
-                className="block p-4 bg-white border border-stone-300 rounded-lg hover:border-amber-400 hover:bg-amber-50/50 transition-all group"
+                className="block p-4 bg-white border border-stone-300 rounded-lg hover:border-picc-ochre-300 hover:bg-picc-ochre-50/50 transition-all group"
               >
                 <div className="flex items-start gap-3">
-                  <BookOpen className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                  <BookOpen className="h-5 w-5 text-picc-ochre mt-0.5 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 group-hover:text-amber-700 mb-1">
+                    <h3 className="font-semibold text-gray-900 group-hover:text-picc-ochre mb-1">
                       {story.title}
                     </h3>
                     {story.summary && (
@@ -282,9 +283,9 @@ export default function AchievementsPage() {
       {/* Service Achievements */}
       {serviceStories.length > 0 && (
         <div className="bg-white rounded-lg border border-stone-300 shadow-sm overflow-hidden mb-8">
-          <div className="bg-gradient-to-r from-stone-100 to-rose-50 border-b border-stone-200 px-6 py-4">
+          <div className="bg-gradient-to-r from-stone-100 to-warm-50 border-b border-stone-200 px-6 py-4">
             <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <Users className="h-6 w-6 text-rose-600" />
+              <Users className="h-6 w-6 text-picc-red" />
               Service Achievements & Impact
             </h2>
           </div>
@@ -297,12 +298,12 @@ export default function AchievementsPage() {
                 <Link
                   key={story.id}
                   href={`/stories/${story.id}`}
-                  className="block p-4 border border-gray-200 rounded-lg hover:border-rose-300 hover:bg-rose-50/50 transition-all group"
+                  className="block p-4 border border-gray-200 rounded-lg hover:border-picc-red-300 hover:bg-warm-50/50 transition-all group"
                 >
                   <div className="flex items-start gap-3">
-                    <Heart className="h-5 w-5 text-rose-600 mt-0.5 flex-shrink-0" />
+                    <Heart className="h-5 w-5 text-picc-red mt-0.5 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 group-hover:text-rose-700 mb-1">
+                      <h3 className="font-semibold text-gray-900 group-hover:text-picc-red mb-1">
                         {story.title}
                       </h3>
                       {story.summary && (
@@ -353,10 +354,10 @@ export default function AchievementsPage() {
       <div className="mt-8 grid md:grid-cols-3 gap-4">
         <Link
           href="/wiki/services"
-          className="block p-6 bg-gradient-to-r from-rose-50 to-pink-50 border border-rose-200 rounded-lg hover:shadow-md transition-all group"
+          className="block p-6 bg-gradient-to-r from-warm-50 to-warm-50 border border-picc-red-200 rounded-lg hover:shadow-md transition-all group"
         >
-          <Heart className="h-8 w-8 text-rose-600 mb-2" />
-          <h3 className="font-bold text-rose-900 mb-2 group-hover:text-rose-700">
+          <Heart className="h-8 w-8 text-picc-red mb-2" />
+          <h3 className="font-bold text-picc-earth mb-2 group-hover:text-picc-red">
             PICC Services
           </h3>
           <p className="text-sm text-gray-700">
@@ -365,10 +366,10 @@ export default function AchievementsPage() {
         </Link>
         <Link
           href="/wiki/people"
-          className="block p-6 bg-gradient-to-r from-blue-50 to-teal-50 border border-blue-200 rounded-lg hover:shadow-md transition-all group"
+          className="block p-6 bg-gradient-to-r from-warm-50 to-picc-ochre-50 border border-warm-200 rounded-lg hover:shadow-md transition-all group"
         >
-          <Users className="h-8 w-8 text-blue-600 mb-2" />
-          <h3 className="font-bold text-blue-900 mb-2 group-hover:text-blue-700">
+          <Users className="h-8 w-8 text-picc-red mb-2" />
+          <h3 className="font-bold text-picc-earth mb-2 group-hover:text-picc-red">
             Our People
           </h3>
           <p className="text-sm text-gray-700">
@@ -377,10 +378,10 @@ export default function AchievementsPage() {
         </Link>
         <Link
           href="/stories"
-          className="block p-6 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg hover:shadow-md transition-all group"
+          className="block p-6 bg-gradient-to-r from-picc-ochre-50 to-orange-50 border border-picc-ochre-200 rounded-lg hover:shadow-md transition-all group"
         >
-          <BookOpen className="h-8 w-8 text-amber-600 mb-2" />
-          <h3 className="font-bold text-amber-900 mb-2 group-hover:text-amber-700">
+          <BookOpen className="h-8 w-8 text-picc-ochre mb-2" />
+          <h3 className="font-bold text-picc-earth mb-2 group-hover:text-picc-ochre">
             All Stories
           </h3>
           <p className="text-sm text-gray-700">

@@ -72,11 +72,12 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Failed to fetch annual reports' }, { status: 500 })
     }
 
-    // Get image counts by year
+    // Get image counts by year — prefer real extracted photos, exclude page renders
     const { data: images, error: imagesError } = await supabase
       .from('media_files')
       .select('id, filename, file_path, public_url, bucket_name, metadata, tags, title, alt_text')
       .contains('tags', ['annual-report'])
+      .not('tags', 'cs', '{"page-render"}')
       .is('deleted_at', null)
 
     if (imagesError) {

@@ -1,6 +1,9 @@
 import React from "react";
 import { ChevronRight, Users, Heart, TrendingUp, Globe, BookOpen, Target, Star, Building, Phone, Mail, MapPin, Play, Quote, Video } from "lucide-react";
 import Link from "next/link";
+import { BespokeIcon } from "@/components/ui/BespokeIcon";
+import { STAFF } from "@/lib/stats/current-stats";
+import VideoHero from "@/components/video/VideoHero";
 import { getHeroImage, getPageMedia, getFeaturedPageMedia, getLeadershipPhotos, getServicePhotos, getTestimonialPhotos, getTimelinePhotos } from "@/lib/media/utils";
 import { getPageStories } from "@/lib/stories/utils";
 
@@ -21,22 +24,15 @@ export default async function AboutPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section with Background Image */}
-      <section
-        className="relative h-[600px] flex items-center justify-center overflow-hidden"
-        style={heroImage ? {
-          backgroundImage: `linear-gradient(rgba(31, 41, 55, 0.7), rgba(31, 41, 55, 0.8)), url(${heroImage})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        } : undefined}
+      {/* Hero Section with Video Background */}
+      <VideoHero
+        poster={heroImage || undefined}
+        overlay="gradient-brand"
+        height="tall"
+        parallax
+        aria-label="About Palm Island Community Company"
       >
-        {!heroImage && (
-          <div className="absolute inset-0 bg-gray-900">
-            <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 opacity-90"></div>
-          </div>
-        )}
-
-        <div className="relative z-10 text-center text-white px-4 max-w-5xl mx-auto">
+        <div className="text-center text-white max-w-5xl mx-auto">
           <h1 className="text-5xl md:text-7xl font-bold mb-6">
             Palm Island Community Company
           </h1>
@@ -55,12 +51,7 @@ export default async function AboutPage() {
             </Link>
           </div>
         </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <ChevronRight className="w-8 h-8 text-white rotate-90" />
-        </div>
-      </section>
+      </VideoHero>
 
       {/* Vision Statement - Full width with image */}
       <section className="py-20 px-4 bg-gray-50">
@@ -85,11 +76,8 @@ export default async function AboutPage() {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <div className="text-center text-gray-400">
-                    <Building className="w-24 h-24 mx-auto mb-4" />
-                    <p className="text-sm">PICC Building / Community Photo</p>
-                  </div>
+                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+                  <Building className="w-16 h-16 text-gray-300" />
                 </div>
               )}
             </div>
@@ -297,11 +285,8 @@ export default async function AboutPage() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <div className="text-center text-gray-400">
-                            <Icon className="w-16 h-16 mx-auto mb-2" />
-                            <p className="text-sm">{item.era} image</p>
-                          </div>
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+                          <Icon className="w-12 h-12 text-gray-300" />
                         </div>
                       )}
                     </div>
@@ -343,9 +328,8 @@ export default async function AboutPage() {
               </video>
             ) : (
               <div className="text-center text-white">
-                <Play className="w-24 h-24 mx-auto mb-4" />
-                <p className="text-lg">Video: Rachel Atkinson - The PICC Story</p>
-                <p className="text-sm text-gray-400 mt-2">(Video to be embedded here)</p>
+                <Play className="w-24 h-24 mx-auto mb-4 opacity-50" />
+                <p className="text-lg">Rachel Atkinson — The PICC Story</p>
               </div>
             )}
           </div>
@@ -368,11 +352,8 @@ export default async function AboutPage() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <div className="text-center text-gray-400">
-                      <Users className="w-24 h-24 mx-auto mb-2" />
-                      <p className="text-sm">Rachel Atkinson headshot</p>
-                    </div>
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+                    <Users className="w-16 h-16 text-gray-300" />
                   </div>
                 )}
               </div>
@@ -396,7 +377,7 @@ export default async function AboutPage() {
                 <div className="grid md:grid-cols-2 gap-3">
                   <div className="flex items-start">
                     <ChevronRight className="h-5 w-5 text-gray-900 mt-0.5 mr-2 flex-shrink-0" />
-                    <span className="text-gray-700">Grew organization from 1 to 197 employees</span>
+                    <span className="text-gray-700">Grew organization from 1 to {STAFF.total} employees</span>
                   </div>
                   <div className="flex items-start">
                     <ChevronRight className="h-5 w-5 text-gray-900 mt-0.5 mr-2 flex-shrink-0" />
@@ -542,7 +523,7 @@ export default async function AboutPage() {
 
                     <div className="p-6">
                       {story.story_type && (
-                        <span className="inline-block px-3 py-1 bg-purple-100 text-purple-700 text-xs font-semibold rounded-full mb-3">
+                        <span className="inline-block px-3 py-1 bg-warm-100 text-picc-ochre text-xs font-semibold rounded-full mb-3">
                           {story.story_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                         </span>
                       )}
@@ -559,7 +540,7 @@ export default async function AboutPage() {
 
                       <div className="flex items-center gap-3 mt-4">
                         {story.storyteller?.profile_image_url && (
-                          <div className="w-12 h-12 rounded-full overflow-hidden ring-2 ring-purple-200">
+                          <div className="w-12 h-12 rounded-full overflow-hidden ring-2 ring-warm-200">
                             <img
                               src={story.storyteller.profile_image_url}
                               alt={story.storyteller.preferred_name || story.storyteller.full_name}
@@ -572,14 +553,14 @@ export default async function AboutPage() {
                             {story.storyteller?.preferred_name || story.storyteller?.full_name || 'Elder'}
                           </p>
                           {story.storyteller?.is_elder && (
-                            <p className="text-sm text-purple-600 font-medium">Elder & Knowledge Keeper</p>
+                            <p className="text-sm text-picc-ochre font-medium">Elder & Knowledge Keeper</p>
                           )}
                         </div>
 
                         {story.contains_traditional_knowledge && (
                           <div className="ml-auto">
-                            <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-50 text-purple-700 text-xs font-medium rounded-full">
-                              🛡️ Cultural Knowledge
+                            <span className="inline-flex items-center gap-1 px-3 py-1 bg-warm-100 text-picc-ochre text-xs font-medium rounded-full">
+                              <BespokeIcon name="traditional-knowledge" size={14} /> Cultural Knowledge
                             </span>
                           </div>
                         )}
@@ -593,7 +574,7 @@ export default async function AboutPage() {
             <div className="text-center mt-12">
               <Link
                 href="/stories?filter=elders"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-purple-600 text-white rounded-full font-semibold hover:bg-purple-700 transition-colors shadow-lg hover:shadow-xl"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-picc-ochre text-white rounded-full font-semibold hover:bg-picc-ochre transition-colors shadow-lg hover:shadow-xl"
               >
                 <BookOpen className="w-5 h-5" />
                 Explore All Elder Stories
@@ -637,11 +618,8 @@ export default async function AboutPage() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <div className="text-center text-gray-400">
-                        <Heart className="w-16 h-16 mx-auto mb-2" />
-                        <p className="text-sm">Bwgcolman Healing Service photo</p>
-                      </div>
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+                      <Heart className="w-12 h-12 text-gray-300" />
                     </div>
                   )}
                 </div>
@@ -682,11 +660,8 @@ export default async function AboutPage() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <div className="text-center text-gray-400">
-                        <Heart className="w-16 h-16 mx-auto mb-2" />
-                        <p className="text-sm">SEWB program photo</p>
-                      </div>
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+                      <Heart className="w-12 h-12 text-gray-300" />
                     </div>
                   )}
                 </div>
@@ -743,11 +718,8 @@ export default async function AboutPage() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <div className="text-center text-gray-400">
-                            <Icon className="w-16 h-16 mx-auto mb-2" />
-                            <p className="text-sm">{service.title}</p>
-                          </div>
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+                          <Icon className="w-12 h-12 text-gray-300" />
                         </div>
                       )}
                     </div>
@@ -806,11 +778,8 @@ export default async function AboutPage() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <div className="text-center text-gray-400">
-                            <Building className="w-16 h-16 mx-auto mb-2" />
-                            <p className="text-sm">{service.title} photo</p>
-                          </div>
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+                          <Building className="w-12 h-12 text-gray-300" />
                         </div>
                       )}
                     </div>
@@ -860,9 +829,8 @@ export default async function AboutPage() {
               </video>
             ) : (
               <div className="text-center text-white">
-                <Play className="w-24 h-24 mx-auto mb-4" />
-                <p className="text-lg">Video: A Day at PICC - Services Tour</p>
-                <p className="text-sm text-gray-400 mt-2">(Video to be embedded here)</p>
+                <Play className="w-24 h-24 mx-auto mb-4 opacity-50" />
+                <p className="text-lg">A Day at PICC — Services in Action</p>
               </div>
             )}
           </div>
@@ -881,26 +849,26 @@ export default async function AboutPage() {
             {[
               {
                 quote: "If I can do it, you can. Country provides and we witness it every day through PICC's support.",
-                name: 'Community Member',
-                role: 'Youth Program Participant',
+                name: 'Youth Program Participant',
+                role: 'Youth Development Program',
                 index: 0
               },
               {
                 quote: "We feel powerful as an all-woman team. PICC showed us we're not just capable, we're unstoppable.",
-                name: 'Community Member',
+                name: 'Digital Service Centre Staff',
                 role: 'Digital Service Centre Team',
                 index: 1
               },
               {
                 quote: 'No place like home. Every visit feels like returning to where I truly belong.',
-                name: 'Community Member',
-                role: 'Returning Resident',
+                name: 'Health Services Client',
+                role: 'Bwgcolman Healing Service',
                 index: 2
               },
               {
                 quote: "We're all one people. PICC understands that and brings us together in ways that honor our journey.",
-                name: 'Community Member',
-                role: 'Elder & Cultural Advisor',
+                name: 'Family Program Participant',
+                role: 'Family Wellbeing Centre',
                 index: 3
               }
             ].map((testimonial, idx) => {

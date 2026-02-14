@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { LucideIcon } from 'lucide-react';
 
 type CardVariant = 'default' | 'accent' | 'gradient' | 'interactive' | 'glass';
-type AccentColor = 'blue' | 'teal' | 'purple' | 'pink' | 'amber' | 'green' | 'red';
+type AccentColor = 'blue' | 'teal' | 'purple' | 'pink' | 'amber' | 'green' | 'red' | 'picc-red' | 'picc-ochre' | 'sage';
 
 interface CardProps {
   children: React.ReactNode;
@@ -45,23 +45,29 @@ interface CardFooterProps {
 }
 
 const accentColors: Record<AccentColor, string> = {
-  blue: 'border-l-4 border-l-blue-600',
-  teal: 'border-l-4 border-l-teal-600',
-  purple: 'border-l-4 border-l-purple-600',
-  pink: 'border-l-4 border-l-pink-600',
-  amber: 'border-l-4 border-l-amber-600',
-  green: 'border-l-4 border-l-green-600',
+  blue: 'border-l-4 border-l-picc-red',
+  teal: 'border-l-4 border-l-picc-ochre',
+  purple: 'border-l-4 border-l-picc-ochre',
+  pink: 'border-l-4 border-l-picc-red',
+  amber: 'border-l-4 border-l-picc-ochre',
+  green: 'border-l-4 border-l-sage-600',
   red: 'border-l-4 border-l-red-600',
+  'picc-red': 'border-l-4 border-l-picc-red',
+  'picc-ochre': 'border-l-4 border-l-picc-ochre',
+  sage: 'border-l-4 border-l-sage-600',
 };
 
 const gradientColors: Record<AccentColor, string> = {
-  blue: 'bg-gradient-to-br from-blue-50 to-teal-50 border-blue-200',
-  teal: 'bg-gradient-to-br from-teal-50 to-green-50 border-teal-200',
-  purple: 'bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200',
-  pink: 'bg-gradient-to-br from-pink-50 to-rose-50 border-pink-200',
-  amber: 'bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200',
-  green: 'bg-gradient-to-br from-green-50 to-teal-50 border-green-200',
-  red: 'bg-gradient-to-br from-red-50 to-pink-50 border-red-200',
+  blue: 'bg-gradient-to-br from-warm-50 to-picc-ochre-50 border-warm-200',
+  teal: 'bg-gradient-to-br from-picc-ochre-50 to-sage-50 border-picc-ochre-200',
+  purple: 'bg-gradient-to-br from-warm-100 to-warm-50 border-warm-200',
+  pink: 'bg-gradient-to-br from-warm-50 to-picc-red-50 border-picc-red-200',
+  amber: 'bg-gradient-to-br from-picc-ochre-50 to-orange-50 border-picc-ochre-200',
+  green: 'bg-gradient-to-br from-sage-50 to-picc-ochre-50 border-sage-200',
+  red: 'bg-gradient-to-br from-red-50 to-warm-50 border-red-200',
+  'picc-red': 'bg-gradient-to-br from-picc-red-50 to-warm-50 border-picc-red-200',
+  'picc-ochre': 'bg-gradient-to-br from-picc-ochre-50 to-warm-50 border-picc-ochre-200',
+  sage: 'bg-gradient-to-br from-sage-50 to-picc-ochre-50 border-sage-200',
 };
 
 const paddingStyles = {
@@ -80,13 +86,13 @@ export function Card({
   padding = 'md',
   onClick,
 }: CardProps) {
-  const baseStyles = 'rounded-xl border';
+  const baseStyles = 'rounded-2xl border transition-all duration-300 ease-elegant';
 
   const variantStyles = {
-    default: 'bg-white shadow-md border-gray-200',
-    accent: `bg-white shadow-md border-gray-200 ${accentColors[accentColor]}`,
+    default: 'bg-white shadow-sm border-gray-100',
+    accent: `bg-white shadow-sm border-gray-100 ${accentColors[accentColor]}`,
     gradient: `${gradientColors[accentColor]} border`,
-    interactive: 'bg-white shadow-md border-gray-200 hover:shadow-lg hover:border-blue-300 transition-all cursor-pointer',
+    interactive: 'bg-white shadow-sm border-gray-100 hover:shadow-lg hover:-translate-y-0.5 cursor-pointer',
     glass: 'bg-white/10 backdrop-blur-sm border-white/30 hover:bg-white/20',
   };
 
@@ -119,7 +125,7 @@ export function Card({
 export function CardHeader({
   children,
   icon: Icon,
-  iconColor = 'text-blue-600',
+  iconColor = 'text-picc-red',
   action,
   className = '',
 }: CardHeaderProps) {
@@ -169,7 +175,7 @@ export function CardFooter({
   className = '',
 }: CardFooterProps) {
   return (
-    <div className={`mt-4 pt-4 border-t border-gray-200 ${className}`}>
+    <div className={`mt-4 pt-4 border-t border-gray-100 ${className}`}>
       {children}
     </div>
   );

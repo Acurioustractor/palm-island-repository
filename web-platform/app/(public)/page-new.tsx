@@ -310,7 +310,7 @@ export default async function HomePage() {
                   className="aspect-video relative flex items-center justify-center bg-cover bg-center"
                   style={featureImages[0] ? { backgroundImage: `url(${featureImages[0].public_url})` } : undefined}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-600/80 to-purple-700/80" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-picc-red/80 to-picc-ochre/80" />
                   <div className="text-white text-center z-10 relative p-6">
                     <Calendar className="w-16 h-16 mx-auto mb-4 drop-shadow-lg" />
                     <div className="text-6xl font-bold drop-shadow-lg">15</div>
@@ -318,7 +318,7 @@ export default async function HomePage() {
                   </div>
                 </div>
                 <div className="p-6 flex-1 flex flex-col">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-picc-red transition-colors">
                     Interactive Timeline
                   </h3>
                   <p className="text-gray-600 mb-4 flex-1">
@@ -339,11 +339,11 @@ export default async function HomePage() {
                   className="aspect-video relative flex items-center justify-center bg-cover bg-center"
                   style={featureImages[1] ? { backgroundImage: `url(${featureImages[1].public_url})` } : undefined}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-green-600/80 to-teal-700/80" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-sage-600/80 to-picc-ochre/80" />
                   <BookOpen className="w-24 h-24 text-white relative z-10 drop-shadow-2xl" />
                 </div>
                 <div className="p-6 flex-1 flex flex-col">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-green-600 transition-colors">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-sage-600 transition-colors">
                     Knowledge Library
                   </h3>
                   <p className="text-gray-600 mb-4 flex-1">
@@ -449,7 +449,7 @@ export default async function HomePage() {
         } : undefined}
       >
         {/* Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 to-purple-900/90" />
+        <div className="absolute inset-0 bg-gradient-to-r from-picc-earth/90 to-picc-earth-600/90" />
 
         {/* Content */}
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
