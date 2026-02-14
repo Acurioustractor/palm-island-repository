@@ -51,16 +51,23 @@
                 <span class="toc-item-page">6</span>
             </li>
             {% endif %}
+            {% if innovation_projects %}
+            <li class="toc-item">
+                <span class="toc-item-title">Innovation on Country</span>
+                <span class="toc-item-dots"></span>
+                <span class="toc-item-page">—</span>
+            </li>
+            {% endif %}
             <li class="toc-item">
                 <span class="toc-item-title">Governance & Services</span>
                 <span class="toc-item-dots"></span>
-                <span class="toc-item-page">{% if highlights %}7{% else %}6{% endif %}</span>
+                <span class="toc-item-page">—</span>
             </li>
             {% if stories %}
             <li class="toc-item">
                 <span class="toc-item-title">Community Stories</span>
                 <span class="toc-item-dots"></span>
-                <span class="toc-item-page">{% if highlights %}8{% else %}7{% endif %}</span>
+                <span class="toc-item-page">—</span>
             </li>
             {% endif %}
             <li class="toc-item">
@@ -192,6 +199,41 @@
             </div>
             {% endfor %}
         </div>
+    </section>
+    {% endif %}
+
+    <!-- INNOVATION SPREAD -->
+    {% if innovation_projects %}
+    <section class="page spread innovation-spread">
+        <div class="innovation-intro">
+            <span class="section-label">Innovation on Country</span>
+            <h2 class="handwritten">Building Our Future, Our Way</h2>
+            <p class="lead">Community-led projects driving self-determination through innovation, culture, and technology.</p>
+        </div>
+
+        <div class="innovation-grid">
+            {% for project in innovation_projects %}
+            <div class="innovation-card">
+                <div class="innovation-status {{ project.status }}"></div>
+                <h4>{{ project.name }}</h4>
+                <p>{{ project.why_text }}</p>
+                {% if project.milestones %}
+                <div class="innovation-timeline">
+                    {% for m in project.milestones[:3] %}
+                    <span class="milestone">{{ m.year }}: {{ m.title }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if innovation_quote %}
+        <blockquote class="innovation-quote">
+            <p>"{{ innovation_quote.text }}"</p>
+            <cite>— {{ innovation_quote.attribution }}</cite>
+        </blockquote>
+        {% endif %}
     </section>
     {% endif %}
 

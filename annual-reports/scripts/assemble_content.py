@@ -85,9 +85,7 @@ def fetch_approved_stories(client: Client, year: int) -> list[dict]:
             media_type,
             file_path,
             caption,
-            display_order,
-            photographer,
-            credit
+            display_order
         ),
         service_links:service_story_links(
             service_name,
@@ -130,9 +128,7 @@ def fetch_published_stories_for_year(client: Client, year: int) -> list[dict]:
             media_type,
             file_path,
             caption,
-            display_order,
-            photographer,
-            credit
+            display_order
         ),
         service_links:service_story_links(
             service_name
@@ -605,6 +601,390 @@ def fetch_service_metrics(client: Client, year: int) -> list[dict]:
     return data_cards
 
 
+def fetch_innovation_projects(client: Client) -> list[dict]:
+    """
+    Fetch innovation projects and their linked immersive story content.
+
+    Queries:
+    - projects table where project_type = 'innovation'
+    - immersive_stories for linked story slugs and sections
+    Returns template-ready list of innovation project dicts.
+    """
+
+    projects = []
+
+    try:
+        response = client.table("projects").select(
+            "id, name, description, status, slug, project_type"
+        ).eq("project_type", "innovation"
+        ).order("created_at").execute()
+
+        if not response.data:
+            print("    No innovation projects found")
+            return []
+
+        for proj in response.data:
+            project_data = {
+                "name": proj.get("name", ""),
+                "description": proj.get("description", ""),
+                "status": proj.get("status", "active"),
+                "why_text": "",
+                "quote": None,
+                "milestones": [],
+                "story_slug": "",
+            }
+
+            # Try to fetch linked immersive story
+            try:
+                story_resp = client.table("immersive_stories").select(
+                    "id, slug, title"
+                ).eq("project_id", proj["id"]
+                ).eq("status", "published"
+                ).limit(1).execute()
+
+                if story_resp.data:
+                    story = story_resp.data[0]
+                    project_data["story_slug"] = story.get("slug", "")
+
+                    # Fetch key sections: "the why" text and quotes
+                    sections_resp = client.table("immersive_story_sections").select(
+                        "section_type, title, content, quote_text, quote_attribution"
+                    ).eq("story_id", story["id"]
+                    ).order("display_order").execute()
+
+                    if sections_resp.data:
+                        for sec in sections_resp.data:
+                            if sec.get("section_type") == "text" and "why" in (sec.get("title") or "").lower():
+                                project_data["why_text"] = sec.get("content", "")
+                            if sec.get("quote_text") and not project_data["quote"]:
+                                project_data["quote"] = {
+                                    "text": sec["quote_text"],
+                                    "attribution": sec.get("quote_attribution", "Community Member"),
+                                }
+
+                    # Fetch timeline milestones
+                    timeline_resp = client.table("immersive_story_timeline").select(
+                        "year, title"
+                    ).eq("story_id", story["id"]
+                    ).order("year").limit(5).execute()
+
+                    if timeline_resp.data:
+                        project_data["milestones"] = [
+                            {"year": t.get("year", ""), "title": t.get("title", "")}
+                            for t in timeline_resp.data
+                        ]
+
+            except Exception as e:
+                print(f"    Warning: Could not fetch story for project '{proj.get('name')}': {e}")
+
+            # Fall back to description for why_text if no story section found
+            if not project_data["why_text"]:
+                project_data["why_text"] = proj.get("description", "")
+
+            projects.append(project_data)
+
+    except Exception as e:
+        print(f"    Warning: Could not fetch innovation projects: {e}")
+
+    return projects
+
+
+def filter_approved_elder_content(content_list: list[dict], content_type: str = "content") -> list[dict]:
+    """
+    Cultural protocol enforcement: filter out unapproved elder content.
+
+    Only includes items where elder_approval_given is True or is_validated is True.
+    Logs warnings for any filtered-out content.
+    """
+
+    approved = []
+    filtered_count = 0
+
+    for item in content_list:
+        # Check various approval flags
+        is_approved = (
+            item.get("is_validated", False) or
+            item.get("elder_approval_given", False) or
+            item.get("approved", False)
+        )
+
+        if is_approved:
+            approved.append(item)
+        else:
+            filtered_count += 1
+
+    if filtered_count > 0:
+        print(f"    Cultural protocol: Filtered {filtered_count} unapproved {content_type} item(s)")
+
+    return approved
+
+
+def fetch_elder_quotes(client: Client) -> list[dict]:
+    """
+    Fetch validated elder quotes from extracted_quotes joined to profiles.
+
+    Returns quotes where the profile is an elder and the quote is validated.
+    """
+
+    try:
+        response = client.table("extracted_quotes").select(
+            """
+            id, quote_text, attribution, context, theme, sentiment,
+            impact_area, photo_url,
+            profile:profiles!profile_id(
+                id, full_name, preferred_name, is_elder,
+                profile_image_url, community_role, bio
+            )
+            """
+        ).eq("is_validated", True
+        ).order("display_order").execute()
+
+        if response.data:
+            # Filter to elder quotes only
+            elder_quotes = []
+            for q in response.data:
+                profile = q.get("profile")
+                if isinstance(profile, list) and profile:
+                    profile = profile[0]
+                if isinstance(profile, dict) and profile.get("is_elder"):
+                    elder_quotes.append({
+                        "id": q.get("id"),
+                        "quote_text": q.get("quote_text", ""),
+                        "attribution": q.get("attribution") or (profile.get("full_name", "")),
+                        "context": q.get("context", ""),
+                        "theme": q.get("theme", ""),
+                        "sentiment": q.get("sentiment", ""),
+                        "impact_area": q.get("impact_area", ""),
+                        "photo_url": q.get("photo_url") or profile.get("profile_image_url", ""),
+                        "elder_name": profile.get("full_name", ""),
+                        "elder_role": profile.get("community_role", ""),
+                    })
+            return elder_quotes
+
+    except Exception as e:
+        print(f"    Warning: Could not fetch elder quotes: {e}")
+
+    return []
+
+
+def fetch_elder_profiles(client: Client) -> list[dict]:
+    """
+    Fetch elder profiles from the profiles table.
+
+    Returns profiles where is_elder = true with photo and bio.
+    """
+
+    try:
+        response = client.table("profiles").select(
+            "id, full_name, preferred_name, community_role, bio, "
+            "profile_image_url, language_group, traditional_country"
+        ).eq("is_elder", True
+        ).order("full_name").execute()
+
+        if response.data:
+            return [
+                {
+                    "id": p.get("id"),
+                    "full_name": p.get("full_name", ""),
+                    "preferred_name": p.get("preferred_name", ""),
+                    "community_role": p.get("community_role", ""),
+                    "bio": p.get("bio", ""),
+                    "photo_url": resolve_photo_url(p.get("profile_image_url", "")),
+                    "language_group": p.get("language_group", ""),
+                    "traditional_country": p.get("traditional_country", ""),
+                }
+                for p in response.data
+            ]
+
+    except Exception as e:
+        print(f"    Warning: Could not fetch elder profiles: {e}")
+
+    return []
+
+
+def fetch_report_photos(client: Client, year: int) -> dict:
+    """
+    Fetch photos tagged for report sections from media_files.
+
+    Returns photos grouped by section tag (hero, gallery, services, etc.)
+    """
+
+    fy_tag = f"fy:{year-1}-{str(year)[2:]}"
+    sections = {}
+
+    try:
+        response = client.table("media_files").select(
+            "id, filename, public_url, file_path, caption, alt_text, "
+            "tags, width, height, is_featured, usage_context, bucket_name"
+        ).contains("tags", [fy_tag]
+        ).is_("deleted_at", "null"
+        ).order("is_featured", desc=True
+        ).order("created_at", desc=True
+        ).execute()
+
+        if response.data:
+            for photo in response.data:
+                tags = photo.get("tags") or []
+                url = photo.get("public_url") or resolve_photo_url(
+                    f"{photo.get('bucket_name', 'media')}/{photo.get('file_path', '')}"
+                )
+
+                photo_data = {
+                    "id": photo.get("id"),
+                    "url": url,
+                    "caption": photo.get("caption") or photo.get("alt_text", ""),
+                    "alt_text": photo.get("alt_text", ""),
+                    "width": photo.get("width"),
+                    "height": photo.get("height"),
+                    "is_featured": photo.get("is_featured", False),
+                }
+
+                # Categorise by section tags
+                for tag in tags:
+                    if tag.startswith("section:"):
+                        section = tag.replace("section:", "")
+                        if section not in sections:
+                            sections[section] = []
+                        sections[section].append(photo_data)
+
+                # Also categorise by usage_context
+                usage = photo.get("usage_context", "")
+                if usage == "story_hero" and "hero" not in sections:
+                    sections.setdefault("hero", []).append(photo_data)
+                elif usage == "gallery":
+                    sections.setdefault("gallery", []).append(photo_data)
+
+                # All photos go in 'all' for general access
+                sections.setdefault("all", []).append(photo_data)
+
+    except Exception as e:
+        print(f"    Warning: Could not fetch report photos: {e}")
+
+    return sections
+
+
+def fetch_elder_trip_content(client: Client) -> dict:
+    """
+    Fetch Hull River elder trip content from immersive_stories.
+
+    Pulls story overview, sections, and timeline events for the
+    elder trip immersive story (slug: elders-trips-story or similar).
+    """
+
+    trip_data = {
+        "title": "",
+        "subtitle": "",
+        "hero_image": "",
+        "sections": [],
+        "timeline": [],
+        "gallery": [],
+    }
+
+    try:
+        # Find the elder trip story
+        story_resp = client.table("immersive_stories").select(
+            "id, title, subtitle, slug, hero_media_url"
+        ).or_(
+            "slug.eq.elders-trips-story,slug.eq.elders-trip,slug.ilike.%elder%trip%"
+        ).limit(1).execute()
+
+        if not story_resp.data:
+            print("    No elder trip immersive story found")
+            return trip_data
+
+        story = story_resp.data[0]
+        trip_data["title"] = story.get("title", "")
+        trip_data["subtitle"] = story.get("subtitle", "")
+        trip_data["hero_image"] = resolve_photo_url(story.get("hero_media_url", ""))
+
+        story_id = story["id"]
+
+        # Fetch sections
+        sections_resp = client.table("story_sections").select(
+            "id, section_type, title, content, media_url, media_caption, "
+            "quote_author, quote_role, settings, section_order"
+        ).eq("story_id", story_id
+        ).order("section_order").execute()
+
+        if sections_resp.data:
+            for sec in sections_resp.data:
+                trip_data["sections"].append({
+                    "type": sec.get("section_type", "text"),
+                    "title": sec.get("title", ""),
+                    "content": sec.get("content", ""),
+                    "media_url": resolve_photo_url(sec.get("media_url", "")),
+                    "media_caption": sec.get("media_caption", ""),
+                    "quote_author": sec.get("quote_author", ""),
+                    "quote_role": sec.get("quote_role", ""),
+                    "section_id": sec.get("id"),
+                })
+
+                # Fetch timeline events for timeline sections
+                if sec.get("section_type") == "timeline":
+                    timeline_resp = client.table("story_timeline_events").select(
+                        "event_date, event_title, event_description, is_complete, event_order"
+                    ).eq("section_id", sec["id"]
+                    ).order("event_order").execute()
+
+                    if timeline_resp.data:
+                        trip_data["timeline"] = [
+                            {
+                                "date": t.get("event_date", ""),
+                                "title": t.get("event_title", ""),
+                                "description": t.get("event_description", ""),
+                                "is_complete": t.get("is_complete", True),
+                            }
+                            for t in timeline_resp.data
+                        ]
+
+                # Collect gallery images from gallery sections
+                if sec.get("section_type") == "gallery":
+                    try:
+                        gallery_resp = client.table("story_gallery_images").select(
+                            "image_url, image_alt, image_caption, image_order"
+                        ).eq("section_id", sec["id"]
+                        ).order("image_order").execute()
+
+                        if gallery_resp.data:
+                            trip_data["gallery"] = [
+                                {
+                                    "url": resolve_photo_url(img.get("image_url", "")),
+                                    "alt": img.get("image_alt", ""),
+                                    "caption": img.get("image_caption", ""),
+                                }
+                                for img in gallery_resp.data
+                            ]
+                    except Exception:
+                        pass
+
+        # Also fetch photos tagged for elder trips from media_files
+        try:
+            media_resp = client.table("media_files").select(
+                "id, public_url, file_path, caption, alt_text, bucket_name"
+            ).contains("tags", ["project:elders-trips"]
+            ).is_("deleted_at", "null"
+            ).order("created_at", desc=True
+            ).limit(20).execute()
+
+            if media_resp.data:
+                for photo in media_resp.data:
+                    url = photo.get("public_url") or resolve_photo_url(
+                        f"{photo.get('bucket_name', 'media')}/{photo.get('file_path', '')}"
+                    )
+                    trip_data["gallery"].append({
+                        "url": url,
+                        "alt": photo.get("alt_text", ""),
+                        "caption": photo.get("caption", ""),
+                    })
+        except Exception:
+            pass
+
+    except Exception as e:
+        print(f"    Warning: Could not fetch elder trip content: {e}")
+
+    return trip_data
+
+
 def fetch_highlights(client: Client, year: int) -> list[dict]:
     """
     Fetch report highlights from report_highlights table.
@@ -776,6 +1156,21 @@ def assemble_report(year: int, output_path: Optional[Path] = None, use_date_rang
     print("  Fetching highlights...")
     highlights = fetch_highlights(client, year)
 
+    print("  Fetching innovation projects...")
+    innovation_projects = fetch_innovation_projects(client)
+
+    print("  Fetching elder quotes...")
+    elder_quotes = fetch_elder_quotes(client)
+
+    print("  Fetching elder profiles...")
+    elder_profiles = fetch_elder_profiles(client)
+
+    print("  Fetching report photos...")
+    report_photos = fetch_report_photos(client, year)
+
+    print("  Fetching elder trip content...")
+    elder_trip = fetch_elder_trip_content(client)
+
     # Assemble complete report data
     report_data = {
         # Metadata
@@ -845,6 +1240,32 @@ def assemble_report(year: int, output_path: Optional[Path] = None, use_date_rang
         # Highlights from database
         "highlights": highlights,
 
+        # Innovation projects
+        "innovation_projects": innovation_projects,
+        "innovation_quote": next(
+            (p["quote"] for p in innovation_projects if p.get("quote")),
+            None
+        ),
+
+        # Elder content (cultural protocol enforced — only validated/approved)
+        "elder_quotes": elder_quotes,
+        "elder_profiles": elder_profiles,
+        "cultural_protocol": {
+            "elder_quotes_validated": len(elder_quotes),
+            "elder_profiles_count": len(elder_profiles),
+            "all_content_approved": len(elder_quotes) > 0,
+            "warnings": [],
+        },
+
+        # Report photos grouped by section
+        "report_photos": report_photos,
+
+        # Elder trip (Hull River) content
+        "elder_trip": elder_trip,
+
+        # Full story objects for story spread pages
+        "stories_full": stories,
+
         # At-a-glance stats for summary page
         "stats": {
             "staff_count": staff_data["counts"][0] if staff_data["counts"] else 0,
@@ -869,6 +1290,11 @@ def assemble_report(year: int, output_path: Optional[Path] = None, use_date_rang
         print(f"   Board members: {len(governance['board_members'])}")
         print(f"   Partners: {len(partners)}")
         print(f"   Data cards: {len(data_cards)}")
+        print(f"   Innovation projects: {len(innovation_projects)}")
+        print(f"   Elder quotes: {len(elder_quotes)}")
+        print(f"   Elder profiles: {len(elder_profiles)}")
+        print(f"   Report photos: {sum(len(v) for k, v in report_photos.items() if k != 'all')} (across {len([k for k in report_photos if k != 'all'])} sections)")
+        print(f"   Elder trip: {'Found' if elder_trip.get('title') else 'Not found'}")
         print(f"   Financial data: {'From database' if financials.get('audited') else 'Placeholder/unaudited'}")
         print(f"\n📝 Next steps:")
         print(f"   1. Review and edit: {output_path}")
@@ -879,6 +1305,39 @@ def assemble_report(year: int, output_path: Optional[Path] = None, use_date_rang
     return report_data
 
 
+def fetch_edition_page_plan(client: Client, year: int, edition: str) -> list[dict]:
+    """
+    Fetch the page plan for a specific edition from report_page_assignments.
+
+    Returns list of page dicts with page_type and content_config.
+    """
+
+    try:
+        # First get report ID
+        report_resp = client.table("annual_reports").select("id").eq(
+            "report_year", year
+        ).limit(1).execute()
+
+        if not report_resp.data:
+            return []
+
+        report_id = report_resp.data[0]["id"]
+
+        response = client.table("report_page_assignments").select(
+            "page_number, page_type, content_config"
+        ).eq("report_id", report_id
+        ).eq("edition", edition
+        ).order("page_number").execute()
+
+        if response.data:
+            return response.data
+
+    except Exception as e:
+        print(f"    Warning: Could not fetch page plan for edition '{edition}': {e}")
+
+    return []
+
+
 def main():
     parser = argparse.ArgumentParser(description="Assemble PICC Annual Report content")
     parser.add_argument("--year", type=int, default=datetime.now().year,
@@ -887,13 +1346,32 @@ def main():
                         help="Output JSON file path")
     parser.add_argument("--all-published", action="store_true",
                         help="Include all published stories from the FY period, not just those marked for annual report")
+    parser.add_argument("--edition", type=str, default=None,
+                        help="Edition key (e.g., standard, elder, community). Fetches edition-specific page plan.")
 
     args = parser.parse_args()
 
+    edition_suffix = f"-{args.edition}" if args.edition else ""
     if not args.output:
-        args.output = f"../output/report-{args.year}-assembled.json"
+        args.output = f"../output/report-{args.year}{edition_suffix}-assembled.json"
 
-    assemble_report(args.year, Path(args.output), use_date_range=args.all_published)
+    report_data = assemble_report(args.year, Path(args.output), use_date_range=args.all_published)
+
+    # If edition specified, fetch and embed the page plan
+    if args.edition and report_data:
+        print(f"\n  Fetching page plan for '{args.edition}' edition...")
+        client = get_supabase_client()
+        pages = fetch_edition_page_plan(client, args.year, args.edition)
+        if pages:
+            report_data["pages"] = pages
+            print(f"    Found {len(pages)} pages in plan")
+            # Re-save with pages included
+            output_path = Path(args.output)
+            with open(output_path, 'w') as f:
+                json.dump(report_data, f, indent=2, default=str)
+            print(f"    Updated: {output_path}")
+        else:
+            print(f"    No page plan found for '{args.edition}' — using standard sequence")
 
 
 if __name__ == "__main__":

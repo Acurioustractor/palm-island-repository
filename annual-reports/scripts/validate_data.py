@@ -267,6 +267,62 @@ class DataValidator:
             )
             return False
     
+    def check_innovation_projects(self) -> Tuple[bool, int]:
+        """Check for innovation projects with linked immersive stories."""
+        try:
+            response = self.client.table("projects").select(
+                "*", count="exact"
+            ).eq("project_type", "innovation").execute()
+
+            count = response.count or len(response.data or [])
+
+            if count == 0:
+                self.add_check("Innovation projects", False, "None found")
+                self.add_issue(
+                    "No innovation projects found",
+                    "Add projects with project_type='innovation' to the projects table"
+                )
+                return False, 0
+
+            # Check how many have linked immersive stories
+            stories_linked = 0
+            for proj in (response.data or []):
+                try:
+                    story_resp = self.client.table("immersive_stories").select(
+                        "id", count="exact"
+                    ).eq("project_id", proj["id"]).eq("status", "published").execute()
+                    if story_resp.data:
+                        stories_linked += 1
+                except Exception:
+                    pass
+
+            if stories_linked >= 3:
+                self.add_check(
+                    "Innovation projects with stories (≥3)",
+                    True,
+                    f"{count} projects, {stories_linked} with stories"
+                )
+                return True, count
+            else:
+                self.add_check(
+                    "Innovation projects with stories (≥3)",
+                    False,
+                    f"{count} projects, only {stories_linked} with stories"
+                )
+                self.add_issue(
+                    f"Only {stories_linked} innovation projects have linked immersive stories (need ≥3)",
+                    "Create and publish immersive stories linked to innovation projects"
+                )
+                return False, count
+
+        except Exception as e:
+            self.add_check("Innovation projects", False, str(e))
+            self.add_issue(
+                f"Cannot query innovation projects: {str(e)}",
+                "Ensure the 'projects' table exists with a 'project_type' column"
+            )
+            return False, 0
+
     def check_leadership_messages(self) -> Tuple[bool, int]:
         """Check for leadership messages (stories with story_type='leadership_message')."""
         try:
@@ -329,6 +385,7 @@ class DataValidator:
         financial_ok = self.check_financial_data()
         staff_ok = self.check_staff_statistics()
         leadership_ok, leadership_count = self.check_leadership_messages()
+        innovation_ok, innovation_count = self.check_innovation_projects()
         
         print()
         

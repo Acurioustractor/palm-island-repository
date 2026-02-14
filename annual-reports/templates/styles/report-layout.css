@@ -445,6 +445,142 @@
 }
 
 /* ========================================
+   INNOVATION SPREAD
+   ======================================== */
+
+.innovation-spread {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr auto;
+    gap: var(--space-lg) 12mm;
+    page-break-inside: avoid;
+}
+
+.innovation-intro {
+    grid-column: 1 / -1;
+}
+
+.innovation-intro h2 {
+    font-family: var(--font-handwritten);
+    font-size: 2.2rem;
+    color: var(--picc-blue-dark);
+    margin-bottom: var(--space-sm);
+}
+
+.innovation-intro .lead {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    max-width: 140mm;
+}
+
+.innovation-grid {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-lg);
+}
+
+.innovation-card {
+    background: var(--bg-white);
+    border: 1px solid #e5e7eb;
+    padding: var(--space-xl);
+    border-radius: var(--radius-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.innovation-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    border-radius: 2px 0 0 2px;
+}
+
+/* Status color bars */
+.innovation-status.active + h4 { color: var(--picc-green); }
+.innovation-card:has(.innovation-status.active)::before {
+    background: var(--picc-green);
+}
+
+.innovation-status.planning + h4 { color: var(--picc-amber); }
+.innovation-card:has(.innovation-status.planning)::before {
+    background: var(--picc-amber);
+}
+
+.innovation-status.completed + h4 { color: var(--picc-blue); }
+.innovation-card:has(.innovation-status.completed)::before {
+    background: var(--picc-blue);
+}
+
+/* Fallback: default accent bar if no :has() support */
+.innovation-card::before {
+    background: linear-gradient(180deg, var(--picc-blue) 0%, var(--picc-purple) 100%);
+}
+
+.innovation-status {
+    display: none; /* Hidden element used for status styling */
+}
+
+.innovation-card h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--picc-blue-dark);
+    margin-bottom: var(--space-sm);
+}
+
+.innovation-card p {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    margin-bottom: var(--space-md);
+}
+
+.innovation-timeline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+}
+
+.innovation-timeline .milestone {
+    display: inline-block;
+    padding: 2px 10px;
+    background: var(--bg-section);
+    border-radius: var(--radius-full);
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.innovation-quote {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, var(--picc-blue-50) 0%, var(--picc-purple-50) 100%);
+    padding: var(--space-xl) var(--space-2xl);
+    border-radius: var(--radius-lg);
+    border-left: 4px solid;
+    border-image: linear-gradient(180deg, var(--picc-blue), var(--picc-purple)) 1;
+    margin: 0;
+}
+
+.innovation-quote p {
+    font-size: 1.05rem;
+    font-style: italic;
+    color: var(--text-primary);
+    font-weight: 500;
+    margin-bottom: var(--space-sm);
+}
+
+.innovation-quote cite {
+    font-size: 0.8rem;
+    color: var(--picc-purple);
+    font-style: normal;
+    font-weight: 600;
+}
+
+/* ========================================
    GOVERNANCE & SERVICES SPREAD
    ======================================== */
 
