@@ -18,6 +18,8 @@
     "ai:embed": "python scripts/generate_embeddings.py"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.43",
+    "@ai-sdk/react": "^3.0.87",
     "@anthropic-ai/sdk": "^0.72.0",
     "@mendable/firecrawl-js": "^4.12.0",
     "@pinecone-database/pinecone": "^1.1.0",
@@ -36,7 +38,8 @@
     "@types/leaflet": "^1.9.21",
     "@vercel/postgres": "^0.5.1",
     "@xenova/transformers": "^2.10.1",
-    "ai": "^2.2.31",
+    "agentation": "^2.2.0",
+    "ai": "^6.0.85",
     "canvas": "^3.2.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
@@ -60,7 +63,7 @@
     "react-dom": "^18.2.0",
     "react-leaflet": "^4.2.1",
     "react-map-gl": "^7.1.7",
-    "recharts": "^2.10.3",
+    "recharts": "^2.15.4",
     "sharp": "^0.33.2",
     "tailwind-merge": "^2.2.0",
     "tailwindcss-animate": "^1.0.7",

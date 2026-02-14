@@ -55,7 +55,9 @@ export async function middleware(request: NextRequest) {
   )
 
   // Redirect unauthenticated users from protected routes to login
-  if (isProtectedRoute && !user) {
+  // Skip auth redirect in development for easier testing
+  const isDev = process.env.NODE_ENV === 'development'
+  if (isProtectedRoute && !user && !isDev) {
     const redirectUrl = new URL('/login', request.url)
     redirectUrl.searchParams.set('redirect', pathname)
     return NextResponse.redirect(redirectUrl)
