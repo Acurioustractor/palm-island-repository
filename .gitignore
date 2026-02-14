@@ -95,3 +95,21 @@ service-account.json
 # Screenshots and debug files
 screenshots/
 debug/
+
+# AI/IDE tool configs (not project-specific)
+.agent/
+.agents/
+.cursor/
+.junie/
+.kiro/
+.pi/
+.qwen/
+.trae/
+.windsurf/
+.tldr/
+.tldrignore
+.superdesign/
+
+# Claude Code caches
+.claude/cache/
+.claude/tsc-cache/
