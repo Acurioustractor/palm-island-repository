@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
         *,
         source:research_sources(id, title, source_type, is_verified)
       `)
-      .order('record_date', { ascending: false })
+      .order('created_at', { ascending: false })
 
     // Filter by fiscal year (format: "2023-2024")
     if (fiscal_year) {
