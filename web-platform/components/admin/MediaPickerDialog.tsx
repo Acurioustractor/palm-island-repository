@@ -25,6 +25,8 @@ type Props = {
   kind: MediaPickerKind
   onClose: () => void
   onPick: (media: MediaFile) => void
+  /** Pre-fill search box when dialog opens (e.g. service name) */
+  initialQuery?: string
 }
 
 function classNames(...xs: Array<string | false | null | undefined>) {
@@ -51,7 +53,7 @@ function getVideoThumb(item: MediaFile) {
   )
 }
 
-export default function MediaPickerDialog({ open, kind, onClose, onPick }: Props) {
+export default function MediaPickerDialog({ open, kind, onClose, onPick, initialQuery }: Props) {
   const [items, setItems] = useState<MediaFile[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -62,7 +64,7 @@ export default function MediaPickerDialog({ open, kind, onClose, onPick }: Props
 
   const url = useMemo(() => {
     const params = new URLSearchParams()
-    params.set('limit', '60')
+    params.set('limit', '200')
     params.set('offset', '0')
     params.set('fileType', kind)
     const q = query.trim()
@@ -74,8 +76,8 @@ export default function MediaPickerDialog({ open, kind, onClose, onPick }: Props
     if (!open) return
     setItems([])
     setError(null)
-    setQuery('')
-  }, [open, kind])
+    setQuery(initialQuery || '')
+  }, [open, kind, initialQuery])
 
   useEffect(() => {
     if (!open) return
