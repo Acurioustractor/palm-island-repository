@@ -172,6 +172,10 @@ function MediaGalleryPage() {
     if (annualReportParam === 'true') {
       setAnnualReportOnly(true);
     }
+    const fileTypeParam = searchParams.get('fileType');
+    if (fileTypeParam && ['image', 'video', 'audio'].includes(fileTypeParam)) {
+      setFileTypeFilter(fileTypeParam);
+    }
   }, [searchParams]);
 
   // Memoize supabase client to prevent recreation on every render

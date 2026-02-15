@@ -8,7 +8,8 @@ export default function MediaLibraryPage() {
     totalPhotos: 0,
     collections: 0,
     smartFolders: 0,
-    recentUploads: 0
+    recentUploads: 0,
+    untagged: 0
   });
   const [loading, setLoading] = useState(true);
 
@@ -26,7 +27,7 @@ export default function MediaLibraryPage() {
         'Prefer': 'count=exact'
       };
 
-      const [photosRes, collectionsRes, foldersRes, recentRes] = await Promise.all([
+      const [photosRes, collectionsRes, foldersRes, recentRes, untaggedRes] = await Promise.all([
         fetch(`${supabaseUrl}/rest/v1/media_files?select=id&deleted_at=is.null&limit=1`, {
           headers, signal: AbortSignal.timeout(5000),
         }),
@@ -42,7 +43,10 @@ export default function MediaLibraryPage() {
           return fetch(`${supabaseUrl}/rest/v1/media_files?select=id&deleted_at=is.null&created_at=gte.${d.toISOString()}&limit=1`, {
             headers, signal: AbortSignal.timeout(5000),
           });
-        })()
+        })(),
+        fetch(`${supabaseUrl}/rest/v1/media_files?select=id&deleted_at=is.null&tags=eq.{}&file_type=eq.image&limit=1`, {
+          headers, signal: AbortSignal.timeout(5000),
+        }),
       ]);
 
       const getCount = (res: Response) => parseInt(res.headers.get('content-range')?.split('/')[1] || '0');
@@ -51,7 +55,8 @@ export default function MediaLibraryPage() {
         totalPhotos: getCount(photosRes),
         collections: getCount(collectionsRes),
         smartFolders: getCount(foldersRes),
-        recentUploads: getCount(recentRes)
+        recentUploads: getCount(recentRes),
+        untagged: getCount(untaggedRes),
       });
     } catch (error) {
       console.error('Error loading stats:', error);
@@ -75,12 +80,13 @@ export default function MediaLibraryPage() {
         </div>
 
         {/* Stats row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-6 mb-16">
           {[
             { label: 'Total media', value: fmt(stats.totalPhotos) },
             { label: 'Collections', value: fmt(stats.collections) },
             { label: 'Smart folders', value: fmt(stats.smartFolders) },
             { label: 'Added this week', value: fmt(stats.recentUploads) },
+            { label: 'Needs tagging', value: fmt(stats.untagged) },
           ].map((stat) => (
             <div key={stat.label}>
               <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
@@ -116,9 +122,20 @@ export default function MediaLibraryPage() {
               href: '/picc/media/external-videos',
             },
             {
+              title: 'Triage Untagged',
+              description: 'Review and tag photos that haven\'t been assigned to any service or project yet.',
+              href: '/picc/media/gallery?filter=untagged',
+              stat: `${fmt(stats.untagged)} photos`,
+            },
+            {
               title: 'Upload',
               description: 'Upload photos, short videos, and audio files. Drag and drop supported.',
               href: '/picc/media/upload',
+            },
+            {
+              title: 'Bulk Upload',
+              description: 'Upload hundreds of photos at once with pre-tagging by service, project, or event.',
+              href: '/picc/media/upload-bulk',
             },
             {
               title: 'Cover Photos',
