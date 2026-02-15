@@ -1,170 +1,62 @@
-import { NextRequest, NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import { streamText, stepCountIs, convertToModelMessages } from 'ai'
+import { anthropic } from '@ai-sdk/anthropic'
+import { exploreTools } from '@/lib/explore/tools'
+import { EXPLORE_SYSTEM_PROMPT } from '@/lib/explore/system-prompt'
+import { rateLimit, RateLimitType } from '@/lib/ai/rate-limit'
 import { getExpandedContext } from '@/lib/ai/context-builder'
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY
-})
+export const maxDuration = 60
 
-interface Message {
-  role: 'user' | 'assistant'
-  content: string
-}
-
-const SYSTEM_PROMPT = `You are a helpful and knowledgeable assistant for Palm Island Community Company (PICC) and the Palm Island community.
-
-Your role is to:
-- Answer questions about Palm Island, its history, culture, and community
-- Provide information about PICC services and programs
-- Help community members understand available resources
-- Share knowledge about the island's heritage and people
-- Support annual report preparation and community documentation
-
-Guidelines:
-- Be respectful and culturally sensitive at all times
-- Use information from the context provided below when available
-- If you're not certain about something, say so honestly
-- Acknowledge the traditional owners, the Manbarra and Bwgcolman people
-- Use plain, accessible language
-- Cite sources when possible
-
-Context from PICC knowledge base:
-{CONTEXT}
-
-Available sources:
-{SOURCES}`
-
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json()
-    const { messages, stream = false } = body as {
-      messages: Message[]
-      stream?: boolean
-    }
-
-    if (!messages || !Array.isArray(messages) || messages.length === 0) {
-      return NextResponse.json(
-        { error: 'Messages array is required' },
-        { status: 400 }
-      )
-    }
-
-    // Get the latest user message for RAG
-    const lastUserMessage = messages
-      .filter(m => m.role === 'user')
-      .pop()
-
-    if (!lastUserMessage) {
-      return NextResponse.json(
-        { error: 'No user message found' },
-        { status: 400 }
-      )
-    }
-
-    // Retrieve expanded context (vector search + all data tables)
-    const ragResult = await getExpandedContext(lastUserMessage.content, {
-      limit: 5,
-      maxContextTokens: 4000
-    })
-
-    // Build the system prompt with context
-    const systemPrompt = SYSTEM_PROMPT
-      .replace('{CONTEXT}', ragResult.context || 'No specific context available.')
-      .replace('{SOURCES}', ragResult.sources.map(s => `- ${s.title}`).join('\n') || 'No sources available.')
-
-    // Format messages for Anthropic
-    const anthropicMessages = messages.map(m => ({
-      role: m.role as 'user' | 'assistant',
-      content: m.content
-    }))
-
-    if (stream) {
-      // Streaming response
-      const encoder = new TextEncoder()
-
-      const readableStream = new ReadableStream({
-        async start(controller) {
-          try {
-            const stream = await anthropic.messages.stream({
-              model: 'claude-sonnet-4-5-20250929',
-              max_tokens: 2048,
-              system: systemPrompt,
-              messages: anthropicMessages
-            })
-
-            for await (const event of stream) {
-              if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
-                const text = event.delta.text
-                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`))
-              }
-            }
-
-            // Send sources at the end
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify({
-              done: true,
-              sources: ragResult.sources
-            })}\n\n`))
-            controller.close()
-          } catch (error: any) {
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: error.message })}\n\n`))
-            controller.close()
-          }
-        }
-      })
-
-      return new Response(readableStream, {
-        headers: {
-          'Content-Type': 'text/event-stream',
-          'Cache-Control': 'no-cache',
-          'Connection': 'keep-alive'
-        }
-      })
-    } else {
-      // Non-streaming response
-      const response = await anthropic.messages.create({
-        model: 'claude-sonnet-4-5-20250929',
-        max_tokens: 2048,
-        system: systemPrompt,
-        messages: anthropicMessages
-      })
-
-      const assistantMessage = response.content[0].type === 'text'
-        ? response.content[0].text
-        : ''
-
-      return NextResponse.json({
-        response: assistantMessage,
-        sources: ragResult.sources,
-        usage: {
-          inputTokens: response.usage.input_tokens,
-          outputTokens: response.usage.output_tokens
-        }
-      })
-    }
-  } catch (error: any) {
-    console.error('Chat error:', error)
-    return NextResponse.json(
-      { error: error.message || 'Failed to generate response' },
-      { status: 500 }
+export async function POST(request: Request) {
+  const { success, retryAfter } = await rateLimit(request, RateLimitType.CHAT)
+  if (!success) {
+    return new Response(
+      JSON.stringify({ error: 'Rate limit exceeded', retryAfter }),
+      { status: 429, headers: { 'Content-Type': 'application/json' } }
     )
   }
-}
 
-// GET - Health check and stats
-export async function GET() {
+  const { messages } = await request.json()
+
+  // Extract latest user message for RAG context
+  const latestUserMsg = [...messages].reverse().find((m: { role: string }) => m.role === 'user')
+  const userText = typeof latestUserMsg?.content === 'string'
+    ? latestUserMsg.content
+    : Array.isArray(latestUserMsg?.content)
+      ? latestUserMsg.content.map((p: { text?: string }) => p.text || '').join(' ')
+      : ''
+
+  // Get RAG context from expanded context builder
+  let ragContext = ''
+  let ragSources: Array<{ title: string; url: string; type: string }> = []
   try {
-    const { getCorpusStats } = await import('@/lib/scraper')
-    const stats = await getCorpusStats()
-
-    return NextResponse.json({
-      status: 'healthy',
-      model: 'claude-sonnet-4-5-20250929',
-      corpus: stats
-    })
-  } catch (error: any) {
-    return NextResponse.json(
-      { status: 'error', error: error.message },
-      { status: 500 }
-    )
+    const expanded = await getExpandedContext(userText, { limit: 5, maxContextTokens: 3000 })
+    ragContext = expanded.context
+    ragSources = expanded.sources
+  } catch (e) {
+    console.error('RAG context error:', e)
   }
+
+  // Build dynamic system prompt with RAG context appended
+  const systemWithRAG = ragContext
+    ? `${EXPLORE_SYSTEM_PROMPT}
+
+## Retrieved Context (from knowledge base)
+${ragContext}
+
+## Source Attribution
+When you use information from the retrieved context above, mention the source naturally. Available sources:
+${ragSources.map(s => `- ${s.title} (${s.type}): ${s.url}`).join('\n')}
+`
+    : EXPLORE_SYSTEM_PROMPT
+
+  const result = streamText({
+    model: anthropic('claude-sonnet-4-5-20250929'),
+    system: systemWithRAG,
+    messages: await convertToModelMessages(messages),
+    tools: exploreTools,
+    stopWhen: stepCountIs(5),
+  })
+
+  return result.toUIMessageStreamResponse()
 }

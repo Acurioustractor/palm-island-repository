@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Mic, Bot, ChevronDown } from 'lucide-react';
+import { Menu, X, Mic, Search, ChevronDown } from 'lucide-react';
 import { UserMenu } from '@/components/auth/UserMenu';
 import { PICCLogo } from '@/components/ui/PICCLogo';
 
@@ -125,13 +125,13 @@ export function PublicNavigation() {
               )
             ))}
 
-            {/* Explore PICC Button */}
+            {/* Ask Palm AI Button */}
             <Link
-              href="/explore"
+              href="/chat"
               className="animated-underline ml-2 inline-flex items-center gap-2 px-4 py-2 text-sm text-gray-500 hover:text-gray-900 font-medium transition-colors duration-300 ease-elegant"
             >
-              <Bot className="h-4 w-4" />
-              <span>Explore</span>
+              <Search className="h-4 w-4" />
+              <span>Ask</span>
             </Link>
 
             {/* Share Your Voice CTA Button */}
@@ -209,15 +209,15 @@ export function PublicNavigation() {
               )
             ))}
 
-            {/* Mobile Explore */}
+            {/* Mobile Ask */}
             <Link
-              href="/explore"
+              href="/chat"
               onClick={() => setMobileMenuOpen(false)}
               className="flex items-center gap-2 px-2 py-3 text-lg text-gray-500 hover:text-gray-900 font-medium transition-colors duration-200 animate-fade-in-up"
               style={{ animationDelay: '320ms', animationFillMode: 'both' }}
             >
-              <Bot className="h-5 w-5" />
-              <span>Explore</span>
+              <Search className="h-5 w-5" />
+              <span>Ask</span>
             </Link>
 
             {/* Mobile Share Your Voice CTA */}

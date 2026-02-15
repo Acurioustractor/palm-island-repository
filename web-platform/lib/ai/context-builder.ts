@@ -112,7 +112,7 @@ async function searchInterviews(supabase: SupabaseClient, query: string, limit =
       const segmentText = relevantSegments.map((s: any) => s.segment_text).join(' ').substring(0, 400)
 
       parts.push(`Interview with ${name}: "${interview.interview_title}"${segmentText ? `\n${segmentText}` : ''}`)
-      sources.push({ title: `Interview: ${interview.interview_title}`, url: `/picc/storytellers/${interview.storyteller_id}`, type: 'interview' })
+      sources.push({ title: `Interview: ${interview.interview_title}`, url: `/wiki/people/${interview.storyteller_id}`, type: 'interview' })
     }
 
     return { text: parts.join('\n'), sources }
@@ -139,7 +139,7 @@ async function searchElderQuotes(supabase: SupabaseClient, query: string, limit 
       text: parts.join('\n'),
       sources: quotes.map((q: any) => ({
         title: `Elder Quote: ${q.speaker_name || 'Elder'}`,
-        url: '/picc/quotes',
+        url: '/voices',
         type: 'quote'
       }))
     }
@@ -171,7 +171,7 @@ async function getFinancialContext(supabase: SupabaseClient): Promise<{ text: st
 
     return {
       text: parts.join('\n'),
-      sources: [{ title: 'PICC Annual Financials', url: '/picc/knowledge/financial', type: 'financial' }]
+      sources: [{ title: 'PICC Annual Financials', url: '/impact', type: 'financial' }]
     }
   } catch {
     return { text: '', sources: [] }
@@ -225,7 +225,7 @@ async function getServicesContext(supabase: SupabaseClient, query: string): Prom
       text: parts.join('\n'),
       sources: services.map((s: any) => ({
         title: s.name,
-        url: `/picc/services`,
+        url: `/services`,
         type: 'service'
       }))
     }
@@ -248,7 +248,7 @@ async function getPeopleContext(supabase: SupabaseClient): Promise<{ text: strin
     if (boardResult.data && boardResult.data.length > 0) {
       const boardList = boardResult.data.map((b: any) => `${b.name} (${b.role})`).join(', ')
       parts.push(`Board of Directors: ${boardList}`)
-      sources.push({ title: 'PICC Board of Directors', url: '/picc/team', type: 'governance' })
+      sources.push({ title: 'PICC Board of Directors', url: '/about', type: 'governance' })
     }
 
     if (leadershipResult.data && leadershipResult.data.length > 0) {
@@ -292,7 +292,7 @@ async function getHistoryContext(supabase: SupabaseClient, query: string): Promi
       for (const a of achievements) {
         parts.push(`${a.year || ''}: ${a.title} — ${a.description || ''}`)
       }
-      sources.push({ title: 'PICC Governance Achievements', url: '/picc/knowledge/timeline', type: 'history' })
+      sources.push({ title: 'PICC Governance Achievements', url: '/timeline', type: 'history' })
     }
 
     return { text: parts.join('\n'), sources }
@@ -318,7 +318,7 @@ async function getPartnersContext(supabase: SupabaseClient): Promise<{ text: str
 
     return {
       text,
-      sources: [{ title: 'PICC Partners', url: '/picc/knowledge', type: 'partner' }]
+      sources: [{ title: 'PICC Partners', url: '/about', type: 'partner' }]
     }
   } catch {
     return { text: '', sources: [] }

@@ -36,16 +36,17 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
-  const type = searchParams.get('type') as 'story' | 'person' | 'knowledge';
+  const validTypes = ['story', 'person', 'knowledge', 'service', 'media', 'quote', 'financial'];
+  const type = searchParams.get('type') as 'story' | 'person' | 'knowledge' | 'service' | 'media' | 'quote' | 'financial';
   const limit = parseInt(searchParams.get('limit') || '5');
 
   if (!id) {
     return NextResponse.json({ error: 'id parameter required' }, { status: 400 });
   }
 
-  if (!type || !['story', 'person', 'knowledge'].includes(type)) {
+  if (!type || !validTypes.includes(type)) {
     return NextResponse.json({
-      error: 'type parameter required (story, person, or knowledge)'
+      error: `type parameter required (${validTypes.join(', ')})`
     }, { status: 400 });
   }
 

@@ -8,6 +8,8 @@ import { Users, BookOpen, ArrowLeft, Edit2, MapPin, Globe, Heart } from 'lucide-
 import Breadcrumbs from '@/components/wiki/Breadcrumbs';
 import { EnhancedProfileEditor } from '@/components/wiki/EnhancedProfileEditor';
 import { ProfilePhotoUpload } from '@/components/wiki/ProfilePhotoUpload';
+import { BespokeIcon } from '@/components/ui/BespokeIcon';
+import { KnowledgeGraph } from '@/components/wiki/KnowledgeGraph';
 
 interface Profile {
   id: string;
@@ -39,6 +41,9 @@ export default function PersonProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [stories, setStories] = useState<Story[]>([]);
   const [featuredInStories, setFeaturedInStories] = useState<Story[]>([]);
+  const [elderQuotes, setElderQuotes] = useState<Array<{ id: string; text: string; theme?: string; speaker_role?: string }>>([]);
+  const [graphNodes, setGraphNodes] = useState<any[]>([]);
+  const [graphEdges, setGraphEdges] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
 
@@ -97,6 +102,81 @@ export default function PersonProfilePage() {
     } catch {
       setFeaturedInStories([]);
     }
+
+    // Fetch elder quotes by this person (by name match)
+    if (profileData) {
+      const displayName = profileData.preferred_name || profileData.full_name;
+      const { data: quotesData } = await supabase
+        .from('elder_quotes')
+        .select('id, text, theme, speaker_role')
+        .eq('speaker_name', displayName)
+        .in('permission_level', ['public', 'community'])
+        .neq('cultural_sensitivity', 'restricted')
+        .limit(10);
+
+      if (quotesData) {
+        setElderQuotes(quotesData);
+      }
+    }
+
+    // Build mini knowledge graph centered on this person
+    const nodes: any[] = [];
+    const edges: any[] = [];
+
+    if (profileData) {
+      nodes.push({
+        id: id,
+        label: profileData.preferred_name || profileData.full_name,
+        type: 'person',
+        size: 22,
+      });
+
+      // Add story nodes
+      (storiesData || []).slice(0, 10).forEach((s: any) => {
+        nodes.push({
+          id: s.id,
+          label: s.title.length > 25 ? s.title.substring(0, 22) + '...' : s.title,
+          type: 'story',
+        });
+        edges.push({ source: id, target: s.id, type: 'created' as const });
+
+        // Connect stories to their services
+        if (s.service_id) {
+          edges.push({ source: s.id, target: s.service_id, type: 'related_to' as const });
+        }
+      });
+
+      // Add services connected through stories
+      const { data: storyServiceLinks } = await supabase
+        .from('service_story_links')
+        .select('service_name, story_id')
+        .in('story_id', (storiesData || []).map((s: any) => s.id))
+        .limit(20);
+
+      if (storyServiceLinks) {
+        const serviceNames = new Set<string>();
+        storyServiceLinks.forEach((link: any) => {
+          if (!serviceNames.has(link.service_name)) {
+            serviceNames.add(link.service_name);
+            const svcNodeId = `svc-${link.service_name}`;
+            nodes.push({
+              id: svcNodeId,
+              label: link.service_name,
+              type: 'service',
+              size: 16,
+            });
+          }
+          edges.push({
+            source: link.story_id,
+            target: `svc-${link.service_name}`,
+            type: 'related_to' as const,
+          });
+        });
+      }
+    }
+
+    setGraphNodes(nodes);
+    setGraphEdges(edges);
 
     setLoading(false);
   }
@@ -493,6 +573,59 @@ export default function PersonProfilePage() {
           )}
         </div>
       </div>
+
+      {/* Elder Quotes Section */}
+      {elderQuotes.length > 0 && (
+        <div className="mt-6 bg-white rounded-xl border border-stone-300 shadow-sm overflow-hidden">
+          <div className="bg-gradient-to-r from-warm-50 to-picc-ochre-50 border-b border-stone-200 px-6 py-4">
+            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+              <BespokeIcon name="quote" size={24} />
+              Quotes ({elderQuotes.length})
+            </h2>
+          </div>
+          <div className="p-6 space-y-4">
+            {elderQuotes.map((quote) => (
+              <div key={quote.id} className="bg-warm-50 rounded-xl p-5 border border-warm-200">
+                <BespokeIcon name="quote" size={18} className="text-picc-ochre opacity-40 mb-2" />
+                <blockquote className="text-picc-earth italic font-serif text-lg leading-relaxed">
+                  &ldquo;{quote.text}&rdquo;
+                </blockquote>
+                <div className="flex items-center gap-3 mt-3">
+                  {quote.speaker_role && (
+                    <span className="text-sm text-picc-earth-300">{quote.speaker_role}</span>
+                  )}
+                  {quote.theme && (
+                    <span className="px-2 py-0.5 bg-picc-ochre-100 text-picc-ochre-700 text-xs rounded-full capitalize">
+                      {quote.theme}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Mini Knowledge Graph */}
+      {graphNodes.length > 2 && (
+        <div className="mt-6">
+          <KnowledgeGraph
+            nodes={graphNodes}
+            edges={graphEdges}
+            centerNodeId={params?.id as string}
+            height={400}
+            onNodeClick={(node) => {
+              if (node.type === 'story') {
+                window.location.href = `/stories/${node.id}`;
+              } else if (node.type === 'person') {
+                window.location.href = `/wiki/people/${node.id}`;
+              } else if (node.type === 'service') {
+                window.location.href = `/services`;
+              }
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }

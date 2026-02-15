@@ -6,7 +6,7 @@ import { Network, X, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 interface GraphNode {
   id: string;
   label: string;
-  type: 'story' | 'person' | 'place' | 'topic' | 'service' | 'event';
+  type: 'story' | 'person' | 'place' | 'topic' | 'service' | 'event' | 'knowledge' | 'quote';
   size?: number;
   color?: string;
   metadata?: Record<string, any>;
@@ -15,7 +15,7 @@ interface GraphNode {
 interface GraphEdge {
   source: string;
   target: string;
-  type: 'mentions' | 'collaborates' | 'influences' | 'located_at' | 'related_to';
+  type: 'mentions' | 'collaborates' | 'influences' | 'located_at' | 'related_to' | 'created';
   strength?: number;
   label?: string;
 }
@@ -44,14 +44,16 @@ export function KnowledgeGraph({
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
   const [hoveredNode, setHoveredNode] = useState<GraphNode | null>(null);
 
-  // Node type colors
+  // Node type colors (PICC brand)
   const typeColors: Record<string, string> = {
     story: '#A4343A', // picc-red
-    person: '#C8963E', // picc-ochre
+    person: '#C8922A', // picc-ochre
     place: '#6B8F71', // sage
-    topic: '#F59E0B', // orange
-    service: '#EC4899', // pink
-    event: '#EF4444', // red
+    topic: '#D4A853', // warm gold
+    service: '#8B6914', // dark ochre
+    event: '#A4343A', // picc-red
+    knowledge: '#2D2319', // picc-earth
+    quote: '#C8922A', // picc-ochre
   };
 
   // Simple force-directed layout simulation
@@ -201,12 +203,12 @@ export function KnowledgeGraph({
   };
 
   return (
-    <div className={`relative bg-white rounded-lg border border-gray-200 overflow-hidden ${className}`}>
+    <div className={`relative bg-white/80 rounded-2xl border border-warm-200 overflow-hidden ${className}`}>
       {/* Header */}
-      <div className="px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-warm-50 to-picc-ochre-50">
+      <div className="px-4 py-3 border-b border-warm-200 bg-gradient-to-r from-warm-50 to-picc-ochre-50">
         <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-            <Network className="h-5 w-5 text-picc-red" />
+          <h3 className="font-semibold text-picc-earth flex items-center gap-2">
+            <Network className="h-5 w-5 text-picc-ochre" />
             Knowledge Graph
           </h3>
           <div className="flex items-center gap-2">
@@ -284,7 +286,7 @@ export function KnowledgeGraph({
       </div>
 
       {/* Stats */}
-      <div className="px-4 py-2 border-t border-gray-200 bg-gray-50 flex items-center justify-between text-xs text-gray-600">
+      <div className="px-4 py-2 border-t border-warm-200 bg-warm-50 flex items-center justify-between text-xs text-picc-earth-300">
         <div>
           {nodes.length} nodes • {edges.length} connections
         </div>

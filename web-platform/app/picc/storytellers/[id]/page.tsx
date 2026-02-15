@@ -10,6 +10,7 @@ import {
   Edit, Mic, FileText, Camera, Clock, Heart, Award, Film, ExternalLink
 } from 'lucide-react';
 import { StorytellerQuoteCard } from '@/components/storyteller/StorytellerQuoteCard';
+import { KnowledgeGraph } from '@/components/wiki/KnowledgeGraph';
 
 interface Profile {
   id: string;
@@ -83,6 +84,8 @@ export default function StorytellerProfilePage() {
   const [photos, setPhotos] = useState<MediaFile[]>([]);
   const [videos, setVideos] = useState<MediaFile[]>([]);
   const [stories, setStories] = useState<Story[]>([]);
+  const [graphNodes, setGraphNodes] = useState<any[]>([]);
+  const [graphEdges, setGraphEdges] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'quotes' | 'stories' | 'interviews' | 'media'>('quotes');
@@ -162,6 +165,73 @@ export default function StorytellerProfilePage() {
     if (videosData) {
       setVideos(videosData);
     }
+
+    // Build mini knowledge graph
+    const gNodes: any[] = [];
+    const gEdges: any[] = [];
+
+    if (profileData) {
+      gNodes.push({
+        id: storytellerId,
+        label: profileData.preferred_name || profileData.full_name,
+        type: 'person',
+        size: 22,
+      });
+
+      // Story nodes
+      (storiesData || []).slice(0, 12).forEach((s: any) => {
+        gNodes.push({
+          id: s.id,
+          label: s.title.length > 25 ? s.title.substring(0, 22) + '...' : s.title,
+          type: 'story',
+        });
+        gEdges.push({ source: storytellerId, target: s.id, type: 'created' as const });
+      });
+
+      // Service links
+      const storyIds = (storiesData || []).map((s: any) => s.id);
+      if (storyIds.length > 0) {
+        const { data: svcLinks } = await (supabase as any)
+          .from('service_story_links')
+          .select('service_name, story_id')
+          .in('story_id', storyIds)
+          .limit(20);
+
+        if (svcLinks) {
+          const serviceNames = new Set<string>();
+          svcLinks.forEach((link: any) => {
+            if (!serviceNames.has(link.service_name)) {
+              serviceNames.add(link.service_name);
+              gNodes.push({
+                id: `svc-${link.service_name}`,
+                label: link.service_name,
+                type: 'service',
+                size: 16,
+              });
+            }
+            gEdges.push({
+              source: link.story_id,
+              target: `svc-${link.service_name}`,
+              type: 'related_to' as const,
+            });
+          });
+        }
+      }
+
+      // Quote nodes (up to 5)
+      (quotesData || []).slice(0, 5).forEach((q: any) => {
+        gNodes.push({
+          id: q.id,
+          label: `"${q.quote_text.substring(0, 20)}..."`,
+          type: 'quote',
+          size: 10,
+        });
+        gEdges.push({ source: storytellerId, target: q.id, type: 'created' as const });
+      });
+    }
+
+    setGraphNodes(gNodes);
+    setGraphEdges(gEdges);
 
     setLoading(false);
   }, [storytellerId, supabase]);
@@ -843,6 +913,28 @@ export default function StorytellerProfilePage() {
               )}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Mini Knowledge Graph */}
+      {graphNodes.length > 2 && (
+        <div className="mt-8">
+          <h2 className="text-lg font-bold text-gray-900 mb-4">Connections</h2>
+          <KnowledgeGraph
+            nodes={graphNodes}
+            edges={graphEdges}
+            centerNodeId={storytellerId}
+            height={400}
+            onNodeClick={(node) => {
+              if (node.type === 'story') {
+                window.location.href = `/stories/${node.id}`;
+              } else if (node.type === 'person') {
+                window.location.href = `/wiki/people/${node.id}`;
+              } else if (node.type === 'service') {
+                window.location.href = `/services`;
+              }
+            }}
+          />
         </div>
       )}
     </div>

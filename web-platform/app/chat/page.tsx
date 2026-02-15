@@ -1,286 +1,274 @@
-'use client';
+'use client'
 
-import { useState, useRef, useEffect } from 'react';
-import Link from 'next/link';
-import { Send, Bot, User, Sparkles, FileText, ExternalLink, Loader2 } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
+import { useChat } from '@ai-sdk/react'
+import { DefaultChatTransport } from 'ai'
+import { useState, useRef, useEffect, useCallback, FormEvent, useMemo } from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { Loader2, ArrowUp } from 'lucide-react'
+import { MessageRenderer } from '@/components/explore/MessageRenderer'
+import ChatSourceCards from '@/components/chat/ChatSourceCards'
+import ChatRelatedContent from '@/components/chat/ChatRelatedContent'
+import { BespokeIcon, type BespokeIconName } from '@/components/ui/BespokeIcon'
+import { extractSourcesFromMessage } from '@/lib/chat/extract-sources'
 
-interface Message {
-  role: 'user' | 'assistant';
-  content: string;
-  sources?: Array<{ title: string; url: string }>;
-}
+const STARTERS: Array<{ text: string; icon: BespokeIconName }> = [
+  { text: 'What health services does PICC provide?', icon: 'health' },
+  { text: 'Tell me about the Hull River story', icon: 'story' },
+  { text: 'How has PICC grown over 15 years?', icon: 'timeline' },
+  { text: 'What do Elders say about community control?', icon: 'quote' },
+  { text: 'Show me photos from the Photo Studio', icon: 'photo' },
+  { text: "I have a vision for Palm Island's future", icon: 'community' },
+]
 
 export default function ChatPage() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: 'assistant',
-      content: "G'day! I'm here to help you explore PICC's 15-year journey of community-led impact. Ask me about our services, programs, annual reports, or community stories. What would you like to know?",
-    },
-  ]);
-  const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [heroImage, setHeroImage] = useState<string | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const { messages, sendMessage, status } = useChat({
+    transport: new DefaultChatTransport({ api: '/api/chat' }),
+  })
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const [input, setInput] = useState('')
+  const [mounted, setMounted] = useState(false)
+  const [heroVisible, setHeroVisible] = useState(true)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
+  const isLoading = status === 'streaming' || status === 'submitted'
+  const hasMessages = messages.length > 0
+
+  useEffect(() => { setMounted(true) }, [])
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    if (hasMessages) setHeroVisible(false)
+  }, [hasMessages])
 
   useEffect(() => {
-    async function fetchHeroImage() {
-      try {
-        const supabase = createClient();
-        const { data } = await supabase
-          .from('media_files')
-          .select('public_url')
-          .eq('page_context', 'chat')
-          .eq('page_section', 'hero')
-          .eq('is_public', true)
-          .eq('is_featured', true)
-          .limit(1)
-          .single();
-        if (data?.public_url) {
-          setHeroImage(data.public_url);
-        }
-      } catch (error) {
-        // Hero image is optional, fail silently
-      }
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+
+  const handleInputChange = useCallback((value: string) => {
+    setInput(value)
+    if (inputRef.current) {
+      inputRef.current.style.height = 'auto'
+      inputRef.current.style.height = Math.min(inputRef.current.scrollHeight, 120) + 'px'
     }
-    fetchHeroImage();
-  }, []);
+  }, [])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const text = input.trim()
+    if (!text || isLoading) return
+    setInput('')
+    if (inputRef.current) inputRef.current.style.height = 'auto'
+    await sendMessage({ text })
+  }
 
-    if (!input.trim() || isLoading) return;
+  const handleStarterSelect = async (text: string) => {
+    if (isLoading) return
+    await sendMessage({ text })
+  }
 
-    const userMessage = input.trim();
-    setInput('');
-    setIsLoading(true);
-
-    // Add user message
-    setMessages((prev) => [...prev, { role: 'user', content: userMessage }]);
-
-    try {
-      // Call the chat API
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          messages: [...messages, { role: 'user', content: userMessage }],
-          stream: false,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to get response');
-      }
-
-      const data = await response.json();
-
-      // Add assistant message with sources
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'assistant',
-          content: data.response,
-          sources: data.sources || [],
-        },
-      ]);
-    } catch (error) {
-      console.error('Chat error:', error);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'assistant',
-          content: "I'm sorry, I encountered an error. Please try again or contact support if the problem persists.",
-        },
-      ]);
-    } finally {
-      setIsLoading(false);
-      inputRef.current?.focus();
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      const form = e.currentTarget.closest('form')
+      if (form) form.requestSubmit()
     }
-  };
+  }
 
-  const suggestedQuestions = [
-    "What services does PICC provide to the community?",
-    "Tell me about PICC's health programs",
-    "What was accomplished in the 2023-24 annual report?",
-    "How has PICC grown over the past 15 years?",
-    "What housing services are available?",
-  ];
+  // Extract sources from the latest assistant message's tool results
+  const latestAssistantSources = useMemo(() => {
+    const lastAssistant = [...messages].reverse().find(m => m.role === 'assistant')
+    if (!lastAssistant) return []
+    return extractSourcesFromMessage(lastAssistant)
+  }, [messages])
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Minimal Hero Section */}
-      <section
-        className="border-b border-gray-100 py-16"
-        style={heroImage ? {
-          backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.95)), url(${heroImage})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        } : undefined}
-      >
-        <div className="max-w-4xl mx-auto px-6 sm:px-8">
-          <div className="text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-picc-ochre rounded-2xl mb-6">
-              <Bot className="w-8 h-8 text-white" />
-            </div>
-            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-4">
-              Ask PICC
-            </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-              Explore 15 years of community-led impact through conversation
-            </p>
+    <div className="min-h-screen bg-gradient-to-br from-warm-50 to-cream flex flex-col">
+      {/* Top nav bar */}
+      <nav className="border-b border-warm-200 bg-white/60 backdrop-blur-sm flex-shrink-0">
+        <div className="max-w-4xl mx-auto px-6 sm:px-8 py-3 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2 text-picc-earth hover:text-picc-ochre transition-colors">
+            <Image
+              src="/logo/picc-logo-full.png"
+              alt="PICC"
+              width={32}
+              height={32}
+              className="object-contain"
+              style={{ mixBlendMode: 'multiply' }}
+            />
+            <span className="font-semibold text-sm">Home</span>
+          </Link>
+          <div className="flex items-center gap-4 text-sm">
+            <Link href="/stories" className="text-picc-earth-300 hover:text-picc-ochre transition-colors">Stories</Link>
+            <Link href="/services" className="text-picc-earth-300 hover:text-picc-ochre transition-colors">Services</Link>
+            <Link href="/timeline" className="text-picc-earth-300 hover:text-picc-ochre transition-colors">Timeline</Link>
+            <Link href="/voices" className="text-picc-earth-300 hover:text-picc-ochre transition-colors">Voices</Link>
           </div>
         </div>
-      </section>
+      </nav>
 
-      {/* Chat Container */}
-      <div className="max-w-4xl mx-auto px-6 sm:px-8 py-20">
+      {/* Hero / Welcome State */}
+      <div
+        className={`flex-1 flex flex-col items-center justify-center transition-all duration-700 ease-out ${
+          heroVisible ? 'opacity-100' : 'opacity-0 scale-95 pointer-events-none absolute inset-0 z-[-1]'
+        }`}
+      >
+        <div className={`text-center px-6 max-w-3xl mx-auto transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <div className="flex justify-center mb-6">
+            <Image
+              src="/logo/picc-logo-full.png"
+              alt="Palm Island Community Company"
+              width={100}
+              height={100}
+              className="object-contain"
+              style={{ mixBlendMode: 'multiply' }}
+              priority
+            />
+          </div>
 
-        {/* Messages Area */}
-        <div className="space-y-12 mb-20">
-          {messages.map((message, index) => (
-            <div
-              key={index}
-              className={`flex gap-6 ${
-                message.role === 'user' ? 'justify-end' : 'justify-start'
-              }`}
-            >
-              {message.role === 'assistant' && (
-                <div className="flex-shrink-0 w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center">
-                  <Bot className="w-5 h-5 text-white" />
-                </div>
-              )}
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-picc-earth font-serif">
+            Ask Palm AI
+          </h1>
 
-              <div className={`max-w-2xl ${message.role === 'user' ? 'text-right' : ''}`}>
-                <p className={`text-lg leading-relaxed whitespace-pre-wrap ${
-                  message.role === 'user' ? 'text-gray-900 font-medium' : 'text-gray-700'
-                }`}>
-                  {message.content}
-                </p>
-
-                {/* Sources */}
-                {message.sources && message.sources.length > 0 && (
-                  <div className="mt-6 pt-6 border-t border-gray-100">
-                    <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
-                      Sources
-                    </div>
-                    <div className="space-y-2">
-                      {message.sources.map((source, idx) => (
-                        <Link
-                          key={idx}
-                          href={source.url}
-                          className="flex items-center gap-2 text-sm text-gray-600 hover:text-blue-600 transition-colors"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <ExternalLink className="w-3.5 h-3.5 flex-shrink-0" />
-                          <span>{source.title}</span>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {message.role === 'user' && (
-                <div className="flex-shrink-0 w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                  <User className="w-5 h-5 text-gray-600" />
-                </div>
-              )}
-            </div>
-          ))}
-
-          {/* Loading indicator */}
-          {isLoading && (
-            <div className="flex gap-6 justify-start">
-              <div className="flex-shrink-0 w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center">
-                <Bot className="w-5 h-5 text-white" />
-              </div>
-              <div className="flex items-center gap-3 text-gray-400">
-                <Loader2 className="w-5 h-5 animate-spin" />
-                <span className="text-lg">Thinking...</span>
-              </div>
-            </div>
-          )}
-
-          <div ref={messagesEndRef} />
+          <p className="mt-4 text-lg sm:text-xl text-picc-earth-300 max-w-xl mx-auto leading-relaxed">
+            Discover 15 years of community-led impact through stories, photos, data, and the voices of our people.
+          </p>
         </div>
 
-        {/* Input Area */}
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 py-6">
-          <div className="max-w-4xl mx-auto px-6 sm:px-8">
-            <form onSubmit={handleSubmit} className="flex gap-4">
-              <input
+        {/* Starter prompts */}
+        <div className={`mt-10 px-6 max-w-2xl mx-auto w-full transition-all duration-500 delay-150 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {STARTERS.map((starter) => (
+              <button
+                key={starter.text}
+                onClick={() => handleStarterSelect(starter.text)}
+                disabled={isLoading}
+                className="group text-left px-4 py-3.5 rounded-2xl bg-white/60 border border-warm-200 hover:bg-white hover:border-picc-ochre/30 hover:shadow-sm transition-all duration-300 flex items-center gap-3"
+              >
+                <BespokeIcon name={starter.icon} size={24} />
+                <span className="text-sm text-picc-earth-300 group-hover:text-picc-earth transition-colors leading-snug">
+                  {starter.text}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Input bar — hero state */}
+        <div className={`mt-8 px-6 max-w-2xl mx-auto w-full transition-all duration-500 delay-200 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <form onSubmit={handleSubmit}>
+            <div className="flex items-end gap-2 bg-white border border-warm-200 rounded-2xl px-4 py-3 focus-within:border-picc-ochre focus-within:ring-4 focus-within:ring-picc-ochre/10 transition-all duration-300 shadow-sm">
+              <textarea
                 ref={inputRef}
-                type="text"
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask about PICC's services, programs, or impact..."
-                className="flex-1 px-6 py-4 border border-gray-200 rounded-full focus:border-gray-400 focus:outline-none text-lg disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors"
+                onChange={e => handleInputChange(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Ask anything about Palm Island..."
+                rows={1}
+                className="flex-1 bg-transparent text-picc-earth placeholder:text-picc-earth-200 text-[15px] leading-relaxed focus:outline-none resize-none"
                 disabled={isLoading}
               />
               <button
                 type="submit"
-                disabled={!input.trim() || isLoading}
-                className="px-8 py-4 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition-colors font-medium disabled:opacity-30 disabled:cursor-not-allowed focus:outline-none focus:ring-4 focus:ring-gray-900/20"
+                disabled={isLoading || !input.trim()}
+                className="flex-shrink-0 p-2 rounded-xl bg-picc-ochre text-white disabled:opacity-20 hover:bg-picc-ochre-600 transition-all duration-200"
               >
-                <Send className="w-5 h-5" />
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <ArrowUp className="w-4 h-4" />
+                )}
               </button>
+            </div>
+          </form>
+        </div>
+
+        {/* Footer links */}
+        <div className={`mt-8 text-center transition-all duration-500 delay-300 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
+          <p className="text-xs text-picc-earth-200">
+            Powered by Palm AI · Responses include citations
+          </p>
+        </div>
+      </div>
+
+      {/* Conversation State */}
+      {hasMessages && (
+        <div className="flex-1 flex flex-col min-h-0">
+          {/* Messages area */}
+          <div
+            className="flex-1 overflow-y-auto"
+            style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(139,115,85,0.2) transparent' }}
+          >
+            <div className="max-w-3xl mx-auto w-full px-6 py-6 space-y-6">
+              {messages.map((message, index) => (
+                <div key={message.id}>
+                  <MessageRenderer message={message} darkMode={false} />
+
+                  {/* Source cards after assistant messages with tool results */}
+                  {message.role === 'assistant' && (() => {
+                    const sources = extractSourcesFromMessage(message)
+                    if (sources.length === 0) return null
+                    return (
+                      <div className="mt-3 ml-11">
+                        <ChatSourceCards sources={sources} compact />
+                      </div>
+                    )
+                  })()}
+
+                  {/* Related content after the latest assistant message */}
+                  {message.role === 'assistant' && index === messages.length - 1 && latestAssistantSources.length > 0 && (
+                    <div className="mt-4 ml-11">
+                      <ChatRelatedContent sources={latestAssistantSources} />
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {/* Streaming indicator */}
+              {isLoading && messages[messages.length - 1]?.role === 'user' && (
+                <div className="flex gap-3">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-warm-100 flex items-center justify-center">
+                    <div className="flex gap-0.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-picc-ochre animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <div className="w-1.5 h-1.5 rounded-full bg-picc-ochre animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <div className="w-1.5 h-1.5 rounded-full bg-picc-ochre animate-bounce" style={{ animationDelay: '300ms' }} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div ref={messagesEndRef} />
+            </div>
+          </div>
+
+          {/* Input bar — conversation state */}
+          <div className="flex-shrink-0 border-t border-warm-200 bg-white/90 backdrop-blur-sm">
+            <form onSubmit={handleSubmit} className="max-w-3xl mx-auto px-6 py-4">
+              <div className="flex items-end gap-2 bg-white border border-warm-200 rounded-2xl px-4 py-3 focus-within:border-picc-ochre focus-within:ring-4 focus-within:ring-picc-ochre/10 transition-all duration-300">
+                <textarea
+                  value={input}
+                  onChange={e => handleInputChange(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Ask a follow-up..."
+                  rows={1}
+                  className="flex-1 bg-transparent text-picc-earth placeholder:text-picc-earth-200 text-[15px] leading-relaxed focus:outline-none resize-none"
+                  disabled={isLoading}
+                />
+                <button
+                  type="submit"
+                  disabled={isLoading || !input.trim()}
+                  className="flex-shrink-0 p-2 rounded-xl bg-picc-ochre text-white disabled:opacity-20 hover:bg-picc-ochre-600 transition-all duration-200"
+                >
+                  {isLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <ArrowUp className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
             </form>
           </div>
         </div>
-
-        {/* Suggested Questions */}
-        {messages.length === 1 && (
-          <div className="mb-32">
-            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-6">
-              Try asking about
-            </h3>
-            <div className="space-y-3">
-              {suggestedQuestions.map((question, index) => (
-                <button
-                  key={index}
-                  onClick={() => {
-                    setInput(question);
-                    inputRef.current?.focus();
-                  }}
-                  className="w-full text-left px-6 py-4 border border-gray-200 hover:border-gray-900 rounded-2xl transition-colors text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-900/10"
-                >
-                  {question}
-                </button>
-              ))}
-            </div>
-
-            {/* Footer Links */}
-            <div className="mt-16 pt-8 border-t border-gray-100 text-center">
-              <p className="text-gray-500 mb-2">
-                Or explore visually:{' '}
-                <Link href="/annual-reports" className="text-gray-900 hover:underline font-medium">
-                  Timeline
-                </Link>
-                {' · '}
-                <Link href="/stories" className="text-gray-900 hover:underline font-medium">
-                  Stories
-                </Link>
-              </p>
-              <p className="text-xs text-gray-400 mt-4">
-                Powered by Claude Sonnet · All responses include citations
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
+      )}
     </div>
-  );
+  )
 }
