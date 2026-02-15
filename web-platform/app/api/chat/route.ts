@@ -1,5 +1,5 @@
 import { streamText, stepCountIs, convertToModelMessages } from 'ai'
-import { anthropic } from '@ai-sdk/anthropic'
+import { minimax } from 'vercel-minimax-ai-provider'
 import { exploreTools } from '@/lib/explore/tools'
 import { EXPLORE_SYSTEM_PROMPT } from '@/lib/explore/system-prompt'
 import { rateLimit, RateLimitType } from '@/lib/ai/rate-limit'
@@ -51,7 +51,7 @@ ${ragSources.map(s => `- ${s.title} (${s.type}): ${s.url}`).join('\n')}
     : EXPLORE_SYSTEM_PROMPT
 
   const result = streamText({
-    model: anthropic('claude-sonnet-4-5-20250929'),
+    model: minimax('MiniMax-M2'),
     system: systemWithRAG,
     messages: await convertToModelMessages(messages),
     tools: exploreTools,

@@ -69,6 +69,7 @@
     "tailwind-merge": "^2.2.0",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5.3.3",
+    "vercel-minimax-ai-provider": "^0.0.2",
     "zod": "^4.3.6",
     "zustand": "^4.4.7"
   },

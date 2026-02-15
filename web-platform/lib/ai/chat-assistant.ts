@@ -5,16 +5,15 @@
  * using Retrieval Augmented Generation from the knowledge base.
  */
 
-import Anthropic from '@anthropic-ai/sdk'
+import { generateText, streamText as aiStreamText } from 'ai'
+import { minimax } from 'vercel-minimax-ai-provider'
 import { createServerComponentClient } from '@/lib/supabase/server'
 import { semanticSearch } from './embeddings'
 import { expandQuery } from './query-expansion'
 import { aiCache, CACHE_TTL } from './cache'
 import { getExpandedContext } from './context-builder'
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY
-})
+const model = minimax('MiniMax-M2')
 
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system'
@@ -158,16 +157,14 @@ export async function generateChatResponse(
   ]
 
   try {
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5-20250929',
-      max_tokens: 2048,
+    const response = await generateText({
+      model,
+      maxOutputTokens: 2048,
       system: SYSTEM_PROMPT,
       messages
     })
 
-    const assistantMessage = response.content[0].type === 'text'
-      ? response.content[0].text
-      : ''
+    const assistantMessage = response.text || ''
 
     // Generate suggested follow-up questions
     const suggestedQuestions = await generateSuggestedQuestions(userMessage, assistantMessage)
@@ -199,9 +196,9 @@ async function generateSuggestedQuestions(
   }
 
   try {
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5-20250929',
-      max_tokens: 200,
+    const response = await generateText({
+      model,
+      maxOutputTokens: 200,
       messages: [{
         role: 'user',
         content: `Based on this conversation about Palm Island:
@@ -213,7 +210,7 @@ Respond with just the questions, one per line, no numbering.`
       }]
     })
 
-    const text = response.content[0].type === 'text' ? response.content[0].text : ''
+    const text = response.text || ''
     const questions = text.split('\n').filter(q => q.trim()).slice(0, 3)
 
     // Cache for 30 minutes
@@ -283,19 +280,16 @@ export async function* streamChatResponse(
   ]
 
   // Stream response
-  const stream = await anthropic.messages.stream({
-    model: 'claude-sonnet-4-5-20250929',
-    max_tokens: 2048,
+  const result = aiStreamText({
+    model,
+    maxOutputTokens: 2048,
     system: SYSTEM_PROMPT,
     messages
   })
 
-  for await (const event of stream) {
-    if (event.type === 'content_block_delta' && 'delta' in event) {
-      const delta = event.delta as { type: string; text?: string }
-      if (delta.type === 'text_delta' && delta.text) {
-        yield { type: 'text', content: delta.text }
-      }
+  for await (const chunk of result.textStream) {
+    if (chunk) {
+      yield { type: 'text', content: chunk }
     }
   }
 
