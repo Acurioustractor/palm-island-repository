@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
-import { getRAGContext } from '@/lib/scraper'
+import { getExpandedContext } from '@/lib/ai/context-builder'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY
@@ -61,10 +61,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Retrieve relevant context
-    const ragResult = await getRAGContext(lastUserMessage.content, {
+    // Retrieve expanded context (vector search + all data tables)
+    const ragResult = await getExpandedContext(lastUserMessage.content, {
       limit: 5,
-      maxContextTokens: 2000
+      maxContextTokens: 4000
     })
 
     // Build the system prompt with context
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
           try {
             const stream = await anthropic.messages.stream({
               model: 'claude-sonnet-4-5-20250929',
-              max_tokens: 1024,
+              max_tokens: 2048,
               system: systemPrompt,
               messages: anthropicMessages
             })
@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
       // Non-streaming response
       const response = await anthropic.messages.create({
         model: 'claude-sonnet-4-5-20250929',
-        max_tokens: 1024,
+        max_tokens: 2048,
         system: systemPrompt,
         messages: anthropicMessages
       })

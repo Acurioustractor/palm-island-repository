@@ -10,6 +10,7 @@ import { createServerComponentClient } from '@/lib/supabase/server'
 import { semanticSearch } from './embeddings'
 import { expandQuery } from './query-expansion'
 import { aiCache, CACHE_TTL } from './cache'
+import { getExpandedContext } from './context-builder'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY
@@ -69,12 +70,13 @@ When answering:
 - Keep responses conversational but informative`
 
 /**
- * Retrieve relevant context for a query
+ * Retrieve relevant context for a query using the expanded context builder
+ * which searches across ALL data tables (interviews, quotes, services, financials, etc.)
  */
 async function retrieveContext(
   query: string,
   limit: number = 5
-): Promise<ChatSource[]> {
+): Promise<{ sources: ChatSource[]; contextString: string }> {
   try {
     // Expand the query for better retrieval
     const expanded = await expandQuery(query, {
@@ -82,75 +84,28 @@ async function retrieveContext(
       maxAlternatives: 2
     })
 
-    // Search using expanded query
     const searchQuery = expanded.expanded || query
 
-    // Try semantic search first
-    try {
-      const semanticResults = await semanticSearch(searchQuery, {
-        limit,
-        threshold: 0.5
-      })
+    // Use expanded context builder (vector search + all data tables)
+    const expandedResult = await getExpandedContext(searchQuery, {
+      limit,
+      maxContextTokens: 4000
+    })
 
-      if (semanticResults.length > 0) {
-        return semanticResults.map(result => ({
-          id: result.id,
-          type: result.type,
-          title: result.title,
-          snippet: (result.summary || result.content || '').substring(0, 300),
-          relevance: result.similarity,
-          url: getContentUrl(result.id, result.type)
-        }))
-      }
-    } catch (err) {
-      console.log('Semantic search not available, falling back to text search')
-    }
+    // Map expanded sources to ChatSource format
+    const sources: ChatSource[] = expandedResult.sources.map((s, i) => ({
+      id: `src-${i}`,
+      type: (s.type === 'story' ? 'story' : s.type === 'person' ? 'person' : 'knowledge') as 'story' | 'knowledge' | 'person',
+      title: s.title,
+      snippet: '',
+      relevance: 0.8,
+      url: s.url
+    }))
 
-    // Fallback to text search
-    const supabase = await createServerComponentClient()
-    const sources: ChatSource[] = []
-
-    // Search stories
-    const { data: stories } = await (supabase as any)
-      .from('stories')
-      .select('id, title, summary, content')
-      .or(`title.ilike.%${query}%,content.ilike.%${query}%,summary.ilike.%${query}%`)
-      .eq('is_public', true)
-      .limit(3)
-
-    if (stories) {
-      sources.push(...stories.map((s: { id: string; title: string; summary?: string; content?: string }) => ({
-        id: s.id,
-        type: 'story' as const,
-        title: s.title,
-        snippet: (s.summary || s.content || '').substring(0, 300),
-        relevance: 0.7,
-        url: `/stories/${s.id}`
-      })))
-    }
-
-    // Search knowledge entries
-    const { data: knowledge } = await (supabase as any)
-      .from('knowledge_entries')
-      .select('id, title, summary, content')
-      .or(`title.ilike.%${query}%,content.ilike.%${query}%`)
-      .limit(3)
-
-    if (knowledge) {
-      sources.push(...knowledge.map((k: { id: string; title: string; summary?: string; content?: string }) => ({
-        id: k.id,
-        type: 'knowledge' as const,
-        title: k.title,
-        snippet: (k.summary || k.content || '').substring(0, 300),
-        relevance: 0.7,
-        url: `/wiki/${k.id}`
-      })))
-    }
-
-    return sources.slice(0, limit)
+    return { sources, contextString: expandedResult.context }
   } catch (error) {
     console.error('Error retrieving context:', error)
-    return []
+    return { sources: [], contextString: '' }
   }
 }
 
@@ -179,14 +134,12 @@ export async function generateChatResponse(
 ): Promise<ChatResponse> {
   const conversationId = context.conversationId || generateConversationId()
 
-  // Retrieve relevant context
-  const sources = await retrieveContext(userMessage)
+  // Retrieve relevant context from all data tables
+  const { sources, contextString: retrievedContext } = await retrieveContext(userMessage)
 
   // Build context string for the model
-  const contextString = sources.length > 0
-    ? `\n\nRelevant information from the knowledge base:\n${sources.map((s, i) =>
-        `[${i + 1}] ${s.type.toUpperCase()}: ${s.title}\n${s.snippet}`
-      ).join('\n\n')}`
+  const contextBlock = retrievedContext
+    ? `\n\nRelevant information from the PICC knowledge base:\n${retrievedContext}`
     : '\n\nNo specific information found in the knowledge base for this query.'
 
   // Build message history
@@ -200,14 +153,14 @@ export async function generateChatResponse(
       })),
     {
       role: 'user',
-      content: `${userMessage}${contextString}`
+      content: `${userMessage}${contextBlock}`
     }
   ]
 
   try {
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-5-20250929',
-      max_tokens: 1000,
+      max_tokens: 2048,
       system: SYSTEM_PROMPT,
       messages
     })
@@ -305,15 +258,13 @@ export async function* streamChatResponse(
 ): AsyncGenerator<{ type: 'text' | 'sources' | 'done'; content: any }> {
   const conversationId = context.conversationId || generateConversationId()
 
-  // First, retrieve and yield sources
-  const sources = await retrieveContext(userMessage)
+  // Retrieve expanded context from all data tables
+  const { sources, contextString: retrievedContext } = await retrieveContext(userMessage)
   yield { type: 'sources', content: sources }
 
-  // Build context string
-  const contextString = sources.length > 0
-    ? `\n\nRelevant information:\n${sources.map((s, i) =>
-        `[${i + 1}] ${s.title}: ${s.snippet}`
-      ).join('\n')}`
+  // Build context block
+  const contextBlock = retrievedContext
+    ? `\n\nRelevant information from PICC knowledge base:\n${retrievedContext}`
     : ''
 
   // Build messages
@@ -327,14 +278,14 @@ export async function* streamChatResponse(
       })),
     {
       role: 'user',
-      content: `${userMessage}${contextString}`
+      content: `${userMessage}${contextBlock}`
     }
   ]
 
   // Stream response
   const stream = await anthropic.messages.stream({
     model: 'claude-sonnet-4-5-20250929',
-    max_tokens: 1000,
+    max_tokens: 2048,
     system: SYSTEM_PROMPT,
     messages
   })
