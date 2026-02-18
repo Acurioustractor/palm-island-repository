@@ -32,7 +32,7 @@ export const SERVICES = {
   /** Integrated services under community control */
   total: 20,
   /** Growth target for 20-year vision (2029) */
-  target2029: 40,
+  target2029: 50,
 } as const
 
 /** Financial summary (FY 2023-24) */
@@ -54,12 +54,21 @@ export const FINANCIALS = {
 } as const
 
 /** Organization milestones */
+const _currentYear = new Date().getFullYear()
 export const MILESTONES = {
+  /** Rachel Atkinson appointed as sole employee */
+  genesisYear: 2007,
+  /** PICC formally established and delivering services — basis for 20-year countdown */
   founded: 2009,
   communityControlDate: '30 September 2021',
   twentyYearAnniversary: 2029,
-  yearsOperating: new Date().getFullYear() - 2009,
-} as const
+  /** Current year in the 20-year journey (2009 = year 1, so 2026 = year 17) */
+  currentYear: _currentYear - 2009 + 1,
+  yearsRemaining: 2029 - _currentYear,
+  /** Progress percentage toward 20-year milestone */
+  progressPct: Math.round(((_currentYear - 2009 + 1) / 20) * 100),
+  yearsOperating: _currentYear - 2009,
+}
 
 /** Fallback values when database returns 0/null */
 export const FALLBACKS = {
@@ -67,3 +76,43 @@ export const FALLBACKS = {
   serviceCount: SERVICES.total,
   storyCount: 31,
 } as const
+
+/**
+ * Fetch live goal values from the goals API.
+ * Falls back to the static constants above if the API is unavailable.
+ */
+export async function getLiveStats(baseUrl?: string): Promise<{
+  staff: number
+  staffTarget: number
+  services: number
+  servicesTarget: number
+  income: number
+  incomeTarget: number
+}> {
+  try {
+    const url = baseUrl || process.env.NEXT_PUBLIC_SITE_URL || ''
+    const res = await fetch(`${url}/api/goals`, { next: { revalidate: 300 } })
+    if (!res.ok) throw new Error(`Goals API ${res.status}`)
+    const goals: Array<{ goal_key: string; current_value: number; target_value: number }> = await res.json()
+
+    const byKey = Object.fromEntries(goals.map((g) => [g.goal_key, g]))
+
+    return {
+      staff: byKey.staff_total?.current_value ?? STAFF.total,
+      staffTarget: byKey.staff_total?.target_value ?? 300,
+      services: byKey.services_total?.current_value ?? SERVICES.total,
+      servicesTarget: byKey.services_total?.target_value ?? SERVICES.target2029,
+      income: byKey.total_income?.current_value ?? FINANCIALS.totalIncome,
+      incomeTarget: byKey.total_income?.target_value ?? 40_000_000,
+    }
+  } catch {
+    return {
+      staff: STAFF.total,
+      staffTarget: 300,
+      services: SERVICES.total,
+      servicesTarget: SERVICES.target2029,
+      income: FINANCIALS.totalIncome,
+      incomeTarget: 40_000_000,
+    }
+  }
+}

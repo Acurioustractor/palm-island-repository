@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { Agentation } from 'agentation';
 import { AdminProvider } from '@/lib/admin/AdminContext';
-import AdminFloatingToolbar from '@/components/admin/AdminFloatingToolbar';
 import './globals.css';
 import 'leaflet/dist/leaflet.css';
 
@@ -23,9 +21,8 @@ export default function RootLayout({
       <body className={inter.className}>
         <AdminProvider>
           {children}
-          <AdminFloatingToolbar />
+
         </AdminProvider>
-        {process.env.NODE_ENV === 'development' && <Agentation />}
       </body>
     </html>
   );

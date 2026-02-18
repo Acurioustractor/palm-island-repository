@@ -6,7 +6,6 @@ import {
   HeroSection,
   TextSection,
   QuoteSection,
-  ParallaxSection,
   ScrollReveal,
   StoryContainer,
 } from '@/components/story-scroll';
@@ -26,7 +25,6 @@ interface ProjectCard {
   description: string;
   status: string;
   project_type: string;
-  immersive_stories?: { slug: string }[];
 }
 
 export default async function InnovationPage() {
@@ -35,7 +33,7 @@ export default async function InnovationPage() {
   // Load innovation projects with their immersive story slugs
   const { data: projects } = await supabase
     .from('projects')
-    .select('id, slug, name, description, status, project_type, immersive_stories(slug)')
+    .select('id, slug, name, description, status, project_type')
     .eq('project_type', 'innovation')
     .order('name');
 
@@ -52,7 +50,6 @@ export default async function InnovationPage() {
       <HeroSection
         title="Innovation on Country"
         subtitle="Our Community, Our Future, Our Way"
-        backgroundImage="/images/palm-island-aerial.jpg"
         height="screen"
         overlay="gradient"
         textPosition="center"
@@ -110,8 +107,6 @@ export default async function InnovationPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {(projects as ProjectCard[] | null)?.map((project, index) => {
               const status = statusColors[project.status] || statusColors.planning;
-              const storySlug =
-                project.immersive_stories?.[0]?.slug;
 
               return (
                 <ScrollReveal
@@ -150,15 +145,13 @@ export default async function InnovationPage() {
                       </p>
 
                       {/* CTA */}
-                      {storySlug ? (
-                        <Link
-                          href={`/immersive-stories/${storySlug}`}
-                          className="inline-flex items-center gap-2 text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors group/link"
-                        >
-                          Read the Story
-                          <ArrowRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
-                        </Link>
-                      ) : null}
+                      <Link
+                        href={`/wiki/innovation/${project.slug}`}
+                        className="inline-flex items-center gap-2 text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors group/link"
+                      >
+                        Learn More
+                        <ArrowRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
+                      </Link>
                     </div>
                   </article>
                 </ScrollReveal>
@@ -186,11 +179,7 @@ export default async function InnovationPage() {
       />
 
       {/* Road to 20 Years Teaser */}
-      <ParallaxSection
-        backgroundImage="/images/palm-island-sunset.jpg"
-        speed={0.5}
-        height="h-[60vh]"
-      >
+      <section className="relative h-[60vh] overflow-hidden bg-gradient-to-br from-picc-earth-700 via-picc-earth to-picc-red flex items-center justify-center px-8">
         <div className="text-center">
           <ScrollReveal direction="up">
             <h2 className="text-5xl md:text-6xl font-bold text-white mb-4">
@@ -208,7 +197,7 @@ export default async function InnovationPage() {
             </Link>
           </ScrollReveal>
         </div>
-      </ParallaxSection>
+      </section>
 
       {/* Footer CTA */}
       <section className="bg-gray-900 text-white py-20">

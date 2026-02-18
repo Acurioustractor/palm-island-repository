@@ -26,7 +26,7 @@ interface ChatWidgetProps {
 
 export default function ChatWidget({
   position = 'bottom-right',
-  welcomeMessage = "Welcome to Palm Island Community Company. Ask me about our services, community stories, or 15 years of impact on Manbarra and Bwgcolman Country."
+  welcomeMessage = "Welcome to Palm Island Community Company. Ask me about our services, community stories, or 17 years of impact on Manbarra and Bwgcolman Country."
 }: ChatWidgetProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([

@@ -1,0 +1,345 @@
+{
+  "startedAt": "2026-02-18T03:24:21.840Z",
+  "force": false,
+  "limit": null,
+  "interviews": [
+    {
+      "interview_id": "3bd5f422-672b-4764-a469-8a9c0adaac34",
+      "title": "Frank Full Interview - Elders Trip",
+      "speaker": "Uncle Frank",
+      "is_elder": true,
+      "status": "transcribed",
+      "action": "skipped_already_analyzed",
+      "quotesInserted": 0,
+      "error": null
+    },
+    {
+      "interview_id": "d5923323-a409-42de-8583-638f75220e5b",
+      "title": "Elders trip",
+      "speaker": "Aunty Ethel",
+      "is_elder": true,
+      "status": "transcribed",
+      "action": "skipped_already_analyzed",
+      "quotesInserted": 0,
+      "error": null
+    },
+    {
+      "interview_id": "f4f459b5-80df-49ad-a8c2-88618199963a",
+      "title": "Elders Trip Interview",
+      "speaker": "Allan Palm Island",
+      "is_elder": true,
+      "status": "transcribed",
+      "action": "skipped_already_analyzed",
+      "quotesInserted": 0,
+      "error": null
+    },
+    {
+      "interview_id": "367695fd-426a-435d-9278-9461b9dbdf40",
+      "title": "Lucinda Interview - Pre trip",
+      "speaker": "Winni",
+      "is_elder": true,
+      "status": "transcribed",
+      "action": "skipped_already_analyzed",
+      "quotesInserted": 0,
+      "error": null
+    },
+    {
+      "interview_id": "b584b108-2e06-46d3-a6b9-810a3d4b5bcf",
+      "title": "Elders Trip",
+      "speaker": "Cyndel",
+      "is_elder": true,
+      "status": "transcribed",
+      "action": "skipped_already_analyzed",
+      "quotesInserted": 0,
+      "error": null
+    },
+    {
+      "interview_id": "9a6d9703-ca58-45af-abac-89ff31af71a7",
+      "title": "Elders Trip",
+      "speaker": "Elsa",
+      "is_elder": true,
+      "status": "transcribed",
+      "action": "skipped_already_analyzed",
+      "quotesInserted": 0,
+      "error": null
+    },
+    {
+      "interview_id": "564435d1-2395-4ebd-8d0a-49d53f64bdd3",
+      "title": "Elders Trip",
+      "speaker": "Gurtrude",
+      "is_elder": true,
+      "status": "transcribed",
+      "action": "skipped_already_analyzed",
+      "quotesInserted": 0,
+      "error": null
+    },
+    {
+      "interview_id": "0f49d5e8-41a4-46f3-9311-0345e3c447e6",
+      "title": "Elders Trip",
+      "speaker": "Marjoyie",
+      "is_elder": true,
+      "status": "transcribed",
+      "action": "skipped_already_analyzed",
+      "quotesInserted": 0,
+      "error": null
+    },
+    {
+      "interview_id": "fde0993a-9eca-4581-9a84-981f7292ed12",
+      "title": "Lucinda Interview - Elders Trip",
+      "speaker": "Allan Palm Island",
+      "is_elder": true,
+      "status": "transcribed",
+      "action": "skipped_already_analyzed",
+      "quotesInserted": 0,
+      "error": null
+    },
+    {
+      "interview_id": "4e10d089-6cfc-47f7-8cdb-e18d9174e9ab",
+      "title": "Lucinda Interview - Elders Trip",
+      "speaker": "Aunty Ethel",
+      "is_elder": true,
+      "status": "transcribed",
+      "action": "skipped_already_analyzed",
+      "quotesInserted": 0,
+      "error": null
+    },
+    {
+      "interview_id": "1ec1a473-4e78-429e-b65e-2e00ef88ecda",
+      "title": "Elders Trip",
+      "speaker": "Winni",
+      "is_elder": true,
+      "status": "transcribed",
+      "action": "skipped_already_analyzed",
+      "quotesInserted": 0,
+      "error": null
+    },
+    {
+      "interview_id": "3ad101fa-8d75-4ddf-8899-a8398160f521",
+      "title": "Elders goodbyes to Rangers",
+      "speaker": "Rangers and Elders Conversation",
+      "is_elder": false,
+      "status": "raw",
+      "action": "analyzed",
+      "quotesInserted": 9,
+      "error": null
+    },
+    {
+      "interview_id": "57f32f3a-d5ca-41e3-9167-ab71aaac889d",
+      "title": "Elders trip - Interview #1",
+      "speaker": "Uncle Frank",
+      "is_elder": true,
+      "status": "transcribed",
+      "action": "skipped_already_analyzed",
+      "quotesInserted": 0,
+      "error": null
+    },
+    {
+      "interview_id": "7bc34a33-d30c-4495-a635-a36ac0c0ca7d",
+      "title": "PICC Daycare Opening",
+      "speaker": "Allan Palm Island",
+      "is_elder": true,
+      "status": "transcribed",
+      "action": "skipped_already_analyzed",
+      "quotesInserted": 0,
+      "error": null
+    },
+    {
+      "interview_id": "dd0db1fb-87a9-4dfb-9193-fdf034ca35b0",
+      "title": "Daycare Opening Speech",
+      "speaker": "Rachel",
+      "is_elder": false,
+      "status": "raw",
+      "action": "analyzed",
+      "quotesInserted": 8,
+      "error": null
+    },
+    {
+      "interview_id": "fbc2b36f-172a-4abd-8159-c18200fe33a5",
+      "title": "Daycare Opening Interview",
+      "speaker": "Haley",
+      "is_elder": false,
+      "status": "raw",
+      "action": "analyzed",
+      "quotesInserted": 8,
+      "error": null
+    },
+    {
+      "interview_id": "b343df95-87cd-498f-917f-5840bd573a8f",
+      "title": "Full interview #1",
+      "speaker": "Rachel",
+      "is_elder": false,
+      "status": "raw",
+      "action": "analyzed",
+      "quotesInserted": 11,
+      "error": null
+    },
+    {
+      "interview_id": "4e51ea0b-e4b4-45f3-a226-556b826389ab",
+      "title": "Daycare Opening Video",
+      "speaker": "Ida",
+      "is_elder": false,
+      "status": "raw",
+      "action": "analyzed",
+      "quotesInserted": 6,
+      "error": null
+    },
+    {
+      "interview_id": "c8d4f21c-ff84-4006-b86b-c74e545fdacd",
+      "title": "Painting Interview",
+      "speaker": "Allan Palm Island",
+      "is_elder": true,
+      "status": "transcribed",
+      "action": "skipped_already_analyzed",
+      "quotesInserted": 0,
+      "error": null
+    },
+    {
+      "interview_id": "162cc8b8-d334-4ab7-b5b4-bf735e685432",
+      "title": "Mountain Welcome",
+      "speaker": "Allan Palm Island",
+      "is_elder": true,
+      "status": "transcribed",
+      "action": "skipped_already_analyzed",
+      "quotesInserted": 0,
+      "error": null
+    },
+    {
+      "interview_id": "143c9526-ea90-4bc8-bc4b-f1eb8d505855",
+      "title": "Iris Forfoot",
+      "speaker": "Iris",
+      "is_elder": false,
+      "status": "raw",
+      "action": "analyzed",
+      "quotesInserted": 10,
+      "error": null
+    },
+    {
+      "interview_id": "32d28c6e-cb69-438e-be59-528dba018a81",
+      "title": "Irene at Ferdies",
+      "speaker": "Irene",
+      "is_elder": false,
+      "status": "raw",
+      "action": "analyzed",
+      "quotesInserted": 10,
+      "error": null
+    },
+    {
+      "interview_id": "a345c370-eb56-46bc-bcb7-0e13e0f67471",
+      "title": "Herny Flood Stories",
+      "speaker": "Henry",
+      "is_elder": false,
+      "status": "raw",
+      "action": "analyzed",
+      "quotesInserted": 9,
+      "error": null
+    },
+    {
+      "interview_id": "726c4fcb-ebb4-4ceb-a8ba-ce748e3beb83",
+      "title": "Goonyun - Flood Stories",
+      "speaker": "Goonyun",
+      "is_elder": false,
+      "status": "raw",
+      "action": "analyzed",
+      "quotesInserted": 8,
+      "error": null
+    },
+    {
+      "interview_id": "92800636-e95b-4a9a-b864-5f59e8e0b6bc",
+      "title": "Roy - Flood Stories",
+      "speaker": "Roy",
+      "is_elder": false,
+      "status": "raw",
+      "action": "analyzed",
+      "quotesInserted": 10,
+      "error": null
+    },
+    {
+      "interview_id": "a08dcd26-13e3-4d1b-b549-0cdebcfaf9cb",
+      "title": "Ruby - Flood Stories",
+      "speaker": "Ruby",
+      "is_elder": false,
+      "status": "raw",
+      "action": "analyzed",
+      "quotesInserted": 8,
+      "error": null
+    },
+    {
+      "interview_id": "dd3ce4c5-b4d5-4e2b-8f98-b5e38b067b51",
+      "title": "Uncle Frank - Flood Stories",
+      "speaker": "Uncle Frank",
+      "is_elder": true,
+      "status": "transcribed",
+      "action": "skipped_already_analyzed",
+      "quotesInserted": 0,
+      "error": null
+    },
+    {
+      "interview_id": "9f2921fb-44fb-4ab8-a739-73c670c6069e",
+      "title": "Ferdies - Flood Stories",
+      "speaker": "Ferdys staff",
+      "is_elder": false,
+      "status": "raw",
+      "action": "analyzed",
+      "quotesInserted": 10,
+      "error": null
+    },
+    {
+      "interview_id": "e882aa5a-b5fa-4b71-866b-d2c4cd3ef4d3",
+      "title": "Ethel and Iris",
+      "speaker": "Aunty Ethel",
+      "is_elder": true,
+      "status": "transcribed",
+      "action": "skipped_already_analyzed",
+      "quotesInserted": 0,
+      "error": null
+    },
+    {
+      "interview_id": "656270d1-1e71-4c2e-b0c2-0930ef1e04d5",
+      "title": "Ethel and  Iris Ferdies",
+      "speaker": "Aunty Iris",
+      "is_elder": false,
+      "status": "raw",
+      "action": "analyzed",
+      "quotesInserted": 11,
+      "error": null
+    },
+    {
+      "interview_id": "31e76926-f04f-4c67-899f-68ed54dc733a",
+      "title": "Clay and Men's Group",
+      "speaker": "Clay",
+      "is_elder": false,
+      "status": "raw",
+      "action": "analyzed",
+      "quotesInserted": 8,
+      "error": null
+    },
+    {
+      "interview_id": "6a11417d-7aa7-42b3-8159-8492e76eb4f6",
+      "title": "Flood Stories",
+      "speaker": "Patricia",
+      "is_elder": false,
+      "status": "raw",
+      "action": "analyzed",
+      "quotesInserted": 7,
+      "error": null
+    },
+    {
+      "interview_id": "1a26e8af-3fab-44d8-91ac-e15fff2d4d59",
+      "title": "Daycare Team - Flood Interview",
+      "speaker": "Playgroup Team",
+      "is_elder": false,
+      "status": "raw",
+      "action": "analyzed",
+      "quotesInserted": 9,
+      "error": null
+    }
+  ],
+  "totals": {
+    "total": 33,
+    "analyzed": 16,
+    "skipped": 17,
+    "quotesInserted": 142,
+    "errors": 0
+  },
+  "finishedAt": "2026-02-18T03:32:19.967Z"
+}

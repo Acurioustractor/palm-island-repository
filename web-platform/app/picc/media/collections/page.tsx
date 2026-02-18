@@ -48,26 +48,7 @@ export default function MediaCollectionsPage() {
   const loadCollections = async () => {
     try {
       setLoading(true);
-
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-      const response = await fetch(
-        `${supabaseUrl}/rest/v1/photo_collections?select=*&order=created_at.desc`,
-        {
-          headers: {
-            'apikey': supabaseAnonKey,
-            'Authorization': `Bearer ${supabaseAnonKey}`,
-          },
-          signal: controller.signal,
-        }
-      );
-
-      clearTimeout(timeoutId);
-
+      const response = await fetch('/api/media/collections');
       if (!response.ok) {
         if (response.status === 404) {
           setTableExists(false);
@@ -76,16 +57,11 @@ export default function MediaCollectionsPage() {
         }
         return;
       }
-
       const data = await response.json();
       setCollections(data || []);
       setTableExists(true);
     } catch (error: any) {
-      if (error.name === 'AbortError') {
-        console.error('Request timeout loading collections');
-      } else {
-        console.error('Error loading collections:', error);
-      }
+      console.error('Error loading collections:', error);
     } finally {
       setLoading(false);
     }
@@ -117,55 +93,25 @@ export default function MediaCollectionsPage() {
     };
 
     try {
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
-
       if (editingCollection) {
-        // Update existing collection
-        const response = await fetch(
-          `${supabaseUrl}/rest/v1/photo_collections?id=eq.${editingCollection.id}`,
-          {
-            method: 'PATCH',
-            headers: {
-              'apikey': supabaseAnonKey,
-              'Authorization': `Bearer ${supabaseAnonKey}`,
-              'Content-Type': 'application/json',
-              'Prefer': 'return=minimal',
-            },
-            body: JSON.stringify(collectionData),
-            signal: controller.signal,
-          }
-        );
-
-        clearTimeout(timeoutId);
-
+        const response = await fetch('/api/media/collections', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: editingCollection.id, ...collectionData }),
+        });
         if (!response.ok) {
-          throw new Error(`Failed to update collection: ${response.statusText}`);
+          const err = await response.json();
+          throw new Error(err.error || 'Failed to update collection');
         }
       } else {
-        // Create new collection
-        const response = await fetch(
-          `${supabaseUrl}/rest/v1/photo_collections`,
-          {
-            method: 'POST',
-            headers: {
-              'apikey': supabaseAnonKey,
-              'Authorization': `Bearer ${supabaseAnonKey}`,
-              'Content-Type': 'application/json',
-              'Prefer': 'return=minimal',
-            },
-            body: JSON.stringify(collectionData),
-            signal: controller.signal,
-          }
-        );
-
-        clearTimeout(timeoutId);
-
+        const response = await fetch('/api/media/collections', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(collectionData),
+        });
         if (!response.ok) {
-          throw new Error(`Failed to create collection: ${response.statusText}`);
+          const err = await response.json();
+          throw new Error(err.error || 'Failed to create collection');
         }
       }
 
@@ -199,30 +145,12 @@ export default function MediaCollectionsPage() {
     if (!confirm('Are you sure you want to delete this collection?')) return;
 
     try {
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-      const response = await fetch(
-        `${supabaseUrl}/rest/v1/photo_collections?id=eq.${id}`,
-        {
-          method: 'DELETE',
-          headers: {
-            'apikey': supabaseAnonKey,
-            'Authorization': `Bearer ${supabaseAnonKey}`,
-          },
-          signal: controller.signal,
-        }
-      );
-
-      clearTimeout(timeoutId);
-
+      const response = await fetch(`/api/media/collections?id=${id}`, {
+        method: 'DELETE',
+      });
       if (!response.ok) {
         throw new Error('Failed to delete collection');
       }
-
       loadCollections();
     } catch (error) {
       console.error('Error deleting collection:', error);

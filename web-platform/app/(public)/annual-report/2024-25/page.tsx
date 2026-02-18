@@ -8,6 +8,7 @@ import {
   getMediaByTags,
   getRecentMedia,
 } from '@/lib/media/utils';
+import { getCuratedQuotes } from '@/lib/quotes/get-curated-quotes';
 import { AnnualReportContent } from './AnnualReportContent';
 
 export const dynamic = 'force-dynamic';
@@ -25,6 +26,8 @@ export default async function AnnualReport2025Page() {
     communityMedia,
     serviceMedia,
     recentMedia,
+    elderQuotes,
+    communityVoices,
   ] = await Promise.all([
     getReportData('2024-25'),
     getHeroImage('annual-report'),
@@ -35,6 +38,8 @@ export default async function AnnualReport2025Page() {
     getMediaByTags(['content:outdoor', 'content:documentary', 'subject:first-nations'], 20, 'image'),
     getMediaByTags(['content:indoor', 'content:ceremony'], 12, 'image'),
     getRecentMedia(30),
+    getCuratedQuotes({ source_type: 'elder', limit: 6 }),
+    getCuratedQuotes({ limit: 6 }),
   ]);
 
   // Build gallery from available sources
@@ -82,6 +87,8 @@ export default async function AnnualReport2025Page() {
       <AnnualReportContent
         reportData={reportData}
         knowledgeBase={PICC_KNOWLEDGE_BASE}
+        elderQuotes={elderQuotes}
+        communityVoices={communityVoices}
         media={{
           heroImage: heroImage || undefined,
           heroVideoUrl: heroVideo?.public_url || '/video/hero-desktop-web.mp4',

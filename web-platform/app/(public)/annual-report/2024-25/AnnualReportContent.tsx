@@ -30,6 +30,7 @@ import { InnovationShowcase } from '@/components/annual-report/2024-25/Innovatio
 import { BoardGrid } from '@/components/annual-report/2024-25/BoardGrid';
 import { ElderPortraitSection } from '@/components/annual-report/2024-25/ElderPortraitSection';
 import { ShareVoiceCTA } from '@/components/annual-report/2024-25/ShareVoiceCTA';
+import type { CuratedQuote } from '@/lib/quotes/get-curated-quotes';
 
 /* ─────────────────────────────────────────────
  * Elegant Section Divider (Olson Kundig style)
@@ -121,6 +122,8 @@ interface AnnualReportContentProps {
   reportData: ReportData;
   knowledgeBase: any;
   media: MediaProps;
+  elderQuotes?: CuratedQuote[];
+  communityVoices?: CuratedQuote[];
 }
 
 // ── Static Data ──
@@ -161,15 +164,9 @@ const DOLLAR_BREAKDOWN = [
   { id: 'motor', label: 'Transport', cents: 2, color: '#6b7280', description: 'Community access' },
 ];
 
-const ELDER_QUOTES = [
-  { name: 'Aunty Mary', quote: 'When the cyclone hit, we lost everything. But this community — we came together like family always does. The young ones helped the Elders first. That\'s how we do things here on Palm Island.', role: 'Community Elder' },
-  { name: 'Uncle Frank', quote: 'The Photo Studio project gave me a chance to tell my story, to share what life was like when I was young. Now my grandchildren will always have that connection to their history.', role: 'Elder & Cultural Advisor' },
-  { name: 'Aunty Maureen', quote: 'Our stories are the foundation of everything we do. When the young ones learn our history, they learn who they are and where they belong.', role: 'Cultural Elder' },
-];
-
 // ── Component ──
 
-export function AnnualReportContent({ reportData, knowledgeBase, media }: AnnualReportContentProps) {
+export function AnnualReportContent({ reportData, knowledgeBase, media, elderQuotes = [], communityVoices = [] }: AnnualReportContentProps) {
   const { report, leadershipMessages, services, boardMembers } = reportData;
 
   const ceoMessage = leadershipMessages.find(
@@ -188,8 +185,13 @@ export function AnnualReportContent({ reportData, knowledgeBase, media }: Annual
     staff_count: s.staff_count ?? undefined,
   }));
 
-  const boardData = boardMembers.map((b) => ({ name: b.full_name, role: b.position }));
-  const elderPortraits = ELDER_QUOTES.map((e) => ({ name: e.name, quote: e.quote, role: e.role }));
+  const boardData = boardMembers.map((b) => ({ name: b.full_name, role: b.position, photoUrl: b.photo_url || undefined }));
+  const elderPortraits = elderQuotes.map((e) => ({
+    name: e.speaker_name || 'Elder',
+    quote: e.quote,
+    role: e.speaker_role || 'Elder',
+    photoUrl: e.photo_url || undefined,
+  }));
 
   const dashboardData = services.slice(0, 8).map((s) => ({
     id: s.id,
@@ -455,29 +457,31 @@ export function AnnualReportContent({ reportData, knowledgeBase, media }: Annual
       <VideoBreak slot="voices" />
 
       {/* ─── 13. COMMUNITY STORIES ─── */}
-      <section className="py-24 md:py-32 bg-white">
-        <div className="max-w-6xl mx-auto px-8">
-          <SectionTitle label="Voices" title="Community Stories" subtitle="The people who make Palm Island strong" />
-          <PersonQuoteGrid
-            people={ELDER_QUOTES.map((e, idx) => ({
-              name: e.name,
-              role: e.role,
-              quote: e.quote,
-              image: media.elderPhotos[idx]?.url || undefined,
-            }))}
-            columns={3}
-          />
-          <div className="text-center mt-14">
-            <Link
-              href="/stories"
-              className="inline-flex items-center gap-3 text-gray-900 hover:text-gray-600 transition-colors group"
-            >
-              <span className="text-sm tracking-[0.15em] uppercase font-medium">Read More Stories</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
+      {communityVoices.length > 0 && (
+        <section className="py-24 md:py-32 bg-white">
+          <div className="max-w-6xl mx-auto px-8">
+            <SectionTitle label="Voices" title="Community Stories" subtitle="The people who make Palm Island strong" />
+            <PersonQuoteGrid
+              people={communityVoices.map((cv) => ({
+                name: cv.speaker_name || 'Community Member',
+                role: cv.speaker_role || '',
+                quote: cv.quote,
+                image: cv.photo_url || undefined,
+              }))}
+              columns={3}
+            />
+            <div className="text-center mt-14">
+              <Link
+                href="/stories"
+                className="inline-flex items-center gap-3 text-gray-900 hover:text-gray-600 transition-colors group"
+              >
+                <span className="text-sm tracking-[0.15em] uppercase font-medium">Read More Stories</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ━━━ VIDEO: GALLERY ━━━ */}
       <VideoBreak slot="gallery" />

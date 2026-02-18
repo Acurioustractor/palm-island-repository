@@ -45,7 +45,7 @@ export default function GrowthChart({ years }: GrowthChartProps) {
   return (
     <div ref={ref} className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
       <h3 className="text-2xl font-bold text-gray-900 mb-2">
-        15 Years of Growth
+        17 Years of Growth
       </h3>
       <p className="text-gray-500 mb-6">Staff and budget trend over time</p>
 

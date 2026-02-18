@@ -59,8 +59,8 @@ export function PublicFooter() {
                 </Link>
               </li>
               <li>
-                <Link href="/wiki/stories" className="animated-underline text-sm text-stone-400 hover:text-white transition-colors duration-300">
-                  Knowledge Base
+                <Link href="/chat" className="animated-underline text-sm text-stone-400 hover:text-white transition-colors duration-300">
+                  Ask AI
                 </Link>
               </li>
               <li>
@@ -98,7 +98,7 @@ export function PublicFooter() {
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="animated-underline text-sm text-stone-400 hover:text-white transition-colors duration-300">
+                <Link href="/about" className="animated-underline text-sm text-stone-400 hover:text-white transition-colors duration-300">
                   Contact
                 </Link>
               </li>

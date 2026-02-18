@@ -101,6 +101,13 @@ Please provide a detailed analysis in JSON format:
   "sensitivity_notes": "explain any sensitivity concerns if is_sensitive is true"
 }
 
+IMPORTANT tagging rules for suggested_tags:
+- If 3+ people are visible, include "group" tag
+- If 1 person is the clear subject (headshot/portrait), include "portrait" tag
+- If the image shows a landscape, scenery, or place with no/minimal people, include "landscape" tag
+- If the image has high quality, professional composition/lighting (not a casual phone snap), include "professional-photography" tag
+- Always include relevant content tags like "content:portrait", "content:group", "content:outdoor", "content:indoor"
+
 Be respectful and culturally aware. Focus on:
 - Community activities and events
 - Cultural significance

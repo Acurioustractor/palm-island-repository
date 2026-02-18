@@ -1,13 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { cookies } from 'next/headers'
+import { createServerClient } from '@supabase/ssr'
 
 export const runtime = 'nodejs'
-
-function isDev(request: NextRequest) {
-  if (process.env.NODE_ENV === 'production') return false
-  const host = request.headers.get('host') || ''
-  return host.includes('localhost') || host.includes('127.0.0.1')
-}
 
 function getServerClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -22,6 +18,32 @@ function getServerClient() {
   })
 }
 
+async function isAuthenticated(): Promise<boolean> {
+  try {
+    const cookieStore = await cookies()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll()
+          },
+          setAll(cookiesToSet: any) {
+            cookiesToSet.forEach(({ name, value, options }: any) => {
+              try { cookieStore.set(name, value, options) } catch {}
+            })
+          },
+        } as any,
+      }
+    )
+    const { data: { user } } = await supabase.auth.getUser()
+    return !!user
+  } catch {
+    return false
+  }
+}
+
 function slugify(input: string) {
   return input
     .toLowerCase()
@@ -32,10 +54,8 @@ function slugify(input: string) {
 
 const DEFAULT_PICC_ORG_ID = '3c2011b9-f80d-4289-b300-0cd383cff479'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    if (!isDev(request)) return NextResponse.json({ error: 'Not available' }, { status: 403 })
-
     const supabase = getServerClient()
     const { data, error } = await supabase
       .from('organization_services')
@@ -52,7 +72,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    if (!isDev(request)) return NextResponse.json({ error: 'Not available' }, { status: 403 })
+    if (!(await isAuthenticated())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const body = (await request.json().catch(() => ({}))) as {
       name?: string

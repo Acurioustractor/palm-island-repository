@@ -29,6 +29,10 @@ type Props = {
   kind: MediaPickerKind
   onClose: () => void
   onPick: (media: MediaFile) => void
+  /** Called with array when multiSelect is true */
+  onPickMultiple?: (media: MediaFile[]) => void
+  /** Allow selecting multiple items at once */
+  multiSelect?: boolean
   /** Pre-fill search box when dialog opens (e.g. service name) */
   initialQuery?: string
 }
@@ -67,7 +71,7 @@ function getVideoThumb(item: MediaFile) {
   return getVimeoThumbFromMeta(item.metadata) || getYoutubeThumb(url) || null
 }
 
-export default function MediaPickerDialog({ open, kind, onClose, onPick, initialQuery }: Props) {
+export default function MediaPickerDialog({ open, kind, onClose, onPick, onPickMultiple, multiSelect, initialQuery }: Props) {
   const [items, setItems] = useState<MediaFile[]>([])
   const [totalCount, setTotalCount] = useState(0)
   const [loading, setLoading] = useState(false)
@@ -77,8 +81,11 @@ export default function MediaPickerDialog({ open, kind, onClose, onPick, initial
   const [sort, setSort] = useState<SortOption>('newest')
   const [tagFilter, setTagFilter] = useState('')
   const [showFilters, setShowFilters] = useState(false)
+  const [selected, setSelected] = useState<Set<string>>(new Set())
 
-  const title = kind === 'image' ? 'Choose a photo' : 'Choose a video'
+  const title = multiSelect
+    ? (kind === 'image' ? 'Select photos' : 'Select videos')
+    : (kind === 'image' ? 'Choose a photo' : 'Choose a video')
   const icon = kind === 'image' ? <ImageIcon className="w-5 h-5" /> : <Film className="w-5 h-5" />
 
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE))
@@ -105,6 +112,7 @@ export default function MediaPickerDialog({ open, kind, onClose, onPick, initial
     setSort('newest')
     setTagFilter('')
     setShowFilters(false)
+    setSelected(new Set())
   }, [open, kind, initialQuery])
 
   // Reset page when filters change
@@ -295,16 +303,42 @@ export default function MediaPickerDialog({ open, kind, onClose, onPick, initial
                 {items.map((m) => {
                   const alt = (m.alt_text || m.title || m.original_filename || 'Photo') ?? 'Photo'
                   const dims = m.width && m.height ? `${m.width}×${m.height}` : null
+                  const isSelected = selected.has(m.id)
                   return (
                     <button
                       key={m.id}
                       type="button"
-                      onClick={() => onPick(m)}
-                      className="group text-left rounded-lg border border-gray-200 overflow-hidden hover:shadow-md hover:border-warm-300 transition-all bg-white"
+                      onClick={() => {
+                        if (multiSelect) {
+                          setSelected(prev => {
+                            const next = new Set(prev)
+                            if (next.has(m.id)) next.delete(m.id)
+                            else next.add(m.id)
+                            return next
+                          })
+                        } else {
+                          onPick(m)
+                        }
+                      }}
+                      className={`group text-left rounded-lg border overflow-hidden hover:shadow-md transition-all bg-white ${
+                        isSelected ? 'border-picc-red ring-2 ring-picc-red/30' : 'border-gray-200 hover:border-warm-300'
+                      }`}
                       title={`${String(alt)}${dims ? ` (${dims})` : ''}`}
                     >
                       <div className="aspect-square bg-gray-100 overflow-hidden relative">
                         <img src={m.public_url} alt={String(alt)} loading="lazy" className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform" />
+                        {/* Multi-select checkbox */}
+                        {multiSelect && (
+                          <div className={`absolute top-1.5 left-1.5 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                            isSelected ? 'bg-picc-red border-picc-red' : 'bg-white/80 border-gray-300 group-hover:border-gray-400'
+                          }`}>
+                            {isSelected && (
+                              <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                              </svg>
+                            )}
+                          </div>
+                        )}
                         {/* Tags overlay on hover */}
                         {Array.isArray(m.tags) && m.tags.length > 0 && (
                           <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent p-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -369,6 +403,36 @@ export default function MediaPickerDialog({ open, kind, onClose, onPick, initial
               </div>
             )}
           </div>
+
+          {/* Multi-select action bar */}
+          {multiSelect && selected.size > 0 && (
+            <div className="flex items-center justify-between px-5 py-3 border-t border-gray-200 bg-picc-red/5 flex-shrink-0">
+              <p className="text-sm font-medium text-gray-700">
+                {selected.size} photo{selected.size !== 1 ? 's' : ''} selected
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSelected(new Set())}
+                  className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50"
+                >
+                  Clear
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const selectedItems = items.filter(m => selected.has(m.id))
+                    if (onPickMultiple) onPickMultiple(selectedItems)
+                    else selectedItems.forEach(m => onPick(m))
+                    onClose()
+                  }}
+                  className="px-4 py-1.5 text-xs font-medium text-white bg-picc-red rounded-lg hover:bg-picc-red/90"
+                >
+                  Add {selected.size} Photo{selected.size !== 1 ? 's' : ''}
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Pagination footer */}
           {totalCount > PAGE_SIZE && (

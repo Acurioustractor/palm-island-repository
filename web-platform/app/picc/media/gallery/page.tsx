@@ -9,7 +9,8 @@ import {
   Image as ImageIcon, Video, Music, File, Search, Filter,
   Grid, List, Sparkles, Users, Tag, MapPin, Calendar,
   ChevronDown, X, Check, Loader2, ArrowLeft, Download,
-  Eye, Trash2, Edit, RefreshCw, UserPlus, FolderPlus, Play, XCircle
+  Eye, Trash2, Edit, RefreshCw, UserPlus, FolderPlus, Play, XCircle,
+  RotateCw, RotateCcw, FlipHorizontal2, FlipVertical2
 } from 'lucide-react';
 import ServiceTagBar from '@/components/media/ServiceTagBar';
 import { TagDots } from '@/components/media/TagChips';
@@ -99,6 +100,7 @@ function MediaGalleryPage() {
   const [selectedMedia, setSelectedMedia] = useState<MediaFile | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [analyzing, setAnalyzing] = useState<string | null>(null);
+  const [rotating, setRotating] = useState<string | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
   const [isDeleting, setIsDeleting] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -118,7 +120,12 @@ function MediaGalleryPage() {
   const [eventFilter, setEventFilter] = useState<string>('all');
   const [sectionFilter, setSectionFilter] = useState<string>('all');
   const [contentFilter, setContentFilter] = useState<string>('all');
+  const [roleFilter, setRoleFilter] = useState<string>('all');
   const [featuredOnly, setFeaturedOnly] = useState(false);
+
+  // Batch AI analysis
+  const [batchAnalyzing, setBatchAnalyzing] = useState(false);
+  const [batchProgress, setBatchProgress] = useState<{ current: number; total: number } | null>(null);
 
   // People tagging
   const [showPeopleTag, setShowPeopleTag] = useState(false);
@@ -131,6 +138,7 @@ function MediaGalleryPage() {
   const [bulkFiscalYear, setBulkFiscalYear] = useState<string>('all');
   const [bulkService, setBulkService] = useState<string>('all');
   const [bulkProject, setBulkProject] = useState<string>('all');
+  const [bulkCustomTags, setBulkCustomTags] = useState<string>('');
   const [bulkTagging, setBulkTagging] = useState(false);
 
   // Cover photo
@@ -214,6 +222,7 @@ function MediaGalleryPage() {
     if (eventFilter !== 'all') requiredTags.push(eventFilter);
     if (sectionFilter !== 'all') requiredTags.push(sectionFilter);
     if (contentFilter !== 'all') requiredTags.push(contentFilter);
+    if (roleFilter !== 'all') requiredTags.push(`role:${roleFilter}`);
     if (featuredOnly) params.set('featured', 'true');
 
     if (requiredTags.length > 0) {
@@ -315,7 +324,7 @@ function MediaGalleryPage() {
       clearTimeout(timeoutId);
       clearTimeout(failsafeTimeout);
     };
-  }, [fileTypeFilter, searchQuery, tagFilter, personFilter, annualReportOnly, annualReportFiscalYear, serviceFilter, projectFilter, eventFilter, sectionFilter, contentFilter, featuredOnly, sortBy, supabase]);
+  }, [fileTypeFilter, searchQuery, tagFilter, personFilter, annualReportOnly, annualReportFiscalYear, serviceFilter, projectFilter, eventFilter, sectionFilter, contentFilter, roleFilter, featuredOnly, sortBy, supabase]);
 
   // Load collections for "Add to Collection" feature
   useEffect(() => {
@@ -471,6 +480,46 @@ function MediaGalleryPage() {
     }
 
     setAnalyzing(null);
+  };
+
+  const analyzeBatch = async (mode: 'selected' | 'unanalyzed') => {
+    setBatchAnalyzing(true);
+    setBatchProgress(null);
+    try {
+      const payload = mode === 'selected'
+        ? { mediaIds: Array.from(selectedFiles), limit: 50 }
+        : { filter: 'unanalyzed' as const, limit: 10 };
+
+      const total = mode === 'selected' ? selectedFiles.size : 10;
+      setBatchProgress({ current: 0, total });
+
+      const response = await fetch('/api/media/analyze-batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(300000),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result?.error || 'Batch analysis failed');
+      }
+
+      setBatchProgress({ current: result.processed, total: result.total });
+      toast.success(
+        `Analyzed ${result.processed} photo(s)` +
+        (result.failed > 0 ? ` (${result.failed} failed)` : '')
+      );
+      await loadMedia();
+      if (mode === 'selected') setSelectedFiles(new Set());
+    } catch (err: any) {
+      console.error('Batch analysis error:', err);
+      toast.error('Batch analysis failed', err?.message || String(err));
+    } finally {
+      setBatchAnalyzing(false);
+      setBatchProgress(null);
+    }
   };
 
   const getVideoThumbnail = (item: any): string | null => {
@@ -657,6 +706,12 @@ function MediaGalleryPage() {
       mergeContextMetadata.project_slug = bulkProject;
     }
 
+    // Custom free-text tags
+    if (bulkCustomTags.trim()) {
+      const custom = bulkCustomTags.split(',').map(t => t.trim()).filter(Boolean);
+      addTags.push(...custom);
+    }
+
     return {
       addTags,
       mergeMetadata: Object.keys(mergeMetadata).length ? mergeMetadata : undefined,
@@ -709,6 +764,7 @@ function MediaGalleryPage() {
 
       if (options?.closeModal ?? true) {
         setShowBulkTagModal(false);
+        setBulkCustomTags('');
       }
       setSelectedFiles(new Set());
       await loadMedia();
@@ -852,6 +908,7 @@ function MediaGalleryPage() {
     eventFilter !== 'all' ||
     sectionFilter !== 'all' ||
     contentFilter !== 'all' ||
+    roleFilter !== 'all' ||
     featuredOnly ||
     untaggedOnly;
 
@@ -1112,8 +1169,24 @@ function MediaGalleryPage() {
           </div>
         </div>
 
-        {/* Event, Section, Content & Featured filters */}
+        {/* Event, Section, Content, Role & Featured filters */}
         <div className="mt-4 flex flex-wrap items-end gap-4">
+          <div>
+            <div className="text-xs text-gray-500 mb-1">Role</div>
+            <select
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
+            >
+              <option value="all">All Roles</option>
+              <option value="board-member">Board Member</option>
+              <option value="staff">Staff</option>
+              <option value="volunteer">Volunteer</option>
+              <option value="elder-advisor">Elder Advisor</option>
+              <option value="cultural-advisor">Cultural Advisor</option>
+            </select>
+          </div>
+
           <div>
             <div className="text-xs text-gray-500 mb-1">Event</div>
             <select
@@ -1190,6 +1263,30 @@ function MediaGalleryPage() {
         </div>
       </div>
 
+      {/* Quick-filter chips */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        {[
+          { label: 'Untagged', action: () => setUntaggedOnly(!untaggedOnly), active: untaggedOnly },
+          { label: 'Board', action: () => setRoleFilter(roleFilter === 'board-member' ? 'all' : 'board-member'), active: roleFilter === 'board-member' },
+          { label: 'Staff', action: () => setRoleFilter(roleFilter === 'staff' ? 'all' : 'staff'), active: roleFilter === 'staff' },
+          { label: 'Heroes', action: () => setTagFilter(tagFilter === 'hero' ? '' : 'hero'), active: tagFilter === 'hero' },
+          { label: 'Events', action: () => setEventFilter(eventFilter !== 'all' ? 'all' : 'event:spring-festival-2025'), active: eventFilter !== 'all' },
+          { label: 'Professional', action: () => setContentFilter(contentFilter === 'quality:professional' ? 'all' : 'quality:professional'), active: contentFilter === 'quality:professional' },
+        ].map((chip) => (
+          <button
+            key={chip.label}
+            onClick={chip.action}
+            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+              chip.active
+                ? 'bg-picc-red text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            {chip.label}
+          </button>
+        ))}
+      </div>
+
       {/* Clear All Filters */}
       {hasActiveFilters && (
         <button
@@ -1199,7 +1296,7 @@ function MediaGalleryPage() {
             setAnnualReportFiscalYear('all'); setServiceFilter('all');
             setProjectFilter('all'); setEventFilter('all');
             setSectionFilter('all'); setContentFilter('all');
-            setFeaturedOnly(false); setUntaggedOnly(false);
+            setRoleFilter('all'); setFeaturedOnly(false); setUntaggedOnly(false);
           }}
           className="mb-4 px-4 py-2 bg-orange-100 text-orange-800 rounded-full text-sm font-medium hover:bg-orange-200"
         >
@@ -1235,6 +1332,26 @@ function MediaGalleryPage() {
                 Shift+click for range · Drag across to select multiple
               </span>
             </div>
+
+            {selectedFiles.size === 0 && (
+              <button
+                onClick={() => analyzeBatch('unanalyzed')}
+                disabled={batchAnalyzing}
+                className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 transition-colors"
+              >
+                {batchAnalyzing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    {batchProgress ? `${batchProgress.current} of ${batchProgress.total}...` : 'Analyzing...'}
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4" />
+                    Analyze Untagged
+                  </>
+                )}
+              </button>
+            )}
 
             {selectedFiles.size > 0 && (
               <div className="flex gap-2">
@@ -1284,6 +1401,20 @@ function MediaGalleryPage() {
                 >
                   <FolderPlus className="w-4 h-4" />
                   Add to Collection
+                </button>
+                <button
+                  onClick={() => analyzeBatch('selected')}
+                  disabled={batchAnalyzing}
+                  className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 transition-colors"
+                >
+                  {batchAnalyzing ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Sparkles className="w-4 h-4" />
+                  )}
+                  {batchAnalyzing && batchProgress
+                    ? `${batchProgress.current} of ${batchProgress.total}...`
+                    : 'AI Analyze Selected'}
                 </button>
                 {/* Set as Cover Photo */}
                 {selectedFiles.size === 1 && (
@@ -1741,6 +1872,18 @@ function MediaGalleryPage() {
                   ))}
                 </select>
               </div>
+
+              <div>
+                <div className="text-xs text-gray-500 mb-1">Custom tags (comma-separated)</div>
+                <input
+                  type="text"
+                  value={bulkCustomTags}
+                  onChange={(e) => setBulkCustomTags(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
+                  placeholder="e.g. hero, palm-island, cultural-programs"
+                />
+                <p className="text-[11px] text-gray-400 mt-1">Add any tags — separate multiple with commas</p>
+              </div>
             </div>
 
             <div className="p-6 border-t border-gray-200 flex items-center justify-end gap-2">
@@ -1881,6 +2024,58 @@ function MediaGalleryPage() {
                     </div>
                   )}
                 </div>
+
+                {/* Rotate / Flip */}
+                {selectedMedia.file_type === 'image' && (
+                  <div>
+                    <span className="text-sm font-medium text-gray-700 mb-2 block">Orientation</span>
+                    <div className="flex gap-1.5">
+                      {([
+                        { icon: RotateCcw, label: 'Rotate left', body: { degrees: -90 } },
+                        { icon: RotateCw, label: 'Rotate right', body: { degrees: 90 } },
+                        { icon: FlipHorizontal2, label: 'Flip horizontal', body: { flip: 'horizontal' } },
+                        { icon: FlipVertical2, label: 'Flip vertical', body: { flip: 'vertical' } },
+                      ] as const).map(({ icon: Icon, label, body }) => (
+                        <button
+                          key={label}
+                          title={label}
+                          disabled={rotating === selectedMedia.id}
+                          onClick={async () => {
+                            setRotating(selectedMedia.id);
+                            try {
+                              const res = await fetch(`/api/media/${selectedMedia.id}/rotate`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(body),
+                              });
+                              if (!res.ok) {
+                                const err = await res.json();
+                                throw new Error(err.error || 'Rotation failed');
+                              }
+                              const result = await res.json();
+                              // Bust browser cache by appending timestamp
+                              const bustUrl = selectedMedia.public_url.split('?')[0] + `?t=${Date.now()}`;
+                              setSelectedMedia({ ...selectedMedia, public_url: bustUrl, width: result.width, height: result.height });
+                              setMedia(prev => prev.map(m => m.id === selectedMedia.id ? { ...m, public_url: bustUrl, width: result.width, height: result.height } : m));
+                              toast.success(label + ' applied');
+                            } catch (err: any) {
+                              toast.error('Failed', err.message || String(err));
+                            } finally {
+                              setRotating(null);
+                            }
+                          }}
+                          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-gray-100 text-gray-700 text-xs font-medium rounded-lg hover:bg-gray-200 disabled:opacity-50 transition-colors"
+                        >
+                          {rotating === selectedMedia.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Icon className="w-4 h-4" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Tags — inline editable */}
                 <div>
@@ -2203,8 +2398,8 @@ function MediaGalleryPage() {
       {/* Add to Collection Modal */}
       {showCollectionModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full">
-            <div className="p-6 border-b border-gray-200">
+          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[80vh] flex flex-col">
+            <div className="p-6 border-b border-gray-200 shrink-0">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-gray-900">
                   Add to Collection
@@ -2224,7 +2419,7 @@ function MediaGalleryPage() {
               </p>
             </div>
 
-            <div className="p-6">
+            <div className="p-6 overflow-y-auto flex-1 min-h-0">
               {collections.length === 0 ? (
                 <div className="text-center py-8">
                   <FolderPlus className="w-12 h-12 text-gray-400 mx-auto mb-3" />
@@ -2271,7 +2466,7 @@ function MediaGalleryPage() {
             </div>
 
             {collections.length > 0 && (
-              <div className="p-6 border-t border-gray-200 flex gap-3">
+              <div className="p-6 border-t border-gray-200 flex gap-3 shrink-0">
                 <button
                   onClick={() => {
                     setShowCollectionModal(false);

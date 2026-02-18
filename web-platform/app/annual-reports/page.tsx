@@ -127,7 +127,7 @@ export default function AnnualReportsTimelinePage() {
             PICC Timeline
           </h1>
           <p className="text-xl text-gray-700 mb-2">
-            15 Years of Community Leadership & Transformation
+            17 Years of Community Leadership & Transformation
           </p>
           <p className="text-gray-600 italic">
             {data.stats.yearsSpanned} • {data.stats.totalReports} Annual Reports • {data.stats.totalImages} Images
@@ -278,7 +278,7 @@ export default function AnnualReportsTimelinePage() {
           <div>
             <h4 className="font-semibold text-gray-900 mb-2">About This Timeline</h4>
             <p className="text-sm text-gray-600">
-              Visual journey through PICC's 15 years of service to Palm Island community, from establishment to community control.
+              Visual journey through PICC's 17 years of service to Palm Island community, from establishment to community control.
             </p>
           </div>
           <div>

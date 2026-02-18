@@ -55,7 +55,7 @@ interface DetectedIntents {
 
 const INTENT_KEYWORDS: Record<keyof DetectedIntents, string[]> = {
   financial: ['budget', 'income', 'revenue', 'expenditure', 'financial', 'money', 'funding', 'dollar', 'assets', 'liabilities', 'audit', 'turnover', 'expense', 'cost', 'surplus', 'deficit'],
-  services: ['service', 'program', 'health', 'family', 'youth', 'healing', 'safe house', 'safe haven', 'ndis', 'justice', 'digital', 'telstra', 'education', 'employment', 'ranger', 'housing', 'crisis', 'wellbeing', 'medical', 'child'],
+  services: ['service', 'program', 'health', 'family', 'youth', 'healing', 'safe house', 'safe haven', 'ndis', 'justice', 'digital', 'telstra', 'education', 'employment', 'ranger', 'housing', 'crisis', 'wellbeing', 'medical', 'child', 'innovation', 'project', 'photo studio', 'healthy meals', 'elders trip', 'the centre', 'movember', 'recycling', 'goods'],
   people: ['board', 'director', 'leadership', 'ceo', 'chair', 'staff', 'team', 'employee', 'worker', 'workforce', 'member', 'secretary'],
   quotes: ['interview', 'said', 'quote', 'elder', 'told', 'voice', 'wisdom', 'aunty', 'uncle', 'story', 'storyteller'],
   history: ['history', 'achievement', 'milestone', 'governance', 'timeline', 'hull river', 'cyclone', 'reserve', 'removal', 'stolen', 'manbarra', 'bwgcolman', 'founded', 'transition'],
@@ -271,9 +271,9 @@ async function getHistoryContext(supabase: SupabaseClient, query: string): Promi
   try {
     const { data: achievements } = await supabase
       .from('governance_achievements')
-      .select('title, description, year, category')
-      .or(`title.ilike.%${query}%,description.ilike.%${query}%`)
-      .order('year', { ascending: false })
+      .select('achievement_text, category, fiscal_year')
+      .or(`achievement_text.ilike.%${query}%,category.ilike.%${query}%`)
+      .order('fiscal_year', { ascending: false })
       .limit(5)
 
     const parts: string[] = []
@@ -290,7 +290,7 @@ async function getHistoryContext(supabase: SupabaseClient, query: string): Promi
     if (achievements && achievements.length > 0) {
       parts.push('\nRecent achievements:')
       for (const a of achievements) {
-        parts.push(`${a.year || ''}: ${a.title} — ${a.description || ''}`)
+        parts.push(`${a.fiscal_year || ''}: ${a.achievement_text}${a.category ? ` (${a.category})` : ''}`)
       }
       sources.push({ title: 'PICC Governance Achievements', url: '/timeline', type: 'history' })
     }

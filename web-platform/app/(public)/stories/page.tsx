@@ -3,6 +3,7 @@ import { StoryCard, StoryGrid } from '@/components/stories/StoryCard';
 import { getPageMedia } from '@/lib/media/utils';
 import Link from 'next/link';
 import { ArrowRight, Shield } from 'lucide-react';
+import { CommunityQuotesSection } from '@/components/quotes/CommunityQuotesSection';
 
 export const revalidate = 300; // Revalidate every 5 minutes
 
@@ -137,6 +138,27 @@ export default async function StoriesPage() {
             </StoryGrid>
           </section>
         )}
+
+        {/* Community Voices — curated quotes from across interviews */}
+        <section className="mb-20">
+          <div className="mb-10">
+            <p className="text-sm font-medium tracking-[0.15em] uppercase text-gray-400 mb-3">
+              Community Voices
+            </p>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight mb-2">
+              In Their Own Words
+            </h2>
+            <p className="text-base text-gray-500 leading-relaxed">
+              Quotes from community members, elders, and staff across Palm Island
+            </p>
+          </div>
+          <CommunityQuotesSection
+            featured
+            limit={6}
+            variant="grid"
+            showThemes
+          />
+        </section>
 
         {/* Recent Stories */}
         {recentStories && recentStories.length > 0 && (

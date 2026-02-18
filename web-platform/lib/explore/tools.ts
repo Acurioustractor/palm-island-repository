@@ -47,7 +47,7 @@ const getServiceInfoSchema = z.object({
 
 const exploreTimelineSchema = z.object({
   era: z.enum(['founding', 'early', 'growth', 'recent', 'all']).default('all')
-    .describe('Era to explore: founding (2005-2010), early (2010-2015), growth (2015-2020), recent (2020-2025), or all'),
+    .describe('Era to explore: founding (2009-2013), early (2013-2017), growth (2017-2021), recent (2021-2026), or all'),
   dateFrom: z.string().optional().describe('Start fiscal year (e.g. "2020-21")'),
   dateTo: z.string().optional().describe('End fiscal year (e.g. "2024-25")'),
   topic: z.string().optional().describe('Topic to filter by (e.g. "health", "governance")'),
@@ -60,7 +60,7 @@ const findQuotesSchema = z.object({
 })
 
 const getPhotoGallerySchema = z.object({
-  topic: z.string().optional().describe('Topic to search photos for'),
+  topic: z.string().optional().describe('Topic to search photos for (e.g. "photo studio", "elders trip", "community event")'),
   storyId: z.string().optional().describe('Specific story ID to get photos from'),
   serviceSlug: z.string().optional().describe('Service slug to find related photos'),
   limit: z.number().min(1).max(12).default(6).describe('Number of photos to return'),
@@ -219,11 +219,11 @@ export const exploreTimeline = defineTool({
     const supabase = getSupabase()
 
     const eraRanges: Record<string, [string, string]> = {
-      founding: ['2005-06', '2009-10'],
-      early: ['2010-11', '2014-15'],
-      growth: ['2015-16', '2019-20'],
-      recent: ['2020-21', '2024-25'],
-      all: ['2005-06', '2024-25'],
+      founding: ['2009-10', '2012-13'],
+      early: ['2013-14', '2016-17'],
+      growth: ['2017-18', '2020-21'],
+      recent: ['2021-22', '2025-26'],
+      all: ['2009-10', '2025-26'],
     }
 
     const [from, to] = dateFrom && dateTo
@@ -315,12 +315,13 @@ export const findQuotes = defineTool({
 // ─── getPhotoGallery ─────────────────────────────────────────────────────────
 
 export const getPhotoGallery = defineTool({
-  description: 'Get photos from PICC stories by topic, story, or service.',
+  description: 'Get photos from PICC media library and stories by topic, story, service, or tags.',
   parameters: getPhotoGallerySchema,
   execute: async (input: GetPhotoGalleryInput) => {
     const { topic, storyId, serviceSlug, limit } = input
     const supabase = getSupabase()
 
+    // 1. If a specific story is requested, get its attached media
     if (storyId) {
       const { data } = await supabase
         .from('story_media')
@@ -340,6 +341,9 @@ export const getPhotoGallery = defineTool({
       }
     }
 
+    // 2. Search story_media via stories
+    let storyPhotos: { id: string; url: string; alt: string; caption: string | null }[] = []
+
     let storyQuery = supabase
       .from('stories')
       .select('id')
@@ -354,24 +358,69 @@ export const getPhotoGallery = defineTool({
     }
 
     const { data: storyData } = await storyQuery
-    if (!storyData || storyData.length === 0) return { photos: [], total: 0 }
+    if (storyData && storyData.length > 0) {
+      const storyIds = storyData.map(s => s.id)
+      const { data: mediaData } = await supabase
+        .from('story_media')
+        .select('id, file_path, file_name, alt_text, caption, supabase_bucket')
+        .eq('media_type', 'image')
+        .in('story_id', storyIds)
+        .limit(limit)
 
-    const storyIds = storyData.map(s => s.id)
-    const { data: mediaData } = await supabase
-      .from('story_media')
-      .select('id, file_path, file_name, alt_text, caption, supabase_bucket')
-      .eq('media_type', 'image')
-      .in('story_id', storyIds)
-      .limit(limit)
-
-    return {
-      photos: (mediaData || []).map(m => ({
+      storyPhotos = (mediaData || []).map(m => ({
         id: m.id,
         url: buildPublicUrl(m.supabase_bucket, m.file_path),
         alt: m.alt_text || m.file_name,
         caption: m.caption,
-      })),
-      total: mediaData?.length || 0,
+      }))
+    }
+
+    // 3. Also search main media_files library by tags and filename
+    if (storyPhotos.length < limit) {
+      const remaining = limit - storyPhotos.length
+      let mediaQuery = supabase
+        .from('media_files')
+        .select('id, public_url, original_filename, title, description, tags')
+        .eq('is_public', true)
+        .eq('file_type', 'image')
+        .is('deleted_at', null)
+        .order('created_at', { ascending: false })
+        .limit(remaining)
+
+      if (serviceSlug) {
+        mediaQuery = mediaQuery.contains('tags', [`service:${serviceSlug}`])
+      } else if (topic) {
+        const searchTerm = topic.toLowerCase().replace(/\s+/g, '-')
+        const likeTerm = `%${topic}%`
+        // Map common topic aliases to specific tags
+        const topicLower = topic.toLowerCase()
+        const isPhotoStudio = topicLower.includes('photo studio') || topicLower.includes('photo shoot') || topicLower.includes('professional photo')
+        if (isPhotoStudio) {
+          mediaQuery = mediaQuery.contains('tags', ['event:photo-shoot-oct-2025'])
+        } else {
+          mediaQuery = mediaQuery.or(
+            `original_filename.ilike.${likeTerm},title.ilike.${likeTerm},description.ilike.${likeTerm},tags.cs.{${searchTerm}}`
+          )
+        }
+      }
+
+      const { data: libraryData } = await mediaQuery
+      const existingIds = new Set(storyPhotos.map(p => p.id))
+      const libraryPhotos = (libraryData || [])
+        .filter(m => !existingIds.has(m.id))
+        .map(m => ({
+          id: m.id,
+          url: m.public_url,
+          alt: m.title || m.original_filename,
+          caption: m.description,
+        }))
+
+      storyPhotos = [...storyPhotos, ...libraryPhotos].slice(0, limit)
+    }
+
+    return {
+      photos: storyPhotos,
+      total: storyPhotos.length,
     }
   },
 })
@@ -477,14 +526,293 @@ export const submitCommunityVision = defineTool({
   },
 })
 
+// ─── getInnovationProjects ──────────────────────────────────────────────────
+
+const getInnovationProjectsSchema = z.object({
+  projectSlug: z.string().optional().describe('Project slug to get details for a specific project'),
+  status: z.string().optional().describe('Filter by status: active, in_progress, planning, completed'),
+})
+
+type GetInnovationProjectsInput = z.infer<typeof getInnovationProjectsSchema>
+
+export const getInnovationProjects = defineTool({
+  description: 'Get information about PICC innovation projects including Elders trips, Photo Studio, Healthy Meals, The Centre, and more.',
+  parameters: getInnovationProjectsSchema,
+  execute: async (input: GetInnovationProjectsInput) => {
+    const { projectSlug, status } = input
+    const supabase = getSupabase()
+
+    let query = supabase
+      .from('projects')
+      .select('id, name, slug, description, tagline, status, hero_image_url, target_beneficiaries, actual_beneficiaries, budget_total, budget_spent')
+      .order('name')
+
+    if (projectSlug) {
+      query = query.eq('slug', projectSlug)
+    }
+    if (status) {
+      query = query.eq('status', status)
+    }
+
+    const { data: projects, error } = await query.limit(10)
+
+    if (error) {
+      console.error('getInnovationProjects error:', error)
+      return { projects: [], total: 0 }
+    }
+
+    if (!projects || projects.length === 0) {
+      return { projects: [], total: 0, message: 'No innovation projects found.' }
+    }
+
+    // For single project, also fetch notes and stories
+    if (projectSlug && projects.length === 1) {
+      const proj = projects[0]
+      const [notesResult, storiesResult] = await Promise.all([
+        supabase
+          .from('project_notes')
+          .select('id, content, note_type, author_name, created_at')
+          .eq('project_id', proj.id)
+          .order('created_at', { ascending: false })
+          .limit(5),
+        supabase
+          .from('stories')
+          .select('id, title, excerpt, category')
+          .eq('status', 'published')
+          .or(`title.ilike.%${proj.name}%,content.ilike.%${proj.name}%`)
+          .limit(3),
+      ])
+
+      return {
+        project: {
+          name: proj.name,
+          slug: proj.slug,
+          description: proj.description,
+          tagline: proj.tagline,
+          status: proj.status,
+          heroImage: proj.hero_image_url,
+          targetBeneficiaries: proj.target_beneficiaries,
+          actualBeneficiaries: proj.actual_beneficiaries,
+          budget: proj.budget_total ? `$${(proj.budget_total / 1000).toFixed(0)}K` : null,
+        },
+        notes: notesResult.data || [],
+        relatedStories: storiesResult.data || [],
+        total: 1,
+      }
+    }
+
+    return {
+      projects: projects.map(p => ({
+        name: p.name,
+        slug: p.slug,
+        tagline: p.tagline || p.description?.substring(0, 100),
+        status: p.status,
+        heroImage: p.hero_image_url,
+      })),
+      total: projects.length,
+    }
+  },
+})
+
+// ─── getServiceMetrics ──────────────────────────────────────────────────────
+
+const getServiceMetricsSchema = z.object({
+  serviceSlug: z.string().optional().describe('Service slug to get metrics for'),
+  fiscalYear: z.string().optional().describe('Fiscal year (e.g. "2024-25"). Defaults to latest.'),
+  includeActivity: z.boolean().default(true).describe('Include monthly activity log data'),
+})
+
+type GetServiceMetricsInput = z.infer<typeof getServiceMetricsSchema>
+
+export const getServiceMetrics = defineTool({
+  description: 'Get service metrics and activity trends — annual metrics plus monthly activity logs for trend analysis.',
+  parameters: getServiceMetricsSchema,
+  execute: async (input: GetServiceMetricsInput) => {
+    const { serviceSlug, fiscalYear, includeActivity } = input
+    const supabase = getSupabase()
+
+    // Find service
+    let serviceId: string | null = null
+    let serviceName: string | null = null
+    if (serviceSlug) {
+      const { data } = await supabase
+        .from('organization_services')
+        .select('id, name')
+        .eq('slug', serviceSlug)
+        .single()
+      serviceId = data?.id || null
+      serviceName = data?.name || null
+    }
+
+    // Annual metrics
+    let metricsQuery = supabase
+      .from('service_metrics')
+      .select('*')
+      .order('fiscal_year', { ascending: false })
+      .limit(5)
+    if (serviceId) metricsQuery = metricsQuery.eq('organization_service_id', serviceId)
+    if (fiscalYear) metricsQuery = metricsQuery.eq('fiscal_year', fiscalYear)
+    const { data: metrics } = await metricsQuery
+
+    // Monthly activity logs
+    let activityLogs: any[] = []
+    if (includeActivity && serviceId) {
+      const { data } = await supabase
+        .from('service_activity_logs')
+        .select('*')
+        .eq('service_id', serviceId)
+        .order('period_start', { ascending: false })
+        .limit(12)
+      activityLogs = data || []
+    }
+
+    return {
+      service: serviceName,
+      annualMetrics: metrics || [],
+      activityLogs,
+      trends: activityLogs.length > 1 ? {
+        totalClients: activityLogs.reduce((sum: number, l: any) => sum + (l.clients_served || 0), 0),
+        totalSessions: activityLogs.reduce((sum: number, l: any) => sum + (l.sessions_delivered || 0), 0),
+        monthsCovered: activityLogs.length,
+      } : null,
+    }
+  },
+})
+
+// ─── getFinancialSummary ────────────────────────────────────────────────────
+
+const getFinancialSummarySchema = z.object({
+  fiscalYear: z.string().optional().describe('Fiscal year (e.g. "2023-24"). Defaults to latest.'),
+})
+
+type GetFinancialSummaryInput = z.infer<typeof getFinancialSummarySchema>
+
+export const getFinancialSummary = defineTool({
+  description: 'Get PICC financial summary — revenue, expenditure, and breakdown by category.',
+  parameters: getFinancialSummarySchema,
+  execute: async (input: GetFinancialSummaryInput) => {
+    const { fiscalYear } = input
+    const supabase = getSupabase()
+
+    let query = supabase
+      .from('annual_financials')
+      .select('*')
+      .order('fiscal_year', { ascending: false })
+      .limit(3)
+    if (fiscalYear) query = query.eq('fiscal_year', fiscalYear)
+    const { data } = await query
+
+    return { financials: data || [], count: data?.length || 0 }
+  },
+})
+
+// ─── submitServiceUpdate ────────────────────────────────────────────────────
+
+const submitServiceUpdateSchema = z.object({
+  serviceSlug: z.string().describe('Service slug to update'),
+  content: z.string().min(10).describe('The update or note content'),
+  noteType: z.enum(['update', 'achievement', 'challenge', 'feedback']).default('update')
+    .describe('Type of note'),
+  authorName: z.string().optional().describe('Who provided this information'),
+})
+
+type SubmitServiceUpdateInput = z.infer<typeof submitServiceUpdateSchema>
+
+export const submitServiceUpdate = defineTool({
+  description: 'Record a service update or note captured from conversation. Saves to service_notes table.',
+  parameters: submitServiceUpdateSchema,
+  execute: async (input: SubmitServiceUpdateInput) => {
+    const { serviceSlug, content, noteType, authorName } = input
+    const supabase = getSupabase()
+
+    // Find service
+    const { data: service } = await supabase
+      .from('organization_services')
+      .select('id, name')
+      .eq('slug', serviceSlug)
+      .single()
+
+    if (!service) return { success: false, error: `Service "${serviceSlug}" not found` }
+
+    const { data, error } = await supabase
+      .from('service_notes')
+      .insert({
+        service_id: service.id,
+        content,
+        note_type: noteType,
+        author_name: authorName || 'Chat Assistant',
+        source: 'chat',
+      })
+      .select('id, created_at')
+      .single()
+
+    if (error) return { success: false, error: error.message }
+
+    return {
+      success: true,
+      id: data.id,
+      service: service.name,
+      noteType,
+      message: `Update saved for ${service.name}. It will be visible in the service admin page.`,
+    }
+  },
+})
+
+// ─── submitMeetingNote ──────────────────────────────────────────────────────
+
+const submitMeetingNoteSchema = z.object({
+  title: z.string().describe('Meeting title or subject'),
+  summary: z.string().min(20).describe('Meeting summary or key points'),
+  attendees: z.array(z.string()).optional().describe('List of attendee names'),
+  meetingDate: z.string().optional().describe('Meeting date (YYYY-MM-DD). Defaults to today.'),
+  actionItems: z.array(z.string()).optional().describe('Action items from the meeting'),
+})
+
+type SubmitMeetingNoteInput = z.infer<typeof submitMeetingNoteSchema>
+
+export const submitMeetingNote = defineTool({
+  description: 'Record a meeting summary captured from conversation. Saves to meeting_notes table.',
+  parameters: submitMeetingNoteSchema,
+  execute: async (input: SubmitMeetingNoteInput) => {
+    const { title, summary, attendees, meetingDate, actionItems } = input
+    const supabase = getSupabase()
+
+    const { data, error } = await supabase
+      .from('meeting_notes')
+      .insert({
+        title,
+        summary,
+        attendees: attendees || [],
+        meeting_date: meetingDate || new Date().toISOString().split('T')[0],
+        action_items: actionItems || [],
+        source: 'chat',
+      })
+      .select('id, created_at')
+      .single()
+
+    if (error) return { success: false, error: error.message }
+
+    return {
+      success: true,
+      id: data.id,
+      message: `Meeting note "${title}" saved successfully.`,
+    }
+  },
+})
+
 // ─── Export all tools ────────────────────────────────────────────────────────
 
 export const exploreTools = {
   searchStories,
   getServiceInfo,
+  getInnovationProjects,
   exploreTimeline,
   findQuotes,
   getPhotoGallery,
   exploreKnowledgeGraph,
   submitCommunityVision,
+  getServiceMetrics,
+  getFinancialSummary,
+  submitServiceUpdate,
+  submitMeetingNote,
 }

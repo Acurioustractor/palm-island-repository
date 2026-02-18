@@ -599,7 +599,7 @@ export default function DashboardPage() {
                 </span>
               </div>
               <h1 className="text-3xl md:text-5xl font-bold mb-2" style={{ letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-                15 Years of Impact
+                17 Years of Impact
               </h1>
               <p className="text-warm-200 text-lg max-w-2xl">
                 Every number tells a story of community growth, self-determination,
@@ -659,7 +659,7 @@ export default function DashboardPage() {
         <section>
           <SectionHeader
             title="Growth Over Time"
-            subtitle="Staff and budget trajectory across 15 years"
+            subtitle="Staff and budget trajectory across 17 years"
             icon={TrendingUp}
           />
           <div className="grid lg:grid-cols-3 gap-6">
@@ -850,7 +850,7 @@ export default function DashboardPage() {
         <section>
           <SectionHeader
             title="Achievements & Voices"
-            subtitle="Key milestones and community voices across 15 years"
+            subtitle="Key milestones and community voices across 17 years"
             icon={Award}
           />
           <div className="grid lg:grid-cols-5 gap-6">

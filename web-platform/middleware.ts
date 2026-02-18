@@ -29,7 +29,7 @@ const PUBLIC_ROUTES = [
   '/stories',
   '/community',
   '/impact',
-  '/share-voice',
+  '/share-voice', // redirects to /stories — kept here to avoid auth redirect
   '/subscribe',
   '/wiki',
   '/annual-reports',
@@ -40,6 +40,11 @@ const PUBLIC_ROUTES = [
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+
+  // Redirect legacy routes
+  if (pathname === '/share-voice') {
+    return NextResponse.redirect(new URL('/stories', request.url), 301)
+  }
 
   // Update session and get user
   const { response, user } = await updateSession(request)

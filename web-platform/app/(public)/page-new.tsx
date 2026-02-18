@@ -297,7 +297,7 @@ export default async function HomePage() {
               Explore Our Journey
             </h2>
             <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
-              15 years of growth through interactive reports, comprehensive knowledge, and AI assistance
+              17 years of growth through interactive reports, comprehensive knowledge, and AI assistance
             </p>
           </div>
 
@@ -322,7 +322,7 @@ export default async function HomePage() {
                     Interactive Timeline
                   </h3>
                   <p className="text-gray-600 mb-4 flex-1">
-                    Navigate 15 years of growth, achievements, and community control.
+                    Navigate 17 years of growth, achievements, and community control.
                     264+ images, full-text search, and AI-powered Q&A.
                   </p>
                   <div className="flex items-center text-gray-900 font-semibold group-hover:gap-2 transition-all">

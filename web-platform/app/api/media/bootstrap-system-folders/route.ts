@@ -244,7 +244,160 @@ export async function POST(request: NextRequest) {
       },
     ]
 
-    const folders = [...eventFolders, ...serviceFolders, ...projectFolders, ...yearFolders, ...annualReportYearFolders]
+    // People & Leadership folders
+    const peopleFolders = [
+      {
+        name: 'Board Members',
+        slug: 'people-board-members',
+        description: 'Photos of board members.',
+        icon: 'Users',
+        color: 'purple',
+        is_system: true,
+        query_rules: {
+          filters: [{ field: 'tags', operator: 'contains', value: 'role:board-member' }],
+        },
+      },
+      {
+        name: 'Staff Portraits',
+        slug: 'people-staff',
+        description: 'Staff portraits and team photos.',
+        icon: 'Users',
+        color: 'blue',
+        is_system: true,
+        query_rules: {
+          filters: [{ field: 'tags', operator: 'contains', value: 'role:staff' }],
+        },
+      },
+      {
+        name: 'Elder Advisors',
+        slug: 'people-elder-advisors',
+        description: 'Photos of Elder advisors.',
+        icon: 'Users',
+        color: 'amber',
+        is_system: true,
+        query_rules: {
+          filters: [{ field: 'tags', operator: 'contains', value: 'role:elder-advisor' }],
+        },
+      },
+      {
+        name: 'Community Leaders',
+        slug: 'people-community-leaders',
+        description: 'Photos of cultural advisors and community leaders.',
+        icon: 'Users',
+        color: 'green',
+        is_system: true,
+        query_rules: {
+          filters: [{ field: 'tags', operator: 'contains', value: 'role:cultural-advisor' }],
+        },
+      },
+    ]
+
+    // Content type folders
+    const contentTypeFolders = [
+      {
+        name: 'Hero Images',
+        slug: 'content-hero-images',
+        description: 'All current hero/cover photos used across the site.',
+        icon: 'Star',
+        color: 'amber',
+        is_system: true,
+        query_rules: {
+          filters: [{ field: 'tags', operator: 'contains', value: 'hero' }],
+        },
+      },
+      {
+        name: 'Professional Photography',
+        slug: 'content-professional',
+        description: 'High-quality professional photography.',
+        icon: 'Star',
+        color: 'blue',
+        is_system: true,
+        query_rules: {
+          filters: [{ field: 'tags', operator: 'contains', value: 'professional-photography' }],
+        },
+      },
+      {
+        name: 'Community Events',
+        slug: 'content-events',
+        description: 'All photos tagged with any event prefix.',
+        icon: 'Calendar',
+        color: 'green',
+        is_system: true,
+        query_rules: {
+          filters: [{ field: 'tags', operator: 'prefix', value: 'event:' }],
+        },
+      },
+      {
+        name: 'Landscapes & Places',
+        slug: 'content-landscapes',
+        description: 'Landscape and location photos (AI-suggested).',
+        icon: 'Folder',
+        color: 'green',
+        is_system: true,
+        query_rules: {
+          filters: [{ field: 'tags', operator: 'contains', value: 'landscape' }],
+        },
+      },
+      {
+        name: 'Group Photos',
+        slug: 'content-group-photos',
+        description: 'Photos with 3+ people (AI-suggested).',
+        icon: 'Users',
+        color: 'pink',
+        is_system: true,
+        query_rules: {
+          filters: [{ field: 'tags', operator: 'contains', value: 'group' }],
+        },
+      },
+    ]
+
+    // Triage folders
+    const triageFolders = [
+      {
+        name: 'Untagged (Needs Review)',
+        slug: 'triage-untagged',
+        description: 'Media with no tags — needs tagging and review.',
+        icon: 'AlertCircle',
+        color: 'red',
+        is_system: true,
+        query_rules: {
+          filters: [{ field: 'tags', operator: 'empty', value: '' }],
+        },
+      },
+      {
+        name: 'AI Analyzed',
+        slug: 'triage-ai-analyzed',
+        description: 'Media that has been processed by AI analysis.',
+        icon: 'Star',
+        color: 'green',
+        is_system: true,
+        query_rules: {
+          filters: [{ field: 'metadata.ai_analysis', operator: 'exists', value: '' }],
+        },
+      },
+      {
+        name: 'Needs Analysis',
+        slug: 'triage-needs-analysis',
+        description: 'Media not yet analyzed by AI.',
+        icon: 'AlertCircle',
+        color: 'amber',
+        is_system: true,
+        query_rules: {
+          filters: [{ field: 'metadata.ai_analysis', operator: 'not_exists', value: '' }],
+        },
+      },
+    ]
+
+    const folders = [
+      ...eventFolders,
+      ...peopleFolders,
+      ...contentTypeFolders,
+      ...triageFolders,
+      ...serviceFolders,
+      ...projectFolders,
+      ...yearFolders,
+      ...annualReportYearFolders,
+    ]
 
     // Ensure icons exist in UI mapping; fall back gracefully.
     const safeFolders = folders.map((f) => ({

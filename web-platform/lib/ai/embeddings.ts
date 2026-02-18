@@ -16,9 +16,11 @@ interface EmbeddingResult {
   tokens: number
 }
 
+type ContentType = 'story' | 'knowledge' | 'person' | 'annual_report' | 'service'
+
 interface SemanticSearchResult {
   id: string
-  type: 'story' | 'knowledge' | 'person'
+  type: ContentType
   title: string
   content?: string
   summary?: string
@@ -122,7 +124,7 @@ export async function generateEmbeddingsBatch(
  */
 export async function storeEmbedding(
   contentId: string,
-  contentType: 'story' | 'knowledge' | 'person',
+  contentType: ContentType,
   text: string
 ): Promise<void> {
   const supabase = await createServerComponentClient()
@@ -155,7 +157,7 @@ export async function semanticSearch(
   query: string,
   options: {
     limit?: number
-    types?: ('story' | 'knowledge' | 'person')[]
+    types?: ContentType[]
     threshold?: number
   } = {}
 ): Promise<SemanticSearchResult[]> {
@@ -186,7 +188,7 @@ export async function semanticSearch(
  */
 export async function findSimilarContent(
   contentId: string,
-  contentType: 'story' | 'knowledge' | 'person',
+  contentType: ContentType,
   options: {
     limit?: number
     excludeSameType?: boolean
@@ -231,7 +233,7 @@ export async function findSimilarContent(
  * Update embeddings for all content (background job)
  */
 export async function updateAllEmbeddings(
-  contentType: 'story' | 'knowledge' | 'person'
+  contentType: ContentType
 ): Promise<{ processed: number; errors: number }> {
   const supabase = await createServerComponentClient()
   let processed = 0
@@ -257,6 +259,17 @@ export async function updateAllEmbeddings(
         .select('id, full_name, bio')
         .eq('is_public', true)
       break
+    case 'annual_report':
+      query = (supabase as any)
+        .from('report_statistics')
+        .select('id, stat_label, stat_value, stat_unit, stat_description, category')
+      break
+    case 'service':
+      query = (supabase as any)
+        .from('organization_services')
+        .select('id, name, description, service_category')
+        .eq('is_active', true)
+      break
   }
 
   const { data: items } = await query
@@ -270,9 +283,20 @@ export async function updateAllEmbeddings(
 
     await Promise.all(batch.map(async (item: any) => {
       try {
-        const text = contentType === 'person'
-          ? `${item.full_name}. ${item.bio || ''}`
-          : `${item.title}. ${item.summary || ''} ${item.content || ''}`
+        let text: string
+        switch (contentType) {
+          case 'person':
+            text = `${item.full_name}. ${item.bio || ''}`
+            break
+          case 'annual_report':
+            text = `${item.stat_label}: ${item.stat_value}${item.stat_unit || ''}. ${item.stat_description || ''} Category: ${item.category || ''}`
+            break
+          case 'service':
+            text = `${item.name}. ${item.description || ''} Category: ${item.service_category || ''}`
+            break
+          default:
+            text = `${item.title}. ${item.summary || ''} ${item.content || ''}`
+        }
 
         await storeEmbedding(item.id, contentType, text)
         processed++

@@ -1,11 +1,27 @@
 import { streamText, stepCountIs, convertToModelMessages } from 'ai'
 import { minimax } from 'vercel-minimax-ai-provider'
+import { anthropic } from '@ai-sdk/anthropic'
 import { exploreTools } from '@/lib/explore/tools'
 import { EXPLORE_SYSTEM_PROMPT } from '@/lib/explore/system-prompt'
 import { rateLimit, RateLimitType } from '@/lib/ai/rate-limit'
 import { getExpandedContext } from '@/lib/ai/context-builder'
 
 export const maxDuration = 60
+
+/**
+ * Model selection: CHAT_MODEL env var controls which model is used.
+ * - 'minimax' (default) — MiniMax-M2 for fast/cheap everyday chat
+ * - 'claude' — Claude Sonnet for deep analysis mode
+ * Clients can also pass ?mode=deep to force Claude for a single request.
+ */
+function getChatModel(mode?: string | null) {
+  const envModel = process.env.CHAT_MODEL || 'minimax'
+  const useClaude = mode === 'deep' || envModel === 'claude'
+  if (useClaude) {
+    return anthropic('claude-sonnet-4-5-20250929')
+  }
+  return minimax('MiniMax-M2')
+}
 
 export async function POST(request: Request) {
   const { success, retryAfter } = await rateLimit(request, RateLimitType.CHAT)
@@ -16,6 +32,8 @@ export async function POST(request: Request) {
     )
   }
 
+  const url = new URL(request.url)
+  const mode = url.searchParams.get('mode')
   const { messages } = await request.json()
 
   // Extract latest user message for RAG context
@@ -50,13 +68,21 @@ ${ragSources.map(s => `- ${s.title} (${s.type}): ${s.url}`).join('\n')}
 `
     : EXPLORE_SYSTEM_PROMPT
 
-  const result = streamText({
-    model: minimax('MiniMax-M2'),
-    system: systemWithRAG,
-    messages: await convertToModelMessages(messages),
-    tools: exploreTools,
-    stopWhen: stepCountIs(5),
-  })
+  try {
+    const result = streamText({
+      model: getChatModel(mode),
+      system: systemWithRAG,
+      messages: await convertToModelMessages(messages),
+      tools: exploreTools,
+      stopWhen: stepCountIs(5),
+    })
 
-  return result.toUIMessageStreamResponse()
+    return result.toUIMessageStreamResponse()
+  } catch (error: any) {
+    console.error('Chat stream error:', error)
+    return new Response(
+      JSON.stringify({ error: error?.message || 'Chat failed' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    )
+  }
 }

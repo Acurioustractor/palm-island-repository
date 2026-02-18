@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PICC Annual Report 2024-25 — Page Mockups</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Brand colors from theme.ts */
+    --blue: #2563eb;
+    --blue-dark: #1e3a8a;
+    --blue-deep: #1e40af;
+    --blue-50: #eff6ff;
+    --blue-100: #dbeafe;
+    --purple: #9333ea;
+    --purple-50: #faf5ff;
+    --purple-100: #f3e8ff;
+    --purple-dark: #6b21a8;
+    --green: #16a34a;
+    --green-50: #f0fdf4;
+    --amber: #d97706;
+    --amber-50: #fffbeb;
+    --orange: #ea580c;
+    --teal: #0f766e;
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --text-muted: #9ca3af;
+    --text-light: #d1d5db;
+    --white: #ffffff;
+    --bg-light: #f9fafb;
+    --bg-section: #f3f4f6;
+    --bg-dark: #1f2937;
+    --border: #e5e7eb;
+    /* Logo-inspired earth tones */
+    --logo-red: #8B1A1A;
+    --logo-ochre: #C8963E;
+    --logo-cream: #F5E6C8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #1a1a2e;
+    color: var(--text-primary);
+    padding: 40px 20px;
+  }
+
+  .controls {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: rgba(26, 26, 46, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .controls h1 {
+    font-family: 'Caveat', cursive;
+    color: white;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .controls .nav-pills {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    flex: 1;
+  }
+
+  .controls button {
+    padding: 4px 10px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: transparent;
+    color: rgba(255,255,255,0.7);
+    border-radius: 6px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .controls button:hover, .controls button.active {
+    background: var(--purple);
+    border-color: var(--purple);
+    color: white;
+  }
+
+  .controls .view-toggle {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .pages-container {
+    margin-top: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .pages-container.grid-view {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+    max-width: 1400px;
+    margin: 60px auto 0;
+  }
+
+  /* A4 page simulation */
+  .page {
+    width: 595px;
+    min-height: 842px;
+    background: white;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    border-radius: 2px;
+    font-size: 9.5px;
+    line-height: 1.5;
+  }
+
+  .grid-view .page {
+    width: 100%;
+    min-height: 0;
+    aspect-ratio: 595 / 842;
+    font-size: 6px;
+  }
+
+  .page-label {
+    color: rgba(255,255,255,0.5);
+    font-size: 12px;
+    text-align: center;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  .grid-view .page-label { font-size: 10px; }
+
+  /* Page inner padding */
+  .page-content {
+    padding: 60px 50px 50px;
+    height: 100%;
+    position: relative;
+  }
+
+  .page-bleed {
+    height: 100%;
+    position: relative;
+  }
+
+  /* Running header */
+  .running-header {
+    position: absolute;
+    top: 20px;
+    left: 50px;
+    right: 50px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 6.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+  }
+
+  /* Page number */
+  .page-number {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 8px;
+    color: var(--text-muted);
+  }
+
+  /* Section label */
+  .section-label {
+    font-size: 7.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--purple);
+    margin-bottom: 6px;
+  }
+
+  /* Gradient bar */
+  .gradient-bar {
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--blue), var(--purple));
+    margin-bottom: 12px;
+  }
+
+  /* Headings */
+  .h1 {
+    font-family: 'Caveat', cursive;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--blue-dark);
+    margin-bottom: 8px;
+    line-height: 1.15;
+  }
+
+  .h2 {
+    font-family: 'Caveat', cursive;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--blue-dark);
+    margin-bottom: 6px;
+  }
+
+  .h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--blue-dark);
+    margin-bottom: 4px;
+  }
+
+  .h4 {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--blue-dark);
+    margin-bottom: 3px;
+  }
+
+  .lead {
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+
+  .body-text {
+    font-size: 9.5px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+  }
+
+  /* Stat boxes */
+  .stats-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0;
+  }
+
+  .stat-box {
+    width: 48%;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 10px;
+    border-top: 3px solid var(--blue);
+  }
+
+  .stat-value {
+    font-family: 'Caveat', cursive;
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+
+  .stat-label {
+    font-size: 9px;
+    color: var(--text-secondary);
+  }
+
+  /* Cards */
+  .card {
+    width: 48%;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 10px;
+    border-left: 3px solid var(--blue);
+  }
+
+  .card-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--blue-dark);
+    margin-bottom: 4px;
+  }
+
+  .card-desc {
+    font-size: 8.5px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  .card-badge {
+    display: inline-block;
+    font-size: 7px;
+    font-weight: 700;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-top: 6px;
+  }
+
+  /* Voice cards */
+  .voice-card {
+    width: 48%;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 10px;
+    border-top: 3px solid var(--purple);
+  }
+
+  .voice-type {
+    font-size: 7px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  .voice-text {
+    font-size: 9px;
+    font-style: italic;
+    color: var(--text-primary);
+    line-height: 1.6;
+    margin-bottom: 8px;
+  }
+
+  .voice-author {
+    font-size: 8px;
+    color: var(--text-secondary);
+  }
+
+  /* Quote block */
+  .quote-block {
+    padding: 12px 16px;
+    border-left: 3px solid var(--purple);
+    margin-bottom: 14px;
+  }
+
+  .quote-text {
+    font-size: 10px;
+    font-style: italic;
+    color: var(--text-primary);
+    line-height: 1.6;
+    margin-bottom: 6px;
+  }
+
+  .quote-author {
+    font-size: 8px;
+    color: var(--text-secondary);
+  }
+
+  /* Person avatar */
+  .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  /* Innovation cards */
+  .innovation-card {
+    width: 48%;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 10px;
+    border-top: 3px solid var(--purple);
+  }
+
+  .innovation-img {
+    width: 100%;
+    height: 80px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, var(--blue-50), var(--purple-50));
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 8px;
+  }
+
+  /* Goal rows */
+  .goal-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 14px;
+  }
+
+  .progress-bar-outer {
+    width: 160px;
+    height: 12px;
+    background: var(--bg-section);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .progress-bar-inner {
+    height: 100%;
+    border-radius: 6px;
+  }
+
+  /* Compliance rows */
+  .compliance-row {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    border-bottom: 0.5px solid var(--bg-section);
+  }
+
+  .compliance-label {
+    font-size: 9px;
+    color: var(--text-muted);
+    width: 40%;
+  }
+
+  .compliance-value {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--blue-dark);
+    width: 58%;
+  }
+
+  /* Board grid */
+  .board-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .board-card {
+    width: 31%;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  /* Financial bars */
+  .fin-bar-row {
+    margin-bottom: 10px;
+  }
+
+  .fin-bar-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2px;
+  }
+
+  .fin-bar {
+    height: 10px;
+    border-radius: 5px;
+    background: var(--bg-section);
+    overflow: hidden;
+  }
+
+  .fin-bar-fill {
+    height: 100%;
+    border-radius: 5px;
+  }
+
+  /* Era blocks */
+  .era-block {
+    display: flex;
+    margin-bottom: 16px;
+    padding: 12px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+
+  .era-indicator {
+    width: 4px;
+    border-radius: 2px;
+    margin-right: 12px;
+    flex-shrink: 0;
+  }
+
+  /* SVG decorative elements */
+  .concentric-dots, .arc-dots {
+    position: absolute;
+    pointer-events: none;
+  }
+
+  /* Photo placeholders */
+  .photo-placeholder {
+    background: linear-gradient(135deg, var(--blue-50), var(--purple-50), var(--logo-cream));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 9px;
+    overflow: hidden;
+  }
+
+  /* Message blocks */
+  .message-block {
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+  }
+
+  /* Info boxes */
+  .info-box {
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
+
+  /* Acknowledgement */
+  .ack-border {
+    border: 2px solid var(--purple);
+    border-radius: 12px;
+    padding: 30px;
+    margin-top: 40px;
+    text-align: center;
+  }
+
+  .ack-title {
+    font-family: 'Caveat', cursive;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--purple);
+    margin-bottom: 16px;
+  }
+
+  /* Photo spread */
+  .photo-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px;
+  }
+</style>
+</head>
+<body>
+
+<div class="controls">
+  <h1>PICC Annual Report</h1>
+  <div class="nav-pills" id="nav"></div>
+  <div class="view-toggle">
+    <button onclick="setView('scroll')" class="active" id="btn-scroll">Scroll</button>
+    <button onclick="setView('grid')" id="btn-grid">Grid</button>
+  </div>
+</div>
+
+<div class="pages-container" id="pages-container">
+
+  <!-- PAGE 1: COVER -->
+  <div class="page-wrapper" data-page="cover">
+    <div class="page-label">1 — Cover</div>
+    <div class="page">
+      <div class="page-bleed" style="background: linear-gradient(180deg, rgba(30,58,138,0.1) 0%, rgba(30,58,138,0.85) 60%, #1e3a8a 100%); display: flex; flex-direction: column; justify-content: flex-end; padding: 50px;">
+        <!-- Concentric dots decoration -->
+        <svg class="concentric-dots" style="top: 40px; right: 40px;" width="120" height="120" viewBox="0 0 120 120">
+          <g opacity="0.15">
+            <!-- Ring 1 -->
+            <circle cx="60" cy="60" r="3" fill="#9333ea"/>
+            <circle cx="60" cy="44" r="2.5" fill="#9333ea"/><circle cx="73" cy="52" r="2.5" fill="#9333ea"/><circle cx="73" cy="68" r="2.5" fill="#9333ea"/><circle cx="60" cy="76" r="2.5" fill="#9333ea"/><circle cx="47" cy="68" r="2.5" fill="#9333ea"/><circle cx="47" cy="52" r="2.5" fill="#9333ea"/>
+            <!-- Ring 2 -->
+            <circle cx="60" cy="30" r="2" fill="#9333ea"/><circle cx="77" cy="37" r="2" fill="#9333ea"/><circle cx="86" cy="55" r="2" fill="#9333ea"/><circle cx="80" cy="74" r="2" fill="#9333ea"/><circle cx="65" cy="85" r="2" fill="#9333ea"/><circle cx="47" cy="82" r="2" fill="#9333ea"/><circle cx="35" cy="68" r="2" fill="#9333ea"/><circle cx="34" cy="50" r="2" fill="#9333ea"/><circle cx="45" cy="35" r="2" fill="#9333ea"/>
+            <!-- Ring 3 -->
+            <circle cx="60" cy="16" r="1.5" fill="#9333ea"/><circle cx="78" cy="22" r="1.5" fill="#9333ea"/><circle cx="92" cy="38" r="1.5" fill="#9333ea"/><circle cx="97" cy="58" r="1.5" fill="#9333ea"/><circle cx="90" cy="78" r="1.5" fill="#9333ea"/><circle cx="74" cy="92" r="1.5" fill="#9333ea"/><circle cx="54" cy="96" r="1.5" fill="#9333ea"/><circle cx="36" cy="90" r="1.5" fill="#9333ea"/><circle cx="24" cy="76" r="1.5" fill="#9333ea"/><circle cx="22" cy="56" r="1.5" fill="#9333ea"/><circle cx="30" cy="38" r="1.5" fill="#9333ea"/><circle cx="44" cy="22" r="1.5" fill="#9333ea"/>
+          </g>
+        </svg>
+
+        <div style="color: white; opacity: 0.8; font-size: 7.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 12px;">Palm Island Community Company</div>
+        <div style="font-family: 'Caveat', cursive; font-size: 36px; font-weight: 700; color: white; line-height: 1.15; margin-bottom: 8px;">Year 17 — Celebrating<br>Community Voice</div>
+        <div style="color: rgba(255,255,255,0.7); font-size: 11px;">Annual Report 2024-25</div>
+
+        <!-- Arc dots bottom-left -->
+        <svg class="arc-dots" style="bottom: 30px; left: 30px;" width="80" height="80" viewBox="0 0 80 80" opacity="0.12">
+          <circle cx="10" cy="70" r="2.5" fill="white"/><circle cx="18" cy="58" r="2.3" fill="white"/><circle cx="28" cy="48" r="2.1" fill="white"/><circle cx="40" cy="41" r="1.9" fill="white"/><circle cx="53" cy="37" r="1.7" fill="white"/><circle cx="66" cy="36" r="1.5" fill="white"/>
+          <circle cx="14" cy="76" r="2" fill="white"/><circle cx="24" cy="66" r="1.8" fill="white"/><circle cx="36" cy="58" r="1.6" fill="white"/><circle cx="48" cy="53" r="1.4" fill="white"/><circle cx="61" cy="50" r="1.2" fill="white"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 2: ACKNOWLEDGEMENT -->
+  <div class="page-wrapper" data-page="acknowledgement">
+    <div class="page-label">2 — Acknowledgement of Country</div>
+    <div class="page">
+      <div class="page-content">
+        <div class="running-header">
+          <span>Palm Island Community Company</span>
+          <span>Annual Report 2024-25</span>
+        </div>
+
+        <div class="ack-border">
+          <div class="ack-title">Acknowledgement of Country</div>
+          <div style="font-size: 10px; color: var(--text-secondary); line-height: 1.8;">
+            Palm Island Community Company acknowledges the Traditional Owners of the land on which we work and live, the Manbarra and Wulgurukaba peoples, and recognises their continuing connection to land, water and community. We pay our respects to Elders past, present and emerging.
+          </div>
+        </div>
+
+        <!-- Concentric dots -->
+        <svg class="concentric-dots" style="bottom: 100px; right: 50px;" width="100" height="100" viewBox="0 0 100 100">
+          <g opacity="0.1">
+            <circle cx="50" cy="50" r="2.5" fill="#9333ea"/>
+            <circle cx="50" cy="36" r="2.2" fill="#9333ea"/><circle cx="62" cy="43" r="2.2" fill="#9333ea"/><circle cx="62" cy="57" r="2.2" fill="#9333ea"/><circle cx="50" cy="64" r="2.2" fill="#9333ea"/><circle cx="38" cy="57" r="2.2" fill="#9333ea"/><circle cx="38" cy="43" r="2.2" fill="#9333ea"/>
+            <circle cx="50" cy="24" r="1.8" fill="#9333ea"/><circle cx="64" cy="30" r="1.8" fill="#9333ea"/><circle cx="73" cy="44" r="1.8" fill="#9333ea"/><circle cx="73" cy="56" r="1.8" fill="#9333ea"/><circle cx="64" cy="70" r="1.8" fill="#9333ea"/><circle cx="50" cy="76" r="1.8" fill="#9333ea"/><circle cx="36" cy="70" r="1.8" fill="#9333ea"/><circle cx="27" cy="56" r="1.8" fill="#9333ea"/><circle cx="27" cy="44" r="1.8" fill="#9333ea"/><circle cx="36" cy="30" r="1.8" fill="#9333ea"/>
+          </g>
+        </svg>
+
+        <div class="page-number">2</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 3: MESSAGES -->
+  <div class="page-wrapper" data-page="messages">
+    <div class="page-label">3 — Leadership Messages</div>
+    <div class="page">
+      <div class="page-content">
+        <div class="running-header"><span>Palm Island Community Company</span><span>Annual Report 2024-25</span></div>
+        <div class="section-label">Leadership Messages</div>
+        <div class="gradient-bar" style="width: 100px;"></div>
+        <div class="h1">From Our Leaders</div>
+
+        <div class="message-block" style="background: var(--blue-50);">
+          <div style="display: flex; align-items: center; margin-bottom: 10px;">
+            <div class="avatar" style="background: var(--blue); width: 48px; height: 48px;">LB</div>
+            <div style="margin-left: 12px;">
+              <div style="font-size: 12px; font-weight: 700; color: var(--blue-dark);">Luella Bligh</div>
+              <div style="font-size: 8.5px; color: var(--text-muted);">Chair, Board of Directors</div>
+            </div>
+          </div>
+          <div class="body-text">This year has been one of extraordinary growth and community resilience. As we enter our 17th year, I am proud to see our organisation leading the way in community-controlled services across North Queensland...</div>
+          <div class="quote-block" style="margin-top: 10px; border-color: var(--blue);">
+            <div class="quote-text">"Our community's strength lies not in what we overcome, but in how we come together."</div>
+            <div class="quote-author">— Luella Bligh, Chair</div>
+          </div>
+        </div>
+
+        <div class="message-block" style="background: var(--purple-50);">
+          <div style="display: flex; align-items: center; margin-bottom: 10px;">
+            <div class="avatar" style="background: var(--purple); width: 48px; height: 48px;">RA</div>
+            <div style="margin-left: 12px;">
+              <div style="font-size: 12px; font-weight: 700; color: var(--blue-dark);">Rachel Atkinson</div>
+              <div style="font-size: 8.5px; color: var(--text-muted);">Chief Executive Officer</div>
+            </div>
+          </div>
+          <div class="body-text">From humble beginnings as a sole employee in 2007, PICC has grown to 197 staff delivering 20 integrated services. This year, our community showed extraordinary resilience through Cyclone Kirrily...</div>
+        </div>
+
+        <div class="page-number">3</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 4: YEAR IN NUMBERS -->
+  <div class="page-wrapper" data-page="numbers">
+    <div class="page-label">4 — Year in Numbers</div>
+    <div class="page">
+      <div class="page-content">
+        <div class="running-header"><span>Palm Island Community Company</span><span>Annual Report 2024-25</span></div>
+        <div class="section-label">Impact</div>
+        <div class="gradient-bar" style="width: 80px;"></div>
+        <div class="h1">Year 17 in Numbers</div>
+        <div class="lead">Key achievements and impact metrics for 2024-25.</div>
+
+        <!-- Arc dots top-right -->
+        <svg class="arc-dots" style="top: 50px; right: 30px;" width="70" height="70" viewBox="0 0 70 70" opacity="0.1">
+          <circle cx="60" cy="10" r="2.5" fill="#2563eb"/><circle cx="52" cy="20" r="2.3" fill="#2563eb"/><circle cx="42" cy="28" r="2.1" fill="#2563eb"/><circle cx="30" cy="34" r="1.9" fill="#2563eb"/><circle cx="18" cy="38" r="1.7" fill="#2563eb"/>
+          <circle cx="66" cy="18" r="2" fill="#2563eb"/><circle cx="58" cy="28" r="1.8" fill="#2563eb"/><circle cx="48" cy="36" r="1.6" fill="#2563eb"/><circle cx="36" cy="42" r="1.4" fill="#2563eb"/>
+        </svg>
+
+        <div class="stats-row">
+          <div class="stat-box" style="border-top-color: var(--blue);"><div class="stat-value" style="color: var(--blue);">197</div><div class="stat-label">Total Staff</div></div>
+          <div class="stat-box" style="border-top-color: var(--purple);"><div class="stat-value" style="color: var(--purple);">82%</div><div class="stat-label">Indigenous Employment</div></div>
+          <div class="stat-box" style="border-top-color: var(--green);"><div class="stat-value" style="color: var(--green);">20</div><div class="stat-label">Integrated Services</div></div>
+          <div class="stat-box" style="border-top-color: var(--orange);"><div class="stat-value" style="color: var(--orange);">$23.4M</div><div class="stat-label">Total Income</div></div>
+          <div class="stat-box" style="border-top-color: var(--teal);"><div class="stat-value" style="color: var(--teal);">3,200+</div><div class="stat-label">Community Members Served</div></div>
+          <div class="stat-box" style="border-top-color: var(--amber);"><div class="stat-value" style="color: var(--amber);">8</div><div class="stat-label">Innovation Projects</div></div>
+        </div>
+
+        <div class="page-number">4</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 5: PHOTOS -->
+  <div class="page-wrapper" data-page="photos">
+    <div class="page-label">5 — Life on Palm Island</div>
+    <div class="page">
+      <div class="page-content">
+        <div class="running-header"><span>Palm Island Community Company</span><span>Annual Report 2024-25</span></div>
+        <div class="section-label">Our Community</div>
+        <div class="gradient-bar" style="width: 90px;"></div>
+        <div class="h1">Life on Palm Island</div>
+        <div class="lead">Moments from across our community and services.</div>
+
+        <div class="photo-placeholder" style="width: 100%; height: 220px; margin-bottom: 8px;">
+          <span>Hero Photo — Community gathering / Professional shoot</span>
+        </div>
+        <div class="photo-grid">
+          <div class="photo-placeholder" style="width: 48%; height: 160px;">Spring Festival</div>
+          <div class="photo-placeholder" style="width: 48%; height: 160px;">Daycare Opening</div>
+          <div class="photo-placeholder" style="width: 48%; height: 160px;">Elders Together</div>
+          <div class="photo-placeholder" style="width: 48%; height: 160px;">Services at Work</div>
+        </div>
+        <div class="page-number">5</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 7: COMMUNITY VOICES -->
+  <div class="page-wrapper" data-page="voices">
+    <div class="page-label">7 — Community Voices</div>
+    <div class="page">
+      <div class="page-content">
+        <div class="running-header"><span>Palm Island Community Company</span><span>Annual Report 2024-25</span></div>
+        <div class="section-label">Community Voices</div>
+        <div class="gradient-bar" style="width: 100px;"></div>
+        <div class="h1">What Our Community Says</div>
+        <div class="lead">Real voices from the people at the heart of everything we do.</div>
+
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between;">
+          <div class="voice-card" style="border-top-color: var(--purple);">
+            <div class="voice-type" style="color: var(--purple);">Elder Wisdom</div>
+            <div class="voice-text">"Country is always speaking to us. We just need to remember how to listen."</div>
+            <div class="voice-author">— Uncle Jim, Elder</div>
+          </div>
+          <div class="voice-card" style="border-top-color: var(--blue);">
+            <div class="voice-type" style="color: var(--blue);">Community Story</div>
+            <div class="voice-text">"The Digital Service Centre changed everything for me. I learned skills I never thought possible."</div>
+            <div class="voice-author">— Sarah M., Community Member</div>
+          </div>
+          <div class="voice-card" style="border-top-color: var(--green);">
+            <div class="voice-type" style="color: var(--green);">Community Vision</div>
+            <div class="voice-text">"I want our kids to grow up knowing they can do anything, right here on Palm Island."</div>
+            <div class="voice-author">— Maria T., Parent</div>
+          </div>
+          <div class="voice-card" style="border-top-color: var(--teal);">
+            <div class="voice-type" style="color: var(--teal);">Community Feedback</div>
+            <div class="voice-text">"The health service saved my life. They treated me with dignity and respect."</div>
+            <div class="voice-author">— Anonymous</div>
+          </div>
+          <div class="voice-card" style="border-top-color: var(--purple);">
+            <div class="voice-type" style="color: var(--purple);">Elder Wisdom</div>
+            <div class="voice-text">"This place has been our home for thousands of years. PICC helps us keep it strong."</div>
+            <div class="voice-author">— Aunty Rose, Elder</div>
+          </div>
+          <div class="voice-card" style="border-top-color: var(--blue);">
+            <div class="voice-type" style="color: var(--blue);">Community Story</div>
+            <div class="voice-text">"Working at the Photo Studio gave me purpose. Now I'm teaching others."</div>
+            <div class="voice-author">— James K., Staff</div>
+          </div>
+        </div>
+
+        <!-- Concentric dots bottom-right -->
+        <svg class="concentric-dots" style="bottom: 50px; right: 40px;" width="80" height="80" viewBox="0 0 80 80">
+          <g opacity="0.08">
+            <circle cx="40" cy="40" r="2" fill="#9333ea"/>
+            <circle cx="40" cy="28" r="1.8" fill="#9333ea"/><circle cx="50" cy="34" r="1.8" fill="#9333ea"/><circle cx="50" cy="46" r="1.8" fill="#9333ea"/><circle cx="40" cy="52" r="1.8" fill="#9333ea"/><circle cx="30" cy="46" r="1.8" fill="#9333ea"/><circle cx="30" cy="34" r="1.8" fill="#9333ea"/>
+            <circle cx="40" cy="18" r="1.4" fill="#9333ea"/><circle cx="52" cy="23" r="1.4" fill="#9333ea"/><circle cx="59" cy="35" r="1.4" fill="#9333ea"/><circle cx="59" cy="45" r="1.4" fill="#9333ea"/><circle cx="52" cy="57" r="1.4" fill="#9333ea"/><circle cx="40" cy="62" r="1.4" fill="#9333ea"/><circle cx="28" cy="57" r="1.4" fill="#9333ea"/><circle cx="21" cy="45" r="1.4" fill="#9333ea"/><circle cx="21" cy="35" r="1.4" fill="#9333ea"/><circle cx="28" cy="23" r="1.4" fill="#9333ea"/>
+          </g>
+        </svg>
+
+        <div class="page-number">7</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 15: INNOVATION -->
+  <div class="page-wrapper" data-page="innovation">
+    <div class="page-label">15 — Innovation Projects</div>
+    <div class="page">
+      <div class="page-content">
+        <div class="running-header"><span>Palm Island Community Company</span><span>Annual Report 2024-25</span></div>
+        <div class="section-label">Year 17 — Innovation</div>
+        <div class="gradient-bar" style="width: 90px;"></div>
+        <div class="h1">Innovation Projects</div>
+        <div class="lead">Community-led initiatives creating new pathways for Palm Island.</div>
+
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+          <div class="stat-box" style="width: 31%; border-top-color: var(--purple);"><div class="stat-value" style="color: var(--purple); font-size: 28px;">8</div><div class="stat-label">Total Projects</div></div>
+          <div class="stat-box" style="width: 31%; border-top-color: var(--green);"><div class="stat-value" style="color: var(--green); font-size: 28px;">5</div><div class="stat-label">Active Projects</div></div>
+          <div class="stat-box" style="width: 31%; border-top-color: var(--teal);"><div class="stat-value" style="color: var(--teal); font-size: 28px;">44</div><div class="stat-label">Enterprise Staff</div></div>
+        </div>
+
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between;">
+          <div class="innovation-card">
+            <div class="innovation-img">Photo Studio</div>
+            <div style="font-size: 7px; color: var(--purple); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">In Progress</div>
+            <div class="card-title">Palm Island Photo Studio</div>
+            <div class="card-desc">Professional photography services training local youth in commercial photography.</div>
+          </div>
+          <div class="innovation-card">
+            <div class="innovation-img">Healthy Meals</div>
+            <div style="font-size: 7px; color: var(--green); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Active</div>
+            <div class="card-title">Healthy Meals Kitchen</div>
+            <div class="card-desc">Nutritious meal preparation and catering social enterprise for community events.</div>
+          </div>
+          <div class="innovation-card">
+            <div class="innovation-img">Elders Trip</div>
+            <div style="font-size: 7px; color: var(--blue); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">In Progress</div>
+            <div class="card-title">Walking Country Together</div>
+            <div class="card-desc">Elder-led cultural knowledge transfer through country visits and storytelling.</div>
+          </div>
+          <div class="innovation-card">
+            <div class="innovation-img">The Centre</div>
+            <div style="font-size: 7px; color: var(--green); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Active</div>
+            <div class="card-title">The Centre</div>
+            <div class="card-desc">Community hub providing recreation, gathering space, and youth programs.</div>
+          </div>
+        </div>
+
+        <svg class="concentric-dots" style="bottom: 50px; right: 40px;" width="80" height="80" viewBox="0 0 80 80">
+          <g opacity="0.08">
+            <circle cx="40" cy="28" r="1.8" fill="#9333ea"/><circle cx="50" cy="34" r="1.8" fill="#9333ea"/><circle cx="50" cy="46" r="1.8" fill="#9333ea"/><circle cx="40" cy="52" r="1.8" fill="#9333ea"/><circle cx="30" cy="46" r="1.8" fill="#9333ea"/><circle cx="30" cy="34" r="1.8" fill="#9333ea"/>
+            <circle cx="40" cy="18" r="1.4" fill="#9333ea"/><circle cx="52" cy="23" r="1.4" fill="#9333ea"/><circle cx="59" cy="35" r="1.4" fill="#9333ea"/><circle cx="59" cy="45" r="1.4" fill="#9333ea"/><circle cx="52" cy="57" r="1.4" fill="#9333ea"/><circle cx="40" cy="62" r="1.4" fill="#9333ea"/><circle cx="28" cy="57" r="1.4" fill="#9333ea"/><circle cx="21" cy="45" r="1.4" fill="#9333ea"/><circle cx="21" cy="35" r="1.4" fill="#9333ea"/><circle cx="28" cy="23" r="1.4" fill="#9333ea"/>
+          </g>
+        </svg>
+
+        <div class="page-number">15</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 16: FINANCIALS -->
+  <div class="page-wrapper" data-page="financials">
+    <div class="page-label">16 — Financials</div>
+    <div class="page">
+      <div class="page-content">
+        <div class="running-header"><span>Palm Island Community Company</span><span>Annual Report 2024-25</span></div>
+        <div class="section-label">Financial Summary</div>
+        <div class="gradient-bar" style="width: 90px;"></div>
+        <div class="h1">Income &amp; Expenditure</div>
+        <div class="lead">Financial overview for the 2024-25 fiscal year.</div>
+
+        <div style="display: flex; justify-content: space-between; margin-bottom: 24px;">
+          <div style="width: 31%; padding: 14px; background: var(--green-50); border-radius: 8px; border-top: 3px solid var(--green);">
+            <div style="font-family: 'Caveat'; font-size: 28px; font-weight: 700; color: var(--green);">$23.4M</div>
+            <div style="font-size: 9px; color: var(--text-secondary);">Total Income</div>
+            <div style="font-size: 7.5px; color: var(--text-muted); margin-top: 2px;">Prior year: $21.8M</div>
+          </div>
+          <div style="width: 31%; padding: 14px; background: var(--amber-50); border-radius: 8px; border-top: 3px solid var(--amber);">
+            <div style="font-family: 'Caveat'; font-size: 28px; font-weight: 700; color: var(--amber);">$23.7M</div>
+            <div style="font-size: 9px; color: var(--text-secondary);">Total Expenditure</div>
+            <div style="font-size: 7.5px; color: var(--text-muted); margin-top: 2px;">Prior year: $21.2M</div>
+          </div>
+          <div style="width: 31%; padding: 14px; background: var(--bg-section); border-radius: 8px; border-top: 3px solid var(--text-muted);">
+            <div style="font-family: 'Caveat'; font-size: 28px; font-weight: 700; color: var(--text-secondary);">($278K)</div>
+            <div style="font-size: 9px; color: var(--text-secondary);">Net Result</div>
+            <div style="font-size: 7.5px; color: var(--text-muted); margin-top: 2px;">Prior year: $603K</div>
+          </div>
+        </div>
+
+        <div class="h3" style="margin-bottom: 12px;">Expenditure Breakdown</div>
+        <div class="fin-bar-row">
+          <div class="fin-bar-header"><span style="font-size: 9px; color: var(--text-secondary);">Labour Costs</span><span style="font-size: 9px; font-weight: 700; color: var(--blue-dark);">$14,282,962 (60%)</span></div>
+          <div class="fin-bar"><div class="fin-bar-fill" style="width: 100%; background: var(--blue);"></div></div>
+        </div>
+        <div class="fin-bar-row">
+          <div class="fin-bar-header"><span style="font-size: 9px; color: var(--text-secondary);">Admin Expenses</span><span style="font-size: 9px; font-weight: 700; color: var(--blue-dark);">$5,000,820 (21%)</span></div>
+          <div class="fin-bar"><div class="fin-bar-fill" style="width: 35%; background: var(--purple);"></div></div>
+        </div>
+        <div class="fin-bar-row">
+          <div class="fin-bar-header"><span style="font-size: 9px; color: var(--text-secondary);">Travel &amp; Training</span><span style="font-size: 9px; font-weight: 700; color: var(--blue-dark);">$1,778,367 (8%)</span></div>
+          <div class="fin-bar"><div class="fin-bar-fill" style="width: 12.5%; background: var(--green);"></div></div>
+        </div>
+        <div class="fin-bar-row">
+          <div class="fin-bar-header"><span style="font-size: 9px; color: var(--text-secondary);">Client Costs</span><span style="font-size: 9px; font-weight: 700; color: var(--blue-dark);">$1,156,713 (5%)</span></div>
+          <div class="fin-bar"><div class="fin-bar-fill" style="width: 8%; background: var(--orange);"></div></div>
+        </div>
+        <div class="fin-bar-row">
+          <div class="fin-bar-header"><span style="font-size: 9px; color: var(--text-secondary);">Property &amp; Energy</span><span style="font-size: 9px; font-weight: 700; color: var(--blue-dark);">$1,058,084 (4%)</span></div>
+          <div class="fin-bar"><div class="fin-bar-fill" style="width: 7.5%; background: var(--teal);"></div></div>
+        </div>
+        <div class="fin-bar-row">
+          <div class="fin-bar-header"><span style="font-size: 9px; color: var(--text-secondary);">Motor Vehicle</span><span style="font-size: 9px; font-weight: 700; color: var(--blue-dark);">$401,112 (2%)</span></div>
+          <div class="fin-bar"><div class="fin-bar-fill" style="width: 3%; background: var(--amber);"></div></div>
+        </div>
+
+        <div class="page-number">16</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 19: NEXT TWENTY -->
+  <div class="page-wrapper" data-page="next-twenty">
+    <div class="page-label">19 — The Next 20 Years</div>
+    <div class="page">
+      <div class="page-content">
+        <div class="running-header"><span>Palm Island Community Company</span><span>Annual Report 2024-25</span></div>
+        <div class="section-label">Year 17 — Looking Forward</div>
+        <div class="gradient-bar" style="width: 90px;"></div>
+        <div class="h1">The Next 20 Years</div>
+        <div class="lead">Our targets for PICC's 20-year milestone in 2029 — and what the community wants for the next 20.</div>
+
+        <div class="goal-row">
+          <div><div style="font-size: 10px; font-weight: 700; color: var(--blue-dark);">Total Staff</div><div style="font-size: 8px; color: var(--text-muted);">197 people &rarr; 300 people by 2029</div></div>
+          <div style="text-align: right;"><div style="font-size: 10px; font-weight: 700; color: var(--blue); margin-bottom: 4px;">66%</div><div class="progress-bar-outer"><div class="progress-bar-inner" style="width: 66%; background: var(--blue);"></div></div></div>
+        </div>
+        <div class="goal-row">
+          <div><div style="font-size: 10px; font-weight: 700; color: var(--blue-dark);">Integrated Services</div><div style="font-size: 8px; color: var(--text-muted);">20 services &rarr; 50 services by 2029</div></div>
+          <div style="text-align: right;"><div style="font-size: 10px; font-weight: 700; color: var(--purple); margin-bottom: 4px;">40%</div><div class="progress-bar-outer"><div class="progress-bar-inner" style="width: 40%; background: var(--purple);"></div></div></div>
+        </div>
+        <div class="goal-row">
+          <div><div style="font-size: 10px; font-weight: 700; color: var(--blue-dark);">Annual Income</div><div style="font-size: 8px; color: var(--text-muted);">$23.4M &rarr; $40M by 2029</div></div>
+          <div style="text-align: right;"><div style="font-size: 10px; font-weight: 700; color: var(--green); margin-bottom: 4px;">59%</div><div class="progress-bar-outer"><div class="progress-bar-inner" style="width: 59%; background: var(--green);"></div></div></div>
+        </div>
+        <div class="goal-row">
+          <div><div style="font-size: 10px; font-weight: 700; color: var(--blue-dark);">Social Enterprises</div><div style="font-size: 8px; color: var(--text-muted);">3 enterprises &rarr; 8 enterprises by 2029</div></div>
+          <div style="text-align: right;"><div style="font-size: 10px; font-weight: 700; color: var(--teal); margin-bottom: 4px;">38%</div><div class="progress-bar-outer"><div class="progress-bar-inner" style="width: 38%; background: var(--teal);"></div></div></div>
+        </div>
+
+        <div style="margin-top: 8px;">
+          <div class="h4" style="color: var(--purple); margin-bottom: 8px;">What Our Community Wants</div>
+          <div class="quote-block" style="border-color: var(--purple);">
+            <div class="quote-text">"I want to see our young people running these services themselves. That's real self-determination."</div>
+            <div class="quote-author">— Community Member</div>
+          </div>
+          <div class="quote-block" style="border-color: var(--purple);">
+            <div class="quote-text">"More cultural programs, more language, more connection to country. That's what makes us strong."</div>
+            <div class="quote-author">— Elder</div>
+          </div>
+        </div>
+
+        <!-- Concentric dots -->
+        <svg class="concentric-dots" style="bottom: 40px; right: 40px;" width="90" height="90" viewBox="0 0 90 90">
+          <g opacity="0.08">
+            <circle cx="45" cy="33" r="1.8" fill="#2563eb"/><circle cx="55" cy="39" r="1.8" fill="#2563eb"/><circle cx="55" cy="51" r="1.8" fill="#2563eb"/><circle cx="45" cy="57" r="1.8" fill="#2563eb"/><circle cx="35" cy="51" r="1.8" fill="#2563eb"/><circle cx="35" cy="39" r="1.8" fill="#2563eb"/>
+            <circle cx="45" cy="21" r="1.5" fill="#2563eb"/><circle cx="57" cy="27" r="1.5" fill="#2563eb"/><circle cx="64" cy="39" r="1.5" fill="#2563eb"/><circle cx="64" cy="51" r="1.5" fill="#2563eb"/><circle cx="57" cy="63" r="1.5" fill="#2563eb"/><circle cx="45" cy="69" r="1.5" fill="#2563eb"/><circle cx="33" cy="63" r="1.5" fill="#2563eb"/><circle cx="26" cy="51" r="1.5" fill="#2563eb"/><circle cx="26" cy="39" r="1.5" fill="#2563eb"/><circle cx="33" cy="27" r="1.5" fill="#2563eb"/>
+            <circle cx="45" cy="11" r="1.2" fill="#2563eb"/><circle cx="59" cy="16" r="1.2" fill="#2563eb"/><circle cx="70" cy="27" r="1.2" fill="#2563eb"/><circle cx="75" cy="42" r="1.2" fill="#2563eb"/><circle cx="72" cy="57" r="1.2" fill="#2563eb"/><circle cx="62" cy="69" r="1.2" fill="#2563eb"/><circle cx="48" cy="76" r="1.2" fill="#2563eb"/><circle cx="34" cy="73" r="1.2" fill="#2563eb"/><circle cx="22" cy="64" r="1.2" fill="#2563eb"/><circle cx="17" cy="50" r="1.2" fill="#2563eb"/><circle cx="19" cy="35" r="1.2" fill="#2563eb"/><circle cx="28" cy="22" r="1.2" fill="#2563eb"/>
+          </g>
+        </svg>
+
+        <div class="page-number">19</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 20: BACK COVER -->
+  <div class="page-wrapper" data-page="back-cover">
+    <div class="page-label">20 — Back Cover</div>
+    <div class="page">
+      <div class="page-bleed" style="background: var(--blue-dark); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 50px;">
+        <div style="width: 140px; height: 70px; background: rgba(255,255,255,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 30px; font-size: 10px; color: rgba(255,255,255,0.5);">PICC Logo</div>
+
+        <div style="font-family: 'Caveat', cursive; font-size: 22px; color: white; text-align: center; margin-bottom: 24px; line-height: 1.4; max-width: 380px;">
+          Empowering the Palm Island community through self-determination, culture, and service excellence.
+        </div>
+
+        <!-- Section divider dots -->
+        <svg width="120" height="16" style="margin-bottom: 20px;">
+          <circle cx="13" cy="8" r="1.2" fill="white" opacity="0.15"/>
+          <circle cx="26" cy="8" r="1.5" fill="white" opacity="0.2"/>
+          <circle cx="39" cy="8" r="1.8" fill="white" opacity="0.25"/>
+          <circle cx="52" cy="8" r="2.2" fill="white" opacity="0.3"/>
+          <circle cx="65" cy="8" r="3" fill="white" opacity="0.4"/>
+          <circle cx="78" cy="8" r="2.2" fill="white" opacity="0.3"/>
+          <circle cx="91" cy="8" r="1.8" fill="white" opacity="0.25"/>
+          <circle cx="104" cy="8" r="1.5" fill="white" opacity="0.2"/>
+          <circle cx="117" cy="8" r="1.2" fill="white" opacity="0.15"/>
+        </svg>
+
+        <div style="font-size: 9px; color: var(--text-light); text-align: center; line-height: 1.8;">
+          Palm Island Community Company Ltd<br>
+          ABN 11 154 579 565<br>
+          ICN 7438<br>
+          PO Box 86, Palm Island QLD 4816<br>
+          www.palmislandcc.com.au
+        </div>
+
+        <!-- Concentric dots bottom-left -->
+        <svg class="concentric-dots" style="bottom: 40px; left: 40px;" width="80" height="80" viewBox="0 0 80 80">
+          <g opacity="0.06">
+            <circle cx="40" cy="28" r="1.8" fill="white"/><circle cx="50" cy="34" r="1.8" fill="white"/><circle cx="50" cy="46" r="1.8" fill="white"/><circle cx="40" cy="52" r="1.8" fill="white"/><circle cx="30" cy="46" r="1.8" fill="white"/><circle cx="30" cy="34" r="1.8" fill="white"/>
+            <circle cx="40" cy="18" r="1.4" fill="white"/><circle cx="52" cy="23" r="1.4" fill="white"/><circle cx="59" cy="35" r="1.4" fill="white"/><circle cx="59" cy="45" r="1.4" fill="white"/><circle cx="52" cy="57" r="1.4" fill="white"/><circle cx="40" cy="62" r="1.4" fill="white"/><circle cx="28" cy="57" r="1.4" fill="white"/><circle cx="21" cy="45" r="1.4" fill="white"/><circle cx="21" cy="35" r="1.4" fill="white"/><circle cx="28" cy="23" r="1.4" fill="white"/>
+          </g>
+        </svg>
+
+        <div style="position: absolute; bottom: 30px; left: 0; right: 0; text-align: center; font-size: 7px; color: var(--text-light); opacity: 0.5;">
+          Annual Report 2024-25 — Year 17
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Navigation
+  const pages = document.querySelectorAll('.page-wrapper');
+  const nav = document.getElementById('nav');
+
+  pages.forEach(p => {
+    const name = p.querySelector('.page-label').textContent;
+    const btn = document.createElement('button');
+    btn.textContent = name.split(' — ')[1] || name;
+    btn.onclick = () => {
+      p.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      document.querySelectorAll('.nav-pills button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    };
+    nav.appendChild(btn);
+  });
+
+  // View toggle
+  function setView(mode) {
+    const container = document.getElementById('pages-container');
+    container.className = mode === 'grid' ? 'pages-container grid-view' : 'pages-container';
+    document.getElementById('btn-scroll').classList.toggle('active', mode === 'scroll');
+    document.getElementById('btn-grid').classList.toggle('active', mode === 'grid');
+  }
+</script>
+</body>
+</html>

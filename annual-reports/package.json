@@ -1,0 +1,20 @@
+{
+  "name": "annual-reports",
+  "version": "1.0.0",
+  "description": "This system enables Palm Island Community Company to generate professional, storytelling-focused annual reports through an \"always-on\" content collection process. Instead of scrambling at year-end, stories flow continuously into a central database and are curated into beautiful PDF and web reports.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@react-pdf/renderer": "^4.3.2",
+    "react": "^19.2.4"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "tsx": "^4.21.0"
+  }
+}

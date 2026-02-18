@@ -27,7 +27,7 @@ export default function AssistantPage() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "Welcome to the PICC Intelligence Assistant. I have access to 15 years of annual reports, community stories, service data, financials, and analytics across Palm Island Community Company. How can I help you today?",
+      content: "Welcome to the PICC Intelligence Assistant. I have access to 17 years of annual reports, community stories, service data, financials, and analytics across Palm Island Community Company. How can I help you today?",
     },
   ]);
   const [input, setInput] = useState('');
@@ -84,7 +84,7 @@ export default function AssistantPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: userMessage,
-          messages: messages.filter(m => m.role !== 'assistant' || m.content !== "Welcome to the PICC Intelligence Assistant. I have access to 15 years of annual reports, community stories, service data, financials, and analytics across Palm Island Community Company. How can I help you today?"),
+          messages: messages.filter(m => m.role !== 'assistant' || m.content !== "Welcome to the PICC Intelligence Assistant. I have access to 17 years of annual reports, community stories, service data, financials, and analytics across Palm Island Community Company. How can I help you today?"),
           stream: false,
         }),
       });

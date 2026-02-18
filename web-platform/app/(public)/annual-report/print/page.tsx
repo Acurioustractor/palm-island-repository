@@ -68,22 +68,28 @@ export default async function PrintAnnualReportPage({
           <p className="cover-subtitle" {...editable}>Annual Report {reportYear}</p>
           <p className="cover-tagline">&ldquo;Our Community, Our Future, Our Way&rdquo;</p>
           <div className="cover-stats">
-            <div className="cover-stat">
-              <span className="cover-stat-value">197</span>
-              <span className="cover-stat-label">Staff Members</span>
-            </div>
-            <div className="cover-stat">
-              <span className="cover-stat-value">16</span>
-              <span className="cover-stat-label">Services</span>
-            </div>
-            <div className="cover-stat">
-              <span className="cover-stat-value">$23.4M</span>
-              <span className="cover-stat-label">Revenue</span>
-            </div>
-            <div className="cover-stat">
-              <span className="cover-stat-value">2,283</span>
-              <span className="cover-stat-label">Health Clients</span>
-            </div>
+            {stats.filter(s => s.is_key_metric).slice(0, 4).map((s) => (
+              <div key={s.id} className="cover-stat">
+                <span className="cover-stat-value">{s.stat_value}{s.stat_unit || ''}</span>
+                <span className="cover-stat-label">{s.stat_label}</span>
+              </div>
+            ))}
+            {stats.filter(s => s.is_key_metric).length === 0 && (
+              <>
+                <div className="cover-stat">
+                  <span className="cover-stat-value">{stats.find(s => s.stat_label?.toLowerCase().includes('staff'))?.stat_value || '197'}</span>
+                  <span className="cover-stat-label">Staff Members</span>
+                </div>
+                <div className="cover-stat">
+                  <span className="cover-stat-value">{stats.find(s => s.stat_label?.toLowerCase().includes('service'))?.stat_value || '20'}</span>
+                  <span className="cover-stat-label">Services</span>
+                </div>
+                <div className="cover-stat">
+                  <span className="cover-stat-value">{stats.find(s => s.stat_label?.toLowerCase().includes('income') || s.stat_label?.toLowerCase().includes('revenue'))?.stat_value || '$23.4M'}</span>
+                  <span className="cover-stat-label">Revenue</span>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -97,7 +103,7 @@ export default async function PrintAnnualReportPage({
               <li>CEO&rsquo;s Report</li>
               <li>About PICC</li>
               <li>Our History</li>
-              <li>Our 16 Services</li>
+              <li>Our Services</li>
               <li>Key Highlights</li>
               <li>Health Service Impact</li>
               <li>Community Services</li>
@@ -209,7 +215,11 @@ export default async function PrintAnnualReportPage({
             <div className="board-grid">
               {board.map((member) => (
                 <div key={member.id} className="board-member">
-                  <div className="board-avatar">{member.full_name?.charAt(0)}</div>
+                  {member.photo_url ? (
+                    <img src={member.photo_url} alt={member.full_name} className="board-avatar" style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover' }} />
+                  ) : (
+                    <div className="board-avatar">{member.full_name?.charAt(0)}</div>
+                  )}
                   <strong>{member.full_name}</strong>
                   <span className="board-position">{member.position}</span>
                 </div>

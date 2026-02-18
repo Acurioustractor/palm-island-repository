@@ -57,9 +57,20 @@ export function cleanTranscript(input: string) {
 
 export function cleanupQuoteText(input: string) {
   let s = String(input || '').replace(/\s+/g, ' ').trim()
-  s = s.replace(/^["'“”]+/, '').replace(/["'“”]+$/, '').trim()
+  // Strip surrounding quotation marks
+  s = s.replace(/^["'""]+/, '').replace(/["'""]+$/, '').trim()
+  // Strip leading bullets/dashes
   s = s.replace(/^\s*[-–—•]+\s*/g, '')
+  // Strip transcript noise tags
   s = s.replace(/\s*\[(?:music|laughter|applause|inaudible|crosstalk)\]\s*/gi, ' ')
+  // Strip markdown formatting: bold, italic, headings, blockquotes, links
+  s = s.replace(/\*{1,3}([^*]+)\*{1,3}/g, '$1')  // **bold**, *italic*, ***both***
+  s = s.replace(/_{1,3}([^_]+)_{1,3}/g, '$1')     // __bold__, _italic_
+  s = s.replace(/~~([^~]+)~~/g, '$1')              // ~~strikethrough~~
+  s = s.replace(/^#{1,6}\s+/gm, '')                // # headings
+  s = s.replace(/^>\s+/gm, '')                     // > blockquotes
+  s = s.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')    // [text](url) → text
+  s = s.replace(/`([^`]+)`/g, '$1')                // `code`
   s = s.replace(/\s+/g, ' ').trim()
   return s
 }

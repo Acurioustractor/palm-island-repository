@@ -12,6 +12,8 @@ Before attempting surface-level fixes (CSS, UI styling, quick patches), investig
 
 Never use fake, seed, or placeholder data in dashboards or pages that connect to real data sources (Xero, GHL, Supabase). Always wire to actual data first, even if incomplete. If real data is unavailable, show an explicit "No data available" state rather than fabricated numbers. Before declaring dashboard work done, query actual Supabase tables and show real data to verify.
 
+**Real Data Only**: Never use fabricated names, placeholder quotes, or generic photos. All people, quotes, and images must come from Supabase tables (`stories`, `elder_quotes`, `extracted_quotes`, `community_visions`, `media_files`). If no real data exists for a section, show an empty/hidden state — never invent content. Elder content requires `is_validated = true` and `permission_level = 'public'`. Use `getCuratedQuotes()` from `lib/quotes/get-curated-quotes.ts` for all quote display.
+
 ## Code Standards
 
 Primary language is TypeScript. Always ensure `tsc --noEmit` and `next build` pass cleanly before considering a task complete. All new files should be TypeScript (.ts/.tsx), not JavaScript.
@@ -60,7 +62,9 @@ After making changes (especially to scripts, cron jobs, or config), run a quick 
 - **Database migrations**: Use Supabase MCP tools (`mcp__supabase__apply_migration`, `mcp__supabase__execute_sql`), not REST API or raw psql with guessed credentials
 - **Deployments**: Vercel — always verify the correct project is linked before deploying
 - **Check existing infrastructure** (env vars, API keys, existing integrations) before proposing new services
-- **PDF Generation**: WeasyPrint (Python) is the production system — see `annual-reports/` directory
+- **PDF Generation**: React PDF (`@react-pdf/renderer`) is the standard — see `lib/pdf/` for theme, components, templates. API: `GET /api/pdf/generate?type=annual-report|stories|services|history&audience=community|funder|supporter|board`
+- **Report Builder UI**: `/picc/reports/builder` — audience-targeted on-demand annual report generation
+- **Curated Voices API**: `GET /api/annual-report-data/curated-voices` — community stories, elder quotes, visions
 - **Brand Guide**: `PICC-BRAND-STYLE-GUIDE.md` — always reference before UI work
 
 ---
@@ -86,7 +90,21 @@ Credentials: See .env.local
 ### Core Data
 - `lib/picc-knowledge-base.ts` - Hardcoded PICC statistics and organizational data
 
-### PDF Generation Pipeline (Unified)
+### PDF Generation (React PDF)
+```
+lib/pdf/theme.ts                             - Brand colors, A4 dimensions, typography
+lib/pdf/register-fonts.ts                    - Inter + Caveat font registration
+lib/pdf/components/                          - Reusable PDF components (StatBox, Card, QuoteBlock, etc.)
+lib/pdf/templates/AnnualReportPDF.tsx         - Annual report book template
+lib/pdf/templates/StoriesPDF.tsx              - Stories collection template
+lib/pdf/templates/ServicesPDF.tsx             - Services guide template
+lib/pdf/templates/HistoryPDF.tsx              - History/timeline template
+app/api/pdf/generate/route.ts                - Unified PDF API endpoint
+components/ui/DownloadPdfButton.tsx           - Public page download button
+components/annual-report-data/GeneratePdfButton.tsx - Admin PDF generation button
+```
+
+### Legacy PDF Pipeline (WeasyPrint — `annual-reports/` directory)
 ```
 annual-reports/scripts/assemble_content.py   - Pull content from Supabase → JSON
 annual-reports/scripts/generate_pdf.py       - Generate PDF from JSON via WeasyPrint

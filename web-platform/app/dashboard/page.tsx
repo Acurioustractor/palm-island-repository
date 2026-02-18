@@ -457,7 +457,7 @@ export default function StoryServerDashboard() {
                 <h3 className="text-lg font-bold text-sage-800 mb-3">PICC Growth Journey</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span>2007: Started with 1 employee</span>
+                    <span>2007-09: Started with 1 employee</span>
                     <span className="font-medium">CEO Rachel Atkinson</span>
                   </div>
                   <div className="flex justify-between">

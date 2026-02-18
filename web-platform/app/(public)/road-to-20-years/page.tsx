@@ -63,7 +63,7 @@ const MILESTONES: Milestone[] = [
   {
     year: '2026',
     title: 'Road to 20 Years',
-    description: 'Looking ahead to PICC\'s 20th anniversary of community control in 2041. Building on the foundation of self-determination, cultural strength, and community-led innovation.',
+    description: 'Looking ahead to PICC\'s 20th anniversary in 2029. Building on the foundation of self-determination, cultural strength, and community-led innovation.',
     era: 'today',
   },
 ];

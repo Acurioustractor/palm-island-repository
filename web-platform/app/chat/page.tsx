@@ -13,11 +13,11 @@ import { BespokeIcon, type BespokeIconName } from '@/components/ui/BespokeIcon'
 import { extractSourcesFromMessage } from '@/lib/chat/extract-sources'
 
 const STARTERS: Array<{ text: string; icon: BespokeIconName }> = [
-  { text: 'What health services does PICC provide?', icon: 'health' },
-  { text: 'Tell me about the Hull River story', icon: 'story' },
-  { text: 'How has PICC grown over 15 years?', icon: 'timeline' },
-  { text: 'What do Elders say about community control?', icon: 'quote' },
-  { text: 'Show me photos from the Photo Studio', icon: 'photo' },
+  { text: 'What services does PICC offer?', icon: 'health' },
+  { text: 'Tell me about the Elders Cultural Trips', icon: 'story' },
+  { text: "What was PICC's income last year?", icon: 'timeline' },
+  { text: 'How many staff does PICC employ?', icon: 'quote' },
+  { text: 'What is the Digital Service Centre?', icon: 'photo' },
   { text: "I have a vision for Palm Island's future", icon: 'community' },
 ]
 
@@ -130,7 +130,7 @@ export default function ChatPage() {
           </h1>
 
           <p className="mt-4 text-lg sm:text-xl text-picc-earth-300 max-w-xl mx-auto leading-relaxed">
-            Discover 15 years of community-led impact through stories, photos, data, and the voices of our people.
+            Discover 17 years of community-led impact through stories, photos, data, and the voices of our people.
           </p>
         </div>
 

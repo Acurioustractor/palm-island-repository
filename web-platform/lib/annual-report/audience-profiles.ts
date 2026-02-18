@@ -5,7 +5,7 @@
  * for different stakeholder audiences.
  */
 
-export type AudienceType = 'government' | 'community' | 'funder' | 'board';
+export type AudienceType = 'government' | 'community' | 'funder' | 'board' | 'supporter';
 
 export interface AudienceProfile {
   id: AudienceType;
@@ -45,6 +45,15 @@ const allSections: SectionConfig[] = [
   { id: 'partners', label: 'Our Partners', defaultVisible: true, emphasis: 'low' },
   { id: 'looking-ahead', label: 'Looking Ahead', defaultVisible: true, emphasis: 'medium' },
   { id: 'acknowledgments', label: 'Acknowledgments', defaultVisible: true, emphasis: 'low' },
+  { id: 'community-voices', label: 'Community Voices', defaultVisible: true, emphasis: 'medium' },
+  { id: 'youth-voices', label: 'Youth Voices', defaultVisible: true, emphasis: 'medium' },
+  { id: 'compliance', label: 'Compliance & Registration', defaultVisible: true, emphasis: 'medium' },
+  { id: 'directors-report', label: "Directors' Report", defaultVisible: true, emphasis: 'medium' },
+  { id: 'financial-detail', label: 'Revenue by Funder', defaultVisible: true, emphasis: 'medium' },
+  { id: 'journey-timeline', label: 'Journey Timeline', defaultVisible: true, emphasis: 'medium' },
+  { id: 'next-twenty', label: 'Next 20 Years', defaultVisible: true, emphasis: 'medium' },
+  { id: 'resilience', label: 'Community Resilience', defaultVisible: true, emphasis: 'medium' },
+  { id: 'flood-stories', label: 'Flood Stories', defaultVisible: true, emphasis: 'medium' },
 ];
 
 function withOverrides(
@@ -74,6 +83,7 @@ export const audienceProfiles: Record<AudienceType, AudienceProfile> = {
       stories: { defaultVisible: false, emphasis: 'low' },
       photos: { defaultVisible: false, emphasis: 'low' },
       cultural: { emphasis: 'medium' },
+      'flood-stories': { defaultVisible: false, emphasis: 'low' },
     }),
   },
 
@@ -88,6 +98,8 @@ export const audienceProfiles: Record<AudienceType, AudienceProfile> = {
       'community-services': { emphasis: 'high' },
       'health-impact': { emphasis: 'high' },
       highlights: { emphasis: 'high' },
+      resilience: { emphasis: 'high' },
+      'flood-stories': { emphasis: 'high' },
       financials: { defaultVisible: false, emphasis: 'low' },
       governance: { defaultVisible: false, emphasis: 'low' },
       board: { emphasis: 'low' },
@@ -109,6 +121,7 @@ export const audienceProfiles: Record<AudienceType, AudienceProfile> = {
       photos: { defaultVisible: false, emphasis: 'low' },
       cultural: { defaultVisible: false, emphasis: 'low' },
       history: { defaultVisible: false, emphasis: 'low' },
+      'flood-stories': { defaultVisible: false, emphasis: 'low' },
     }),
   },
 
@@ -125,8 +138,35 @@ export const audienceProfiles: Record<AudienceType, AudienceProfile> = {
       'looking-ahead': { emphasis: 'high' },
       board: { emphasis: 'high' },
       highlights: { emphasis: 'high' },
+      compliance: { emphasis: 'high' },
+      'directors-report': { emphasis: 'high' },
+      'financial-detail': { emphasis: 'high' },
       stories: { defaultVisible: false, emphasis: 'low' },
       photos: { defaultVisible: false, emphasis: 'low' },
+      'flood-stories': { defaultVisible: false, emphasis: 'low' },
+    }),
+  },
+
+  supporter: {
+    id: 'supporter',
+    label: 'Supporter',
+    description: 'Impact stories, community voices, innovation, and the 20-year journey',
+    sections: withOverrides({
+      'community-voices': { emphasis: 'high' },
+      'youth-voices': { emphasis: 'high' },
+      highlights: { emphasis: 'high' },
+      photos: { defaultVisible: true, emphasis: 'high' },
+      stories: { defaultVisible: true, emphasis: 'high' },
+      resilience: { emphasis: 'high' },
+      'flood-stories': { emphasis: 'high' },
+      'journey-timeline': { emphasis: 'high' },
+      'next-twenty': { emphasis: 'high' },
+      financials: { defaultVisible: false, emphasis: 'low' },
+      governance: { defaultVisible: false, emphasis: 'low' },
+      compliance: { defaultVisible: false, emphasis: 'low' },
+      'directors-report': { defaultVisible: false, emphasis: 'low' },
+      'financial-detail': { defaultVisible: false, emphasis: 'low' },
+      board: { defaultVisible: false, emphasis: 'low' },
     }),
   },
 };
@@ -145,6 +185,48 @@ export function getVisibleSections(audience?: string | null): Set<string> {
     return new Set(allSections.map((s) => s.id));
   }
   return new Set(profile.sections.filter((s) => s.defaultVisible).map((s) => s.id));
+}
+
+/** Map from audience-profiles section IDs (kebab-case) to PDF page keys (camelCase) */
+export const SECTION_TO_PDF_PAGE: Record<string, string> = {
+  'cover': 'cover',
+  'chair-report': 'messages',
+  'ceo-report': 'messages',
+  'services': 'services',
+  'highlights': 'highlights',
+  'financials': 'financials',
+  'governance': 'governance',
+  'board': 'governance',
+  'photos': 'photos',
+  'stories': 'communityVoices',
+  'community-voices': 'communityVoices',
+  'youth-voices': 'youthVoices',
+  'compliance': 'compliance',
+  'directors-report': 'directorsReport',
+  'financial-detail': 'financialDetail',
+  'journey-timeline': 'journey',
+  'next-twenty': 'nextTwenty',
+  'looking-ahead': 'nextTwenty',
+  'acknowledgments': 'acknowledgement',
+  'resilience': 'resilience',
+  'flood-stories': 'floodStories',
+};
+
+/** Get PDF page keys that should be visible for an audience */
+export function getPdfPagesForAudience(audience?: string | null): string[] | null {
+  const visible = getVisibleSections(audience);
+  if (!audience) return null; // null = show all
+  const pages = new Set<string>();
+  const visibleArr = Array.from(visible);
+  for (let i = 0; i < visibleArr.length; i++) {
+    const pdfPage = SECTION_TO_PDF_PAGE[visibleArr[i]];
+    if (pdfPage) pages.add(pdfPage);
+  }
+  // Always include backCover and numbers
+  pages.add('backCover');
+  pages.add('numbers');
+  pages.add('innovation');
+  return Array.from(pages);
 }
 
 export { allSections };

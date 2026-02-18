@@ -13,6 +13,8 @@ import {
   TrendingUp, Star, Sparkles
 } from 'lucide-react';
 import VideoBackground from '@/components/video/VideoBackground';
+import { CommunityQuotesSection } from '@/components/quotes/CommunityQuotesSection';
+import { MILESTONES } from '@/lib/stats/current-stats';
 import type { HomeServiceData, HomeStats, InnovationProject } from './page';
 
 // Animation variants
@@ -516,10 +518,10 @@ export default function HomePageClient({ services, stats, innovationProjects }: 
             className="mt-12 flex flex-wrap justify-center gap-6"
           >
             <Link
-              href="/media/gallery"
+              href="/annual-reports/gallery"
               className="animated-underline inline-flex items-center gap-2 text-gray-900 font-semibold text-base hover:gap-3 transition-all duration-300 ease-elegant"
             >
-              Browse Full Gallery
+              Browse Photo Gallery
               <ArrowRight className="w-4 h-4" />
             </Link>
           </motion.div>
@@ -543,7 +545,7 @@ export default function HomePageClient({ services, stats, innovationProjects }: 
               Our Journey to 2029
             </h2>
             <p className="text-lg text-picc-ochre-300/70 leading-relaxed">
-              From Hull River to community control — 16 years down, 4 to go.
+              From Hull River to community control — {MILESTONES.currentYear} years down, {MILESTONES.yearsRemaining} to go.
             </p>
           </motion.div>
 
@@ -557,13 +559,13 @@ export default function HomePageClient({ services, stats, innovationProjects }: 
           >
             <div className="flex justify-between text-sm text-picc-ochre-300/60 mb-3">
               <span>2009</span>
-              <span className="font-medium text-white/80">80%</span>
+              <span className="font-medium text-white/80">{MILESTONES.progressPct}%</span>
               <span>2029</span>
             </div>
             <div className="h-2 bg-white/10 rounded-full overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
-                whileInView={{ width: '80%' }}
+                whileInView={{ width: `${MILESTONES.progressPct}%` }}
                 viewport={{ once: true }}
                 transition={{ duration: 1.5, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
                 className="h-full bg-gradient-to-r from-picc-red to-picc-ochre rounded-full"
@@ -595,35 +597,12 @@ export default function HomePageClient({ services, stats, innovationProjects }: 
         </div>
       </section>
 
-      {/* QUOTE SECTION */}
-      <section className="relative py-24 md:py-32 lg:py-40 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-warm-50" />
-        <div className="absolute inset-0 opacity-[0.03]">
-          <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-picc-ochre rounded-full blur-[128px]" />
-          <div className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-picc-red rounded-full blur-[128px]" />
-        </div>
-        <div className="max-w-4xl mx-auto px-6 lg:px-8 relative">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-            className="text-center"
-          >
-            <Quote className="w-12 h-12 text-gray-300 mx-auto mb-10" />
-            <blockquote className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-gray-900 leading-tight tracking-[-0.02em] mb-10">
-              &ldquo;Everything we do is for, with, and because of the people of this beautiful community&rdquo;
-            </blockquote>
-            <div className="flex items-center justify-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-picc-red to-picc-ochre" />
-              <div className="text-left">
-                <div className="font-semibold text-gray-900 text-sm">Rachel Atkinson</div>
-                <div className="text-gray-500 text-sm">CEO, Palm Island Community Company</div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+      {/* COMMUNITY VOICES — Dynamic quotes carousel */}
+      <CommunityQuotesSection
+        featured
+        limit={6}
+        variant="carousel"
+      />
 
       {/* FINAL CTA */}
       <section className="editorial-section bg-white">

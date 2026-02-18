@@ -8,7 +8,7 @@ import {
   Menu, X, Search,
   Plus, Upload,
   ChevronRight, ChevronDown,
-  ChevronsLeft, ChevronsRight, Wrench, Building2
+  ChevronsLeft, ChevronsRight, Wrench, Building2, Lightbulb, Palette
 } from 'lucide-react';
 import { useSidebar } from './SidebarProvider';
 import { PICCLogo } from '@/components/ui/PICCLogo';
@@ -35,6 +35,8 @@ const staffNavigation: { [key: string]: NavSection } = {
       { label: 'Dashboard', href: '/picc/dashboard', icon: LayoutDashboard, description: 'Overview & stats' },
       { label: 'Search', href: '/picc/search', icon: Search, description: 'Search all content' },
       { label: 'Annual Reports', href: '/picc/annual-reports', icon: FileText, description: 'Reports hub & workflow' },
+      { label: 'Report Builder', href: '/picc/reports/builder', icon: FileText, description: 'On-demand audience reports' },
+      { label: 'Brand', href: '/picc/brand', icon: Palette, description: 'Brand assets & guidelines' },
     ],
   },
   content: {
@@ -45,6 +47,7 @@ const staffNavigation: { [key: string]: NavSection } = {
       { label: 'Media', href: '/picc/media', icon: Image, description: 'Media library' },
       { label: 'Storytellers', href: '/picc/storytellers', icon: Users, description: 'All storytellers' },
       { label: 'Services', href: '/picc/services', icon: Building2, description: 'Service content hub' },
+      { label: 'Innovation', href: '/picc/innovation', icon: Lightbulb, description: 'Innovation projects' },
       { label: 'Create Story', href: '/picc/create', icon: Plus, description: 'Add new story' },
       { label: 'Upload Media', href: '/picc/media/upload', icon: Upload, description: 'Upload new media' },
     ],
@@ -60,6 +63,7 @@ const advancedNavigation: { [key: string]: NavSection } = {
       { label: 'Dashboard', href: '/picc/dashboard', icon: LayoutDashboard, description: 'Overview & stats' },
       { label: 'Search', href: '/picc/search', icon: Search, description: 'Search all content' },
       { label: 'Annual Reports', href: '/picc/annual-reports', icon: FileText, description: 'Reports hub & workflow' },
+      { label: 'Report Builder', href: '/picc/reports/builder', icon: FileText, description: 'On-demand audience reports' },
     ],
   },
   content: {
@@ -71,6 +75,7 @@ const advancedNavigation: { [key: string]: NavSection } = {
       { label: 'Storytellers', href: '/picc/storytellers', icon: Users, description: 'All storytellers' },
       { label: 'Media', href: '/picc/media', icon: Image, description: 'Media library' },
       { label: 'Services', href: '/picc/services', icon: Building2, description: 'Service content hub' },
+      { label: 'Innovation', href: '/picc/innovation', icon: Lightbulb, description: 'Innovation projects' },
       { label: 'Upload Media', href: '/picc/media/upload', icon: Upload, description: 'Upload new media' },
     ],
   },
@@ -109,11 +114,11 @@ const advancedNavigation: { [key: string]: NavSection } = {
     title: 'Knowledge Base',
     icon: LayoutDashboard,
     items: [
-      { label: 'Wiki Home', href: '/wiki/stories', icon: LayoutDashboard, description: 'Browse wiki' },
-      { label: 'History', href: '/wiki/history', icon: LayoutDashboard, description: 'History & heritage' },
-      { label: 'Culture', href: '/wiki/culture', icon: LayoutDashboard, description: 'Culture & language' },
-      { label: 'Innovation', href: '/wiki/innovation', icon: LayoutDashboard, description: 'Innovation projects' },
-      { label: 'Services', href: '/wiki/services', icon: LayoutDashboard, description: 'PICC services' },
+      { label: 'AI Chat', href: '/chat', icon: LayoutDashboard, description: 'Ask about PICC' },
+      { label: 'Storytellers', href: '/picc/storytellers', icon: LayoutDashboard, description: 'Interviews & stories' },
+      { label: 'Innovation', href: '/picc/innovation', icon: LayoutDashboard, description: 'Innovation projects' },
+      { label: 'Services', href: '/picc/services', icon: LayoutDashboard, description: 'PICC services' },
+      { label: 'Annual Reports', href: '/picc/knowledge/annual-reports', icon: LayoutDashboard, description: 'Report data' },
     ],
   },
   settings: {

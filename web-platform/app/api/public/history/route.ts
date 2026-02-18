@@ -422,8 +422,10 @@ export async function GET() {
     // Overall statistics
     const latestYear = years[years.length - 1]
     const firstYear = years[0]
+    // Years operating = current calendar year - founding year + 1 (2026 - 2009 + 1 = 18, but fiscal year basis = 17)
+    const currentFiscalYear = new Date().getFullYear() - 2009 + 1
     const summary = {
-      totalYears: years.length,
+      totalYears: currentFiscalYear,
       yearsSpanned: firstYear && latestYear
         ? `${firstYear.fiscalYear} – ${latestYear.fiscalYear}`
         : '',

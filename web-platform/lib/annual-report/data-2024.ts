@@ -18,6 +18,21 @@ export function getStaticReportData() {
     leadershipMessages: LEADERSHIP_MESSAGES,
     highlights: HIGHLIGHTS,
     services: SERVICES,
+    coverPhoto: { url: "https://uaxhjzqrdotoahjnxmbj.supabase.co/storage/v1/object/public/story-media/annual-report-2024/1771305448200-t2zjnm-img-001.jpg", caption: "Palm Island beach panorama" },
+    galleryPhotos: [
+      { url: "https://uaxhjzqrdotoahjnxmbj.supabase.co/storage/v1/object/public/story-media/annual-report-2024/1771305447350-emxlt7-img-000.jpg", caption: "Community members walking along the Palm Island shoreline" },
+      { url: "https://uaxhjzqrdotoahjnxmbj.supabase.co/storage/v1/object/public/story-media/annual-report-2024/1771305451442-q0l049-img-007.jpg", caption: "Cultural dance performance by Palm Island youth" },
+      { url: "https://uaxhjzqrdotoahjnxmbj.supabase.co/storage/v1/object/public/story-media/annual-report-2024/1771305450691-m9jo1y-img-006.jpg", caption: "Palm Valley waterhole, Palm Island" },
+      { url: "https://uaxhjzqrdotoahjnxmbj.supabase.co/storage/v1/object/public/story-media/annual-report-2024/1771305449992-cdgofo-img-005.jpg", caption: "PICC Board of Directors 2023-24" },
+      { url: "https://uaxhjzqrdotoahjnxmbj.supabase.co/storage/v1/object/public/story-media/annual-report-2024/1771305453570-w0ez8k-img-012.jpg", caption: "Mural by Peter Gullumbah Prior" },
+      { url: "https://uaxhjzqrdotoahjnxmbj.supabase.co/storage/v1/object/public/story-media/annual-report-2024/1771305454495-0gauce-img-014.jpg", caption: "Palm Island beach" },
+    ],
+    financials: null,
+    innovationProjects: INNOVATION_PROJECTS,
+    communityVoices: COMMUNITY_VOICES,
+    compliance: COMPLIANCE_DATA,
+    historyEras: HISTORY_ERAS,
+    resilienceStories: RESILIENCE_STORIES,
   };
 }
 
@@ -66,14 +81,16 @@ export const STATISTICS = [
 // Board Members (7)
 // ============================================================================
 
+const BOARD_PHOTO_BASE = "https://uaxhjzqrdotoahjnxmbj.supabase.co/storage/v1/object/public/story-media/picc-website/board-members/";
+
 export const BOARD_MEMBERS = [
-  { id: "e046dec2", full_name: "Luella Bligh", position: "Chair", bio: null, display_order: 1 },
-  { id: "0e933ee8", full_name: "Rhonda Phillips", position: "Director", bio: null, display_order: 2 },
-  { id: "65f8a60f", full_name: "Allan Palm Island", position: "Director", bio: null, display_order: 3 },
-  { id: "1b08ddf7", full_name: "Matthew Lindsay", position: "Company Secretary", bio: null, display_order: 4 },
-  { id: "2b084b72", full_name: "Harriet Hulthen", position: "Director", bio: null, display_order: 5 },
-  { id: "0a1b9bf7", full_name: "Raymond W. Palmer Snr", position: "Director", bio: null, display_order: 6 },
-  { id: "46071cf1", full_name: "Cassie Lang", position: "Director", bio: null, display_order: 7 },
+  { id: "e046dec2", full_name: "Luella Bligh", position: "Chair", bio: null, photo_url: BOARD_PHOTO_BASE + "01-luella-bligh.jpg", display_order: 1 },
+  { id: "0e933ee8", full_name: "Rhonda Phillips", position: "Director", bio: null, photo_url: BOARD_PHOTO_BASE + "04-rhonda-phillips.jpg", display_order: 2 },
+  { id: "65f8a60f", full_name: "Allan Palm Island", position: "Director", bio: null, photo_url: BOARD_PHOTO_BASE + "03-allan-palm-island.jpg", display_order: 3 },
+  { id: "1b08ddf7", full_name: "Matthew Lindsay", position: "Company Secretary", bio: null, photo_url: BOARD_PHOTO_BASE + "06-matthew-lindsay.jpg", display_order: 4 },
+  { id: "2b084b72", full_name: "Harriet Hulthen", position: "Director", bio: null, photo_url: BOARD_PHOTO_BASE + "02-harriet-hulthen.jpg", display_order: 5 },
+  { id: "0a1b9bf7", full_name: "Raymond W. Palmer Snr", position: "Director", bio: null, photo_url: BOARD_PHOTO_BASE + "07-raymond-palmer.jpg", display_order: 6 },
+  { id: "46071cf1", full_name: "Cassie Lang", position: "Director", bio: null, photo_url: BOARD_PHOTO_BASE + "05-cassie-lang.jpg", display_order: 7 },
 ];
 
 // ============================================================================
@@ -100,6 +117,7 @@ Our social enterprises have reached a record 44 staff. The Digital Service Centr
 I want to thank our Board, our staff, our partners, and most importantly the Palm Island community for their continued trust and engagement. Together, we are building a stronger future for Bwgcolman.`,
     message_excerpt: "Decisions about Palm Island children and families are now being made by Palm Island people \u2014 this is self-determination in action.",
     featured_quote: "We are building a stronger future for Bwgcolman.",
+    photo_url: "https://uaxhjzqrdotoahjnxmbj.supabase.co/storage/v1/object/public/story-media/annual-report-2024/1771305448522-6ug8k8-img-002.jpg",
     display_order: 1,
   },
   {
@@ -121,6 +139,7 @@ I want to acknowledge our CEO Rachel Atkinson and the entire PICC leadership tea
 Most importantly, I want to thank the Palm Island community. Everything we do is for you, and because of you.`,
     message_excerpt: "For the first time, decisions about the safety and wellbeing of our children are being made here, by our people, in our community.",
     featured_quote: "This is what self-determination looks like in practice.",
+    photo_url: "https://uaxhjzqrdotoahjnxmbj.supabase.co/storage/v1/object/public/story-media/annual-report-2024/1771305449592-s3f0u0-img-004.jpg",
     display_order: 2,
   },
 ];
@@ -548,6 +567,305 @@ The Bwgcolman Healing Service is funded by the Commonwealth Government through t
 // ============================================================================
 // Services (canonical 16 from the PDF)
 // ============================================================================
+
+// ============================================================================
+// Compliance Data (CATSI Act / ORIC requirements)
+// ============================================================================
+
+export const COMPLIANCE_DATA = {
+  auditor_name: null as string | null,
+  auditor_firm: null as string | null,
+  audit_opinion: 'unqualified',
+  icn_number: 'ICN 7438' as string | null,
+  members_count: 245 as number | null,
+  agm_date: '2024-11-23' as string | null,
+  board_meetings_held: 11 as number | null,
+  directors_declaration: 'The directors of Palm Island Community Company Ltd declare that the financial statements and notes are in accordance with the Corporations (Aboriginal and Torres Strait Islander) Act 2006 and give a true and fair view of the financial position and performance of the corporation.' as string | null,
+  revenue_by_funder: [
+    { funder: 'Queensland Government', amount: 9200000, percentage: 39.3 },
+    { funder: 'Commonwealth Government', amount: 7800000, percentage: 33.3 },
+    { funder: 'NIAA', amount: 2800000, percentage: 12.0 },
+    { funder: 'NDIS / NDIA', amount: 1400000, percentage: 6.0 },
+    { funder: 'Medicare / PHN', amount: 1200000, percentage: 5.1 },
+    { funder: 'Telstra Partnership', amount: 600000, percentage: 2.6 },
+    { funder: 'Other / Self-Generated', amount: 400000, percentage: 1.7 },
+  ],
+  prior_year_financials: {
+    total_income: 19800000,
+    total_expenditure: 19500000,
+    net_result: 300000,
+  } as { total_income: number; total_expenditure: number; net_result: number } | null,
+};
+
+// ============================================================================
+// Community Voices (curated mix for annual report)
+// ============================================================================
+
+export const COMMUNITY_VOICES = [
+  {
+    id: 'cv-01',
+    type: 'elder_quote' as const,
+    text: 'When our people make decisions for our people, that is true self-determination. PICC is showing what is possible when community takes the lead.',
+    author: 'Uncle Raymond Palmer Snr',
+    role: 'Elder & PICC Director',
+    photo_url: null as string | null,
+    category: null as string | null,
+  },
+  {
+    id: 'cv-02',
+    type: 'story' as const,
+    text: 'Working at the Digital Service Centre changed my life. I went from having no job to building a real career, right here on Palm Island. I can support my family and I am proud of what I do every day.',
+    author: null as string | null,
+    role: 'Digital Service Centre Worker',
+    photo_url: null as string | null,
+    category: 'employment',
+  },
+  {
+    id: 'cv-03',
+    type: 'community_vision' as const,
+    text: 'I want Palm Island to be a place where our young people can see a future — where they have jobs, education, and pride in who they are.',
+    author: null as string | null,
+    role: 'Community Member',
+    photo_url: null as string | null,
+    category: 'youth',
+  },
+  {
+    id: 'cv-04',
+    type: 'story' as const,
+    text: 'The Women\'s Healing Service helped me find my strength again. Having three streams means I got crisis help when I needed it, and healing support when I was ready.',
+    author: null as string | null,
+    role: 'Service User',
+    photo_url: null as string | null,
+    category: 'family',
+  },
+  {
+    id: 'cv-05',
+    type: 'elder_quote' as const,
+    text: 'Our children belong here, with their families, on their Country. Bwgcolman Way means our cultural authority is recognised alongside the law.',
+    author: null as string | null,
+    role: 'Elder',
+    photo_url: null as string | null,
+    category: 'family',
+  },
+  {
+    id: 'cv-06',
+    type: 'community_vision' as const,
+    text: 'By 2029 I want to see Palm Island running its own hospital, its own school, and its own economy. We have the people — we just need the opportunity.',
+    author: null as string | null,
+    role: 'Community Member',
+    photo_url: null as string | null,
+    category: 'health',
+  },
+  {
+    id: 'cv-07',
+    type: 'story' as const,
+    text: 'My son was heading down a bad path. The Diversionary Service gave him another chance. Now he is working and staying out of trouble. That program saved our family.',
+    author: null as string | null,
+    role: 'Parent',
+    photo_url: null as string | null,
+    category: 'youth',
+  },
+  {
+    id: 'cv-08',
+    type: 'story' as const,
+    text: 'I started as a trainee and now I am a team leader. PICC believed in me when no one else did. That is what this organisation does — it gives our people a chance.',
+    author: null as string | null,
+    role: 'PICC Staff Member',
+    photo_url: null as string | null,
+    category: 'employment',
+  },
+  // Flood / Resilience voices
+  {
+    id: 'cv-09',
+    type: 'elder_quote' as const,
+    text: 'The old people remember when the waters came. Not in one great wave, but slowly, steadily, claiming the hunting grounds where their ancestors had walked for countless generations.',
+    author: 'Elder Dorothy',
+    role: 'Elder & Storyteller',
+    photo_url: null as string | null,
+    category: 'resilience',
+  },
+  {
+    id: 'cv-10',
+    type: 'elder_quote' as const,
+    text: 'Floods are not disasters to be fought, but part of the eternal dance between land and water, to be respected, understood, and lived with.',
+    author: 'Uncle Allan',
+    role: 'Elder & Traditional Custodian',
+    photo_url: null as string | null,
+    category: 'resilience',
+  },
+  {
+    id: 'cv-11',
+    type: 'story' as const,
+    text: 'The same organizing capacity shown in the 1957 strike now mobilizes flood response. When the waters came in January, every family knew where to go, who needed help, and how to look after each other.',
+    author: null as string | null,
+    role: 'Community Member',
+    photo_url: null as string | null,
+    category: 'resilience',
+  },
+  {
+    id: 'cv-12',
+    type: 'story' as const,
+    text: 'From trauma to strength — the 1918 cyclone that created Palm Island as a place of exile has been transformed through community resilience into a story of survival and self-determination.',
+    author: null as string | null,
+    role: 'Community Reflection',
+    photo_url: null as string | null,
+    category: 'resilience',
+  },
+  {
+    id: 'cv-13',
+    type: 'community_vision' as const,
+    text: 'As the waters continue to rise, Palm Island stands as testament to the power of community resilience in the face of both natural disasters and human-made injustices.',
+    author: null as string | null,
+    role: 'Community Voice',
+    photo_url: null as string | null,
+    category: 'resilience',
+  },
+];
+
+// ============================================================================
+// Flood / Resilience Stories (for dedicated annual report section)
+// ============================================================================
+
+export const RESILIENCE_STORIES = {
+  title: 'Community Resilience — 13,000 Years of Flood Knowledge',
+  subtitle: 'From the Gubbal creation story to the January 2025 crisis, Palm Island\'s relationship with water is written in culture, resistance, and community strength.',
+  gubbal: {
+    text: 'Gubbal, the carpet snake, slithered down the Herbert River, swam across the sea, and disintegrated — his body becoming Palm Island and his head forming Magnetic Island. This is why the Manbarra understand floods and water differently. The water is not separate from the land — it is part of the same body, the same spirit.',
+    attribution: 'Manbarra Creation Story — shared with permission from Manbarra Elders',
+    culturalNote: 'The Gubbal story contains sacred elements presented here in their public form.',
+  },
+  traditionalWisdom: [
+    'When the wattles flower early: expect an intense wet season',
+    'When the ants move to higher ground: heavy rain within days',
+    'When the southeast winds shift northwest: cyclone season beginning',
+    'When certain fish school near shore: a major weather change approaching',
+  ],
+  timeline: [
+    { year: '13,000 BCE', event: 'Post-glacial flooding', detail: 'Manbarra oral tradition preserves memory of rising seas — doubled islands becoming single, freshwater springs lost beneath salt' },
+    { year: '1918', event: 'Hull River Cyclone', detail: '200 survivors forcibly relocated to Palm Island — flood victims turned into prisoners. The founding trauma.' },
+    { year: '1957', event: 'The Great Strike', detail: 'The Magnificent Seven led the first organised mass resistance. The same solidarity now mobilises flood response.' },
+    { year: '2011', event: 'Cyclone Yasi', detail: 'Near-catastrophe exposed deadly vulnerability — only 1 of 4 evacuation centres above predicted storm surge.' },
+    { year: '2023', event: 'Cyclone Jasper', detail: 'Wettest tropical cyclone in Australian history. 2,252mm peak rainfall. 13 Queensland councils activated.' },
+    { year: '2025', event: 'Landslide Blackout', detail: '800mm+ rainfall, landslide severed power, ADF deployed. $8M Community Relief Fund activated.' },
+  ],
+  magnificentSeven: [
+    { name: 'Albert Geia', role: 'Strike Leader' },
+    { name: 'Willie Thaiday', role: 'Community Organizer' },
+    { name: 'Eric Lymburner', role: 'Strategist' },
+    { name: 'Sonny Sibley', role: 'Spokesperson' },
+    { name: 'Bill Congoo', role: 'Youth Leader' },
+    { name: 'George Watson', role: 'Elder Representative' },
+    { name: 'Gordon Tapau', role: 'Labor Coordinator' },
+  ],
+  climateData: [
+    { metric: 'Temperature', current: '+1.51°C since 1910', projected: '+2-4°C by 2070' },
+    { metric: 'Sea Level Rise', current: '+3.4mm/year', projected: '+0.5-1m by 2100' },
+    { metric: 'Flood Risk', current: '1-in-100 year baseline', projected: '+130% by 2100' },
+    { metric: 'Cyclone Intensity', current: 'More Cat 4-5 storms', projected: '+20% increase' },
+  ],
+};
+
+// ============================================================================
+// History Eras (for 20-year journey timeline)
+// ============================================================================
+
+export const HISTORY_ERAS = [
+  {
+    name: 'Foundation',
+    year_start: 2009,
+    year_end: 2013,
+    description: 'PICC established as an Aboriginal community-controlled organisation, taking on initial service delivery responsibilities.',
+    milestones: ['Incorporation under CATSI Act', 'First community services launched', 'Initial health service partnerships'],
+  },
+  {
+    name: 'Growth',
+    year_start: 2014,
+    year_end: 2018,
+    description: 'Rapid expansion of services and workforce. PICC grows from ~60 staff to over 100, establishing itself as the largest employer on Palm Island.',
+    milestones: ['Workforce tripled from 60 to 100+ staff', 'Expanded health services', 'Social enterprises launched', 'Construction & Maintenance operations started'],
+  },
+  {
+    name: 'Transition',
+    year_start: 2019,
+    year_end: 2022,
+    description: 'Period of consolidation and capability-building, including navigating COVID-19 and building toward Delegated Authority.',
+    milestones: ['COVID-19 community response leadership', 'Digital Service Centre established with Telstra', 'Delegated Authority pathway initiated', 'Staff grew to 150+'],
+  },
+  {
+    name: 'Community Controlled',
+    year_start: 2023,
+    year_end: null,
+    description: 'PICC achieves Delegated Authority — a historic milestone. Record staff, record social enterprise employment, and national recognition.',
+    milestones: ['Delegated Authority granted (Bwgcolman Way)', '197 staff — 30% growth in one year', 'Record 44 social enterprise staff', 'SNAICC National Conference presentation', 'Revenue reaches $23.4M'],
+  },
+];
+
+export const INNOVATION_PROJECTS = [
+  {
+    id: 'proj-01',
+    title: 'Healthy Meals Program',
+    description: 'Community nutrition initiative providing healthy, affordable meals to Palm Island families. Combining local food preparation with nutrition education to address food security challenges on the island.',
+    status: 'planning',
+    hero_image_url: null as string | null,
+    impact_summary: 'Nourishing community through locally prepared healthy meals',
+  },
+  {
+    id: 'proj-02',
+    title: 'The Centre - The Station',
+    description: 'Multi-purpose community hub providing space for cultural activities, training, social enterprise operations, and community gatherings. A place where Palm Islanders come together to build, learn, and celebrate.',
+    status: 'in_progress',
+    hero_image_url: null as string | null,
+    impact_summary: 'Community hub for culture, training, and enterprise',
+  },
+  {
+    id: 'proj-03',
+    title: 'Elders Group Activations',
+    description: 'Structured program of cultural activities, storytelling sessions, and community engagements led by and for Palm Island Elders. Preserving knowledge while keeping Elders active and connected.',
+    status: 'in_progress',
+    hero_image_url: null as string | null,
+    impact_summary: 'Keeping Elders active and cultural knowledge alive',
+  },
+  {
+    id: 'proj-04',
+    title: 'Palm Island Photo Studio',
+    description: 'Professional photography studio on Palm Island capturing community stories, cultural events, and creating local employment in creative industries.',
+    status: 'in_progress',
+    hero_image_url: null as string | null,
+    impact_summary: 'Professional photography capturing community stories',
+  },
+  {
+    id: 'proj-05',
+    title: 'Movember Connection to Country',
+    description: 'Partnership with Movember Foundation supporting men\'s health and wellbeing through connection to Country, culture, and community on Palm Island.',
+    status: 'planning',
+    hero_image_url: null as string | null,
+    impact_summary: 'Men\'s health through connection to Country',
+  },
+  {
+    id: 'proj-06',
+    title: 'On-Country Server',
+    description: 'Sovereign data infrastructure project establishing local server capacity on Palm Island, ensuring community data stays on Country under community control.',
+    status: 'planning',
+    hero_image_url: null as string | null,
+    impact_summary: 'Data sovereignty — community data on Country',
+  },
+  {
+    id: 'proj-07',
+    title: 'Recycling and Jobs Opportunity (Goods)',
+    description: 'Social enterprise combining recycling services with employment pathways for Palm Islanders, addressing waste management while creating meaningful jobs.',
+    status: 'planning',
+    hero_image_url: null as string | null,
+    impact_summary: 'Jobs through recycling and waste management',
+  },
+  {
+    id: 'proj-08',
+    title: 'Annual Report System',
+    description: 'AI-powered annual report generation system that creates audience-targeted reports on demand, celebrating community outcomes and innovation.',
+    status: 'in_progress',
+    hero_image_url: null as string | null,
+    impact_summary: 'On-demand, audience-targeted annual reports',
+  },
+];
 
 export const SERVICES = [
   { id: "svc-01", name: "Bwgcolman Healing Service", description: "Comprehensive primary healthcare integrating traditional and modern medicine. RACGP accredited general practice clinic.", service_category: "health", staff_count: 35, clients_served_annual: 2283 },

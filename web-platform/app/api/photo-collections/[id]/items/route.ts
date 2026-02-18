@@ -1,13 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { cookies } from 'next/headers'
+import { createServerClient } from '@supabase/ssr'
 
 export const runtime = 'nodejs'
-
-function isDev(request: NextRequest) {
-  if (process.env.NODE_ENV === 'production') return false
-  const host = request.headers.get('host') || ''
-  return host.includes('localhost') || host.includes('127.0.0.1')
-}
 
 function getServerClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -22,11 +18,36 @@ function getServerClient() {
   })
 }
 
+async function isAuthenticated(): Promise<boolean> {
+  try {
+    const cookieStore = await cookies()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll()
+          },
+          setAll(cookiesToSet: any) {
+            cookiesToSet.forEach(({ name, value, options }: any) => {
+              try { cookieStore.set(name, value, options) } catch {}
+            })
+          },
+        } as any,
+      }
+    )
+    const { data: { user } } = await supabase.auth.getUser()
+    return !!user
+  } catch {
+    return false
+  }
+}
+
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    // Safety: this endpoint bypasses RLS using the service role; keep it dev-only.
-    if (!isDev(request)) {
-      return NextResponse.json({ error: 'Not available' }, { status: 403 })
+    if (!(await isAuthenticated())) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const collectionId = params.id
@@ -53,6 +74,16 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       .upsert(rows, { onConflict: 'collection_id,media_id', ignoreDuplicates: true })
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+    // Update item_count on the collection
+    const { count } = await supabase
+      .from('collection_items')
+      .select('*', { count: 'exact', head: true })
+      .eq('collection_id', collectionId)
+    await supabase
+      .from('photo_collections')
+      .update({ item_count: count ?? 0, updated_at: new Date().toISOString() })
+      .eq('id', collectionId)
 
     return NextResponse.json({ ok: true })
   } catch (error: any) {

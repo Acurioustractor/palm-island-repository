@@ -1,5 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { extractGpsFromBuffer } from '@/lib/media/extract-exif';
 
 // Server-side Supabase client with service role (bypasses RLS)
 function getServerClient() {
@@ -104,7 +105,7 @@ export async function POST(request: NextRequest) {
       const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
       const duplicateResponse = await fetch(
-        `${supabaseUrl}/rest/v1/media_files?select=id,original_filename,file_size,public_url,created_at&original_filename=eq.${encodeURIComponent(file.name)}&file_size=eq.${file.size}&deleted_at=is.null&limit=1`,
+        `${supabaseUrl}/rest/v1/media_files?select=id,original_filename,file_size,public_url,created_at,latitude,longitude,tags&original_filename=eq.${encodeURIComponent(file.name)}&file_size=eq.${file.size}&deleted_at=is.null&limit=1`,
         {
           headers: {
             'apikey': supabaseServiceKey,
@@ -118,9 +119,38 @@ export async function POST(request: NextRequest) {
       if (duplicateResponse.ok) {
         const existingFiles = await duplicateResponse.json();
 
-        // If duplicate found, return specific response
+        // If duplicate found, backfill GPS if missing, then return
         if (existingFiles && existingFiles.length > 0) {
           const duplicate = existingFiles[0];
+
+          // Backfill GPS data if the duplicate record lacks it
+          if (!duplicate.latitude && !duplicate.longitude && file.type.startsWith('image/')) {
+            try {
+              const arrayBuf = await file.arrayBuffer();
+              const buf = Buffer.from(arrayBuf);
+              const gps = await extractGpsFromBuffer(buf);
+              if (gps) {
+                duplicate.latitude = gps.latitude;
+                duplicate.longitude = gps.longitude;
+                // Persist to DB
+                await fetch(
+                  `${supabaseUrl}/rest/v1/media_files?id=eq.${duplicate.id}`,
+                  {
+                    method: 'PATCH',
+                    headers: {
+                      'apikey': supabaseServiceKey,
+                      'Authorization': `Bearer ${supabaseServiceKey}`,
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ latitude: gps.latitude, longitude: gps.longitude }),
+                  }
+                );
+              }
+            } catch (gpsErr) {
+              console.error('GPS backfill error:', gpsErr);
+            }
+          }
+
           return NextResponse.json({
             error: 'duplicate',
             message: 'This file has already been uploaded',
@@ -129,6 +159,10 @@ export async function POST(request: NextRequest) {
               filename: duplicate.original_filename,
               uploadedAt: duplicate.created_at,
               url: duplicate.public_url,
+              public_url: duplicate.public_url,
+              latitude: duplicate.latitude,
+              longitude: duplicate.longitude,
+              tags: duplicate.tags,
             },
           }, { status: 409 }); // 409 Conflict
         }
@@ -174,6 +208,12 @@ export async function POST(request: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
+    // Extract GPS coordinates from EXIF data (images only)
+    let gpsData: { latitude: number; longitude: number } | null = null;
+    if (isImage) {
+      gpsData = await extractGpsFromBuffer(buffer);
+    }
+
     // Upload to Supabase Storage (story-media bucket)
     const { error: uploadError } = await supabase.storage
       .from('story-media')
@@ -218,6 +258,8 @@ export async function POST(request: NextRequest) {
       alt_text: altText || null,
       caption: caption || null,
       tags: allTags,
+      latitude: gpsData?.latitude ?? null,
+      longitude: gpsData?.longitude ?? null,
       uploaded_by: null, // No user context - bulk uploads don't require login
       project_id: projectId,
       usage_context: usageContext || null,

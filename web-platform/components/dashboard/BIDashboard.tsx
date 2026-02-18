@@ -320,7 +320,7 @@ export function BIDashboard() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div>
               <h3 className="text-xl font-semibold mb-2">20-Year Journey Progress</h3>
-              <p className="text-warm-200">Year 16 of 20 &bull; Target: July 2029</p>
+              <p className="text-warm-200">Year 17 of 20 &bull; Target: July 2029</p>
             </div>
             <div className="flex items-center gap-4">
               <div className="text-right">

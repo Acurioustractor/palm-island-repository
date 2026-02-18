@@ -258,7 +258,7 @@ export default function AnnualReportsTimelinePage() {
           <div>
             <h4 className="font-semibold text-gray-900 mb-2">About This Timeline</h4>
             <p className="text-sm text-gray-600">
-              Visual journey through PICC's 15 years of service to Palm Island community, from establishment to community control.
+              Visual journey through PICC's 17 years of service to Palm Island community, from establishment to community control.
             </p>
           </div>
           <div>

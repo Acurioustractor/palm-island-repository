@@ -47,12 +47,12 @@ const PICC_MILESTONES: TimelineEvent[] = [
     url: '/about',
   },
   {
-    id: 'milestone-15-years',
+    id: 'milestone-17-years',
     type: 'milestone',
-    title: 'PICC Celebrates 15 Years',
-    description: '15 years of impact: 100% Indigenous-led, community-controlled services.',
-    date: '2025-01-01',
-    year: 2025,
+    title: 'PICC Enters 17th Year',
+    description: '17 years of impact: 100% Indigenous-led, community-controlled services. 3 years to the 20th anniversary in 2029.',
+    date: '2026-01-01',
+    year: 2026,
     url: '/road-to-20-years',
   },
 ]

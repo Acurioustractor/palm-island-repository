@@ -1,16 +1,9 @@
-import WikiNavigation from '@/components/wiki/WikiNavigation';
+import { redirect } from 'next/navigation';
 
 export default function WikiLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <>
-      <WikiNavigation />
-      <div className="lg:ml-72 min-h-screen bg-gradient-to-br from-stone-50 via-picc-ochre-50/30 to-orange-50/20">
-        {children}
-      </div>
-    </>
-  );
+  redirect('/chat');
 }

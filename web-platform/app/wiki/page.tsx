@@ -264,7 +264,7 @@ export default function WikiIndexPage() {
             </div>
 
             <p className="text-lg text-warm-100 mb-8 max-w-2xl">
-              Explore 15+ years of community stories, cultural knowledge, and collective wisdom.
+              Explore 17 years of community stories, cultural knowledge, and collective wisdom.
               Search naturally - our AI understands what you're looking for.
             </p>
 
@@ -494,7 +494,7 @@ export default function WikiIndexPage() {
                 <h2 className="text-2xl font-bold mb-2">Ask Our AI Assistant</h2>
                 <p className="text-white/90 mb-4">
                   Have questions about PICC's programs, history, or community stories?
-                  Our AI assistant has access to 15 years of knowledge and can help you find answers.
+                  Our AI assistant has access to 17 years of knowledge and can help you find answers.
                 </p>
                 <Link
                   href="/chat"

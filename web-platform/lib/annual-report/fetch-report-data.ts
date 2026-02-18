@@ -18,6 +18,33 @@ function createServiceClient() {
   });
 }
 
+export interface ComplianceData {
+  auditor_name: string | null;
+  auditor_firm: string | null;
+  audit_opinion: string;
+  icn_number: string | null;
+  members_count: number | null;
+  agm_date: string | null;
+  board_meetings_held: number | null;
+  directors_declaration: string | null;
+  revenue_by_funder: Array<{ funder: string; amount: number; percentage: number }>;
+  prior_year_financials: {
+    total_income: number;
+    total_expenditure: number;
+    net_result: number;
+  } | null;
+}
+
+export interface CommunityVoice {
+  id: string;
+  type: 'story' | 'elder_quote' | 'community_vision' | 'feedback';
+  text: string;
+  author: string | null;
+  role: string | null;
+  photo_url: string | null;
+  category: string | null;
+}
+
 export interface ReportData {
   report: {
     id: string;
@@ -28,6 +55,7 @@ export interface ReportData {
     looking_forward: string;
     acknowledgments: string;
   };
+  compliance: ComplianceData;
   statistics: Array<{
     id: string;
     category: string;
@@ -56,6 +84,7 @@ export interface ReportData {
     full_name: string;
     position: string;
     bio: string | null;
+    photo_url: string | null;
     display_order: number;
   }>;
   leadershipMessages: Array<{
@@ -67,6 +96,7 @@ export interface ReportData {
     message_content: string;
     message_excerpt: string;
     featured_quote: string;
+    photo_url: string | null;
     display_order: number;
   }>;
   highlights: Array<{
@@ -89,6 +119,39 @@ export interface ReportData {
     staff_count: number | null;
     clients_served_annual: number | null;
   }>;
+  coverPhoto: { url: string; caption?: string } | null;
+  galleryPhotos: Array<{ url: string; caption?: string }>;
+  financials: {
+    total_income: number;
+    total_expenditure: number;
+    net_result: number;
+    breakdown: Array<{ category: string; amount: number; percentage: number }>;
+  } | null;
+  innovationProjects: Array<{
+    id: string;
+    title: string;
+    description: string;
+    status: string;
+    hero_image_url?: string | null;
+    impact_summary?: string | null;
+  }>;
+  communityVoices: CommunityVoice[];
+  historyEras: Array<{
+    name: string;
+    year_start: number;
+    year_end: number | null;
+    description: string;
+    milestones: string[];
+  }>;
+  resilienceStories: {
+    title: string;
+    subtitle: string;
+    gubbal: { text: string; attribution: string; culturalNote: string };
+    traditionalWisdom: string[];
+    timeline: Array<{ year: string; event: string; detail: string }>;
+    magnificentSeven: Array<{ name: string; role: string }>;
+    climateData: Array<{ metric: string; current: string; projected: string }>;
+  } | null;
 }
 
 /**
@@ -117,10 +180,10 @@ export async function getReportData(fiscalYear?: string): Promise<ReportData> {
       highlightsResult,
       servicesResult,
     ] = await Promise.all([
-      // 1. Report record
+      // 1. Report record (including compliance fields)
       supabase
         .from('annual_reports')
-        .select('id, report_year, title, status, executive_summary, looking_forward, acknowledgments')
+        .select('id, report_year, title, status, executive_summary, looking_forward, acknowledgments, auditor_name, auditor_firm, audit_opinion, icn_number, members_count, agm_date, board_meetings_held, directors_declaration, revenue_by_funder, prior_year_financials')
         .eq('report_year', reportYear)
         .limit(1)
         .single(),
@@ -128,46 +191,46 @@ export async function getReportData(fiscalYear?: string): Promise<ReportData> {
       // 2. Report statistics (linked to report)
       supabase
         .from('report_statistics')
-        .select('id, category, stat_label, stat_value, stat_unit, stat_description, comparison_previous_year, comparison_type, icon_name, is_key_metric, display_order')
+        .select('id, report_id, category, stat_label, stat_value, stat_unit, stat_description, comparison_previous_year, comparison_type, icon_name, is_key_metric, display_order')
         .order('display_order'),
 
       // 3. Report sections (linked to report)
       supabase
         .from('report_sections')
-        .select('id, section_type, section_title, section_content, display_order')
+        .select('id, report_id, section_type, section_title, section_content, display_order')
         .order('display_order'),
 
       // 4. Board members
       supabase
         .from('board_members')
-        .select('id, name, role, display_order')
+        .select('id, name, role, photo_url, display_order')
         .order('display_order'),
 
       // 5. Leadership (CEO + Chair messages)
       supabase
         .from('leadership')
-        .select('id, leadership_type, full_name, position, message_title, message_content, message_excerpt, featured_quote, position_order')
+        .select('id, leadership_type, full_name, position, photo_url, message_title, message_content, message_excerpt, featured_quote, position_order')
         .eq('is_active', true)
         .order('position_order'),
 
       // 6. Report highlights
       supabase
         .from('report_highlights')
-        .select('id, highlight_type, title, subtitle, description, impact_achieved, metrics, is_featured, display_order, display_style')
+        .select('id, report_id, highlight_type, title, subtitle, description, impact_achieved, metrics, is_featured, display_order, display_style')
         .order('display_order'),
 
       // 7. Services with metrics
       supabase
         .from('organization_services')
         .select(`
-          id, service_name, description, service_category, staff_count,
+          id, name, description, service_category, staff_count,
           clients_served_annual,
           service_metrics (
             clients_served, staff_count, headline_stat_value, headline_stat_label
           )
         `)
         .eq('is_active', true)
-        .order('service_name'),
+        .order('name'),
     ]);
 
     // Check if we got a valid report from the database
@@ -179,9 +242,9 @@ export async function getReportData(fiscalYear?: string): Promise<ReportData> {
     // Filter stats/sections/highlights by report_id
     const reportId = report.id;
     const allStats = statsResult.data || [];
-    const filteredStats = allStats.filter((s: any) => s.report_id === reportId || true);
-    const allSections = sectionsResult.data || [];
-    const allHighlights = highlightsResult.data || [];
+    const filteredStats = allStats.filter((s: any) => s.report_id === reportId);
+    const allSections = (sectionsResult.data || []).filter((s: any) => s.report_id === reportId);
+    const allHighlights = (highlightsResult.data || []).filter((h: any) => h.report_id === reportId);
     const boardRows = boardResult.data || [];
     const leadershipRows = leadershipResult.data || [];
     const serviceRows = servicesResult.data || [];
@@ -190,6 +253,151 @@ export async function getReportData(fiscalYear?: string): Promise<ReportData> {
     if (filteredStats.length === 0 && allSections.length === 0) {
       return staticData;
     }
+
+    // Fetch additional data: cover photo, gallery, financials, innovation projects, community voices, history
+    const [coverResult, galleryResult, financialsResult, innovationResult, storiesResult, elderQuotesResult, visionsResult, historyResult] = await Promise.all([
+      // Cover photo — tagged 'annual-report-cover'
+      supabase
+        .from('media_files')
+        .select('storage_url, caption')
+        .contains('tags', ['annual-report-cover'])
+        .limit(1)
+        .maybeSingle(),
+
+      // Gallery photos — tagged 'annual-report'
+      supabase
+        .from('media_files')
+        .select('storage_url, caption')
+        .contains('tags', ['annual-report'])
+        .order('created_at', { ascending: false })
+        .limit(6),
+
+      // Financials for the fiscal year
+      supabase
+        .from('annual_financials')
+        .select('total_income, total_expenditure, net_result, breakdown')
+        .eq('fiscal_year', fy)
+        .maybeSingle(),
+
+      // Innovation projects
+      supabase
+        .from('projects')
+        .select('id, name, description, status, hero_image_url, tagline')
+        .in('status', ['active', 'Active', 'planning', 'Planning', 'in_progress', 'In Progress'])
+        .order('name')
+        .limit(8),
+
+      // Report-worthy stories for community voices
+      supabase
+        .from('stories')
+        .select('id, title, content, quote_text, quote_attribution, featured_image_url, category, excerpt')
+        .eq('status', 'published')
+        .eq('report_worthy', true)
+        .order('quality_score', { ascending: false })
+        .limit(6),
+
+      // Elder quotes (validated, public) — column names: text, speaker_name, speaker_role
+      supabase
+        .from('elder_quotes')
+        .select('id, text, speaker_name, speaker_role')
+        .eq('is_validated', true)
+        .eq('permission_level', 'public')
+        .limit(6),
+
+      // Community visions (approved)
+      supabase
+        .from('community_visions')
+        .select('id, vision_text, author_name, author_role, category, is_approved')
+        .eq('is_approved', true)
+        .limit(6),
+
+      // History eras for journey timeline
+      supabase
+        .from('organization_history')
+        .select('id, era_name, year_start, year_end, description, milestones')
+        .order('year_start'),
+    ]);
+
+    const coverPhoto = coverResult.data
+      ? { url: coverResult.data.storage_url, caption: coverResult.data.caption || undefined }
+      : null;
+
+    const galleryPhotos = (galleryResult.data || []).map((p: any) => ({
+      url: p.storage_url,
+      caption: p.caption || undefined,
+    }));
+
+    const financials = financialsResult.data
+      ? {
+          total_income: financialsResult.data.total_income,
+          total_expenditure: financialsResult.data.total_expenditure,
+          net_result: financialsResult.data.net_result,
+          breakdown: financialsResult.data.breakdown || [],
+        }
+      : null;
+
+    const innovationProjects = (innovationResult.data || []).map((p: any) => ({
+      id: p.id,
+      title: p.name,
+      description: p.description || '',
+      status: p.status || 'active',
+      hero_image_url: p.hero_image_url || null,
+      impact_summary: p.tagline || null,
+    }));
+
+    // Build community voices from multiple sources
+    const communityVoices: CommunityVoice[] = [
+      ...(storiesResult.data || []).map((s: any) => ({
+        id: s.id,
+        type: 'story' as const,
+        text: s.quote_text || s.excerpt || (s.content ? s.content.slice(0, 200) + '...' : s.title),
+        author: s.quote_attribution || null,
+        role: null,
+        photo_url: s.featured_image_url || null,
+        category: s.category || null,
+      })),
+      ...(elderQuotesResult.data || []).map((q: any) => ({
+        id: q.id,
+        type: 'elder_quote' as const,
+        text: q.text,
+        author: q.speaker_name || null,
+        role: q.speaker_role || 'Elder',
+        photo_url: null,
+        category: null,
+      })),
+      ...(visionsResult.data || []).map((v: any) => ({
+        id: v.id,
+        type: 'community_vision' as const,
+        text: v.vision_text,
+        author: v.author_name || null,
+        role: v.author_role || 'Community Member',
+        photo_url: null,
+        category: v.category || null,
+      })),
+    ];
+
+    // Build compliance data from report record
+    const compliance: ComplianceData = {
+      auditor_name: report.auditor_name || null,
+      auditor_firm: report.auditor_firm || null,
+      audit_opinion: report.audit_opinion || 'unqualified',
+      icn_number: report.icn_number || null,
+      members_count: report.members_count || null,
+      agm_date: report.agm_date || null,
+      board_meetings_held: report.board_meetings_held || null,
+      directors_declaration: report.directors_declaration || null,
+      revenue_by_funder: report.revenue_by_funder || [],
+      prior_year_financials: report.prior_year_financials || null,
+    };
+
+    // History eras
+    const historyEras = (historyResult.data || []).map((e: any) => ({
+      name: e.era_name,
+      year_start: e.year_start,
+      year_end: e.year_end || null,
+      description: e.description || '',
+      milestones: e.milestones || [],
+    }));
 
     return {
       report: {
@@ -237,6 +445,7 @@ export async function getReportData(fiscalYear?: string): Promise<ReportData> {
             full_name: b.name,
             position: b.role,
             bio: null,
+            photo_url: b.photo_url || null,
             display_order: b.display_order,
           }))
         : staticData.boardMembers,
@@ -251,6 +460,7 @@ export async function getReportData(fiscalYear?: string): Promise<ReportData> {
             message_content: l.message_content || '',
             message_excerpt: l.message_excerpt || '',
             featured_quote: l.featured_quote || '',
+            photo_url: l.photo_url || null,
             display_order: l.position_order,
           }))
         : staticData.leadershipMessages,
@@ -275,7 +485,7 @@ export async function getReportData(fiscalYear?: string): Promise<ReportData> {
             const metrics = Array.isArray(s.service_metrics) ? s.service_metrics[0] : s.service_metrics;
             return {
               id: s.id,
-              name: s.service_name,
+              name: s.name,
               description: s.description || '',
               service_category: s.service_category,
               staff_count: metrics?.staff_count ?? s.staff_count ?? null,
@@ -283,6 +493,15 @@ export async function getReportData(fiscalYear?: string): Promise<ReportData> {
             };
           })
         : staticData.services,
+
+      coverPhoto,
+      galleryPhotos,
+      financials,
+      innovationProjects,
+      communityVoices,
+      compliance,
+      historyEras,
+      resilienceStories: staticData.resilienceStories,
     };
   } catch (err) {
     console.error('Error fetching report data from Supabase, using static fallback:', err);

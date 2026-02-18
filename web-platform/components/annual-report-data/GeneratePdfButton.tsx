@@ -5,6 +5,7 @@ import { Download, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 
 interface GeneratePdfButtonProps {
   reportId: string | null;
+  reportYear?: string;
   readinessPercent?: number;
   variant?: 'primary' | 'compact';
 }
@@ -13,6 +14,7 @@ type PdfState = 'idle' | 'generating' | 'ready' | 'error';
 
 export default function GeneratePdfButton({
   reportId,
+  reportYear = '2024-25',
   readinessPercent = 0,
   variant = 'primary',
 }: GeneratePdfButtonProps) {
@@ -33,9 +35,7 @@ export default function GeneratePdfButton({
     setErrorMsg('');
 
     try {
-      const res = await fetch(`/api/annual-reports/${reportId}/export-pdf`, {
-        method: 'POST',
-      });
+      const res = await fetch(`/api/pdf/generate?type=annual-report&year=${encodeURIComponent(reportYear)}`);
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({ error: 'PDF generation failed' }));
@@ -46,7 +46,7 @@ export default function GeneratePdfButton({
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `PICC-Annual-Report-${new Date().getFullYear()}.pdf`;
+      a.download = `PICC-Annual-Report-${reportYear}.pdf`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

@@ -148,7 +148,7 @@ export default function Timeline20Year() {
       {/* Header */}
       <header className="text-center mb-16">
         <h1 className="text-4xl font-bold mb-4">
-          PICC: 18 Years of Community-Led Impact
+          PICC: 17 Years of Community-Led Impact
         </h1>
         <p className="text-xl text-gray-600 mb-8">
           From foundation to innovation — our journey toward 20 years

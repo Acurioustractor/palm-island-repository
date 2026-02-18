@@ -95,8 +95,8 @@ export async function POST(request: NextRequest) {
     const projectData: Record<string, any> = {
       name: body.name,
       slug: body.slug,
-      tagline: body.tagline,
-      description: body.description,
+      tagline: body.tagline || '',
+      description: body.description || '',
       status: body.status || 'planning',
       project_type: body.project_type,
       start_date: body.start_date,
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
       featured: body.featured === true,
     };
 
-    // Remove undefined values
+    // Remove undefined values (but keep empty strings for NOT NULL columns)
     Object.keys(projectData).forEach(key => {
       if (projectData[key as keyof typeof projectData] === undefined) {
         delete projectData[key as keyof typeof projectData];

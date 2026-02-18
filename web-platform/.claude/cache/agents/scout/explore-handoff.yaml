@@ -1,0 +1,160 @@
+---
+type: exploration
+ts: "2026-02-14T14:10:00Z"
+depth: deep
+focus: full codebase
+commit: c1749ef3
+---
+
+summary: >
+  PICC web platform is a large Next.js 14 + Supabase + Vercel application with 201 components,
+  150+ routes, 123 API endpoints, and deep AI/media integrations. Community storytelling,
+  annual report generation, and cultural protocol enforcement are core concerns.
+
+structure:
+  entry_points:
+    - app/layout.tsx  # Root layout, AdminProvider, Agentation (dev)
+    - middleware.ts  # Auth routing, session management, dev bypass
+    - app/(public)/page.tsx  # Homepage server component → HomePageClient
+    - app/picc/layout.tsx  # Admin layout with SidebarProvider
+
+  key_modules:
+    - lib/supabase/  # 3 client patterns (browser/server/route), cookie auth
+    - lib/ai/  # Anthropic Claude (Sonnet 4.5), embeddings, vision, chat
+    - lib/media/  # Page context system, smart assignment, cultural gates
+    - lib/stats/  # current-stats.ts, STAFF/SERVICES/FINANCIALS constants
+    - lib/stories/  # Story utils, multi-factor scoring, intelligent placement
+    - lib/types/stories.ts  # 408 lines of story type definitions
+    - lib/picc-knowledge-base.ts  # Hardcoded org data and statistics
+
+  route_groups:
+    - "(public)/": Homepage, stories, services, annual-report, impact, community, about, subscribe
+    - "picc/": Admin dashboard, content management, media, annual-report-data, knowledge, insights
+    - "wiki/": Knowledge wiki - people, places, culture, innovation, timeline
+    - "api/": 123 endpoint directories (stories, media, AI, reports, knowledge, scraper)
+
+  test_coverage:
+    - tests/  # Playwright E2E tests
+
+architecture:
+  layers:
+    entry:
+      - middleware.ts  # Auth + routing
+      - app/layout.tsx  # Root layout
+      - app/(public)/layout.tsx  # Public layout (nav + footer)
+      - app/picc/layout.tsx  # Admin layout (sidebar)
+    middle:
+      - lib/supabase/server.ts  # getServerUser, isAdmin, hasRole
+      - lib/ai/index.ts  # AI orchestration
+      - lib/media/utils.ts  # getHeroImage, getPageMedia, getServicePhotos
+      - lib/stories/utils.ts  # getPageStories with multi-factor scoring
+      - lib/stats/current-stats.ts  # STAFF, SERVICES, FINANCIALS, FALLBACKS
+    leaf:
+      - lib/utils.ts  # General utilities
+      - lib/supabase/database.types.ts  # Auto-generated types
+      - components/ui/*  # Button, Card, Toast, Skeleton, etc.
+
+  auth:
+    provider: Supabase Auth (email/password + OAuth)
+    roles: [admin, staff, storyteller, viewer]
+    protection: middleware-based route guards
+    dev_bypass: true in development mode
+
+  data_patterns:
+    - Server components fetch → pass to client components as props
+    - API routes use createServerSupabase() for authenticated queries
+    - Smart media uses page_context + page_section for auto-assignment
+    - Cultural protocols enforced at query level (elder_approval, sensitivity)
+
+  circular_deps: []
+
+  integrations:
+    ai:
+      - "Anthropic Claude (Sonnet 4.5) - RAG chat, vision, transcription"
+      - "AI SDK (Vercel) - streaming responses"
+      - "Vector search: Pinecone + Qdrant (configured, text fallback active)"
+    communications:
+      - "GHL (GoHighLevel) - ALL comms (enforced, no custom email/SMS)"
+    media:
+      - "Supabase Storage - file storage"
+      - "Sharp - image processing"
+      - "pdf-lib, pdfjs-dist - PDF handling"
+    pdf_generation:
+      - "WeasyPrint (Python) - production PDF pipeline in annual-reports/"
+    maps:
+      - "Leaflet + Mapbox - service location maps"
+    agent_system:
+      - "Agentation 2.2.0 - role-based agents (CMO, CEO, CFO)"
+    scraping:
+      - "Firecrawl + Jina Reader - content ingestion"
+
+  design_system:
+    colors:
+      picc-red: "#8B1A1A"
+      picc-ochre: "#C8922A"
+      picc-earth: "#2D2319"
+      sage: "#5B7B5E"
+      cream: "#F5E6D3"
+    font: Inter (Google Fonts)
+    easing: "cubic-bezier(0.22, 1, 0.36, 1)"
+    framework: "Tailwind CSS 3.4 + Radix UI + Framer Motion"
+
+findings:
+  - "201 component files across 25+ directories — highly modular"
+  - "Server/client split pattern: server components fetch data, client components handle UI"
+  - "Smart components (SmartImageUpload, SmartPDFUpload) auto-tag and auto-assign media"
+  - "AdminProvider + AdminFloatingToolbar enables quick edits on any page globally"
+  - "Cultural protocol enforcement: elder_approval, sensitivity levels, traditional knowledge flags"
+  - "Service tagging system: media linked to services via 'service:{slug}' tags"
+  - "Fiscal year convention: July-June, format 'YYYY-YY' (e.g., 2024-25)"
+  - "3 Supabase client patterns: browser (createBrowserSupabase), server (createServerSupabase), route handler"
+  - "Agent system (Agentation) with role-based agents (CMO, CEO, CFO) — dev mode only"
+  - "Multiple vector DBs configured (Pinecone + Qdrant) — may need consolidation"
+  - "Legacy Drizzle ORM code being migrated to pure Supabase"
+
+scale:
+  components: 201
+  routes: "150+"
+  api_endpoints: 123
+  migrations: 23
+  hooks: 5
+  lib_modules: "15+"
+  historical_photo_years: 15
+
+rules:
+  - "GHL-first for all communications — never build custom email/SMS"
+  - "TypeScript strict: tsc --noEmit + next build must pass"
+  - "No fake/placeholder data in dashboards — real data or explicit empty state"
+  - "WeasyPrint (Python) is production PDF — only use annual-reports/ pipeline"
+  - "Elder content requires elder_approval_given = true"
+  - "Schema column names must match across SQL, types, and queries"
+  - "Deploy from main branch only"
+  - "Scope discipline: only make changes explicitly requested"
+
+next_steps:
+  - "Wire impact page to real Supabase data (currently uses lib/stats constants)"
+  - "Consolidate vector DB usage (Pinecone vs Qdrant)"
+  - "Pull innovation projects from DB instead of homepage hardcoding"
+  - "Clean up legacy route patterns (/annual-reports vs /annual-report)"
+
+refs:
+  - path: CLAUDE.md
+    role: "Project rules and conventions"
+  - path: PICC-BRAND-STYLE-GUIDE.md
+    role: "Brand guidelines for UI work"
+  - path: middleware.ts
+    role: "Auth routing and session management"
+  - path: lib/picc-knowledge-base.ts
+    role: "Organizational data constants"
+  - path: lib/supabase/server.ts
+    role: "Auth helpers (getServerUser, isAdmin, hasRole)"
+  - path: lib/stats/current-stats.ts
+    role: "STAFF, SERVICES, FINANCIALS, FALLBACKS constants"
+  - path: lib/media/utils.ts
+    role: "Smart media fetching (getHeroImage, getPageMedia)"
+  - path: lib/stories/utils.ts
+    role: "Story fetching with multi-factor scoring"
+  - path: tailwind.config.js
+    role: "Brand theme and design tokens"
+  - path: annual-reports/scripts/
+    role: "WeasyPrint PDF generation pipeline"

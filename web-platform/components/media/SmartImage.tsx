@@ -41,24 +41,61 @@ export default function SmartImage({
   const [imgError, setImgError] = useState(false)
 
   useEffect(() => {
-    const params = new URLSearchParams({
-      fileType: 'image',
-      featured: 'true',
-      pageContext,
-      pageSection,
-      limit: '1',
-    })
+    let cancelled = false
 
-    fetch(`/api/media/list?${params}`)
-      .then((res) => (res.ok ? res.json() : null))
-      .then((payload) => {
-        const items = payload?.data
-        if (Array.isArray(items) && items.length > 0) {
-          setMedia(items[0])
-        }
+    async function findImage() {
+      // Step 1: Try exact match — pageContext + pageSection + featured
+      const exactParams = new URLSearchParams({
+        fileType: 'image',
+        featured: 'true',
+        pageContext,
+        pageSection,
+        limit: '1',
       })
-      .catch(() => {})
-      .finally(() => setLoading(false))
+      let res = await fetch(`/api/media/list?${exactParams}`).catch(() => null)
+      let payload = res?.ok ? await res.json().catch(() => null) : null
+      if (!cancelled && payload?.data?.length > 0) {
+        setMedia(payload.data[0])
+        setLoading(false)
+        return
+      }
+
+      // Step 2: Try pageContext only (any photo from that page's collection)
+      const contextParams = new URLSearchParams({
+        fileType: 'image',
+        pageContext,
+        limit: '1',
+      })
+      res = await fetch(`/api/media/list?${contextParams}`).catch(() => null)
+      payload = res?.ok ? await res.json().catch(() => null) : null
+      if (!cancelled && payload?.data?.length > 0) {
+        setMedia(payload.data[0])
+        setLoading(false)
+        return
+      }
+
+      // Step 3: Try tag-based search using pageSection as tag
+      if (pageSection) {
+        const tagParams = new URLSearchParams({
+          fileType: 'image',
+          tags: `content:${pageSection}`,
+          limit: '1',
+        })
+        res = await fetch(`/api/media/list?${tagParams}`).catch(() => null)
+        payload = res?.ok ? await res.json().catch(() => null) : null
+        if (!cancelled && payload?.data?.length > 0) {
+          setMedia(payload.data[0])
+          setLoading(false)
+          return
+        }
+      }
+
+      // Step 4: Final fallback — no image found, will show gradient
+      if (!cancelled) setLoading(false)
+    }
+
+    findImage()
+    return () => { cancelled = true }
   }, [pageContext, pageSection])
 
   const handleSwap = (picked: { id: string; public_url: string; alt_text?: string | null }) => {

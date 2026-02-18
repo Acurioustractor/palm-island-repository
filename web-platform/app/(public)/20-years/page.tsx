@@ -166,7 +166,7 @@ export default function TwentyYearsPage() {
 
       {/* HERO */}
       <HeroSection
-        title="Our Story: 15 Years of Community"
+        title="Our Story: 17 Years of Community"
         subtitle="From Hull River to community control — follow our journey of resilience, self-determination, and community-led innovation on Palm Island."
         height="screen"
         overlay="gradient"
@@ -217,7 +217,7 @@ export default function TwentyYearsPage() {
           <div className="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             <div>
               <div className="text-3xl font-bold text-white">
-                {summary.yearsSpanned}
+                {summary.totalYears}
               </div>
               <div className="text-gray-400 text-sm">Years of Service</div>
             </div>

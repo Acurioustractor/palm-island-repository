@@ -1,26 +1,34 @@
 import React from "react";
-import { ChevronRight, Users, Heart, TrendingUp, Globe, BookOpen, Target, Star, Building, Phone, Mail, MapPin, Play, Quote, Video } from "lucide-react";
+import { ChevronRight, Users, Heart, TrendingUp, Globe, BookOpen, Target, Star, Building, Phone, Mail, MapPin, Quote } from "lucide-react";
 import Link from "next/link";
 import { BespokeIcon } from "@/components/ui/BespokeIcon";
-import { STAFF } from "@/lib/stats/current-stats";
+import { getLiveStats } from "@/lib/stats/get-live-stats";
 import VideoHero from "@/components/video/VideoHero";
-import { getHeroImage, getPageMedia, getFeaturedPageMedia, getLeadershipPhotos, getServicePhotos, getTestimonialPhotos, getTimelinePhotos } from "@/lib/media/utils";
+import { getHeroImage, getPageMedia, getFeaturedPageMedia, getLeadershipPhotos, getServicePhotos, getTestimonialPhotos, getTimelinePhotos, getMediaByTags } from "@/lib/media/utils";
 import { getPageStories } from "@/lib/stories/utils";
+import { getCuratedQuotes } from "@/lib/quotes/get-curated-quotes";
 
 export default async function AboutPage() {
+  const stats = await getLiveStats();
   const heroImage = await getHeroImage("about");
   const visionImage = await getPageMedia({ pageContext: "about", pageSection: "vision", limit: 1 });
   const timelinePhotos = await getTimelinePhotos();
-  const ceoVideo = await getFeaturedPageMedia("about", "ceo-video", "video");
   const leadershipPhotos = await getLeadershipPhotos();
+  const boardPortraits = await getMediaByTags(['board-member', 'portrait']);
   const servicePhotos = await getServicePhotos();
-  const servicesVideo = await getFeaturedPageMedia("about", "services-video", "video");
-  const testimonialPhotos = await getTestimonialPhotos();
+  // testimonialPhotos no longer needed — testimonials now come from getCuratedQuotes()
   const elderStories = await getPageStories({
     pageContext: 'about',
     pageSection: 'elder-stories',
     limit: 4
   });
+
+  // Fetch real curated quotes for testimonials section
+  const curatedQuotes = await getCuratedQuotes({ limit: 4 });
+
+  // Fetch Rachel's actual CEO portrait (tagged with 'ceo' and 'portrait')
+  const rachelPhotos = await getMediaByTags(['ceo', 'portrait'], 1, 'image');
+  const rachelPhoto = rachelPhotos[0] || null;
 
   return (
     <div className="min-h-screen bg-white">
@@ -43,10 +51,10 @@ export default async function AboutPage() {
             Where ancient wisdom meets contemporary innovation
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
-            <Link href="/annual-reports" className="px-8 py-4 bg-white text-gray-900 rounded-full font-semibold text-lg hover:bg-gray-100 transition-all">
+            <Link href="/annual-reports" className="group inline-flex items-center gap-3 px-8 py-4 bg-white text-gray-900 rounded-full font-semibold text-lg hover:scale-[0.97] active:scale-95 transition-all duration-300 ease-elegant shadow-2xl shadow-black/20">
               Our Journey
             </Link>
-            <Link href="/share-voice" className="px-8 py-4 border-2 border-white text-white rounded-full font-semibold text-lg hover:bg-white hover:text-gray-900 transition-all">
+            <Link href="/share-voice" className="inline-flex items-center gap-3 px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-full font-semibold text-lg hover:bg-white/20 transition-all duration-300 ease-elegant">
               Share Your Story
             </Link>
           </div>
@@ -58,7 +66,7 @@ export default async function AboutPage() {
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-4xl font-bold text-gray-900 mb-6">
+              <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-[-0.02em] mb-6">
                 A Living Testament to Transformation
               </h2>
               <p className="text-xl text-gray-700 leading-relaxed mb-6">
@@ -88,21 +96,21 @@ export default async function AboutPage() {
       {/* Impact Numbers - Visual cards */}
       <section className="py-20 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-bold text-gray-900 text-center mb-4">The Numbers Tell Our Story</h2>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-[-0.02em] text-center mb-4">The Numbers Tell Our Story</h2>
           <p className="text-xl text-gray-600 text-center mb-12 max-w-3xl mx-auto">
             Each number represents a life touched, a family strengthened, a future secured
           </p>
 
           <div className="grid md:grid-cols-3 gap-8 mb-12">
             <div className="bg-gray-50 rounded-2xl p-8 text-center border border-gray-100">
-              <div className="text-6xl font-bold text-gray-900 mb-2">197</div>
+              <div className="text-6xl font-bold text-gray-900 mb-2">{stats.staff.total}</div>
               <div className="text-lg font-semibold text-gray-800 mb-2">Community Members Employed</div>
-              <div className="text-sm text-gray-600 mb-4">+30% from 2023</div>
+              <div className="text-sm text-gray-600 mb-4">{stats.staff.indigenousPct}% Indigenous workforce</div>
               <p className="text-sm text-gray-700 italic">Each job represents a family lifted, a young person seeing possibility</p>
             </div>
 
             <div className="bg-gray-50 rounded-2xl p-8 text-center border border-gray-100">
-              <div className="text-6xl font-bold text-gray-900 mb-2">80%+</div>
+              <div className="text-6xl font-bold text-gray-900 mb-2">{stats.staff.indigenousPct}%</div>
               <div className="text-lg font-semibold text-gray-800 mb-2">Indigenous Workforce</div>
               <div className="text-sm text-gray-600 mb-4">Maintained since establishment</div>
               <p className="text-sm text-gray-700 italic">True self-determination means our people serving our people</p>
@@ -125,7 +133,7 @@ export default async function AboutPage() {
             </div>
 
             <div className="bg-gray-50 rounded-2xl p-8 text-center border border-gray-100">
-              <div className="text-6xl font-bold text-gray-900 mb-2">16+</div>
+              <div className="text-6xl font-bold text-gray-900 mb-2">{stats.services.active}</div>
               <div className="text-lg font-semibold text-gray-800 mb-2">Integrated Services</div>
               <div className="text-sm text-gray-600 mb-4">Holistic support ecosystem</div>
               <p className="text-sm text-gray-700 italic">Because human needs don't fit in bureaucratic boxes</p>
@@ -142,20 +150,29 @@ export default async function AboutPage() {
       </section>
 
       {/* Community Quote Callout 1 */}
-      <section className="py-20 px-4 bg-gray-900 text-white">
-        <div className="max-w-4xl mx-auto text-center">
-          <Quote className="w-16 h-16 mx-auto mb-6 opacity-50" />
-          <blockquote className="text-3xl md:text-4xl font-bold mb-6 italic">
-            "Everything we do is for, with, and because of the people of this beautiful community"
+      <section className="py-20 md:py-24 px-4 bg-gradient-to-br from-picc-earth-700 via-picc-earth to-picc-red text-white">
+        <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
+          {rachelPhoto && (
+            <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-white/30 mb-6">
+              <img
+                src={rachelPhoto.public_url}
+                alt="Rachel Atkinson, CEO"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
+          <Quote className="w-12 h-12 mx-auto mb-4 opacity-50" />
+          <blockquote className="text-2xl md:text-3xl lg:text-4xl font-extrabold mb-6 tracking-[-0.02em] leading-tight">
+            &ldquo;Everything we do is for, with, and because of the people of this beautiful community&rdquo;
           </blockquote>
-          <p className="text-xl text-gray-300">— Rachel Atkinson, CEO</p>
+          <p className="text-lg text-white/70">Rachel Atkinson, CEO</p>
         </div>
       </section>
 
       {/* Our Philosophy - Three pillars */}
       <section className="py-20 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-bold text-gray-900 text-center mb-12">Our Guiding Principles</h2>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-[-0.02em] text-center mb-12">Our Guiding Principles</h2>
 
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center">
@@ -194,7 +211,7 @@ export default async function AboutPage() {
       {/* Historical Journey Timeline with Images */}
       <section className="py-20 px-4 bg-gray-50">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4 text-center">From Colonial Control to Community Sovereignty</h2>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-[-0.02em] mb-4 text-center">From Colonial Control to Community Sovereignty</h2>
           <p className="text-xl text-gray-600 text-center mb-12 max-w-3xl mx-auto">
             The journey of Palm Island Community Company cannot be separated from the journey of Palm Island itself—a story of resilience that transforms historical trauma into contemporary triumph.
           </p>
@@ -236,8 +253,8 @@ export default async function AboutPage() {
               },
               {
                 era: 'PICC Genesis',
-                period: '2007',
-                description: 'Palm Island Community Company established with dual government-community ownership. Rachel Atkinson appointed as sole employee.',
+                period: '2007-2009',
+                description: 'Palm Island Community Company established. Rachel Atkinson appointed as sole employee in 2007, with formal service delivery beginning in 2009.',
                 significance: 'Planting seeds of transformation',
                 icon: Building,
                 index: 4
@@ -298,40 +315,32 @@ export default async function AboutPage() {
 
           {/* Link to Annual Reports */}
           <div className="mt-12 text-center">
-            <Link href="/annual-reports" className="inline-flex items-center gap-2 px-8 py-4 bg-gray-900 text-white rounded-full font-semibold text-lg hover:bg-gray-800 transition-all">
+            <Link href="/annual-reports" className="inline-flex items-center gap-2 px-8 py-4 bg-gray-900 text-white rounded-full font-semibold text-lg hover:bg-gray-800 hover:scale-[0.97] active:scale-95 transition-all duration-300 ease-elegant">
               <BookOpen className="w-5 h-5" />
-              Explore 15 Years of Annual Reports
+              Explore {stats.milestones.yearsOperating} Years of Annual Reports
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Video Section - CEO Story */}
+      {/* Video Section - Community Story */}
       <section className="py-20 px-4 bg-white">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Hear From Our CEO</h2>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-[-0.02em] mb-4">Our Community Story</h2>
             <p className="text-xl text-gray-600">
-              Rachel Atkinson shares the story of PICC's transformation
+              The story of Palm Island Community Company in the community's own words
             </p>
           </div>
 
-          <div className="aspect-video bg-gray-900 rounded-2xl flex items-center justify-center">
-            {ceoVideo ? (
-              <video
-                controls
-                className="w-full h-full rounded-2xl"
-                poster={ceoVideo.public_url}
-              >
-                <source src={ceoVideo.public_url} type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-            ) : (
-              <div className="text-center text-white">
-                <Play className="w-24 h-24 mx-auto mb-4 opacity-50" />
-                <p className="text-lg">Rachel Atkinson — The PICC Story</p>
-              </div>
-            )}
+          <div className="aspect-video bg-gray-900 rounded-2xl overflow-hidden">
+            <iframe
+              src="https://share.descript.com/embed/hKKOfLKaapn"
+              className="w-full h-full"
+              allow="autoplay; fullscreen"
+              allowFullScreen
+              title="Palm Island Community Story"
+            />
           </div>
         </div>
       </section>
@@ -339,16 +348,16 @@ export default async function AboutPage() {
       {/* Leadership - Rachel Atkinson + Board */}
       <section className="py-20 px-4 bg-gray-50">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-bold text-gray-900 text-center mb-12">The Architects of Transformation</h2>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-[-0.02em] text-center mb-12">The Architects of Transformation</h2>
 
           {/* CEO Spotlight */}
           <div className="grid md:grid-cols-3 gap-8 mb-16">
             <div className="md:col-span-1">
               <div className="bg-white rounded-2xl border border-gray-100 aspect-square overflow-hidden">
-                {leadershipPhotos[0] ? (
+                {rachelPhoto ? (
                   <img
-                    src={leadershipPhotos[0].public_url}
-                    alt={leadershipPhotos[0].alt_text || 'Rachel Atkinson'}
+                    src={rachelPhoto.public_url}
+                    alt={rachelPhoto.alt_text || 'Rachel Atkinson, CEO'}
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -359,7 +368,7 @@ export default async function AboutPage() {
               </div>
             </div>
             <div className="md:col-span-2">
-              <h3 className="text-3xl font-bold text-gray-900 mb-2">Rachel Atkinson</h3>
+              <h3 className="text-3xl font-extrabold text-gray-900 tracking-tight mb-2">Rachel Atkinson</h3>
               <p className="text-xl font-medium text-gray-700 mb-4">Chief Executive Officer</p>
               <p className="text-lg text-gray-700 mb-6">
                 A proud Yorta Yorta woman carrying the legacy of activists William Cooper and Sir Douglas Nicholls, Rachel has transformed PICC from a single-employee operation to Palm Island's largest non-government employer. Her greatest triumph: achieving full community control in 2021.
@@ -377,7 +386,7 @@ export default async function AboutPage() {
                 <div className="grid md:grid-cols-2 gap-3">
                   <div className="flex items-start">
                     <ChevronRight className="h-5 w-5 text-gray-900 mt-0.5 mr-2 flex-shrink-0" />
-                    <span className="text-gray-700">Grew organization from 1 to {STAFF.total} employees</span>
+                    <span className="text-gray-700">Grew organization from 1 to {stats.staff.total} employees</span>
                   </div>
                   <div className="flex items-start">
                     <ChevronRight className="h-5 w-5 text-gray-900 mt-0.5 mr-2 flex-shrink-0" />
@@ -401,7 +410,7 @@ export default async function AboutPage() {
           </div>
 
           {/* Board Members Grid */}
-          <h3 className="text-3xl font-bold text-gray-900 mb-8">Board of Directors: Guardians of Community Vision</h3>
+          <h3 className="text-3xl font-extrabold text-gray-900 tracking-tight mb-8">Board of Directors: Guardians of Community Vision</h3>
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
@@ -409,45 +418,46 @@ export default async function AboutPage() {
                 position: 'Chair',
                 description: 'Leading PICC through its historic transition to full community control, Luella embodies the spirit of self-determination.',
                 quote: "A future where Palm Island's governance reflects the wisdom of its people",
-                index: 1
               },
               {
                 name: 'Allan Palm Island',
                 position: 'Traditional Owner Director',
                 description: 'Holding the inaugural position for the Manbarra people, Allan bridges ancient wisdom with contemporary innovation.',
                 quote: 'Creating spaces where young people reconnect with their cultural strength',
-                index: 2
               },
               {
                 name: 'Rhonda Phillips',
                 position: 'Director',
                 description: 'With PICC since its 2007 inception, Rhonda brings four decades of transformative experience in Indigenous governance.',
                 quote: 'Systems that serve people, not the other way around',
-                index: 3
               },
               {
                 name: 'Harriet Hulthen',
                 position: 'Director',
                 description: "Born and raised on Palm Island, Harriet's journey exemplifies homegrown leadership and commitment to justice.",
                 quote: 'Every Palm Islander having pathways to justice and opportunity',
-                index: 4
               },
               {
                 name: 'Raymond W. Palmer Snr',
                 position: 'Director',
                 description: 'A proud Bwgcolman man who has never left his island home, bringing the perspective of deep roots and community heartbeat.',
                 quote: 'Our children learning on Country, from Country',
-                index: 5
               },
               {
                 name: 'Matthew Lindsay',
                 position: 'Company Secretary',
                 description: "As a Fellow CPA and AICD Graduate, Matthew ensures PICC's vision is supported by robust financial governance.",
                 quote: 'Financial systems that enable community dreams',
-                index: 6
+              },
+              {
+                name: 'Cassie Lang',
+                position: 'Director',
+                description: 'Cassie brings fresh perspective and deep community connection to the PICC board, championing innovation and youth engagement.',
+                quote: 'Building pathways for the next generation of Palm Island leaders',
               }
             ].map((member, idx) => {
-              const photo = leadershipPhotos[member.index];
+              const personTag = 'person:' + member.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '');
+              const photo = boardPortraits.find((p: any) => Array.isArray(p.tags) && p.tags.includes(personTag));
 
               return (
                 <div key={idx} className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
@@ -470,7 +480,7 @@ export default async function AboutPage() {
                     <p className="text-sm text-gray-700 mb-3">{member.description}</p>
                     <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
                       <Quote className="w-4 h-4 text-gray-400 mb-1" />
-                      <p className="text-xs italic text-gray-600">"{member.quote}"</p>
+                      <p className="text-xs italic text-gray-600">&ldquo;{member.quote}&rdquo;</p>
                     </div>
                   </div>
                 </div>
@@ -574,7 +584,7 @@ export default async function AboutPage() {
             <div className="text-center mt-12">
               <Link
                 href="/stories?filter=elders"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-picc-ochre text-white rounded-full font-semibold hover:bg-picc-ochre transition-colors shadow-lg hover:shadow-xl"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-gray-900 text-white rounded-full font-semibold hover:bg-gray-800 hover:scale-[0.97] active:scale-95 transition-all duration-300 ease-elegant"
               >
                 <BookOpen className="w-5 h-5" />
                 Explore All Elder Stories
@@ -585,27 +595,28 @@ export default async function AboutPage() {
       )}
 
       {/* Community Quote Callout 2 */}
-      <section className="py-20 px-4 bg-gray-900 text-white">
-        <div className="max-w-4xl mx-auto text-center">
-          <Quote className="w-16 h-16 mx-auto mb-6 opacity-50" />
-          <blockquote className="text-3xl md:text-4xl font-bold mb-6 italic">
-            "We operate from abundance, not deficit. Every Palm Islander carries strengths, knowledge, and potential."
+      <section className="relative py-24 md:py-32 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-warm-50" />
+        <div className="max-w-4xl mx-auto px-6 relative text-center">
+          <Quote className="w-12 h-12 text-gray-300 mx-auto mb-10" />
+          <blockquote className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-gray-900 leading-tight tracking-[-0.02em] mb-10">
+            &ldquo;We operate from abundance, not deficit. Every Palm Islander carries strengths, knowledge, and potential.&rdquo;
           </blockquote>
-          <p className="text-xl text-gray-300">— PICC Philosophy</p>
+          <div className="text-sm font-semibold text-gray-500">PICC Philosophy</div>
         </div>
       </section>
 
       {/* Services & Programs with Images */}
       <section className="py-20 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-bold text-gray-900 text-center mb-4">An Ecosystem of Care & Capability</h2>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-[-0.02em] text-center mb-4">An Ecosystem of Care & Capability</h2>
           <p className="text-xl text-gray-600 text-center mb-12 max-w-3xl mx-auto">
             From birth to elder years, from crisis to celebration, from healing to economic empowerment—we meet our community wherever they are on their journey
           </p>
 
           {/* Service Category 1 - Healing & Wellbeing */}
           <div className="mb-16">
-            <h3 className="text-3xl font-bold text-gray-900 mb-8 pb-3 border-b-2 border-gray-100">Healing & Wellbeing</h3>
+            <h3 className="text-3xl font-extrabold text-gray-900 tracking-tight mb-8 pb-3 border-b-2 border-gray-100">Healing & Wellbeing</h3>
 
             <div className="grid md:grid-cols-2 gap-8">
               {/* Service 1 */}
@@ -631,15 +642,15 @@ export default async function AboutPage() {
                   </p>
                   <div className="grid grid-cols-3 gap-4 mb-4">
                     <div className="text-center">
-                      <div className="text-3xl font-bold text-gray-900">2,283</div>
+                      <div className="text-3xl font-extrabold text-gray-900 tracking-tight">2,283</div>
                       <div className="text-xs text-gray-600">Clients</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-3xl font-bold text-gray-900">17,488</div>
+                      <div className="text-3xl font-extrabold text-gray-900 tracking-tight">17,488</div>
                       <div className="text-xs text-gray-600">Episodes</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-3xl font-bold text-gray-900">779</div>
+                      <div className="text-3xl font-extrabold text-gray-900 tracking-tight">779</div>
                       <div className="text-xs text-gray-600">Health Checks</div>
                     </div>
                   </div>
@@ -678,7 +689,7 @@ export default async function AboutPage() {
 
           {/* Service Category 2 - Family Constellation */}
           <div className="mb-16">
-            <h3 className="text-3xl font-bold text-gray-900 mb-8 pb-3 border-b-2 border-gray-100">Family Constellation</h3>
+            <h3 className="text-3xl font-extrabold text-gray-900 tracking-tight mb-8 pb-3 border-b-2 border-gray-100">Family Constellation</h3>
 
             <div className="grid md:grid-cols-3 gap-8">
               {/* Services 3-5 */}
@@ -701,7 +712,7 @@ export default async function AboutPage() {
                   title: 'Bwgcolman Way',
                   subtitle: 'Revolutionary Self-Determination',
                   description: 'Groundbreaking delegated authority model where Palm Islanders make decisions about their own children.',
-                  note: 'Launching 2024',
+                  note: 'Now operational',
                   index: 4
                 }
               ].map((service, idx) => {
@@ -745,7 +756,7 @@ export default async function AboutPage() {
 
           {/* Service Category 3 - Economic Sovereignty */}
           <div className="mb-16">
-            <h3 className="text-3xl font-bold text-gray-900 mb-8 pb-3 border-b-2 border-gray-100">Economic Sovereignty</h3>
+            <h3 className="text-3xl font-extrabold text-gray-900 tracking-tight mb-8 pb-3 border-b-2 border-gray-100">Economic Sovereignty</h3>
 
             <div className="grid md:grid-cols-2 gap-8">
               {/* Services 6-7 */}
@@ -807,85 +818,50 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      {/* Video Section - Services in Action */}
+      {/* Video Section - Elders Trip */}
       <section className="py-20 px-4 bg-gray-50">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Services in Action</h2>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-[-0.02em] mb-4">Elders Mission Beach Trip</h2>
             <p className="text-xl text-gray-600">
-              See how PICC's integrated services transform lives
+              Connecting Elders to Country through community-led programs
             </p>
           </div>
 
-          <div className="aspect-video bg-gray-900 rounded-2xl flex items-center justify-center">
-            {servicesVideo ? (
-              <video
-                controls
-                className="w-full h-full rounded-2xl"
-                poster={servicesVideo.public_url}
-              >
-                <source src={servicesVideo.public_url} type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-            ) : (
-              <div className="text-center text-white">
-                <Play className="w-24 h-24 mx-auto mb-4 opacity-50" />
-                <p className="text-lg">A Day at PICC — Services in Action</p>
-              </div>
-            )}
+          <div className="aspect-video bg-gray-900 rounded-2xl overflow-hidden">
+            <iframe
+              src="https://share.descript.com/embed/75MyeSD3Ujp"
+              className="w-full h-full"
+              allow="autoplay; fullscreen"
+              allowFullScreen
+              title="Elder's Mission Beach Trip"
+            />
           </div>
         </div>
       </section>
 
-      {/* Community Voices - Testimonials with Photos */}
-      <section className="py-20 px-4 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-bold text-gray-900 text-center mb-4">Voices of Transformation</h2>
-          <p className="text-xl text-gray-600 text-center mb-12 max-w-3xl mx-auto">
-            Real stories from community members about PICC's impact
-          </p>
+      {/* Community Voices - Testimonials from real curated quotes */}
+      {curatedQuotes.length > 0 && (
+        <section className="py-20 px-4 bg-white">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-[-0.02em] text-center mb-4">Voices of Transformation</h2>
+            <p className="text-xl text-gray-600 text-center mb-12 max-w-3xl mx-auto">
+              Real stories from community members about PICC's impact
+            </p>
 
-          <div className="grid md:grid-cols-2 gap-8">
-            {[
-              {
-                quote: "If I can do it, you can. Country provides and we witness it every day through PICC's support.",
-                name: 'Youth Program Participant',
-                role: 'Youth Development Program',
-                index: 0
-              },
-              {
-                quote: "We feel powerful as an all-woman team. PICC showed us we're not just capable, we're unstoppable.",
-                name: 'Digital Service Centre Staff',
-                role: 'Digital Service Centre Team',
-                index: 1
-              },
-              {
-                quote: 'No place like home. Every visit feels like returning to where I truly belong.',
-                name: 'Health Services Client',
-                role: 'Bwgcolman Healing Service',
-                index: 2
-              },
-              {
-                quote: "We're all one people. PICC understands that and brings us together in ways that honor our journey.",
-                name: 'Family Program Participant',
-                role: 'Family Wellbeing Centre',
-                index: 3
-              }
-            ].map((testimonial, idx) => {
-              const photo = testimonialPhotos[testimonial.index];
-
-              return (
-                <div key={idx} className="bg-gray-50 rounded-2xl p-8 border border-gray-100">
+            <div className="grid md:grid-cols-2 gap-8">
+              {curatedQuotes.map((cq) => (
+                <div key={cq.id} className="bg-gray-50 rounded-2xl p-8 border border-gray-100">
                   <Quote className="w-12 h-12 text-gray-300 mb-4" />
                   <blockquote className="text-xl font-medium text-gray-800 mb-6 italic">
-                    "{testimonial.quote}"
+                    &ldquo;{cq.quote}&rdquo;
                   </blockquote>
                   <div className="flex items-center gap-4">
                     <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center border border-gray-200 overflow-hidden">
-                      {photo ? (
+                      {cq.photo_url ? (
                         <img
-                          src={photo.public_url}
-                          alt={photo.alt_text || testimonial.name}
+                          src={cq.photo_url}
+                          alt={cq.speaker_name || 'Community member'}
                           className="w-full h-full object-cover"
                         />
                       ) : (
@@ -893,28 +869,32 @@ export default async function AboutPage() {
                       )}
                     </div>
                     <div>
-                      <div className="font-bold text-gray-900">{testimonial.name}</div>
-                      <div className="text-sm text-gray-600">{testimonial.role}</div>
+                      {cq.speaker_name && (
+                        <div className="font-bold text-gray-900">{cq.speaker_name}</div>
+                      )}
+                      {cq.speaker_role && (
+                        <div className="text-sm text-gray-600">{cq.speaker_role}</div>
+                      )}
                     </div>
                   </div>
                 </div>
-              );
-            })}
-          </div>
+              ))}
+            </div>
 
-          <div className="text-center mt-12">
-            <Link href="/stories" className="inline-flex items-center gap-2 px-8 py-4 bg-gray-900 text-white rounded-full font-semibold text-lg hover:bg-gray-800 transition-all">
-              <BookOpen className="w-5 h-5" />
-              Read More Community Stories
-            </Link>
+            <div className="text-center mt-12">
+              <Link href="/stories" className="inline-flex items-center gap-2 px-8 py-4 bg-gray-900 text-white rounded-full font-semibold text-lg hover:bg-gray-800 hover:scale-[0.97] active:scale-95 transition-all duration-300 ease-elegant">
+                <BookOpen className="w-5 h-5" />
+                Read More Community Stories
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Future Initiatives */}
       <section className="py-20 px-4 bg-gray-50">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-bold text-gray-900 text-center mb-4">Horizons of Possibility</h2>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-[-0.02em] text-center mb-4">Horizons of Possibility</h2>
           <p className="text-xl text-gray-600 text-center mb-12 max-w-3xl mx-auto">
             The journey from survival to thrival continues, and every Palm Islander is part of writing the next chapter
           </p>
@@ -923,38 +903,29 @@ export default async function AboutPage() {
             {[
               {
                 title: 'Youth Digital Futures',
-                budget: '$180,000',
                 description: 'Expand digital literacy and create pathways from classroom to career in technology sectors. Building on Digital Service Centre success.',
                 outcomes: ['60 youth trained in digital skills', 'Direct employment pathways', 'Technology infrastructure upgrades']
               },
               {
                 title: 'Bwgcolman Way Implementation',
-                budget: '$250,000',
                 description: 'Fully operationalize community-controlled child protection decision-making, keeping families together and children connected to culture.',
                 outcomes: ['Trained community case workers', 'Cultural protocols established', 'Reduced child removals']
               },
               {
                 title: 'Cultural Heritage Living Centre',
-                budget: '$120,000',
                 description: 'Create spaces where knowledge transmission happens naturally, where Elders teach and youth learn in culturally grounded ways.',
                 outcomes: ['Documented cultural practices', 'Intergenerational programs', 'Cultural tourism opportunities']
               },
               {
                 title: 'Storytelling Sovereignty Project',
-                budget: '$50,000',
                 description: 'Document and preserve community narratives that reshape external perceptions and strengthen internal identity.',
                 outcomes: ['Digital story archive (20-30 stories)', '6 trained community storytellers', 'Expanded cultural documentation']
               }
             ].map((initiative, idx) => (
               <div key={idx} className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
                 <div className="p-6 border-b border-gray-100">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-2xl font-bold text-gray-900">{initiative.title}</h3>
-                    <span className="bg-gray-100 text-gray-900 px-3 py-1 rounded-full text-sm font-bold">
-                      {initiative.budget}
-                    </span>
-                  </div>
-                  <p className="text-gray-700 mt-3">{initiative.description}</p>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">{initiative.title}</h3>
+                  <p className="text-gray-700">{initiative.description}</p>
                 </div>
                 <div className="p-6 bg-gray-50">
                   <h4 className="font-bold text-gray-900 mb-2 text-sm">Expected Outcomes:</h4>
@@ -977,7 +948,7 @@ export default async function AboutPage() {
       <section className="py-20 px-4 bg-white">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Connect With PICC</h2>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-[-0.02em] mb-4">Connect With PICC</h2>
             <p className="text-xl text-gray-600">
               Ready to be part of Palm Island's transformation story?
             </p>
@@ -1003,29 +974,17 @@ export default async function AboutPage() {
             </div>
           </div>
 
-          <div className="text-center space-y-4">
-            <Link href="/share-voice" className="inline-block px-8 py-4 bg-gray-900 text-white rounded-full font-semibold text-lg hover:bg-gray-800 transition-all mr-4">
+          <div className="flex flex-wrap gap-4 justify-center">
+            <Link href="/share-voice" className="inline-flex items-center gap-3 px-8 py-4 bg-gray-900 text-white rounded-full font-semibold text-lg hover:bg-gray-800 hover:scale-[0.97] active:scale-95 transition-all duration-300 ease-elegant">
               Share Your Story
             </Link>
-            <Link href="/annual-reports" className="inline-block px-8 py-4 border-2 border-gray-900 text-gray-900 rounded-full font-semibold text-lg hover:bg-gray-50 transition-all">
+            <Link href="/annual-reports" className="inline-flex items-center gap-3 px-8 py-4 border-2 border-gray-200 text-gray-900 rounded-full font-semibold text-lg hover:bg-gray-50 transition-all duration-300 ease-elegant">
               View Our Journey
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12 px-4">
-        <div className="max-w-6xl mx-auto text-center">
-          <h3 className="text-2xl font-bold mb-2">Palm Island Community Company</h3>
-          <p className="text-gray-300 italic mb-4">
-            "Deeply committed to the principles of community control and self-determination."
-          </p>
-          <p className="text-sm text-gray-400">
-            ACN 640 793 728 | Manbarra & Bwgcolman Country
-          </p>
-        </div>
-      </footer>
     </div>
   );
 }

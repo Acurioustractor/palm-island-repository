@@ -5,9 +5,15 @@ import Link from 'next/link'
 import {
   ArrowLeft, Plus, Loader2, Pencil, Trash2, X, Check,
   LayoutGrid, List, Camera, MapPin, Navigation, Image as ImageIcon,
-  FileText, CheckCircle2, XCircle, Filter, RefreshCw
+  FileText, CheckCircle2, XCircle, Filter, RefreshCw, Map, Search
 } from 'lucide-react'
 import MediaPickerDialog from '@/components/admin/MediaPickerDialog'
+import dynamic from 'next/dynamic'
+
+const ServiceLocationMap = dynamic(
+  () => import('@/components/service-admin/ServiceLocationMap'),
+  { ssr: false, loading: () => <div className="flex items-center justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-gray-400" /></div> }
+)
 
 type ServiceRow = {
   id: string
@@ -28,8 +34,8 @@ type ContentStatusMap = Record<string, {
   hasGeo: boolean
 }>
 
-type ViewMode = 'cards' | 'table'
-type FilterMode = 'all' | 'missing-cover' | 'missing-geo' | 'missing-description' | 'complete'
+type ViewMode = 'cards' | 'table' | 'map'
+type FilterMode = 'all' | 'active' | 'inactive' | 'missing-cover' | 'missing-geo' | 'missing-description' | 'complete'
 
 function slugify(input: string) {
   return input
@@ -53,6 +59,10 @@ function OverviewDashboard({
   setActiveFilter,
   viewMode,
   setViewMode,
+  searchQuery,
+  setSearchQuery,
+  categoryFilter,
+  setCategoryFilter,
 }: {
   services: ServiceRow[]
   contentStatus: ContentStatusMap
@@ -60,6 +70,10 @@ function OverviewDashboard({
   setActiveFilter: (f: FilterMode) => void
   viewMode: ViewMode
   setViewMode: (v: ViewMode) => void
+  searchQuery: string
+  setSearchQuery: (q: string) => void
+  categoryFilter: string
+  setCategoryFilter: (c: string) => void
 }) {
   const active = services.filter(s => s.is_active !== false)
   const inactive = services.filter(s => s.is_active === false)
@@ -67,8 +81,12 @@ function OverviewDashboard({
   const complete = active.filter(s => completenessScore(contentStatus[s.slug]) === 5)
   const needsAttention = active.length - complete.length
 
+  const categories = Array.from(new Set(services.map(s => s.service_category).filter((c): c is string => c != null)))
+
   const filters: { key: FilterMode; label: string; count?: number }[] = [
     { key: 'all', label: 'All', count: services.length },
+    { key: 'active', label: 'Active', count: active.length },
+    { key: 'inactive', label: 'Archived', count: inactive.length },
     { key: 'missing-cover', label: 'Missing Cover', count: services.filter(s => !contentStatus[s.slug]?.hasCover).length },
     { key: 'missing-geo', label: 'Missing Geo', count: services.filter(s => !contentStatus[s.slug]?.hasGeo).length },
     { key: 'missing-description', label: 'Missing Description', count: services.filter(s => !contentStatus[s.slug]?.hasDescription).length },
@@ -137,7 +155,40 @@ function OverviewDashboard({
           >
             <List className="w-4 h-4" />
           </button>
+          <button
+            onClick={() => setViewMode('map')}
+            className={`p-1.5 rounded-md transition-colors ${viewMode === 'map' ? 'bg-gray-900 text-white' : 'text-gray-400 hover:text-gray-600'}`}
+            title="Map view"
+          >
+            <Map className="w-4 h-4" />
+          </button>
         </div>
+      </div>
+
+      {/* Search + Category */}
+      <div className="flex flex-wrap items-center gap-3 mt-3">
+        <div className="relative flex-1 min-w-[200px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search services..."
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            className="w-full pl-9 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-picc-red/20 focus:border-picc-red"
+          />
+        </div>
+        {categories.length > 0 && (
+          <select
+            value={categoryFilter}
+            onChange={e => setCategoryFilter(e.target.value)}
+            className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-picc-red/20 focus:border-picc-red"
+          >
+            <option value="">All Categories</option>
+            {categories.sort().map(c => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+        )}
       </div>
     </div>
   )
@@ -220,12 +271,17 @@ function ServiceContentCard({
 
         {/* Quick actions */}
         <div className="flex items-center gap-2">
+          <Link
+            href={`/picc/services/${service.slug}`}
+            className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-picc-red border border-picc-red rounded-lg hover:bg-picc-red/90 transition-colors"
+          >
+            View
+          </Link>
           <button
             onClick={onEdit}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors"
+            className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors"
           >
             <Pencil className="w-3 h-3" />
-            Edit
           </button>
           <button
             onClick={onSetCover}
@@ -265,7 +321,9 @@ export default function ServicesPage() {
   const [contentLoading, setContentLoading] = useState(false)
 
   const [viewMode, setViewMode] = useState<ViewMode>('cards')
-  const [activeFilter, setActiveFilter] = useState<FilterMode>('all')
+  const [activeFilter, setActiveFilter] = useState<FilterMode>('active')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [categoryFilter, setCategoryFilter] = useState('')
 
   // Slide-over state
   const [slideOverSlug, setSlideOverSlug] = useState<string | null>(null)
@@ -367,37 +425,35 @@ export default function ServicesPage() {
     if (serviceList.length === 0) return
     setContentLoading(true)
     try {
-      // Batch fetch: get all media tagged with service:* in one call per type
-      // We fetch photos and videos with service tags, plus hero-tagged photos
-      const slugs = serviceList.map(s => s.slug)
-
-      // For each service, we need: cover (hero), photo count, video presence
-      // Strategy: fetch all service-tagged media in bulk, then bucket client-side
-      const [photosRes, videosRes] = await Promise.all([
-        fetch(`/api/media/list?limit=500&fileType=image`).then(r => r.ok ? r.json() : { data: [] }),
-        fetch(`/api/media/list?limit=500&fileType=video`).then(r => r.ok ? r.json() : { data: [] }),
-      ])
-
-      const photos = Array.isArray(photosRes.data) ? photosRes.data : []
-      const videos = Array.isArray(videosRes.data) ? videosRes.data : []
+      // Fetch per-service media in parallel batches
+      // Each service gets its own query to avoid the 500-limit problem
+      const results = await Promise.all(
+        serviceList.map(async (svc) => {
+          const serviceTag = `service:${svc.slug}`
+          const heroTags = `${serviceTag},hero`
+          const [photosRes, videosRes, heroRes] = await Promise.all([
+            fetch(`/api/media/list?limit=1&fileType=image&tags=${encodeURIComponent(serviceTag)}`).then(r => r.ok ? r.json() : { data: [], count: 0 }),
+            fetch(`/api/media/list?limit=1&fileType=video&tags=${encodeURIComponent(serviceTag)}`).then(r => r.ok ? r.json() : { data: [], count: 0 }),
+            fetch(`/api/media/list?limit=1&fileType=image&tags=${encodeURIComponent(heroTags)}`).then(r => r.ok ? r.json() : { data: [] }),
+          ])
+          const heroPhoto = heroRes.data?.[0]
+          const meta = svc.metadata || {}
+          return {
+            slug: svc.slug,
+            status: {
+              hasCover: !!heroPhoto,
+              coverUrl: heroPhoto?.public_url,
+              photoCount: photosRes.count || 0,
+              hasVideo: (videosRes.count || 0) > 0,
+              hasDescription: !!(svc.description && svc.description.trim().length > 10),
+              hasGeo: !!(meta.latitude && meta.longitude),
+            } as ContentStatusMap[string],
+          }
+        })
+      )
 
       const statusMap: ContentStatusMap = {}
-      for (const svc of serviceList) {
-        const serviceTag = `service:${svc.slug}`
-        const svcPhotos = photos.filter((p: any) => Array.isArray(p.tags) && p.tags.includes(serviceTag))
-        const heroPhoto = svcPhotos.find((p: any) => Array.isArray(p.tags) && p.tags.includes('hero'))
-        const svcVideos = videos.filter((v: any) => Array.isArray(v.tags) && v.tags.includes(serviceTag))
-        const meta = svc.metadata || {}
-
-        statusMap[svc.slug] = {
-          hasCover: !!heroPhoto,
-          coverUrl: heroPhoto?.public_url,
-          photoCount: svcPhotos.length,
-          hasVideo: svcVideos.length > 0,
-          hasDescription: !!(svc.description && svc.description.trim().length > 10),
-          hasGeo: !!(meta.latitude && meta.longitude),
-        }
-      }
+      for (const r of results) statusMap[r.slug] = r.status
       setContentStatus(statusMap)
     } catch (err) {
       console.error('Failed to load content status:', err)
@@ -418,16 +474,29 @@ export default function ServicesPage() {
   // --- Filtering ---
   const filteredServices = useMemo(() => {
     return services.filter(s => {
+      // Status filter
       const status = contentStatus[s.slug]
       switch (activeFilter) {
-        case 'missing-cover': return !status?.hasCover
-        case 'missing-geo': return !status?.hasGeo
-        case 'missing-description': return !status?.hasDescription
-        case 'complete': return completenessScore(status) === 5
-        default: return true
+        case 'active': if (s.is_active === false) return false; break
+        case 'inactive': if (s.is_active !== false) return false; break
+        case 'missing-cover': if (status?.hasCover) return false; break
+        case 'missing-geo': if (status?.hasGeo) return false; break
+        case 'missing-description': if (status?.hasDescription) return false; break
+        case 'complete': if (completenessScore(status) !== 5) return false; break
       }
+      // Category filter
+      if (categoryFilter && s.service_category !== categoryFilter) return false
+      // Search filter
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase()
+        const nameMatch = s.name.toLowerCase().includes(q)
+        const catMatch = s.service_category?.toLowerCase().includes(q)
+        const descMatch = s.description?.toLowerCase().includes(q)
+        if (!nameMatch && !catMatch && !descMatch) return false
+      }
+      return true
     })
-  }, [services, contentStatus, activeFilter])
+  }, [services, contentStatus, activeFilter, searchQuery, categoryFilter])
 
   // --- CRUD operations ---
   const create = async () => {
@@ -681,14 +750,19 @@ export default function ServicesPage() {
         const longitude = position.coords.longitude
         try {
           const currentMeta = service.metadata || {}
+          const updatedMeta = { ...currentMeta, latitude, longitude }
           const res = await fetch(`/api/services/${service.id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              metadata: { ...currentMeta, latitude, longitude },
+              metadata: updatedMeta,
             }),
           })
           if (res.ok) {
+            // Update service metadata in local state so map view picks up new coords
+            setServices(prev => prev.map(s =>
+              s.id === service.id ? { ...s, metadata: updatedMeta } : s
+            ))
             setContentStatus(prev => ({
               ...prev,
               [service.slug]: { ...prev[service.slug], hasGeo: true },
@@ -832,6 +906,10 @@ export default function ServicesPage() {
           setActiveFilter={setActiveFilter}
           viewMode={viewMode}
           setViewMode={setViewMode}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          categoryFilter={categoryFilter}
+          setCategoryFilter={setCategoryFilter}
         />
       )}
 
@@ -841,6 +919,11 @@ export default function ServicesPage() {
           <Loader2 className="w-6 h-6 animate-spin text-gray-400 mr-3" />
           <span className="text-gray-600">Loading services...</span>
         </div>
+      ) : viewMode === 'map' ? (
+        <ServiceLocationMap
+          services={filteredServices}
+          onServiceUpdated={refresh}
+        />
       ) : filteredServices.length === 0 ? (
         <div className="text-center py-16">
           <div className="text-gray-400 mb-2">
@@ -987,6 +1070,9 @@ export default function ServicesPage() {
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-1">
+                            <Link href={`/picc/services/${s.slug}`} className="px-2 py-1.5 rounded-lg border border-picc-red bg-picc-red text-white hover:bg-picc-red/90 text-xs font-medium">
+                              View
+                            </Link>
                             <button onClick={() => openEdit(s)} className="p-1.5 rounded-lg hover:bg-gray-50 border border-gray-200" title="Edit">
                               <Pencil className="w-3.5 h-3.5 text-gray-700" />
                             </button>

@@ -413,78 +413,45 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
     { id: '6', name: 'Employment Services', description: 'Job training and employment pathways', category: 'Employment', icon: 'briefcase', color: '#0891b2' },
   ];
 
-  // Featured quotes from real stories
-  const featuredQuotes = [
-    {
-      quote: "When the cyclone hit, we lost everything. But this community - we came together like family always does. The young ones helped the Elders first. That's how we do things here on Palm Island.",
-      author: "Aunty Mary",
-      role: "Community Elder",
-    },
-    {
-      quote: "The Photo Studio project gave me a chance to tell my story, to share what life was like when I was young. Now my grandchildren will always have that connection to their history.",
-      author: "Uncle Frank",
-      role: "Elder & Cultural Advisor",
-    },
-    {
-      quote: "PICC gave me my first real job. Now I'm training others and giving back to my community. That's what it's all about - lifting each other up.",
-      author: "Jason",
-      role: "Community Support Worker",
-    },
-  ];
+  // Fetch real curated quotes from API
+  const [fetchedQuotes, setFetchedQuotes] = useState<Array<{ quote: string; author: string; role: string; photo_url?: string }>>([]);
+  const [fetchedVoices, setFetchedVoices] = useState<Array<{ name: string; role: string; quote: string; image?: string }>>([]);
 
-  // Community voices with photos - people cards linking to stories
-  // Use elder/community photos from media library when available
+  useEffect(() => {
+    // Fetch featured quotes (elder-priority)
+    fetch('/api/public/curated-quotes?limit=3&featured=true')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data?.quotes?.length) {
+          setFetchedQuotes(data.quotes.map((q: any) => ({
+            quote: q.text,
+            author: q.author || 'Community Member',
+            role: q.role || '',
+            photo_url: q.photo_url || undefined,
+          })));
+        }
+      })
+      .catch(() => {});
+
+    // Fetch community voices (broader set)
+    fetch('/api/public/curated-quotes?limit=6&shuffle=true')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data?.quotes?.length) {
+          setFetchedVoices(data.quotes.map((q: any) => ({
+            name: q.author || 'Community Member',
+            role: q.role || '',
+            quote: q.text,
+            image: q.photo_url || undefined,
+          })));
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const featuredQuotes = fetchedQuotes;
   const elderPhotoUrls = elderPhotos.map(p => p.public_url).filter(Boolean);
-  const communityVoices = [
-    {
-      name: "Aunty Maureen",
-      role: "Cultural Elder",
-      quote: "Our stories are the foundation of everything we do. When the young ones learn our history, they learn who they are and where they belong.",
-      image: elderPhotoUrls[0] || undefined,
-      storyLink: "/stories/elder-wisdom-maureen",
-      storyTitle: "Read Aunty Maureen's Story",
-    },
-    {
-      name: "David Thompson",
-      role: "Youth Program Graduate",
-      quote: "PICC believed in me when I didn't believe in myself. The youth program showed me there's a path forward, right here on Palm Island.",
-      image: elderPhotoUrls[1] || undefined,
-      storyLink: "/stories/youth-success-david",
-      storyTitle: "David's Journey",
-    },
-    {
-      name: "Sister Joyce",
-      role: "Health Worker",
-      quote: "Every day I see the difference we make. When someone gets the care they need, when a family is supported - that's what keeps me going.",
-      image: elderPhotoUrls[2] || undefined,
-      storyLink: "/stories/health-frontline",
-      storyTitle: "Frontline Stories",
-    },
-    {
-      name: "Uncle Tommy",
-      role: "Traditional Owner",
-      quote: "This land holds our ancestors' wisdom. Everything PICC does, we do it the right way - respecting Country, respecting culture.",
-      image: elderPhotoUrls[3] || undefined,
-      storyLink: "/stories/country-connection",
-      storyTitle: "Connection to Country",
-    },
-    {
-      name: "Sarah Williams",
-      role: "Safe Haven Coordinator",
-      quote: "These children are our future. When we protect them, support their families, we're building a stronger Palm Island for generations to come.",
-      image: elderPhotoUrls[4] || undefined,
-      storyLink: "/stories/safe-haven-impact",
-      storyTitle: "Safe Haven Impact",
-    },
-    {
-      name: "Marcus Johnson",
-      role: "Digital Services Trainee",
-      quote: "Technology isn't just for the cities. Our Elders are now video calling their grandchildren on the mainland. That connection is everything.",
-      image: elderPhotoUrls[5] || undefined,
-      storyLink: "/stories/digital-bridge",
-      storyTitle: "Bridging the Digital Gap",
-    },
-  ];
+  const communityVoices = fetchedVoices;
 
   // Featured videos
   const getVideoThumbnail = (m: any) =>
@@ -661,10 +628,14 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
 
   const quotesToUse = (reportQuotes.length > 0
     ? reportQuotes
-    : [
-        { id: 'fallback-1', quote_text: featuredQuotes[0].quote, attribution: featuredQuotes[0].author, impact_area: featuredQuotes[0].role },
-        { id: 'fallback-2', quote_text: featuredQuotes[1].quote, attribution: featuredQuotes[1].author, impact_area: featuredQuotes[1].role },
-      ]) as ExtractedQuoteRow[];
+    : featuredQuotes.map((fq, idx) => ({
+        id: `fallback-${idx}`,
+        quote_text: fq.quote,
+        attribution: fq.author,
+        impact_area: fq.role,
+        photo_url: (fq as any).photo_url || undefined,
+      }))
+  ) as ExtractedQuoteRow[];
 
   const isUuid =
     typeof report.id === 'string' &&
@@ -921,27 +892,29 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
       </Section>
 
       {/* Featured Elder Quote */}
-      <EditableSection
-        sectionId="featured-quote-1"
-        sectionType="quote"
-        label="Featured Quote"
-        isEditMode={isEditMode}
-        data={{
-          quote: quotesToUse[0]?.quote_text || featuredQuotes[0].quote,
-          author: quotesToUse[0]?.attribution || featuredQuotes[0].author,
-          role: quotesToUse[0]?.impact_area || featuredQuotes[0].role,
-          image: quotesToUse[0]?.photo_url || '',
-        }}
-      >
-        <QuoteShowcase
-          quote={quotesToUse[0]?.quote_text || featuredQuotes[0].quote}
-          author={quotesToUse[0]?.attribution || featuredQuotes[0].author}
-          role={quotesToUse[0]?.impact_area || featuredQuotes[0].role}
-          image={quotesToUse[0]?.photo_url}
-          variant="featured"
-          background="gradient"
-        />
-      </EditableSection>
+      {quotesToUse[0] && (
+        <EditableSection
+          sectionId="featured-quote-1"
+          sectionType="quote"
+          label="Featured Quote"
+          isEditMode={isEditMode}
+          data={{
+            quote: quotesToUse[0].quote_text || '',
+            author: quotesToUse[0].attribution || '',
+            role: quotesToUse[0].impact_area || '',
+            image: quotesToUse[0].photo_url || '',
+          }}
+        >
+          <QuoteShowcase
+            quote={quotesToUse[0].quote_text || ''}
+            author={quotesToUse[0].attribution || ''}
+            role={quotesToUse[0].impact_area}
+            image={quotesToUse[0].photo_url}
+            variant="featured"
+            background="gradient"
+          />
+        </EditableSection>
+      )}
 
       {/* Innovation Projects */}
       <Section background="light" padding="xl">
@@ -989,26 +962,28 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
       )}
 
       {/* Community Voices - People with Photos and Quotes */}
-      <Section background="light" padding="xl">
-        <SectionHeader
-          title="Community Voices"
-          subtitle="Meet the people who make Palm Island strong"
-        />
-        <PersonQuoteGrid
-          people={communityVoices}
-          columns={3}
-          variant="default"
-        />
-        <div className="text-center mt-8">
-          <Link
-            href="/storytellers"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-[#1e3a5f] text-white rounded-lg hover:bg-[#2d4a6f] transition-colors"
-          >
-            Meet More Storytellers
-            <ChevronRight className="w-4 h-4" />
-          </Link>
-        </div>
-      </Section>
+      {communityVoices.length > 0 && (
+        <Section background="light" padding="xl">
+          <SectionHeader
+            title="Community Voices"
+            subtitle="Meet the people who make Palm Island strong"
+          />
+          <PersonQuoteGrid
+            people={communityVoices}
+            columns={3}
+            variant="default"
+          />
+          <div className="text-center mt-8">
+            <Link
+              href="/storytellers"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#1e3a5f] text-white rounded-lg hover:bg-[#2d4a6f] transition-colors"
+            >
+              Meet More Storytellers
+              <ChevronRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </Section>
+      )}
 
       {/* Featured Video - Leaders Trip */}
       <EditableSection
@@ -1175,27 +1150,29 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
       )}
 
       {/* Another Quote */}
-      <EditableSection
-        sectionId="featured-quote-2"
-        sectionType="quote"
-        label="Featured Quote 2"
-        isEditMode={isEditMode}
-        data={{
-          quote: quotesToUse[1]?.quote_text || featuredQuotes[1].quote,
-          author: quotesToUse[1]?.attribution || featuredQuotes[1].author,
-          role: quotesToUse[1]?.impact_area || featuredQuotes[1].role,
-          image: quotesToUse[1]?.photo_url || '',
-        }}
-      >
-        <QuoteShowcase
-          quote={quotesToUse[1]?.quote_text || featuredQuotes[1].quote}
-          author={quotesToUse[1]?.attribution || featuredQuotes[1].author}
-          role={quotesToUse[1]?.impact_area || featuredQuotes[1].role}
-          image={quotesToUse[1]?.photo_url}
-          variant="centered"
-          background="ocean"
-        />
-      </EditableSection>
+      {quotesToUse[1] && (
+        <EditableSection
+          sectionId="featured-quote-2"
+          sectionType="quote"
+          label="Featured Quote 2"
+          isEditMode={isEditMode}
+          data={{
+            quote: quotesToUse[1].quote_text || '',
+            author: quotesToUse[1].attribution || '',
+            role: quotesToUse[1].impact_area || '',
+            image: quotesToUse[1].photo_url || '',
+          }}
+        >
+          <QuoteShowcase
+            quote={quotesToUse[1].quote_text || ''}
+            author={quotesToUse[1].attribution || ''}
+            role={quotesToUse[1].impact_area}
+            image={quotesToUse[1].photo_url}
+            variant="centered"
+            background="ocean"
+          />
+        </EditableSection>
+      )}
 
       {/* Financial Section */}
       <Section background="light" padding="xl">
@@ -1276,14 +1253,14 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
         label="Final Quote"
         isEditMode={isEditMode}
         data={{
-          quote: quotesToUse[2]?.quote_text || "Our vision is clear: a Palm Island where every person has the opportunity to thrive, where our culture is celebrated, and where our community leads its own future. Together, we are making this vision a reality.",
+          quote: quotesToUse[2]?.quote_text || "Our vision is clear: a Palm Island where every person has the opportunity to thrive, where our culture is celebrated, and where our community leads its own future.",
           author: quotesToUse[2]?.attribution || "Palm Island Community Company",
           role: quotesToUse[2]?.impact_area || '',
           image: quotesToUse[2]?.photo_url || '',
         }}
       >
         <QuoteShowcase
-          quote={quotesToUse[2]?.quote_text || "Our vision is clear: a Palm Island where every person has the opportunity to thrive, where our culture is celebrated, and where our community leads its own future. Together, we are making this vision a reality."}
+          quote={quotesToUse[2]?.quote_text || "Our vision is clear: a Palm Island where every person has the opportunity to thrive, where our culture is celebrated, and where our community leads its own future."}
           author={quotesToUse[2]?.attribution || "Palm Island Community Company"}
           role={quotesToUse[2]?.impact_area}
           image={quotesToUse[2]?.photo_url}

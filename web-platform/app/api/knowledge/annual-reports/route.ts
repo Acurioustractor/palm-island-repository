@@ -8,6 +8,8 @@
 import { NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@/lib/supabase/server'
 
+export const dynamic = 'force-dynamic'
+
 /**
  * Normalize fiscal year format to YY-YY (e.g., "2009-10" or "2020-21")
  * Handles both "2009-2010" and "2009-10" formats
