@@ -2,6 +2,7 @@ import { tool, jsonSchema, type Tool } from 'ai'
 import { z } from 'zod'
 import { createClient } from '@supabase/supabase-js'
 import { buildKnowledgeGraph } from '@/lib/ai/knowledge-graph'
+import { checkCompleteness, type CompletenessReport, type ServiceCompleteness } from '@/lib/content-readiness/check-completeness'
 
 // Zod v4's toJSONSchema() produces valid JSON Schema but the AI SDK tool()
 // function doesn't auto-convert Zod v4 schemas correctly for Anthropic's API.
@@ -800,6 +801,156 @@ export const submitMeetingNote = defineTool({
   },
 })
 
+// ─── getContentReadiness ─────────────────────────────────────────────────────
+
+const getContentReadinessSchema = z.object({
+  scope: z.enum(['all', 'services', 'report']).default('all')
+    .describe('What to check: all (services + report sections), services only, or report sections only'),
+})
+
+type GetContentReadinessInput = z.infer<typeof getContentReadinessSchema>
+
+export const getContentReadiness = defineTool({
+  description: 'Check completeness of PICC data — services (description, cover photo, metrics, stories, notes) and annual report sections (CEO message, financials, elder quotes, gallery photos). Returns green/amber/red status per item.',
+  parameters: getContentReadinessSchema,
+  execute: async (input: GetContentReadinessInput) => {
+    const { scope } = input
+
+    try {
+      const report = await checkCompleteness()
+
+      if (scope === 'services') {
+        return {
+          services: report.services,
+          overallScore: report.overallScore,
+          generatedAt: report.generatedAt,
+        }
+      }
+
+      if (scope === 'report') {
+        return {
+          reportSections: report.reportSections,
+          overallScore: report.overallScore,
+          generatedAt: report.generatedAt,
+        }
+      }
+
+      return report
+    } catch (err) {
+      console.error('getContentReadiness error:', err)
+      return { error: 'Failed to check content readiness.' }
+    }
+  },
+})
+
+// ─── suggestDataEnrichment ──────────────────────────────────────────────────
+
+const suggestDataEnrichmentSchema = z.object({
+  serviceSlug: z.string().optional().describe('Limit suggestions to a specific service by slug'),
+})
+
+type SuggestDataEnrichmentInput = z.infer<typeof suggestDataEnrichmentSchema>
+
+function generateServiceQuestions(service: ServiceCompleteness): string[] {
+  const questions: string[] = []
+  const { checks, name } = service
+
+  if (!checks.hasDescription) {
+    questions.push(`Can you provide a description for ${name}?`)
+  }
+  if (!checks.hasCoverPhoto) {
+    questions.push(`Do you have a cover photo for ${name}?`)
+  }
+  if (!checks.hasCurrentYearMetrics) {
+    questions.push(`How many clients did ${name} serve this financial year?`)
+    questions.push(`How many sessions or events did ${name} deliver this quarter?`)
+  }
+  if (!checks.hasStories) {
+    questions.push(`What was a key achievement or success story for ${name} recently?`)
+  }
+  if (!checks.hasNotes) {
+    questions.push(`Are there any recent updates or notes for ${name}?`)
+  }
+  if (!checks.hasGrantInfo) {
+    questions.push(`What funding or grants support ${name}?`)
+  }
+  if (!checks.hasGpsCoords) {
+    questions.push(`Where is ${name} located? We need GPS coordinates for the map.`)
+  }
+
+  return questions
+}
+
+function generateReportQuestions(section: { section: string; status: string; details: string }): string[] {
+  if (section.status === 'green') return []
+
+  const map: Record<string, string[]> = {
+    'CEO Message': ['Can you provide the CEO message or leadership summary for the annual report?'],
+    'Chair Message': ['Is there a Chair message or acknowledgement of country for the report?'],
+    'Financial Data': ['Have the financials for the current fiscal year been entered?'],
+    'Community Voices': ['Are there community quotes or testimonials to include in the report?'],
+    'Gallery Photos': ['Can you tag more photos with "annual-report" for the gallery section? We need at least 5.'],
+    'Elder Quotes': ['Are there Elder quotes available for the annual report?'],
+    'Board Photos': ['Do you have photos of board members tagged with "board-member"? We need at least 3.'],
+  }
+
+  return map[section.section] || [`The "${section.section}" section needs attention: ${section.details}`]
+}
+
+export const suggestDataEnrichment = defineTool({
+  description: 'Suggest specific questions to fill data gaps for services and annual report sections. Returns plain-language questions grouped by service or report section.',
+  parameters: suggestDataEnrichmentSchema,
+  execute: async (input: SuggestDataEnrichmentInput) => {
+    const { serviceSlug } = input
+
+    try {
+      const report = await checkCompleteness()
+
+      const serviceGroups: { service: string; slug: string; status: string; questions: string[] }[] = []
+      const filteredServices = serviceSlug
+        ? report.services.filter((s) => s.slug === serviceSlug)
+        : report.services
+
+      for (const svc of filteredServices) {
+        if (svc.status === 'green') continue
+        const questions = generateServiceQuestions(svc)
+        if (questions.length > 0) {
+          serviceGroups.push({
+            service: svc.name,
+            slug: svc.slug,
+            status: svc.status,
+            questions,
+          })
+        }
+      }
+
+      const reportGaps: { section: string; status: string; questions: string[] }[] = []
+      for (const sec of report.reportSections) {
+        if (sec.status === 'green') continue
+        const questions = generateReportQuestions(sec)
+        if (questions.length > 0) {
+          reportGaps.push({
+            section: sec.section,
+            status: sec.status,
+            questions,
+          })
+        }
+      }
+
+      return {
+        serviceGaps: serviceGroups,
+        reportGaps: serviceSlug ? [] : reportGaps,
+        totalQuestions: serviceGroups.reduce((sum, g) => sum + g.questions.length, 0) +
+          reportGaps.reduce((sum, g) => sum + g.questions.length, 0),
+        overallScore: report.overallScore,
+      }
+    } catch (err) {
+      console.error('suggestDataEnrichment error:', err)
+      return { error: 'Failed to generate enrichment suggestions.' }
+    }
+  },
+})
+
 // ─── Export all tools ────────────────────────────────────────────────────────
 
 export const exploreTools = {
@@ -815,4 +966,6 @@ export const exploreTools = {
   getFinancialSummary,
   submitServiceUpdate,
   submitMeetingNote,
+  getContentReadiness,
+  suggestDataEnrichment,
 }

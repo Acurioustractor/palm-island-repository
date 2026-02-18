@@ -3,7 +3,8 @@ import Link from 'next/link';
 import { ArrowRight, Calendar, Users, Heart, Award, BookOpen } from 'lucide-react';
 import MilestoneTimeline, { Milestone } from '@/components/road-to-20-years/MilestoneTimeline';
 import VisionSection from '@/components/road-to-20-years/VisionSection';
-import { STAFF, SERVICES, FINANCIALS } from '@/lib/stats/current-stats';
+import { SERVICES } from '@/lib/stats/current-stats';
+import { getLiveStats } from '@/lib/stats/get-live-stats';
 import VideoHero from '@/components/video/VideoHero';
 
 export const metadata: Metadata = {
@@ -11,94 +12,64 @@ export const metadata: Metadata = {
   description: 'Celebrating PICC\'s journey from community control to 20 years of self-determined service delivery on Palm Island.',
 };
 
-const MILESTONES: Milestone[] = [
-  {
-    year: '1914',
-    title: 'Palm Island Gazetted',
-    description: 'Palm Island gazetted as an Aboriginal reserve. Hull River Settlement established on Djiru people\'s land near present-day Mission Beach.',
-    era: 'founding',
-  },
-  {
-    year: '1918',
-    title: 'Hull River to Palm Island',
-    description: 'After a devastating Category 5 cyclone destroyed Hull River Settlement on 10 March 1918, residents were transferred to Palm Island. Over the following decades, people from 42 language groups were brought to the island.',
-    era: 'founding',
-  },
-  {
-    year: '2021',
-    title: 'Community Control Begins',
-    description: 'On 30 September 2021, PICC transitions to full community control — Aboriginal and Torres Strait Islander community-controlled organisation. Palm Islanders determining their own futures.',
-    era: 'growth',
-  },
-  {
-    year: '2022',
-    title: 'Bwgcolman Healing Service Launched',
-    description: 'Culturally appropriate medical and healing services established, combining Western medicine with traditional healing practices. Over 2,283 clients served in the first full year.',
-    era: 'growth',
-  },
-  {
-    year: '2023',
-    title: 'Delegated Authority Blueprint',
-    description: 'PICC launches its Delegated Authority blueprint — a groundbreaking model for community-controlled child protection that puts Palm Island families at the centre of decision-making.',
-    era: 'innovation',
-  },
-  {
-    year: '2023',
-    title: 'Digital Service Centre Opens',
-    description: 'The Digital Service Centre brings technology access and digital literacy to Palm Island, helping community members connect with government services, education, and employment opportunities.',
-    era: 'innovation',
-  },
-  {
-    year: '2024',
-    title: 'First 1,000 Days Program',
-    description: 'The First 1,000 Days program established to support families from pregnancy through a child\'s second birthday — the most critical development window.',
-    era: 'innovation',
-  },
-  {
-    year: '2025',
-    title: `${STAFF.total} Staff, ${SERVICES.total} Services`,
-    description: `PICC grows to ${STAFF.total} staff members delivering ${SERVICES.total} services across health, family, justice, culture, education, and economic development. Total income reaches ${FINANCIALS.incomeDisplay}.`,
-    era: 'today',
-  },
-  {
-    year: '2026',
-    title: 'Road to 20 Years',
-    description: 'Looking ahead to PICC\'s 20th anniversary in 2029. Building on the foundation of self-determination, cultural strength, and community-led innovation.',
-    era: 'today',
-  },
-];
-
-const VISION_GOALS = [
-  {
-    title: 'Service Expansion',
-    description: `Grow from ${SERVICES.total} to ${SERVICES.target2029}+ community services, including new mental health, aged care, and youth development programs designed by and for Palm Islanders.`,
-    icon: 'expansion' as const,
-  },
-  {
-    title: 'Technology & Innovation',
-    description: 'Expand the Digital Service Centre model, build a connected health platform, and use data to drive better outcomes while respecting cultural protocols.',
-    icon: 'technology' as const,
-  },
-  {
-    title: 'Community Sovereignty',
-    description: 'Deepen the Delegated Authority model so Palm Island families lead all decisions about their children, justice, health, and community wellbeing.',
-    icon: 'community' as const,
-  },
-  {
-    title: 'Healing & Wellbeing',
-    description: 'Strengthen Bwgcolman healing approaches that weave traditional knowledge with contemporary practice, addressing intergenerational trauma with cultural strength.',
-    icon: 'wellbeing' as const,
-  },
-];
-
-const BY_THE_NUMBERS = [
-  { value: `${STAFF.total}`, label: 'Staff Members', icon: Users },
-  { value: `${SERVICES.total}`, label: 'Services Delivered', icon: Heart },
-  { value: FINANCIALS.incomeDisplay, label: 'Annual Income', icon: Award },
-  { value: '42', label: 'Language Groups United', icon: BookOpen },
-  { value: '2,283', label: 'Health Clients Served', icon: Heart },
-  { value: '6,698', label: 'Placement Nights (Family Care)', icon: Users },
-];
+function buildMilestones(staffTotal: number, servicesTotal: number, incomeDisplay: string): Milestone[] {
+  return [
+    {
+      year: '1914',
+      title: 'Palm Island Gazetted',
+      description: 'Palm Island gazetted as an Aboriginal reserve. Hull River Settlement established on Djiru people\'s land near present-day Mission Beach.',
+      era: 'founding',
+    },
+    {
+      year: '1918',
+      title: 'Hull River to Palm Island',
+      description: 'After a devastating Category 5 cyclone destroyed Hull River Settlement on 10 March 1918, residents were transferred to Palm Island. Over the following decades, people from 42 language groups were brought to the island.',
+      era: 'founding',
+    },
+    {
+      year: '2021',
+      title: 'Community Control Begins',
+      description: 'On 30 September 2021, PICC transitions to full community control — Aboriginal and Torres Strait Islander community-controlled organisation. Palm Islanders determining their own futures.',
+      era: 'growth',
+    },
+    {
+      year: '2022',
+      title: 'Bwgcolman Healing Service Launched',
+      description: 'Culturally appropriate medical and healing services established, combining Western medicine with traditional healing practices. Over 2,283 clients served in the first full year.',
+      era: 'growth',
+    },
+    {
+      year: '2023',
+      title: 'Delegated Authority Blueprint',
+      description: 'PICC launches its Delegated Authority blueprint — a groundbreaking model for community-controlled child protection that puts Palm Island families at the centre of decision-making.',
+      era: 'innovation',
+    },
+    {
+      year: '2023',
+      title: 'Digital Service Centre Opens',
+      description: 'The Digital Service Centre brings technology access and digital literacy to Palm Island, helping community members connect with government services, education, and employment opportunities.',
+      era: 'innovation',
+    },
+    {
+      year: '2024',
+      title: 'First 1,000 Days Program',
+      description: 'The First 1,000 Days program established to support families from pregnancy through a child\'s second birthday — the most critical development window.',
+      era: 'innovation',
+    },
+    {
+      year: '2025',
+      title: `${staffTotal} Staff, ${servicesTotal} Services`,
+      description: `PICC grows to ${staffTotal} staff members delivering ${servicesTotal} services across health, family, justice, culture, education, and economic development. Total income reaches ${incomeDisplay}.`,
+      era: 'today',
+    },
+    {
+      year: '2026',
+      title: 'Road to 20 Years',
+      description: 'Looking ahead to PICC\'s 20th anniversary in 2029. Building on the foundation of self-determination, cultural strength, and community-led innovation.',
+      era: 'today',
+    },
+  ];
+}
 
 const INNOVATION_SPOTLIGHTS = [
   {
@@ -123,7 +94,43 @@ const INNOVATION_SPOTLIGHTS = [
   },
 ];
 
-export default function RoadTo20YearsPage() {
+export default async function RoadTo20YearsPage() {
+  const stats = await getLiveStats();
+
+  const MILESTONES = buildMilestones(stats.staff.total, stats.services.total, stats.financials.incomeDisplay);
+
+  const VISION_GOALS = [
+    {
+      title: 'Service Expansion',
+      description: `Grow from ${stats.services.total} to ${SERVICES.target2029}+ community services, including new mental health, aged care, and youth development programs designed by and for Palm Islanders.`,
+      icon: 'expansion' as const,
+    },
+    {
+      title: 'Technology & Innovation',
+      description: 'Expand the Digital Service Centre model, build a connected health platform, and use data to drive better outcomes while respecting cultural protocols.',
+      icon: 'technology' as const,
+    },
+    {
+      title: 'Community Sovereignty',
+      description: 'Deepen the Delegated Authority model so Palm Island families lead all decisions about their children, justice, health, and community wellbeing.',
+      icon: 'community' as const,
+    },
+    {
+      title: 'Healing & Wellbeing',
+      description: 'Strengthen Bwgcolman healing approaches that weave traditional knowledge with contemporary practice, addressing intergenerational trauma with cultural strength.',
+      icon: 'wellbeing' as const,
+    },
+  ];
+
+  const BY_THE_NUMBERS = [
+    { value: `${stats.staff.total}`, label: 'Staff Members', icon: Users },
+    { value: `${stats.services.total}`, label: 'Services Delivered', icon: Heart },
+    { value: stats.financials.incomeDisplay, label: 'Annual Income', icon: Award },
+    { value: '42', label: 'Language Groups United', icon: BookOpen },
+    { value: '2,283', label: 'Health Clients Served', icon: Heart },
+    { value: '6,698', label: 'Placement Nights (Family Care)', icon: Users },
+  ];
+
   return (
     <div className="min-h-screen bg-white">
       {/* Hero */}
