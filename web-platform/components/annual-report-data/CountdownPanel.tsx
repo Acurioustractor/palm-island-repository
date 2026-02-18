@@ -11,6 +11,9 @@ const START_DATE = new Date('2008-08-01T00:00:00+10:00'); // Community control d
 interface CountdownPanelProps {
   milestones?: { id: string; label: string; achieved: boolean }[];
   onMilestoneToggle?: (id: string, achieved: boolean) => void;
+  staffTotal?: number;
+  servicesTotal?: number;
+  incomeDisplay?: string;
 }
 
 function getTimeRemaining() {
@@ -45,20 +48,26 @@ const DEFAULT_MILESTONES = [
   { id: '10', label: '20-year anniversary celebration (2028)', achieved: false },
 ];
 
-const COMPARISON_STATS = [
-  { label: 'Staff', yearOne: '15', current: `${STAFF.total}` },
-  { label: 'Services', yearOne: '4', current: `${SERVICES.total}` },
-  { label: 'Annual Income', yearOne: '$2.5M', current: FINANCIALS.incomeDisplay },
-  { label: 'Community Stories', yearOne: '0', current: '50+' },
-];
+function buildComparisonStats(staffTotal: number, servicesTotal: number, incomeDisplay: string) {
+  return [
+    { label: 'Staff', yearOne: '15', current: `${staffTotal}` },
+    { label: 'Services', yearOne: '4', current: `${servicesTotal}` },
+    { label: 'Annual Income', yearOne: '$2.5M', current: incomeDisplay },
+    { label: 'Community Stories', yearOne: '0', current: '50+' },
+  ];
+}
 
 export default function CountdownPanel({
   milestones: externalMilestones,
   onMilestoneToggle,
+  staffTotal = STAFF.total,
+  servicesTotal = SERVICES.total,
+  incomeDisplay = FINANCIALS.incomeDisplay,
 }: CountdownPanelProps) {
   const [time, setTime] = useState(getTimeRemaining());
   const [progress, setProgress] = useState(getYearsProgress());
   const [milestones, setMilestones] = useState(externalMilestones || DEFAULT_MILESTONES);
+  const COMPARISON_STATS = buildComparisonStats(staffTotal, servicesTotal, incomeDisplay);
 
   useEffect(() => {
     const interval = setInterval(() => {

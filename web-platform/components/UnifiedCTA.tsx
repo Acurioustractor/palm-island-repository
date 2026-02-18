@@ -8,9 +8,10 @@ import { SERVICES } from '@/lib/stats/current-stats';
 interface CTAProps {
   variant?: 'default' | 'compact' | 'hero';
   className?: string;
+  servicesTotal?: number;
 }
 
-export function UnifiedCTA({ variant = 'default', className = '' }: CTAProps) {
+export function UnifiedCTA({ variant = 'default', className = '', servicesTotal = SERVICES.total }: CTAProps) {
   if (variant === 'hero') {
     return (
       <div className={`bg-gradient-to-r from-picc-earth-600 via-picc-earth to-picc-earth-600 text-white py-16 ${className}`}>
@@ -98,7 +99,7 @@ export function UnifiedCTA({ variant = 'default', className = '' }: CTAProps) {
             <MapPin className="w-6 h-6 text-picc-ochre" />
           </div>
           <span className="font-semibold text-gray-900">Explore Services</span>
-          <span className="text-sm text-gray-500 mt-1">{SERVICES.total} services mapped</span>
+          <span className="text-sm text-gray-500 mt-1">{servicesTotal} services mapped</span>
         </Link>
 
         <Link
