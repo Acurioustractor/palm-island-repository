@@ -54,6 +54,7 @@ export function PICCLogo({
       width={iconSize}
       height={iconSize}
       className="object-contain"
+      style={{ width: 'auto', height: 'auto' }}
       priority
     />
   );

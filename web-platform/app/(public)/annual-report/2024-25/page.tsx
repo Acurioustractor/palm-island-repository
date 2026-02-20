@@ -9,6 +9,7 @@ import {
   getRecentMedia,
 } from '@/lib/media/utils';
 import { getCuratedQuotes } from '@/lib/quotes/get-curated-quotes';
+import { createServerSupabase } from '@/lib/supabase/client';
 import { AnnualReportContent } from './AnnualReportContent';
 
 export const dynamic = 'force-dynamic';
@@ -57,20 +58,17 @@ export default async function AnnualReport2025Page() {
     return true;
   });
 
-  // Find CEO/Chair photos using new tag taxonomy
-  const ceoPhoto = leadershipMedia.find(
-    (m: any) =>
-      m.tags?.includes('role:ceo') ||
-      m.tags?.includes('person:rachel-atkinson') ||
-      m.title?.toLowerCase().includes('ceo') ||
-      m.page_section === 'ceo'
+  // Get CEO/Chair photos from leadership table (professional portraits)
+  const supabase = createServerSupabase();
+  const [{ data: ceoRow }, { data: chairRow }] = await Promise.all([
+    supabase.from('leadership').select('photo_url').eq('leadership_type', 'executive').eq('is_active', true).order('position_order').limit(1).maybeSingle(),
+    supabase.from('leadership').select('photo_url').eq('position', 'Chair of the Board').eq('is_active', true).limit(1).maybeSingle(),
+  ]);
+  const ceoPhoto = ceoRow?.photo_url ? { public_url: ceoRow.photo_url } : leadershipMedia.find(
+    (m: any) => m.tags?.includes('role:ceo') || m.tags?.includes('person:rachel-atkinson')
   );
-  const chairPhoto = leadershipMedia.find(
-    (m: any) =>
-      m.tags?.includes('role:chair') ||
-      m.tags?.includes('person:luella-bligh') ||
-      m.title?.toLowerCase().includes('chair') ||
-      m.page_section === 'chair'
+  const chairPhoto = chairRow?.photo_url ? { public_url: chairRow.photo_url } : leadershipMedia.find(
+    (m: any) => m.tags?.includes('role:chair') || m.tags?.includes('person:luella-bligh')
   );
 
   return (

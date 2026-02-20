@@ -267,8 +267,8 @@ export default async function PublicationPage({ params }: { params: { slug: stri
                   Related
                 </h3>
                 <div className="space-y-3">
-                  <Link href="/annual-reports" className="block text-sm text-gray-600 hover:text-picc-ochre">
-                    Annual Reports Timeline
+                  <Link href="/annual-report/live" className="block text-sm text-gray-600 hover:text-picc-ochre">
+                    Annual Reports
                   </Link>
                   <Link href="/stories" className="block text-sm text-gray-600 hover:text-picc-ochre">
                     Community Stories

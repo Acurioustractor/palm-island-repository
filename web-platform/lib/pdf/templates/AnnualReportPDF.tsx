@@ -42,11 +42,16 @@ import {
 import { registerFonts } from '../register-fonts'
 import type { ReportData, CommunityVoice } from '@/lib/annual-report/fetch-report-data'
 import { FINANCIALS, STAFF, SERVICES } from '@/lib/stats/current-stats'
+import {
+  type ReportAudience,
+  AUDIENCE_CONFIGS,
+  DEFAULT_PAGES,
+  shouldShow,
+} from '@/lib/annual-report/audience-config'
 
 const s = baseStyles
 
-// ── Audience type for targeted reports ──────────────────
-export type ReportAudience = 'community' | 'funder' | 'board' | 'supporter' | 'government' | null
+export type { ReportAudience }
 
 // ── Local styles — Saltwater Country palette ────────────
 const ls = StyleSheet.create({
@@ -440,77 +445,6 @@ function categoryColor(cat: string): string {
     if (key.includes(k)) return v
   }
   return C.reefDeep
-}
-
-// ── Audience page configuration ───────────────────────
-interface AudienceConfig {
-  coverSubtitle: string
-  pages: string[]
-  statEmphasis: 'people' | 'money' | 'balanced'
-}
-
-const AUDIENCE_CONFIGS: Record<string, AudienceConfig> = {
-  community: {
-    coverSubtitle: 'Year 17 — Saltwater Country, One People',
-    pages: [
-      'cover', 'acknowledgement', 'messages', 'numbers', 'photos',
-      'highlights', 'communityVoices', 'youthVoices', 'resilience', 'floodStories',
-      'services', 'innovation', 'journey', 'nextTwenty', 'backCover',
-    ],
-    statEmphasis: 'people',
-  },
-  funder: {
-    coverSubtitle: `Annual Report`,
-    pages: [
-      'cover', 'acknowledgement', 'messages', 'numbers',
-      'highlights', 'services', 'innovation', 'governance',
-      'compliance', 'directorsReport', 'financials', 'financialDetail',
-      'nextTwenty', 'backCover',
-    ],
-    statEmphasis: 'money',
-  },
-  supporter: {
-    coverSubtitle: 'Year 17 — Our Impact & Innovation',
-    pages: [
-      'cover', 'acknowledgement', 'messages', 'numbers', 'photos',
-      'highlights', 'communityVoices', 'resilience', 'floodStories',
-      'innovation', 'journey', 'nextTwenty', 'backCover',
-    ],
-    statEmphasis: 'balanced',
-  },
-  board: {
-    coverSubtitle: `Annual Report`,
-    pages: [
-      'cover', 'acknowledgement', 'messages', 'numbers',
-      'highlights', 'governance', 'compliance', 'directorsReport',
-      'services', 'innovation', 'financials', 'financialDetail',
-      'communityVoices', 'journey', 'nextTwenty', 'backCover',
-    ],
-    statEmphasis: 'balanced',
-  },
-  government: {
-    coverSubtitle: `Annual Report`,
-    pages: [
-      'cover', 'acknowledgement', 'messages', 'numbers',
-      'highlights', 'services', 'governance', 'compliance',
-      'directorsReport', 'financials', 'financialDetail',
-      'innovation', 'nextTwenty', 'backCover',
-    ],
-    statEmphasis: 'money',
-  },
-}
-
-const DEFAULT_PAGES = [
-  'cover', 'acknowledgement', 'messages', 'numbers', 'photos',
-  'highlights', 'communityVoices', 'youthVoices', 'resilience', 'floodStories',
-  'governance', 'compliance', 'directorsReport', 'services', 'innovation',
-  'financials', 'financialDetail', 'journey', 'nextTwenty', 'backCover',
-]
-
-function shouldShow(page: string, audience: ReportAudience): boolean {
-  if (!audience) return DEFAULT_PAGES.includes(page)
-  const config = AUDIENCE_CONFIGS[audience]
-  return config ? config.pages.includes(page) : DEFAULT_PAGES.includes(page)
 }
 
 // ────────────────────────────────────────────────────────

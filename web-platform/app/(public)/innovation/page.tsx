@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { createServerSupabase } from '@/lib/supabase/client';
+import Image from 'next/image';
 import { ArrowRight, Lightbulb, Mic } from 'lucide-react';
 import {
   HeroSection,
@@ -9,40 +9,148 @@ import {
   ScrollReveal,
   StoryContainer,
 } from '@/components/story-scroll';
+import { createServerComponentClient } from '@/lib/supabase/server';
+import { getCuratedQuotes } from '@/lib/quotes/get-curated-quotes';
+import { getHeroImage, getMediaByTags } from '@/lib/media/utils';
 
 export const metadata: Metadata = {
   title: 'Innovation on Country | Palm Island Community Company',
   description:
-    'Five innovation projects driving community-led change, self-determination, and digital sovereignty on Palm Island.',
+    'Innovation projects driving community-led change, self-determination, and digital sovereignty on Palm Island.',
 };
 
 export const revalidate = 300;
 
-interface ProjectCard {
-  id: string;
-  slug: string;
-  name: string;
-  description: string;
-  status: string;
-  project_type: string;
+/* ────────────────────────────────────────────────── */
+/*  Types & display config                            */
+/* ────────────────────────────────────────────────── */
+
+type Theme = 'Culture & Country' | 'Technology & Sovereignty' | 'Employment & Enterprise';
+
+const themeDescriptions: Record<Theme, string> = {
+  'Culture & Country':
+    'Strengthening cultural identity and connection to Country through creative and community-led initiatives.',
+  'Technology & Sovereignty':
+    'Building digital infrastructure that keeps community data and knowledge in community hands.',
+  'Employment & Enterprise':
+    'Creating local jobs and circular-economy enterprises that build long-term economic independence.',
+};
+
+const themePillColors: Record<Theme, string> = {
+  'Culture & Country': 'bg-picc-ochre/15 text-picc-ochre',
+  'Technology & Sovereignty': 'bg-picc-earth/15 text-picc-earth-700',
+  'Employment & Enterprise': 'bg-picc-red/15 text-picc-red',
+};
+
+const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
+  active: { bg: 'bg-green-100', text: 'text-green-800', label: 'Active' },
+  in_progress: { bg: 'bg-green-100', text: 'text-green-800', label: 'Active' },
+  planning: { bg: 'bg-amber-100', text: 'text-amber-800', label: 'Planning' },
+  completed: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Completed' },
+  on_hold: { bg: 'bg-gray-100', text: 'text-gray-600', label: 'On Hold' },
+};
+
+/**
+ * Map tags/impact_areas to a theme bucket. Falls back to Technology & Sovereignty.
+ */
+function inferTheme(project: {
+  tags?: string[] | null;
+  impact_areas?: string[] | null;
+}): Theme {
+  const combined = [
+    ...(project.tags || []),
+    ...(project.impact_areas || []),
+  ].map((t) => t.toLowerCase());
+
+  if (combined.some((t) => ['culture', 'elders', 'cultural', 'country', 'photo', 'photo-studio'].includes(t))) {
+    return 'Culture & Country';
+  }
+  if (combined.some((t) => ['employment', 'enterprise', 'economic', 'recycling', 'jobs'].includes(t))) {
+    return 'Employment & Enterprise';
+  }
+  return 'Technology & Sovereignty';
 }
 
-export default async function InnovationPage() {
-  const supabase = createServerSupabase();
+/**
+ * Pick a gradient based on theme
+ */
+function themeGradient(theme: Theme): string {
+  switch (theme) {
+    case 'Culture & Country':
+      return 'from-picc-ochre to-picc-red';
+    case 'Employment & Enterprise':
+      return 'from-picc-ochre to-picc-earth';
+    case 'Technology & Sovereignty':
+    default:
+      return 'from-picc-earth-700 via-picc-earth to-picc-red';
+  }
+}
 
-  // Load innovation projects with their immersive story slugs
-  const { data: projects } = await supabase
+/**
+ * Pick an icon name based on tags or fallback
+ */
+function inferIcon(project: { tags?: string[] | null; slug?: string }): string {
+  const tags = (project.tags || []).map((t) => t.toLowerCase());
+  if (tags.includes('photo') || project.slug?.includes('photo')) return 'photo';
+  if (tags.includes('culture') || project.slug?.includes('elder') || project.slug?.includes('cultural')) return 'culture';
+  if (tags.includes('digital') || project.slug?.includes('server') || project.slug?.includes('digital')) return 'digital';
+  if (tags.includes('knowledge') || project.slug?.includes('report')) return 'knowledge';
+  if (tags.includes('economic') || project.slug?.includes('recycl') || project.slug?.includes('centre')) return 'economic';
+  return 'community';
+}
+
+const themes: Theme[] = ['Culture & Country', 'Technology & Sovereignty', 'Employment & Enterprise'];
+
+/* ────────────────────────────────────────────────── */
+/*  Data fetching                                     */
+/* ────────────────────────────────────────────────── */
+
+async function getInnovationProjects() {
+  const supabase = await createServerComponentClient();
+
+  const { data, error } = await (supabase as any)
     .from('projects')
-    .select('id, slug, name, description, status, project_type')
+    .select('id, name, slug, tagline, description, status, project_type, tags, impact_areas, hero_image_url, is_public, featured, display_order, metadata')
+    .eq('is_public', true)
     .eq('project_type', 'innovation')
-    .order('name');
+    .order('display_order', { ascending: true })
+    .order('created_at', { ascending: false });
 
-  const statusColors: Record<string, { bg: string; text: string; label: string }> = {
-    active: { bg: 'bg-green-100', text: 'text-green-800', label: 'Active' },
-    in_progress: { bg: 'bg-green-100', text: 'text-green-800', label: 'Active' },
-    planning: { bg: 'bg-amber-100', text: 'text-amber-800', label: 'Planning' },
-    completed: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Completed' },
-  };
+  if (error) {
+    console.error('Error fetching innovation projects:', error);
+    return [];
+  }
+
+  return data || [];
+}
+
+/* ────────────────────────────────────────────────── */
+/*  Page                                              */
+/* ────────────────────────────────────────────────── */
+
+export default async function InnovationPage() {
+  // Fetch all data in parallel
+  const [projects, quotes, heroImageUrl, heroTagMedia] = await Promise.all([
+    getInnovationProjects(),
+    getCuratedQuotes({ limit: 1, source_type: 'elder' }),
+    getHeroImage('innovation'),
+    getMediaByTags(['innovation', 'hero'], 1, 'image'),
+  ]);
+
+  const heroImage = heroImageUrl || heroTagMedia[0]?.public_url || null;
+  const elderQuote = quotes[0] || null;
+
+  // Group projects by theme
+  const projectsByTheme = new Map<Theme, typeof projects>();
+  for (const project of projects) {
+    const theme = inferTheme(project);
+    if (!projectsByTheme.has(theme)) {
+      projectsByTheme.set(theme, []);
+    }
+    projectsByTheme.get(theme)!.push(project);
+  }
+
+  const hasProjects = projects.length > 0;
 
   return (
     <StoryContainer>
@@ -53,6 +161,8 @@ export default async function InnovationPage() {
         height="screen"
         overlay="gradient"
         textPosition="center"
+        backgroundImage={heroImage || undefined}
+        backgroundVideo="/hero-assets/clips/centre-youth-work.mp4"
       >
         <div className="mt-8">
           <Lightbulb className="w-16 h-16 text-white mx-auto opacity-80" />
@@ -77,9 +187,8 @@ export default async function InnovationPage() {
             </p>
             <p className="text-lg text-gray-600 leading-relaxed mb-6">
               Self-determination means building the tools, spaces, and systems that serve
-              our community on our terms. From a professional photo studio to an
-              on-country server that keeps our data in our hands, each project below
-              reflects decades of community wisdom meeting modern capability.
+              our community on our terms. Each project below reflects decades of community
+              wisdom meeting modern capability.
             </p>
             <p className="text-lg text-gray-600 leading-relaxed">
               These are not pilot programs imposed from outside. They are community-led
@@ -91,92 +200,145 @@ export default async function InnovationPage() {
         maxWidth="medium"
       />
 
-      {/* Project Cards Grid */}
-      <section className="py-20 px-6 bg-gray-50">
-        <div className="max-w-7xl mx-auto">
-          <ScrollReveal direction="up">
-            <h2 className="text-4xl font-extrabold text-gray-900 text-center mb-4">
-              Our Innovation Projects
-            </h2>
-            <p className="text-lg text-gray-500 text-center mb-16 max-w-2xl mx-auto">
-              Five projects driving community-led change across culture, technology,
-              enterprise, and knowledge.
-            </p>
-          </ScrollReveal>
+      {/* Themed Project Sections */}
+      {hasProjects ? (
+        <section className="py-20 px-6 bg-gray-50">
+          <div className="max-w-6xl mx-auto">
+            <ScrollReveal direction="up">
+              <h2 className="text-4xl font-extrabold text-gray-900 text-center mb-4">
+                Our Innovation Projects
+              </h2>
+              <p className="text-lg text-gray-500 text-center mb-16 max-w-2xl mx-auto">
+                Community-led projects driving change across culture, technology,
+                and enterprise.
+              </p>
+            </ScrollReveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {(projects as ProjectCard[] | null)?.map((project, index) => {
-              const status = statusColors[project.status] || statusColors.planning;
+            {themes.map((theme) => {
+              const themeProjects = projectsByTheme.get(theme);
+              if (!themeProjects || themeProjects.length === 0) return null;
 
               return (
-                <ScrollReveal
-                  key={project.id}
-                  direction="up"
-                  delay={index * 0.1}
-                >
-                  <article className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 ease-elegant overflow-hidden group h-full flex flex-col">
-                    {/* Status bar */}
-                    <div
-                      className={`h-1.5 ${
-                        project.status === 'active'
-                          ? 'bg-green-500'
-                          : project.status === 'completed'
-                            ? 'bg-blue-500'
-                            : 'bg-amber-500'
-                      }`}
-                    />
-
-                    <div className="p-8 flex flex-col flex-1">
-                      {/* Status + Category */}
-                      <div className="flex items-center gap-2 mb-4">
-                        <span
-                          className={`px-2.5 py-1 text-xs font-medium rounded-full ${status.bg} ${status.text}`}
-                        >
-                          {status.label}
-                        </span>
-                      </div>
-
-                      <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-gray-700 transition-colors">
-                        {project.name}
-                      </h3>
-
-                      <p className="text-gray-600 leading-relaxed mb-6 flex-1">
-                        {project.description}
-                      </p>
-
-                      {/* CTA */}
-                      <Link
-                        href={`/wiki/innovation/${project.slug}`}
-                        className="inline-flex items-center gap-2 text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors group/link"
+                <div key={theme} className="mb-16 last:mb-0">
+                  {/* Theme header */}
+                  <ScrollReveal direction="up">
+                    <div className="mb-8">
+                      <span
+                        className={`inline-block px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-full mb-3 ${themePillColors[theme]}`}
                       >
-                        Learn More
-                        <ArrowRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
-                      </Link>
+                        {theme}
+                      </span>
+                      <p className="text-gray-500 text-base max-w-2xl">
+                        {themeDescriptions[theme]}
+                      </p>
                     </div>
-                  </article>
-                </ScrollReveal>
+                  </ScrollReveal>
+
+                  {/* Cards grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {themeProjects.map((project: any, index: number) => {
+                      const projectTheme = inferTheme(project);
+                      const status = statusConfig[project.status] || statusConfig['planning'];
+                      const icon = inferIcon(project);
+                      const gradient = themeGradient(projectTheme);
+
+                      return (
+                        <ScrollReveal
+                          key={project.id}
+                          direction="up"
+                          delay={index * 0.1}
+                        >
+                          <article className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 ease-elegant overflow-hidden group h-full flex flex-col">
+                            {/* Gradient thumbnail with icon */}
+                            <div
+                              className={`h-40 bg-gradient-to-br ${gradient} flex items-center justify-center`}
+                            >
+                              <Image
+                                src={`/icons/bespoke-white/${icon}.png`}
+                                alt=""
+                                width={48}
+                                height={48}
+                                className="opacity-90"
+                              />
+                            </div>
+
+                            <div className="p-8 flex flex-col flex-1">
+                              {/* Category pill + Status badge */}
+                              <div className="flex items-center gap-2 mb-4">
+                                <span
+                                  className={`px-2.5 py-1 text-xs font-bold uppercase tracking-wider rounded-full ${themePillColors[projectTheme]}`}
+                                >
+                                  {projectTheme}
+                                </span>
+                                <span
+                                  className={`px-2.5 py-1 text-xs font-medium rounded-full ${status.bg} ${status.text}`}
+                                >
+                                  {status.label}
+                                </span>
+                              </div>
+
+                              {/* Title */}
+                              <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-gray-700 transition-colors">
+                                {project.name}
+                              </h3>
+
+                              {/* Tagline or description excerpt */}
+                              <p className="text-gray-600 leading-relaxed mb-5">
+                                {project.tagline || (project.description?.slice(0, 200) + (project.description?.length > 200 ? '...' : ''))}
+                              </p>
+
+                              {/* Status indicator */}
+                              <span className="mt-auto inline-flex items-center gap-2 text-sm font-medium text-gray-400">
+                                {project.status === 'active' || project.status === 'in_progress'
+                                  ? 'Currently running'
+                                  : project.status === 'planning'
+                                    ? 'In development'
+                                    : project.status === 'completed'
+                                      ? 'Complete'
+                                      : project.status === 'on_hold'
+                                        ? 'On hold'
+                                        : ''}
+                              </span>
+                            </div>
+                          </article>
+                        </ScrollReveal>
+                      );
+                    })}
+                  </div>
+                </div>
               );
             })}
           </div>
-
-          {/* Fallback if no projects loaded */}
-          {(!projects || projects.length === 0) && (
-            <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">
-                Innovation projects are being prepared. Check back soon.
+        </section>
+      ) : (
+        /* Empty state — no innovation projects in database yet */
+        <section className="py-20 px-6 bg-gray-50">
+          <div className="max-w-3xl mx-auto text-center">
+            <ScrollReveal direction="up">
+              <Lightbulb className="w-16 h-16 text-gray-300 mx-auto mb-6" />
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                Innovation Projects
+              </h2>
+              <p className="text-lg text-gray-500">
+                Our innovation projects are being documented and will appear here soon.
+                Check back for updates on community-led initiatives driving change on
+                Palm Island.
               </p>
-            </div>
-          )}
-        </div>
-      </section>
+            </ScrollReveal>
+          </div>
+        </section>
+      )}
 
-      {/* Elder Quote */}
-      <QuoteSection
-        quote="Innovation for our mob isn't about chasing what's new. It's about finding better ways to care for our people and protect what matters."
-        author="PICC Elder Advisory"
-        role="Palm Island Community Company"
-        size="large"
-      />
+      {/* Elder Quote — only shown if real quote exists */}
+      {elderQuote && (
+        <QuoteSection
+          quote={elderQuote.quote}
+          author={elderQuote.speaker_name || undefined}
+          role={elderQuote.speaker_role || undefined}
+          photoUrl={elderQuote.photo_url || undefined}
+          size="large"
+        />
+      )}
 
       {/* Road to 20 Years Teaser */}
       <section className="relative h-[60vh] overflow-hidden bg-gradient-to-br from-picc-earth-700 via-picc-earth to-picc-red flex items-center justify-center px-8">

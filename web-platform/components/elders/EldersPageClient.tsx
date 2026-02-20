@@ -697,6 +697,26 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
         </div>
       </section>
 
+      {/* Connection to Country — cinematic video interstitial */}
+      <section className="relative h-[40vh] min-h-[280px] overflow-hidden">
+        <video
+          autoPlay muted loop playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+          src="/hero-assets/clips/country-waterfall.mp4"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/50" />
+        <div className="relative h-full flex items-center justify-center text-center px-6">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-white/70 mb-3">
+              Connection to Country
+            </p>
+            <h2 className="text-3xl md:text-4xl font-bold text-white max-w-2xl mx-auto">
+              Where water meets memory, Elders walk with purpose
+            </h2>
+          </div>
+        </div>
+      </section>
+
       {/* Elders grid */}
       <section id="elders" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
         <div className="flex items-end justify-between gap-6 flex-wrap">

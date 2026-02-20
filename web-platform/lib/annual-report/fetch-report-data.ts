@@ -256,19 +256,21 @@ export async function getReportData(fiscalYear?: string): Promise<ReportData> {
 
     // Fetch additional data: cover photo, gallery, financials, innovation projects, community voices, history
     const [coverResult, galleryResult, financialsResult, innovationResult, storiesResult, elderQuotesResult, visionsResult, historyResult] = await Promise.all([
-      // Cover photo — tagged 'annual-report-cover'
+      // Cover photo — tagged 'annual-report-cover', prefer featured
       supabase
         .from('media_files')
         .select('storage_url, caption')
         .contains('tags', ['annual-report-cover'])
+        .order('is_featured', { ascending: false })
         .limit(1)
         .maybeSingle(),
 
-      // Gallery photos — tagged 'annual-report'
+      // Gallery photos — tagged 'annual-report', featured first
       supabase
         .from('media_files')
         .select('storage_url, caption')
         .contains('tags', ['annual-report'])
+        .order('is_featured', { ascending: false })
         .order('created_at', { ascending: false })
         .limit(6),
 

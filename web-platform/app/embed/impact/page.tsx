@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { STAFF, SERVICES, FINANCIALS, MILESTONES } from '@/lib/stats/current-stats';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -28,12 +29,12 @@ export default async function EmbedImpactPage({
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  let stats = {
-    staff: 197,
-    services: 16,
+  let stats: { staff: number; services: number; clients: string; since: number; budget: string } = {
+    staff: STAFF.total,
+    services: SERVICES.total,
     clients: '3,000+',
-    since: 2004,
-    budget: '$45M',
+    since: MILESTONES.founded,
+    budget: FINANCIALS.incomeDisplay,
   };
 
   if (supabaseUrl && supabaseKey) {
@@ -54,7 +55,7 @@ export default async function EmbedImpactPage({
           staff: data.staff_count || stats.staff,
           services: data.service_count || stats.services,
           clients: data.people_served?.toLocaleString() || stats.clients,
-          since: 2004,
+          since: MILESTONES.founded,
           budget: data.annual_budget
             ? `$${(data.annual_budget / 1_000_000).toFixed(0)}M`
             : stats.budget,

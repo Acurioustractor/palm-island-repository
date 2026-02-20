@@ -49,6 +49,8 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
       'usage_context',
       'context_metadata',
       'metadata',
+      'rating',
+      'color_label',
     ])
 
     const update: Record<string, unknown> = {}

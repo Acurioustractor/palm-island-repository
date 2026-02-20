@@ -1,44 +1,41 @@
-# Implementation Report: Service Admin Team Members & Conversation People Links
+# Implementation Report: About Page Hardcoded Values Audit
 Generated: 2026-02-19
 
 ## Task
-Enhanced the PICC service admin to show team members linked via profile metadata, and connected the conversations tab author field to those team profiles.
+Audit hardcoded values on the About page and wire to live data sources where available.
+
+## Analysis
+
+### Already Using Live Stats (no action needed)
+| Value | Source | Lines |
+|-------|--------|-------|
+| Staff total | `stats.staff.total` | 108, 391 |
+| Indigenous % | `stats.staff.indigenousPct` | 110, 115 |
+| Active services | `stats.services.active` | 138 |
+| Years operating | `stats.milestones.yearsOperating` | 322 |
+
+### Hardcoded Values -- NO Live Source Available
+| Value | Why No Live Source |
+|-------|-------------------|
+| `$5.8M Annual Local Wages` | `getLiveStats()` has `financials.totalIncome` ($23.4M) but local wages is a different metric. Not tracked separately. |
+| `$9.75M total economic output` | Not in any stats system. Different from total income. |
+| `2,283 Health Clients Served` | Program-level health stat, not in `getLiveStats()` or `current-stats.ts` |
+| `17,488 episodes of care` | Same -- program-level, no live source |
+| `779 Health Checks` | Same -- program-level, no live source |
+| 7 board members (names/bios) | No `team_members` or board table queried. Board data is content, not stats. |
+
+### Decision
+Keep all hardcoded values as-is. They are real data from the PICC Annual Report 2023-24, not fabricated. Per the principle "real data > hardcoded real data > hidden section", hardcoded real data is the correct tier when no live source exists.
 
 ## Changes Made
+None. No code changes required.
 
-### 1. New API: `/api/services/[id]/team/route.ts`
-**File:** `/Users/benknight/Code/Palm Island Reposistory/web-platform/app/api/services/[id]/team/route.ts`
+## Recommendations for Future
+1. **Health program stats**: Could add a `program_statistics` table to track health clients, episodes, health checks per fiscal year, then extend `getLiveStats()`.
+2. **Local wages / economic output**: Could add fields to `annual_financials` table (e.g., `local_wages`, `economic_output`).
+3. **Board members**: Could create a `board_members` table or use `team_members` with a `role_type = 'board'` filter, then query dynamically.
 
-- **GET**: Fetches all profiles, filters to those whose `metadata.linked_services` array contains the service_id. Returns `{ team }` with profile info plus role/title from the linked_services entry. Supports `?allProfiles=true` query param to also return all profiles for the search picker.
-- **POST**: Links a profile to the service by appending to the profile's `metadata.linked_services` JSONB array. Body: `{ profile_id, role, title }`. Also fetches the service slug for the link entry. Returns 409 if already linked.
-- **DELETE**: Removes a service link from a profile's `metadata.linked_services` array. Query param: `profileId`.
+These would require database migrations and data entry -- not something to fabricate.
 
-### 2. Enhanced PeoplePartnersTab.tsx
-**File:** `/Users/benknight/Code/Palm Island Reposistory/web-platform/components/service-admin/PeoplePartnersTab.tsx`
-
-- Added a "Team Members" section ABOVE the existing Partners section
-- Team members displayed in a 2-column grid with avatar (or initials), full_name, role badge, title
-- "Add Team Member" button opens a modal with:
-  - Searchable profile dropdown (fetches all profiles via `?allProfiles=true`)
-  - Role selector (team_member, manager, coordinator, volunteer, community_contact, elder_advisor)
-  - Optional title text field
-- Each team member card has a remove button
-- All existing partner functionality preserved unchanged
-
-### 3. Enhanced ConversationsTab.tsx
-**File:** `/Users/benknight/Code/Palm Island Reposistory/web-platform/components/service-admin/ConversationsTab.tsx`
-
-- Added "Service Team" chip bar at the top showing all linked profiles as avatar+name chips
-- Replaced the free-text "Your name" author field with a profile dropdown when team members exist
-- "Other" button to switch to custom text input (fallback for non-team authors)
-- "Team" button to switch back to profile dropdown
-- All existing note CRUD functionality preserved unchanged
-
-## Build Results
-- `tsc --noEmit`: Clean (no errors)
-- `next build`: Clean (successful build)
-
-## Notes
-- The team API fetches all profiles and filters in the route handler (not via SQL JSONB query) since supabase-js `.contains()` doesn't reliably handle arrays inside JSONB. With 60 profiles this is efficient enough.
-- Profile avatars use `avatar_url` with `profile_image_url` as fallback.
-- The `metadata.linked_services` array structure: `{ service_id, slug, role, title }`.
+## Test Results
+No code changes, no tests needed.

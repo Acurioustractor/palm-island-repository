@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { BespokeIcon, type BespokeIconName } from '@/components/ui/BespokeIcon';
+import { getServiceIconByName } from '@/lib/services/service-icons';
 
 interface Source {
   title: string;
@@ -59,7 +60,9 @@ export default function ChatSourceCards({ sources, compact = false, className = 
       <div className={`flex ${compact ? 'flex-wrap' : 'overflow-x-auto'} gap-2`}>
         {sources.map((source, idx) => {
           const type = source.type || 'knowledge';
-          const icon = TYPE_ICONS[type] || 'search';
+          const icon: BespokeIconName = type === 'service'
+            ? getServiceIconByName(source.title)
+            : (TYPE_ICONS[type] || 'search');
           const colors = TYPE_COLORS[type] || TYPE_COLORS.knowledge;
           const label = TYPE_LABELS[type] || type;
 

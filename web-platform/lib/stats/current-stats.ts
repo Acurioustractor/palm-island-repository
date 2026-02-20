@@ -51,6 +51,25 @@ export const FINANCIALS = {
     propertyEnergy: { amount: 1_058_084, pct: 4 },
     motorVehicle: { amount: 401_112, pct: 2 },
   },
+  /** Historical income for charts (fallback when DB unavailable) */
+  incomeHistory: [
+    { year: '2010', income: 3_460_000 },
+    { year: '2011', income: 4_230_000 },
+    { year: '2012', income: 5_000_000 },
+    { year: '2013', income: 5_150_000 },
+    { year: '2014', income: 6_190_000 },
+    { year: '2015', income: 6_940_000 },
+    { year: '2016', income: 7_500_000 },
+    { year: '2017', income: 7_950_000 },
+    { year: '2018', income: 8_970_000 },
+    { year: '2019', income: 9_980_000 },
+    { year: '2020', income: 11_475_000 },
+    { year: '2021', income: 12_970_000 },
+    { year: '2022', income: 18_220_000 },
+    { year: '2023', income: 20_100_000 },
+    { year: '2024', income: 23_400_000 },
+    { year: '2025', income: 23_400_000 },
+  ] as const,
 } as const
 
 /** Organization milestones */

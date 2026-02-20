@@ -10,8 +10,101 @@ import {
   Grid, List, Sparkles, Users, Tag, MapPin, Calendar,
   ChevronDown, X, Check, Loader2, ArrowLeft, Download,
   Eye, Trash2, Edit, RefreshCw, UserPlus, FolderPlus, Play, XCircle,
-  RotateCw, RotateCcw, FlipHorizontal2, FlipVertical2
+  RotateCw, RotateCcw, FlipHorizontal2, FlipVertical2, Star
 } from 'lucide-react';
+
+const COLOR_LABELS = [
+  { key: 'red', hex: '#EF4444', label: 'Red' },
+  { key: 'orange', hex: '#F97316', label: 'Orange' },
+  { key: 'yellow', hex: '#EAB308', label: 'Yellow' },
+  { key: 'green', hex: '#22C55E', label: 'Green' },
+  { key: 'blue', hex: '#3B82F6', label: 'Blue' },
+  { key: 'purple', hex: '#8B5CF6', label: 'Purple' },
+] as const;
+/** Lazy video thumbnail: renders a real <video> element only when near the viewport */
+function VideoThumb({ src, alt, className }: { src: string; alt: string; className?: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect(); } },
+      { rootMargin: '400px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={containerRef} className={`relative bg-gray-900 overflow-hidden ${className || ''}`} style={{ minHeight: 80 }}>
+      {visible && (
+        <video
+          src={`${src}#t=0.5`}
+          preload="auto"
+          muted
+          playsInline
+          onLoadedData={(e) => { e.currentTarget.currentTime = 0.5; }}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      )}
+      {!visible && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Video className="w-10 h-10 text-gray-500" />
+        </div>
+      )}
+      <div className="absolute inset-0 bg-black/20 pointer-events-none" />
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center">
+          <Play className="w-5 h-5 text-gray-900 ml-0.5" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Small video thumbnail for list view */
+function VideoThumbSmall({ src, alt }: { src: string; alt: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect(); } },
+      { rootMargin: '400px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={containerRef} className="relative w-16 h-16 rounded overflow-hidden bg-gray-900">
+      {visible && (
+        <video
+          src={`${src}#t=0.5`}
+          preload="auto"
+          muted
+          playsInline
+          onLoadedData={(e) => { e.currentTarget.currentTime = 0.5; }}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      )}
+      {!visible && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Video className="w-6 h-6 text-gray-500" />
+        </div>
+      )}
+      <div className="absolute inset-0 bg-black/10 pointer-events-none" />
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <Play className="w-5 h-5 text-white" />
+      </div>
+    </div>
+  );
+}
+
 import ServiceTagBar from '@/components/media/ServiceTagBar';
 import { TagDots } from '@/components/media/TagChips';
 import BulkTagRemoveModal from '@/components/media/BulkTagRemoveModal';
@@ -37,6 +130,11 @@ interface MediaFile {
   requires_elder_approval: boolean;
   is_public: boolean;
   is_featured: boolean;
+  page_context?: string | null;
+  page_section?: string | null;
+  display_order?: number;
+  rating?: number;
+  color_label?: string | null;
   created_at: string;
   metadata?: any;
   storyteller?: {
@@ -85,6 +183,8 @@ function MediaGalleryPage() {
   const [sortBy, setSortBy] = useState<string>('newest');
   // Inline tag editing in detail modal
   const [newTagInput, setNewTagInput] = useState('');
+  // Lightroom-style: focused item for keyboard shortcuts
+  const [focusedMediaId, setFocusedMediaId] = useState<string | null>(null);
   // Bulk selection: shift+click range and drag-select
   const [lastClickedIndex, setLastClickedIndex] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -122,6 +222,9 @@ function MediaGalleryPage() {
   const [contentFilter, setContentFilter] = useState<string>('all');
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [featuredOnly, setFeaturedOnly] = useState(false);
+  const [minRatingFilter, setMinRatingFilter] = useState(0);
+  const [colorLabelFilter, setColorLabelFilter] = useState<string>('');
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
   // Batch AI analysis
   const [batchAnalyzing, setBatchAnalyzing] = useState(false);
@@ -242,6 +345,13 @@ function MediaGalleryPage() {
       params.set('sort', sortBy);
     }
 
+    if (minRatingFilter > 0) {
+      params.set('minRating', String(minRatingFilter));
+    }
+    if (colorLabelFilter) {
+      params.set('colorLabel', colorLabelFilter);
+    }
+
     return `/api/media/list?${params.toString()}`;
   };
 
@@ -324,7 +434,7 @@ function MediaGalleryPage() {
       clearTimeout(timeoutId);
       clearTimeout(failsafeTimeout);
     };
-  }, [fileTypeFilter, searchQuery, tagFilter, personFilter, annualReportOnly, annualReportFiscalYear, serviceFilter, projectFilter, eventFilter, sectionFilter, contentFilter, roleFilter, featuredOnly, sortBy, supabase]);
+  }, [fileTypeFilter, searchQuery, tagFilter, personFilter, annualReportOnly, annualReportFiscalYear, serviceFilter, projectFilter, eventFilter, sectionFilter, contentFilter, roleFilter, featuredOnly, sortBy, minRatingFilter, colorLabelFilter, supabase]);
 
   // Load collections for "Add to Collection" feature
   useEffect(() => {
@@ -877,6 +987,117 @@ function MediaGalleryPage() {
     return () => window.removeEventListener('mouseup', handleMouseUp);
   }, []);
 
+  // Lightroom-style keyboard shortcuts: 1-5 = rating, 6-9 = color, 0 = clear rating
+  useEffect(() => {
+    const handleKeyDown = async (e: KeyboardEvent) => {
+      // Don't trigger when typing in inputs
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      // Don't trigger when modal is open
+      if (selectedMedia) return;
+
+      const targetIds = focusedMediaId ? [focusedMediaId] : Array.from(selectedFiles);
+      if (targetIds.length === 0) return;
+
+      // Rating: 1-5 to set, 0 to clear
+      if (/^[0-5]$/.test(e.key) && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        const rating = parseInt(e.key);
+        try {
+          const res = await fetch('/api/media/bulk', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mediaIds: targetIds, rating }),
+          });
+          if (!res.ok) throw new Error('Failed');
+          const idSet = new Set(targetIds);
+          setMedia(prev => prev.map(m => idSet.has(m.id) ? { ...m, rating } : m));
+          toast.success(rating > 0 ? `${rating} star${rating > 1 ? 's' : ''}` : 'Rating cleared');
+        } catch {
+          toast.error('Failed to set rating');
+        }
+        return;
+      }
+
+      // Color labels: 6=red, 7=orange, 8=yellow, 9=green, Shift+0=clear
+      const colorMap: Record<string, string | null> = { '6': 'red', '7': 'orange', '8': 'yellow', '9': 'green' };
+      if (colorMap[e.key] !== undefined && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        const colorLabel = colorMap[e.key];
+        try {
+          const res = await fetch('/api/media/bulk', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mediaIds: targetIds, colorLabel }),
+          });
+          if (!res.ok) throw new Error('Failed');
+          const idSet = new Set(targetIds);
+          setMedia(prev => prev.map(m => idSet.has(m.id) ? { ...m, color_label: colorLabel } : m));
+          const label = COLOR_LABELS.find(c => c.key === colorLabel)?.label || 'Cleared';
+          toast.success(label);
+        } catch {
+          toast.error('Failed to set color');
+        }
+        return;
+      }
+
+      // Shift+6 = blue, Shift+7 = purple, Shift+0 = clear color
+      if (e.shiftKey && ['6', '7', '0'].includes(e.key)) {
+        e.preventDefault();
+        const shiftColorMap: Record<string, string | null> = { '6': 'blue', '7': 'purple', '0': null };
+        const colorLabel = shiftColorMap[e.key] ?? null;
+        try {
+          const res = await fetch('/api/media/bulk', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mediaIds: targetIds, colorLabel }),
+          });
+          if (!res.ok) throw new Error('Failed');
+          const idSet = new Set(targetIds);
+          setMedia(prev => prev.map(m => idSet.has(m.id) ? { ...m, color_label: colorLabel } : m));
+          const label = colorLabel ? COLOR_LABELS.find(c => c.key === colorLabel)?.label || '' : 'Color cleared';
+          toast.success(label);
+        } catch {
+          toast.error('Failed to set color');
+        }
+        return;
+      }
+
+      // Arrow keys to navigate focus
+      if ((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && focusedMediaId) {
+        e.preventDefault();
+        const idx = displayMedia.findIndex(m => m.id === focusedMediaId);
+        if (idx === -1) return;
+        const nextIdx = e.key === 'ArrowRight' ? Math.min(idx + 1, displayMedia.length - 1) : Math.max(idx - 1, 0);
+        const next = displayMedia[nextIdx];
+        setFocusedMediaId(next.id);
+        setSelectedFiles(new Set([next.id]));
+        setLastClickedIndex(nextIdx);
+        // Scroll into view
+        document.querySelector(`[data-media-id="${next.id}"]`)?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        return;
+      }
+
+      // Enter = open focused item
+      if (e.key === 'Enter' && focusedMediaId) {
+        e.preventDefault();
+        const item = displayMedia.find(m => m.id === focusedMediaId);
+        if (item) { setSelectedMedia(item); setNewTagInput(''); }
+        return;
+      }
+
+      // Escape = clear focus and selection
+      if (e.key === 'Escape') {
+        setFocusedMediaId(null);
+        setSelectedFiles(new Set());
+        return;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [focusedMediaId, selectedFiles, selectedMedia, displayMedia, toast]);
+
   // Shift+click range selection — toggle: if all in range are selected, deselect them
   const handleShiftClick = useCallback((index: number) => {
     if (lastClickedIndex === null) return;
@@ -910,7 +1131,9 @@ function MediaGalleryPage() {
     contentFilter !== 'all' ||
     roleFilter !== 'all' ||
     featuredOnly ||
-    untaggedOnly;
+    untaggedOnly ||
+    minRatingFilter > 0 ||
+    Boolean(colorLabelFilter);
 
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto">
@@ -954,27 +1177,26 @@ function MediaGalleryPage() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6 shadow-sm">
-        <div className="flex flex-wrap gap-4">
-          {/* Search */}
-          <div className="flex-1 min-w-[200px]">
+      <div className="bg-white rounded-xl border border-gray-200 p-3 mb-4 shadow-sm">
+        {/* Primary row: Search + essentials */}
+        <div className="flex items-center gap-2">
+          <div className="flex-1 min-w-[180px]">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search photos..."
+                placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
+                className="w-full pl-9 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-picc-red focus:border-transparent"
               />
             </div>
           </div>
 
-          {/* File Type Filter */}
           <select
             value={fileTypeFilter}
             onChange={(e) => setFileTypeFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
+            className="text-sm pl-2.5 pr-7 py-1.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-picc-red"
           >
             <option value="all">All Types</option>
             <option value="image">Images</option>
@@ -982,488 +1204,465 @@ function MediaGalleryPage() {
             <option value="audio">Audio</option>
           </select>
 
-          {/* Tag Filter */}
-          <select
-            value={tagFilter}
-            onChange={(e) => setTagFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
-            disabled={annualReportOnly}
-          >
-            <option value="">All Tags</option>
-            {allTags.map(tag => (
-              <option key={tag} value={tag}>{tag}</option>
-            ))}
-          </select>
-
-          {/* Person Filter */}
-          <select
-            value={personFilter}
-            onChange={(e) => setPersonFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
-          >
-            <option value="all">All People</option>
-            {profiles.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.preferred_name || p.full_name}
-              </option>
-            ))}
-          </select>
-
-          {/* Sort */}
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
+            className="text-sm pl-2.5 pr-7 py-1.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-picc-red"
           >
-            <option value="newest">Newest first</option>
-            <option value="oldest">Oldest first</option>
-            <option value="filename">Filename A-Z</option>
-            <option value="size">Largest first</option>
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+            <option value="filename">A-Z</option>
+            <option value="size">Largest</option>
+            <option value="rating">Top Rated</option>
           </select>
 
-          {/* View Mode */}
-          <div className="flex border border-gray-300 rounded-lg overflow-hidden">
+          {/* Rating filter inline */}
+          <div className="flex items-center gap-0.5 bg-gray-50 rounded-lg px-2 py-1">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <button
+                key={star}
+                onClick={() => setMinRatingFilter(minRatingFilter === star ? 0 : star)}
+                className="p-0"
+                title={`${star}+ stars`}
+              >
+                <Star className={`w-4 h-4 ${star <= minRatingFilter ? 'fill-amber-400 text-amber-400' : 'text-gray-300 hover:text-amber-300'}`} />
+              </button>
+            ))}
+          </div>
+
+          {/* Color filter inline */}
+          <div className="flex items-center gap-1 bg-gray-50 rounded-lg px-2 py-1.5">
+            {COLOR_LABELS.map((c) => (
+              <button
+                key={c.key}
+                onClick={() => setColorLabelFilter(colorLabelFilter === c.key ? '' : c.key)}
+                title={c.label}
+                className={`w-3.5 h-3.5 rounded-full transition-all ${
+                  colorLabelFilter === c.key ? 'ring-2 ring-gray-700 ring-offset-1 scale-110' : 'hover:scale-110'
+                }`}
+                style={{ backgroundColor: c.hex }}
+              />
+            ))}
+          </div>
+
+          {/* View mode */}
+          <div className="flex border border-gray-200 rounded-lg overflow-hidden">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-2 ${viewMode === 'grid' ? 'bg-picc-red text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+              className={`p-1.5 ${viewMode === 'grid' ? 'bg-picc-red text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
             >
-              <Grid className="w-5 h-5" />
+              <Grid className="w-4 h-4" />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-2 ${viewMode === 'list' ? 'bg-picc-red text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+              className={`p-1.5 ${viewMode === 'list' ? 'bg-picc-red text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
             >
-              <List className="w-5 h-5" />
+              <List className="w-4 h-4" />
             </button>
           </div>
+
+          {/* More filters toggle */}
+          <button
+            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+            className={`inline-flex items-center gap-1 text-sm px-2.5 py-1.5 rounded-lg transition-colors ${
+              showAdvancedFilters ? 'bg-picc-red text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            <Filter className="w-3.5 h-3.5" />
+            More
+            <ChevronDown className={`w-3 h-3 transition-transform ${showAdvancedFilters ? 'rotate-180' : ''}`} />
+          </button>
+        </div>
+
+        {/* Quick chips row */}
+        <div className="flex flex-wrap items-center gap-1.5 mt-2">
+          {[
+            { label: 'Untagged', action: () => setUntaggedOnly(!untaggedOnly), active: untaggedOnly },
+            { label: 'Board', action: () => setRoleFilter(roleFilter === 'board-member' ? 'all' : 'board-member'), active: roleFilter === 'board-member' },
+            { label: 'Staff', action: () => setRoleFilter(roleFilter === 'staff' ? 'all' : 'staff'), active: roleFilter === 'staff' },
+            { label: 'Heroes', action: () => setTagFilter(tagFilter === 'hero' ? '' : 'hero'), active: tagFilter === 'hero' },
+            { label: 'Featured', action: () => setFeaturedOnly(!featuredOnly), active: featuredOnly },
+            { label: 'Professional', action: () => setContentFilter(contentFilter === 'quality:professional' ? 'all' : 'quality:professional'), active: contentFilter === 'quality:professional' },
+            { label: 'Annual Report', action: () => { setAnnualReportOnly(!annualReportOnly); if (annualReportOnly) setAnnualReportFiscalYear('all'); }, active: annualReportOnly },
+            { label: `FY ${fiscalYearOptions[0] || ''}`, action: () => { setAnnualReportOnly(true); setAnnualReportFiscalYear(fiscalYearOptions[0] || 'all'); setTagFilter(''); }, active: annualReportOnly && annualReportFiscalYear === fiscalYearOptions[0] },
+          ].map((chip) => (
+            <button
+              key={chip.label}
+              onClick={chip.action}
+              className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
+                chip.active
+                  ? 'bg-picc-red text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              {chip.label}
+            </button>
+          ))}
+
+          {hasActiveFilters && (
+            <button
+              onClick={() => {
+                setSearchQuery(''); setFileTypeFilter('all'); setTagFilter('');
+                setPersonFilter('all'); setAnnualReportOnly(false);
+                setAnnualReportFiscalYear('all'); setServiceFilter('all');
+                setProjectFilter('all'); setEventFilter('all');
+                setSectionFilter('all'); setContentFilter('all');
+                setRoleFilter('all'); setFeaturedOnly(false); setUntaggedOnly(false);
+                setMinRatingFilter(0); setColorLabelFilter('');
+              }}
+              className="px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700 hover:bg-orange-200 transition-colors"
+            >
+              Clear all
+            </button>
+          )}
         </div>
 
         {taxonomyError && (
-          <div className="mt-3 text-sm text-red-600 flex items-center justify-between gap-3">
+          <div className="mt-2 text-xs text-red-600 flex items-center justify-between gap-3">
             <span>Service/Project lists failed to load: {taxonomyError}</span>
-            <button
-              type="button"
-              onClick={() => window.location.reload()}
-              className="px-3 py-1 border border-red-200 rounded-lg hover:bg-red-50"
-            >
-              Retry
-            </button>
+            <button type="button" onClick={() => window.location.reload()} className="px-2 py-0.5 border border-red-200 rounded hover:bg-red-50 text-xs">Retry</button>
           </div>
         )}
 
-        {/* Annual report quick filters */}
-        <div className="mt-4 flex flex-wrap items-end gap-4">
-          <label className="flex items-center gap-2 text-sm text-gray-700">
-            <input
-              type="checkbox"
-              checked={annualReportOnly}
-              onChange={(e) => {
-                const checked = e.target.checked;
-                setAnnualReportOnly(checked);
-                if (!checked) setAnnualReportFiscalYear('all');
-              }}
-              className="w-4 h-4 rounded border-gray-300 text-picc-red focus:ring-2 focus:ring-picc-red"
-            />
-            Annual report media
-          </label>
-
-          <div>
-            <div className="text-xs text-gray-500 mb-1">Fiscal year</div>
-            <select
-              value={annualReportFiscalYear}
-              onChange={(e) => setAnnualReportFiscalYear(e.target.value)}
-              disabled={!annualReportOnly}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red disabled:bg-gray-100"
-            >
-              <option value="all">All Years</option>
-              {fiscalYearOptions.map((fy) => (
-                <option key={fy} value={fy}>
-                  {fy}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => {
-              setAnnualReportOnly(true);
-              setAnnualReportFiscalYear(fiscalYearOptions[0] || 'all');
-              setTagFilter('');
-            }}
-            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm"
-          >
-            Quick: this FY
-          </button>
-
-          <div>
-            <div className="text-xs text-gray-500 mb-1">Service</div>
-            <select
-              value={serviceFilter}
-              onChange={(e) => setServiceFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
-            >
-              <option value="all">All Services</option>
-              {taxonomyLoading && services.length === 0 && (
-                <option value="loading" disabled>
-                  Loading…
-                </option>
-              )}
-              {!taxonomyLoading && services.length === 0 && (
-                <option value="none" disabled>
-                  No services found
-                </option>
-              )}
-              {services.map((s) => (
-                <option key={s.id} value={s.service_slug}>
-                  {s.service_name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <div className="text-xs text-gray-500 mb-1">Project</div>
-            <select
-              value={projectFilter}
-              onChange={(e) => setProjectFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
-            >
-              <option value="all">All Projects</option>
-              {taxonomyLoading && projects.length === 0 && (
-                <option value="loading" disabled>
-                  Loading…
-                </option>
-              )}
-              {!taxonomyLoading && projects.length === 0 && (
-                <option value="none" disabled>
-                  No projects found
-                </option>
-              )}
-              {projects.map((p) => (
-                <option key={p.id} value={p.slug}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <label className="flex items-center gap-2 text-sm text-gray-700 pb-1">
-            <input
-              type="checkbox"
-              checked={untaggedOnly}
-              onChange={(e) => setUntaggedOnly(e.target.checked)}
-              className="w-4 h-4 rounded border-gray-300 text-orange-600 focus:ring-2 focus:ring-orange-500"
-            />
-            Untagged (no service)
-          </label>
-
-          <div className="flex items-center gap-2 pb-1">
-            <Link href="/picc/projects" className="text-sm text-picc-red hover:text-picc-red">
-              Manage projects
-            </Link>
-            <span className="text-gray-300">•</span>
-            <Link href="/picc/services" className="text-sm text-picc-red hover:text-picc-red">
-              Manage services
-            </Link>
-          </div>
-        </div>
-
-        {/* Event, Section, Content, Role & Featured filters */}
-        <div className="mt-4 flex flex-wrap items-end gap-4">
-          <div>
-            <div className="text-xs text-gray-500 mb-1">Role</div>
-            <select
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
-            >
-              <option value="all">All Roles</option>
-              <option value="board-member">Board Member</option>
-              <option value="staff">Staff</option>
-              <option value="volunteer">Volunteer</option>
-              <option value="elder-advisor">Elder Advisor</option>
-              <option value="cultural-advisor">Cultural Advisor</option>
-            </select>
-          </div>
-
-          <div>
-            <div className="text-xs text-gray-500 mb-1">Event</div>
-            <select
-              value={eventFilter}
-              onChange={(e) => setEventFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
-            >
-              <option value="all">All Events</option>
-              <option value="event:spring-festival-2025">Spring Festival 2025</option>
-              <option value="event:daycare-opening-2025">Daycare Opening 2025</option>
-              <option value="event:community-visit-jun-2025">Community Visit Jun 2025</option>
-              <option value="event:photo-shoot-oct-2025">Photo Shoot Oct 2025</option>
-            </select>
-          </div>
-
-          <div>
-            <div className="text-xs text-gray-500 mb-1">Report Section</div>
-            <select
-              value={sectionFilter}
-              onChange={(e) => setSectionFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
-            >
-              <option value="all">All Sections</option>
-              <option value="section:cover">Covers</option>
-              <option value="section:ceo-message">CEO Messages</option>
-              <option value="section:chair-message">Chair Messages</option>
-              <option value="section:board">Board Members</option>
-              <option value="section:governance">Governance</option>
-              <option value="section:service-report">Service Reports</option>
-              <option value="section:statistics">Statistics &amp; Data</option>
-              <option value="section:highlights">Highlights</option>
-            </select>
-          </div>
-
-          <div>
-            <div className="text-xs text-gray-500 mb-1">Content</div>
-            <select
-              value={contentFilter}
-              onChange={(e) => setContentFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-picc-red"
-            >
-              <option value="all">All Content</option>
-              <optgroup label="Subject">
-                <option value="content:portrait">Portraits</option>
-                <option value="content:group">Group Shots</option>
-                <option value="content:elders">Elders</option>
-                <option value="content:youth">Youth</option>
-                <option value="content:children">Children</option>
-                <option value="content:art">Art &amp; Culture</option>
-              </optgroup>
-              <optgroup label="Setting">
-                <option value="content:indoor">Indoor</option>
-                <option value="content:outdoor">Outdoor</option>
-                <option value="content:nature">Nature</option>
-                <option value="setting:on-country">On Country</option>
-                <option value="setting:photobooth">Photobooth</option>
-              </optgroup>
-              <optgroup label="Quality">
-                <option value="quality:professional">Professional</option>
-                <option value="content:documentary">Documentary</option>
-              </optgroup>
-            </select>
-          </div>
-
-          <label className="flex items-center gap-2 text-sm text-gray-700 pb-1">
-            <input
-              type="checkbox"
-              checked={featuredOnly}
-              onChange={(e) => setFeaturedOnly(e.target.checked)}
-              className="w-4 h-4 rounded border-gray-300 text-yellow-600 focus:ring-2 focus:ring-yellow-500"
-            />
-            Featured only ⭐
-          </label>
-        </div>
-      </div>
-
-      {/* Quick-filter chips */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        {[
-          { label: 'Untagged', action: () => setUntaggedOnly(!untaggedOnly), active: untaggedOnly },
-          { label: 'Board', action: () => setRoleFilter(roleFilter === 'board-member' ? 'all' : 'board-member'), active: roleFilter === 'board-member' },
-          { label: 'Staff', action: () => setRoleFilter(roleFilter === 'staff' ? 'all' : 'staff'), active: roleFilter === 'staff' },
-          { label: 'Heroes', action: () => setTagFilter(tagFilter === 'hero' ? '' : 'hero'), active: tagFilter === 'hero' },
-          { label: 'Events', action: () => setEventFilter(eventFilter !== 'all' ? 'all' : 'event:spring-festival-2025'), active: eventFilter !== 'all' },
-          { label: 'Professional', action: () => setContentFilter(contentFilter === 'quality:professional' ? 'all' : 'quality:professional'), active: contentFilter === 'quality:professional' },
-        ].map((chip) => (
-          <button
-            key={chip.label}
-            onClick={chip.action}
-            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-              chip.active
-                ? 'bg-picc-red text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            {chip.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Clear All Filters */}
-      {hasActiveFilters && (
-        <button
-          onClick={() => {
-            setSearchQuery(''); setFileTypeFilter('all'); setTagFilter('');
-            setPersonFilter('all'); setAnnualReportOnly(false);
-            setAnnualReportFiscalYear('all'); setServiceFilter('all');
-            setProjectFilter('all'); setEventFilter('all');
-            setSectionFilter('all'); setContentFilter('all');
-            setRoleFilter('all'); setFeaturedOnly(false); setUntaggedOnly(false);
-          }}
-          className="mb-4 px-4 py-2 bg-orange-100 text-orange-800 rounded-full text-sm font-medium hover:bg-orange-200"
-        >
-          Clear all filters ×
-        </button>
-      )}
-
-      {/* Service Quick-Assign Bar */}
-      <ServiceTagBar
-        services={services}
-        selectedCount={selectedFiles.size}
-        loading={serviceTagBarLoading}
-        onAssign={handleServiceQuickAssign}
-      />
-
-      {/* Bulk Actions Bar */}
-      {displayMedia.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-200 p-4 mb-4 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={selectedFiles.size === displayMedia.length && displayMedia.length > 0}
-                  onChange={toggleSelectAll}
-                  className="w-5 h-5 rounded border-gray-300 text-picc-red focus:ring-2 focus:ring-picc-red"
-                />
-                <span className="text-sm font-medium text-gray-700">
-                  {selectedFiles.size === 0 ? 'Select All' : `${selectedFiles.size} selected`}
-                </span>
-              </label>
-              <span className="text-xs text-gray-400 hidden md:inline">
-                Shift+click for range · Drag across to select multiple
-              </span>
+        {/* Advanced filters panel */}
+        {showAdvancedFilters && (
+          <div className="mt-3 pt-3 border-t border-gray-100 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+            <div>
+              <label className="text-[11px] text-gray-500 mb-0.5 block">Tag</label>
+              <select value={tagFilter} onChange={(e) => setTagFilter(e.target.value)} disabled={annualReportOnly} className="w-full text-sm pl-2 pr-7 py-1.5 border border-gray-200 rounded-lg">
+                <option value="">All Tags</option>
+                {allTags.map(tag => (<option key={tag} value={tag}>{tag}</option>))}
+              </select>
             </div>
+            <div>
+              <label className="text-[11px] text-gray-500 mb-0.5 block">Person</label>
+              <select value={personFilter} onChange={(e) => setPersonFilter(e.target.value)} className="w-full text-sm pl-2 pr-7 py-1.5 border border-gray-200 rounded-lg">
+                <option value="all">All People</option>
+                {profiles.map((p) => (<option key={p.id} value={p.id}>{p.preferred_name || p.full_name}</option>))}
+              </select>
+            </div>
+            <div>
+              <label className="text-[11px] text-gray-500 mb-0.5 block">Service</label>
+              <select value={serviceFilter} onChange={(e) => setServiceFilter(e.target.value)} className="w-full text-sm pl-2 pr-7 py-1.5 border border-gray-200 rounded-lg">
+                <option value="all">All Services</option>
+                {taxonomyLoading && services.length === 0 && <option disabled>Loading…</option>}
+                {services.map((s) => (<option key={s.id} value={s.service_slug}>{s.service_name}</option>))}
+              </select>
+            </div>
+            <div>
+              <label className="text-[11px] text-gray-500 mb-0.5 block">Project</label>
+              <select value={projectFilter} onChange={(e) => setProjectFilter(e.target.value)} className="w-full text-sm pl-2 pr-7 py-1.5 border border-gray-200 rounded-lg">
+                <option value="all">All Projects</option>
+                {taxonomyLoading && projects.length === 0 && <option disabled>Loading…</option>}
+                {projects.map((p) => (<option key={p.id} value={p.slug}>{p.name}</option>))}
+              </select>
+            </div>
+            <div>
+              <label className="text-[11px] text-gray-500 mb-0.5 block">Fiscal Year</label>
+              <select value={annualReportFiscalYear} onChange={(e) => setAnnualReportFiscalYear(e.target.value)} className="w-full text-sm pl-2 pr-7 py-1.5 border border-gray-200 rounded-lg">
+                <option value="all">All Years</option>
+                {fiscalYearOptions.map((fy) => (<option key={fy} value={fy}>{fy}</option>))}
+              </select>
+            </div>
+            <div>
+              <label className="text-[11px] text-gray-500 mb-0.5 block">Role</label>
+              <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)} className="w-full text-sm pl-2 pr-7 py-1.5 border border-gray-200 rounded-lg">
+                <option value="all">All Roles</option>
+                <option value="board-member">Board Member</option>
+                <option value="staff">Staff</option>
+                <option value="volunteer">Volunteer</option>
+                <option value="elder-advisor">Elder Advisor</option>
+                <option value="cultural-advisor">Cultural Advisor</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-[11px] text-gray-500 mb-0.5 block">Event</label>
+              <select value={eventFilter} onChange={(e) => setEventFilter(e.target.value)} className="w-full text-sm pl-2 pr-7 py-1.5 border border-gray-200 rounded-lg">
+                <option value="all">All Events</option>
+                <option value="event:spring-festival-2025">Spring Festival 2025</option>
+                <option value="event:daycare-opening-2025">Daycare Opening 2025</option>
+                <option value="event:community-visit-jun-2025">Community Visit Jun 2025</option>
+                <option value="event:photo-shoot-oct-2025">Photo Shoot Oct 2025</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-[11px] text-gray-500 mb-0.5 block">Section</label>
+              <select value={sectionFilter} onChange={(e) => setSectionFilter(e.target.value)} className="w-full text-sm pl-2 pr-7 py-1.5 border border-gray-200 rounded-lg">
+                <option value="all">All Sections</option>
+                <option value="section:cover">Covers</option>
+                <option value="section:ceo-message">CEO Messages</option>
+                <option value="section:chair-message">Chair Messages</option>
+                <option value="section:board">Board Members</option>
+                <option value="section:governance">Governance</option>
+                <option value="section:service-report">Service Reports</option>
+                <option value="section:statistics">Statistics</option>
+                <option value="section:highlights">Highlights</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-[11px] text-gray-500 mb-0.5 block">Content</label>
+              <select value={contentFilter} onChange={(e) => setContentFilter(e.target.value)} className="w-full text-sm pl-2 pr-7 py-1.5 border border-gray-200 rounded-lg">
+                <option value="all">All Content</option>
+                <optgroup label="Subject">
+                  <option value="content:portrait">Portraits</option>
+                  <option value="content:group">Group Shots</option>
+                  <option value="content:elders">Elders</option>
+                  <option value="content:youth">Youth</option>
+                  <option value="content:children">Children</option>
+                  <option value="content:art">Art &amp; Culture</option>
+                </optgroup>
+                <optgroup label="Setting">
+                  <option value="content:indoor">Indoor</option>
+                  <option value="content:outdoor">Outdoor</option>
+                  <option value="content:nature">Nature</option>
+                  <option value="setting:on-country">On Country</option>
+                  <option value="setting:photobooth">Photobooth</option>
+                </optgroup>
+                <optgroup label="Quality">
+                  <option value="quality:professional">Professional</option>
+                  <option value="content:documentary">Documentary</option>
+                </optgroup>
+              </select>
+            </div>
+            <div className="flex flex-col justify-end gap-1">
+              <Link href="/picc/services" className="text-[11px] text-picc-red hover:underline">Manage services</Link>
+              <Link href="/picc/projects" className="text-[11px] text-picc-red hover:underline">Manage projects</Link>
+            </div>
+          </div>
+        )}
+      </div>
 
-            {selectedFiles.size === 0 && (
+      {/* Service Quick-Assign Bar — hidden, replaced by toolbar dropdown */}
+
+      {/* Compact Toolbar */}
+      {displayMedia.length > 0 && (
+        <div className="bg-white rounded-xl border border-gray-200 px-4 py-2.5 mb-4 shadow-sm">
+          <div className="flex items-center gap-3">
+            {/* Select all */}
+            <label className="flex items-center gap-2 cursor-pointer shrink-0">
+              <input
+                type="checkbox"
+                checked={selectedFiles.size === displayMedia.length && displayMedia.length > 0}
+                onChange={toggleSelectAll}
+                className="w-4 h-4 rounded border-gray-300 text-picc-red focus:ring-2 focus:ring-picc-red"
+              />
+              <span className="text-sm font-medium text-gray-700">
+                {selectedFiles.size === 0 ? 'All' : `${selectedFiles.size}`}
+              </span>
+            </label>
+            <div className="w-px h-6 bg-gray-200" />
+            <span className="text-[11px] text-gray-400 hidden lg:inline shrink-0">
+              Click select · Dbl-click open · 1-5 rate · 6-9 color · ←→ nav
+            </span>
+            <div className="flex-1" />
+
+            {/* Actions — compact */}
+            {selectedFiles.size === 0 ? (
               <button
                 onClick={() => analyzeBatch('unanalyzed')}
                 disabled={batchAnalyzing}
-                className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 transition-colors"
+                title="AI analyze untagged photos"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 disabled:opacity-50 transition-colors"
               >
-                {batchAnalyzing ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    {batchProgress ? `${batchProgress.current} of ${batchProgress.total}...` : 'Analyzing...'}
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-4 h-4" />
-                    Analyze Untagged
-                  </>
-                )}
+                {batchAnalyzing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                {batchAnalyzing && batchProgress ? `${batchProgress.current}/${batchProgress.total}` : 'AI Analyze'}
               </button>
-            )}
-
-            {selectedFiles.size > 0 && (
-              <div className="flex gap-2">
-                <button
-                  onClick={() =>
-                    applyBulkTags(
-                      { addTags: eldersTripQuickTags },
-                      {
-                        closeModal: false,
-                        successMessage: `Elders trip tags applied to ${selectedFiles.size} item(s).`,
+            ) : (
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {/* Inline rating stars */}
+                <div className="flex items-center bg-gray-50 rounded-lg px-2 py-1 gap-0.5" title="Set rating (or press 1-5)">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      onClick={async () => {
+                        try {
+                          const res = await fetch('/api/media/bulk', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ mediaIds: Array.from(selectedFiles), rating: star }),
+                          });
+                          if (!res.ok) throw new Error('Failed');
+                          setMedia(prev => prev.map(m => selectedFiles.has(m.id) ? { ...m, rating: star } : m));
+                          toast.success(`${star} star${star > 1 ? 's' : ''} → ${selectedFiles.size} items`);
+                          setSelectedFiles(new Set());
+                        } catch (err: any) {
+                          toast.error('Failed to set rating', err?.message || String(err));
+                        }
+                      }}
+                      className="p-0.5 hover:scale-125 transition-transform"
+                    >
+                      <Star className="w-4 h-4 text-amber-400 hover:fill-amber-400" />
+                    </button>
+                  ))}
+                  <button
+                    onClick={async () => {
+                      try {
+                        const res = await fetch('/api/media/bulk', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ mediaIds: Array.from(selectedFiles), rating: 0 }),
+                        });
+                        if (!res.ok) throw new Error('Failed');
+                        setMedia(prev => prev.map(m => selectedFiles.has(m.id) ? { ...m, rating: 0 } : m));
+                        toast.success(`Rating cleared`);
+                        setSelectedFiles(new Set());
+                      } catch (err: any) {
+                        toast.error('Failed', err?.message || String(err));
                       }
-                    )
-                  }
-                  disabled={bulkTagging}
-                  className="flex items-center gap-2 px-4 py-2 bg-picc-ochre text-white rounded-lg hover:bg-picc-ochre transition-colors disabled:opacity-50"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  Quick Tag Elders Trip
-                </button>
+                    }}
+                    className="ml-0.5 p-0.5 hover:scale-110 transition-transform"
+                    title="Clear rating (press 0)"
+                  >
+                    <X className="w-3.5 h-3.5 text-gray-400" />
+                  </button>
+                </div>
+
+                {/* Inline color dots */}
+                <div className="flex items-center bg-gray-50 rounded-lg px-2 py-1 gap-1" title="Set color (or press 6-9)">
+                  {COLOR_LABELS.map((c) => (
+                    <button
+                      key={c.key}
+                      onClick={async () => {
+                        try {
+                          const res = await fetch('/api/media/bulk', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ mediaIds: Array.from(selectedFiles), colorLabel: c.key }),
+                          });
+                          if (!res.ok) throw new Error('Failed');
+                          setMedia(prev => prev.map(m => selectedFiles.has(m.id) ? { ...m, color_label: c.key } : m));
+                          toast.success(`${c.label} → ${selectedFiles.size} items`);
+                          setSelectedFiles(new Set());
+                        } catch (err: any) {
+                          toast.error('Failed', err?.message || String(err));
+                        }
+                      }}
+                      title={c.label}
+                      className="w-4 h-4 rounded-full hover:scale-125 transition-transform border border-white shadow-sm"
+                      style={{ backgroundColor: c.hex }}
+                    />
+                  ))}
+                  <button
+                    onClick={async () => {
+                      try {
+                        const res = await fetch('/api/media/bulk', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ mediaIds: Array.from(selectedFiles), colorLabel: null }),
+                        });
+                        if (!res.ok) throw new Error('Failed');
+                        setMedia(prev => prev.map(m => selectedFiles.has(m.id) ? { ...m, color_label: null } : m));
+                        toast.success(`Color cleared`);
+                        setSelectedFiles(new Set());
+                      } catch (err: any) {
+                        toast.error('Failed', err?.message || String(err));
+                      }
+                    }}
+                    className="p-0.5 hover:scale-110 transition-transform"
+                    title="Clear color (Shift+0)"
+                  >
+                    <X className="w-3.5 h-3.5 text-gray-400" />
+                  </button>
+                </div>
+
+                <div className="w-px h-5 bg-gray-200" />
+
+                {/* Tag / Service / Collection — small buttons */}
                 <button
                   onClick={() => {
                     setBulkAnnualReport(annualReportOnly);
-                    setBulkFiscalYear(
-                      annualReportFiscalYear !== 'all'
-                        ? annualReportFiscalYear
-                        : (fiscalYearOptions[0] || 'all')
-                    );
+                    setBulkFiscalYear(annualReportFiscalYear !== 'all' ? annualReportFiscalYear : (fiscalYearOptions[0] || 'all'));
                     setBulkService(serviceFilter);
                     setBulkProject(projectFilter);
                     setShowBulkTagModal(true);
                   }}
-                  className="flex items-center gap-2 px-4 py-2 bg-picc-red text-white rounded-lg hover:bg-picc-red transition-colors"
+                  title="Bulk tag"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium bg-warm-100 text-picc-red rounded-lg hover:bg-warm-200 transition-colors"
                 >
-                  <Tag className="w-4 h-4" />
-                  Bulk Tag
+                  <Tag className="w-3.5 h-3.5" /> Tag
                 </button>
                 <button
                   onClick={() => setShowRemoveTagsModal(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                  title="Remove tags"
+                  className="inline-flex items-center px-2 py-1.5 text-xs font-medium bg-orange-50 text-orange-700 rounded-lg hover:bg-orange-100 transition-colors"
                 >
-                  <XCircle className="w-4 h-4" />
-                  Remove Tags
+                  <XCircle className="w-3.5 h-3.5" />
                 </button>
+
+                {/* Service dropdown */}
+                <div className="relative group/svc">
+                  <button
+                    title="Quick assign service"
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <MapPin className="w-3.5 h-3.5" /> Service <ChevronDown className="w-3 h-3" />
+                  </button>
+                  <div className="hidden group-hover/svc:block absolute top-full right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-64 max-h-60 overflow-y-auto">
+                    {services.map(svc => (
+                      <button
+                        key={svc.id}
+                        onClick={() => handleServiceQuickAssign(svc.service_slug)}
+                        className="w-full text-left px-3 py-1.5 text-sm hover:bg-warm-50 transition-colors"
+                      >
+                        {svc.service_name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <button
                   onClick={() => setShowCollectionModal(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-sage-600 text-white rounded-lg hover:bg-sage-700 transition-colors"
+                  title="Add to collection"
+                  className="inline-flex items-center px-2 py-1.5 text-xs font-medium bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
                 >
-                  <FolderPlus className="w-4 h-4" />
-                  Add to Collection
+                  <FolderPlus className="w-3.5 h-3.5" />
                 </button>
                 <button
                   onClick={() => analyzeBatch('selected')}
                   disabled={batchAnalyzing}
-                  className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 transition-colors"
+                  title="AI analyze selected"
+                  className="inline-flex items-center px-2 py-1.5 text-xs font-medium bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 disabled:opacity-50 transition-colors"
                 >
-                  {batchAnalyzing ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Sparkles className="w-4 h-4" />
-                  )}
-                  {batchAnalyzing && batchProgress
-                    ? `${batchProgress.current} of ${batchProgress.total}...`
-                    : 'AI Analyze Selected'}
+                  {batchAnalyzing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
                 </button>
-                {/* Set as Cover Photo */}
+
                 {selectedFiles.size === 1 && (
                   <div className="relative">
                     <button
                       onClick={() => setShowCoverDropdown(!showCoverDropdown)}
                       disabled={settingCover}
-                      className="flex items-center gap-2 px-4 py-2 bg-picc-ochre text-white rounded-lg hover:opacity-90 transition-colors disabled:opacity-50"
+                      title="Set as cover photo"
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-picc-ochre/10 text-picc-ochre rounded-lg hover:bg-picc-ochre/20 disabled:opacity-50 transition-colors"
                     >
-                      {settingCover ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <ImageIcon className="w-4 h-4" />
-                      )}
-                      Set as Cover
+                      {settingCover ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImageIcon className="w-3.5 h-3.5" />}
+                      Cover
                     </button>
                     {showCoverDropdown && (
-                      <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-64 max-h-80 overflow-y-auto">
+                      <div className="absolute top-full right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-64 max-h-60 overflow-y-auto">
                         <div className="p-2 text-xs text-gray-500 font-medium border-b">Select service:</div>
                         {services.map(svc => (
                           <button
                             key={svc.id}
                             onClick={() => setCoverPhoto(svc.service_slug)}
-                            className="w-full text-left px-3 py-2 text-sm hover:bg-warm-50 transition-colors"
+                            className="w-full text-left px-3 py-1.5 text-sm hover:bg-warm-50 transition-colors"
                           >
                             {svc.service_name}
-                            <span className="text-xs text-gray-400 ml-1">({svc.service_category})</span>
                           </button>
                         ))}
                       </div>
                     )}
                   </div>
                 )}
+
+                <div className="w-px h-5 bg-gray-200" />
+
                 <button
                   onClick={bulkDelete}
                   disabled={isDeleting}
-                  className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
+                  title="Delete selected"
+                  className="inline-flex items-center px-2 py-1.5 text-xs font-medium text-red-600 rounded-lg hover:bg-red-50 disabled:opacity-50 transition-colors"
                 >
-                  {isDeleting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Deleting...
-                    </>
-                  ) : (
-                    <>
-                      <Trash2 className="w-4 h-4" />
-                      Delete Selected
-                    </>
-                  )}
+                  {isDeleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
                 </button>
               </div>
             )}
@@ -1532,20 +1731,32 @@ function MediaGalleryPage() {
             return (
               <div
                 key={item.id}
+                data-media-id={item.id}
                 onClick={(e) => {
-                  if (isDragging) return; // Don't open modal at end of drag
+                  if (isDragging) return;
                   if (e.shiftKey) {
                     e.preventDefault();
                     handleShiftClick(idx);
                     setLastClickedIndex(idx);
                     return;
                   }
+                  // Single click = select + focus (Lightroom style)
+                  setFocusedMediaId(item.id);
+                  toggleSelect(item.id);
+                  setLastClickedIndex(idx);
+                }}
+                onDoubleClick={() => {
+                  // Double click = open detail modal
                   setSelectedMedia(item); setNewTagInput('');
                 }}
                 onMouseDown={(e) => handleItemMouseDown(e, idx)}
                 onMouseEnter={() => handleItemMouseEnter(idx)}
                 className={`group relative aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer transition-all ${
-                  selectedFiles.has(item.id) ? 'ring-2 ring-picc-red' : 'hover:ring-2 hover:ring-picc-red'
+                  focusedMediaId === item.id
+                    ? 'ring-3 ring-amber-400 ring-offset-1'
+                    : selectedFiles.has(item.id)
+                      ? 'ring-2 ring-picc-red'
+                      : 'hover:ring-2 hover:ring-picc-red'
                 }`}
               >
                 {/* Selection Checkbox */}
@@ -1575,32 +1786,7 @@ function MediaGalleryPage() {
                     loading="lazy"
                   />
                 ) : item.file_type === 'video' ? (
-                  (() => {
-                    const thumb = getVideoThumbnail(item);
-                    if (thumb) {
-                      return (
-                        <div className="relative w-full h-full">
-                          <img
-                            src={thumb}
-                            alt={item.title || 'Video'}
-                            className="w-full h-full object-cover"
-                            loading="lazy"
-                          />
-                          <div className="absolute inset-0 bg-black/30" />
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="w-14 h-14 bg-white/90 rounded-full flex items-center justify-center">
-                              <Play className="w-6 h-6 text-gray-900 ml-1" />
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    }
-                    return (
-                      <div className="w-full h-full flex items-center justify-center bg-gray-200">
-                        <Icon className="w-12 h-12 text-gray-400" />
-                      </div>
-                    );
-                  })()
+                  <VideoThumb src={getVideoThumbnail(item) || item.public_url} alt={item.title || 'Video'} className="w-full h-full" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-gray-200">
                     <Icon className="w-12 h-12 text-gray-400" />
@@ -1639,6 +1825,18 @@ function MediaGalleryPage() {
                   </div>
                 )}
 
+                {/* Page Placement Badge */}
+                {item.page_context && (
+                  <div
+                    className="absolute top-2 right-8 z-10"
+                    title={`${item.page_context}${item.page_section ? ` → ${item.page_section}` : ''}${item.display_order ? ` (slot ${item.display_order})` : ''}`}
+                  >
+                    <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                      <MapPin className="w-3 h-3 text-white" />
+                    </div>
+                  </div>
+                )}
+
                 {/* Analyzing Indicator */}
                 {isAnalyzing && (
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
@@ -1646,10 +1844,25 @@ function MediaGalleryPage() {
                   </div>
                 )}
 
-                {/* Service tag dots */}
-                {item.tags && item.tags.some(t => t.startsWith('service:')) && (
-                  <div className="absolute bottom-2 left-2 z-10">
+                {/* Service tag dots + color label dot */}
+                <div className="absolute bottom-2 left-2 z-10 flex items-center gap-1.5">
+                  {item.tags && item.tags.some(t => t.startsWith('service:')) && (
                     <TagDots tags={item.tags} />
+                  )}
+                  {item.color_label && (
+                    <span
+                      className="w-3 h-3 rounded-full border border-white/60 shadow-sm"
+                      style={{ backgroundColor: COLOR_LABELS.find(c => c.key === item.color_label)?.hex }}
+                      title={item.color_label}
+                    />
+                  )}
+                </div>
+
+                {/* Star rating badge */}
+                {(item.rating ?? 0) > 0 && (
+                  <div className="absolute bottom-2 right-2 z-10 flex items-center gap-0.5 bg-black/50 rounded px-1.5 py-0.5">
+                    <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                    <span className="text-[10px] text-amber-300 font-medium">{item.rating}</span>
                   </div>
                 )}
 
@@ -1713,25 +1926,7 @@ function MediaGalleryPage() {
                     className="w-16 h-16 object-cover rounded"
                   />
                 ) : item.file_type === 'video' ? (
-                  (() => {
-                    const thumb = getVideoThumbnail(item);
-                    if (thumb) {
-                      return (
-                        <div className="relative w-16 h-16 rounded overflow-hidden bg-gray-100">
-                          <img src={thumb} alt={item.title || 'Video'} className="w-full h-full object-cover" loading="lazy" />
-                          <div className="absolute inset-0 bg-black/20" />
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <Play className="w-5 h-5 text-white" />
-                          </div>
-                        </div>
-                      );
-                    }
-                    return (
-                      <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center">
-                        <Icon className="w-8 h-8 text-gray-400" />
-                      </div>
-                    );
-                  })()
+                  <VideoThumbSmall src={getVideoThumbnail(item) || item.public_url} alt={item.title || 'Video'} />
                 ) : (
                   <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center">
                     <Icon className="w-8 h-8 text-gray-400" />
@@ -2161,6 +2356,114 @@ function MediaGalleryPage() {
                   </form>
                 </div>
 
+                {/* Star Rating */}
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Star className="w-4 h-4 text-gray-400" />
+                    <span className="text-sm font-medium text-gray-700">Rating</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        onClick={async () => {
+                          const newRating = (selectedMedia.rating ?? 0) === star ? 0 : star;
+                          // Optimistic update
+                          const updated = { ...selectedMedia, rating: newRating };
+                          setSelectedMedia(updated);
+                          setMedia(prev => prev.map(m => m.id === selectedMedia.id ? { ...m, rating: newRating } : m));
+                          try {
+                            const res = await fetch(`/api/media/${selectedMedia.id}`, {
+                              method: 'PATCH',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ rating: newRating }),
+                            });
+                            if (!res.ok) throw new Error('Failed to update rating');
+                          } catch (err) {
+                            // Revert on error
+                            setSelectedMedia(selectedMedia);
+                            setMedia(prev => prev.map(m => m.id === selectedMedia.id ? selectedMedia : m));
+                            toast.error('Failed to update rating', String(err));
+                          }
+                        }}
+                        className="p-0.5 hover:scale-110 transition-transform"
+                        title={`${star} star${star > 1 ? 's' : ''}`}
+                      >
+                        <Star
+                          className={`w-6 h-6 ${star <= (selectedMedia.rating ?? 0) ? 'fill-amber-400 text-amber-400' : 'text-gray-300 hover:text-amber-200'}`}
+                        />
+                      </button>
+                    ))}
+                    {(selectedMedia.rating ?? 0) > 0 && (
+                      <span className="ml-2 text-xs text-gray-400">{selectedMedia.rating}/5</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Color Label */}
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-4 h-4 rounded-full bg-gradient-to-br from-red-400 via-green-400 to-blue-400" />
+                    <span className="text-sm font-medium text-gray-700">Color Label</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {COLOR_LABELS.map((c) => (
+                      <button
+                        key={c.key}
+                        onClick={async () => {
+                          const newColor = selectedMedia.color_label === c.key ? null : c.key;
+                          // Optimistic update
+                          const updated = { ...selectedMedia, color_label: newColor };
+                          setSelectedMedia(updated);
+                          setMedia(prev => prev.map(m => m.id === selectedMedia.id ? { ...m, color_label: newColor } : m));
+                          try {
+                            const res = await fetch(`/api/media/${selectedMedia.id}`, {
+                              method: 'PATCH',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ color_label: newColor }),
+                            });
+                            if (!res.ok) throw new Error('Failed to update color label');
+                          } catch (err) {
+                            setSelectedMedia(selectedMedia);
+                            setMedia(prev => prev.map(m => m.id === selectedMedia.id ? selectedMedia : m));
+                            toast.error('Failed to update color label', String(err));
+                          }
+                        }}
+                        title={c.label}
+                        className={`w-7 h-7 rounded-full border-2 transition-all hover:scale-110 ${
+                          selectedMedia.color_label === c.key ? 'border-gray-800 scale-110 ring-2 ring-gray-300' : 'border-gray-200'
+                        }`}
+                        style={{ backgroundColor: c.hex }}
+                      />
+                    ))}
+                    {selectedMedia.color_label && (
+                      <button
+                        onClick={async () => {
+                          const updated = { ...selectedMedia, color_label: null };
+                          setSelectedMedia(updated);
+                          setMedia(prev => prev.map(m => m.id === selectedMedia.id ? { ...m, color_label: null } : m));
+                          try {
+                            const res = await fetch(`/api/media/${selectedMedia.id}`, {
+                              method: 'PATCH',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ color_label: null }),
+                            });
+                            if (!res.ok) throw new Error('Failed to clear color label');
+                          } catch (err) {
+                            setSelectedMedia(selectedMedia);
+                            setMedia(prev => prev.map(m => m.id === selectedMedia.id ? selectedMedia : m));
+                            toast.error('Failed to clear color label', String(err));
+                          }
+                        }}
+                        className="ml-1 text-xs text-gray-400 hover:text-gray-600"
+                        title="Clear color"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
                 {/* People Tagged */}
                 <div>
                   <div className="flex items-center justify-between mb-2">
@@ -2252,6 +2555,133 @@ function MediaGalleryPage() {
                     </div>
                   ) : (
                     <p className="text-sm text-gray-400">No people tagged yet</p>
+                  )}
+                </div>
+
+                {/* Page Placement */}
+                <div className="border-t border-gray-100 pt-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <MapPin className="w-4 h-4 text-gray-400" />
+                      <span className="text-sm font-medium text-gray-700">Page Placement</span>
+                    </div>
+                    {selectedMedia.page_context && (
+                      <button
+                        onClick={async () => {
+                          try {
+                            const res = await fetch(`/api/media/${selectedMedia.id}`, {
+                              method: 'PATCH',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ page_context: null, page_section: null, display_order: 0 }),
+                            });
+                            if (!res.ok) throw new Error('Failed to clear placement');
+                            const updated = { ...selectedMedia, page_context: null, page_section: null, display_order: 0 };
+                            setSelectedMedia(updated);
+                            setMedia(prev => prev.map(m => m.id === selectedMedia.id ? { ...m, page_context: null, page_section: null, display_order: 0 } : m));
+                            toast.success('Placement cleared');
+                          } catch (err) {
+                            toast.error('Failed to clear placement', String(err));
+                          }
+                        }}
+                        className="text-xs text-red-500 hover:text-red-700"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-xs text-gray-500 mb-1 block">Page</label>
+                      <select
+                        value={selectedMedia.page_context || ''}
+                        onChange={async (e) => {
+                          const val = e.target.value || null;
+                          try {
+                            const res = await fetch(`/api/media/${selectedMedia.id}`, {
+                              method: 'PATCH',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ page_context: val }),
+                            });
+                            if (!res.ok) throw new Error('Failed to update');
+                            const updated = { ...selectedMedia, page_context: val };
+                            setSelectedMedia(updated);
+                            setMedia(prev => prev.map(m => m.id === selectedMedia.id ? { ...m, page_context: val } : m));
+                            toast.success('Page context updated');
+                          } catch (err) {
+                            toast.error('Failed to update', String(err));
+                          }
+                        }}
+                        className="w-full px-2 py-1.5 border border-gray-300 rounded-lg text-sm"
+                      >
+                        <option value="">None</option>
+                        {['home','about','impact','community','services','innovation','explore','20-years','stories','publications','annual-report'].map(p => (
+                          <option key={p} value={p}>{p}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500 mb-1 block">Section</label>
+                      <input
+                        type="text"
+                        value={selectedMedia.page_section || ''}
+                        placeholder="e.g. hero, timeline"
+                        onChange={async (e) => {
+                          const val = e.target.value || null;
+                          // Debounce: only save on blur
+                          const updated = { ...selectedMedia, page_section: val };
+                          setSelectedMedia(updated);
+                        }}
+                        onBlur={async (e) => {
+                          const val = e.target.value || null;
+                          try {
+                            const res = await fetch(`/api/media/${selectedMedia.id}`, {
+                              method: 'PATCH',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ page_section: val }),
+                            });
+                            if (!res.ok) throw new Error('Failed to update');
+                            setMedia(prev => prev.map(m => m.id === selectedMedia.id ? { ...m, page_section: val } : m));
+                          } catch (err) {
+                            toast.error('Failed to update section', String(err));
+                          }
+                        }}
+                        className="w-full px-2 py-1.5 border border-gray-300 rounded-lg text-sm"
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-2">
+                    <label className="text-xs text-gray-500 mb-1 block">Display Order</label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={selectedMedia.display_order ?? 0}
+                      onChange={async (e) => {
+                        const val = parseInt(e.target.value) || 0;
+                        const updated = { ...selectedMedia, display_order: val };
+                        setSelectedMedia(updated);
+                      }}
+                      onBlur={async (e) => {
+                        const val = parseInt(e.target.value) || 0;
+                        try {
+                          const res = await fetch(`/api/media/${selectedMedia.id}`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ display_order: val }),
+                          });
+                          if (!res.ok) throw new Error('Failed to update');
+                          setMedia(prev => prev.map(m => m.id === selectedMedia.id ? { ...m, display_order: val } : m));
+                        } catch (err) {
+                          toast.error('Failed to update order', String(err));
+                        }
+                      }}
+                      className="w-20 px-2 py-1.5 border border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+                  {selectedMedia.page_context && (
+                    <p className="mt-2 text-xs text-blue-600">
+                      Placed on: {selectedMedia.page_context}{selectedMedia.page_section ? ` → ${selectedMedia.page_section}` : ''}
+                      {selectedMedia.display_order ? ` (slot ${selectedMedia.display_order})` : ''}
+                    </p>
                   )}
                 </div>
 

@@ -1,8 +1,8 @@
 /**
- * Generate bespoke sketched service icons using Nano Banana Pro (Gemini 3 Pro Image).
+ * Generate bespoke service icons in ochre line-art style.
  *
- * Creates a simple, hand-drawn style illustration for each PICC service,
- * rendered in a circle format suitable for map markers.
+ * Creates golden ochre (#C8922A) line-art icons for each PICC service,
+ * saved as BespokeIcon-compatible PNGs in public/icons/bespoke/.
  *
  * Usage:
  *   npx tsx scripts/generate-service-icons.ts                    # generate all
@@ -29,8 +29,28 @@ const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const shouldUpload = process.argv.includes('--upload');
 const singleSlug = process.argv.find((_, i, a) => a[i - 1] === '--slug') || null;
 
-// Output directory
-const OUTPUT_DIR = path.join(__dirname, '..', 'public', 'service-icons');
+// Output directory — write directly into bespoke icons folder
+const OUTPUT_DIR = path.join(__dirname, '..', 'public', 'icons', 'bespoke');
+
+// Map service slugs to BespokeIcon file names
+const SLUG_TO_ICON_NAME: Record<string, string> = {
+  'bwgcolman-healing': 'health',
+  'family-wellbeing': 'family',
+  'youth-services': 'youth',
+  'early-learning': 'children',
+  'cultural-centre': 'culture',
+  'ranger-program': 'land',
+  'community-safety': 'community',
+  'digital-service-centre': 'digital',
+  'housing-infrastructure': 'housing',
+  'justice-services': 'justice',
+  'crisis-services': 'crisis',
+  'economic-development': 'economic',
+  'sport-recreation': 'sport',
+  'mental-health': 'mental-health',
+  'disability-services': 'disability',
+  'governance-admin': 'governance',
+};
 
 // Service icon prompts — each describes a simple sketched scene for the service
 const SERVICE_ICONS: Record<string, { label: string; prompt: string }> = {
@@ -100,16 +120,16 @@ const SERVICE_ICONS: Record<string, { label: string; prompt: string }> = {
   },
 };
 
-const STYLE_PREFIX = `Simple hand-drawn pencil sketch illustration in a circular frame. Black line drawing on a clean white background. Minimal, warm, community-focused style. No text or words in the image. The illustration should be:`;
+const STYLE_PREFIX = `Minimal single-colour line-art icon in golden ochre (#C8922A) on white background. Clean lines suitable for 24-48px. No circle frame. Warm community-focused style. No text or words in the image. The illustration should be:`;
 
 async function generateIcon(slug: string, config: { label: string; prompt: string }): Promise<Buffer | null> {
-  const fullPrompt = `${STYLE_PREFIX} ${config.prompt}. Draw this as a single centered circular vignette, like a hand-sketched stamp or badge. Keep it simple with clean lines, suitable for a small map pin icon.`;
+  const fullPrompt = `${STYLE_PREFIX} ${config.prompt}. Draw this as a single centered icon with no frame or border. Keep it simple with clean lines, suitable for a small 48px icon.`;
 
   console.log(`  Generating: ${config.label} (${slug})...`);
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-3-pro-image-preview',
+      model: 'gemini-2.0-flash-exp',
       contents: fullPrompt,
       config: {
         responseModalities: ['image', 'text'],
@@ -177,7 +197,7 @@ async function main() {
     ? [singleSlug]
     : Object.keys(SERVICE_ICONS);
 
-  console.log(`Generating ${slugs.length} service icon(s) with Nano Banana Pro\n`);
+  console.log(`Generating ${slugs.length} service icon(s) in ochre line-art style\n`);
 
   const results: Record<string, string> = {};
   let success = 0;
@@ -197,10 +217,11 @@ async function main() {
       continue;
     }
 
-    // Save locally
-    const localPath = path.join(OUTPUT_DIR, `${slug}.png`);
+    // Save locally with BespokeIcon-compatible name
+    const iconName = SLUG_TO_ICON_NAME[slug] || slug;
+    const localPath = path.join(OUTPUT_DIR, `${iconName}.png`);
     fs.writeFileSync(localPath, buffer);
-    results[slug] = `/service-icons/${slug}.png`;
+    results[slug] = `/icons/bespoke/${iconName}.png`;
 
     // Upload to Supabase if requested
     if (shouldUpload) {

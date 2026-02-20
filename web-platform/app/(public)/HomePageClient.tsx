@@ -4,7 +4,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
-import SmartImage, { SmartImageGallery } from '@/components/media/SmartImage';
+
 import AdminImage from '@/components/admin/AdminImage';
 import AdminServiceCard from '@/components/admin/AdminServiceCard';
 import {
@@ -68,20 +68,21 @@ function ServiceCard({ service, index }: { service: HomeServiceData; index: numb
       <Link href={`/services/${service.slug}`} className="group block">
         <div className="relative overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-xl transition-all duration-500 ease-elegant">
           <div className="aspect-[4/3] relative overflow-hidden">
-            <SmartImage
-              pageContext="home"
-              pageSection={`service-${service.slug}`}
-              fill
-              className="object-cover group-hover:scale-105 transition-transform duration-700 ease-elegant"
-              alt={service.name}
-              fallbackGradient="from-warm-50 to-warm-100"
-              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            />
+            {service.coverImage ? (
+              <Image
+                src={service.coverImage}
+                alt={service.name}
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-700 ease-elegant"
+                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-warm-50 to-warm-100" />
+            )}
             <div className="gradient-overlay-subtle" />
             <div className="absolute bottom-0 left-0 right-0 p-6">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 frosted-glass-dark rounded-full text-white text-xs font-medium mb-3">
-                <MapPin className="w-3 h-3" />
-                {service.location}
+                {service.category}
               </span>
               <h3 className="text-xl font-bold text-white tracking-tight">{service.name}</h3>
             </div>
@@ -184,11 +185,6 @@ const statusColors: Record<string, { bg: string; text: string }> = {
 
 function InnovationProjectCard({ project, index }: { project: InnovationProject; index: number }) {
   const colors = statusColors[project.status] || statusColors.active;
-  const href = project.slug === 'photo-studio' ? '/wiki/innovation/photo-studio'
-    : project.slug === 'the-centre' ? '/wiki/innovation'
-    : project.slug === 'elders-trips' ? '/wiki/innovation/elders-trip'
-    : project.slug === 'local-server' ? '/wiki/innovation/local-server'
-    : '/innovation';
 
   return (
     <motion.div
@@ -197,26 +193,36 @@ function InnovationProjectCard({ project, index }: { project: InnovationProject;
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
     >
-      <Link href={href} className="group block">
-        <div className="bg-white rounded-2xl p-6 border border-gray-100 hover:border-picc-ochre-200 hover:shadow-lg transition-all duration-500 ease-elegant">
-          <div className="flex items-start justify-between mb-4">
-            <div className="w-10 h-10 bg-gradient-to-br from-picc-ochre-400 to-picc-red-400 rounded-xl flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${colors.bg} ${colors.text}`}>
-              {project.status}
-            </span>
-          </div>
-          <h3 className="text-lg font-bold text-gray-900 mb-2 tracking-tight group-hover:text-picc-ochre transition-colors">
-            {project.name}
-          </h3>
-          <p className="text-gray-500 text-sm leading-relaxed mb-4">{project.tagline}</p>
-          <div className="flex flex-wrap gap-1.5">
-            {project.impactAreas.map((area) => (
-              <span key={area} className="px-2 py-0.5 bg-gray-100 rounded-full text-xs text-gray-600 font-medium">
-                {area}
+      <Link href={`/innovation#${project.slug}`} className="group block">
+        <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-picc-ochre-200 hover:shadow-lg transition-all duration-500 ease-elegant">
+          {/* Cover image or gradient fallback */}
+          {project.coverImage ? (
+            <div className="aspect-[16/9] relative overflow-hidden">
+              <Image
+                src={project.coverImage}
+                alt={project.name}
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-700 ease-elegant"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+              <span className={`absolute top-3 right-3 inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${colors.bg} ${colors.text}`}>
+                {project.status}
               </span>
-            ))}
+            </div>
+          ) : (
+            <div className="aspect-[16/9] relative bg-gradient-to-br from-picc-ochre-400 to-picc-red-400 flex items-center justify-center">
+              <Sparkles className="w-10 h-10 text-white opacity-60" />
+              <span className={`absolute top-3 right-3 inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${colors.bg} ${colors.text}`}>
+                {project.status}
+              </span>
+            </div>
+          )}
+          <div className="p-5">
+            <h3 className="text-lg font-bold text-gray-900 mb-2 tracking-tight group-hover:text-picc-ochre transition-colors">
+              {project.name}
+            </h3>
+            <p className="text-gray-500 text-sm leading-relaxed">{project.tagline}</p>
           </div>
         </div>
       </Link>
@@ -224,13 +230,21 @@ function InnovationProjectCard({ project, index }: { project: InnovationProject;
   );
 }
 
+export type GalleryPhoto = {
+  id: string;
+  public_url: string;
+  title: string | null;
+  alt_text: string | null;
+};
+
 interface HomePageClientProps {
   services: HomeServiceData[];
   stats: HomeStats;
   innovationProjects: InnovationProject[];
+  galleryPhotos: GalleryPhoto[];
 }
 
-export default function HomePageClient({ services, stats, innovationProjects }: HomePageClientProps) {
+export default function HomePageClient({ services, stats, innovationProjects, galleryPhotos }: HomePageClientProps) {
   const { scrollY } = useScroll();
   const heroOpacity = useTransform(scrollY, [0, 600], [1, 0]);
   const heroScale = useTransform(scrollY, [0, 600], [1, 1.05]);
@@ -462,7 +476,7 @@ export default function HomePageClient({ services, stats, innovationProjects }: 
             className="mt-10 text-center"
           >
             <Link
-              href="/wiki/innovation"
+              href="/innovation"
               className="animated-underline inline-flex items-center gap-2 text-gray-900 font-semibold text-base hover:gap-3 transition-all duration-300 ease-elegant"
             >
               Explore All Innovation Projects
@@ -494,21 +508,15 @@ export default function HomePageClient({ services, stats, innovationProjects }: 
           </motion.div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-            <SmartImageGallery
-              pageContext="home"
-              pageSection="gallery"
-              limit={8}
-              renderItem={(media, index) => (
+            {galleryPhotos.length > 0 ? (
+              galleryPhotos.map((media, index) => (
                 <GalleryPhotoCard key={media.id} media={media} index={index} />
-              )}
-              renderEmpty={() => (
-                <>
-                  {Array.from({ length: 8 }).map((_, i) => (
-                    <div key={i} className="aspect-square rounded-2xl bg-gradient-to-br from-warm-50 to-warm-100" />
-                  ))}
-                </>
-              )}
-            />
+              ))
+            ) : (
+              Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="aspect-square rounded-2xl bg-gradient-to-br from-warm-50 to-warm-100" />
+              ))
+            )}
           </div>
 
           <motion.div
@@ -518,10 +526,10 @@ export default function HomePageClient({ services, stats, innovationProjects }: 
             className="mt-12 flex flex-wrap justify-center gap-6"
           >
             <Link
-              href="/annual-reports/gallery"
+              href="/stories"
               className="animated-underline inline-flex items-center gap-2 text-gray-900 font-semibold text-base hover:gap-3 transition-all duration-300 ease-elegant"
             >
-              Browse Photo Gallery
+              Browse Stories
               <ArrowRight className="w-4 h-4" />
             </Link>
           </motion.div>

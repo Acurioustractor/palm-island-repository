@@ -1,0 +1,911 @@
+{
+  "title": "Annual Report 2024-2025",
+  "year": 2025,
+  "year_range": "2024 - 2025",
+  "generated_at": "2026-02-13T17:25:21.398805",
+  "ceo": {
+    "name": "Rachel Atkinson",
+    "photo": "assets/photos/rachel-atkinson.jpg",
+    "message_lead": "[CEO message lead - to be added]",
+    "message_body": "[CEO message body - to be added]"
+  },
+  "chair": {
+    "name": "Luella Bligh",
+    "photo": "assets/photos/luella-bligh.jpg",
+    "message_lead": "[Chair message lead - to be added]",
+    "message_body": "[Chair message body - to be added]"
+  },
+  "acknowledgement_text": "The Palm Island Community Company acknowledges the Traditional Owners of Palm Island, the Manbarra people. We also acknowledge the many First Nations persons who were forcibly removed to Palm Island, and we recognise these persons and their descendants as the historical Bwgcolman people. We recognise the continued connection of the Manbarra and Bwgcolman peoples to the land and waters of this beautiful island. We pay respect to Manbarra and Bwgcolman Elders, their ancestors, all First Nations peoples, and our ancestors who walk in the Dreamtime.",
+  "governance_achievements": [
+    "PICC continues to have an average of over 80 per cent of its staff members identifying as Aboriginal, Torres Strait Islander or both.",
+    "The proportion of staff members living on Palm Island is still above 70 per cent.",
+    "PICC passed the Human Services Quality Framework audit with flying colours."
+  ],
+  "board_members": [
+    {
+      "name": "Emmakita Geia",
+      "role": "PI Community Nominee"
+    },
+    {
+      "name": "Georgina Haines",
+      "role": "PI Community Nominee"
+    },
+    {
+      "name": "Ian Jessup",
+      "role": "Company Secretary"
+    },
+    {
+      "name": "Jim Petrich",
+      "role": "Independent Chair"
+    },
+    {
+      "name": "Magdalena Blackley",
+      "role": "Director (PIASC nominee)"
+    },
+    {
+      "name": "Mark Johnston",
+      "role": "Director (Qld Govt nominee)"
+    },
+    {
+      "name": "Mark McCann",
+      "role": "Company Secretary"
+    },
+    {
+      "name": "Michael Gilmour",
+      "role": "Company Secretary"
+    },
+    {
+      "name": "Mislam Sam",
+      "role": "Director (PI Community nominee)"
+    },
+    {
+      "name": "Paul Travis",
+      "role": "Director (PIASC nominee)"
+    },
+    {
+      "name": "Rachel Atkinson",
+      "role": "General Manager"
+    },
+    {
+      "name": "Yolanda Coutts",
+      "role": "Alternate Director"
+    },
+    {
+      "name": "Zacchais Sam",
+      "role": "PI Community Nominee"
+    },
+    {
+      "name": "Luella Bligh",
+      "role": "Chair"
+    },
+    {
+      "name": "Rhonda Phillips",
+      "role": "Director"
+    },
+    {
+      "name": "Allan Palm Island",
+      "role": "Director"
+    },
+    {
+      "name": "Matthew Lindsay",
+      "role": "Company Secretary"
+    },
+    {
+      "name": "Harriet Hulthen",
+      "role": "Director"
+    },
+    {
+      "name": "Raymond W. Palmer Snr",
+      "role": "Director"
+    },
+    {
+      "name": "Cassie Lang",
+      "role": "Director"
+    }
+  ],
+  "services": [
+    "Bwgcolman Healing Service",
+    "Community Justice Group",
+    "Digital Service Centre",
+    "Diversionary Service",
+    "Early Childhood Services (CFC)",
+    "Family Care Service",
+    "Family Participation Program",
+    "Family Wellbeing Centre",
+    "NDIS Service",
+    "Safe Haven",
+    "Safe House",
+    "Social and Emotional Wellbeing Service",
+    "Specialist Domestic and Family Violence Service",
+    "Women's Healing Service",
+    "Women's Service",
+    "Youth Service"
+  ],
+  "services_detailed": [
+    {
+      "name": "Bwgcolman Healing Service",
+      "service_category": "health"
+    },
+    {
+      "name": "Community Justice Group",
+      "service_category": "justice"
+    },
+    {
+      "name": "Digital Service Centre",
+      "service_category": "community"
+    },
+    {
+      "name": "Diversionary Service",
+      "service_category": "justice"
+    },
+    {
+      "name": "Early Childhood Services (CFC)",
+      "service_category": "family"
+    },
+    {
+      "name": "Family Care Service",
+      "service_category": "family"
+    },
+    {
+      "name": "Family Participation Program",
+      "service_category": "family"
+    },
+    {
+      "name": "Family Wellbeing Centre",
+      "service_category": "family"
+    },
+    {
+      "name": "NDIS Service",
+      "service_category": "disability"
+    },
+    {
+      "name": "Safe Haven",
+      "service_category": "crisis"
+    },
+    {
+      "name": "Safe House",
+      "service_category": "crisis"
+    },
+    {
+      "name": "Social and Emotional Wellbeing Service",
+      "service_category": "health"
+    },
+    {
+      "name": "Specialist Domestic and Family Violence Service",
+      "service_category": "crisis"
+    },
+    {
+      "name": "Women's Healing Service",
+      "service_category": "health"
+    },
+    {
+      "name": "Women's Service",
+      "service_category": "family"
+    },
+    {
+      "name": "Youth Service",
+      "service_category": "youth"
+    }
+  ],
+  "staff_data": {
+    "years": [
+      "30 June 2025",
+      "30 June 2024",
+      "30 June 2023"
+    ],
+    "counts": [
+      210,
+      197,
+      151
+    ],
+    "indigenous_percent": 80.0,
+    "resident_percent": 70.0
+  },
+  "stories": [],
+  "data_cards": [],
+  "financials": {
+    "balance_sheet": [
+      {
+        "label": "Current Assets",
+        "current": 8500000.0,
+        "previous": 8156480.0,
+        "class": ""
+      },
+      {
+        "label": "Non Current Assets",
+        "current": 2400000.0,
+        "previous": 2702284.0,
+        "class": ""
+      },
+      {
+        "label": "TOTAL Assets",
+        "current": 10900000.0,
+        "previous": 10858764.0,
+        "class": "total"
+      },
+      {
+        "label": "Current Liabilities",
+        "current": 6300000.0,
+        "previous": 5969264.0,
+        "class": ""
+      },
+      {
+        "label": "Non Current Liabilities",
+        "current": 1100000.0,
+        "previous": 1351259.0,
+        "class": ""
+      },
+      {
+        "label": "TOTAL Liabilities",
+        "current": 7400000.0,
+        "previous": 7320523.0,
+        "class": "total"
+      },
+      {
+        "label": "NET ASSETS",
+        "current": 3500000.0,
+        "previous": 3538241.0,
+        "class": "total"
+      }
+    ],
+    "income_expenditure": [
+      {
+        "label": "INCOME",
+        "current": 23400000.0,
+        "previous": 23400335.0,
+        "class": ""
+      },
+      {
+        "label": "Total Labour Costs",
+        "current": 14700000.0,
+        "previous": 14282962.0,
+        "class": ""
+      },
+      {
+        "label": "Administration Expenses",
+        "current": 3300000.0,
+        "previous": 3300000.0,
+        "class": ""
+      },
+      {
+        "label": "Property & Energy Expenses",
+        "current": 1200000.0,
+        "previous": 1200000.0,
+        "class": ""
+      },
+      {
+        "label": "Motor Vehicle Expenses",
+        "current": 700000.0,
+        "previous": 700000.0,
+        "class": ""
+      },
+      {
+        "label": "Travel & Training Expenses",
+        "current": 1600000.0,
+        "previous": 1600000.0,
+        "class": ""
+      },
+      {
+        "label": "Client Related Costs",
+        "current": 2200000.0,
+        "previous": 2200000.0,
+        "class": ""
+      },
+      {
+        "label": "Total Expenditure",
+        "current": 23700000.0,
+        "previous": 23282962.0,
+        "class": "total"
+      },
+      {
+        "label": "NET SURPLUS (DEFICIT)",
+        "current": -300000.0,
+        "previous": 117373.0,
+        "class": "total"
+      }
+    ],
+    "expenditure_breakdown": [
+      {
+        "label": "Total Labour Costs",
+        "percent": 62,
+        "color": "#2563eb",
+        "offset": 0
+      },
+      {
+        "label": "Administration Expenses",
+        "percent": 14,
+        "color": "#9333ea",
+        "offset": 273
+      },
+      {
+        "label": "Property & Energy Expenses",
+        "percent": 5,
+        "color": "#16a34a",
+        "offset": 335
+      },
+      {
+        "label": "Motor Vehicle Expenses",
+        "percent": 3,
+        "color": "#d97706",
+        "offset": 357
+      },
+      {
+        "label": "Travel & Training Expenses",
+        "percent": 7,
+        "color": "#0f766e",
+        "offset": 370
+      },
+      {
+        "label": "Client Related Costs",
+        "percent": 9,
+        "color": "#ea580c",
+        "offset": 401
+      }
+    ],
+    "audited": true,
+    "auditor_name": null,
+    "total_expenditure": 23700000.0,
+    "total_income": 23400000.0
+  },
+  "partners": [
+    "Queensland Government Department of Child Safety",
+    "Queensland Health",
+    "Commonwealth Department of Health and Aged Care",
+    "National Indigenous Australians Agency (NIAA)",
+    "Department of Social Services",
+    "National Disability Insurance Agency (NDIA)",
+    "Telstra",
+    "Townsville University Hospital",
+    "James Cook University",
+    "Mater Hospital",
+    "Royal Flying Doctor Service",
+    "CheckUP Queensland",
+    "North Queensland Primary Health Network",
+    "TAFE Queensland",
+    "Palm Island Aboriginal Shire Council",
+    "Bwgcolman Community School",
+    "SNAICC",
+    "QATSICPP",
+    "Act for Kids",
+    "Relationships Australia",
+    "Anglicare",
+    "Lives Lived Well",
+    "Fred Hollows Foundation"
+  ],
+  "partners_detailed": [
+    {
+      "id": "fb148607-b79b-4a1f-a026-070dd3e26c55",
+      "organization_id": "3c2011b9-f80d-4289-b300-0cd383cff479",
+      "name": "Queensland Government Department of Child Safety",
+      "short_name": null,
+      "partner_type": "government",
+      "partnership_start_date": null,
+      "partnership_end_date": null,
+      "logo_url": null,
+      "website_url": null,
+      "description": null,
+      "display_order": 1,
+      "show_in_annual_report": true,
+      "created_at": "2026-01-29T21:02:25.894656+00:00",
+      "updated_at": "2026-01-29T21:02:25.894656+00:00"
+    },
+    {
+      "id": "1ddd971d-9fc0-4465-b184-6bbe20470b90",
+      "organization_id": "3c2011b9-f80d-4289-b300-0cd383cff479",
+      "name": "Queensland Health",
+      "short_name": null,
+      "partner_type": "government",
+      "partnership_start_date": null,
+      "partnership_end_date": null,
+      "logo_url": null,
+      "website_url": null,
+      "description": null,
+      "display_order": 2,
+      "show_in_annual_report": true,
+      "created_at": "2026-01-29T21:02:25.894656+00:00",
+      "updated_at": "2026-01-29T21:02:25.894656+00:00"
+    },
+    {
+      "id": "850d2b12-6f76-4581-997b-de935d6b1bc8",
+      "organization_id": "3c2011b9-f80d-4289-b300-0cd383cff479",
+      "name": "Commonwealth Department of Health and Aged Care",
+      "short_name": null,
+      "partner_type": "government",
+      "partnership_start_date": null,
+      "partnership_end_date": null,
+      "logo_url": null,
+      "website_url": null,
+      "description": null,
+      "display_order": 3,
+      "show_in_annual_report": true,
+      "created_at": "2026-01-29T21:02:25.894656+00:00",
+      "updated_at": "2026-01-29T21:02:25.894656+00:00"
+    },
+    {
+      "id": "a82c3970-93d8-492d-bd67-4331255f6f66",
+      "organization_id": "3c2011b9-f80d-4289-b300-0cd383cff479",
+      "name": "National Indigenous Australians Agency (NIAA)",
+      "short_name": null,
+      "partner_type": "government",
+      "partnership_start_date": null,
+      "partnership_end_date": null,
+      "logo_url": null,
+      "website_url": null,
+      "description": null,
+      "display_order": 4,
+      "show_in_annual_report": true,
+      "created_at": "2026-01-29T21:02:25.894656+00:00",
+      "updated_at": "2026-01-29T21:02:25.894656+00:00"
+    },
+    {
+      "id": "41ad5e3c-3f09-4caf-80dd-adf57361eb82",
+      "organization_id": "3c2011b9-f80d-4289-b300-0cd383cff479",
+      "name": "Department of Social Services",
+      "short_name": null,
+      "partner_type": "government",
+      "partnership_start_date": null,
+      "partnership_end_date": null,
+      "logo_url": null,
+      "website_url": null,
+      "description": null,
+      "display_order": 5,
+      "show_in_annual_report": true,
+      "created_at": "2026-01-29T21:02:25.894656+00:00",
+      "updated_at": "2026-01-29T21:02:25.894656+00:00"
+    },
+    {
+      "id": "8fa0b6a1-592d-49bd-bef2-269561d28d0d",
+      "organization_id": "3c2011b9-f80d-4289-b300-0cd383cff479",
+      "name": "National Disability Insurance Agency (NDIA)",
+      "short_name": null,
+      "partner_type": "government",
+      "partnership_start_date": null,
+      "partnership_end_date": null,
+      "logo_url": null,
+      "website_url": null,
+      "description": null,
+      "display_order": 6,
+      "show_in_annual_report": true,
+      "created_at": "2026-01-29T21:02:25.894656+00:00",
+      "updated_at": "2026-01-29T21:02:25.894656+00:00"
+    },
+    {
+      "id": "4c3cabc1-09d8-4ec4-b687-e95b39f728cf",
+      "organization_id": "3c2011b9-f80d-4289-b300-0cd383cff479",
+      "name": "Telstra",
+      "short_name": null,
+      "partner_type": "corporate",
+      "partnership_start_date": null,
+      "partnership_end_date": null,
+      "logo_url": null,
+      "website_url": null,
+      "description": null,
+      "display_order": 7,
+      "show_in_annual_report": true,
+      "created_at": "2026-01-29T21:02:25.894656+00:00",
+      "updated_at": "2026-01-29T21:02:25.894656+00:00"
+    },
+    {
+      "id": "72b2ea26-5774-4042-ae21-474f55a92279",
+      "organization_id": "3c2011b9-f80d-4289-b300-0cd383cff479",
+      "name": "Townsville University Hospital",
+      "short_name": null,
+      "partner_type": "health",
+      "partnership_start_date": null,
+      "partnership_end_date": null,
+      "logo_url": null,
+      "website_url": null,
+      "description": null,
+      "display_order": 8,
+      "show_in_annual_report": true,
+      "created_at": "2026-01-29T21:02:25.894656+00:00",
+      "updated_at": "2026-01-29T21:02:25.894656+00:00"
+    },
+    {
+      "id": "d64838ef-ed57-4ea3-820a-09cb609babc3",
+      "organization_id": "3c2011b9-f80d-4289-b300-0cd383cff479",
+      "name": "James Cook University",
+      "short_name": null,
+      "partner_type": "education",
+      "partnership_start_date": null,
+      "partnership_end_date": null,
+      "logo_url": null,
+      "website_url": null,
+      "description": null,
+      "display_order": 9,
+      "show_in_annual_report": true,
+      "created_at": "2026-01-29T21:02:25.894656+00:00",
+      "updated_at": "2026-01-29T21:02:25.894656+00:00"
+    },
+    {
+      "id": "b607196e-eb52-47a0-b46d-bede8d289326",
+      "organization_id": "3c2011b9-f80d-4289-b300-0cd383cff479",
+      "name": "Mater Hospital",
+      "short_name": null,
+      "partner_type": "health",
+      "partnership_start_date": null,
+      "partnership_end_date": null,
+      "logo_url": null,
+      "website_url": null,
+      "description": null,
+      "display_order": 10,
+      "show_in_annual_report": true,
+      "created_at": "2026-01-29T21:02:25.894656+00:00",
+      "updated_at": "2026-01-29T21:02:25.894656+00:00"
+    },
+    {
+      "id": "0dbe79a1-780c-4c19-b205-634a151b721f",
+      "organization_id": "3c2011b9-f80d-4289-b300-0cd383cff479",
+      "name": "Royal Flying Doctor Service",
+      "short_name": null,
+      "partner_type": "health",
+      "partnership_start_date": null,
+      "partnership_end_date": null,
+      "logo_url": null,
+      "website_url": null,
+      "description": null,
+      "display_order": 11,
+      "show_in_annual_report": true,
+      "created_at": "2026-01-29T21:02:25.894656+00:00",
+      "updated_at": "2026-01-29T21:02:25.894656+00:00"
+    },
+    {
+      "id": "1258442f-d153-4d1c-a1dd-3933b78778f8",
+      "organization_id": "3c2011b9-f80d-4289-b300-0cd383cff479",
+      "name": "CheckUP Queensland",
+      "short_name": null,
+      "partner_type": "health",
+      "partnership_start_date": null,
+      "partnership_end_date": null,
+      "logo_url": null,
+      "website_url": null,
+      "description": null,
+      "display_order": 12,
+      "show_in_annual_report": true,
+      "created_at": "2026-01-29T21:02:25.894656+00:00",
+      "updated_at": "2026-01-29T21:02:25.894656+00:00"
+    },
+    {
+      "id": "b36f3400-df52-48d1-8708-6d12e9ad15aa",
+      "organization_id": "3c2011b9-f80d-4289-b300-0cd383cff479",
+      "name": "North Queensland Primary Health Network",
+      "short_name": null,
+      "partner_type": "health",
+      "partnership_start_date": null,
+      "partnership_end_date": null,
+      "logo_url": null,
+      "website_url": null,
+      "description": null,
+      "display_order": 13,
+      "show_in_annual_report": true,
+      "created_at": "2026-01-29T21:02:25.894656+00:00",
+      "updated_at": "2026-01-29T21:02:25.894656+00:00"
+    },
+    {
+      "id": "ee576726-e364-46d8-bb52-d7737b97f103",
+      "organization_id": "3c2011b9-f80d-4289-b300-0cd383cff479",
+      "name": "TAFE Queensland",
+      "short_name": null,
+      "partner_type": "education",
+      "partnership_start_date": null,
+      "partnership_end_date": null,
+      "logo_url": null,
+      "website_url": null,
+      "description": null,
+      "display_order": 14,
+      "show_in_annual_report": true,
+      "created_at": "2026-01-29T21:02:25.894656+00:00",
+      "updated_at": "2026-01-29T21:02:25.894656+00:00"
+    },
+    {
+      "id": "6f859a8d-3ec2-4271-afb6-a319d943cc74",
+      "organization_id": "3c2011b9-f80d-4289-b300-0cd383cff479",
+      "name": "Palm Island Aboriginal Shire Council",
+      "short_name": null,
+      "partner_type": "government",
+      "partnership_start_date": null,
+      "partnership_end_date": null,
+      "logo_url": null,
+      "website_url": null,
+      "description": null,
+      "display_order": 15,
+      "show_in_annual_report": true,
+      "created_at": "2026-01-29T21:02:25.894656+00:00",
+      "updated_at": "2026-01-29T21:02:25.894656+00:00"
+    },
+    {
+      "id": "8dcaff37-5995-4ce6-a4e6-6de410f7f408",
+      "organization_id": "3c2011b9-f80d-4289-b300-0cd383cff479",
+      "name": "Bwgcolman Community School",
+      "short_name": null,
+      "partner_type": "education",
+      "partnership_start_date": null,
+      "partnership_end_date": null,
+      "logo_url": null,
+      "website_url": null,
+      "description": null,
+      "display_order": 16,
+      "show_in_annual_report": true,
+      "created_at": "2026-01-29T21:02:25.894656+00:00",
+      "updated_at": "2026-01-29T21:02:25.894656+00:00"
+    },
+    {
+      "id": "cc807986-12ea-479d-a01b-087bb6572006",
+      "organization_id": "3c2011b9-f80d-4289-b300-0cd383cff479",
+      "name": "SNAICC",
+      "short_name": null,
+      "partner_type": "peak_body",
+      "partnership_start_date": null,
+      "partnership_end_date": null,
+      "logo_url": null,
+      "website_url": null,
+      "description": null,
+      "display_order": 17,
+      "show_in_annual_report": true,
+      "created_at": "2026-01-29T21:02:25.894656+00:00",
+      "updated_at": "2026-01-29T21:02:25.894656+00:00"
+    },
+    {
+      "id": "0c6d26c4-0458-4ec3-b32b-3350468e05b2",
+      "organization_id": "3c2011b9-f80d-4289-b300-0cd383cff479",
+      "name": "QATSICPP",
+      "short_name": null,
+      "partner_type": "peak_body",
+      "partnership_start_date": null,
+      "partnership_end_date": null,
+      "logo_url": null,
+      "website_url": null,
+      "description": null,
+      "display_order": 18,
+      "show_in_annual_report": true,
+      "created_at": "2026-01-29T21:02:25.894656+00:00",
+      "updated_at": "2026-01-29T21:02:25.894656+00:00"
+    },
+    {
+      "id": "7a08d2b8-05f6-4ae9-93b3-97bbc3e73bd2",
+      "organization_id": "3c2011b9-f80d-4289-b300-0cd383cff479",
+      "name": "Act for Kids",
+      "short_name": null,
+      "partner_type": "community",
+      "partnership_start_date": null,
+      "partnership_end_date": null,
+      "logo_url": null,
+      "website_url": null,
+      "description": null,
+      "display_order": 19,
+      "show_in_annual_report": true,
+      "created_at": "2026-01-29T21:02:25.894656+00:00",
+      "updated_at": "2026-01-29T21:02:25.894656+00:00"
+    },
+    {
+      "id": "c846dce0-fb8d-47dc-ab6a-6fe5a443ddd4",
+      "organization_id": "3c2011b9-f80d-4289-b300-0cd383cff479",
+      "name": "Relationships Australia",
+      "short_name": null,
+      "partner_type": "community",
+      "partnership_start_date": null,
+      "partnership_end_date": null,
+      "logo_url": null,
+      "website_url": null,
+      "description": null,
+      "display_order": 20,
+      "show_in_annual_report": true,
+      "created_at": "2026-01-29T21:02:25.894656+00:00",
+      "updated_at": "2026-01-29T21:02:25.894656+00:00"
+    },
+    {
+      "id": "c61d4c66-238f-4cf5-970c-0a7475bc4855",
+      "organization_id": "3c2011b9-f80d-4289-b300-0cd383cff479",
+      "name": "Anglicare",
+      "short_name": null,
+      "partner_type": "community",
+      "partnership_start_date": null,
+      "partnership_end_date": null,
+      "logo_url": null,
+      "website_url": null,
+      "description": null,
+      "display_order": 21,
+      "show_in_annual_report": true,
+      "created_at": "2026-01-29T21:02:25.894656+00:00",
+      "updated_at": "2026-01-29T21:02:25.894656+00:00"
+    },
+    {
+      "id": "db1039f8-647f-40ec-a674-913731b469d6",
+      "organization_id": "3c2011b9-f80d-4289-b300-0cd383cff479",
+      "name": "Lives Lived Well",
+      "short_name": null,
+      "partner_type": "community",
+      "partnership_start_date": null,
+      "partnership_end_date": null,
+      "logo_url": null,
+      "website_url": null,
+      "description": null,
+      "display_order": 22,
+      "show_in_annual_report": true,
+      "created_at": "2026-01-29T21:02:25.894656+00:00",
+      "updated_at": "2026-01-29T21:02:25.894656+00:00"
+    },
+    {
+      "id": "9abc4ac6-ad73-460b-b75c-448ea7842b13",
+      "organization_id": "3c2011b9-f80d-4289-b300-0cd383cff479",
+      "name": "Fred Hollows Foundation",
+      "short_name": null,
+      "partner_type": "health",
+      "partnership_start_date": null,
+      "partnership_end_date": null,
+      "logo_url": null,
+      "website_url": null,
+      "description": null,
+      "display_order": 23,
+      "show_in_annual_report": true,
+      "created_at": "2026-01-29T21:02:25.894656+00:00",
+      "updated_at": "2026-01-29T21:02:25.894656+00:00"
+    }
+  ],
+  "partners_photo": "assets/photos/team.jpg",
+  "contact": {
+    "address_line1": "61-73 Sturt Street",
+    "address_line2": "Townsville QLD 4810",
+    "address_line3": "PO Box 1415",
+    "country": "Australia",
+    "phone": "07 4421 4300",
+    "website": "www.picc.com.au",
+    "acn": "640 793 728"
+  },
+  "mission_statement": "The Palm Island Community Company is deeply committed to the principles of community control and self-determination. We uphold the spirit of community control by consistently adhering to these principles, ensuring that our actions reflect our dedication to empowering Palm Islanders.",
+  "cover_image": "assets/photos/palm-island-beach.jpg",
+  "highlights": [
+    {
+      "id": "6f04dd45-1796-49c2-b3a8-b27a77f4b1cf",
+      "title": "Staff Growth to 197 Employees",
+      "subtitle": null,
+      "description": "Staff increased 30% to 197 employees, with over 70% being Palm Islanders",
+      "impact_achieved": "197 staff, 70%+ Palm Islanders",
+      "highlight_type": "milestone",
+      "is_featured": true,
+      "display_order": 1,
+      "display_style": "standard",
+      "metrics": null
+    },
+    {
+      "id": "f227f630-c675-4990-a474-f347dc83d659",
+      "title": "Delegated Authority Implementation",
+      "subtitle": null,
+      "description": "Community now decides care arrangements for children - a decades-long goal achieved under the Child Protection Act",
+      "impact_achieved": "Full community control over child protection decisions",
+      "highlight_type": "achievement",
+      "is_featured": true,
+      "display_order": 2,
+      "display_style": "standard",
+      "metrics": null
+    },
+    {
+      "id": "ee050478-e62f-4477-b9ee-ea74e4e00e12",
+      "title": "First 1,000 Days Program Launch",
+      "subtitle": null,
+      "description": "New maternal and child health program ensuring Indigenous families get timely care during the crucial first 1,000 days",
+      "impact_achieved": "New program serving families from pregnancy to age 2",
+      "highlight_type": "innovation",
+      "is_featured": true,
+      "display_order": 3,
+      "display_style": "standard",
+      "metrics": null
+    },
+    {
+      "id": "43f3df62-b5ea-4349-b621-8c7ac1bbbecf",
+      "title": "Health Services Expansion",
+      "subtitle": null,
+      "description": "Bwgcolman Healing Service delivered comprehensive healthcare to 2,283 clients with 17,488 episodes of care",
+      "impact_achieved": "2,283 clients, 17,488 episodes of care",
+      "highlight_type": "achievement",
+      "is_featured": false,
+      "display_order": 4,
+      "display_style": "standard",
+      "metrics": null
+    },
+    {
+      "id": "f712c8fb-099b-4481-a10b-719eb5ee8388",
+      "title": "Safe Haven Children Support",
+      "subtitle": null,
+      "description": "Supported 1,187 children through the Safe Haven service, providing safe spaces and support",
+      "impact_achieved": "1,187 children supported",
+      "highlight_type": "community_impact",
+      "is_featured": false,
+      "display_order": 5,
+      "display_style": "standard",
+      "metrics": null
+    },
+    {
+      "id": "f57beccb-163e-4a8c-b669-3fdee9866ba8",
+      "title": "RACGP Accreditation Renewed",
+      "subtitle": null,
+      "description": "Renewed RACGP Quality Practice Accreditation, valid until 2027",
+      "impact_achieved": "Accreditation renewed to 2027",
+      "highlight_type": "milestone",
+      "is_featured": false,
+      "display_order": 6,
+      "display_style": "standard",
+      "metrics": null
+    },
+    {
+      "id": "0a3b4639-0ca0-4f52-8f0b-d9199a9efc64",
+      "title": "Digital Service Centre Growth",
+      "subtitle": null,
+      "description": "Telstra Digital Service Centre supporting 50 languages with 21 staff members",
+      "impact_achieved": "50 languages supported, 21 staff",
+      "highlight_type": "innovation",
+      "is_featured": false,
+      "display_order": 7,
+      "display_style": "standard",
+      "metrics": null
+    },
+    {
+      "id": "eb9c0a4e-e329-444e-8f4e-70335d71f5b2",
+      "title": "Revenue of $23.4 Million",
+      "subtitle": null,
+      "description": "Revenue of $23.4 million supporting 16 services across health, family support, justice, disability, and economic development",
+      "impact_achieved": "$23.4M revenue, 16 services delivered",
+      "highlight_type": "milestone",
+      "is_featured": false,
+      "display_order": 8,
+      "display_style": "standard",
+      "metrics": null
+    }
+  ],
+  "innovation_projects": [
+    {
+      "name": "Palm Island Photo Studio",
+      "description": "A professional photography studio on Palm Island enabling community members to document their stories, culture, and achievements without leaving Country. Provides professional equipment, training, and support for visual storytelling.",
+      "status": "in_progress",
+      "why_text": "A professional photography studio on Palm Island enabling community members to document their stories, culture, and achievements without leaving Country. Provides professional equipment, training, and support for visual storytelling.",
+      "quote": null,
+      "milestones": [],
+      "story_slug": ""
+    },
+    {
+      "name": "The Station",
+      "description": "A multi-purpose community facility serving as a gathering space, cultural center, and service delivery point. The Station brings services to the community in a welcoming, culturally safe environment.",
+      "status": "planning",
+      "why_text": "A multi-purpose community facility serving as a gathering space, cultural center, and service delivery point. The Station brings services to the community in a welcoming, culturally safe environment.",
+      "quote": null,
+      "milestones": [],
+      "story_slug": ""
+    },
+    {
+      "name": "On-Country Server",
+      "description": "Local server infrastructure hosted on Palm Island, ensuring data sovereignty and reducing dependence on external cloud services. Stores stories, media, and community data locally.",
+      "status": "in_progress",
+      "why_text": "Local server infrastructure hosted on Palm Island, ensuring data sovereignty and reducing dependence on external cloud services. Stores stories, media, and community data locally.",
+      "quote": null,
+      "milestones": [],
+      "story_slug": ""
+    },
+    {
+      "name": "Annual Report System",
+      "description": "System to generate annual impact reports directly from community stories and data, eliminating need for external consultants. Saves $40k-115k annually while maintaining community control.",
+      "status": "planning",
+      "why_text": "System to generate annual impact reports directly from community stories and data, eliminating need for external consultants. Saves $40k-115k annually while maintaining community control.",
+      "quote": null,
+      "milestones": [],
+      "story_slug": ""
+    },
+    {
+      "name": "Elders Cultural Trips",
+      "description": "Regular trips taking elders back to traditional sites and Country. Combines cultural preservation, intergenerational knowledge transfer, and elder wellbeing. Stories and knowledge captured during trips.",
+      "status": "completed",
+      "why_text": "Regular trips taking elders back to traditional sites and Country. Combines cultural preservation, intergenerational knowledge transfer, and elder wellbeing. Stories and knowledge captured during trips.",
+      "quote": null,
+      "milestones": [],
+      "story_slug": ""
+    }
+  ],
+  "innovation_quote": null,
+  "stats": {
+    "staff_count": 210,
+    "services_count": 16,
+    "indigenous_staff_pct": 80.0,
+    "years_operating": 31,
+    "total_income": "23,400,000",
+    "community_controlled_since": "1994"
+  }
+}

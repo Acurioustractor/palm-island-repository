@@ -5,6 +5,7 @@ import MilestoneTimeline, { Milestone } from '@/components/road-to-20-years/Mile
 import VisionSection from '@/components/road-to-20-years/VisionSection';
 import { SERVICES } from '@/lib/stats/current-stats';
 import { getLiveStats } from '@/lib/stats/get-live-stats';
+import { getCuratedQuotes } from '@/lib/quotes/get-curated-quotes';
 import VideoHero from '@/components/video/VideoHero';
 
 export const metadata: Metadata = {
@@ -80,12 +81,12 @@ const INNOVATION_SPOTLIGHTS = [
   {
     title: 'Elders Cultural Trips',
     description: 'Reconnecting Elders with Country through cultural trips that strengthen identity, share knowledge across generations, and honour traditional connections.',
-    color: 'from-picc-ochre to-orange-600',
+    color: 'from-picc-ochre to-picc-red',
   },
   {
     title: 'Delegated Authority',
     description: 'A nationally-recognised model putting community in control of child protection decisions — designed on Palm Island, now inspiring others.',
-    color: 'from-sage-600 to-picc-ochre',
+    color: 'from-picc-earth to-picc-ochre',
   },
   {
     title: 'First 1,000 Days',
@@ -95,7 +96,10 @@ const INNOVATION_SPOTLIGHTS = [
 ];
 
 export default async function RoadTo20YearsPage() {
-  const stats = await getLiveStats();
+  const [stats, communityQuotes] = await Promise.all([
+    getLiveStats(),
+    getCuratedQuotes({ limit: 3 }),
+  ]);
 
   const MILESTONES = buildMilestones(stats.staff.total, stats.services.total, stats.financials.incomeDisplay);
 
@@ -238,37 +242,32 @@ export default async function RoadTo20YearsPage() {
         </div>
       </section>
 
-      {/* Community Voices */}
-      <section className="py-20 px-4 bg-gradient-to-br from-picc-earth-600 to-gray-900 text-white">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">Community Voices</h2>
-            <p className="text-xl text-warm-200">
-              What Palm Islanders say about their community company
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
-              <p className="text-white/90 italic mb-4 leading-relaxed">
-                &ldquo;For the first time, we&apos;re making decisions about our own community. That&apos;s what self-determination looks like.&rdquo;
+      {/* Community Voices — only shown when real quotes exist */}
+      {communityQuotes.length > 0 && (
+        <section className="py-20 px-4 bg-gradient-to-br from-picc-earth-600 to-gray-900 text-white">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold mb-4">Community Voices</h2>
+              <p className="text-xl text-warm-200">
+                What Palm Islanders say about their community company
               </p>
-              <p className="text-picc-ochre-300 text-sm font-semibold">— Community Elder</p>
             </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
-              <p className="text-white/90 italic mb-4 leading-relaxed">
-                &ldquo;PICC brought healing services that understand our culture. They don&apos;t just treat the body — they heal the spirit.&rdquo;
-              </p>
-              <p className="text-picc-ochre-300 text-sm font-semibold">— Health Service Client</p>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
-              <p className="text-white/90 italic mb-4 leading-relaxed">
-                &ldquo;Working at PICC means working for my own people. Every day I know I&apos;m making a difference for Palm Island families.&rdquo;
-              </p>
-              <p className="text-picc-ochre-300 text-sm font-semibold">— PICC Staff Member</p>
+            <div className={`grid grid-cols-1 gap-6 ${communityQuotes.length === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3'}`}>
+              {communityQuotes.map((q) => (
+                <div key={q.id} className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+                  <p className="text-white/90 italic mb-4 leading-relaxed">
+                    &ldquo;{q.quote}&rdquo;
+                  </p>
+                  <p className="text-picc-ochre-300 text-sm font-semibold">
+                    — {q.speaker_name || q.speaker_role || 'Community Member'}
+                    {q.speaker_name && q.speaker_role ? `, ${q.speaker_role}` : ''}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* CTA */}
       <section className="py-16 px-4 bg-white">
@@ -277,14 +276,14 @@ export default async function RoadTo20YearsPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/share-voice"
-              className="inline-flex items-center gap-2 px-8 py-3 bg-picc-ochre text-white rounded-xl hover:bg-picc-ochre transition-colors font-semibold"
+              className="inline-flex items-center gap-2 px-8 py-3 bg-picc-ochre text-white rounded-full hover:bg-picc-ochre/90 transition-colors font-semibold"
             >
               Share Your Story
               <ArrowRight className="w-5 h-5" />
             </Link>
             <Link
               href="/annual-report/live"
-              className="inline-flex items-center gap-2 px-8 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:border-picc-ochre-300 hover:text-picc-ochre transition-colors font-semibold"
+              className="inline-flex items-center gap-2 px-8 py-3 border-2 border-gray-300 text-gray-700 rounded-full hover:border-picc-ochre-300 hover:text-picc-ochre transition-colors font-semibold"
             >
               View Annual Report
               <ArrowRight className="w-5 h-5" />

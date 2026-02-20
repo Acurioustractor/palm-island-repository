@@ -113,3 +113,4 @@ debug/
 # Claude Code caches
 .claude/cache/
 .claude/tsc-cache/
+.mcp.json

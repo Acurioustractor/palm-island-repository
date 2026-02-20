@@ -10,6 +10,8 @@ import {
   ImageGallery,
   VideoSection,
 } from '@/components/story-scroll';
+import { BespokeIcon } from '@/components/ui/BespokeIcon';
+import { getServiceIcon } from '@/lib/services/service-icons';
 
 interface ServiceData {
   id: string;
@@ -56,12 +58,23 @@ interface MediaItem {
   file_type: string;
 }
 
+interface VideoItem {
+  id: string;
+  public_url: string;
+  title: string | null;
+  caption: string | null;
+  alt_text: string | null;
+  file_type: string;
+}
+
 interface Props {
   service: ServiceData;
   metrics: ServiceMetric[];
   stories: StoryItem[];
   media: MediaItem[];
   heroImage: string | null;
+  heroVideo: string | null;
+  videos: VideoItem[];
   videoUrl: string | null;
 }
 
@@ -71,6 +84,8 @@ export function ServiceStoryPage({
   stories,
   media,
   heroImage,
+  heroVideo,
+  videos,
   videoUrl,
 }: Props) {
   const latestMetrics = metrics[0] || null;
@@ -83,18 +98,19 @@ export function ServiceStoryPage({
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero */}
+      {/* Hero — prefer video background when available */}
       <HeroSection
         title={service.name}
         subtitle={statBadge || service.service_category?.replace(/_/g, ' ') || 'PICC Service'}
         backgroundImage={heroImage || undefined}
+        backgroundVideo={heroVideo || undefined}
         height="tall"
         overlay="dark"
         textPosition="center"
       />
 
-      {/* Back nav */}
-      <div className="max-w-7xl mx-auto px-6 py-4">
+      {/* Back nav + service badge */}
+      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         <Link
           href="/services"
           className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 text-sm font-medium"
@@ -102,6 +118,17 @@ export function ServiceStoryPage({
           <ArrowLeft className="w-4 h-4" />
           All Services
         </Link>
+        <div className="inline-flex items-center gap-2 text-sm text-gray-500">
+          <div
+            className="w-8 h-8 rounded-full flex items-center justify-center"
+            style={{ backgroundColor: service.service_color || '#C8922A' }}
+          >
+            <BespokeIcon name={getServiceIcon(service.slug)} size={18} darkMode />
+          </div>
+          <span className="font-medium text-gray-700 capitalize">
+            {service.service_category?.replace(/_/g, ' ') || 'Service'}
+          </span>
+        </div>
       </div>
 
       {/* About Section */}
@@ -186,18 +213,41 @@ export function ServiceStoryPage({
                 caption: img.caption || img.title || img.alt_text || '',
                 alt: img.alt_text || img.title || 'Service photo',
               }))}
-              columns={4}
+              columns={images.length <= 4 ? 2 : images.length <= 9 ? 3 : 4}
             />
           </div>
         </section>
       )}
 
-      {/* Video */}
-      {videoUrl && (
-        <VideoSection
-          videoUrl={videoUrl}
-          title={`${service.name} — Video`}
-        />
+      {/* Videos — show all available, not just one */}
+      {videos.length > 0 && (
+        <section className="py-16 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-6">
+            {videos.length === 1 ? (
+              <VideoSection
+                videoUrl={videos[0].public_url}
+                title={videos[0].title || `${service.name} — Video`}
+                caption={videos[0].caption || undefined}
+              />
+            ) : (
+              <>
+                <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+                  Videos
+                </h2>
+                <div className="space-y-12">
+                  {videos.map((video) => (
+                    <VideoSection
+                      key={video.id}
+                      videoUrl={video.public_url}
+                      title={video.title || `${service.name} — Video`}
+                      caption={video.caption || undefined}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </section>
       )}
 
       {/* Related Stories */}
@@ -255,10 +305,10 @@ export function ServiceStoryPage({
               Share Your Voice
             </Link>
             <Link
-              href="/annual-report/live"
+              href="/services"
               className="inline-flex items-center gap-2 px-8 py-4 border-2 border-white text-white rounded-full font-semibold text-lg hover:bg-white hover:text-picc-earth-600 transition-all"
             >
-              Back to Dashboard
+              All Services
             </Link>
           </div>
         </div>

@@ -95,6 +95,9 @@ export async function GET(request: NextRequest) {
       case 'size':
         query = query.order('file_size', { ascending: false })
         break
+      case 'rating':
+        query = query.order('rating', { ascending: false })
+        break
       case 'newest':
       default:
         query = query.order('created_at', { ascending: false })
@@ -107,11 +110,16 @@ export async function GET(request: NextRequest) {
     const pageContext = (searchParams.get('pageContext') || '').trim()
     const pageSection = (searchParams.get('pageSection') || '').trim()
 
+    const minRating = Number(searchParams.get('minRating') || 0)
+    const colorLabelParam = (searchParams.get('colorLabel') || '').trim()
+
     if (fileType && fileType !== 'all') query = query.eq('file_type', fileType)
     if (tags.length > 0) query = query.contains('tags', tags)
     if (featured === 'true') query = query.eq('is_featured', true)
     if (pageContext) query = query.eq('page_context', pageContext)
     if (pageSection) query = query.eq('page_section', pageSection)
+    if (minRating > 0) query = query.gte('rating', minRating)
+    if (colorLabelParam) query = query.eq('color_label', colorLabelParam)
 
     if (person && person !== 'all') {
       // faces_detected is stored as an array of profile IDs.

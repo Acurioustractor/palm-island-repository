@@ -1,63 +1,73 @@
 /**
- * PICC PDF Theme — Colors, dimensions, typography, and shared styles.
- * Used by all PDF book templates.
+ * PICC PDF Theme — "Saltwater & Earth" palette v2.0
+ * Unified colour system across web and PDF.
+ * Source of truth: PICC-BRAND-STYLE-GUIDE.md
  */
 import { StyleSheet } from '@react-pdf/renderer'
 
-// ── Saltwater Country Palette ────────────────────────
+// ── Saltwater & Earth Palette ────────────────────────
 export const C = {
-  // Primary — Coral Sea
-  reefDeep: '#0C4A6E',
-  reefBright: '#0EA5E9',
-  reefDeep10: 'rgba(12, 74, 110, 0.1)',
+  // Core Identity
+  ocean: '#0B4F6C',
+  ochre: '#C8963E',
+  earth: '#2D2319',
 
-  // Secondary — Island environment
+  // Supporting
+  reef: '#0EA5E9',
+  mangrove: '#15803D',
+  coral: '#E8600A',
+  starGold: '#F5A623',
+
+  // Cultural
+  turtleRed: '#8B1A1A',
   sand: '#FEF3C7',
-  mangrove: '#065F46',
-  coral: '#F97316',
 
-  // Premium dark — Night sky
-  midnight: '#1E1B4B',
+  // Dark
+  midnight: '#1A1A2E',
 
-  // Accent — Stars & innovation
-  starGold: '#FBBF24',
-  lagoon: '#2DD4BF',
-
-  // Text
+  // Neutrals
   rock: '#292524',
-  driftwood: '#78716C',
-  textMuted: '#a8a29e',
-  textLight: '#d6d3d1',
-
-  // Backgrounds
+  driftwood: '#6B6560',
+  muted: '#A39E99',
+  shell: '#F7F6F4',
+  border: '#E8E6E3',
   white: '#ffffff',
-  shellWhite: '#FAFAF9',
-  bgLight: '#f5f5f4',
-  bgDark: '#1E1B4B',
 
-  // Border
-  border: '#e7e5e4',
-  borderLight: '#f5f5f4',
+  // Opacity helpers
+  ocean10: 'rgba(11, 79, 108, 0.1)',
+  ochre10: 'rgba(200, 150, 62, 0.1)',
 
-  // Legacy aliases (for backward compatibility during migration)
-  blue: '#0C4A6E',
-  blueDark: '#0C4A6E',
-  blueDeep: '#0C4A6E',
+  // ── Legacy aliases (backward compatibility) ────────
+  // These map old names → new palette so existing templates
+  // keep working while we migrate references one-by-one.
+  reefDeep: '#0B4F6C',        // → ocean
+  reefBright: '#0EA5E9',      // → reef
+  reefDeep10: 'rgba(11, 79, 108, 0.1)', // → ocean10
+  blue: '#0B4F6C',            // → ocean
+  blueDark: '#0B4F6C',        // → ocean
+  blueDeep: '#0B4F6C',        // → ocean
   blue50: '#f0f9ff',
   blue100: '#e0f2fe',
-  purple: '#0EA5E9',
+  purple: '#0EA5E9',          // → reef
   purple50: '#f0f9ff',
   purple100: '#e0f2fe',
-  purpleDark: '#0C4A6E',
-  green: '#065F46',
+  purpleDark: '#0B4F6C',      // → ocean
+  green: '#15803D',            // → mangrove
   green50: '#ecfdf5',
-  amber: '#FBBF24',
-  amber50: '#FEF3C7',
-  orange: '#F97316',
-  teal: '#2DD4BF',
-  textPrimary: '#292524',
-  textSecondary: '#78716C',
-  bgSection: '#f5f5f4',
+  amber: '#F5A623',            // → starGold
+  amber50: '#FEF3C7',         // → sand
+  orange: '#E8600A',           // → coral
+  teal: '#0EA5E9',             // → reef
+  lagoon: '#0EA5E9',           // → reef
+  textPrimary: '#292524',      // → rock
+  textSecondary: '#6B6560',    // → driftwood
+  textMuted: '#A39E99',        // → muted
+  textLight: '#E8E6E3',        // → border
+  shellWhite: '#F7F6F4',      // → shell
+  bgLight: '#F7F6F4',         // → shell
+  bgSection: '#F7F6F4',       // → shell
+  bgDark: '#1A1A2E',          // → midnight
+  borderLight: '#F7F6F4',     // → shell
 } as const
 
 // ── Page Dimensions (A4) ─────────────────────────────
@@ -120,7 +130,7 @@ export const baseStyles = StyleSheet.create({
     fontWeight: 'semibold',
     textTransform: 'uppercase',
     letterSpacing: 2,
-    color: C.textMuted,
+    color: C.muted,
   },
 
   // Page number footer
@@ -131,46 +141,46 @@ export const baseStyles = StyleSheet.create({
     right: 0,
     textAlign: 'center',
     fontSize: 8,
-    color: C.textMuted,
+    color: C.muted,
   },
 
-  // Section label (reef bright uppercase)
+  // Section label
   sectionLabel: {
     fontSize: 7.5,
     fontWeight: 'bold',
     textTransform: 'uppercase',
     letterSpacing: 2,
-    color: C.reefBright,
+    color: C.reef,
     marginBottom: 6,
   },
 
-  // Headings (Playfair Display serif)
+  // Headings — Caveat for display warmth
   h1: {
-    fontFamily: 'PlayfairDisplay',
-    fontSize: 36,
+    fontFamily: 'Caveat',
+    fontSize: 32,
     fontWeight: 'bold',
-    color: C.reefDeep,
+    color: C.ocean,
     marginBottom: 8,
-    lineHeight: 1.1,
+    lineHeight: 1.15,
   },
   h2: {
-    fontFamily: 'PlayfairDisplay',
+    fontFamily: 'Caveat',
     fontSize: 24,
     fontWeight: 'bold',
-    color: C.reefDeep,
+    color: C.ocean,
     marginBottom: 6,
-    lineHeight: 1.15,
+    lineHeight: 1.2,
   },
   h3: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: C.reefDeep,
+    color: C.ocean,
     marginBottom: 4,
   },
   h4: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: C.reefDeep,
+    color: C.ocean,
     marginBottom: 3,
   },
 

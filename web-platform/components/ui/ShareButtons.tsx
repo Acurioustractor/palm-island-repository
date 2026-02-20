@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Share2, Link2, Check, X as TwitterX, Mail } from 'lucide-react';
 
 interface ShareButtonsProps {
@@ -12,7 +12,13 @@ interface ShareButtonsProps {
 
 export default function ShareButtons({ url, title, description, compact }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
-  const shareUrl = url || (typeof window !== 'undefined' ? window.location.href : '');
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const shareUrl = url || (mounted ? window.location.href : '');
   const encodedUrl = encodeURIComponent(shareUrl);
   const encodedTitle = encodeURIComponent(title);
   const encodedDesc = encodeURIComponent(description || '');
@@ -37,7 +43,7 @@ export default function ShareButtons({ url, title, description, compact }: Share
     }
   };
 
-  const hasNativeShare = typeof navigator !== 'undefined' && 'share' in navigator;
+  const hasNativeShare = mounted && typeof navigator !== 'undefined' && 'share' in navigator;
 
   if (compact) {
     return (

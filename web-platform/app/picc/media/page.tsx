@@ -142,6 +142,11 @@ export default function MediaLibraryPage() {
               description: 'Manage hero images for all 33 integrated services.',
               href: '/picc/media/cover-photos',
             },
+            {
+              title: 'Page Slots',
+              description: 'See where photos appear on the live site and assign them to specific page sections.',
+              href: '/picc/media/page-slots',
+            },
           ].map((item) => (
             <Link
               key={item.title}

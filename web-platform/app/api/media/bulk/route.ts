@@ -25,6 +25,8 @@ type BulkBody = {
   mergeContextMetadata?: Record<string, unknown>
   facesDetected?: string[]
   deletedAt?: string | null
+  rating?: number
+  colorLabel?: string | null
 }
 
 function uniqStrings(values: unknown) {
@@ -65,6 +67,8 @@ export async function POST(request: NextRequest) {
     const facesDetected = uniqStrings(body.facesDetected)
     const deletedAt =
       body.deletedAt === null ? null : typeof body.deletedAt === 'string' && body.deletedAt.trim() ? body.deletedAt : undefined
+    const rating = typeof body.rating === 'number' && body.rating >= 0 && body.rating <= 5 ? body.rating : undefined
+    const colorLabel = body.colorLabel === null ? null : (typeof body.colorLabel === 'string' && ['red','orange','yellow','green','blue','purple'].includes(body.colorLabel) ? body.colorLabel : undefined)
 
     if (mediaIds.length === 0) return NextResponse.json({ error: 'mediaIds required' }, { status: 400 })
 
@@ -109,6 +113,8 @@ export async function POST(request: NextRequest) {
 
         if (facesDetected.length) update.faces_detected = facesDetected
         if (deletedAt !== undefined) update.deleted_at = deletedAt
+        if (rating !== undefined) update.rating = rating
+        if (colorLabel !== undefined) update.color_label = colorLabel
 
         return update
       })

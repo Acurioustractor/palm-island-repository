@@ -50,14 +50,14 @@ export function PublicNavigation() {
     { label: 'About', href: '/about' },
     {
       label: 'More',
-      href: '/annual-reports',
+      href: '/annual-report/live',
       hasDropdown: true,
       dropdownItems: [
         { label: 'Annual Report 2024-25', href: '/annual-report/live', featured: true },
         { label: '20-Year Vision', href: '/20-years', featured: true },
         { label: 'Innovation', href: '/innovation', featured: true },
         { label: 'Thematic Reports', href: '/thematic-reports' },
-        { label: 'Annual Reports', href: '/annual-reports' },
+        { label: 'Annual Reports', href: '/annual-report/live' },
         { label: 'Ask AI', href: '/chat' },
       ]
     },
@@ -235,7 +235,7 @@ export function PublicNavigation() {
               <Link
                 href="/share-voice"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-center gap-2 px-6 py-3.5 bg-gray-900 text-white text-base font-semibold rounded-xl hover:bg-gray-800 transition-colors"
+                className="flex items-center justify-center gap-2 px-6 py-3.5 bg-gray-900 text-white text-base font-semibold rounded-full hover:bg-gray-800 transition-colors"
               >
                 <Mic className="h-5 w-5" />
                 Share Your Voice

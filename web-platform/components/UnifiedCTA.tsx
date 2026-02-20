@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { MapPin, Camera, BookOpen, ArrowRight, Heart } from 'lucide-react';
-import { SERVICES } from '@/lib/stats/current-stats';
+import { STAFF, SERVICES } from '@/lib/stats/current-stats';
 
 interface CTAProps {
   variant?: 'default' | 'compact' | 'hero';
@@ -51,12 +51,12 @@ export function UnifiedCTA({ variant = 'default', className = '', servicesTotal 
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-6">
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">197</div>
+                <div className="text-2xl font-bold text-gray-900">{STAFF.total}</div>
                 <div className="text-xs text-gray-500">Staff</div>
               </div>
               <div className="w-px h-8 bg-gray-300" />
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">40</div>
+                <div className="text-2xl font-bold text-gray-900">{servicesTotal}</div>
                 <div className="text-xs text-gray-500">Services</div>
               </div>
               <div className="w-px h-8 bg-gray-300" />

@@ -2,13 +2,15 @@ import Link from 'next/link';
 import { createServerSupabase } from '@/lib/supabase/client';
 import { Mic, BookOpen, Users, Heart, ArrowRight, Sparkles, Image as ImageIcon } from 'lucide-react';
 import { FALLBACKS } from '@/lib/stats/current-stats';
-import { getHeroImage, getPageMedia } from '@/lib/media/utils';
+import { getHeroImage, getHeroVideo, getPageMedia } from '@/lib/media/utils';
+import VideoHero from '@/components/video/VideoHero';
 
 export default async function CommunityPage() {
   const supabase = createServerSupabase();
 
   // Fetch media from Supabase
   const heroImage = await getHeroImage('community');
+  const heroVideo = await getHeroVideo('community');
   const programImages = await getPageMedia({
     pageContext: 'community',
     pageSection: 'programs',
@@ -54,50 +56,92 @@ export default async function CommunityPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section
-        className="relative bg-white border-b border-gray-100 editorial-section"
-        style={heroImage ? {
-          backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.95)), url(${heroImage})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        } : {
-          background: 'linear-gradient(135deg, #f8f6f4 0%, #ede8e3 50%, #f0ece8 100%)'
-        }}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <span className="text-xs font-semibold uppercase tracking-[0.15em] text-gray-400">
-            Community
-          </span>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-[-0.02em] leading-[1.1] mt-4 mb-6 text-gray-900">
-            This Is YOUR Community
-          </h1>
-          <p className="text-xl md:text-2xl mb-4 text-gray-500">
-            YOUR Stories, YOUR Voice, YOUR Future
-          </p>
-          <p className="text-lg max-w-3xl mx-auto text-gray-600 mb-12 leading-relaxed">
-            Every Palm Islander has a story worth sharing. Read stories from your neighbors,
-            friends, and family. Add your own voice to strengthen our community.
-          </p>
-
-          {/* Primary CTA */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link
-              href="/share-voice"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-gray-900 text-white hover:bg-gray-800 font-semibold rounded-full transition-all focus:outline-none focus:ring-4 focus:ring-gray-900/20"
-            >
-              <Mic className="w-5 h-5" />
-              <span>Share Your Voice</span>
-            </Link>
-            <Link
-              href="/stories"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-white border border-gray-200 hover:border-gray-900 text-gray-900 font-semibold rounded-full transition-all"
-            >
-              <BookOpen className="w-5 h-5" />
-              <span>Read Stories</span>
-            </Link>
+      {true ? (
+        <VideoHero
+          videoSrc={heroVideo?.public_url || '/hero-assets/clips/elders-on-country.mp4'}
+          overlay="gradient-brand"
+          height="tall"
+          parallax
+          aria-label="Palm Island Community"
+        >
+          <div className="text-center text-white max-w-5xl mx-auto">
+            <span className="text-xs font-semibold uppercase tracking-[0.15em] text-white/70">
+              Community
+            </span>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-[-0.02em] leading-[1.1] mt-4 mb-6">
+              This Is YOUR Community
+            </h1>
+            <p className="text-xl md:text-2xl mb-4 text-white/80">
+              YOUR Stories, YOUR Voice, YOUR Future
+            </p>
+            <p className="text-lg max-w-3xl mx-auto text-white/70 mb-12 leading-relaxed">
+              Every Palm Islander has a story worth sharing. Read stories from your neighbors,
+              friends, and family. Add your own voice to strengthen our community.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Link
+                href="/share-voice"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-white text-gray-900 hover:bg-gray-100 font-semibold rounded-full transition-all focus:outline-none focus:ring-4 focus:ring-white/20"
+              >
+                <Mic className="w-5 h-5" />
+                <span>Share Your Voice</span>
+              </Link>
+              <Link
+                href="/stories"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white font-semibold rounded-full hover:bg-white/20 transition-all"
+              >
+                <BookOpen className="w-5 h-5" />
+                <span>Read Stories</span>
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </VideoHero>
+      ) : (
+        <section
+          className="relative bg-white border-b border-gray-100 editorial-section"
+          style={heroImage ? {
+            backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.95)), url(${heroImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          } : {
+            background: 'linear-gradient(135deg, #f8f6f4 0%, #ede8e3 50%, #f0ece8 100%)'
+          }}
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <span className="text-xs font-semibold uppercase tracking-[0.15em] text-gray-400">
+              Community
+            </span>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-[-0.02em] leading-[1.1] mt-4 mb-6 text-gray-900">
+              This Is YOUR Community
+            </h1>
+            <p className="text-xl md:text-2xl mb-4 text-gray-500">
+              YOUR Stories, YOUR Voice, YOUR Future
+            </p>
+            <p className="text-lg max-w-3xl mx-auto text-gray-600 mb-12 leading-relaxed">
+              Every Palm Islander has a story worth sharing. Read stories from your neighbors,
+              friends, and family. Add your own voice to strengthen our community.
+            </p>
+
+            {/* Primary CTA */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Link
+                href="/share-voice"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-gray-900 text-white hover:bg-gray-800 font-semibold rounded-full transition-all focus:outline-none focus:ring-4 focus:ring-gray-900/20"
+              >
+                <Mic className="w-5 h-5" />
+                <span>Share Your Voice</span>
+              </Link>
+              <Link
+                href="/stories"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-white border border-gray-200 hover:border-gray-900 text-gray-900 font-semibold rounded-full transition-all"
+              >
+                <BookOpen className="w-5 h-5" />
+                <span>Read Stories</span>
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Impact Stats */}
       <section className="editorial-section bg-white">

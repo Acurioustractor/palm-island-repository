@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronUp, Users, Calendar, Award } from 'lucide-react';
 import { BespokeIcon } from '@/components/ui/BespokeIcon';
+import { getServiceIcon } from '@/lib/services/service-icons';
 import Link from 'next/link';
 
 export interface ServiceImpactData {
@@ -27,16 +28,16 @@ export interface ServiceImpactData {
   featured_quote_speaker?: string;
 }
 
-const CATEGORY_STYLES: Record<string, { bg: string; accent: string; icon: string }> = {
-  health: { bg: 'bg-sage-50', accent: 'text-sage-600', icon: '🏥' },
-  education: { bg: 'bg-picc-ochre-50', accent: 'text-picc-ochre', icon: '📚' },
-  culture: { bg: 'bg-warm-100', accent: 'text-picc-red', icon: '🎨' },
-  youth: { bg: 'bg-picc-red-50', accent: 'text-picc-red', icon: '🌱' },
-  family: { bg: 'bg-warm-50', accent: 'text-picc-earth', icon: '👨‍👩‍👧‍👦' },
-  economic: { bg: 'bg-warm-50', accent: 'text-picc-ochre', icon: '💼' },
-  sport: { bg: 'bg-sage-50', accent: 'text-sage-700', icon: '⚽' },
-  housing: { bg: 'bg-warm-100', accent: 'text-picc-earth', icon: '🏠' },
-  community: { bg: 'bg-warm-50', accent: 'text-picc-ochre', icon: '🤝' },
+const CATEGORY_STYLES: Record<string, { bg: string; accent: string }> = {
+  health: { bg: 'bg-sage-50', accent: 'text-sage-600' },
+  education: { bg: 'bg-picc-ochre-50', accent: 'text-picc-ochre' },
+  culture: { bg: 'bg-warm-100', accent: 'text-picc-red' },
+  youth: { bg: 'bg-picc-red-50', accent: 'text-picc-red' },
+  family: { bg: 'bg-warm-50', accent: 'text-picc-earth' },
+  economic: { bg: 'bg-warm-50', accent: 'text-picc-ochre' },
+  sport: { bg: 'bg-sage-50', accent: 'text-sage-700' },
+  housing: { bg: 'bg-warm-100', accent: 'text-picc-earth' },
+  community: { bg: 'bg-warm-50', accent: 'text-picc-ochre' },
 };
 
 interface ServiceImpactCardProps {
@@ -57,7 +58,7 @@ export default function ServiceImpactCard({ service, className = '' }: ServiceIm
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-xl">{styles.icon}</span>
+              <BespokeIcon name={getServiceIcon(service.slug)} size={22} />
               <h3 className="font-semibold text-picc-earth font-serif text-lg">{service.name}</h3>
             </div>
             {service.service_category && (

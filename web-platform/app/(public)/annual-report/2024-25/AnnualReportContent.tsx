@@ -31,6 +31,7 @@ import { BoardGrid } from '@/components/annual-report/2024-25/BoardGrid';
 import { ElderPortraitSection } from '@/components/annual-report/2024-25/ElderPortraitSection';
 import { ShareVoiceCTA } from '@/components/annual-report/2024-25/ShareVoiceCTA';
 import type { CuratedQuote } from '@/lib/quotes/get-curated-quotes';
+import { STAFF, FINANCIALS } from '@/lib/stats/current-stats';
 
 /* ─────────────────────────────────────────────
  * Elegant Section Divider (Olson Kundig style)
@@ -129,17 +130,17 @@ interface AnnualReportContentProps {
 // ── Static Data ──
 
 const IMPACT_DATA_POINTS: DataPoint[] = [
-  { label: 'Staff Members', value: 197, context: '30% growth — 70%+ Palm Islanders', color: '#0d9488' },
-  { label: 'Total Income', value: 23.4, unit: 'M', context: 'Revenue quadrupled in 10 years', color: '#f59e0b' },
+  { label: 'Staff Members', value: STAFF.total, context: '30% growth — 70%+ Palm Islanders', color: '#0d9488' },
+  { label: 'Total Income', value: +(FINANCIALS.totalIncome / 1_000_000).toFixed(1), unit: 'M', context: 'Revenue quadrupled in 10 years', color: '#f59e0b' },
   { label: 'Health Clients', value: 2283, context: 'At Bwgcolman Healing Service', color: '#3b82f6' },
   { label: 'Episodes of Care', value: 17488, context: 'Total healthcare episodes delivered', color: '#8b5cf6' },
   { label: 'Children Supported', value: 1187, context: 'Through Safe Haven services', color: '#ec4899' },
-  { label: 'Indigenous Staff', value: 80, unit: '%+', context: 'Aboriginal & Torres Strait Islander employees', color: '#10b981' },
+  { label: 'Indigenous Staff', value: STAFF.indigenousPct, unit: '%+', context: 'Aboriginal & Torres Strait Islander employees', color: '#10b981' },
 ];
 
 const IMPACT_NARRATIVES = [
   'Our workforce grew by 30% this year, with three-quarters being Palm Islanders — extraordinarily high for remote communities.',
-  'From humble beginnings, PICC now manages over $23 million in annual revenue — all invested back into community.',
+  `From humble beginnings, PICC now manages over ${FINANCIALS.incomeDisplay} in annual revenue — all invested back into community.`,
   'Our Bwgcolman Healing Service provided culturally appropriate care to thousands of community members.',
   'Nearly 17,500 episodes of healthcare delivered across all programs — from chronic disease management to child health.',
   'Through Safe Haven, we protected and supported the most vulnerable members of our community.',
@@ -147,21 +148,21 @@ const IMPACT_NARRATIVES = [
 ];
 
 const FINANCIAL_DATA = [
-  { id: 'labour', label: 'Wages & Salaries', value: 14282962, color: '#2d6a4f', description: '197 staff delivering services' },
-  { id: 'admin', label: 'Administration', value: 5000820, color: '#1e3a5f', description: 'Operations and governance' },
-  { id: 'travel', label: 'Travel & Training', value: 1778367, color: '#e85d04', description: 'Staff development' },
-  { id: 'client', label: 'Client Costs', value: 1156713, color: '#7c3aed', description: 'Direct client support' },
-  { id: 'property', label: 'Property & Energy', value: 1058084, color: '#0891b2', description: 'Facilities and utilities' },
-  { id: 'motor', label: 'Motor Vehicle', value: 401112, color: '#6b7280', description: 'Community transport' },
+  { id: 'labour', label: 'Wages & Salaries', value: FINANCIALS.breakdown.labourCosts.amount, color: '#2d6a4f', description: `${STAFF.total} staff delivering services` },
+  { id: 'admin', label: 'Administration', value: FINANCIALS.breakdown.adminExpenses.amount, color: '#1e3a5f', description: 'Operations and governance' },
+  { id: 'travel', label: 'Travel & Training', value: FINANCIALS.breakdown.travelTraining.amount, color: '#e85d04', description: 'Staff development' },
+  { id: 'client', label: 'Client Costs', value: FINANCIALS.breakdown.clientCosts.amount, color: '#7c3aed', description: 'Direct client support' },
+  { id: 'property', label: 'Property & Energy', value: FINANCIALS.breakdown.propertyEnergy.amount, color: '#0891b2', description: 'Facilities and utilities' },
+  { id: 'motor', label: 'Motor Vehicle', value: FINANCIALS.breakdown.motorVehicle.amount, color: '#6b7280', description: 'Community transport' },
 ];
 
 const DOLLAR_BREAKDOWN = [
-  { id: 'labour', label: 'Staff Wages', cents: 60, color: '#2d6a4f', description: '197 dedicated staff' },
-  { id: 'admin', label: 'Administration', cents: 21, color: '#1e3a5f', description: 'Professional operations' },
-  { id: 'travel', label: 'Travel & Training', cents: 8, color: '#e85d04', description: 'Staff development' },
-  { id: 'client', label: 'Client Support', cents: 5, color: '#7c3aed', description: 'Direct service delivery' },
-  { id: 'property', label: 'Property', cents: 4, color: '#0891b2', description: 'Facilities' },
-  { id: 'motor', label: 'Transport', cents: 2, color: '#6b7280', description: 'Community access' },
+  { id: 'labour', label: 'Staff Wages', cents: FINANCIALS.breakdown.labourCosts.pct, color: '#2d6a4f', description: `${STAFF.total} dedicated staff` },
+  { id: 'admin', label: 'Administration', cents: FINANCIALS.breakdown.adminExpenses.pct, color: '#1e3a5f', description: 'Professional operations' },
+  { id: 'travel', label: 'Travel & Training', cents: FINANCIALS.breakdown.travelTraining.pct, color: '#e85d04', description: 'Staff development' },
+  { id: 'client', label: 'Client Support', cents: FINANCIALS.breakdown.clientCosts.pct, color: '#7c3aed', description: 'Direct service delivery' },
+  { id: 'property', label: 'Property', cents: FINANCIALS.breakdown.propertyEnergy.pct, color: '#0891b2', description: 'Facilities' },
+  { id: 'motor', label: 'Transport', cents: FINANCIALS.breakdown.motorVehicle.pct, color: '#6b7280', description: 'Community access' },
 ];
 
 // ── Component ──
@@ -408,19 +409,19 @@ export function AnnualReportContent({ reportData, knowledgeBase, media, elderQuo
       {/* ─── 10. FINANCIAL SUMMARY ─── */}
       <section className="py-24 md:py-32 bg-[#faf9f7]">
         <div className="max-w-6xl mx-auto px-8">
-          <SectionTitle label="Transparency" title="Where Every Dollar Goes" subtitle="60 cents of every dollar goes directly to staff wages" />
+          <SectionTitle label="Transparency" title="Where Every Dollar Goes" subtitle={`${FINANCIALS.breakdown.labourCosts.pct} cents of every dollar goes directly to staff wages`} />
           <div className="grid lg:grid-cols-2 gap-16 items-start">
             <ScrollReveal direction="up">
-              <FinancialDonut data={FINANCIAL_DATA} centerValue="$23.4M" centerLabel="Total Revenue" interactive showLegend animateOnScroll />
+              <FinancialDonut data={FINANCIAL_DATA} centerValue={FINANCIALS.incomeDisplay} centerLabel="Total Revenue" interactive showLegend animateOnScroll />
             </ScrollReveal>
             <ScrollReveal direction="up" delay={0.15}>
-              <DollarBreakdown items={DOLLAR_BREAKDOWN} title="Where Each Dollar Goes" subtitle="60 cents of every dollar goes directly to staff wages" interactive />
+              <DollarBreakdown items={DOLLAR_BREAKDOWN} title="Where Each Dollar Goes" subtitle={`${FINANCIALS.breakdown.labourCosts.pct} cents of every dollar goes directly to staff wages`} interactive />
             </ScrollReveal>
           </div>
           <ScrollReveal direction="up" delay={0.25}>
             <div className="mt-20 grid md:grid-cols-3 gap-px bg-gray-200 rounded-sm overflow-hidden">
               {[
-                { value: '60%', label: 'Spent on local wages' },
+                { value: `${FINANCIALS.breakdown.labourCosts.pct}%`, label: 'Spent on local wages' },
                 { value: '90%', label: 'Local employment rate' },
                 { value: '4x', label: 'Revenue growth in 10 years' },
               ].map((stat) => (

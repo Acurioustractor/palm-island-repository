@@ -15,7 +15,8 @@ export type HomeServiceData = {
   description: string;
   staff: number | null;
   photos: number;
-  location: string;
+  category: string;
+  coverImage: string | null;
 };
 
 export type HomeStats = {
@@ -31,6 +32,7 @@ export type InnovationProject = {
   tagline: string;
   status: 'active' | 'planning' | 'completed';
   impactAreas: string[];
+  coverImage: string | null;
 };
 
 export default async function HomePage() {
@@ -68,16 +70,30 @@ export default async function HomePage() {
     }
   }
 
-  // Count photos per service via tags (service:{slug})
+  // Count photos and fetch hero images per service via tags (service:{slug})
   const photoCountMap = new Map<string, number>();
+  const coverImageMap = new Map<string, string>();
   for (const s of regularServices) {
     const tag = `service:${(s as any).slug}`;
-    const { count } = await supabase
-      .from('media_files')
-      .select('id', { count: 'exact', head: true })
-      .contains('tags', [tag])
-      .is('deleted_at', null);
+    const [{ count }, { data: heroPhotos }] = await Promise.all([
+      supabase
+        .from('media_files')
+        .select('id', { count: 'exact', head: true })
+        .contains('tags', [tag])
+        .is('deleted_at', null),
+      supabase
+        .from('media_files')
+        .select('public_url')
+        .contains('tags', [tag, 'hero'])
+        .eq('file_type', 'image')
+        .is('deleted_at', null)
+        .order('is_featured', { ascending: false })
+        .limit(1),
+    ]);
     photoCountMap.set((s as any).slug, count || 0);
+    if (heroPhotos?.[0]?.public_url) {
+      coverImageMap.set((s as any).slug, heroPhotos[0].public_url);
+    }
   }
 
   // Total photo count
@@ -103,14 +119,35 @@ export default async function HomePage() {
   const homeServices: HomeServiceData[] = regularServices
     .map((s: any) => {
       const m = metricsMap.get(s.id);
-      const location = s.metadata?.location_name || s.service_category || 'Palm Island';
+      // Format category for display
+      const categoryMap: Record<string, string> = {
+        health: 'Health & Wellbeing',
+        education: 'Education',
+        community: 'Community',
+        economic: 'Economic Development',
+        youth: 'Youth',
+        justice: 'Justice',
+        housing: 'Housing',
+        wellbeing: 'Wellbeing',
+        culture: 'Culture',
+        family: 'Family',
+        disability: 'Disability',
+      };
+      const category = categoryMap[s.service_category] || s.service_category || 'Community';
+
+      // Truncate description to first sentence or 120 chars for consistency
+      const rawDesc = s.description || 'Supporting the Palm Island community.';
+      const firstSentence = rawDesc.match(/^[^.!?]+[.!?]/)?.[0] || rawDesc;
+      const description = firstSentence.length > 140 ? firstSentence.slice(0, 137) + '...' : firstSentence;
+
       return {
         name: s.name,
         slug: s.slug,
-        description: s.description || 'Supporting the Palm Island community.',
+        description,
         staff: m?.staff_count || null,
         photos: photoCountMap.get(s.slug) || 0,
-        location,
+        category,
+        coverImage: coverImageMap.get(s.slug) || null,
       };
     })
     .sort((a: HomeServiceData, b: HomeServiceData) => b.photos - a.photos)
@@ -123,43 +160,68 @@ export default async function HomePage() {
     storyCount: storyCount || 0,
   };
 
-  // Innovation projects — sourced from PICC strategic plan
-  const innovationProjects: InnovationProject[] = [
-    {
-      name: 'On-Country Photo Studio',
-      slug: 'photo-studio',
-      tagline: 'Professional photography preserving community stories on Country',
-      status: 'active',
-      impactAreas: ['Employment', 'Culture', 'Media'],
-    },
-    {
-      name: 'The Centre — Recycling & Employment',
-      slug: 'the-centre',
-      tagline: 'Creating sustainable employment through community recycling',
-      status: 'active',
-      impactAreas: ['Employment', 'Environment', 'Youth'],
-    },
-    {
-      name: 'Elders Cultural Trips',
-      slug: 'elders-trips',
-      tagline: 'Reconnecting Elders with Country and cultural knowledge',
-      status: 'active',
-      impactAreas: ['Culture', 'Elders', 'Wellbeing'],
-    },
-    {
-      name: 'On-Country Server',
-      slug: 'local-server',
-      tagline: 'Data sovereignty through locally-hosted community infrastructure',
-      status: 'planning',
-      impactAreas: ['Technology', 'Sovereignty', 'Innovation'],
-    },
-  ];
+  // Innovation projects — from projects table
+  const { data: projectsData } = await supabase
+    .from('projects')
+    .select('name, slug, tagline, description, status, impact_areas, is_public, hero_image_url')
+    .eq('is_public', true)
+    .eq('project_type', 'innovation')
+    .in('status', ['active', 'in_progress'])
+    .order('featured', { ascending: false })
+    .order('display_order', { ascending: true })
+    .order('created_at', { ascending: false })
+    .limit(4);
+
+  const innovationProjects: InnovationProject[] = (projectsData || []).map((p: any) => ({
+    name: p.name,
+    slug: p.slug || '',
+    tagline: p.tagline || p.description?.slice(0, 120) || '',
+    status: (['active', 'in_progress'].includes(p.status) ? 'active' : p.status === 'completed' ? 'completed' : 'planning') as 'active' | 'planning' | 'completed',
+    impactAreas: (p.impact_areas || []).map((a: string) => a.charAt(0).toUpperCase() + a.slice(1)),
+    coverImage: p.hero_image_url || null,
+  }));
+
+  // Gallery photos — pick 1 featured image per service for diversity
+  const galleryPhotos: { id: string; public_url: string; title: string | null; alt_text: string | null }[] = [];
+  const usedServiceSlugs = regularServices.map((s: any) => s.slug).sort(() => Math.random() - 0.5);
+  for (const slug of usedServiceSlugs) {
+    if (galleryPhotos.length >= 8) break;
+    const tag = `service:${slug}`;
+    const { data: photos } = await supabase
+      .from('media_files')
+      .select('id, public_url, title, alt_text')
+      .contains('tags', [tag])
+      .eq('file_type', 'image')
+      .eq('is_public', true)
+      .is('deleted_at', null)
+      .order('is_featured', { ascending: false })
+      .limit(1);
+    if (photos?.[0]) {
+      galleryPhotos.push(photos[0]);
+    }
+  }
+  // Fill remaining slots with any featured photos not already included
+  if (galleryPhotos.length < 8) {
+    const existingIds = galleryPhotos.map(p => p.id);
+    const { data: extras } = await supabase
+      .from('media_files')
+      .select('id, public_url, title, alt_text')
+      .eq('file_type', 'image')
+      .eq('is_featured', true)
+      .eq('is_public', true)
+      .is('deleted_at', null)
+      .not('id', 'in', `(${existingIds.join(',')})`)
+      .order('created_at', { ascending: false })
+      .limit(8 - galleryPhotos.length);
+    galleryPhotos.push(...(extras || []));
+  }
 
   return (
     <HomePageClient
       services={homeServices}
       stats={stats}
       innovationProjects={innovationProjects}
+      galleryPhotos={galleryPhotos}
     />
   );
 }

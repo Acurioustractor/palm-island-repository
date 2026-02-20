@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { User, BookOpen, MapPin, Search, UserPlus, ArrowRight } from 'lucide-react';
+import VideoHero from '@/components/video/VideoHero';
 
 interface Storyteller {
   id: string;
@@ -100,23 +101,29 @@ export default function StorytellerGalleryPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Editorial Hero */}
-      <section className="editorial-section border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <span className="text-xs font-semibold uppercase tracking-[0.15em] text-gray-400">
+      {/* Video Hero */}
+      <VideoHero
+        videoSrc="/hero-assets/clips/kids-beach.mp4"
+        overlay="gradient-brand"
+        height="medium"
+        parallax
+        aria-label="Community Storytellers"
+      >
+        <div className="text-center text-white max-w-5xl mx-auto">
+          <span className="text-xs font-semibold uppercase tracking-[0.15em] text-white/70">
             Voices of Palm Island
           </span>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 tracking-[-0.02em] leading-[1.1] mt-4 mb-6">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-[-0.02em] leading-[1.1] mt-4 mb-6">
             Community Storytellers
           </h1>
-          <p className="text-lg text-gray-500 max-w-2xl leading-relaxed mb-2">
+          <p className="text-lg text-white/80 max-w-2xl mx-auto leading-relaxed mb-2">
             The voices of Palm Island — sharing knowledge, experience, and vision.
           </p>
-          <p className="text-sm text-gray-400 italic">
+          <p className="text-sm text-white/60 italic">
             Manbarra &amp; Bwgcolman Country
           </p>
         </div>
-      </section>
+      </VideoHero>
 
       {/* Stats Bar */}
       <section className="border-b border-gray-100 py-8">
@@ -160,11 +167,11 @@ export default function StorytellerGalleryPage() {
             />
           </div>
           <Link
-            href="/storytellers/add"
+            href="/share-voice"
             className="flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 ease-elegant hover:scale-[0.98] active:scale-95"
           >
             <UserPlus className="w-4 h-4" />
-            Add Storyteller
+            Share Your Voice
           </Link>
         </div>
       </section>

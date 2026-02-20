@@ -1,57 +1,60 @@
 import React from "react";
-import { ChevronRight, Users, Heart, TrendingUp, Globe, BookOpen, Target, Star, Building, Phone, Mail, MapPin, Quote } from "lucide-react";
+import { ChevronRight, Users, Star, Heart, Target, Phone, Mail, Quote, BookOpen } from "lucide-react";
 import Link from "next/link";
-import { BespokeIcon } from "@/components/ui/BespokeIcon";
 import { getLiveStats } from "@/lib/stats/get-live-stats";
+import { MILESTONES } from "@/lib/stats/current-stats";
 import VideoHero from "@/components/video/VideoHero";
-import { getHeroImage, getPageMedia, getFeaturedPageMedia, getLeadershipPhotos, getServicePhotos, getTestimonialPhotos, getTimelinePhotos, getMediaByTags } from "@/lib/media/utils";
-import { getPageStories } from "@/lib/stories/utils";
-import { getCuratedQuotes } from "@/lib/quotes/get-curated-quotes";
+import { getHeroVideo, getMediaByTags } from "@/lib/media/utils";
+import { CommunityQuotesSection } from "@/components/quotes/CommunityQuotesSection";
+import AboutCountdownSection from "@/components/about/AboutCountdownSection";
+import { createServerSupabase } from "@/lib/supabase/client";
 
 export default async function AboutPage() {
+  const supabase = createServerSupabase();
+
   const stats = await getLiveStats();
-  const heroImage = await getHeroImage("about");
-  const visionImage = await getPageMedia({ pageContext: "about", pageSection: "vision", limit: 1 });
-  const timelinePhotos = await getTimelinePhotos();
-  const leadershipPhotos = await getLeadershipPhotos();
+  const heroVideo = await getHeroVideo("about");
   const boardPortraits = await getMediaByTags(['board-member', 'portrait']);
-  const servicePhotos = await getServicePhotos();
-  // testimonialPhotos no longer needed — testimonials now come from getCuratedQuotes()
-  const elderStories = await getPageStories({
-    pageContext: 'about',
-    pageSection: 'elder-stories',
-    limit: 4
-  });
 
-  // Fetch real curated quotes for testimonials section
-  const curatedQuotes = await getCuratedQuotes({ limit: 4 });
+  // CEO photo from leadership table
+  const { data: ceoRecord } = await supabase
+    .from('leadership')
+    .select('photo_url')
+    .eq('leadership_type', 'executive')
+    .eq('is_active', true)
+    .order('position_order')
+    .limit(1)
+    .maybeSingle();
+  const rachelPhoto = ceoRecord?.photo_url ? { public_url: ceoRecord.photo_url, alt_text: 'Rachel Atkinson, CEO' } : null;
 
-  // Fetch Rachel's actual CEO portrait (tagged with 'ceo' and 'portrait')
-  const rachelPhotos = await getMediaByTags(['ceo', 'portrait'], 1, 'image');
-  const rachelPhoto = rachelPhotos[0] || null;
+  // Board members
+  const { data: boardMembers } = await supabase
+    .from('leadership')
+    .select('id, full_name, position, bio, photo_url, featured_quote, leadership_type')
+    .eq('is_active', true)
+    .eq('leadership_type', 'board')
+    .order('position_order');
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Hero Section with Video Background */}
+    <div className="relative min-h-screen bg-white">
+      {/* 1. Video Hero */}
       <VideoHero
-        poster={heroImage || undefined}
+        videoSrc={heroVideo?.public_url || '/hero-assets/clips/palm-island-aerial.mp4'}
         overlay="gradient-brand"
         height="tall"
         parallax
         aria-label="About Palm Island Community Company"
       >
         <div className="text-center text-white max-w-5xl mx-auto">
+          <p className="text-sm font-semibold tracking-widest uppercase text-white/70 mb-4">About PICC</p>
           <h1 className="text-5xl md:text-7xl font-bold mb-6">
             Palm Island Community Company
           </h1>
-          <p className="text-2xl md:text-3xl mb-4 italic">
-            From Colonial Control to Community Sovereignty
-          </p>
           <p className="text-xl md:text-2xl mb-8 font-light">
-            Where ancient wisdom meets contemporary innovation
+            Year {MILESTONES.currentYear} of a 20-year journey
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
-            <Link href="/annual-reports" className="group inline-flex items-center gap-3 px-8 py-4 bg-white text-gray-900 rounded-full font-semibold text-lg hover:scale-[0.97] active:scale-95 transition-all duration-300 ease-elegant shadow-2xl shadow-black/20">
+            <Link href="/20-years" className="group inline-flex items-center gap-3 px-8 py-4 bg-white text-gray-900 rounded-full font-semibold text-lg hover:scale-[0.97] active:scale-95 transition-all duration-300 ease-elegant shadow-2xl shadow-black/20">
               Our Journey
             </Link>
             <Link href="/share-voice" className="inline-flex items-center gap-3 px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-full font-semibold text-lg hover:bg-white/20 transition-all duration-300 ease-elegant">
@@ -61,106 +64,96 @@ export default async function AboutPage() {
         </div>
       </VideoHero>
 
-      {/* Vision Statement - Full width with image */}
-      <section className="py-20 px-4 bg-gray-50">
-        <div className="max-w-6xl mx-auto">
+      {/* 2. Who We Are (merged vision + principles) */}
+      <section className="editorial-section bg-warm-50">
+        <div className="max-w-6xl mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-[-0.02em] mb-6">
+              <h2 className="text-3xl md:text-4xl font-extrabold text-picc-earth tracking-[-0.02em] mb-6">
                 A Living Testament to Transformation
               </h2>
               <p className="text-xl text-gray-700 leading-relaxed mb-6">
-                "In the heart of the Coral Sea lies an island that refuses to be defined by its colonial past. Palm Island Community Company stands as proof that when a community takes control of its own destiny, transformation isn't just possible—it's inevitable."
+                In the heart of the Coral Sea lies an island that refuses to be defined by its colonial past. Palm Island Community Company stands as proof that when a community takes control of its own destiny, transformation isn&apos;t just possible&mdash;it&apos;s inevitable.
               </p>
               <p className="text-lg text-gray-600 leading-relaxed">
                 We see each challenge not as a barrier but as an invitation to innovate, each service not as charity but as sovereignty in action. This is PICC: Community control as revolutionary act.
               </p>
             </div>
-            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden h-96">
-              {visionImage[0] ? (
-                <img
-                  src={visionImage[0].public_url}
-                  alt={visionImage[0].alt_text || 'PICC Building'}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-                  <Building className="w-16 h-16 text-gray-300" />
-                </div>
-              )}
+            <div className="bg-white rounded-2xl border border-warm-200 overflow-hidden h-96">
+              <img
+                src="/hero-assets/stills/pier-turquoise.jpg"
+                alt="Palm Island pier and turquoise waters"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+
+          {/* Compact 3-pillar row */}
+          <div className="grid md:grid-cols-3 gap-8 mt-16">
+            <div className="text-center">
+              <div className="bg-white w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center border border-warm-200">
+                <Star className="w-8 h-8 text-picc-ocean" />
+              </div>
+              <h3 className="text-lg font-bold text-picc-earth mb-2">Our Philosophy</h3>
+              <p className="text-sm text-gray-600">We operate from abundance, not deficit. Every Palm Islander carries strengths, knowledge, and potential.</p>
+            </div>
+            <div className="text-center">
+              <div className="bg-white w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center border border-warm-200">
+                <Heart className="w-8 h-8 text-picc-ocean" />
+              </div>
+              <h3 className="text-lg font-bold text-picc-earth mb-2">Our Method</h3>
+              <p className="text-sm text-gray-600">Integrated services that wrap around families. No wrong door, no gaps&mdash;just seamless support.</p>
+            </div>
+            <div className="text-center">
+              <div className="bg-white w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center border border-warm-200">
+                <Target className="w-8 h-8 text-picc-ocean" />
+              </div>
+              <h3 className="text-lg font-bold text-picc-earth mb-2">Our Promise</h3>
+              <p className="text-sm text-gray-600">Every decision emerges from and returns to community. Sovereignty in practice.</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Impact Numbers - Visual cards */}
-      <section className="py-20 px-4 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-[-0.02em] text-center mb-4">The Numbers Tell Our Story</h2>
+      {/* 3. Impact Numbers */}
+      <section className="editorial-section bg-white">
+        <div className="max-w-6xl mx-auto px-4">
+          <h2 className="text-3xl md:text-4xl font-extrabold text-picc-earth tracking-[-0.02em] text-center mb-4">The Numbers Tell Our Story</h2>
           <p className="text-xl text-gray-600 text-center mb-12 max-w-3xl mx-auto">
             Each number represents a life touched, a family strengthened, a future secured
           </p>
 
-          <div className="grid md:grid-cols-3 gap-8 mb-12">
-            <div className="bg-gray-50 rounded-2xl p-8 text-center border border-gray-100">
-              <div className="text-6xl font-bold text-gray-900 mb-2">{stats.staff.total}</div>
-              <div className="text-lg font-semibold text-gray-800 mb-2">Community Members Employed</div>
-              <div className="text-sm text-gray-600 mb-4">{stats.staff.indigenousPct}% Indigenous workforce</div>
-              <p className="text-sm text-gray-700 italic">Each job represents a family lifted, a young person seeing possibility</p>
+          <div className="grid md:grid-cols-4 gap-6">
+            <div className="bg-warm-50 rounded-2xl p-8 text-center border border-warm-200">
+              <div className="text-5xl font-extrabold text-picc-ocean tracking-tight mb-2">{stats.staff.total}</div>
+              <div className="text-lg font-semibold text-gray-800 mb-1">Staff Employed</div>
+              <p className="text-sm text-gray-600">Each job represents a family lifted</p>
             </div>
 
-            <div className="bg-gray-50 rounded-2xl p-8 text-center border border-gray-100">
-              <div className="text-6xl font-bold text-gray-900 mb-2">{stats.staff.indigenousPct}%</div>
-              <div className="text-lg font-semibold text-gray-800 mb-2">Indigenous Workforce</div>
-              <div className="text-sm text-gray-600 mb-4">Maintained since establishment</div>
-              <p className="text-sm text-gray-700 italic">True self-determination means our people serving our people</p>
+            <div className="bg-warm-50 rounded-2xl p-8 text-center border border-warm-200">
+              <div className="text-5xl font-extrabold text-picc-ocean tracking-tight mb-2">{stats.staff.indigenousPct}%</div>
+              <div className="text-lg font-semibold text-gray-800 mb-1">Indigenous Workforce</div>
+              <p className="text-sm text-gray-600">Our people serving our people</p>
             </div>
 
-            <div className="bg-gray-50 rounded-2xl p-8 text-center border border-gray-100">
-              <div className="text-6xl font-bold text-gray-900 mb-2">$5.8M</div>
-              <div className="text-lg font-semibold text-gray-800 mb-2">Annual Local Wages</div>
-              <div className="text-sm text-gray-600 mb-4">$9.75M total economic output</div>
-              <p className="text-sm text-gray-700 italic">Money that stays on Palm Island, building generational wealth</p>
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-gray-50 rounded-2xl p-8 text-center border border-gray-100">
-              <div className="text-6xl font-bold text-gray-900 mb-2">2,283</div>
-              <div className="text-lg font-semibold text-gray-800 mb-2">Health Clients Served</div>
-              <div className="text-sm text-gray-600 mb-4">17,488 episodes of care</div>
-              <p className="text-sm text-gray-700 italic">Every number is a life touched, a family strengthened</p>
+            <div className="bg-warm-50 rounded-2xl p-8 text-center border border-warm-200">
+              <div className="text-5xl font-extrabold text-picc-ocean tracking-tight mb-2">{stats.financials.incomeDisplay}</div>
+              <div className="text-lg font-semibold text-gray-800 mb-1">Annual Income</div>
+              <p className="text-sm text-gray-600">Community-controlled investment</p>
             </div>
 
-            <div className="bg-gray-50 rounded-2xl p-8 text-center border border-gray-100">
-              <div className="text-6xl font-bold text-gray-900 mb-2">{stats.services.active}</div>
-              <div className="text-lg font-semibold text-gray-800 mb-2">Integrated Services</div>
-              <div className="text-sm text-gray-600 mb-4">Holistic support ecosystem</div>
-              <p className="text-sm text-gray-700 italic">Because human needs don't fit in bureaucratic boxes</p>
-            </div>
-
-            <div className="bg-gray-50 rounded-2xl p-8 text-center border border-gray-100">
-              <div className="text-6xl font-bold text-gray-900 mb-2">2021</div>
-              <div className="text-lg font-semibold text-gray-800 mb-2">Community Control Achieved</div>
-              <div className="text-sm text-gray-600 mb-4">Historic self-determination milestone</div>
-              <p className="text-sm text-gray-700 italic">The year we took our destiny into our own hands</p>
+            <div className="bg-warm-50 rounded-2xl p-8 text-center border border-warm-200">
+              <div className="text-5xl font-extrabold text-picc-ocean tracking-tight mb-2">{stats.services.active}</div>
+              <div className="text-lg font-semibold text-gray-800 mb-1">Integrated Services</div>
+              <p className="text-sm text-gray-600">Holistic support ecosystem</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Community Quote Callout 1 */}
+      {/* 4. CEO Quote Callout */}
       <section className="py-20 md:py-24 px-4 bg-gradient-to-br from-picc-earth-700 via-picc-earth to-picc-red text-white">
         <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
-          {rachelPhoto && (
-            <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-white/30 mb-6">
-              <img
-                src={rachelPhoto.public_url}
-                alt="Rachel Atkinson, CEO"
-                className="w-full h-full object-cover"
-              />
-            </div>
-          )}
           <Quote className="w-12 h-12 mx-auto mb-4 opacity-50" />
           <blockquote className="text-2xl md:text-3xl lg:text-4xl font-extrabold mb-6 tracking-[-0.02em] leading-tight">
             &ldquo;Everything we do is for, with, and because of the people of this beautiful community&rdquo;
@@ -169,120 +162,77 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      {/* Our Philosophy - Three pillars */}
-      <section className="py-20 px-4 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-[-0.02em] text-center mb-12">Our Guiding Principles</h2>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="bg-gray-50 w-24 h-24 rounded-full mx-auto mb-6 flex items-center justify-center">
-                <Star className="w-12 h-12 text-gray-900" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Our Philosophy</h3>
-              <p className="text-gray-700 leading-relaxed">
-                We operate from abundance, not deficit. Every Palm Islander carries strengths, knowledge, and potential. Our role is to create conditions where these gifts flourish.
-              </p>
-            </div>
-
-            <div className="text-center">
-              <div className="bg-gray-50 w-24 h-24 rounded-full mx-auto mb-6 flex items-center justify-center">
-                <Heart className="w-12 h-12 text-gray-900" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Our Method</h3>
-              <p className="text-gray-700 leading-relaxed">
-                Integrated services that wrap around families like a warm embrace. No wrong door, no gaps to fall through—just seamless support that honors the complexity of human need.
-              </p>
-            </div>
-
-            <div className="text-center">
-              <div className="bg-gray-50 w-24 h-24 rounded-full mx-auto mb-6 flex items-center justify-center">
-                <Target className="w-12 h-12 text-gray-900" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Our Promise</h3>
-              <p className="text-gray-700 leading-relaxed">
-                Every decision, every service, every innovation emerges from and returns to community. This is sovereignty in practice—Palm Islanders determining Palm Island futures.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Historical Journey Timeline with Images */}
-      <section className="py-20 px-4 bg-gray-50">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-[-0.02em] mb-4 text-center">From Colonial Control to Community Sovereignty</h2>
+      {/* 5. Our Story Timeline */}
+      <section className="editorial-section bg-warm-50">
+        <div className="max-w-6xl mx-auto px-4">
+          <h2 className="text-3xl md:text-4xl font-extrabold text-picc-earth tracking-[-0.02em] mb-4 text-center">From Colonial Control to Community Sovereignty</h2>
           <p className="text-xl text-gray-600 text-center mb-12 max-w-3xl mx-auto">
-            The journey of Palm Island Community Company cannot be separated from the journey of Palm Island itself—a story of resilience that transforms historical trauma into contemporary triumph.
+            The journey of Palm Island Community Company cannot be separated from the journey of Palm Island itself
           </p>
 
           <div className="space-y-12">
-            {/* Timeline items with photos */}
             {[
               {
                 era: 'Ancient Foundations',
                 period: 'Time Immemorial',
                 description: 'The Manbarra people live in harmony with the Palm Islands, their Dreamtime stories telling of Rainbow Serpent fragments forming the archipelago.',
                 significance: 'Cultural bedrock that sustains us still',
-                icon: Globe,
-                index: 0
+                image: 'https://uaxhjzqrdotoahjnxmbj.supabase.co/storage/v1/object/public/story-media/annual-report-2024/1771305448200-t2zjnm-img-001.jpg',
+                alt: 'Palm Island beach panorama — Manbarra Country',
               },
               {
                 era: 'Colonial Disruption',
                 period: '1914-1918',
                 description: "Palm Island designated as Aboriginal reserve, then transformed into a place of forced relocation for 'troublesome' Aboriginal people from across Queensland.",
                 significance: 'From 57 language groups, the Bwgcolman identity emerges: "Many tribes, one people"',
-                icon: BookOpen,
-                index: 1
+                image: 'https://uaxhjzqrdotoahjnxmbj.supabase.co/storage/v1/object/public/story-media/elders-trip-2025/pier-turquoise-b.jpg',
+                alt: 'Palm Island from the water — the view of arrivals',
               },
               {
                 era: 'Resistance & Resilience',
                 period: '1957',
                 description: 'The Magnificent Seven lead a five-day strike against oppressive conditions, facing exile but igniting a movement for dignity and rights.',
                 significance: 'Courage that echoes through generations',
-                icon: Users,
-                index: 2
+                image: 'https://uaxhjzqrdotoahjnxmbj.supabase.co/storage/v1/object/public/story-media/annual-reports/2012-13/annual-report-2012-13-img-000.jpg',
+                alt: 'Palm Island community — strength through generations',
               },
               {
                 era: 'Transition Period',
                 period: '1975-2005',
                 description: 'Dormitories close, Protection Act ends, community gains local government status. Slow dismantling of colonial control structures.',
                 significance: 'Each victory building toward self-governance',
-                icon: TrendingUp,
-                index: 3
+                image: 'https://uaxhjzqrdotoahjnxmbj.supabase.co/storage/v1/object/public/story-media/annual-reports/2021-22/annual-report-2021-22-img-005.jpg',
+                alt: 'Cultural centre — community gathering and cultural expression',
               },
               {
                 era: 'PICC Genesis',
                 period: '2007-2009',
                 description: 'Palm Island Community Company established. Rachel Atkinson appointed as sole employee in 2007, with formal service delivery beginning in 2009.',
                 significance: 'Planting seeds of transformation',
-                icon: Building,
-                index: 4
+                image: 'https://uaxhjzqrdotoahjnxmbj.supabase.co/storage/v1/object/public/story-media/annual-report-2024/1771305448522-6ug8k8-img-002.jpg',
+                alt: 'Rachel Atkinson — PICC founding CEO',
               },
               {
                 era: 'Community Sovereignty',
                 period: '2021-Present',
                 description: "Full community control achieved. PICC now wholly owned by Palm Islanders, becoming the island's second-largest employer.",
                 significance: 'Self-determination realized, but the journey continues',
-                icon: Star,
-                index: 5
-              }
+                image: 'https://uaxhjzqrdotoahjnxmbj.supabase.co/storage/v1/object/public/story-media/picc-website/service-photos/20240410-IMG_6282.jpg',
+                alt: 'PICC staff at Community Hub — community sovereignty in action',
+              },
             ].map((item, idx) => {
-              const photo = timelinePhotos[idx];
-              const Icon = item.icon;
               const isEven = idx % 2 === 0;
-
               return (
                 <div key={idx} className="grid md:grid-cols-2 gap-8 items-center">
                   <div className={isEven ? 'order-2 md:order-1' : ''}>
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 bg-gray-900 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
+                      <div className="w-12 h-12 bg-picc-ocean rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
                         {idx + 1}
                       </div>
                       <div>
                         <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-2xl font-bold text-gray-900">{item.era}</h3>
-                          <span className="text-sm font-medium bg-gray-200 text-gray-700 px-3 py-1 rounded-full">
+                          <h3 className="text-2xl font-bold text-picc-earth">{item.era}</h3>
+                          <span className="text-sm font-medium bg-picc-ochre/10 text-picc-ochre-700 px-3 py-1 rounded-full">
                             {item.period}
                           </span>
                         </div>
@@ -294,18 +244,12 @@ export default async function AboutPage() {
                     </div>
                   </div>
                   <div className={isEven ? 'order-1 md:order-2' : ''}>
-                    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden h-64">
-                      {photo ? (
-                        <img
-                          src={photo.public_url}
-                          alt={photo.alt_text || item.era}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-                          <Icon className="w-12 h-12 text-gray-300" />
-                        </div>
-                      )}
+                    <div className="bg-white rounded-2xl border border-warm-200 overflow-hidden h-64">
+                      <img
+                        src={item.image}
+                        alt={item.alt}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                   </div>
                 </div>
@@ -313,47 +257,44 @@ export default async function AboutPage() {
             })}
           </div>
 
-          {/* Link to Annual Reports */}
           <div className="mt-12 text-center">
-            <Link href="/annual-reports" className="inline-flex items-center gap-2 px-8 py-4 bg-gray-900 text-white rounded-full font-semibold text-lg hover:bg-gray-800 hover:scale-[0.97] active:scale-95 transition-all duration-300 ease-elegant">
+            <Link href="/20-years" className="inline-flex items-center gap-2 px-8 py-4 bg-picc-ocean text-white rounded-full font-semibold text-lg hover:bg-picc-ocean-600 hover:scale-[0.97] active:scale-95 transition-all duration-300 ease-elegant">
               <BookOpen className="w-5 h-5" />
-              Explore {stats.milestones.yearsOperating} Years of Annual Reports
+              Explore {stats.milestones.yearsOperating} Years of Impact
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Video Section - Community Story */}
-      <section className="py-20 px-4 bg-white">
-        <div className="max-w-4xl mx-auto">
+      {/* 6. Community Story Video */}
+      <section className="editorial-section bg-white">
+        <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-8">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-[-0.02em] mb-4">Our Community Story</h2>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-picc-earth tracking-[-0.02em] mb-4">Our Community Story</h2>
             <p className="text-xl text-gray-600">
-              The story of Palm Island Community Company in the community's own words
+              The story of Palm Island Community Company in the community&apos;s own words
             </p>
           </div>
-
           <div className="aspect-video bg-gray-900 rounded-2xl overflow-hidden">
             <iframe
               src="https://share.descript.com/embed/hKKOfLKaapn"
               className="w-full h-full"
               allow="autoplay; fullscreen"
-              allowFullScreen
               title="Palm Island Community Story"
             />
           </div>
         </div>
       </section>
 
-      {/* Leadership - Rachel Atkinson + Board */}
-      <section className="py-20 px-4 bg-gray-50">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-[-0.02em] text-center mb-12">The Architects of Transformation</h2>
+      {/* 7. Leadership */}
+      <section className="editorial-section bg-gradient-to-b from-white to-warm-50">
+        <div className="max-w-6xl mx-auto px-4">
+          <h2 className="text-3xl md:text-4xl font-extrabold text-picc-earth tracking-[-0.02em] text-center mb-12">The Architects of Transformation</h2>
 
           {/* CEO Spotlight */}
           <div className="grid md:grid-cols-3 gap-8 mb-16">
             <div className="md:col-span-1">
-              <div className="bg-white rounded-2xl border border-gray-100 aspect-square overflow-hidden">
+              <div className="bg-warm-50 rounded-2xl border border-warm-200 aspect-square overflow-hidden">
                 {rachelPhoto ? (
                   <img
                     src={rachelPhoto.public_url}
@@ -361,612 +302,127 @@ export default async function AboutPage() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-warm-50 to-warm-100">
                     <Users className="w-16 h-16 text-gray-300" />
                   </div>
                 )}
               </div>
             </div>
             <div className="md:col-span-2">
-              <h3 className="text-3xl font-extrabold text-gray-900 tracking-tight mb-2">Rachel Atkinson</h3>
+              <h3 className="text-3xl font-extrabold text-picc-ocean tracking-tight mb-2">Rachel Atkinson</h3>
               <p className="text-xl font-medium text-gray-700 mb-4">Chief Executive Officer</p>
               <p className="text-lg text-gray-700 mb-6">
-                A proud Yorta Yorta woman carrying the legacy of activists William Cooper and Sir Douglas Nicholls, Rachel has transformed PICC from a single-employee operation to Palm Island's largest non-government employer. Her greatest triumph: achieving full community control in 2021.
+                A proud Yorta Yorta woman carrying the legacy of activists William Cooper and Sir Douglas Nicholls, Rachel has transformed PICC from a single-employee operation to Palm Island&apos;s largest non-government employer. Her greatest triumph: achieving full community control in 2021.
               </p>
 
-              <div className="bg-white rounded-2xl border-l-4 border-gray-900 p-6 mb-6">
+              <div className="bg-warm-50 rounded-2xl border-l-4 border-picc-ochre p-6 mb-6">
                 <Quote className="w-8 h-8 text-gray-400 mb-3" />
                 <p className="text-lg italic text-gray-800">
-                  "Everything we do is for, with, and because of the people of this beautiful community"
+                  &ldquo;Everything we do is for, with, and because of the people of this beautiful community&rdquo;
                 </p>
               </div>
 
               <div>
-                <h4 className="font-bold text-gray-900 mb-3 text-lg">Transformational Achievements:</h4>
+                <h4 className="font-bold text-picc-earth mb-3 text-lg">Transformational Achievements:</h4>
                 <div className="grid md:grid-cols-2 gap-3">
-                  <div className="flex items-start">
-                    <ChevronRight className="h-5 w-5 text-gray-900 mt-0.5 mr-2 flex-shrink-0" />
-                    <span className="text-gray-700">Grew organization from 1 to {stats.staff.total} employees</span>
-                  </div>
-                  <div className="flex items-start">
-                    <ChevronRight className="h-5 w-5 text-gray-900 mt-0.5 mr-2 flex-shrink-0" />
-                    <span className="text-gray-700">80%+ Aboriginal and Torres Strait Islander workforce</span>
-                  </div>
-                  <div className="flex items-start">
-                    <ChevronRight className="h-5 w-5 text-gray-900 mt-0.5 mr-2 flex-shrink-0" />
-                    <span className="text-gray-700">Secured full community control</span>
-                  </div>
-                  <div className="flex items-start">
-                    <ChevronRight className="h-5 w-5 text-gray-900 mt-0.5 mr-2 flex-shrink-0" />
-                    <span className="text-gray-700">$5.8 million in local wages annually</span>
-                  </div>
-                  <div className="flex items-start md:col-span-2">
-                    <ChevronRight className="h-5 w-5 text-gray-900 mt-0.5 mr-2 flex-shrink-0" />
-                    <span className="text-gray-700">Reduced Aboriginal child removals through integrated services</span>
-                  </div>
+                  {[
+                    `Grew organization from 1 to ${stats.staff.total} employees`,
+                    '80%+ Aboriginal and Torres Strait Islander workforce',
+                    'Secured full community control',
+                    '$5.8 million in local wages annually',
+                    'Reduced Aboriginal child removals through integrated services',
+                  ].map((text, i) => (
+                    <div key={i} className={`flex items-start ${i === 4 ? 'md:col-span-2' : ''}`}>
+                      <ChevronRight className="h-5 w-5 text-picc-ochre mt-0.5 mr-2 flex-shrink-0" />
+                      <span className="text-gray-700">{text}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
           </div>
 
           {/* Board Members Grid */}
-          <h3 className="text-3xl font-extrabold text-gray-900 tracking-tight mb-8">Board of Directors: Guardians of Community Vision</h3>
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                name: 'Luella Bligh',
-                position: 'Chair',
-                description: 'Leading PICC through its historic transition to full community control, Luella embodies the spirit of self-determination.',
-                quote: "A future where Palm Island's governance reflects the wisdom of its people",
-              },
-              {
-                name: 'Allan Palm Island',
-                position: 'Traditional Owner Director',
-                description: 'Holding the inaugural position for the Manbarra people, Allan bridges ancient wisdom with contemporary innovation.',
-                quote: 'Creating spaces where young people reconnect with their cultural strength',
-              },
-              {
-                name: 'Rhonda Phillips',
-                position: 'Director',
-                description: 'With PICC since its 2007 inception, Rhonda brings four decades of transformative experience in Indigenous governance.',
-                quote: 'Systems that serve people, not the other way around',
-              },
-              {
-                name: 'Harriet Hulthen',
-                position: 'Director',
-                description: "Born and raised on Palm Island, Harriet's journey exemplifies homegrown leadership and commitment to justice.",
-                quote: 'Every Palm Islander having pathways to justice and opportunity',
-              },
-              {
-                name: 'Raymond W. Palmer Snr',
-                position: 'Director',
-                description: 'A proud Bwgcolman man who has never left his island home, bringing the perspective of deep roots and community heartbeat.',
-                quote: 'Our children learning on Country, from Country',
-              },
-              {
-                name: 'Matthew Lindsay',
-                position: 'Company Secretary',
-                description: "As a Fellow CPA and AICD Graduate, Matthew ensures PICC's vision is supported by robust financial governance.",
-                quote: 'Financial systems that enable community dreams',
-              },
-              {
-                name: 'Cassie Lang',
-                position: 'Director',
-                description: 'Cassie brings fresh perspective and deep community connection to the PICC board, championing innovation and youth engagement.',
-                quote: 'Building pathways for the next generation of Palm Island leaders',
-              }
-            ].map((member, idx) => {
-              const personTag = 'person:' + member.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '');
-              const photo = boardPortraits.find((p: any) => Array.isArray(p.tags) && p.tags.includes(personTag));
-
-              return (
-                <div key={idx} className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                  <div className="aspect-square bg-gray-100">
-                    {photo ? (
-                      <img
-                        src={photo.public_url}
-                        alt={photo.alt_text || member.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Users className="w-16 h-16 text-gray-400" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-6">
-                    <h4 className="text-xl font-bold text-gray-900 mb-1">{member.name}</h4>
-                    <p className="text-sm font-medium text-gray-600 mb-3">{member.position}</p>
-                    <p className="text-sm text-gray-700 mb-3">{member.description}</p>
-                    <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
-                      <Quote className="w-4 h-4 text-gray-400 mb-1" />
-                      <p className="text-xs italic text-gray-600">&ldquo;{member.quote}&rdquo;</p>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* ================================================================
-          ELDER STORIES: Voices of Wisdom and Heritage
-          PURPOSE: Showcase elder stories using intelligent placement
-          CONTEXT: About page - cultural emphasis with elder wisdom
-          DATABASE: page_context='about', page_section='elder-stories'
-          ALGORITHM: Cultural (45%) + Quality (25%) + Engagement (15%) + Recency (10%) + Diversity (5%)
-          FILTERS: Elder storytellers only, min quality 70%, unique storytellers
-          ================================================================ */}
-      {elderStories && elderStories.length > 0 && (
-        <section className="py-20 px-4 bg-gradient-to-b from-gray-50 to-white">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-                Voices of Our Elders
-              </h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                Wisdom, heritage, and lived experience from the knowledge keepers of our community
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-8">
-              {elderStories.map((story) => {
-                const featuredImage = story.story_media?.[0]?.media_url || story.featured_image_url;
-                const keyQuote = (story.metadata as any)?.key_quotes?.[0] || (story as any).summary || (story as any).excerpt;
-
-                return (
-                  <Link
-                    key={story.id}
-                    href={`/stories/${story.id}`}
-                    className="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all border border-gray-100"
-                  >
-                    {featuredImage && (
-                      <div className="aspect-video bg-gray-100 overflow-hidden">
-                        <img
-                          src={featuredImage}
-                          alt={story.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                      </div>
-                    )}
-
-                    <div className="p-6">
-                      {story.story_type && (
-                        <span className="inline-block px-3 py-1 bg-warm-100 text-picc-ochre text-xs font-semibold rounded-full mb-3">
-                          {story.story_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                        </span>
-                      )}
-
-                      <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-picc-teal transition-colors">
-                        {story.title}
-                      </h3>
-
-                      {keyQuote && (
-                        <blockquote className="text-gray-600 italic mb-4 line-clamp-3 border-l-4 border-picc-teal pl-4">
-                          "{keyQuote.replace(/^["']|["']$/g, '')}"
-                        </blockquote>
-                      )}
-
-                      <div className="flex items-center gap-3 mt-4">
-                        {story.storyteller?.profile_image_url && (
-                          <div className="w-12 h-12 rounded-full overflow-hidden ring-2 ring-warm-200">
-                            <img
-                              src={story.storyteller.profile_image_url}
-                              alt={story.storyteller.preferred_name || story.storyteller.full_name}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        )}
-                        <div>
-                          <p className="font-semibold text-gray-900">
-                            {story.storyteller?.preferred_name || story.storyteller?.full_name || 'Elder'}
-                          </p>
-                          {story.storyteller?.is_elder && (
-                            <p className="text-sm text-picc-ochre font-medium">Elder & Knowledge Keeper</p>
-                          )}
-                        </div>
-
-                        {story.contains_traditional_knowledge && (
-                          <div className="ml-auto">
-                            <span className="inline-flex items-center gap-1 px-3 py-1 bg-warm-100 text-picc-ochre text-xs font-medium rounded-full">
-                              <BespokeIcon name="traditional-knowledge" size={14} /> Cultural Knowledge
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-
-            <div className="text-center mt-12">
-              <Link
-                href="/stories?filter=elders"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-gray-900 text-white rounded-full font-semibold hover:bg-gray-800 hover:scale-[0.97] active:scale-95 transition-all duration-300 ease-elegant"
-              >
-                <BookOpen className="w-5 h-5" />
-                Explore All Elder Stories
-              </Link>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Community Quote Callout 2 */}
-      <section className="relative py-24 md:py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-warm-50" />
-        <div className="max-w-4xl mx-auto px-6 relative text-center">
-          <Quote className="w-12 h-12 text-gray-300 mx-auto mb-10" />
-          <blockquote className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-gray-900 leading-tight tracking-[-0.02em] mb-10">
-            &ldquo;We operate from abundance, not deficit. Every Palm Islander carries strengths, knowledge, and potential.&rdquo;
-          </blockquote>
-          <div className="text-sm font-semibold text-gray-500">PICC Philosophy</div>
-        </div>
-      </section>
-
-      {/* Services & Programs with Images */}
-      <section className="py-20 px-4 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-[-0.02em] text-center mb-4">An Ecosystem of Care & Capability</h2>
-          <p className="text-xl text-gray-600 text-center mb-12 max-w-3xl mx-auto">
-            From birth to elder years, from crisis to celebration, from healing to economic empowerment—we meet our community wherever they are on their journey
-          </p>
-
-          {/* Service Category 1 - Healing & Wellbeing */}
-          <div className="mb-16">
-            <h3 className="text-3xl font-extrabold text-gray-900 tracking-tight mb-8 pb-3 border-b-2 border-gray-100">Healing & Wellbeing</h3>
-
-            <div className="grid md:grid-cols-2 gap-8">
-              {/* Service 1 */}
-              <div className="bg-gray-50 rounded-2xl overflow-hidden border border-gray-100">
-                <div className="aspect-video bg-white">
-                  {servicePhotos[0] ? (
-                    <img
-                      src={servicePhotos[0].public_url}
-                      alt={servicePhotos[0].alt_text || 'Bwgcolman Healing Service'}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-                      <Heart className="w-12 h-12 text-gray-300" />
-                    </div>
-                  )}
-                </div>
-                <div className="p-6">
-                  <h4 className="text-2xl font-bold text-gray-900 mb-2">Bwgcolman Healing Service</h4>
-                  <p className="text-sm font-medium text-gray-600 italic mb-4">Where Western Medicine Meets Ancient Wisdom</p>
-                  <p className="text-gray-700 mb-4">
-                    Our renamed Primary Health Centre embodies the fusion of clinical excellence with cultural healing. Serving 2,283 clients with 17,488 episodes of care, we don't just treat illness—we nurture wholeness.
-                  </p>
-                  <div className="grid grid-cols-3 gap-4 mb-4">
-                    <div className="text-center">
-                      <div className="text-3xl font-extrabold text-gray-900 tracking-tight">2,283</div>
-                      <div className="text-xs text-gray-600">Clients</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-3xl font-extrabold text-gray-900 tracking-tight">17,488</div>
-                      <div className="text-xs text-gray-600">Episodes</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-3xl font-extrabold text-gray-900 tracking-tight">779</div>
-                      <div className="text-xs text-gray-600">Health Checks</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Phone className="h-4 w-4 mr-2" />
-                    07 4445 4401 | medicaladmin@picc.com.au
-                  </div>
-                </div>
-              </div>
-
-              {/* Service 2 */}
-              <div className="bg-gray-50 rounded-2xl overflow-hidden border border-gray-100">
-                <div className="aspect-video bg-white">
-                  {servicePhotos[1] ? (
-                    <img
-                      src={servicePhotos[1].public_url}
-                      alt={servicePhotos[1].alt_text || 'SEWB program'}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-                      <Heart className="w-12 h-12 text-gray-300" />
-                    </div>
-                  )}
-                </div>
-                <div className="p-6">
-                  <h4 className="text-2xl font-bold text-gray-900 mb-2">Social & Emotional Wellbeing</h4>
-                  <p className="text-sm font-medium text-gray-600 italic mb-4">Healing the Spirit, Strengthening the Mind</p>
-                  <p className="text-gray-700">
-                    Mental health support grounded in cultural understanding, recognizing that true wellbeing flows from connection to Country, culture, and community.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Service Category 2 - Family Constellation */}
-          <div className="mb-16">
-            <h3 className="text-3xl font-extrabold text-gray-900 tracking-tight mb-8 pb-3 border-b-2 border-gray-100">Family Constellation</h3>
-
+          <h3 className="text-3xl font-extrabold text-picc-ocean tracking-tight mb-8">Board of Directors: Guardians of Community Vision</h3>
+          {(boardMembers && boardMembers.length > 0) ? (
             <div className="grid md:grid-cols-3 gap-8">
-              {/* Services 3-5 */}
-              {[
-                {
-                  title: 'Children & Family Centre',
-                  subtitle: "Nurturing Tomorrow's Leaders",
-                  description: 'More than childcare—a sacred space where culture is transmitted through play.',
-                  phone: '07 4791 4018',
-                  index: 2
-                },
-                {
-                  title: 'Family Wellbeing Centre',
-                  subtitle: 'Strengthening Community Fabric',
-                  description: "Supporting families through life's challenges with practical skills and kinship connections.",
-                  phone: '07 4791 4050',
-                  index: 3
-                },
-                {
-                  title: 'Bwgcolman Way',
-                  subtitle: 'Revolutionary Self-Determination',
-                  description: 'Groundbreaking delegated authority model where Palm Islanders make decisions about their own children.',
-                  note: 'Now operational',
-                  index: 4
-                }
-              ].map((service, idx) => {
-                const photo = servicePhotos[service.index];
-                const Icon = idx === 0 ? Users : idx === 1 ? Heart : Target;
+              {boardMembers.map((member: any) => {
+                const personTag = 'person:' + member.full_name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '');
+                const photo = member.photo_url
+                  || boardPortraits.find((p: any) => Array.isArray(p.tags) && p.tags.includes(personTag))?.public_url
+                  || null;
 
                 return (
-                  <div key={idx} className="bg-gray-50 rounded-2xl overflow-hidden border border-gray-100">
-                    <div className="aspect-video bg-white">
+                  <div key={member.id} className="bg-warm-50 rounded-2xl border border-warm-200 overflow-hidden">
+                    <div className="aspect-square bg-warm-100">
                       {photo ? (
-                        <img
-                          src={photo.public_url}
-                          alt={photo.alt_text || service.title}
-                          className="w-full h-full object-cover"
-                        />
+                        <img src={photo} alt={member.full_name} className="w-full h-full object-cover" />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-                          <Icon className="w-12 h-12 text-gray-300" />
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Users className="w-16 h-16 text-gray-400" />
                         </div>
                       )}
                     </div>
                     <div className="p-6">
-                      <h4 className="text-xl font-bold text-gray-900 mb-2">{service.title}</h4>
-                      <p className="text-sm font-medium text-gray-600 italic mb-3">{service.subtitle}</p>
-                      <p className="text-sm text-gray-700 mb-3">{service.description}</p>
-                      {service.phone && (
-                        <div className="text-xs text-gray-600">
-                          <Phone className="h-3 w-3 inline mr-1" />
-                          {service.phone}
+                      <h4 className="text-xl font-bold text-picc-earth mb-1">{member.full_name}</h4>
+                      <p className="text-sm font-medium text-gray-600 mb-3">{member.position}</p>
+                      {member.bio && <p className="text-sm text-gray-700 mb-3">{member.bio}</p>}
+                      {member.featured_quote && (
+                        <div className="bg-white rounded-xl p-3 border border-warm-200">
+                          <Quote className="w-4 h-4 text-gray-400 mb-1" />
+                          <p className="text-xs italic text-gray-600">&ldquo;{member.featured_quote}&rdquo;</p>
                         </div>
-                      )}
-                      {service.note && (
-                        <div className="text-xs font-medium text-gray-900">{service.note}</div>
                       )}
                     </div>
                   </div>
                 );
               })}
             </div>
-          </div>
-
-          {/* Service Category 3 - Economic Sovereignty */}
-          <div className="mb-16">
-            <h3 className="text-3xl font-extrabold text-gray-900 tracking-tight mb-8 pb-3 border-b-2 border-gray-100">Economic Sovereignty</h3>
-
-            <div className="grid md:grid-cols-2 gap-8">
-              {/* Services 6-7 */}
-              {[
-                {
-                  title: 'Digital Service Centre',
-                  subtitle: 'Palm Island Connecting Australia',
-                  description: '21 local workers now provide customer service to First Nations people nationwide. From a remote island to a digital hub—this is economic transformation in action.',
-                  stats: [{ value: '21', label: 'Full-time positions' }, { value: '#2', label: 'Indigenous digital center in Australia' }],
-                  index: 5
-                },
-                {
-                  title: 'Social Enterprises',
-                  subtitle: 'Community Wealth Through Community Work',
-                  description: 'Our bakery, fuel station, mechanics shop, and retail center keep money circulating locally while providing essential services.',
-                  stats: [{ value: '44', label: 'Staff (record high)' }],
-                  note: 'Bakery • Fuel • Mechanics • Coffee • Variety Store',
-                  index: 6
-                }
-              ].map((service, idx) => {
-                const photo = servicePhotos[service.index];
-
-                return (
-                  <div key={idx} className="bg-gray-50 rounded-2xl overflow-hidden border border-gray-100">
-                    <div className="aspect-video bg-white">
-                      {photo ? (
-                        <img
-                          src={photo.public_url}
-                          alt={photo.alt_text || service.title}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-                          <Building className="w-12 h-12 text-gray-300" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-6">
-                      <h4 className="text-2xl font-bold text-gray-900 mb-2">{service.title}</h4>
-                      <p className="text-sm font-medium text-gray-600 italic mb-4">{service.subtitle}</p>
-                      <p className="text-gray-700 mb-4">{service.description}</p>
-                      <div className={`grid grid-cols-${service.stats.length} gap-4`}>
-                        {service.stats.map((stat, sidx) => (
-                          <div key={sidx}>
-                            <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
-                            <div className="text-xs text-gray-600">{stat.label}</div>
-                          </div>
-                        ))}
-                      </div>
-                      {service.note && (
-                        <div className="text-xs text-gray-600 mt-2">{service.note}</div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+          ) : (
+            <div className="text-center py-12 text-gray-500">
+              <Users className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+              <p>Board member information coming soon.</p>
             </div>
-          </div>
+          )}
         </div>
       </section>
 
-      {/* Video Section - Elders Trip */}
-      <section className="py-20 px-4 bg-gray-50">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-[-0.02em] mb-4">Elders Mission Beach Trip</h2>
-            <p className="text-xl text-gray-600">
-              Connecting Elders to Country through community-led programs
-            </p>
-          </div>
+      {/* 8. Community Voices */}
+      <CommunityQuotesSection featured limit={6} variant="carousel" />
 
-          <div className="aspect-video bg-gray-900 rounded-2xl overflow-hidden">
-            <iframe
-              src="https://share.descript.com/embed/75MyeSD3Ujp"
-              className="w-full h-full"
-              allow="autoplay; fullscreen"
-              allowFullScreen
-              title="Elder's Mission Beach Trip"
-            />
-          </div>
-        </div>
-      </section>
+      {/* 9. 20-Year Vision + Countdown */}
+      <AboutCountdownSection
+        currentYear={stats.milestones.currentYear}
+        yearsRemaining={stats.milestones.yearsRemaining}
+        progressPct={stats.milestones.progressPct}
+        staffTotal={stats.staff.total}
+        servicesActive={stats.services.active}
+        incomeDisplay={stats.financials.incomeDisplay}
+      />
 
-      {/* Community Voices - Testimonials from real curated quotes */}
-      {curatedQuotes.length > 0 && (
-        <section className="py-20 px-4 bg-white">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-[-0.02em] text-center mb-4">Voices of Transformation</h2>
-            <p className="text-xl text-gray-600 text-center mb-12 max-w-3xl mx-auto">
-              Real stories from community members about PICC's impact
-            </p>
-
-            <div className="grid md:grid-cols-2 gap-8">
-              {curatedQuotes.map((cq) => (
-                <div key={cq.id} className="bg-gray-50 rounded-2xl p-8 border border-gray-100">
-                  <Quote className="w-12 h-12 text-gray-300 mb-4" />
-                  <blockquote className="text-xl font-medium text-gray-800 mb-6 italic">
-                    &ldquo;{cq.quote}&rdquo;
-                  </blockquote>
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center border border-gray-200 overflow-hidden">
-                      {cq.photo_url ? (
-                        <img
-                          src={cq.photo_url}
-                          alt={cq.speaker_name || 'Community member'}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <Users className="w-8 h-8 text-gray-400" />
-                      )}
-                    </div>
-                    <div>
-                      {cq.speaker_name && (
-                        <div className="font-bold text-gray-900">{cq.speaker_name}</div>
-                      )}
-                      {cq.speaker_role && (
-                        <div className="text-sm text-gray-600">{cq.speaker_role}</div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="text-center mt-12">
-              <Link href="/stories" className="inline-flex items-center gap-2 px-8 py-4 bg-gray-900 text-white rounded-full font-semibold text-lg hover:bg-gray-800 hover:scale-[0.97] active:scale-95 transition-all duration-300 ease-elegant">
-                <BookOpen className="w-5 h-5" />
-                Read More Community Stories
-              </Link>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Future Initiatives */}
-      <section className="py-20 px-4 bg-gray-50">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-[-0.02em] text-center mb-4">Horizons of Possibility</h2>
-          <p className="text-xl text-gray-600 text-center mb-12 max-w-3xl mx-auto">
-            The journey from survival to thrival continues, and every Palm Islander is part of writing the next chapter
-          </p>
-
-          <div className="grid md:grid-cols-2 gap-8">
-            {[
-              {
-                title: 'Youth Digital Futures',
-                description: 'Expand digital literacy and create pathways from classroom to career in technology sectors. Building on Digital Service Centre success.',
-                outcomes: ['60 youth trained in digital skills', 'Direct employment pathways', 'Technology infrastructure upgrades']
-              },
-              {
-                title: 'Bwgcolman Way Implementation',
-                description: 'Fully operationalize community-controlled child protection decision-making, keeping families together and children connected to culture.',
-                outcomes: ['Trained community case workers', 'Cultural protocols established', 'Reduced child removals']
-              },
-              {
-                title: 'Cultural Heritage Living Centre',
-                description: 'Create spaces where knowledge transmission happens naturally, where Elders teach and youth learn in culturally grounded ways.',
-                outcomes: ['Documented cultural practices', 'Intergenerational programs', 'Cultural tourism opportunities']
-              },
-              {
-                title: 'Storytelling Sovereignty Project',
-                description: 'Document and preserve community narratives that reshape external perceptions and strengthen internal identity.',
-                outcomes: ['Digital story archive (20-30 stories)', '6 trained community storytellers', 'Expanded cultural documentation']
-              }
-            ].map((initiative, idx) => (
-              <div key={idx} className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                <div className="p-6 border-b border-gray-100">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">{initiative.title}</h3>
-                  <p className="text-gray-700">{initiative.description}</p>
-                </div>
-                <div className="p-6 bg-gray-50">
-                  <h4 className="font-bold text-gray-900 mb-2 text-sm">Expected Outcomes:</h4>
-                  <ul className="space-y-1 text-sm text-gray-700">
-                    {initiative.outcomes.map((outcome, oidx) => (
-                      <li key={oidx} className="flex items-start">
-                        <ChevronRight className="h-4 w-4 text-gray-600 mt-0.5 mr-1 flex-shrink-0" />
-                        {outcome}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Contact & CTA */}
-      <section className="py-20 px-4 bg-white">
-        <div className="max-w-4xl mx-auto">
+      {/* 10. Connect CTA */}
+      <section className="editorial-section bg-white">
+        <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-[-0.02em] mb-4">Connect With PICC</h2>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-picc-earth tracking-[-0.02em] mb-4">Be Part of Our Story</h2>
             <p className="text-xl text-gray-600">
-              Ready to be part of Palm Island's transformation story?
+              Ready to be part of Palm Island&apos;s transformation story?
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 mb-8">
-            <div className="bg-gray-50 rounded-2xl p-8 border border-gray-100">
-              <Phone className="w-12 h-12 text-gray-900 mb-4" />
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Call Us</h3>
+            <div className="bg-warm-50 rounded-2xl p-8 border border-warm-200">
+              <Phone className="w-12 h-12 text-picc-ocean mb-4" />
+              <h3 className="text-xl font-bold text-picc-earth mb-2">Call Us</h3>
               <p className="text-gray-700 mb-3">Speak with our team about services, employment, or partnerships</p>
               <a href="tel:0744214300" className="text-lg font-semibold text-gray-900 hover:underline">
                 (07) 4421 4300
               </a>
             </div>
 
-            <div className="bg-gray-50 rounded-2xl p-8 border border-gray-100">
-              <Mail className="w-12 h-12 text-gray-900 mb-4" />
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Email Us</h3>
+            <div className="bg-warm-50 rounded-2xl p-8 border border-warm-200">
+              <Mail className="w-12 h-12 text-picc-ocean mb-4" />
+              <h3 className="text-xl font-bold text-picc-earth mb-2">Email Us</h3>
               <p className="text-gray-700 mb-3">Get in touch for inquiries, recruitment, or more information</p>
               <a href="mailto:recruitment@picc.com.au" className="text-lg font-semibold text-gray-900 hover:underline">
                 recruitment@picc.com.au
@@ -975,16 +431,18 @@ export default async function AboutPage() {
           </div>
 
           <div className="flex flex-wrap gap-4 justify-center">
-            <Link href="/share-voice" className="inline-flex items-center gap-3 px-8 py-4 bg-gray-900 text-white rounded-full font-semibold text-lg hover:bg-gray-800 hover:scale-[0.97] active:scale-95 transition-all duration-300 ease-elegant">
+            <Link href="/share-voice" className="inline-flex items-center gap-3 px-8 py-4 bg-picc-ocean text-white rounded-full font-semibold text-lg hover:bg-picc-ocean-600 hover:scale-[0.97] active:scale-95 transition-all duration-300 ease-elegant">
               Share Your Story
             </Link>
-            <Link href="/annual-reports" className="inline-flex items-center gap-3 px-8 py-4 border-2 border-gray-200 text-gray-900 rounded-full font-semibold text-lg hover:bg-gray-50 transition-all duration-300 ease-elegant">
-              View Our Journey
+            <Link href="/services" className="inline-flex items-center gap-3 px-8 py-4 border-2 border-picc-ocean text-picc-ocean rounded-full font-semibold text-lg hover:bg-picc-ocean/5 transition-all duration-300 ease-elegant">
+              Explore Services
+            </Link>
+            <Link href="/annual-report/live" className="inline-flex items-center gap-2 text-picc-ocean font-semibold hover:underline py-4">
+              View Annual Report &rarr;
             </Link>
           </div>
         </div>
       </section>
-
     </div>
   );
 }

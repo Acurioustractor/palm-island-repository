@@ -49,7 +49,7 @@ export function PublicFooter() {
             </h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/annual-reports" className="animated-underline text-sm text-stone-400 hover:text-white transition-colors duration-300">
+                <Link href="/annual-report/live" className="animated-underline text-sm text-stone-400 hover:text-white transition-colors duration-300">
                   Annual Reports
                 </Link>
               </li>

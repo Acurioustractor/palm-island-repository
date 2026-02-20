@@ -125,14 +125,14 @@ async function searchElderQuotes(supabase: SupabaseClient, query: string, limit 
   try {
     const { data: quotes } = await supabase
       .from('elder_quotes')
-      .select('id, quote_text, speaker_name, context, theme')
-      .or(`quote_text.ilike.%${query}%,context.ilike.%${query}%,theme.ilike.%${query}%`)
+      .select('id, text, speaker_name, speaker_role, theme, category')
+      .or(`text.ilike.%${query}%,theme.ilike.%${query}%,category.ilike.%${query}%,speaker_name.ilike.%${query}%`)
       .limit(limit)
 
     if (!quotes || quotes.length === 0) return { text: '', sources: [] }
 
     const parts = quotes.map((q: any) =>
-      `"${q.quote_text}" — ${q.speaker_name || 'Elder'}${q.context ? ` (${q.context})` : ''}`
+      `"${q.text}" — ${q.speaker_name || 'Elder'}${q.speaker_role ? ` (${q.speaker_role})` : ''}`
     )
 
     return {
@@ -180,55 +180,55 @@ async function getFinancialContext(supabase: SupabaseClient): Promise<{ text: st
 
 async function getServicesContext(supabase: SupabaseClient, query: string): Promise<{ text: string; sources: ExpandedSource[] }> {
   try {
-    const { data: services } = await supabase
+    // Always fetch ALL active services for comprehensive answers
+    const { data: all } = await supabase
       .from('organization_services')
       .select('id, name, slug, description, service_category, is_active, staff_count, clients_served_annual')
       .eq('is_active', true)
-      .or(`name.ilike.%${query}%,description.ilike.%${query}%,service_category.ilike.%${query}%`)
-      .limit(5)
+      .order('service_category')
 
-    if (!services || services.length === 0) {
-      // If no matches, return a summary of all services
-      const { data: all } = await supabase
-        .from('organization_services')
-        .select('name, service_category, staff_count, clients_served_annual')
-        .eq('is_active', true)
-        .order('name')
+    if (!all || all.length === 0) return { text: '', sources: [] }
 
-      if (!all || all.length === 0) return { text: '', sources: [] }
+    // Group by category with full details
+    const byCategory = all.reduce((acc: Record<string, any[]>, s: any) => {
+      const cat = s.service_category || 'Other'
+      if (!acc[cat]) acc[cat] = []
+      acc[cat].push(s)
+      return acc
+    }, {})
 
-      const byCategory = all.reduce((acc: Record<string, string[]>, s: any) => {
-        const cat = s.service_category || 'other'
-        if (!acc[cat]) acc[cat] = []
-        acc[cat].push(s.name)
-        return acc
-      }, {})
+    const parts: string[] = [`PICC operates ${all.length} services across ${Object.keys(byCategory).length} categories:\n`]
 
-      const text = Object.entries(byCategory)
-        .map(([cat, names]) => `${cat}: ${(names as string[]).join(', ')}`)
-        .join('\n')
-
-      return {
-        text: `PICC operates ${all.length} services:\n${text}`,
-        sources: [{ title: 'PICC Services', url: '/picc/services', type: 'service' }]
+    for (const [cat, services] of Object.entries(byCategory)) {
+      parts.push(`### ${cat}`)
+      for (const s of services as any[]) {
+        let line = `- **${s.name}**: ${s.description || 'No description'}`
+        if (s.staff_count) line += ` (${s.staff_count} staff`
+        if (s.clients_served_annual) line += s.staff_count ? `, ${s.clients_served_annual} clients/year)` : ` (${s.clients_served_annual} clients/year)`
+        else if (s.staff_count) line += ')'
+        parts.push(line)
       }
     }
 
-    const parts = services.map((s: any) => {
-      let line = `${s.name} (${s.service_category}): ${s.description || ''}`
-      if (s.staff_count) line += ` — ${s.staff_count} staff`
-      if (s.clients_served_annual) line += `, ${s.clients_served_annual} clients/year`
-      return line
-    })
+    // When 1-3 services match the query, return individual source cards;
+    // otherwise return one aggregated source
+    const lower = query.toLowerCase()
+    const matched = all.filter((s: any) =>
+      s.name?.toLowerCase().includes(lower) ||
+      s.slug?.toLowerCase().includes(lower) ||
+      s.description?.toLowerCase().includes(lower) ||
+      s.service_category?.toLowerCase().includes(lower)
+    )
 
-    return {
-      text: parts.join('\n'),
-      sources: services.map((s: any) => ({
-        title: s.name,
-        url: `/services`,
-        type: 'service'
-      }))
-    }
+    const sources: ExpandedSource[] = matched.length >= 1 && matched.length <= 3
+      ? matched.map((s: any) => ({
+          title: s.name,
+          url: `/services/${s.slug}`,
+          type: 'service' as const,
+        }))
+      : [{ title: 'PICC Services', url: '/services', type: 'service' }]
+
+    return { text: parts.join('\n'), sources }
   } catch {
     return { text: '', sources: [] }
   }
@@ -365,7 +365,7 @@ export async function getExpandedContext(
   query: string,
   options: { maxContextTokens?: number; limit?: number } = {}
 ): Promise<ExpandedContextResult> {
-  const { maxContextTokens = 4000, limit = 5 } = options
+  const { maxContextTokens = 12000, limit = 10 } = options
   const supabase = getSupabase()
   const intents = detectIntents(query)
   const allSources: ExpandedSource[] = []
@@ -385,57 +385,42 @@ export async function getExpandedContext(
     console.error('RAG context error (non-fatal):', err)
   }
 
-  // 3. Intent-based table searches (parallel)
+  // 3. ALWAYS search all key tables in parallel for maximum recall
+  //    Intent detection boosts relevance but never gates access
   const searches: Promise<void>[] = []
 
-  if (intents.financial) {
-    searches.push(
-      getFinancialContext(supabase).then(r => { if (r.text) { sections['Financial Data'] = r.text; allSources.push(...r.sources) } })
-    )
-  }
+  // Always search services (core of what people ask about)
+  searches.push(
+    getServicesContext(supabase, query).then(r => { if (r.text) { sections['Services'] = r.text; allSources.push(...r.sources) } })
+  )
 
-  if (intents.services) {
-    searches.push(
-      getServicesContext(supabase, query).then(r => { if (r.text) { sections['Services'] = r.text; allSources.push(...r.sources) } })
-    )
-  }
+  // Always search people/leadership
+  searches.push(
+    getPeopleContext(supabase).then(r => { if (r.text) { sections['People & Leadership'] = r.text; allSources.push(...r.sources) } })
+  )
 
-  if (intents.people) {
-    searches.push(
-      getPeopleContext(supabase).then(r => { if (r.text) { sections['People & Leadership'] = r.text; allSources.push(...r.sources) } })
-    )
-  }
+  // Always search elder quotes and interviews
+  searches.push(
+    searchElderQuotes(supabase, query, intents.quotes ? 8 : 3).then(r => { if (r.text) { sections['Elder Voices'] = r.text; allSources.push(...r.sources) } })
+  )
+  searches.push(
+    searchInterviews(supabase, query, intents.quotes ? 5 : 2).then(r => { if (r.text) { sections['Interviews'] = r.text; allSources.push(...r.sources) } })
+  )
 
-  if (intents.quotes) {
-    searches.push(
-      searchElderQuotes(supabase, query).then(r => { if (r.text) { sections['Elder Voices'] = r.text; allSources.push(...r.sources) } })
-    )
-    searches.push(
-      searchInterviews(supabase, query).then(r => { if (r.text) { sections['Interviews'] = r.text; allSources.push(...r.sources) } })
-    )
-  }
+  // Always search history
+  searches.push(
+    getHistoryContext(supabase, query).then(r => { if (r.text) { sections['History & Governance'] = r.text; allSources.push(...r.sources) } })
+  )
 
-  if (intents.history) {
-    searches.push(
-      getHistoryContext(supabase, query).then(r => { if (r.text) { sections['History & Governance'] = r.text; allSources.push(...r.sources) } })
-    )
-  }
+  // Always include financials (even a summary)
+  searches.push(
+    getFinancialContext(supabase).then(r => { if (r.text) { sections['Financial Data'] = r.text; allSources.push(...r.sources) } })
+  )
 
-  if (intents.partners) {
-    searches.push(
-      getPartnersContext(supabase).then(r => { if (r.text) { sections['Partners'] = r.text; allSources.push(...r.sources) } })
-    )
-  }
-
-  // If no specific intents detected, do a broad search across key tables
-  if (!intents.financial && !intents.services && !intents.people && !intents.quotes && !intents.history && !intents.partners) {
-    searches.push(
-      searchElderQuotes(supabase, query, 3).then(r => { if (r.text) { sections['Community Voices'] = r.text; allSources.push(...r.sources) } })
-    )
-    searches.push(
-      getServicesContext(supabase, query).then(r => { if (r.text) { sections['Services'] = r.text; allSources.push(...r.sources) } })
-    )
-  }
+  // Always search partners
+  searches.push(
+    getPartnersContext(supabase).then(r => { if (r.text) { sections['Partners'] = r.text; allSources.push(...r.sources) } })
+  )
 
   await Promise.all(searches)
 

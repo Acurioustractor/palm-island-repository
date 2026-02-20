@@ -1,202 +1,190 @@
-# Codebase Report: Photo and Image Audit
-Generated: 2026-02-18
+# Media `is_featured` Usage Audit
+Generated: 2026-02-20
 
 ## Summary
 
-No Unsplash or external stock photo URLs were found anywhere in the codebase. The platform is architecturally sound — all dynamic images load from Supabase storage via `public_url` fields. However, there are three categories of issues:
+I've audited all media fetching code across the platform to identify how `is_featured` is being used when querying the `media_files` table. Overall, the platform **mostly** prioritizes featured media correctly, but there are **2 critical gaps** in the annual report PDF data layer.
 
-1. **BROKEN REFERENCES** — `/images/placeholder-*.jpg` and `/placeholders/*.jpg` paths are hardcoded but those directories do not exist in `public/`
-2. **MISSING FILES** — The `getPlaceholderImage()` utility function defines fallback paths that don't exist on disk
-3. **DEMO PAGE** — `/picc/reports/demo/page.tsx` has hardcoded `/images/demo/*.jpg` paths that don't exist
-4. **EMPTY ALT TEXT** — Numerous admin/internal pages use `alt=""` on meaningful images (not decorative)
+## Key Findings
 
----
+### ✓ PROPERLY USES `is_featured`
 
-## Public Directory — What Actually Exists
+**1. Core Media Utilities (`lib/media/utils.ts`)**
 
-### Real PICC Assets (legitimate)
-- `public/logo/picc-logo-full.png` — official PICC logo (32KB) — used across the platform
-- `public/video/hero-poster.jpg` (197KB) — poster frame for homepage hero video
-- `public/video/road-to-20-years-poster.jpg` (141KB) — poster for road-to-20 video
+All primary media fetching utilities correctly handle `is_featured`:
 
-### Video Files (all present)
-- `public/video/hero-desktop-web.mp4` (10.1MB) — homepage hero, optimised
-- `public/video/hero-desktop.mp4` (61MB) — full quality (not referenced in code)
-- `public/video/hero-mobile.mp4` (6.4MB)
-- `public/video/road-to-20-years.mp4` (7.3MB)
-- `public/video/road-to-20-years-mobile.mp4` (1.2MB)
+- **Line 82-83**: `getFeaturedPageMedia()` filters by `is_featured = true`
+- **Line 196**: `getMediaByTags()` orders by `is_featured DESC` first, then `created_at DESC`
+- **Line 39-41**: `getPageMedia()` supports optional `featuredOnly` filter
 
-### Service Icons (all present, custom illustrated)
-`public/service-icons/` — 17 PNG files (custom PICC service icons, 191–735KB each)
+**2. Service Pages**
 
-### Bespoke Icons (all present)
-`public/icons/bespoke/` — 42 PNG files (custom illustrated topic icons)
+Service detail pages (`app/(public)/services/[slug]/page.tsx`) properly prioritize featured media:
 
-### Cyclone Kirrily (temporary staging folder)
-`public/cyclone-kirrily-temp/` — 22 images (Getty, AAP, SBS, QRA sourced — these are THIRD-PARTY IMAGES)
-- `getty-sunken-yacht-1.jpg`, `getty-sunken-yacht-2.jpg`
-- `getty-tree-damage-1/2/3.jpg`
-- `getty-jogger-strand-sunrise.jpg`
-- `aap-palm-island-shelter.jpg`
-- `sbs-kirrily-aftermath-1/2.jpg`
-- `canberra-times-shelter-call.jpg`, `nit-fnq-cyclone-prep.jpg`, `nit-kirrily-coast-crossing.jpg`
-- QRA/satellite imagery files
-These are labelled "temp" but are still sitting in public/. They are NOT referenced in any .tsx or .ts files — only in upload scripts. They appear to be pre-upload staging files.
+- **Line 92**: Gallery images ordered by `is_featured DESC, created_at DESC`
+- **Line 121**: Service videos ordered by `is_featured DESC`
+- **Line 130**: External videos ordered by `is_featured DESC`
 
-### Historical Annual Report Images (extracted from PDFs)
-- `public/annual-report-photos/` — hundreds of PNG/JPG frames extracted from legacy PDFs (2009–2024)
-- `public/documents/annual-reports/images/` — images extracted per page from 15 years of annual reports
-- `public/documents/annual-reports/*.pdf` — 15 PDF files (2009-10 through 2023-24)
+**3. Services Index (`app/(public)/services/page.tsx`)**
 
-### Directories That Do NOT Exist But Are Referenced in Code
-- `public/images/` — MISSING (8 broken references in immersive-stories page)
-- `public/placeholders/` — MISSING (5 paths defined in lib/media/utils.ts)
-- `public/images/demo/` — MISSING (2 references in picc/reports/demo page)
+- **Line 77**: Cover photos ordered by `is_featured DESC, created_at DESC`
 
----
+**4. Homepage (`app/(public)/page.tsx`)**
 
-## Broken Image References
+- **Line 90**: Service hero images ordered by `is_featured DESC`
+- **Line 197**: Gallery photos ordered by `is_featured DESC`
+- **Line 210**: Fallback featured photos filtered by `is_featured = true`
 
-### CRITICAL — Referenced but files don't exist
+**5. About Page (`app/(public)/about/page.tsx`)**
 
-| File | Line | Path Referenced | Status |
-|------|------|-----------------|--------|
-| `app/immersive-stories/photo-studio-journey/page.tsx` | 63 | `/images/placeholder-1.jpg` | BROKEN — dir missing |
-| `app/immersive-stories/photo-studio-journey/page.tsx` | 68 | `/images/placeholder-2.jpg` | BROKEN |
-| `app/immersive-stories/photo-studio-journey/page.tsx` | 73 | `/images/placeholder-3.jpg` | BROKEN |
-| `app/immersive-stories/photo-studio-journey/page.tsx` | 78 | `/images/placeholder-4.jpg` | BROKEN |
-| `app/immersive-stories/photo-studio-journey/page.tsx` | 83 | `/images/placeholder-5.jpg` | BROKEN |
-| `app/immersive-stories/photo-studio-journey/page.tsx` | 88 | `/images/placeholder-6.jpg` | BROKEN |
-| `app/immersive-stories/photo-studio-journey/page.tsx` | 111 | `/images/hero-placeholder.jpg` | BROKEN |
-| `app/immersive-stories/photo-studio-journey/page.tsx` | 157 | `/images/landscape-placeholder.jpg` | BROKEN |
-| `app/immersive-stories/photo-studio-journey/page.tsx` | 176 | `/images/meeting-placeholder.jpg` | BROKEN |
-| `app/immersive-stories/photo-studio-journey/page.tsx` | 211 | `/images/equipment-placeholder.jpg` | BROKEN |
-| `app/immersive-stories/photo-studio-journey/page.tsx` | 221 | `/images/family-placeholder.jpg` | BROKEN |
-| `app/immersive-stories/photo-studio-journey/page.tsx` | 302 | `/images/sunset-placeholder.jpg` | BROKEN |
-| `app/picc/reports/demo/page.tsx` | 77 | `/images/demo/language-class.jpg` | BROKEN — dir missing |
-| `app/picc/reports/demo/page.tsx` | 107 | `/images/demo/youth-leadership.jpg` | BROKEN |
+- Uses `getHeroVideo('about')` which internally filters by `is_featured = true` (via `getFeaturedPageMedia`)
 
-### POTENTIAL ISSUE — Fallback utility with non-existent paths
+**6. Elders Page (`app/(public)/elders/page.tsx`)**
 
-`lib/media/utils.ts` lines 297–303 defines `getPlaceholderImage()` returning:
-- `/placeholders/hero-placeholder.jpg`
-- `/placeholders/person-placeholder.jpg`
-- `/placeholders/service-placeholder.jpg`
-- `/placeholders/history-placeholder.jpg`
-- `/placeholders/default-placeholder.jpg`
+- **Lines 158, 181, 270, 292, 312**: All media queries order by `is_featured DESC`
 
-None of these paths exist in `public/`. However `getPlaceholderImage()` is never actually called anywhere (only defined). This is dead code but could cause issues if called in future.
+**7. 20 Years Page (`app/(public)/20-years/page.tsx`)**
 
----
+- **Lines 14, 25**: Both media queries order by `is_featured DESC`
 
-## Image Source Classification — Public-Facing Pages
+**8. Live Annual Report Data (`lib/annual-report/fetch-live-report-data.ts`)**
 
-All public-facing pages (`app/(public)/`) use dynamic images from Supabase. No hardcoded image paths on production pages.
+- **Line 146**: Map image ordered by `is_featured DESC, display_order ASC`
+- **Line 234**: Story images ordered by `is_featured DESC, created_at DESC`
 
-### Homepage (`app/(public)/HomePageClient.tsx` + `page-new.tsx`)
-- Hero video: `/video/hero-desktop-web.mp4` + `/video/hero-mobile.mp4` — REAL PICC VIDEO
-- Hero poster: `/video/hero-poster.jpg` — REAL PICC photo
-- All gallery/feature images: loaded via `getHeroImage()`, `getPageMedia()`, `getFeaturedPageMedia()` — dynamic from Supabase
-- Pattern: graceful null handling when images not set
+### ✗ MISSING `is_featured` PRIORITIZATION
 
-### About Page (`app/(public)/about/page.tsx`)
-- Hero: `getHeroImage("about")` — dynamic from Supabase
-- CEO/Chair photos: `rachelPhoto.public_url` — dynamic from Supabase
-- Service photos, timeline photos, testimonial photos — all dynamic
+**1. Annual Report PDF Data Layer (`lib/annual-report/fetch-report-data.ts`)**
 
-### Annual Report 2024-25 (`app/(public)/annual-report/2024-25/`)
-- Hero: `getHeroImage('annual-report')` — dynamic
-- CEO photo: `media.ceoPhotoUrl` — dynamic
-- Chair photo: `media.chairPhotoUrl` — dynamic
-- Fallback: `/video/hero-desktop-web.mp4` if no Supabase video found
+**CRITICAL ISSUE - Lines 260-273**: Cover photo and gallery photos for PDF generation do NOT prioritize `is_featured`:
 
-### 20 Years Page (`app/(public)/20-years/page.tsx`)
-- Images fetched from `/api/public/history` — dynamic, pulls `public_url` from Supabase media table
+```typescript
+// Line 260-265: Cover photo — NO is_featured ordering
+supabase
+  .from('media_files')
+  .select('storage_url, caption')
+  .contains('tags', ['annual-report-cover'])
+  .limit(1)
+  .maybeSingle(),
 
-### Road to 20 Years (`app/(public)/road-to-20-years/page.tsx`)
-- Video: `/video/road-to-20-years.mp4` — REAL PICC VIDEO (exists)
-- Poster: `/video/road-to-20-years-poster.jpg` — REAL (exists)
+// Line 268-273: Gallery photos — ordered by created_at only
+supabase
+  .from('media_files')
+  .select('storage_url, caption')
+  .contains('tags', ['annual-report'])
+  .order('created_at', { ascending: false })  // ⚠️ Should order by is_featured first
+  .limit(6),
+```
 
-### Stories Pages
-- All story images loaded dynamically via `getMediaUrl()`, storyteller `profile_image_url`, `featured_image_url`
+**Impact**: When generating PDF annual reports, the system picks the most recent photos instead of curated featured photos. This means carefully selected featured images may be ignored in favor of whatever was uploaded last.
 
-### Services Page (`app/(public)/services/page.tsx`)
-- Service covers from `cover_photo.public_url` — dynamic from Supabase
+**Recommended Fix**:
+```typescript
+// Cover photo
+supabase
+  .from('media_files')
+  .select('storage_url, caption')
+  .contains('tags', ['annual-report-cover'])
+  .order('is_featured', { ascending: false })
+  .order('created_at', { ascending: false })
+  .limit(1)
+  .maybeSingle(),
 
----
+// Gallery photos
+supabase
+  .from('media_files')
+  .select('storage_url, caption')
+  .contains('tags', ['annual-report'])
+  .order('is_featured', { ascending: false })  // Add this
+  .order('created_at', { ascending: false })
+  .limit(6),
+```
 
-## No Unsplash / No Stock Photos
+**2. Recent Media Utility (`lib/media/utils.ts`)**
 
-Confirmed: zero references to:
-- `unsplash.com`
-- `picsum.photos`
-- `loremflickr.com`
-- `via.placeholder.com`
-- `placehold.it`
-- Any other stock photo service
+**Line 217-222**: `getRecentMedia()` only orders by `created_at` — this is expected behavior for a "recent" function, so this is NOT a bug.
 
----
+**3. Search Media Utility (`lib/media/utils.ts`)**
 
-## Empty Alt Text (`alt=""`) — Admin/Internal Pages
+**Line 249-255**: `searchMedia()` only orders by `created_at` — also expected for search results (recency matters more than curation), so NOT a bug.
 
-These pages are internal-only but still have accessibility issues:
+## File-by-File Breakdown
 
-| File | Count | Context |
-|------|-------|---------|
-| `app/picc/storytellers/page.tsx` | 3 | Profile image thumbnails |
-| `app/picc/stories/page.tsx` | 2 | Story featured image thumbnails |
-| `app/picc/stories/[id]/edit/page.tsx` | 3 | Media picker thumbnails |
-| `app/picc/media/smart-folders/page.tsx` | 2 | Media gallery thumbnails |
-| `app/picc/annual-reports/[id]/images/page.tsx` | 1 | Image picker |
-| `components/admin/MediaPickerDialog.tsx` | 1 | Media picker |
-| `components/elders/EldersPageClient.tsx` | 3 | Profile/hero images |
-| `components/elders/ImageLightbox.tsx` | 1 | Lightbox image |
-| `components/report/PhotoGallery.tsx` | 1 | Gallery images |
-| `components/service-admin/ContentMediaTab.tsx` | 2 | Story/cover thumbnails |
-| `components/service-admin/PeoplePartnersTab.tsx` | 1 | Partner logo |
-| `components/innovation-admin/InnovationAdminDetail.tsx` | 2 | Story thumbnails |
+| File | Line | Query Type | Uses `is_featured`? | Notes |
+|------|------|------------|---------------------|-------|
+| `lib/media/utils.ts` | 22-64 | `getPageMedia()` | ✓ (optional filter) | Supports `featuredOnly` param |
+| `lib/media/utils.ts` | 78-108 | `getFeaturedPageMedia()` | ✓ (filter + order) | Explicitly filters `is_featured = true` |
+| `lib/media/utils.ts` | 114-117 | `getHeroImage()` | ✓ (via getFeaturedPageMedia) | Wrapper around getFeaturedPageMedia |
+| `lib/media/utils.ts` | 122-124 | `getHeroVideo()` | ✓ (via getFeaturedPageMedia) | Wrapper around getFeaturedPageMedia |
+| `lib/media/utils.ts` | 185-208 | `getMediaByTags()` | ✓ (order) | Orders by `is_featured DESC, created_at DESC` |
+| `lib/media/utils.ts` | 217-230 | `getRecentMedia()` | ✗ (intentional) | Recency-focused, not curation-focused |
+| `lib/media/utils.ts` | 249-263 | `searchMedia()` | ✗ (intentional) | Search results ordered by recency |
+| `lib/annual-report/fetch-live-report-data.ts` | 136-150 | `fetchMapImage()` | ✓ (order) | Orders by `is_featured DESC, display_order ASC` |
+| `lib/annual-report/fetch-live-report-data.ts` | 227-243 | `fetchStoryImages()` | ✓ (order) | Orders by `is_featured DESC, created_at DESC` |
+| `lib/annual-report/fetch-report-data.ts` | 260-265 | Cover photo for PDF | ✗ **BUG** | Should order by `is_featured` first |
+| `lib/annual-report/fetch-report-data.ts` | 268-273 | Gallery photos for PDF | ✗ **BUG** | Should order by `is_featured` first |
+| `app/(public)/page.tsx` | 84-92 | Service hero images | ✓ (order) | Orders by `is_featured DESC` |
+| `app/(public)/page.tsx` | 190-198 | Gallery photos | ✓ (order) | Orders by `is_featured DESC` |
+| `app/(public)/page.tsx` | 206-216 | Fallback featured photos | ✓ (filter) | Explicitly filters `is_featured = true` |
+| `app/(public)/services/page.tsx` | 71-79 | Service cover photos | ✓ (order) | Orders by `is_featured DESC, created_at DESC` |
+| `app/(public)/services/[slug]/page.tsx` | 86-94 | Gallery images | ✓ (order) | Orders by `is_featured DESC, created_at DESC` |
+| `app/(public)/services/[slug]/page.tsx` | 116-122 | Service videos | ✓ (order) | Orders by `is_featured DESC` |
+| `app/(public)/services/[slug]/page.tsx` | 124-131 | External videos | ✓ (order) | Orders by `is_featured DESC` |
+| `app/(public)/about/page.tsx` | 16 | Hero video | ✓ (via utility) | Uses `getHeroVideo()` |
+| `app/(public)/about/page.tsx` | 17 | Board portraits | ✓ (via utility) | Uses `getMediaByTags()` |
+| `app/(public)/elders/page.tsx` | 158 | Elder videos | ✓ (order) | Orders by `is_featured DESC` |
+| `app/(public)/elders/page.tsx` | 181, 270, 292, 312 | Various media | ✓ (order) | All order by `is_featured DESC` |
+| `app/(public)/20-years/page.tsx` | 14, 25 | Timeline media | ✓ (order) | Orders by `is_featured DESC` |
 
-Note: `components/ui/BespokeIcon.tsx` uses `alt=""` intentionally — bespoke icons are decorative.
+## Pattern Analysis
 
----
+### Consistent Good Patterns
 
-## Third-Party Images Requiring Attention
+1. **Hero images**: Always use `getHeroImage()` or order by `is_featured DESC`
+2. **Service media**: Consistently prioritize featured content
+3. **Gallery displays**: Nearly all use `is_featured DESC, created_at DESC` ordering
+4. **Utility functions**: Core media utils properly expose featured filtering
 
-### `public/cyclone-kirrily-temp/` — Licensing Risk
-22 images with Getty, AAP, SBS, NIT, Canberra Times prefixes in filenames. These appear to be sourced from news outlets and stock agencies. They are NOT currently referenced in any page code — only in upload scripts. However they are in `public/` meaning they are served if accessed directly.
+### Pattern Deviations
 
-Recommendation: Either confirm licensing or remove this directory. The "temp" label suggests they were never meant to persist.
+1. **PDF generation layer**: The only place that ignores `is_featured` when it shouldn't
+2. **Intentional recency-first**: `getRecentMedia()` and `searchMedia()` intentionally don't use featured — this is correct behavior
 
----
+## Recommendations
 
-## Next.js Image Config
+### Immediate Action Required
 
-`next.config.js` allows remote images only from `*.supabase.co` storage paths. No other external image domains are whitelisted, which is correct and safe.
+**Fix `lib/annual-report/fetch-report-data.ts`** (Lines 260-273):
 
----
+1. Add `order('is_featured', { ascending: false })` to cover photo query
+2. Add `order('is_featured', { ascending: false })` to gallery photos query (before `order('created_at')`)
 
-## Supabase-Stored Images (Dynamic)
+### Future Improvements
 
-The platform loads real PICC photos via these patterns:
-- `media.public_url` — Supabase storage URLs from `media_files` table
-- `storyteller.profile_image_url` — from `storytellers` table
-- `member.photo_url` — from board member records
-- `cover_photo.public_url` — from service cover photos
-- `project.hero_image_url` — from innovation projects
+1. **Add test coverage**: Verify that all hero/gallery/cover queries prioritize featured media
+2. **Create a standard utility**: Consider `getGalleryPhotos(tags[], limit)` that always orders by `is_featured DESC` to prevent future oversights
+3. **Document the pattern**: Add comments in code explaining why `is_featured` ordering matters for curated displays
 
-All these URLs resolve to `https://uaxhjzqrdotoahjnxmbj.supabase.co/storage/v1/object/public/...`
+## Code Locations Reference
 
----
+### Media Utility Functions
+- **Primary utils**: `/Users/benknight/Code/Palm Island Reposistory/web-platform/lib/media/utils.ts`
+- **Annual report live data**: `/Users/benknight/Code/Palm Island Reposistory/web-platform/lib/annual-report/fetch-live-report-data.ts`
+- **Annual report PDF data**: `/Users/benknight/Code/Palm Island Reposistory/web-platform/lib/annual-report/fetch-report-data.ts` ⚠️
 
-## Summary Table
+### Public Pages
+- **Homepage**: `/Users/benknight/Code/Palm Island Reposistory/web-platform/app/(public)/page.tsx`
+- **Services index**: `/Users/benknight/Code/Palm Island Reposistory/web-platform/app/(public)/services/page.tsx`
+- **Service detail**: `/Users/benknight/Code/Palm Island Reposistory/web-platform/app/(public)/services/[slug]/page.tsx`
+- **About**: `/Users/benknight/Code/Palm Island Reposistory/web-platform/app/(public)/about/page.tsx`
+- **Elders**: `/Users/benknight/Code/Palm Island Reposistory/web-platform/app/(public)/elders/page.tsx`
+- **20 Years**: `/Users/benknight/Code/Palm Island Reposistory/web-platform/app/(public)/20-years/page.tsx`
 
-| Category | Count | Status |
-|----------|-------|--------|
-| Unsplash / stock photo URLs | 0 | Clean |
-| Broken /images/ references | 14 | NEEDS FIX (immersive-stories + demo page) |
-| Missing /placeholders/ fallback files | 5 defined | Dead code, not called |
-| Third-party images in public/ | 22 files | Licensing review needed (cyclone-kirrily-temp) |
-| Empty alt text (admin pages) | ~20 instances | Accessibility issue |
-| Real PICC videos in public/ | 5 files | All present and referenced |
-| Legitimate static assets (logo, icons, service icons) | 60+ files | All present and correct |
-| Dynamic Supabase images (public pages) | All | Properly loaded, null-safe |
+### Scripts
+- **Restore heroes**: `/Users/benknight/Code/Palm Island Reposistory/web-platform/scripts/restore-heroes.ts`
+- **Fix CFC hero**: `/Users/benknight/Code/Palm Island Reposistory/web-platform/scripts/fix-cfc-hero.ts`
+- **Audit heroes**: `/Users/benknight/Code/Palm Island Reposistory/web-platform/scripts/audit-all-heroes.ts`
+
+## Conclusion
+
+The platform has **excellent is_featured discipline** across public pages and the live annual report viewer. The only significant gap is in the **PDF generation layer** (`fetch-report-data.ts`), where cover and gallery photos are selected by recency instead of curation status. This should be fixed immediately to ensure PDFs showcase the best curated images rather than the most recently uploaded ones.

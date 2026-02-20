@@ -123,7 +123,7 @@ export default async function ExplorePage() {
 
 function MapSkeleton() {
   return (
-    <div className="h-[calc(100vh-4rem)] w-full bg-gradient-to-br from-[#1e3a5f] to-[#2d6a4f] flex items-center justify-center">
+    <div className="h-[calc(100vh-4rem)] w-full bg-gradient-to-br from-picc-earth to-picc-earth-700 flex items-center justify-center">
       <div className="text-center text-white/80">
         <div className="w-10 h-10 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-3" />
         <p className="text-sm font-medium">Loading map...</p>

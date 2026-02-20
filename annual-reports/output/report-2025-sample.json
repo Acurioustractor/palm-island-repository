@@ -1,0 +1,183 @@
+{
+  "title": "Annual Report 2024-2025",
+  "year": 2025,
+  "year_range": "2024 - 2025",
+  "generated_at": "2026-01-27T22:30:00",
+
+  "ceo": {
+    "name": "Rachel Atkinson",
+    "photo": "assets/photos/rachel-atkinson.jpg",
+    "message_lead": "With PICC more than halfway through our second decade now, our achievements are growing almost by the day.",
+    "message_body": "<p>The pace at which PICC has been evolving is nothing short of remarkable. Our expanded investment in services has significantly strengthened and enhanced them, making them more robust and effective than ever before.</p><p>We now employ three times the number of people compared to ten years ago and our turnover has quadrupled. This substantial growth is directly benefiting Palm Islanders, either through the services we provide or the jobs we offer.</p><p>One of the changes I am most excited and proud about is the delegated authority, which represents a significant and positive shift for children in care on Palm Island. At last, the community will decide the care arrangements for children who cannot stay at home, a change for which I have been fighting for decades.</p><p>Despite our progress, I am acutely aware that we still have a long way to go. Palm Island continues to lag behind mainland communities in many areas of wellbeing. However, PICC is here to stay and to fight for Palm Islanders to have the services they deserve. Everything we do is for, with, and because of the people of this beautiful community.</p>"
+  },
+
+  "chair": {
+    "name": "Luella Bligh",
+    "photo": "assets/photos/luella-bligh.jpg",
+    "message_lead": "In my fifth year as Chair of the Board, my commitment to ensuring that PICC remains the exemplary service provider that Palm Island deserves has only grown stronger.",
+    "message_body": "<p>PICC plays a crucial role in our community, offering essential services that impact the lives of many. I am deeply conscious of the responsibility I hold to the people of Palm Island, ensuring that our company is not only well-managed and sustainable but also progressing in the right direction.</p><p>The positive changes we strive for are becoming evident within the community. This is particularly noticeable among our young people, who are beginning to feel a sense of optimism about the future of Palm Island. Their hope and enthusiasm are a testament to the progress we are making.</p><p>I am immensely grateful for the unwavering support of my fellow Board members. Their dedication and collaborative efforts have been instrumental in guiding PICC towards achieving our shared goals. Together, we are steering PICC towards a brighter future for Palm Island.</p>"
+  },
+
+  "acknowledgement_text": "The Palm Island Community Company acknowledges the Traditional Owners of Palm Island, the Manbarra people. We also acknowledge the many First Nations persons who were forcibly removed to Palm Island, and we recognise these persons and their descendants as the historical Bwgcolman people. We recognise the continued connection of the Manbarra and Bwgcolman peoples to the land and waters of this beautiful island. We pay respect to Manbarra and Bwgcolman Elders, their ancestors, all First Nations peoples, and our ancestors who walk in the Dreamtime.",
+
+  "governance_achievements": [
+    "PICC continues to have an average of over 80 per cent of its staff members identifying as Aboriginal, Torres Strait Islander or both. This is key to effective service-delivery by PICC.",
+    "The proportion of staff members living on Palm Island is still above 70 per cent, being another important characteristic of our staff that makes for our success.",
+    "PICC passed a Human Services Quality Framework audit with flying colours. The assessors made special mention of the outstanding professional standards and friendliness of its staff members."
+  ],
+
+  "board_members": [
+    {"name": "Luella Bligh", "role": "Chair"},
+    {"name": "Rhonda Phillips", "role": "Director"},
+    {"name": "Allan Palm Island", "role": "Director"},
+    {"name": "Matthew Lindsay", "role": "Company Secretary"},
+    {"name": "Harriet Hulthen", "role": "Director"},
+    {"name": "Raymond W. Palmer Snr", "role": "Director"},
+    {"name": "Cassie Lang", "role": "Director"}
+  ],
+
+  "services": [
+    "Bwgcolman Healing Service",
+    "Community Justice Group",
+    "Digital Service Centre",
+    "Diversionary Service",
+    "Early Childhood Services (CFC)",
+    "Family Care Service",
+    "Family Participation Program",
+    "Family Wellbeing Centre",
+    "NDIS Service",
+    "Safe Haven",
+    "Safe House",
+    "Social and Emotional Wellbeing Service",
+    "Specialist Domestic and Family Violence Service",
+    "Women's Healing Service",
+    "Women's Service",
+    "Youth Service"
+  ],
+
+  "staff_data": {
+    "years": ["30 June 2025", "30 June 2024", "30 June 2023"],
+    "counts": [210, 197, 151]
+  },
+
+  "stories": [
+    {
+      "id": "sample-1",
+      "title": "Palm Islanders Take Calls from Across Australia",
+      "subtitle": "The Palm Island Digital Service Centre has been a great success for PICC and the community.",
+      "body": "<p>Opened in 2023, the Palm Island Digital Service Centre has been a great success for PICC and the community of Palm Island. The Centre provides sales and customer service for Telstra landline, mobile and Internet products and services for Aboriginal and Torres Strait Islander customers.</p><p>The Centre employed twenty-one full-time workers at the end of 2023/24, with a capacity, should caller demand require it, of thirty full-time equivalent workers. It is located in the new Retail Centre on Main Street.</p><p>The centre is an excellent employment opportunity for people on Palm Island as it is a new industry and has the potential to create another exciting career pathway. There is a great sense of pride in the people working at the digital service centre which has extended across the broader community.</p>",
+      "category": "Service Success",
+      "featured_image": "",
+      "gallery": [],
+      "quote": {
+        "text": "This is a new industry for Palm Island and creates an exciting career pathway for our young people.",
+        "attribution": "Digital Service Centre Coordinator"
+      },
+      "services": ["Digital Service Centre"],
+      "section": "highlights",
+      "priority": 5,
+      "storyteller_name": "",
+      "is_elder_story": false
+    },
+    {
+      "id": "sample-2",
+      "title": "Bwgcolman Way Brings Delegated Authority",
+      "subtitle": "A major change to caring arrangements for vulnerable children is at last coming to Palm Island.",
+      "body": "<p>Delegated authority is being progressively introduced in communities throughout Queensland by the Department of Child Safety, Seniors and Disability Services. PICC has chosen to name the delegated authority approach Bwgcolman Way: Empowered and Resilient.</p><p>The vision for Bwgcolman Way is that all Manbarra and Bwgcolman children are safe and cared for by family, nurtured by strong and enduring connections to their community, culture and Country. Palm Island mob leading and creating change for Palm Island children, young people and families.</p><p>Bwgcolman Way will focus on family and cultural connection where the CEO of PICC will collaboratively make decisions under the Child Protection Act with children and families in partnership with Child Safety Services.</p>",
+      "category": "Achievement",
+      "featured_image": "",
+      "gallery": [],
+      "quote": {
+        "text": "At last, the community will decide the care arrangements for children who cannot stay at home.",
+        "attribution": "Rachel Atkinson, CEO"
+      },
+      "services": ["Family Care Service", "Family Wellbeing Centre"],
+      "section": "highlights",
+      "priority": 5,
+      "storyteller_name": "Jeanie Sam",
+      "is_elder_story": false
+    },
+    {
+      "id": "sample-3",
+      "title": "PICC Shares Our Story with National Conference",
+      "subtitle": "In September 2023, PICC presented twice at the biennial SNAICC Conference in Darwin.",
+      "body": "<p>\"The Storyline of the Palm Island Children and Family Centre\" told the history and the successes of the CFC and early childhood services on Palm Island.</p><p>\"Proud Bwgcolman Youth\", presented by Jeanie Sam and Dee Ann Sailor, told a hopeful narrative about our young people and proposed an alternative approach to tackling the complex issues driving the over-representation of Aboriginal and Torres Strait Islander children in the youth justice system.</p><p>Both sessions were very well attended, helping to spread the news nationally about the effective and innovative work that PICC does.</p>",
+      "category": "Community Story",
+      "featured_image": "",
+      "gallery": [],
+      "quote": null,
+      "services": ["Early Childhood Services (CFC)", "Youth Service"],
+      "section": "services",
+      "priority": 3,
+      "storyteller_name": "",
+      "is_elder_story": false
+    }
+  ],
+
+  "data_cards": [],
+
+  "financials": {
+    "balance_sheet": [
+      {"label": "Current Assets", "current": 8156480, "previous": 5428897, "class": ""},
+      {"label": "Non Current Assets", "current": 2702284, "previous": 1633389, "class": ""},
+      {"label": "TOTAL Assets", "current": 10858764, "previous": 7062286, "class": "total"},
+      {"label": "Current Liabilities", "current": 5969264, "previous": 3025785, "class": ""},
+      {"label": "Non Current Liabilities", "current": 1351259, "previous": 220537, "class": ""},
+      {"label": "TOTAL Liabilities", "current": 7320523, "previous": 3246322, "class": "total"},
+      {"label": "NET ASSETS", "current": 3538241, "previous": 3815964, "class": "total"}
+    ],
+    "income_expenditure": [
+      {"label": "INCOME", "current": 23400335, "previous": 20103686, "class": ""},
+      {"label": "Total Labour Costs", "current": 14282962, "previous": 11477036, "class": ""},
+      {"label": "Administration Expenses", "current": 5000820, "previous": 4133848, "class": ""},
+      {"label": "Property & Energy Expenses", "current": 1058084, "previous": 710794, "class": ""},
+      {"label": "Motor Vehicle Expenses", "current": 401112, "previous": 360093, "class": ""},
+      {"label": "Travel & Training Expenses", "current": 1778367, "previous": 1611707, "class": ""},
+      {"label": "Client Related Costs", "current": 1156713, "previous": 1094877, "class": ""},
+      {"label": "Total Expenditure", "current": 23678058, "previous": 19388354, "class": "total"},
+      {"label": "NET SURPLUS (DEFICIT)", "current": -277723, "previous": 715332, "class": "total"}
+    ],
+    "expenditure_breakdown": [
+      {"label": "Total Labour Costs", "percent": 60, "color": "#4a7fb5", "offset": 0},
+      {"label": "Administration Expenses", "percent": 21, "color": "#b8a9d4", "offset": 301},
+      {"label": "Property & Energy Expenses", "percent": 4, "color": "#a8d5ba", "offset": 406},
+      {"label": "Motor Vehicle Expenses", "percent": 2, "color": "#f59e0b", "offset": 426},
+      {"label": "Travel & Training Expenses", "percent": 8, "color": "#7fb5b5", "offset": 436},
+      {"label": "Client Related Costs", "percent": 5, "color": "#ff6b6b", "offset": 476}
+    ]
+  },
+
+  "partners": [
+    "BSocial Media",
+    "Bwgcolman Community School",
+    "CheckUp Australia",
+    "Commonwealth Department of Health and Aged Care",
+    "Commonwealth Department of Social Services",
+    "Fred Hallows Foundation",
+    "Heart of Australia",
+    "James Cook University",
+    "Joyce Palmer Health Service",
+    "National Indigenous Australians Agency",
+    "Palm Island Aboriginal Shire Council",
+    "Queensland Health",
+    "TAFE Queensland",
+    "Telstra",
+    "Townsville Hospital and Health Service",
+    "North Queensland Primary Health Network"
+  ],
+  "partners_photo": "assets/photos/team.jpg",
+
+  "contact": {
+    "address_line1": "61-73 Sturt Street",
+    "address_line2": "Townsville QLD 4810",
+    "address_line3": "PO Box 1415",
+    "country": "Australia",
+    "phone": "07 4421 4300",
+    "website": "www.picc.com.au",
+    "acn": "640 793 728"
+  },
+
+  "mission_statement": "The Palm Island Community Company is deeply committed to the principles of community control and self-determination. We uphold the spirit of community control by consistently adhering to these principles, ensuring that our actions reflect our dedication to empowering Palm Islanders.",
+
+  "cover_image": "assets/photos/palm-island-beach.jpg"
+}

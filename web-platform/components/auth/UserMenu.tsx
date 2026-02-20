@@ -41,17 +41,9 @@ export function UserMenu() {
     return <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse" />;
   }
 
-  // Not logged in - show login button
+  // Not logged in - hide user menu (no public login flow)
   if (!user) {
-    return (
-      <Link
-        href="/login"
-        className="inline-flex items-center gap-2 px-4 py-2 bg-picc-red hover:bg-picc-red text-white font-medium rounded-md transition-colors"
-      >
-        <LogIn className="h-4 w-4" />
-        <span>Login</span>
-      </Link>
-    );
+    return null;
   }
 
   // Logged in - show user menu

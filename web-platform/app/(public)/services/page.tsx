@@ -1,7 +1,10 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { MapPin, Users, Activity, ArrowRight, Camera, Film } from 'lucide-react';
+import { Users, Activity, ArrowRight, Camera, Film } from 'lucide-react';
 import { createServerSupabase } from '@/lib/supabase/client';
+import { getHeroImage, getHeroVideo } from '@/lib/media/utils';
+import { BespokeIcon } from '@/components/ui/BespokeIcon';
+import { getServiceIcon } from '@/lib/services/service-icons';
 import nextDynamic from 'next/dynamic';
 import AdminServiceCard from '@/components/admin/AdminServiceCard';
 
@@ -21,6 +24,12 @@ export const revalidate = 0;
 
 export default async function ServicesIndexPage() {
   const supabase = createServerSupabase();
+
+  // Fetch hero media for the page
+  const [heroImage, heroVideo] = await Promise.all([
+    getHeroImage('services'),
+    getHeroVideo('services'),
+  ]);
 
   // Fetch services
   const { data: services } = await supabase
@@ -65,6 +74,8 @@ export default async function ServicesIndexPage() {
       .contains('tags', [serviceTag, 'hero'])
       .eq('file_type', 'image')
       .is('deleted_at', null)
+      .order('is_featured', { ascending: false })
+      .order('created_at', { ascending: false })
       .limit(1);
 
     if (heroPhotos && heroPhotos.length > 0) {
@@ -115,10 +126,18 @@ export default async function ServicesIndexPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero */}
-      <section className="bg-gradient-to-br from-picc-earth-600 via-picc-earth-600 to-picc-earth text-white py-20">
-        <div className="max-w-7xl mx-auto px-6 text-center">
+      <section className="relative text-white py-20 overflow-hidden">
+        {/* Background video or image */}
+        <video
+          autoPlay muted loop playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+          src={heroVideo?.public_url || '/hero-assets/clips/daycare-celebration.mp4'}
+        />
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-picc-earth-600/85 via-picc-earth-600/75 to-picc-earth/85" />
+        <div className="relative max-w-7xl mx-auto px-6 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full mb-6">
-            <MapPin className="w-4 h-4" />
+            <BespokeIcon name="community" size={16} darkMode />
             <span className="text-sm font-semibold uppercase tracking-wide">Our Services</span>
           </div>
           <h1 className="text-5xl md:text-6xl font-bold mb-4">
@@ -182,9 +201,9 @@ export default async function ServicesIndexPage() {
                       <div className="aspect-[16/9] relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center">
                         <div
                           className="w-16 h-16 rounded-2xl flex items-center justify-center"
-                          style={{ backgroundColor: service.service_color || '#6366f1' }}
+                          style={{ backgroundColor: service.service_color || '#C8922A' }}
                         >
-                          <MapPin className="w-8 h-8 text-white" />
+                          <BespokeIcon name={getServiceIcon(service.slug)} size={32} darkMode />
                         </div>
                         {/* Photo/video badges on placeholder */}
                         {(service.photo_count > 0 || service.has_video) && (
@@ -206,7 +225,8 @@ export default async function ServicesIndexPage() {
                     )}
 
                     <div className="p-6">
-                      <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-picc-ochre transition-colors">
+                      <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-picc-ochre transition-colors flex items-center gap-2">
+                        <BespokeIcon name={getServiceIcon(service.slug)} size={24} />
                         {service.name}
                       </h3>
 

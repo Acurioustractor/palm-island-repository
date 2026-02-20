@@ -304,7 +304,7 @@ export default async function HomePage() {
           <div className="grid md:grid-cols-3 gap-8 mb-12">
 
             {/* Card 1: Annual Reports - WITH PHOTO BACKGROUND */}
-            <Link href="/annual-reports" className="group">
+            <Link href="/annual-report/live" className="group">
               <div className="bg-white rounded-2xl border border-gray-200 hover:border-gray-900 overflow-hidden transition-all h-full flex flex-col shadow-lg hover:shadow-2xl">
                 <div
                   className="aspect-video relative flex items-center justify-center bg-cover bg-center"

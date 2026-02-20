@@ -228,7 +228,7 @@ export default function SearchPage() {
                     </div>
                     <div className="flex items-center gap-1">
                       <Tag className="h-4 w-4" />
-                      <span className="capitalize">{result.story_category.replace('_', ' ')}</span>
+                      <span className="capitalize">{(result.story_category || 'Uncategorized').replace(/_/g, ' ')}</span>
                     </div>
                   </div>
                 </Link>

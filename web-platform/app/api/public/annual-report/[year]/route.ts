@@ -168,16 +168,29 @@ export async function GET(request: NextRequest, { params }: { params: { year: st
     const projectsBySection = getMediaBySection('projects')
     const videoThumbBySection = getMediaBySection('video_thumb')
 
+    // Fetch leadership portraits from leadership table as reliable fallback
+    const { data: leadershipRows } = await supabase
+      .from('leadership')
+      .select('full_name, position, photo_url, leadership_type')
+      .eq('is_active', true)
+      .order('position_order')
+    const ceoLeadership = leadershipRows?.find((r) => r.leadership_type === 'executive')
+    const chairLeadership = leadershipRows?.find((r) => r.position === 'Chair of the Board')
+
     const mediaBySections = {
       hero: heroBySection.length > 0
         ? heroBySection
         : getMediaByTags(['section:cover'], { limit: 3 }),
       ceo: ceoBySection.length > 0
         ? ceoBySection
-        : getMediaByTags(['person:rachel-atkinson', 'role:ceo'], { limit: 2 }),
+        : ceoLeadership?.photo_url
+          ? [{ public_url: ceoLeadership.photo_url, alt_text: ceoLeadership.full_name, tags: ['role:ceo'] }]
+          : getMediaByTags(['person:rachel-atkinson', 'role:ceo'], { limit: 2 }),
       chair: chairBySection.length > 0
         ? chairBySection
-        : getMediaByTags(['person:luella-bligh', 'role:chair'], { limit: 2 }),
+        : chairLeadership?.photo_url
+          ? [{ public_url: chairLeadership.photo_url, alt_text: chairLeadership.full_name, tags: ['role:chair'] }]
+          : getMediaByTags(['person:luella-bligh', 'role:chair'], { limit: 2 }),
       gallery: galleryBySection.length > 0
         ? galleryBySection
         : allMedia

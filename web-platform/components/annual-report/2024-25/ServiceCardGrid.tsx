@@ -3,10 +3,8 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 import Link from 'next/link';
-import {
-  Heart, Shield, Home, GraduationCap, Briefcase, Scale,
-  Baby, Users, Activity, Stethoscope, Wifi, HeartHandshake
-} from 'lucide-react';
+import { BespokeIcon } from '@/components/ui/BespokeIcon';
+import { getServiceIcon } from '@/lib/services/service-icons';
 
 interface ServiceCard {
   id: string;
@@ -24,21 +22,6 @@ interface ServiceCardGridProps {
   services: ServiceCard[];
 }
 
-const ICON_MAP: Record<string, React.ElementType> = {
-  health: Stethoscope,
-  heart: Heart,
-  shield: Shield,
-  home: Home,
-  graduation: GraduationCap,
-  briefcase: Briefcase,
-  scale: Scale,
-  baby: Baby,
-  users: Users,
-  activity: Activity,
-  wifi: Wifi,
-  hand: HeartHandshake,
-};
-
 const CATEGORY_COLORS: Record<string, string> = {
   health: '#0d9488',
   family: '#7c3aed',
@@ -50,21 +33,6 @@ const CATEGORY_COLORS: Record<string, string> = {
   safety: '#e11d48',
 };
 
-function getCategoryIcon(category?: string, iconName?: string): React.ElementType {
-  if (iconName && ICON_MAP[iconName]) return ICON_MAP[iconName];
-  switch (category) {
-    case 'health': return Stethoscope;
-    case 'family': return Heart;
-    case 'crisis': return Shield;
-    case 'justice': return Scale;
-    case 'economic': return Briefcase;
-    case 'youth': return GraduationCap;
-    case 'disability': return Users;
-    case 'safety': return Shield;
-    default: return Activity;
-  }
-}
-
 export function ServiceCardGrid({ services }: ServiceCardGridProps) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-50px' });
@@ -72,7 +40,6 @@ export function ServiceCardGrid({ services }: ServiceCardGridProps) {
   return (
     <div ref={ref} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {services.map((service, index) => {
-        const Icon = getCategoryIcon(service.category, service.icon_name);
         const color = service.service_color || CATEGORY_COLORS[service.category || ''] || '#6b7280';
         const slug = service.slug || service.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
@@ -92,7 +59,7 @@ export function ServiceCardGrid({ services }: ServiceCardGridProps) {
                   className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110"
                   style={{ backgroundColor: `${color}15` }}
                 >
-                  <Icon className="w-5 h-5" style={{ color }} />
+                  <BespokeIcon name={getServiceIcon(slug)} size={22} />
                 </div>
                 <div className="min-w-0 flex-1">
                   <h3 className="font-semibold text-gray-900 text-sm leading-tight group-hover:text-[#1e3a5f] transition-colors">
