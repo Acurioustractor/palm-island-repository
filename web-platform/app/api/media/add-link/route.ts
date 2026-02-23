@@ -47,6 +47,19 @@ export async function POST(request: NextRequest) {
       platform = 'facebook'
     }
 
+    // Auto-fetch og:image thumbnail for platforms without native thumbnail support
+    if (!thumbnailUrl) {
+      try {
+        const pageRes = await fetch(url, { signal: AbortSignal.timeout(5000) });
+        const html = await pageRes.text();
+        const ogMatch = html.match(/<meta[^>]*property="og:image"[^>]*content="([^"]+)"/i)
+          || html.match(/<meta[^>]*content="([^"]+)"[^>]*property="og:image"/i);
+        if (ogMatch) thumbnailUrl = ogMatch[1];
+      } catch {
+        // Silently skip — thumbnail is optional
+      }
+    }
+
     // Build tags array
     const mediaTags: string[] = ['video-link', `platform:${platform}`]
     if (service_slug) {

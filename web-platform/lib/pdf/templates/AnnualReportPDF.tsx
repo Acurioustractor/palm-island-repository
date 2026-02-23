@@ -1,13 +1,13 @@
 /**
- * PICC Annual Report PDF Template — Saltwater Country Design System
+ * PICC Annual Report PDF Template — Saltwater Country Design System v2
  *
- * Modular React PDF document for generating the annual report.
- * Each page is an inline component consuming ReportData via closure.
+ * Visual refresh: magazine-editorial layouts, bolder typography,
+ * richer decorative elements, color variety between sections.
  *
  * Pages: Cover, Acknowledgement, Messages, Year in Numbers, Photo Spread,
  *        Highlights, Community Voices, Youth Voices, Governance, Compliance,
- *        Directors Report, Services, Innovation (2-page spread),
- *        Financials (enhanced), Journey Timeline, Next Twenty / Looking Forward,
+ *        Directors Report, Services, Innovation,
+ *        Financials (enhanced), Journey Timeline, Next Twenty,
  *        Back Cover
  *
  * Supports audience-targeted generation via `audience` prop.
@@ -24,7 +24,7 @@ import {
   Rect,
 } from '@react-pdf/renderer'
 
-import { C, A4_W, A4_H, MARGIN, CONTENT_W, baseStyles, fmtCurrency, fmtFullCurrency } from '../theme'
+import { C, A4_W, A4_H, MARGIN, CONTENT_W, SP, baseStyles, fmtCurrency, fmtFullCurrency } from '../theme'
 import {
   RunningHeader,
   PageNumber,
@@ -38,6 +38,8 @@ import {
   WaveLine,
   StatHero,
   ReefGradientBar,
+  ArcDots,
+  SectionDivider,
 } from '../components'
 import { registerFonts } from '../register-fonts'
 import type { ReportData, CommunityVoice } from '@/lib/annual-report/fetch-report-data'
@@ -53,66 +55,90 @@ const s = baseStyles
 
 export type { ReportAudience }
 
-// ── Local styles — Saltwater Country palette ────────────
+// ── Local styles — Saltwater Country v2 ──────────────
 const ls = StyleSheet.create({
   // Acknowledgement
+  ackOuter: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 40,
+  },
   ackBorder: {
-    borderTop: `2pt solid ${C.reefDeep}`,
-    borderBottom: `2pt solid ${C.reefDeep}`,
-    padding: 30,
-    marginTop: 40,
+    borderTop: `2pt solid ${C.ochre}`,
+    borderBottom: `2pt solid ${C.ochre}`,
+    padding: 32,
+    marginVertical: 20,
+    maxWidth: 420,
   },
   ackTitle: {
     fontFamily: 'PlayfairDisplay',
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: C.reefDeep,
+    color: C.ocean,
     marginBottom: 16,
     textAlign: 'center',
   },
   ackText: {
     fontSize: 10,
     color: C.driftwood,
-    lineHeight: 1.8,
+    lineHeight: 1.9,
     textAlign: 'center',
   },
 
-  // Messages
-  messageBlock: {
-    marginBottom: 24,
-    padding: 20,
-    borderRadius: 10,
-    backgroundColor: C.shellWhite,
+  // Messages — asymmetric 40/60 layout
+  messageRow: {
+    flexDirection: 'row',
+    marginBottom: 20,
+  },
+  messagePortrait: {
+    width: '35%',
+    alignItems: 'center',
+    paddingRight: 16,
+    paddingTop: 4,
+  },
+  messageContent: {
+    width: '65%',
   },
   messageName: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: 'bold',
-    color: C.reefDeep,
+    color: C.ocean,
     marginBottom: 2,
   },
   messageRole: {
     fontSize: 8.5,
-    color: C.textMuted,
+    color: C.muted,
     marginBottom: 10,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   messageBody: {
     fontSize: 9,
     color: C.driftwood,
-    lineHeight: 1.65,
+    lineHeight: 1.7,
   },
 
-  // Stats
-  statsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+  // Photo spread
+  photoLarge: {
+    width: '100%',
+    height: 240,
+    borderRadius: 10,
+    objectFit: 'cover',
+    marginBottom: 10,
   },
-
-  // Highlights
-  highlightRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+  photoSmall: {
+    width: '48%',
+    height: 170,
+    borderRadius: 8,
+    objectFit: 'cover',
+  },
+  photoCaption: {
+    fontSize: 7,
+    color: C.muted,
+    marginTop: 3,
+    textAlign: 'center',
+    fontStyle: 'italic',
   },
 
   // Governance
@@ -123,7 +149,7 @@ const ls = StyleSheet.create({
   },
   boardCard: {
     width: '31%',
-    backgroundColor: C.shellWhite,
+    backgroundColor: C.white,
     borderRadius: 8,
     padding: 12,
     marginBottom: 10,
@@ -132,14 +158,14 @@ const ls = StyleSheet.create({
   boardName: {
     fontSize: 9,
     fontWeight: 'bold',
-    color: C.reefDeep,
+    color: C.ocean,
     textAlign: 'center',
     marginTop: 6,
     marginBottom: 2,
   },
   boardPosition: {
     fontSize: 7.5,
-    color: C.textMuted,
+    color: C.muted,
     textAlign: 'center',
   },
 
@@ -147,59 +173,29 @@ const ls = StyleSheet.create({
   serviceCategoryTitle: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: C.reefDeep,
+    color: C.ocean,
     marginTop: 14,
     marginBottom: 8,
     borderBottom: `1pt solid ${C.border}`,
     paddingBottom: 4,
-  },
-  serviceRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-
-  // Photo spread
-  photoGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    gap: 8,
-  },
-  photoLarge: {
-    width: '100%',
-    height: 220,
-    borderRadius: 8,
-    objectFit: 'cover',
-    marginBottom: 8,
-  },
-  photoSmall: {
-    width: '48%',
-    height: 160,
-    borderRadius: 8,
-    objectFit: 'cover',
-  },
-  photoCaption: {
-    fontSize: 7.5,
-    color: C.textMuted,
-    marginTop: 4,
-    textAlign: 'center',
   },
 
   // Innovation
   innovationCard: {
     width: '48%',
     backgroundColor: C.white,
-    border: `1pt solid ${C.border}`,
     borderRadius: 10,
-    padding: 14,
+    overflow: 'hidden',
     marginBottom: 10,
-    borderTop: `3pt solid ${C.lagoon}`,
+    borderBottom: `3pt solid ${C.reef}`,
+  },
+  innovationBody: {
+    padding: 14,
   },
   innovationTitle: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: C.reefDeep,
+    color: C.ocean,
     marginBottom: 4,
   },
   innovationDesc: {
@@ -209,7 +205,7 @@ const ls = StyleSheet.create({
   },
   innovationBadge: {
     fontSize: 7,
-    color: C.lagoon,
+    color: C.reef,
     fontWeight: 'bold',
     textTransform: 'uppercase',
     letterSpacing: 1,
@@ -230,7 +226,7 @@ const ls = StyleSheet.create({
   finValue: {
     fontSize: 9,
     fontWeight: 'bold',
-    color: C.reefDeep,
+    color: C.ocean,
   },
   finRow: {
     flexDirection: 'row',
@@ -245,25 +241,25 @@ const ls = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 14,
-    padding: 12,
+    padding: 14,
     backgroundColor: C.white,
-    border: `1pt solid ${C.border}`,
-    borderRadius: 8,
+    borderRadius: 10,
+    borderLeft: `4pt solid ${C.ocean}`,
   },
   goalLabel: {
     fontSize: 10,
     fontWeight: 'bold',
-    color: C.reefDeep,
+    color: C.ocean,
     marginBottom: 2,
   },
   goalSubtext: {
     fontSize: 8,
-    color: C.textMuted,
+    color: C.muted,
   },
   progressBarOuter: {
     width: 160,
     height: 12,
-    backgroundColor: C.bgLight,
+    backgroundColor: C.shell,
     borderRadius: 6,
   },
   progressBarInner: {
@@ -288,12 +284,12 @@ const ls = StyleSheet.create({
     marginBottom: 30,
   },
   backMission: {
-    fontFamily: 'PlayfairDisplay',
-    fontSize: 22,
+    fontFamily: 'Caveat',
+    fontSize: 24,
     color: C.white,
     textAlign: 'center',
     marginBottom: 24,
-    lineHeight: 1.4,
+    lineHeight: 1.35,
     maxWidth: 380,
   },
   backContact: {
@@ -310,17 +306,17 @@ const ls = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 8,
     paddingBottom: 8,
-    borderBottom: `0.5pt solid ${C.borderLight}`,
+    borderBottom: `0.5pt solid ${C.border}`,
   },
   complianceLabel: {
     fontSize: 9,
-    color: C.textMuted,
+    color: C.muted,
     width: '40%',
   },
   complianceValue: {
     fontSize: 9,
     fontWeight: 'bold',
-    color: C.reefDeep,
+    color: C.ocean,
     width: '58%',
   },
 
@@ -329,51 +325,51 @@ const ls = StyleSheet.create({
     width: '48%',
     backgroundColor: C.white,
     borderRadius: 10,
-    padding: 14,
-    marginBottom: 10,
+    padding: 16,
+    marginBottom: 12,
   },
   voiceType: {
     fontSize: 7,
     fontWeight: 'bold',
     textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: 6,
+    letterSpacing: 1.5,
+    marginBottom: 8,
   },
   voiceText: {
-    fontSize: 9,
+    fontSize: 9.5,
     fontStyle: 'italic',
     color: C.rock,
-    lineHeight: 1.6,
-    marginBottom: 8,
+    lineHeight: 1.65,
+    marginBottom: 10,
   },
   voiceAuthor: {
     fontSize: 8,
     color: C.driftwood,
+    fontWeight: 'bold',
   },
 
   // Timeline
   eraBlock: {
     flexDirection: 'row',
     marginBottom: 16,
-    padding: 12,
+    padding: 14,
     backgroundColor: C.white,
-    border: `1pt solid ${C.border}`,
-    borderRadius: 8,
+    borderRadius: 10,
   },
   eraIndicator: {
     width: 4,
     borderRadius: 2,
-    marginRight: 12,
+    marginRight: 14,
   },
   eraName: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 'bold',
-    color: C.reefDeep,
+    color: C.ocean,
     marginBottom: 2,
   },
   eraYears: {
     fontSize: 8,
-    color: C.textMuted,
+    color: C.muted,
     marginBottom: 6,
   },
   eraDesc: {
@@ -391,17 +387,17 @@ const ls = StyleSheet.create({
 })
 
 // ── Color palette for stat boxes ──────────────────────
-const STAT_COLORS = [C.reefDeep, C.reefBright, C.mangrove, C.coral, C.lagoon, C.starGold]
+const STAT_COLORS = [C.ocean, C.reef, C.mangrove, C.coral, C.reef, C.starGold]
 
 // ── Era colors for timeline ───────────────────────────
-const ERA_COLORS = [C.reefDeep, C.reefBright, C.mangrove, C.lagoon]
+const ERA_COLORS = [C.ocean, C.reef, C.mangrove, C.ochre]
 
 // ── Voice type colors ─────────────────────────────────
 const VOICE_TYPE_COLORS: Record<string, string> = {
   elder_quote: C.starGold,
-  story: C.reefDeep,
+  story: C.ocean,
   community_vision: C.mangrove,
-  feedback: C.lagoon,
+  feedback: C.reef,
 }
 
 const VOICE_TYPE_LABELS: Record<string, string> = {
@@ -432,10 +428,10 @@ function groupByCategory(
 // ── Service category color map ────────────────────────
 const CATEGORY_COLORS: Record<string, string> = {
   health: C.mangrove,
-  family: C.reefBright,
+  family: C.reef,
   justice: C.coral,
-  community: C.reefDeep,
-  economic: C.lagoon,
+  community: C.ocean,
+  economic: C.reef,
   digital: C.starGold,
 }
 
@@ -444,7 +440,7 @@ function categoryColor(cat: string): string {
   for (const [k, v] of Object.entries(CATEGORY_COLORS)) {
     if (key.includes(k)) return v
   }
-  return C.reefDeep
+  return C.ocean
 }
 
 // ────────────────────────────────────────────────────────
@@ -533,26 +529,57 @@ export default function AnnualReportPDF({
   )
 
   // ── 2. AcknowledgementPage ─────────────────────────
+  // Sand background, ochre accents, ArcDots decoration — ceremonial feel
   const AcknowledgementPage = () => (
-    <Page size="A4" style={s.page}>
+    <Page size="A4" style={s.pageSand}>
       <RunningHeader left={headerLeft} right={headerRight} />
-      <ConstellationPattern seed={1} opacity={0.04} />
 
-      <WaveLine width={60} marginVertical={12} align="center" />
-      <View style={ls.ackBorder}>
-        <Text style={ls.ackTitle}>Acknowledgement of Country</Text>
-        <Text style={ls.ackText}>
-          {data.report.acknowledgments ||
-            'Palm Island Community Company acknowledges the Traditional Owners of the land on which we work and live, and recognises their continuing connection to land, water and community. We pay our respects to Elders past, present and emerging.'}
-        </Text>
+      {/* Decorative arcs in corners */}
+      <ArcDots
+        x={40}
+        y={60}
+        radius={35}
+        startAngle={0}
+        endAngle={90}
+        dotCount={8}
+        color={C.ochre}
+        opacity={0.12}
+        dotSize={2}
+        trails={2}
+        trailGap={8}
+      />
+      <ArcDots
+        x={A4_W - 90}
+        y={A4_H - 130}
+        radius={35}
+        startAngle={180}
+        endAngle={270}
+        dotCount={8}
+        color={C.ochre}
+        opacity={0.12}
+        dotSize={2}
+        trails={2}
+        trailGap={8}
+      />
+
+      <View style={ls.ackOuter}>
+        <SectionDivider width={80} color={C.ochre} opacity={0.3} dotCount={7} />
+        <View style={ls.ackBorder}>
+          <Text style={ls.ackTitle}>Acknowledgement of Country</Text>
+          <Text style={ls.ackText}>
+            {data.report.acknowledgments ||
+              'Palm Island Community Company acknowledges the Traditional Owners of the land on which we work and live, and recognises their continuing connection to land, water and community. We pay our respects to Elders past, present and emerging.'}
+          </Text>
+        </View>
+        <SectionDivider width={80} color={C.ochre} opacity={0.3} dotCount={7} />
       </View>
-      <WaveLine width={60} marginVertical={12} align="center" />
 
       <PageNumber />
     </Page>
   )
 
   // ── 3. MessagesPage ────────────────────────────────
+  // Asymmetric portrait/text layout — magazine editorial feel
   const MessagesPage = () => {
     const messages = [...data.leadershipMessages].sort(
       (a, b) => a.display_order - b.display_order
@@ -561,52 +588,61 @@ export default function AnnualReportPDF({
     return (
       <Page size="A4" style={s.page}>
         <RunningHeader left={headerLeft} right={headerRight} />
-        <CornerBrackets inset={40} opacity={0.15} corners={['tl', 'br']} />
 
-        <Text style={s.sectionLabel}>Leadership Messages</Text>
-        <WaveLine width={80} marginVertical={8} />
+        <Text style={s.sectionLabel}>Leadership</Text>
         <Text style={s.h1}>From Our Leaders</Text>
+        <WaveLine width={60} marginVertical={6} color={C.ochre} />
 
         {messages.map((msg, i) => {
-          const bgColor = i % 2 === 0 ? C.shellWhite : C.sand
-          const accentColor = i % 2 === 0 ? C.reefDeep : C.reefBright
+          const accentColor = i % 2 === 0 ? C.ocean : C.reef
           return (
             <View
               key={msg.id || i}
               wrap={false}
-              style={[ls.messageBlock, { backgroundColor: bgColor }]}
+              style={[
+                ls.messageRow,
+                i % 2 === 1 ? { backgroundColor: C.shell, borderRadius: 10, padding: 16 } : { paddingBottom: 16 },
+              ]}
             >
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+              {/* Portrait column — 35% */}
+              <View style={ls.messagePortrait}>
                 <PersonAvatar
                   photoUrl={msg.photo_url}
                   name={msg.person_name}
-                  size={48}
+                  size={72}
                   color={accentColor}
                 />
-                <View style={{ marginLeft: 12 }}>
-                  <Text style={ls.messageName}>{msg.person_name}</Text>
-                  <Text style={ls.messageRole}>{msg.person_title}</Text>
-                </View>
+                <Text style={[ls.messageName, { marginTop: 8, textAlign: 'center', fontSize: 11 }]}>
+                  {msg.person_name}
+                </Text>
+                <Text style={[ls.messageRole, { textAlign: 'center' }]}>
+                  {msg.person_title}
+                </Text>
+                {/* Accent dash under name */}
+                <View style={{ width: 24, height: 2, backgroundColor: accentColor, borderRadius: 1, marginTop: 4 }} />
               </View>
 
-              {msg.message_title && (
-                <Text style={[s.h4, { marginBottom: 6 }]}>{msg.message_title}</Text>
-              )}
+              {/* Content column — 65% */}
+              <View style={ls.messageContent}>
+                {msg.message_title && (
+                  <Text style={[s.h4, { marginBottom: 6, color: accentColor }]}>{msg.message_title}</Text>
+                )}
 
-              <Text style={ls.messageBody}>
-                {msg.message_excerpt || msg.message_content}
-              </Text>
+                <Text style={ls.messageBody}>
+                  {msg.message_excerpt || msg.message_content}
+                </Text>
 
-              {msg.featured_quote && (
-                <View style={{ marginTop: 10 }}>
-                  <QuoteBlock
-                    text={msg.featured_quote}
-                    author={msg.person_name}
-                    role={msg.person_title}
-                    color={accentColor}
-                  />
-                </View>
-              )}
+                {msg.featured_quote && (
+                  <View style={{ marginTop: 12 }}>
+                    <QuoteBlock
+                      text={msg.featured_quote}
+                      author={msg.person_name}
+                      role={msg.person_title}
+                      color={accentColor}
+                    />
+                  </View>
+                )}
+              </View>
             </View>
           )
         })}
@@ -617,54 +653,56 @@ export default function AnnualReportPDF({
   }
 
   // ── 4. YearInNumbersPage ───────────────────────────
+  // Infographic-style — hero stat with photo, large numbers, generous spacing
   const YearInNumbersPage = () => (
-    <Page size="A4" style={s.page}>
+    <Page size="A4" style={s.pageShell}>
       <RunningHeader left={headerLeft} right={headerRight} />
-      <ConstellationPattern seed={4} opacity={0.04} />
+      <ConstellationPattern seed={4} opacity={0.05} color={C.ocean} />
 
       <Text style={s.sectionLabel}>Impact</Text>
-      <WaveLine width={60} marginVertical={8} />
       <Text style={s.h1}>Year {yearNumber} in Numbers</Text>
-      <Text style={[s.lead, { marginBottom: 16 }]}>
-        Key achievements and impact metrics for {yearRange}.
-      </Text>
+      <WaveLine width={60} marginVertical={6} color={C.ochre} />
 
       {/* Hero stat — 197 Staff overlay */}
-      <StatHero
-        value="197"
-        label="Passionate Staff Members"
-        description="A diverse team dedicated to delivering excellence across Palm Island."
-        variant="overlay"
-        photo={data.galleryPhotos[0]?.url}
-        valueSize={96}
-        height={220}
-      />
+      <View style={{ marginBottom: 16 }}>
+        <StatHero
+          value="197"
+          label="Passionate Staff Members"
+          description="A diverse team dedicated to delivering excellence across Palm Island."
+          variant="overlay"
+          photo={data.galleryPhotos[0]?.url}
+          valueSize={96}
+          height={200}
+        />
+      </View>
 
-      {/* Stat grid */}
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginTop: 12 }}>
-        <View style={{ width: '48%', marginBottom: 10 }}>
-          <StatHero value="$23.4M" label="Annual Revenue" variant="plain" valueSize={42} accentColor={C.reefBright} />
+      {/* Four large stat blocks in 2×2 grid */}
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+        <View style={{ width: '48%', marginBottom: 12 }}>
+          <StatHero value="$23.4M" label="Annual Revenue" variant="plain" valueSize={42} accentColor={C.mangrove} bgColor={C.white} />
         </View>
-        <View style={{ width: '48%', marginBottom: 10 }}>
-          <StatHero value="82%" label="Indigenous Employment" variant="plain" valueSize={42} accentColor={C.mangrove} bgColor={C.sand} />
+        <View style={{ width: '48%', marginBottom: 12 }}>
+          <StatHero value="82%" label="Indigenous Employment" variant="plain" valueSize={42} accentColor={C.ochre} bgColor={C.white} />
         </View>
-        <View style={{ width: '48%', marginBottom: 10 }}>
-          <StatHero value="20" label="Integrated Services" variant="plain" valueSize={42} accentColor={C.lagoon} />
+        <View style={{ width: '48%', marginBottom: 12 }}>
+          <StatHero value="20" label="Integrated Services" variant="plain" valueSize={42} accentColor={C.reef} bgColor={C.white} />
         </View>
-        <View style={{ width: '48%', marginBottom: 10 }}>
-          <StatHero value="3,200+" label="Community Members Served" variant="plain" valueSize={36} accentColor={C.coral} bgColor={C.sand} />
+        <View style={{ width: '48%', marginBottom: 12 }}>
+          <StatHero value="3,200+" label="Community Members Served" variant="plain" valueSize={36} accentColor={C.coral} bgColor={C.white} />
         </View>
       </View>
 
-      {/* Dynamic stats fallback — show any additional key stats from data */}
+      {/* Dynamic stats from data — smaller row */}
       {keyStats.length > 0 && (
-        <View style={[ls.statsRow, { marginTop: 8 }]}>
-          {keyStats.map((stat, i) => (
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginTop: 4 }}>
+          {keyStats.slice(0, 4).map((stat, i) => (
             <StatBox
               key={stat.id || i}
               value={stat.stat_unit ? `${stat.stat_value}${stat.stat_unit}` : stat.stat_value}
               label={stat.stat_label}
               color={STAT_COLORS[i % STAT_COLORS.length]}
+              variant="inline"
+              width="48%"
             />
           ))}
         </View>
@@ -675,6 +713,7 @@ export default function AnnualReportPDF({
   )
 
   // ── 5. PhotoSpreadPage ─────────────────────────────
+  // Full gallery feel — minimal chrome, photos dominate
   const PhotoSpreadPage = () => {
     const photos = data.galleryPhotos
     if (photos.length === 0) return null
@@ -682,18 +721,17 @@ export default function AnnualReportPDF({
     return (
       <Page size="A4" style={s.page}>
         <RunningHeader left={headerLeft} right={headerRight} />
-        <CornerBrackets inset={40} opacity={0.12} corners={['tl', 'br']} />
 
         <Text style={s.sectionLabel}>Our Community</Text>
-        <WaveLine width={90} marginVertical={8} />
         <Text style={s.h1}>Life on Palm Island</Text>
-        <Text style={[s.lead, { marginBottom: 16 }]}>
+        <WaveLine width={60} marginVertical={6} color={C.ochre} />
+        <Text style={[s.lead, { marginBottom: 12 }]}>
           Moments from across our community and services.
         </Text>
 
-        {/* First photo large */}
+        {/* First photo large — full width */}
         {photos[0] && (
-          <View wrap={false} style={{ marginBottom: 8 }}>
+          <View wrap={false} style={{ marginBottom: 10 }}>
             <Image src={photos[0].url} style={ls.photoLarge} />
             {photos[0].caption && (
               <Text style={ls.photoCaption}>{photos[0].caption}</Text>
@@ -701,10 +739,10 @@ export default function AnnualReportPDF({
           </View>
         )}
 
-        {/* Remaining photos in a 2-column grid */}
-        <View style={ls.photoGrid}>
+        {/* Remaining photos in 2-column grid */}
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
           {photos.slice(1, 5).map((photo, i) => (
-            <View key={i} wrap={false} style={{ width: '48%', marginBottom: 8 }}>
+            <View key={i} wrap={false} style={{ width: '48%', marginBottom: 10 }}>
               <Image src={photo.url} style={ls.photoSmall} />
               {photo.caption && (
                 <Text style={ls.photoCaption}>{photo.caption}</Text>
@@ -719,56 +757,90 @@ export default function AnnualReportPDF({
   }
 
   // ── 6. HighlightsPage ──────────────────────────────
-  const HighlightsPage = () => (
-    <Page size="A4" style={s.page}>
-      <RunningHeader left={headerLeft} right={headerRight} />
-      <CornerBrackets inset={40} opacity={0.12} corners={['tl', 'br']} />
+  // Featured highlight gets larger treatment, others in grid
+  const HighlightsPage = () => {
+    const featured = sortedHighlights.find((h) => h.is_featured)
+    const rest = sortedHighlights.filter((h) => !h.is_featured).slice(0, 5)
 
-      <Text style={s.sectionLabel}>Highlights</Text>
-      <WaveLine width={90} marginVertical={8} />
-      <Text style={s.h1}>Year {yearNumber} Highlights</Text>
-      <Text style={[s.lead, { marginBottom: 16 }]}>
-        The stories, achievements, and milestones that defined our year.
-      </Text>
+    return (
+      <Page size="A4" style={s.page}>
+        <RunningHeader left={headerLeft} right={headerRight} />
+        <CornerBrackets inset={30} opacity={0.1} corners={['tl', 'br']} />
 
-      <View style={ls.highlightRow}>
-        {sortedHighlights.map((hl, i) => (
+        <Text style={s.sectionLabel}>Highlights</Text>
+        <Text style={s.h1}>Year {yearNumber} Highlights</Text>
+        <WaveLine width={60} marginVertical={6} color={C.ochre} />
+        <Text style={[s.lead, { marginBottom: 14 }]}>
+          The stories, achievements, and milestones that defined our year.
+        </Text>
+
+        {/* Featured highlight — full-width card */}
+        {featured && (
           <Card
-            key={hl.id || i}
-            title={hl.title}
-            description={hl.description || hl.subtitle}
-            badge={hl.impact_achieved || undefined}
-            color={hl.is_featured ? C.reefBright : STAT_COLORS[i % STAT_COLORS.length]}
-            width="48%"
+            title={featured.title}
+            description={featured.description || featured.subtitle}
+            badge={featured.impact_achieved || undefined}
+            color={C.reef}
+            width="100%"
+            variant="featured"
           />
-        ))}
-      </View>
+        )}
 
-      <PageNumber />
-    </Page>
-  )
+        {/* Remaining highlights in 2-column grid */}
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+          {rest.map((hl, i) => (
+            <Card
+              key={hl.id || i}
+              title={hl.title}
+              description={hl.description || hl.subtitle}
+              badge={hl.impact_achieved || undefined}
+              color={STAT_COLORS[i % STAT_COLORS.length]}
+              width="48%"
+            />
+          ))}
+        </View>
+
+        <PageNumber />
+      </Page>
+    )
+  }
 
   // ── 7. CommunityVoicesPage ─────────────────────────
+  // Sand background, larger quotes with portrait pairing, voice-type coding
   const CommunityVoicesPage = () => {
-    // Mix of elder quotes, stories, and visions (exclude youth-only for separate page)
     const voices = generalVoices.slice(0, 6)
     if (voices.length === 0) return null
 
     return (
-      <Page size="A4" style={[s.page, { backgroundColor: C.sand }]}>
+      <Page size="A4" style={s.pageSand}>
         <RunningHeader left={headerLeft} right={headerRight} />
-        <ConstellationPattern seed={7} color={C.reefDeep} opacity={0.03} />
+        <ConstellationPattern seed={7} color={C.ocean} opacity={0.03} />
 
         <Text style={s.sectionLabel}>Community Voices</Text>
-        <WaveLine width={100} marginVertical={8} />
         <Text style={s.h1}>What Our Community Says</Text>
-        <Text style={[s.lead, { marginBottom: 16 }]}>
+        <WaveLine width={60} marginVertical={6} color={C.ochre} />
+        <Text style={[s.lead, { marginBottom: 14 }]}>
           Real voices from the people at the heart of everything we do.
         </Text>
 
+        {/* First voice — large editorial quote */}
+        {voices[0] && (
+          <View wrap={false} style={{ marginBottom: 16 }}>
+            <QuoteBlock
+              text={voices[0].text}
+              author={voices[0].author || 'Community Member'}
+              role={voices[0].role || undefined}
+              photoUrl={voices[0].photo_url || undefined}
+              color={VOICE_TYPE_COLORS[voices[0].type] || C.ocean}
+              variant="large"
+            />
+          </View>
+        )}
+
+        {/* Remaining voices in 2-column cards */}
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-          {voices.map((voice, i) => {
-            const color = VOICE_TYPE_COLORS[voice.type] || C.reefDeep
+          {voices.slice(1).map((voice, i) => {
+            const color = VOICE_TYPE_COLORS[voice.type] || C.ocean
             const typeLabel = VOICE_TYPE_LABELS[voice.type] || 'Community'
             return (
               <View key={voice.id || i} wrap={false} style={[ls.voiceCard, { borderLeft: `3pt solid ${color}` }]}>
@@ -776,7 +848,7 @@ export default function AnnualReportPDF({
                 {voice.photo_url && (
                   <Image
                     src={voice.photo_url}
-                    style={{ width: 36, height: 36, borderRadius: 18, objectFit: 'cover', marginBottom: 8 }}
+                    style={{ width: 40, height: 40, borderRadius: 20, objectFit: 'cover', marginBottom: 8 }}
                   />
                 )}
                 <Text style={ls.voiceText}>&ldquo;{voice.text}&rdquo;</Text>
@@ -799,6 +871,7 @@ export default function AnnualReportPDF({
   }
 
   // ── 8. YouthVoicesPage ─────────────────────────────
+  // Energetic — bolder colors, larger quotes, ConstellationPattern
   const YouthVoicesPage = () => {
     const voices = youthVoices.length > 0 ? youthVoices : allVoices.filter((v) => v.type === 'story').slice(0, 3)
     if (voices.length === 0) return null
@@ -806,12 +879,12 @@ export default function AnnualReportPDF({
     return (
       <Page size="A4" style={s.page}>
         <RunningHeader left={headerLeft} right={headerRight} />
-        <ConstellationPattern seed={8} opacity={0.04} />
+        <ConstellationPattern seed={8} opacity={0.06} color={C.reef} />
 
         <Text style={s.sectionLabel}>Youth Voices</Text>
-        <WaveLine width={90} marginVertical={8} />
         <Text style={s.h1}>Our Young People Speak</Text>
-        <Text style={[s.lead, { marginBottom: 16 }]}>
+        <WaveLine width={60} marginVertical={6} color={C.coral} />
+        <Text style={[s.lead, { marginBottom: 14 }]}>
           32% of Palm Island is youth. Their voices shape our future.
         </Text>
 
@@ -821,25 +894,27 @@ export default function AnnualReportPDF({
               text={voice.text}
               author={voice.author || 'Young Person'}
               role={voice.role || 'Palm Island Youth'}
-              color={STAT_COLORS[i % STAT_COLORS.length]}
+              photoUrl={voice.photo_url || undefined}
+              color={[C.reef, C.coral, C.starGold][i % 3]}
+              variant={i === 0 ? 'large' : 'default'}
             />
           </View>
         ))}
 
-        {/* Youth stats callout — pull from report statistics or fallback to known values */}
+        {/* Youth stats callout — bolder treatment */}
         <View wrap={false} style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
           <StatBox
-            value={data.statistics.find(s => s.stat_label.toLowerCase().includes('youth population'))?.stat_value || '32%'}
+            value={data.statistics.find(st => st.stat_label.toLowerCase().includes('youth population'))?.stat_value || '32%'}
             label="Youth Population"
-            color={C.reefBright}
+            color={C.reef}
           />
           <StatBox
-            value={data.statistics.find(s => s.stat_label.toLowerCase().includes('digital') && s.stat_label.toLowerCase().includes('youth'))?.stat_value || String(STAFF.digitalCentreStaff)}
-            label="Youth at Digital Service Centre"
-            color={C.reefDeep}
+            value={data.statistics.find(st => st.stat_label.toLowerCase().includes('digital') && st.stat_label.toLowerCase().includes('youth'))?.stat_value || String(STAFF.digitalCentreStaff)}
+            label="Youth at Digital Centre"
+            color={C.ocean}
           />
           <StatBox
-            value={data.statistics.find(s => s.stat_label.toLowerCase().includes('diversionary'))?.stat_value || '1,253'}
+            value={data.statistics.find(st => st.stat_label.toLowerCase().includes('diversionary'))?.stat_value || '1,253'}
             label="Diversionary Referrals"
             color={C.mangrove}
           />
@@ -856,32 +931,33 @@ export default function AnnualReportPDF({
     if (!rs) return null
 
     return (
-      <Page size="A4" style={s.page}>
+      <Page size="A4" style={s.pageSand}>
         <RunningHeader left={headerLeft} right={headerRight} />
-        <ConstellationPattern seed={9} opacity={0.04} />
+        <ConstellationPattern seed={9} opacity={0.04} color={C.starGold} />
 
         <Text style={s.sectionLabel}>Community Resilience</Text>
-        <WaveLine width={100} marginVertical={8} />
         <Text style={s.h1}>13,000 Years of Flood Knowledge</Text>
-        <Text style={[s.lead, { marginBottom: 16 }]}>
+        <WaveLine width={60} marginVertical={6} color={C.starGold} />
+        <Text style={[s.lead, { marginBottom: 14 }]}>
           {rs.subtitle}
         </Text>
 
-        {/* Gubbal creation story */}
+        {/* Gubbal creation story — editorial quote */}
         <View wrap={false} style={{ marginBottom: 16 }}>
           <QuoteBlock
             text={rs.gubbal.text}
             author={rs.gubbal.attribution}
             color={C.starGold}
+            variant="editorial"
           />
-          <Text style={{ fontSize: 7, color: C.textMuted, fontStyle: 'italic', marginTop: 4 }}>
+          <Text style={{ fontSize: 7, color: C.muted, fontStyle: 'italic', textAlign: 'center', marginTop: 4 }}>
             {rs.gubbal.culturalNote}
           </Text>
         </View>
 
         {/* Traditional wisdom */}
-        <View wrap={false} style={{ padding: 14, backgroundColor: C.sand, borderRadius: 8, marginBottom: 16 }}>
-          <Text style={[s.h4, { marginBottom: 8, color: C.reefDeep }]}>Manbarra Weather Wisdom</Text>
+        <View wrap={false} style={{ padding: 16, backgroundColor: C.white, borderRadius: 10, marginBottom: 16, borderLeft: `4pt solid ${C.starGold}` }}>
+          <Text style={[s.h4, { marginBottom: 8, color: C.starGold }]}>Manbarra Weather Wisdom</Text>
           {rs.traditionalWisdom.map((w, i) => (
             <Text key={i} style={{ fontSize: 8.5, color: C.driftwood, lineHeight: 1.6, paddingLeft: 8, marginBottom: 3 }}>
               {w}
@@ -890,14 +966,14 @@ export default function AnnualReportPDF({
         </View>
 
         {/* Resilience timeline */}
-        <Text style={[s.h4, { marginBottom: 8 }]}>A Timeline of Resilience</Text>
+        <Text style={[s.h4, { marginBottom: 10 }]}>A Timeline of Resilience</Text>
         {rs.timeline.map((t, i) => (
           <View key={i} wrap={false} style={{ flexDirection: 'row', marginBottom: 8 }}>
             <View style={{ width: 60 }}>
               <Text style={{ fontSize: 8, fontWeight: 'bold', color: ERA_COLORS[i % ERA_COLORS.length] }}>{t.year}</Text>
             </View>
             <View style={{ flex: 1, borderLeft: `2pt solid ${ERA_COLORS[i % ERA_COLORS.length]}`, paddingLeft: 10 }}>
-              <Text style={{ fontSize: 9, fontWeight: 'bold', color: C.reefDeep, marginBottom: 1 }}>{t.event}</Text>
+              <Text style={{ fontSize: 9, fontWeight: 'bold', color: C.ocean, marginBottom: 1 }}>{t.event}</Text>
               <Text style={{ fontSize: 8, color: C.driftwood, lineHeight: 1.4 }}>{t.detail}</Text>
             </View>
           </View>
@@ -913,19 +989,18 @@ export default function AnnualReportPDF({
     const rs = data.resilienceStories
     if (!rs) return null
 
-    // Get resilience-tagged voices
     const resilienceVoices = allVoices.filter((v) => v.category === 'resilience').slice(0, 4)
     if (resilienceVoices.length === 0) return null
 
     return (
       <Page size="A4" style={s.page}>
         <RunningHeader left={headerLeft} right={headerRight} />
-        <ConstellationPattern seed={10} opacity={0.04} />
+        <ConstellationPattern seed={10} opacity={0.04} color={C.ocean} />
 
         <Text style={s.sectionLabel}>Flood Stories</Text>
-        <WaveLine width={90} marginVertical={8} />
         <Text style={s.h1}>Many Tribes, One People</Text>
-        <Text style={[s.lead, { marginBottom: 16 }]}>
+        <WaveLine width={60} marginVertical={6} color={C.ochre} />
+        <Text style={[s.lead, { marginBottom: 14 }]}>
           Community voices from Palm Island&apos;s ongoing relationship with water, weather, and resilience.
         </Text>
 
@@ -936,24 +1011,26 @@ export default function AnnualReportPDF({
               text={voice.text}
               author={voice.author || 'Community Voice'}
               role={voice.role || undefined}
+              photoUrl={voice.photo_url || undefined}
               color={ERA_COLORS[i % ERA_COLORS.length]}
+              variant={i === 0 ? 'large' : 'default'}
             />
           </View>
         ))}
 
         {/* The Magnificent Seven */}
-        <View wrap={false} style={{ padding: 14, backgroundColor: C.bgLight, borderRadius: 8, marginTop: 4 }}>
+        <View wrap={false} style={{ padding: 16, backgroundColor: C.shell, borderRadius: 10, marginTop: 4, borderBottom: `3pt solid ${C.ocean}` }}>
           <Text style={[s.h4, { marginBottom: 8 }]}>The Magnificent Seven — 1957 Strike Leaders</Text>
-          <Text style={{ fontSize: 8.5, color: C.driftwood, lineHeight: 1.5, marginBottom: 8 }}>
+          <Text style={{ fontSize: 8.5, color: C.driftwood, lineHeight: 1.5, marginBottom: 10 }}>
             The same organizing capacity shown in the 1957 strike now mobilises flood response across Palm Island.
           </Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
             {rs.magnificentSeven.map((person, i) => (
               <View key={i} style={{ width: '48%', flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
-                <PersonAvatar photoUrl={null} name={person.name} size={20} color={ERA_COLORS[i % ERA_COLORS.length]} />
-                <View style={{ marginLeft: 6 }}>
-                  <Text style={{ fontSize: 8, fontWeight: 'bold', color: C.reefDeep }}>{person.name}</Text>
-                  <Text style={{ fontSize: 7, color: C.textMuted }}>{person.role}</Text>
+                <PersonAvatar photoUrl={null} name={person.name} size={22} color={ERA_COLORS[i % ERA_COLORS.length]} />
+                <View style={{ marginLeft: 8 }}>
+                  <Text style={{ fontSize: 8, fontWeight: 'bold', color: C.ocean }}>{person.name}</Text>
+                  <Text style={{ fontSize: 7, color: C.muted }}>{person.role}</Text>
                 </View>
               </View>
             ))}
@@ -977,9 +1054,9 @@ export default function AnnualReportPDF({
         <CornerBrackets inset={30} opacity={0.1} />
 
         <Text style={s.sectionLabel}>Governance</Text>
-        <WaveLine width={90} marginVertical={8} />
         <Text style={s.h1}>Board of Directors</Text>
-        <Text style={[s.lead, { marginBottom: 16 }]}>
+        <WaveLine width={60} marginVertical={6} color={C.ochre} />
+        <Text style={[s.lead, { marginBottom: 14 }]}>
           Guiding the organisation with experience, vision and community commitment.
         </Text>
 
@@ -989,8 +1066,8 @@ export default function AnnualReportPDF({
               <PersonAvatar
                 photoUrl={member.photo_url}
                 name={member.full_name}
-                size={40}
-                color={C.reefDeep}
+                size={44}
+                color={C.ocean}
               />
               <Text style={ls.boardName}>{member.full_name}</Text>
               <Text style={ls.boardPosition}>{member.position}</Text>
@@ -1000,9 +1077,9 @@ export default function AnnualReportPDF({
 
         {/* Governance statement */}
         {comp.board_meetings_held && (
-          <View wrap={false} style={{ marginTop: 16, padding: 14, backgroundColor: C.sand, borderRadius: 8 }}>
+          <View wrap={false} style={{ marginTop: 16, padding: 16, backgroundColor: C.shell, borderRadius: 10, borderLeft: `4pt solid ${C.ocean}` }}>
             <Text style={[s.h4, { marginBottom: 4 }]}>Governance Statement</Text>
-            <Text style={{ fontSize: 9, color: C.driftwood, lineHeight: 1.5 }}>
+            <Text style={{ fontSize: 9, color: C.driftwood, lineHeight: 1.6 }}>
               The Board met {comp.board_meetings_held} times during {yearRange}. All directors are Aboriginal and/or Torres Strait Islander people. The Board maintains compliance with ORIC, ACNC, and ASIC regulatory requirements.
             </Text>
           </View>
@@ -1013,15 +1090,15 @@ export default function AnnualReportPDF({
     )
   }
 
-  // ── 10. CompliancePage ─────────────────────────────
+  // ── 10b. CompliancePage ─────────────────────────────
   const CompliancePage = () => (
     <Page size="A4" style={s.page}>
       <RunningHeader left={headerLeft} right={headerRight} />
-      <CornerBrackets inset={40} opacity={0.12} corners={['tl', 'br']} />
+      <CornerBrackets inset={30} opacity={0.08} corners={['tl', 'br']} />
 
-      <Text style={s.sectionLabel}>Regulatory Compliance</Text>
-      <WaveLine width={100} marginVertical={8} />
+      <Text style={s.sectionLabel}>Regulatory</Text>
       <Text style={s.h1}>Compliance &amp; Registration</Text>
+      <WaveLine width={60} marginVertical={6} color={C.ochre} />
       <Text style={[s.lead, { marginBottom: 20 }]}>
         Palm Island Community Company operates under the Corporations (Aboriginal and Torres Strait Islander) Act 2006 (CATSI Act).
       </Text>
@@ -1069,7 +1146,7 @@ export default function AnnualReportPDF({
       </View>
 
       {/* Auditor reference */}
-      <View wrap={false} style={{ padding: 16, backgroundColor: C.bgLight, borderRadius: 8, marginBottom: 16 }}>
+      <View wrap={false} style={{ padding: 16, backgroundColor: C.shell, borderRadius: 10, marginBottom: 16, borderLeft: `4pt solid ${C.ocean}` }}>
         <Text style={[s.h4, { marginBottom: 6 }]}>Auditor&apos;s Report</Text>
         <Text style={{ fontSize: 9, color: C.driftwood, lineHeight: 1.6 }}>
           {comp.auditor_firm
@@ -1080,8 +1157,8 @@ export default function AnnualReportPDF({
       </View>
 
       {/* CATSI Act compliance statement */}
-      <View wrap={false} style={{ padding: 16, backgroundColor: C.sand, borderRadius: 8 }}>
-        <Text style={[s.h4, { marginBottom: 6 }]}>CATSI Act Compliance</Text>
+      <View wrap={false} style={{ padding: 16, backgroundColor: C.sand, borderRadius: 10 }}>
+        <Text style={[s.h4, { marginBottom: 6, color: C.ochre }]}>CATSI Act Compliance</Text>
         <Text style={{ fontSize: 9, color: C.driftwood, lineHeight: 1.6 }}>
           Palm Island Community Company Ltd confirms compliance with the reporting requirements of the Corporations (Aboriginal and Torres Strait Islander) Act 2006. This annual report has been prepared in accordance with the CATSI Act and lodged with the Office of the Registrar of Indigenous Corporations (ORIC).
         </Text>
@@ -1095,13 +1172,13 @@ export default function AnnualReportPDF({
   const DirectorsReportPage = () => (
     <Page size="A4" style={s.page}>
       <RunningHeader left={headerLeft} right={headerRight} />
-      <CornerBrackets inset={40} opacity={0.12} corners={['tl', 'br']} />
+      <CornerBrackets inset={30} opacity={0.08} corners={['tl', 'br']} />
 
       <Text style={s.sectionLabel}>Directors&apos; Report</Text>
-      <WaveLine width={100} marginVertical={8} />
       <Text style={s.h1}>Directors&apos; Declaration</Text>
+      <WaveLine width={60} marginVertical={6} color={C.ochre} />
 
-      <View style={{ marginTop: 16, padding: 20, backgroundColor: C.bgLight, borderRadius: 8 }}>
+      <View style={{ marginTop: 16, padding: 24, backgroundColor: C.shell, borderRadius: 10, borderTop: `4pt solid ${C.ocean}` }}>
         <Text style={{ fontSize: 10, color: C.driftwood, lineHeight: 1.8 }}>
           {comp.directors_declaration ||
             `The directors of Palm Island Community Company Ltd declare that:\n\n1. The financial statements and notes are in accordance with the Corporations (Aboriginal and Torres Strait Islander) Act 2006 and:\n   (a) comply with Australian Accounting Standards; and\n   (b) give a true and fair view of the financial position as at 30 June ${year} and of the performance for the year ended on that date.\n\n2. In the directors' opinion there are reasonable grounds to believe that the corporation will be able to pay its debts as and when they become due and payable.\n\nThis declaration is made in accordance with a resolution of the Board of Directors.`
@@ -1110,21 +1187,21 @@ export default function AnnualReportPDF({
       </View>
 
       {/* Signatories */}
-      <View style={{ marginTop: 30, flexDirection: 'row', justifyContent: 'space-between' }}>
+      <View style={{ marginTop: 36, flexDirection: 'row', justifyContent: 'space-between' }}>
         <View style={{ width: '45%' }}>
-          <View style={{ borderTop: `1pt solid ${C.textMuted}`, paddingTop: 8, marginTop: 40 }}>
-            <Text style={{ fontSize: 10, fontWeight: 'bold', color: C.reefDeep }}>
+          <View style={{ borderTop: `1pt solid ${C.ocean}`, paddingTop: 10, marginTop: 40 }}>
+            <Text style={{ fontSize: 10, fontWeight: 'bold', color: C.ocean }}>
               {data.boardMembers.find((m) => m.position === 'Chair')?.full_name || 'Luella Bligh'}
             </Text>
-            <Text style={{ fontSize: 8.5, color: C.textMuted }}>Chair</Text>
+            <Text style={{ fontSize: 8.5, color: C.muted }}>Chair</Text>
           </View>
         </View>
         <View style={{ width: '45%' }}>
-          <View style={{ borderTop: `1pt solid ${C.textMuted}`, paddingTop: 8, marginTop: 40 }}>
-            <Text style={{ fontSize: 10, fontWeight: 'bold', color: C.reefDeep }}>
+          <View style={{ borderTop: `1pt solid ${C.ocean}`, paddingTop: 10, marginTop: 40 }}>
+            <Text style={{ fontSize: 10, fontWeight: 'bold', color: C.ocean }}>
               {data.leadershipMessages.find((m) => m.person_title?.toLowerCase().includes('ceo') || m.person_title?.toLowerCase().includes('chief executive'))?.person_name || 'Rachel Atkinson'}
             </Text>
-            <Text style={{ fontSize: 8.5, color: C.textMuted }}>Chief Executive Officer</Text>
+            <Text style={{ fontSize: 8.5, color: C.muted }}>Chief Executive Officer</Text>
           </View>
         </View>
       </View>
@@ -1137,11 +1214,11 @@ export default function AnnualReportPDF({
   const ServicesPage = () => (
     <Page size="A4" style={s.page}>
       <RunningHeader left={headerLeft} right={headerRight} />
-      <ConstellationPattern seed={12} opacity={0.04} />
+      <ConstellationPattern seed={12} opacity={0.04} color={C.ocean} />
 
       <Text style={s.sectionLabel}>Year {yearNumber} — Our Services</Text>
-      <WaveLine width={90} marginVertical={8} />
       <Text style={s.h1}>Programs &amp; Services</Text>
+      <WaveLine width={60} marginVertical={6} color={C.ochre} />
       <Text style={[s.lead, { marginBottom: 12 }]}>
         Delivering essential services to the Palm Island community.
       </Text>
@@ -1151,7 +1228,7 @@ export default function AnnualReportPDF({
           <Text style={[ls.serviceCategoryTitle, { color: categoryColor(category) }]}>
             {category}
           </Text>
-          <View style={ls.serviceRow}>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
             {services.map((svc, i) => {
               const badges: string[] = []
               if (svc.staff_count) badges.push(`${svc.staff_count} staff`)
@@ -1166,6 +1243,7 @@ export default function AnnualReportPDF({
                   badge={badges.join(' | ') || undefined}
                   color={categoryColor(category)}
                   width="48%"
+                  variant="compact"
                 />
               )
             })}
@@ -1185,25 +1263,25 @@ export default function AnnualReportPDF({
     const activeCount = projects.filter((p) => p.status === 'active' || p.status === 'Active').length
 
     return (
-      <Page size="A4" style={s.page}>
+      <Page size="A4" style={s.pageShell}>
         <RunningHeader left={headerLeft} right={headerRight} />
-        <ConstellationPattern seed={13} opacity={0.04} />
+        <ConstellationPattern seed={13} opacity={0.05} color={C.reef} />
 
         <Text style={s.sectionLabel}>Year {yearNumber} — Innovation</Text>
-        <WaveLine width={90} marginVertical={8} />
         <Text style={s.h1}>Innovation Projects</Text>
-        <Text style={[s.lead, { marginBottom: 16 }]}>
+        <WaveLine width={60} marginVertical={6} color={C.ochre} />
+        <Text style={[s.lead, { marginBottom: 14 }]}>
           Community-led initiatives creating new pathways for Palm Island.
         </Text>
 
         {/* Overview stats */}
         <View wrap={false} style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 }}>
-          <StatBox value={String(projects.length)} label="Total Projects" color={C.reefBright} />
-          <StatBox value={String(activeCount)} label="Active Projects" color={C.mangrove} />
-          <StatBox value={String(STAFF.socialEnterprisesStaff)} label="Enterprise Staff" color={C.lagoon} />
+          <StatBox value={String(projects.length)} label="Total Projects" color={C.reef} variant="inline" width="31%" />
+          <StatBox value={String(activeCount)} label="Active Projects" color={C.mangrove} variant="inline" width="31%" />
+          <StatBox value={String(STAFF.socialEnterprisesStaff)} label="Enterprise Staff" color={C.ochre} variant="inline" width="31%" />
         </View>
 
-        {/* Project cards */}
+        {/* Project cards — with images */}
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
           {projects.map((project, i) => (
             <View key={project.id || i} wrap={false} style={ls.innovationCard}>
@@ -1213,17 +1291,17 @@ export default function AnnualReportPDF({
                   style={{
                     width: '100%',
                     height: 80,
-                    borderRadius: 6,
                     objectFit: 'cover',
-                    marginBottom: 8,
                   }}
                 />
               )}
-              <Text style={ls.innovationBadge}>{project.status}</Text>
-              <Text style={ls.innovationTitle}>{project.title}</Text>
-              <Text style={ls.innovationDesc}>
-                {project.impact_summary || project.description}
-              </Text>
+              <View style={ls.innovationBody}>
+                <Text style={ls.innovationBadge}>{project.status}</Text>
+                <Text style={ls.innovationTitle}>{project.title}</Text>
+                <Text style={ls.innovationDesc}>
+                  {project.impact_summary || project.description}
+                </Text>
+              </View>
             </View>
           ))}
         </View>
@@ -1241,41 +1319,41 @@ export default function AnnualReportPDF({
     return (
       <Page size="A4" style={s.page}>
         <RunningHeader left={headerLeft} right={headerRight} />
-        <CornerBrackets inset={40} opacity={0.12} corners={['tl', 'br']} />
+        <CornerBrackets inset={30} opacity={0.08} corners={['tl', 'br']} />
 
         <Text style={s.sectionLabel}>Financial Summary</Text>
-        <WaveLine width={90} marginVertical={8} />
         <Text style={s.h1}>Income &amp; Expenditure</Text>
+        <WaveLine width={60} marginVertical={6} color={C.ochre} />
         <Text style={[s.lead, { marginBottom: 20 }]}>
           Financial overview for the {yearRange} fiscal year.
         </Text>
 
-        {/* Income / Expenditure / Net summary */}
+        {/* Income / Expenditure / Net — three cards */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 24 }}>
-          <View wrap={false} style={{ width: '31%', padding: 14, backgroundColor: C.shellWhite, borderRadius: 8, borderTop: `3pt solid ${C.mangrove}` }}>
-            <Text style={{ fontFamily: 'PlayfairDisplay', fontSize: 28, fontWeight: 'bold', color: C.mangrove }}>{fmtCurrency(fin.total_income)}</Text>
-            <Text style={{ fontSize: 9, color: C.driftwood }}>Total Income</Text>
+          <View wrap={false} style={{ width: '31%', padding: 14, backgroundColor: C.white, borderRadius: 10, borderTop: `4pt solid ${C.mangrove}` }}>
+            <Text style={{ fontFamily: 'PlayfairDisplay', fontSize: 26, fontWeight: 'bold', color: C.mangrove, lineHeight: 0.9 }}>{fmtCurrency(fin.total_income)}</Text>
+            <Text style={{ fontSize: 9, color: C.driftwood, marginTop: 6 }}>Total Income</Text>
             {priorYear && (
-              <Text style={{ fontSize: 7.5, color: C.textMuted, marginTop: 2 }}>
-                Prior year: {fmtCurrency(priorYear.total_income)}
+              <Text style={{ fontSize: 7.5, color: C.muted, marginTop: 4 }}>
+                Prior: {fmtCurrency(priorYear.total_income)}
               </Text>
             )}
           </View>
-          <View wrap={false} style={{ width: '31%', padding: 14, backgroundColor: C.shellWhite, borderRadius: 8, borderTop: `3pt solid ${C.starGold}` }}>
-            <Text style={{ fontFamily: 'PlayfairDisplay', fontSize: 28, fontWeight: 'bold', color: C.starGold }}>{fmtCurrency(fin.total_expenditure)}</Text>
-            <Text style={{ fontSize: 9, color: C.driftwood }}>Total Expenditure</Text>
+          <View wrap={false} style={{ width: '31%', padding: 14, backgroundColor: C.white, borderRadius: 10, borderTop: `4pt solid ${C.starGold}` }}>
+            <Text style={{ fontFamily: 'PlayfairDisplay', fontSize: 26, fontWeight: 'bold', color: C.starGold, lineHeight: 0.9 }}>{fmtCurrency(fin.total_expenditure)}</Text>
+            <Text style={{ fontSize: 9, color: C.driftwood, marginTop: 6 }}>Total Expenditure</Text>
             {priorYear && (
-              <Text style={{ fontSize: 7.5, color: C.textMuted, marginTop: 2 }}>
-                Prior year: {fmtCurrency(priorYear.total_expenditure)}
+              <Text style={{ fontSize: 7.5, color: C.muted, marginTop: 4 }}>
+                Prior: {fmtCurrency(priorYear.total_expenditure)}
               </Text>
             )}
           </View>
-          <View wrap={false} style={{ width: '31%', padding: 14, backgroundColor: fin.net_result >= 0 ? C.shellWhite : C.bgLight, borderRadius: 8, borderTop: `3pt solid ${fin.net_result >= 0 ? C.mangrove : C.textMuted}` }}>
-            <Text style={{ fontFamily: 'PlayfairDisplay', fontSize: 28, fontWeight: 'bold', color: fin.net_result >= 0 ? C.mangrove : C.driftwood }}>{fmtFullCurrency(fin.net_result)}</Text>
-            <Text style={{ fontSize: 9, color: C.driftwood }}>Net Result</Text>
+          <View wrap={false} style={{ width: '31%', padding: 14, backgroundColor: fin.net_result >= 0 ? C.white : C.shell, borderRadius: 10, borderTop: `4pt solid ${fin.net_result >= 0 ? C.mangrove : C.muted}` }}>
+            <Text style={{ fontFamily: 'PlayfairDisplay', fontSize: 26, fontWeight: 'bold', color: fin.net_result >= 0 ? C.mangrove : C.driftwood, lineHeight: 0.9 }}>{fmtFullCurrency(fin.net_result)}</Text>
+            <Text style={{ fontSize: 9, color: C.driftwood, marginTop: 6 }}>Net Result</Text>
             {priorYear && (
-              <Text style={{ fontSize: 7.5, color: C.textMuted, marginTop: 2 }}>
-                Prior year: {fmtFullCurrency(priorYear.net_result)}
+              <Text style={{ fontSize: 7.5, color: C.muted, marginTop: 4 }}>
+                Prior: {fmtFullCurrency(priorYear.net_result)}
               </Text>
             )}
           </View>
@@ -1313,11 +1391,11 @@ export default function AnnualReportPDF({
     return (
       <Page size="A4" style={s.page}>
         <RunningHeader left={headerLeft} right={headerRight} />
-        <CornerBrackets inset={40} opacity={0.12} corners={['tl', 'br']} />
+        <CornerBrackets inset={30} opacity={0.08} corners={['tl', 'br']} />
 
         <Text style={s.sectionLabel}>Revenue Detail</Text>
-        <WaveLine width={90} marginVertical={8} />
         <Text style={s.h1}>Revenue by Funder</Text>
+        <WaveLine width={60} marginVertical={6} color={C.ochre} />
         <Text style={[s.lead, { marginBottom: 20 }]}>
           Funding sources for the {yearRange} fiscal year.
         </Text>
@@ -1339,22 +1417,22 @@ export default function AnnualReportPDF({
 
         {/* Prior year comparison table */}
         {comp.prior_year_financials && (
-          <View wrap={false} style={{ marginTop: 20, padding: 16, backgroundColor: C.bgLight, borderRadius: 8 }}>
+          <View wrap={false} style={{ marginTop: 20, padding: 16, backgroundColor: C.shell, borderRadius: 10 }}>
             <Text style={[s.h4, { marginBottom: 10 }]}>Year-on-Year Comparison</Text>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
-              <Text style={{ fontSize: 9, color: C.textMuted, width: '40%' }}></Text>
-              <Text style={{ fontSize: 8, fontWeight: 'bold', color: C.textMuted, width: '28%', textAlign: 'right' }}>Prior Year</Text>
-              <Text style={{ fontSize: 8, fontWeight: 'bold', color: C.reefDeep, width: '28%', textAlign: 'right' }}>{yearRange}</Text>
+              <Text style={{ fontSize: 9, color: C.muted, width: '40%' }}></Text>
+              <Text style={{ fontSize: 8, fontWeight: 'bold', color: C.muted, width: '28%', textAlign: 'right' }}>Prior Year</Text>
+              <Text style={{ fontSize: 8, fontWeight: 'bold', color: C.ocean, width: '28%', textAlign: 'right' }}>{yearRange}</Text>
             </View>
             {[
               { label: 'Total Income', prior: comp.prior_year_financials.total_income, current: fin.total_income },
               { label: 'Total Expenditure', prior: comp.prior_year_financials.total_expenditure, current: fin.total_expenditure },
               { label: 'Net Result', prior: comp.prior_year_financials.net_result, current: fin.net_result },
             ].map((row, i) => (
-              <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 4, borderBottom: `0.5pt solid ${C.borderLight}` }}>
+              <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 5, borderBottom: `0.5pt solid ${C.border}` }}>
                 <Text style={{ fontSize: 9, color: C.driftwood, width: '40%' }}>{row.label}</Text>
-                <Text style={{ fontSize: 9, color: C.textMuted, width: '28%', textAlign: 'right' }}>{fmtFullCurrency(row.prior)}</Text>
-                <Text style={{ fontSize: 9, fontWeight: 'bold', color: C.reefDeep, width: '28%', textAlign: 'right' }}>{fmtFullCurrency(row.current)}</Text>
+                <Text style={{ fontSize: 9, color: C.muted, width: '28%', textAlign: 'right' }}>{fmtFullCurrency(row.prior)}</Text>
+                <Text style={{ fontSize: 9, fontWeight: 'bold', color: C.ocean, width: '28%', textAlign: 'right' }}>{fmtFullCurrency(row.current)}</Text>
               </View>
             ))}
           </View>
@@ -1370,26 +1448,26 @@ export default function AnnualReportPDF({
     if (eras.length === 0) return null
 
     return (
-      <Page size="A4" style={s.page}>
+      <Page size="A4" style={s.pageSand}>
         <RunningHeader left={headerLeft} right={headerRight} />
-        <ConstellationPattern seed={16} opacity={0.04} />
+        <ConstellationPattern seed={16} opacity={0.04} color={C.starGold} />
 
         <Text style={s.sectionLabel}>Our Journey</Text>
-        <WaveLine width={90} marginVertical={8} />
         <Text style={s.h1}>Year {yearNumber} of 20</Text>
-        <Text style={[s.lead, { marginBottom: 8 }]}>
+        <WaveLine width={60} marginVertical={6} color={C.starGold} />
+        <Text style={[s.lead, { marginBottom: 10 }]}>
           From foundation to community control — Palm Island&apos;s journey of self-determination.
         </Text>
 
         {/* Year progress indicator */}
-        <View wrap={false} style={{ marginBottom: 20 }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
-            <Text style={{ fontSize: 8, color: C.textMuted }}>2009 — Founded</Text>
-            <Text style={{ fontSize: 8, fontWeight: 'bold', color: C.reefDeep }}>Year {yearNumber}</Text>
-            <Text style={{ fontSize: 8, color: C.textMuted }}>2029 — 20 Years</Text>
+        <View wrap={false} style={{ marginBottom: 20, padding: 14, backgroundColor: C.white, borderRadius: 10 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
+            <Text style={{ fontSize: 8, color: C.muted }}>2009 — Founded</Text>
+            <Text style={{ fontSize: 9, fontWeight: 'bold', color: C.ocean }}>Year {yearNumber}</Text>
+            <Text style={{ fontSize: 8, color: C.muted }}>2029 — 20 Years</Text>
           </View>
-          <View style={{ width: '100%', height: 8, backgroundColor: C.bgLight, borderRadius: 4 }}>
-            <View style={{ width: `${Math.min((yearNumber / 20) * 100, 100)}%`, height: 8, backgroundColor: C.reefDeep, borderRadius: 4 }} />
+          <View style={{ width: '100%', height: 10, backgroundColor: C.shell, borderRadius: 5 }}>
+            <View style={{ width: `${Math.min((yearNumber / 20) * 100, 100)}%`, height: 10, backgroundColor: C.ocean, borderRadius: 5 }} />
           </View>
         </View>
 
@@ -1415,26 +1493,25 @@ export default function AnnualReportPDF({
     )
   }
 
-  // ── 17. NextTwentyPage (replaces LookingForward) ──
+  // ── 17. NextTwentyPage ─────────────────────────────
   const NextTwentyPage = () => {
     const goals = [
-      { label: 'Total Staff', current: STAFF.total, target: 300, unit: 'people', color: C.reefDeep },
-      { label: 'Integrated Services', current: SERVICES.total, target: SERVICES.target2029, unit: 'services', color: C.reefBright },
+      { label: 'Total Staff', current: STAFF.total, target: 300, unit: 'people', color: C.ocean },
+      { label: 'Integrated Services', current: SERVICES.total, target: SERVICES.target2029, unit: 'services', color: C.reef },
       { label: 'Annual Income', current: Math.round(FINANCIALS.totalIncome / 100_000) / 10, target: 40, unit: '$M', color: C.mangrove },
-      { label: 'Social Enterprises', current: 3, target: 8, unit: 'enterprises', color: C.lagoon },
+      { label: 'Social Enterprises', current: 3, target: 8, unit: 'enterprises', color: C.ochre },
     ]
 
-    // Community visions for this section
     const visions = allVoices.filter((v) => v.type === 'community_vision').slice(0, 2)
 
     return (
       <Page size="A4" style={s.page}>
         <RunningHeader left={headerLeft} right={headerRight} />
-        <ConstellationPattern seed={17} opacity={0.04} />
+        <ConstellationPattern seed={17} opacity={0.05} color={C.ocean} />
 
         <Text style={s.sectionLabel}>Year {yearNumber} — Looking Forward</Text>
-        <WaveLine width={90} marginVertical={8} />
         <Text style={s.h1}>The Next 20 Years</Text>
+        <WaveLine width={60} marginVertical={6} color={C.ochre} />
         <Text style={[s.lead, { marginBottom: 20 }]}>
           Our targets for PICC&apos;s 20-year milestone in 2029 — and what the community wants for the next 20.
         </Text>
@@ -1442,15 +1519,15 @@ export default function AnnualReportPDF({
         {goals.map((goal, i) => {
           const pct = Math.min(Math.round((goal.current / goal.target) * 100), 100)
           return (
-            <View key={i} wrap={false} style={ls.goalRow}>
+            <View key={i} wrap={false} style={[ls.goalRow, { borderLeftColor: goal.color }]}>
               <View style={{ flex: 1 }}>
-                <Text style={ls.goalLabel}>{goal.label}</Text>
+                <Text style={[ls.goalLabel, { color: goal.color }]}>{goal.label}</Text>
                 <Text style={ls.goalSubtext}>
                   {goal.current} {goal.unit} → {goal.target} {goal.unit} by 2029
                 </Text>
               </View>
               <View style={{ alignItems: 'flex-end' }}>
-                <Text style={{ fontSize: 10, fontWeight: 'bold', color: goal.color, marginBottom: 4 }}>
+                <Text style={{ fontSize: 11, fontWeight: 'bold', color: goal.color, marginBottom: 4 }}>
                   {pct}%
                 </Text>
                 <View style={ls.progressBarOuter}>
@@ -1466,17 +1543,18 @@ export default function AnnualReportPDF({
           )
         })}
 
-        {/* Community visions alongside targets */}
+        {/* Community visions */}
         {visions.length > 0 && (
           <View style={{ marginTop: 8 }}>
-            <Text style={[s.h4, { marginBottom: 8, color: C.reefDeep }]}>What Our Community Wants</Text>
+            <Text style={[s.h4, { marginBottom: 10, color: C.ocean }]}>What Our Community Wants</Text>
             {visions.map((vision, i) => (
-              <View key={vision.id || i} wrap={false} style={{ marginBottom: 8 }}>
+              <View key={vision.id || i} wrap={false} style={{ marginBottom: 10 }}>
                 <QuoteBlock
                   text={vision.text}
                   author={vision.author || 'Community Member'}
                   role={vision.role || undefined}
-                  color={C.reefDeep}
+                  color={C.ocean}
+                  variant={i === 0 ? 'editorial' : 'default'}
                 />
               </View>
             ))}
@@ -1484,9 +1562,9 @@ export default function AnnualReportPDF({
         )}
 
         {data.report.looking_forward && (
-          <View wrap={false} style={{ marginTop: 8, padding: 16, backgroundColor: C.shellWhite, borderRadius: 8 }}>
+          <View wrap={false} style={{ marginTop: 8, padding: 16, backgroundColor: C.shell, borderRadius: 10, borderLeft: `4pt solid ${C.ocean}` }}>
             <Text style={[s.h4, { marginBottom: 6 }]}>From Our CEO</Text>
-            <Text style={{ fontSize: 9, color: C.driftwood, lineHeight: 1.65 }}>
+            <Text style={{ fontSize: 9, color: C.driftwood, lineHeight: 1.7 }}>
               {data.report.looking_forward}
             </Text>
           </View>
@@ -1498,9 +1576,38 @@ export default function AnnualReportPDF({
   }
 
   // ── 18. BackCoverPage ──────────────────────────────
+  // Midnight background, ArcDots decoration, Caveat mission
   const BackCoverPage = () => (
     <Page size="A4" style={ls.backCover}>
-      <ConstellationPattern color={C.starGold} opacity={0.08} count={20} seed={99} />
+      <ConstellationPattern color={C.starGold} opacity={0.1} count={24} seed={99} />
+
+      {/* Decorative arcs */}
+      <ArcDots
+        x={60}
+        y={80}
+        radius={40}
+        startAngle={0}
+        endAngle={90}
+        dotCount={8}
+        color={C.starGold}
+        opacity={0.15}
+        dotSize={2}
+        trails={2}
+        trailGap={10}
+      />
+      <ArcDots
+        x={A4_W - 60}
+        y={A4_H - 80}
+        radius={40}
+        startAngle={180}
+        endAngle={270}
+        dotCount={8}
+        color={C.starGold}
+        opacity={0.15}
+        dotSize={2}
+        trails={2}
+        trailGap={10}
+      />
 
       <Image src="/logo/picc-logo-full.png" style={ls.backLogo} />
 
@@ -1509,9 +1616,8 @@ export default function AnnualReportPDF({
         excellence.
       </Text>
 
-      <Svg width="60" height="3" style={{ marginBottom: 20 }}>
-        <Rect x="0" y="0" width="60" height="3" rx="1.5" fill={C.white} opacity="0.4" />
-      </Svg>
+      {/* Ochre accent line */}
+      <View style={{ width: 48, height: 3, backgroundColor: C.ochre, borderRadius: 1.5, marginBottom: 24 }} />
 
       <Text style={ls.backContact}>
         Palm Island Community Company Ltd{'\n'}

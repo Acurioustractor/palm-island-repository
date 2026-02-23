@@ -20,6 +20,28 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
+const USAGE_TYPES = [
+  { key: 'header', label: 'Header / Hero' },
+  { key: 'overlay', label: 'Background Overlay' },
+  { key: 'story', label: 'Story / Interview' },
+  { key: 'training', label: 'Training' },
+  { key: 'event', label: 'Event' },
+  { key: 'promo', label: 'Promotional' },
+] as const;
+
+interface ServiceTaxonomy {
+  id: string;
+  service_name: string;
+  service_slug: string;
+  service_category: string;
+}
+
+interface ProjectTaxonomy {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 interface ExternalVideo {
   id: string;
   title: string;
@@ -83,6 +105,8 @@ export default function ExternalVideosPage() {
   const [filterCategory, setFilterCategory] = useState('all');
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingVideo, setEditingVideo] = useState<ExternalVideo | null>(null);
+  const [services, setServices] = useState<ServiceTaxonomy[]>([]);
+  const [projects, setProjects] = useState<ProjectTaxonomy[]>([]);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -90,6 +114,9 @@ export default function ExternalVideosPage() {
     description: '',
     video_url: '',
     category: '',
+    service: '',
+    project: '',
+    usage: '',
     event_name: '',
     event_date: '',
     location: '',
@@ -116,6 +143,14 @@ export default function ExternalVideosPage() {
 
   useEffect(() => {
     loadVideos();
+    // Load taxonomy for Service/Project dropdowns
+    fetch('/api/media/taxonomy')
+      .then(r => r.json())
+      .then(data => {
+        if (data.services) setServices(data.services);
+        if (data.projects) setProjects(data.projects);
+      })
+      .catch(() => {});
   }, []);
 
   const loadVideos = async () => {
@@ -143,6 +178,14 @@ export default function ExternalVideosPage() {
     const { platform, videoId } = extractVideoId(formData.video_url);
     const thumbnail = getThumbnailUrl(platform, videoId);
 
+    // Build tags: user free-text tags + structured prefix tags
+    const userTags = formData.tags.split(',').map(t => t.trim()).filter(Boolean);
+    // Remove any existing prefix tags the dropdowns manage, then add current selections
+    const cleanedTags = userTags.filter(t => !t.startsWith('service:') && !t.startsWith('project:') && !t.startsWith('use:'));
+    if (formData.service) cleanedTags.push(`service:${formData.service}`);
+    if (formData.project) cleanedTags.push(`project:${formData.project}`);
+    if (formData.usage) cleanedTags.push(`use:${formData.usage}`);
+
     const videoData = {
       title: formData.title,
       description: formData.description || null,
@@ -154,7 +197,7 @@ export default function ExternalVideosPage() {
       event_name: formData.event_name || null,
       event_date: formData.event_date || null,
       location: formData.location || null,
-      tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
+      tags: cleanedTags,
       is_featured: formData.is_featured,
       is_public: formData.is_public,
       is_hero_eligible: formData.is_hero_eligible,
@@ -185,6 +228,9 @@ export default function ExternalVideosPage() {
         description: '',
         video_url: '',
         category: '',
+        service: '',
+        project: '',
+        usage: '',
         event_name: '',
         event_date: '',
         location: '',
@@ -204,15 +250,23 @@ export default function ExternalVideosPage() {
 
   const handleEdit = (video: ExternalVideo) => {
     setEditingVideo(video);
+    // Extract prefix tags into dropdowns, keep remaining as free-text
+    const serviceTag = video.tags.find(t => t.startsWith('service:'));
+    const projectTag = video.tags.find(t => t.startsWith('project:'));
+    const usageTag = video.tags.find(t => t.startsWith('use:'));
+    const freeTags = video.tags.filter(t => !t.startsWith('service:') && !t.startsWith('project:') && !t.startsWith('use:'));
     setFormData({
       title: video.title,
       description: video.description || '',
       video_url: video.video_url,
       category: video.category || '',
+      service: serviceTag?.replace('service:', '') || '',
+      project: projectTag?.replace('project:', '') || '',
+      usage: usageTag?.replace('use:', '') || '',
       event_name: video.event_name || '',
       event_date: video.event_date || '',
       location: video.location || '',
-      tags: video.tags.join(', '),
+      tags: freeTags.join(', '),
       is_featured: video.is_featured,
       is_public: video.is_public,
       is_hero_eligible: video.is_hero_eligible,
@@ -237,8 +291,11 @@ export default function ExternalVideosPage() {
   };
 
   const filteredVideos = videos.filter(video => {
-    const matchesSearch = video.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (video.description?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
+    const q = searchTerm.toLowerCase().trim();
+    const matchesSearch = !q ||
+      video.title.toLowerCase().includes(q) ||
+      (video.description?.toLowerCase().includes(q) ?? false) ||
+      video.tags.some(t => t.toLowerCase().includes(q));
     const matchesCategory = filterCategory === 'all' || video.category === filterCategory;
     return matchesSearch && matchesCategory;
   });
@@ -278,6 +335,9 @@ export default function ExternalVideosPage() {
                   description: '',
                   video_url: '',
                   category: '',
+                  service: '',
+                  project: '',
+                  usage: '',
                   event_name: '',
                   event_date: '',
                   location: '',
@@ -332,7 +392,7 @@ export default function ExternalVideosPage() {
                     placeholder="https://www.youtube.com/watch?v=..."
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1e3a5f] focus:border-transparent"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Supports YouTube, Vimeo, Facebook, and TikTok</p>
+                  <p className="text-xs text-gray-500 mt-1">Supports YouTube, Vimeo, Descript, Facebook, and TikTok</p>
                 </div>
 
                 <div>
@@ -390,6 +450,55 @@ export default function ExternalVideosPage() {
                       placeholder="e.g., Leaders Trip 2024"
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1e3a5f] focus:border-transparent"
                     />
+                  </div>
+                </div>
+
+                {/* Service / Project / Usage dropdowns */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Service
+                    </label>
+                    <select
+                      value={formData.service}
+                      onChange={(e) => setFormData({ ...formData, service: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1e3a5f] focus:border-transparent"
+                    >
+                      <option value="">None</option>
+                      {services.map(s => (
+                        <option key={s.service_slug} value={s.service_slug}>{s.service_name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Project
+                    </label>
+                    <select
+                      value={formData.project}
+                      onChange={(e) => setFormData({ ...formData, project: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1e3a5f] focus:border-transparent"
+                    >
+                      <option value="">None</option>
+                      {projects.map(p => (
+                        <option key={p.slug} value={p.slug}>{p.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Usage
+                    </label>
+                    <select
+                      value={formData.usage}
+                      onChange={(e) => setFormData({ ...formData, usage: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1e3a5f] focus:border-transparent"
+                    >
+                      <option value="">None</option>
+                      {USAGE_TYPES.map(u => (
+                        <option key={u.key} value={u.key}>{u.label}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
@@ -509,6 +618,30 @@ export default function ExternalVideosPage() {
             <option value="all">All Categories</option>
             {categories.map(cat => (
               <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
+          <select
+            value=""
+            onChange={(e) => {
+              if (e.target.value) setSearchTerm(`service:${e.target.value}`);
+            }}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1e3a5f]"
+          >
+            <option value="">Service...</option>
+            {services.map(s => (
+              <option key={s.service_slug} value={s.service_slug}>{s.service_name}</option>
+            ))}
+          </select>
+          <select
+            value=""
+            onChange={(e) => {
+              if (e.target.value) setSearchTerm(`use:${e.target.value}`);
+            }}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1e3a5f]"
+          >
+            <option value="">Usage...</option>
+            {USAGE_TYPES.map(u => (
+              <option key={u.key} value={u.key}>{u.label}</option>
             ))}
           </select>
         </div>

@@ -14,6 +14,7 @@ import { C, A4_W, A4_H, MARGIN, baseStyles } from '../theme'
 import { PageNumber } from './PageNumber'
 import { DotPattern } from './DotPattern'
 import { WaveDecoration } from './WaveDecoration'
+import { ArcDots } from './ArcDots'
 
 interface PhotoCoverProps {
   photoUrl: string | null
@@ -45,7 +46,7 @@ export const PhotoCover = ({
             objectFit: 'cover',
           }}
         />
-        {/* Dark gradient overlay from bottom for text legibility */}
+        {/* Dark gradient overlay — stronger at bottom for text, subtle vignette at top */}
         <Svg
           width={String(A4_W)}
           height={String(A4_H)}
@@ -53,10 +54,11 @@ export const PhotoCover = ({
         >
           <Defs>
             <LinearGradient id="photoOverlay" x1="0%" y1="0%" x2="0%" y2="100%">
-              <Stop offset="0%" stopColor="#000000" stopOpacity={0.15} />
-              <Stop offset="40%" stopColor="#000000" stopOpacity={0.1} />
-              <Stop offset="70%" stopColor="#000000" stopOpacity={0.55} />
-              <Stop offset="100%" stopColor="#000000" stopOpacity={0.85} />
+              <Stop offset="0%" stopColor="#000000" stopOpacity={0.2} />
+              <Stop offset="35%" stopColor="#000000" stopOpacity={0.05} />
+              <Stop offset="60%" stopColor="#000000" stopOpacity={0.35} />
+              <Stop offset="85%" stopColor="#000000" stopOpacity={0.75} />
+              <Stop offset="100%" stopColor="#000000" stopOpacity={0.88} />
             </LinearGradient>
           </Defs>
           <Rect x="0" y="0" width={String(A4_W)} height={String(A4_H)} fill="url(#photoOverlay)" />
@@ -64,7 +66,7 @@ export const PhotoCover = ({
       </>
     ) : (
       <>
-        {/* Fallback: SVG gradient cover (blue → purple) */}
+        {/* Fallback: Ocean gradient cover */}
         <Svg
           width={String(A4_W)}
           height={String(A4_H)}
@@ -72,9 +74,9 @@ export const PhotoCover = ({
         >
           <Defs>
             <LinearGradient id="coverGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <Stop offset="0%" stopColor={C.blueDark} />
-              <Stop offset="60%" stopColor={C.blueDeep} />
-              <Stop offset="100%" stopColor={C.purpleDark} />
+              <Stop offset="0%" stopColor={C.ocean} />
+              <Stop offset="60%" stopColor={C.ocean} />
+              <Stop offset="100%" stopColor={C.midnight} />
             </LinearGradient>
           </Defs>
           <Rect x="0" y="0" width={String(A4_W)} height={String(A4_H)} fill="url(#coverGrad)" />
@@ -84,6 +86,21 @@ export const PhotoCover = ({
         <WaveDecoration color={C.white} y={0} />
       </>
     )}
+
+    {/* Decorative arc dots in top-right corner */}
+    <ArcDots
+      x={A4_W - 30}
+      y={30}
+      radius={50}
+      startAngle={180}
+      endAngle={270}
+      dotCount={10}
+      color={C.white}
+      opacity={0.15}
+      dotSize={2}
+      trails={2}
+      trailGap={10}
+    />
 
     {/* Logo */}
     <Image
@@ -97,50 +114,78 @@ export const PhotoCover = ({
       }}
     />
 
-    {/* Title block */}
+    {/* Title block — positioned at bottom */}
     <View
       style={{
         position: 'absolute',
-        bottom: 120,
+        bottom: 80,
         left: MARGIN,
         right: MARGIN,
       }}
     >
+      {/* Subtitle / org name */}
       <Text
         style={{
-          fontSize: 14,
+          fontSize: 11,
           color: C.white,
-          opacity: 0.9,
-          letterSpacing: 1,
+          opacity: 0.85,
+          letterSpacing: 3,
           textTransform: 'uppercase',
+          marginBottom: 8,
         }}
       >
         {subtitle}
       </Text>
+
+      {/* Main title — large Caveat display */}
       <Text
         style={{
           fontFamily: 'Caveat',
-          fontSize: 44,
+          fontSize: 48,
           fontWeight: 'bold',
           color: C.white,
-          marginBottom: 8,
-          lineHeight: 1.1,
+          lineHeight: 1.05,
+          marginBottom: 12,
         }}
       >
         {title}
       </Text>
-      <Text
-        style={{
-          fontSize: 18,
-          fontWeight: 'bold',
-          color: C.white,
-          marginTop: 12,
-          letterSpacing: 2,
-        }}
-      >
-        {year}
-      </Text>
+
+      {/* Year with ochre accent dash */}
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <View
+          style={{
+            width: 32,
+            height: 3,
+            backgroundColor: C.ochre,
+            borderRadius: 1.5,
+            marginRight: 12,
+          }}
+        />
+        <Text
+          style={{
+            fontSize: 18,
+            fontWeight: 'bold',
+            color: C.white,
+            letterSpacing: 2,
+          }}
+        >
+          {year}
+        </Text>
+      </View>
     </View>
+
+    {/* Ochre accent bar at very bottom of page */}
+    <View
+      style={{
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: 6,
+        backgroundColor: C.ochre,
+      }}
+    />
 
     <PageNumber />
   </Page>

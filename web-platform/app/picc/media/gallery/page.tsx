@@ -21,6 +21,15 @@ const COLOR_LABELS = [
   { key: 'blue', hex: '#3B82F6', label: 'Blue' },
   { key: 'purple', hex: '#8B5CF6', label: 'Purple' },
 ] as const;
+
+const USAGE_TYPES = [
+  { key: 'header', label: 'Header / Hero' },
+  { key: 'overlay', label: 'Background Overlay' },
+  { key: 'story', label: 'Story / Interview' },
+  { key: 'training', label: 'Training' },
+  { key: 'event', label: 'Event' },
+  { key: 'promo', label: 'Promotional' },
+] as const;
 /** Lazy video thumbnail: renders a real <video> element only when near the viewport */
 function VideoThumb({ src, alt, className }: { src: string; alt: string; className?: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -221,6 +230,7 @@ function MediaGalleryPage() {
   const [sectionFilter, setSectionFilter] = useState<string>('all');
   const [contentFilter, setContentFilter] = useState<string>('all');
   const [roleFilter, setRoleFilter] = useState<string>('all');
+  const [usageFilter, setUsageFilter] = useState<string>('all');
   const [featuredOnly, setFeaturedOnly] = useState(false);
   const [minRatingFilter, setMinRatingFilter] = useState(0);
   const [colorLabelFilter, setColorLabelFilter] = useState<string>('');
@@ -229,6 +239,15 @@ function MediaGalleryPage() {
   // Batch AI analysis
   const [batchAnalyzing, setBatchAnalyzing] = useState(false);
   const [batchProgress, setBatchProgress] = useState<{ current: number; total: number } | null>(null);
+
+  // Tag intelligence panel
+  const [showIntelPanel, setShowIntelPanel] = useState(false);
+  const [tagStats, setTagStats] = useState<{
+    total: number; analyzed: number; unanalyzed: number; percentTagged: number;
+    noiseTagCount?: number; junkCount?: number;
+  } | null>(null);
+  const [cleaningTags, setCleaningTags] = useState(false);
+  const [cleanupResult, setCleanupResult] = useState<{ cleaned: number; totalTagsRemoved: number } | null>(null);
 
   // People tagging
   const [showPeopleTag, setShowPeopleTag] = useState(false);
@@ -313,11 +332,11 @@ function MediaGalleryPage() {
 
     const requiredTags: string[] = [];
 
-    if (annualReportOnly) {
-      requiredTags.push('annual-report');
-      if (annualReportFiscalYear !== 'all') requiredTags.push(`fy:${annualReportFiscalYear}`);
-    } else if (tagFilter) {
+    if (tagFilter) {
       requiredTags.push(tagFilter);
+    }
+    if (annualReportFiscalYear !== 'all') {
+      requiredTags.push(`fy:${annualReportFiscalYear}`);
     }
 
     if (serviceFilter !== 'all') requiredTags.push(`service:${serviceFilter}`);
@@ -326,6 +345,7 @@ function MediaGalleryPage() {
     if (sectionFilter !== 'all') requiredTags.push(sectionFilter);
     if (contentFilter !== 'all') requiredTags.push(contentFilter);
     if (roleFilter !== 'all') requiredTags.push(`role:${roleFilter}`);
+    if (usageFilter !== 'all') requiredTags.push(`use:${usageFilter}`);
     if (featuredOnly) params.set('featured', 'true');
 
     if (requiredTags.length > 0) {
@@ -552,6 +572,37 @@ function MediaGalleryPage() {
     }
   };
 
+  const loadAll = async () => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    try {
+      let currentOffset = offset;
+      let allNew: MediaFile[] = [];
+      while (true) {
+        const response = await fetch(
+          buildMediaQueryUrl(500, currentOffset),
+          { signal: AbortSignal.timeout(15000) }
+        );
+        if (!response.ok) break;
+        const payload = await response.json().catch(() => ({} as any));
+        const newData = payload?.data || [];
+        if (newData.length === 0) break;
+        allNew = [...allNew, ...newData];
+        currentOffset += newData.length;
+        if (newData.length < 500) break;
+      }
+      if (allNew.length > 0) {
+        setMedia(prev => [...prev, ...allNew]);
+        setOffset(currentOffset);
+      }
+      setHasMore(false);
+    } catch (err) {
+      console.error('loadAll error:', err);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
   const analyzePhoto = async (mediaItem: MediaFile) => {
     setAnalyzing(mediaItem.id);
 
@@ -596,33 +647,123 @@ function MediaGalleryPage() {
     setBatchAnalyzing(true);
     setBatchProgress(null);
     try {
-      const payload = mode === 'selected'
-        ? { mediaIds: Array.from(selectedFiles), limit: 50 }
-        : { filter: 'unanalyzed' as const, limit: 10 };
+      if (mode === 'selected') {
+        // Analyze specific selected photos via single-photo endpoint
+        const ids = Array.from(selectedFiles);
+        const total = ids.length;
+        setBatchProgress({ current: 0, total });
+        let done = 0;
+        for (const id of ids) {
+          const item = media.find((m: any) => m.id === id);
+          if (!item?.public_url) continue;
+          await fetch('/api/media/analyze', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image_url: item.public_url, media_id: id }),
+          });
+          done++;
+          setBatchProgress({ current: done, total });
+        }
+        toast.success(`Analyzed ${done} photo(s)`);
+        setSelectedFiles(new Set());
+      } else {
+        // Batch analyze untagged photos
+        const limit = 10;
+        setBatchProgress({ current: 0, total: limit });
 
-      const total = mode === 'selected' ? selectedFiles.size : 10;
-      setBatchProgress({ current: 0, total });
+        const response = await fetch('/api/media/batch-analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ limit }),
+          signal: AbortSignal.timeout(300000),
+        });
 
-      const response = await fetch('/api/media/analyze-batch', {
+        const result = await response.json();
+        if (!response.ok) throw new Error(result?.error || 'Batch analysis failed');
+
+        setBatchProgress({ current: result.processed, total: result.processed + result.remaining });
+        toast.success(
+          `Analyzed ${result.processed} photo(s)` +
+          (result.failed > 0 ? ` (${result.failed} failed)` : '') +
+          (result.remaining > 0 ? ` — ${result.remaining} remaining` : '')
+        );
+      }
+      await loadMedia();
+    } catch (err: any) {
+      console.error('Batch analysis error:', err);
+      toast.error('Batch analysis failed', err?.message || String(err));
+    } finally {
+      setBatchAnalyzing(false);
+      setBatchProgress(null);
+    }
+  };
+
+  // Load tag intelligence stats
+  const loadTagStats = async () => {
+    try {
+      const res = await fetch('/api/media/batch-analyze', { signal: AbortSignal.timeout(10000) });
+      if (res.ok) {
+        const stats = await res.json();
+        setTagStats(stats);
+      }
+    } catch (err) {
+      console.error('Failed to load tag stats:', err);
+    }
+  };
+
+  // Clean noise tags from all media
+  const cleanNoiseTags = async () => {
+    setCleaningTags(true);
+    setCleanupResult(null);
+    try {
+      const res = await fetch('/api/media/tag-cleanup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({}),
         signal: AbortSignal.timeout(300000),
       });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result?.error || 'Cleanup failed');
+      setCleanupResult({ cleaned: result.cleaned, totalTagsRemoved: result.totalTagsRemoved });
+      toast.success(`Cleaned ${result.cleaned} photos, removed ${result.totalTagsRemoved} noise tags`);
+      await loadMedia();
+      await loadTagStats();
+    } catch (err: any) {
+      console.error('Tag cleanup error:', err);
+      toast.error('Tag cleanup failed', err?.message || String(err));
+    } finally {
+      setCleaningTags(false);
+    }
+  };
 
-      const result = await response.json();
+  // Run batch AI analysis with auto-polling
+  const runBatchAnalysis = async (batchSize: number = 10) => {
+    setBatchAnalyzing(true);
+    setBatchProgress({ current: 0, total: batchSize });
+    let totalProcessed = 0;
+    let totalRemaining = 1; // Start with 1 to enter loop
 
-      if (!response.ok) {
-        throw new Error(result?.error || 'Batch analysis failed');
+    try {
+      while (totalRemaining > 0 && totalProcessed < 50) {
+        const res = await fetch('/api/media/batch-analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ limit: batchSize }),
+          signal: AbortSignal.timeout(300000),
+        });
+        const result = await res.json();
+        if (!res.ok) throw new Error(result?.error || 'Batch analysis failed');
+
+        totalProcessed += result.processed;
+        totalRemaining = result.remaining;
+        setBatchProgress({ current: totalProcessed, total: totalProcessed + totalRemaining });
+
+        if (result.processed === 0) break; // No more to process
       }
 
-      setBatchProgress({ current: result.processed, total: result.total });
-      toast.success(
-        `Analyzed ${result.processed} photo(s)` +
-        (result.failed > 0 ? ` (${result.failed} failed)` : '')
-      );
+      toast.success(`AI analyzed ${totalProcessed} photos`);
       await loadMedia();
-      if (mode === 'selected') setSelectedFiles(new Set());
+      await loadTagStats();
     } catch (err: any) {
       console.error('Batch analysis error:', err);
       toast.error('Batch analysis failed', err?.message || String(err));
@@ -861,7 +1002,7 @@ function MediaGalleryPage() {
           mergeMetadata: finalPayload.mergeMetadata,
           mergeContextMetadata: finalPayload.mergeContextMetadata,
         }),
-        signal: AbortSignal.timeout(15000),
+        signal: AbortSignal.timeout(120000),
       });
 
       const json = await response.json().catch(() => ({}));
@@ -1130,6 +1271,7 @@ function MediaGalleryPage() {
     sectionFilter !== 'all' ||
     contentFilter !== 'all' ||
     roleFilter !== 'all' ||
+    usageFilter !== 'all' ||
     featuredOnly ||
     untaggedOnly ||
     minRatingFilter > 0 ||
@@ -1153,6 +1295,20 @@ function MediaGalleryPage() {
               <p className="text-gray-600 mt-1">Browse, tag, and organize your community photos</p>
             </div>
             <div className="flex items-center gap-3">
+              <button
+                onClick={() => {
+                  setShowIntelPanel(!showIntelPanel);
+                  if (!tagStats) loadTagStats();
+                }}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                  showIntelPanel
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-purple-50 border border-purple-200 text-purple-700 hover:bg-purple-100'
+                }`}
+              >
+                <Sparkles className="w-4 h-4" />
+                Intelligence
+              </button>
               <Link
                 href="/picc/media/external-videos"
                 className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
@@ -1277,20 +1433,22 @@ function MediaGalleryPage() {
         {/* Quick chips row */}
         <div className="flex flex-wrap items-center gap-1.5 mt-2">
           {[
-            { label: 'Untagged', action: () => setUntaggedOnly(!untaggedOnly), active: untaggedOnly },
-            { label: 'Board', action: () => setRoleFilter(roleFilter === 'board-member' ? 'all' : 'board-member'), active: roleFilter === 'board-member' },
-            { label: 'Staff', action: () => setRoleFilter(roleFilter === 'staff' ? 'all' : 'staff'), active: roleFilter === 'staff' },
-            { label: 'Heroes', action: () => setTagFilter(tagFilter === 'hero' ? '' : 'hero'), active: tagFilter === 'hero' },
-            { label: 'Featured', action: () => setFeaturedOnly(!featuredOnly), active: featuredOnly },
-            { label: 'Professional', action: () => setContentFilter(contentFilter === 'quality:professional' ? 'all' : 'quality:professional'), active: contentFilter === 'quality:professional' },
-            { label: 'Annual Report', action: () => { setAnnualReportOnly(!annualReportOnly); if (annualReportOnly) setAnnualReportFiscalYear('all'); }, active: annualReportOnly },
-            { label: `FY ${fiscalYearOptions[0] || ''}`, action: () => { setAnnualReportOnly(true); setAnnualReportFiscalYear(fiscalYearOptions[0] || 'all'); setTagFilter(''); }, active: annualReportOnly && annualReportFiscalYear === fiscalYearOptions[0] },
+            { label: 'Community', tag: 'community' },
+            { label: 'Youth', tag: 'youth' },
+            { label: 'Culture', tag: 'culture' },
+            { label: 'Services', tag: 'services' },
+            { label: 'Staff', tag: 'staff' },
+            { label: 'Landscape', tag: 'landscape' },
+            { label: 'Events', tag: 'event' },
+            { label: 'Heroes', tag: 'hero-quality' },
+            { label: 'Portraits', tag: 'portrait' },
+            { label: 'Groups', tag: 'group' },
           ].map((chip) => (
             <button
-              key={chip.label}
-              onClick={chip.action}
+              key={chip.tag}
+              onClick={() => setTagFilter(tagFilter === chip.tag ? '' : chip.tag)}
               className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
-                chip.active
+                tagFilter === chip.tag
                   ? 'bg-picc-red text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
@@ -1298,6 +1456,70 @@ function MediaGalleryPage() {
               {chip.label}
             </button>
           ))}
+          {/* Service dropdown */}
+          <select
+            value={serviceFilter}
+            onChange={(e) => setServiceFilter(e.target.value)}
+            className={`text-xs px-2 py-1 rounded-full border-0 transition-colors cursor-pointer ${
+              serviceFilter !== 'all'
+                ? 'bg-picc-red text-white font-medium'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            <option value="all">Service...</option>
+            {services.map((s) => (
+              <option key={s.service_slug} value={s.service_slug}>{s.service_name}</option>
+            ))}
+          </select>
+
+          {/* Project dropdown */}
+          <select
+            value={projectFilter}
+            onChange={(e) => setProjectFilter(e.target.value)}
+            className={`text-xs px-2 py-1 rounded-full border-0 transition-colors cursor-pointer ${
+              projectFilter !== 'all'
+                ? 'bg-picc-red text-white font-medium'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            <option value="all">Project...</option>
+            {projects.map((p) => (
+              <option key={p.slug} value={p.slug}>{p.name}</option>
+            ))}
+          </select>
+
+          {/* Usage dropdown */}
+          <select
+            value={usageFilter}
+            onChange={(e) => setUsageFilter(e.target.value)}
+            className={`text-xs px-2 py-1 rounded-full border-0 transition-colors cursor-pointer ${
+              usageFilter !== 'all'
+                ? 'bg-picc-red text-white font-medium'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            <option value="all">Usage...</option>
+            {USAGE_TYPES.map((u) => (
+              <option key={u.key} value={u.key}>{u.label}</option>
+            ))}
+          </select>
+
+          <button
+            onClick={() => setFeaturedOnly(!featuredOnly)}
+            className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
+              featuredOnly ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            Featured
+          </button>
+          <button
+            onClick={() => setUntaggedOnly(!untaggedOnly)}
+            className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
+              untaggedOnly ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            Untagged
+          </button>
 
           {hasActiveFilters && (
             <button
@@ -1307,7 +1529,8 @@ function MediaGalleryPage() {
                 setAnnualReportFiscalYear('all'); setServiceFilter('all');
                 setProjectFilter('all'); setEventFilter('all');
                 setSectionFilter('all'); setContentFilter('all');
-                setRoleFilter('all'); setFeaturedOnly(false); setUntaggedOnly(false);
+                setRoleFilter('all'); setUsageFilter('all');
+                setFeaturedOnly(false); setUntaggedOnly(false);
                 setMinRatingFilter(0); setColorLabelFilter('');
               }}
               className="px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700 hover:bg-orange-200 transition-colors"
@@ -1317,122 +1540,148 @@ function MediaGalleryPage() {
           )}
         </div>
 
-        {taxonomyError && (
-          <div className="mt-2 text-xs text-red-600 flex items-center justify-between gap-3">
-            <span>Service/Project lists failed to load: {taxonomyError}</span>
-            <button type="button" onClick={() => window.location.reload()} className="px-2 py-0.5 border border-red-200 rounded hover:bg-red-50 text-xs">Retry</button>
-          </div>
-        )}
-
-        {/* Advanced filters panel */}
+        {/* Secondary filters — Year + Person + Role */}
         {showAdvancedFilters && (
-          <div className="mt-3 pt-3 border-t border-gray-100 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+          <div className="mt-3 pt-3 border-t border-gray-100 flex flex-wrap items-end gap-3">
             <div>
-              <label className="text-[11px] text-gray-500 mb-0.5 block">Tag</label>
-              <select value={tagFilter} onChange={(e) => setTagFilter(e.target.value)} disabled={annualReportOnly} className="w-full text-sm pl-2 pr-7 py-1.5 border border-gray-200 rounded-lg">
-                <option value="">All Tags</option>
-                {allTags.map(tag => (<option key={tag} value={tag}>{tag}</option>))}
-              </select>
-            </div>
-            <div>
-              <label className="text-[11px] text-gray-500 mb-0.5 block">Person</label>
-              <select value={personFilter} onChange={(e) => setPersonFilter(e.target.value)} className="w-full text-sm pl-2 pr-7 py-1.5 border border-gray-200 rounded-lg">
-                <option value="all">All People</option>
-                {profiles.map((p) => (<option key={p.id} value={p.id}>{p.preferred_name || p.full_name}</option>))}
-              </select>
-            </div>
-            <div>
-              <label className="text-[11px] text-gray-500 mb-0.5 block">Service</label>
-              <select value={serviceFilter} onChange={(e) => setServiceFilter(e.target.value)} className="w-full text-sm pl-2 pr-7 py-1.5 border border-gray-200 rounded-lg">
-                <option value="all">All Services</option>
-                {taxonomyLoading && services.length === 0 && <option disabled>Loading…</option>}
-                {services.map((s) => (<option key={s.id} value={s.service_slug}>{s.service_name}</option>))}
-              </select>
-            </div>
-            <div>
-              <label className="text-[11px] text-gray-500 mb-0.5 block">Project</label>
-              <select value={projectFilter} onChange={(e) => setProjectFilter(e.target.value)} className="w-full text-sm pl-2 pr-7 py-1.5 border border-gray-200 rounded-lg">
-                <option value="all">All Projects</option>
-                {taxonomyLoading && projects.length === 0 && <option disabled>Loading…</option>}
-                {projects.map((p) => (<option key={p.id} value={p.slug}>{p.name}</option>))}
-              </select>
-            </div>
-            <div>
-              <label className="text-[11px] text-gray-500 mb-0.5 block">Fiscal Year</label>
-              <select value={annualReportFiscalYear} onChange={(e) => setAnnualReportFiscalYear(e.target.value)} className="w-full text-sm pl-2 pr-7 py-1.5 border border-gray-200 rounded-lg">
+              <label className="text-[11px] text-gray-500 mb-0.5 block">Year</label>
+              <select value={annualReportFiscalYear} onChange={(e) => setAnnualReportFiscalYear(e.target.value)} className="text-sm pl-2 pr-7 py-1.5 border border-gray-200 rounded-lg">
                 <option value="all">All Years</option>
                 {fiscalYearOptions.map((fy) => (<option key={fy} value={fy}>{fy}</option>))}
               </select>
             </div>
             <div>
+              <label className="text-[11px] text-gray-500 mb-0.5 block">Person</label>
+              <select value={personFilter} onChange={(e) => setPersonFilter(e.target.value)} className="text-sm pl-2 pr-7 py-1.5 border border-gray-200 rounded-lg">
+                <option value="all">All People</option>
+                {profiles.map((p) => (<option key={p.id} value={p.id}>{p.preferred_name || p.full_name}</option>))}
+              </select>
+            </div>
+            <div>
               <label className="text-[11px] text-gray-500 mb-0.5 block">Role</label>
-              <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)} className="w-full text-sm pl-2 pr-7 py-1.5 border border-gray-200 rounded-lg">
+              <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)} className="text-sm pl-2 pr-7 py-1.5 border border-gray-200 rounded-lg">
                 <option value="all">All Roles</option>
                 <option value="board-member">Board Member</option>
                 <option value="staff">Staff</option>
-                <option value="volunteer">Volunteer</option>
                 <option value="elder-advisor">Elder Advisor</option>
-                <option value="cultural-advisor">Cultural Advisor</option>
               </select>
-            </div>
-            <div>
-              <label className="text-[11px] text-gray-500 mb-0.5 block">Event</label>
-              <select value={eventFilter} onChange={(e) => setEventFilter(e.target.value)} className="w-full text-sm pl-2 pr-7 py-1.5 border border-gray-200 rounded-lg">
-                <option value="all">All Events</option>
-                <option value="event:spring-festival-2025">Spring Festival 2025</option>
-                <option value="event:daycare-opening-2025">Daycare Opening 2025</option>
-                <option value="event:community-visit-jun-2025">Community Visit Jun 2025</option>
-                <option value="event:photo-shoot-oct-2025">Photo Shoot Oct 2025</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-[11px] text-gray-500 mb-0.5 block">Section</label>
-              <select value={sectionFilter} onChange={(e) => setSectionFilter(e.target.value)} className="w-full text-sm pl-2 pr-7 py-1.5 border border-gray-200 rounded-lg">
-                <option value="all">All Sections</option>
-                <option value="section:cover">Covers</option>
-                <option value="section:ceo-message">CEO Messages</option>
-                <option value="section:chair-message">Chair Messages</option>
-                <option value="section:board">Board Members</option>
-                <option value="section:governance">Governance</option>
-                <option value="section:service-report">Service Reports</option>
-                <option value="section:statistics">Statistics</option>
-                <option value="section:highlights">Highlights</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-[11px] text-gray-500 mb-0.5 block">Content</label>
-              <select value={contentFilter} onChange={(e) => setContentFilter(e.target.value)} className="w-full text-sm pl-2 pr-7 py-1.5 border border-gray-200 rounded-lg">
-                <option value="all">All Content</option>
-                <optgroup label="Subject">
-                  <option value="content:portrait">Portraits</option>
-                  <option value="content:group">Group Shots</option>
-                  <option value="content:elders">Elders</option>
-                  <option value="content:youth">Youth</option>
-                  <option value="content:children">Children</option>
-                  <option value="content:art">Art &amp; Culture</option>
-                </optgroup>
-                <optgroup label="Setting">
-                  <option value="content:indoor">Indoor</option>
-                  <option value="content:outdoor">Outdoor</option>
-                  <option value="content:nature">Nature</option>
-                  <option value="setting:on-country">On Country</option>
-                  <option value="setting:photobooth">Photobooth</option>
-                </optgroup>
-                <optgroup label="Quality">
-                  <option value="quality:professional">Professional</option>
-                  <option value="content:documentary">Documentary</option>
-                </optgroup>
-              </select>
-            </div>
-            <div className="flex flex-col justify-end gap-1">
-              <Link href="/picc/services" className="text-[11px] text-picc-red hover:underline">Manage services</Link>
-              <Link href="/picc/projects" className="text-[11px] text-picc-red hover:underline">Manage projects</Link>
             </div>
           </div>
         )}
       </div>
 
-      {/* Service Quick-Assign Bar — hidden, replaced by toolbar dropdown */}
+      {/* AI Intelligence Panel */}
+      {showIntelPanel && (
+        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl border border-purple-200 p-4 mb-4 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-purple-600" />
+              <h3 className="font-semibold text-purple-900">Media Intelligence</h3>
+            </div>
+            <button onClick={() => setShowIntelPanel(false)} className="p-1 hover:bg-purple-100 rounded">
+              <X className="w-4 h-4 text-purple-400" />
+            </button>
+          </div>
+
+          {!tagStats ? (
+            <div className="flex items-center gap-2 text-sm text-purple-600">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Loading stats...
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {/* Stats grid */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="bg-white/80 rounded-lg p-3">
+                  <p className="text-2xl font-bold text-gray-900">{tagStats.total.toLocaleString()}</p>
+                  <p className="text-xs text-gray-500">Total photos</p>
+                </div>
+                <div className="bg-white/80 rounded-lg p-3">
+                  <p className="text-2xl font-bold text-green-600">{tagStats.analyzed.toLocaleString()}</p>
+                  <p className="text-xs text-gray-500">AI analyzed</p>
+                </div>
+                <div className="bg-white/80 rounded-lg p-3">
+                  <p className="text-2xl font-bold text-orange-600">{tagStats.unanalyzed.toLocaleString()}</p>
+                  <p className="text-xs text-gray-500">Need analysis</p>
+                </div>
+                <div className="bg-white/80 rounded-lg p-3">
+                  <p className="text-2xl font-bold text-purple-600">{tagStats.percentTagged}%</p>
+                  <p className="text-xs text-gray-500">Coverage</p>
+                </div>
+              </div>
+
+              {/* Progress bar */}
+              <div>
+                <div className="flex justify-between text-xs text-gray-500 mb-1">
+                  <span>AI Analysis Progress</span>
+                  <span>{tagStats.percentTagged}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-gradient-to-r from-purple-500 to-indigo-500 h-2 rounded-full transition-all duration-500"
+                    style={{ width: `${tagStats.percentTagged}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Action buttons */}
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={cleanNoiseTags}
+                  disabled={cleaningTags}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium bg-white text-orange-700 border border-orange-200 rounded-lg hover:bg-orange-50 disabled:opacity-50 transition-colors"
+                >
+                  {cleaningTags ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                  Clean Noise Tags
+                </button>
+                <button
+                  onClick={() => runBatchAnalysis(10)}
+                  disabled={batchAnalyzing}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium bg-white text-purple-700 border border-purple-200 rounded-lg hover:bg-purple-50 disabled:opacity-50 transition-colors"
+                >
+                  {batchAnalyzing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                  {batchAnalyzing && batchProgress
+                    ? `Analyzing ${batchProgress.current}/${batchProgress.total}...`
+                    : `AI Tag ${tagStats.unanalyzed > 0 ? tagStats.unanalyzed.toLocaleString() : 'All'} Photos`
+                  }
+                </button>
+                <button
+                  onClick={() => runBatchAnalysis(50)}
+                  disabled={batchAnalyzing}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 transition-colors"
+                >
+                  {batchAnalyzing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                  Deep Analysis (50 batch)
+                </button>
+              </div>
+
+              {/* Cleanup result */}
+              {cleanupResult && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-sm text-green-800">
+                  <Check className="w-4 h-4 inline mr-1" />
+                  Cleaned {cleanupResult.cleaned} photos — removed {cleanupResult.totalTagsRemoved} noise tags
+                </div>
+              )}
+
+              {/* Batch progress */}
+              {batchAnalyzing && batchProgress && (
+                <div className="bg-purple-100 border border-purple-200 rounded-lg p-3">
+                  <div className="flex justify-between text-xs text-purple-700 mb-1">
+                    <span>Processing...</span>
+                    <span>{batchProgress.current} / {batchProgress.total}</span>
+                  </div>
+                  <div className="w-full bg-purple-200 rounded-full h-1.5">
+                    <div
+                      className="bg-purple-600 h-1.5 rounded-full transition-all duration-300"
+                      style={{ width: `${batchProgress.total > 0 ? (batchProgress.current / batchProgress.total) * 100 : 0}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Compact Toolbar */}
       {displayMedia.length > 0 && (
@@ -1459,13 +1708,15 @@ function MediaGalleryPage() {
             {/* Actions — compact */}
             {selectedFiles.size === 0 ? (
               <button
-                onClick={() => analyzeBatch('unanalyzed')}
-                disabled={batchAnalyzing}
-                title="AI analyze untagged photos"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 disabled:opacity-50 transition-colors"
+                onClick={() => {
+                  setShowIntelPanel(true);
+                  if (!tagStats) loadTagStats();
+                }}
+                title="Open AI Intelligence panel"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors"
               >
-                {batchAnalyzing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
-                {batchAnalyzing && batchProgress ? `${batchProgress.current}/${batchProgress.total}` : 'AI Analyze'}
+                <Sparkles className="w-3.5 h-3.5" />
+                Intelligence
               </button>
             ) : (
               <div className="flex items-center gap-1.5 flex-wrap">
@@ -1605,6 +1856,64 @@ function MediaGalleryPage() {
                         className="w-full text-left px-3 py-1.5 text-sm hover:bg-warm-50 transition-colors"
                       >
                         {svc.service_name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Project dropdown */}
+                <div className="relative group/prj">
+                  <button
+                    title="Quick assign project"
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <FolderPlus className="w-3.5 h-3.5" /> Project <ChevronDown className="w-3 h-3" />
+                  </button>
+                  <div className="hidden group-hover/prj:block absolute top-full right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-64 max-h-60 overflow-y-auto">
+                    {projects.map(proj => (
+                      <button
+                        key={proj.id}
+                        onClick={async () => {
+                          if (selectedFiles.size === 0) return;
+                          try {
+                            await applyBulkTags(
+                              { addTags: [`project:${proj.slug}`], mergeContextMetadata: { project_slug: proj.slug } },
+                              { closeModal: false, successMessage: `Tagged ${selectedFiles.size} item(s) with project:${proj.slug}` }
+                            );
+                          } catch {}
+                        }}
+                        className="w-full text-left px-3 py-1.5 text-sm hover:bg-warm-50 transition-colors"
+                      >
+                        {proj.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Usage dropdown */}
+                <div className="relative group/use">
+                  <button
+                    title="Quick assign usage"
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <Video className="w-3.5 h-3.5" /> Usage <ChevronDown className="w-3 h-3" />
+                  </button>
+                  <div className="hidden group-hover/use:block absolute top-full right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-48 max-h-60 overflow-y-auto">
+                    {USAGE_TYPES.map(u => (
+                      <button
+                        key={u.key}
+                        onClick={async () => {
+                          if (selectedFiles.size === 0) return;
+                          try {
+                            await applyBulkTags(
+                              { addTags: [`use:${u.key}`] },
+                              { closeModal: false, successMessage: `Tagged ${selectedFiles.size} item(s) with use:${u.key}` }
+                            );
+                          } catch {}
+                        }}
+                        className="w-full text-left px-3 py-1.5 text-sm hover:bg-warm-50 transition-colors"
+                      >
+                        {u.label}
                       </button>
                     ))}
                   </div>
@@ -1786,7 +2095,25 @@ function MediaGalleryPage() {
                     loading="lazy"
                   />
                 ) : item.file_type === 'video' ? (
-                  <VideoThumb src={getVideoThumbnail(item) || item.public_url} alt={item.title || 'Video'} className="w-full h-full" />
+                  getVideoThumbnail(item) ? (
+                    <div className="relative w-full h-full bg-gray-900">
+                      <img src={getVideoThumbnail(item)!} alt={item.title || 'Video'} className="w-full h-full object-cover" loading="lazy" />
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center">
+                          <Play className="w-5 h-5 text-gray-900 ml-0.5" />
+                        </div>
+                      </div>
+                    </div>
+                  ) : isExternalVideo(item) ? (
+                    <div className="w-full h-full bg-gray-900 flex flex-col items-center justify-center gap-2">
+                      <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center">
+                        <Play className="w-5 h-5 text-gray-900 ml-0.5" />
+                      </div>
+                      <span className="text-[10px] text-white/70 px-2 text-center truncate max-w-full">{item.title || 'External Video'}</span>
+                    </div>
+                  ) : (
+                    <VideoThumb src={item.public_url} alt={item.title || 'Video'} className="w-full h-full" />
+                  )
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-gray-200">
                     <Icon className="w-12 h-12 text-gray-400" />
@@ -1926,7 +2253,20 @@ function MediaGalleryPage() {
                     className="w-16 h-16 object-cover rounded"
                   />
                 ) : item.file_type === 'video' ? (
-                  <VideoThumbSmall src={getVideoThumbnail(item) || item.public_url} alt={item.title || 'Video'} />
+                  getVideoThumbnail(item) ? (
+                    <div className="relative w-16 h-16 bg-gray-900 rounded overflow-hidden">
+                      <img src={getVideoThumbnail(item)!} alt={item.title || 'Video'} className="w-full h-full object-cover" loading="lazy" />
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div className="w-6 h-6 bg-white/90 rounded-full flex items-center justify-center">
+                          <Play className="w-3 h-3 text-gray-900 ml-0.5" />
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 bg-gray-900 rounded flex items-center justify-center">
+                      <Play className="w-6 h-6 text-white/80" />
+                    </div>
+                  )
                 ) : (
                   <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center">
                     <Icon className="w-8 h-8 text-gray-400" />
@@ -1963,24 +2303,35 @@ function MediaGalleryPage() {
         </div>
       )}
 
-      {/* Load More Button */}
+      {/* Load More / Load All Buttons */}
       {!loading && hasMore && media.length > 0 && (
-        <div className="mt-8 text-center">
+        <div className="mt-8 text-center flex items-center justify-center gap-3">
           <button
             onClick={loadMore}
             disabled={loadingMore}
-            className="px-8 py-3 bg-picc-red text-white rounded-lg hover:bg-picc-red disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium inline-flex items-center gap-2"
+            className="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium inline-flex items-center gap-2"
           >
             {loadingMore ? (
               <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                Loading more photos...
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Loading...
               </>
             ) : (
+              <>Load More</>
+            )}
+          </button>
+          <button
+            onClick={loadAll}
+            disabled={loadingMore}
+            className="px-6 py-2.5 bg-picc-red text-white rounded-lg hover:bg-picc-red/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium inline-flex items-center gap-2"
+          >
+            {loadingMore ? (
               <>
-                <RefreshCw className="w-5 h-5" />
-                Load More ({media.length} of 1,214+ photos)
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Loading all...
               </>
+            ) : (
+              <>Load All ({totalCount - media.length} remaining)</>
             )}
           </button>
         </div>
@@ -2354,6 +2705,117 @@ function MediaGalleryPage() {
                       Add
                     </button>
                   </form>
+                </div>
+
+                {/* Quick-tag: Service / Project / Usage */}
+                <div className="grid grid-cols-3 gap-2">
+                  {/* Service quick-tag */}
+                  <div>
+                    <label className="text-[11px] text-gray-500 mb-0.5 block">Service</label>
+                    <select
+                      value={selectedMedia.tags?.find(t => t.startsWith('service:'))?.replace('service:', '') || ''}
+                      onChange={async (e) => {
+                        const newVal = e.target.value;
+                        const currentTag = selectedMedia.tags?.find(t => t.startsWith('service:'));
+                        try {
+                          const removeTags = currentTag ? [currentTag] : [];
+                          const addTags = newVal ? [`service:${newVal}`] : [];
+                          if (removeTags.length === 0 && addTags.length === 0) return;
+                          const res = await fetch('/api/media/bulk', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ mediaIds: [selectedMedia.id], addTags, removeTags }),
+                          });
+                          if (!res.ok) throw new Error('Failed to update service tag');
+                          let updatedTags = (selectedMedia.tags || []).filter(t => !t.startsWith('service:'));
+                          if (newVal) updatedTags.push(`service:${newVal}`);
+                          setSelectedMedia({ ...selectedMedia, tags: updatedTags });
+                          setMedia(prev => prev.map(m => m.id === selectedMedia.id ? { ...m, tags: updatedTags } : m));
+                          toast.success(newVal ? `Service: ${newVal}` : 'Service cleared');
+                        } catch (err) {
+                          toast.error('Failed to update service', String(err));
+                        }
+                      }}
+                      className="w-full text-xs px-2 py-1.5 border border-gray-200 rounded-lg"
+                    >
+                      <option value="">None</option>
+                      {services.map(s => (
+                        <option key={s.service_slug} value={s.service_slug}>{s.service_name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Project quick-tag */}
+                  <div>
+                    <label className="text-[11px] text-gray-500 mb-0.5 block">Project</label>
+                    <select
+                      value={selectedMedia.tags?.find(t => t.startsWith('project:'))?.replace('project:', '') || ''}
+                      onChange={async (e) => {
+                        const newVal = e.target.value;
+                        const currentTag = selectedMedia.tags?.find(t => t.startsWith('project:'));
+                        try {
+                          const removeTags = currentTag ? [currentTag] : [];
+                          const addTags = newVal ? [`project:${newVal}`] : [];
+                          if (removeTags.length === 0 && addTags.length === 0) return;
+                          const res = await fetch('/api/media/bulk', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ mediaIds: [selectedMedia.id], addTags, removeTags }),
+                          });
+                          if (!res.ok) throw new Error('Failed to update project tag');
+                          let updatedTags = (selectedMedia.tags || []).filter(t => !t.startsWith('project:'));
+                          if (newVal) updatedTags.push(`project:${newVal}`);
+                          setSelectedMedia({ ...selectedMedia, tags: updatedTags });
+                          setMedia(prev => prev.map(m => m.id === selectedMedia.id ? { ...m, tags: updatedTags } : m));
+                          toast.success(newVal ? `Project: ${newVal}` : 'Project cleared');
+                        } catch (err) {
+                          toast.error('Failed to update project', String(err));
+                        }
+                      }}
+                      className="w-full text-xs px-2 py-1.5 border border-gray-200 rounded-lg"
+                    >
+                      <option value="">None</option>
+                      {projects.map(p => (
+                        <option key={p.slug} value={p.slug}>{p.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Usage quick-tag */}
+                  <div>
+                    <label className="text-[11px] text-gray-500 mb-0.5 block">Usage</label>
+                    <select
+                      value={selectedMedia.tags?.find(t => t.startsWith('use:'))?.replace('use:', '') || ''}
+                      onChange={async (e) => {
+                        const newVal = e.target.value;
+                        const currentTag = selectedMedia.tags?.find(t => t.startsWith('use:'));
+                        try {
+                          const removeTags = currentTag ? [currentTag] : [];
+                          const addTags = newVal ? [`use:${newVal}`] : [];
+                          if (removeTags.length === 0 && addTags.length === 0) return;
+                          const res = await fetch('/api/media/bulk', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ mediaIds: [selectedMedia.id], addTags, removeTags }),
+                          });
+                          if (!res.ok) throw new Error('Failed to update usage tag');
+                          let updatedTags = (selectedMedia.tags || []).filter(t => !t.startsWith('use:'));
+                          if (newVal) updatedTags.push(`use:${newVal}`);
+                          setSelectedMedia({ ...selectedMedia, tags: updatedTags });
+                          setMedia(prev => prev.map(m => m.id === selectedMedia.id ? { ...m, tags: updatedTags } : m));
+                          toast.success(newVal ? `Usage: ${newVal}` : 'Usage cleared');
+                        } catch (err) {
+                          toast.error('Failed to update usage', String(err));
+                        }
+                      }}
+                      className="w-full text-xs px-2 py-1.5 border border-gray-200 rounded-lg"
+                    >
+                      <option value="">None</option>
+                      {USAGE_TYPES.map(u => (
+                        <option key={u.key} value={u.key}>{u.label}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
                 {/* Star Rating */}

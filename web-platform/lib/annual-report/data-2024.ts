@@ -117,7 +117,7 @@ Our social enterprises have reached a record 44 staff. The Digital Service Centr
 I want to thank our Board, our staff, our partners, and most importantly the Palm Island community for their continued trust and engagement. Together, we are building a stronger future for Bwgcolman.`,
     message_excerpt: "Decisions about Palm Island children and families are now being made by Palm Island people \u2014 this is self-determination in action.",
     featured_quote: "We are building a stronger future for Bwgcolman.",
-    photo_url: "https://uaxhjzqrdotoahjnxmbj.supabase.co/storage/v1/object/public/story-media/annual-report-2024/1771305448522-6ug8k8-img-002.jpg",
+    photo_url: "https://uaxhjzqrdotoahjnxmbj.supabase.co/storage/v1/object/public/story-media/1764215451340-cif9ut.jpg",
     display_order: 1,
   },
   {

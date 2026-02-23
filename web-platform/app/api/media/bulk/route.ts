@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { createRouteHandlerClient } from '@/lib/supabase/server'
 
 export const runtime = 'nodejs'
+export const maxDuration = 120
 
 function getServerClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL

@@ -74,6 +74,7 @@ export default async function ServicesIndexPage() {
       .contains('tags', [serviceTag, 'hero'])
       .eq('file_type', 'image')
       .is('deleted_at', null)
+      .order('rating', { ascending: false, nullsFirst: false })
       .order('is_featured', { ascending: false })
       .order('created_at', { ascending: false })
       .limit(1);

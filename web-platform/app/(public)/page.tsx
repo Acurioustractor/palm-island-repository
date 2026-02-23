@@ -87,6 +87,7 @@ export default async function HomePage() {
         .contains('tags', [tag, 'hero'])
         .eq('file_type', 'image')
         .is('deleted_at', null)
+        .order('rating', { ascending: false, nullsFirst: false })
         .order('is_featured', { ascending: false })
         .limit(1),
     ]);
@@ -194,6 +195,7 @@ export default async function HomePage() {
       .eq('file_type', 'image')
       .eq('is_public', true)
       .is('deleted_at', null)
+      .order('rating', { ascending: false, nullsFirst: false })
       .order('is_featured', { ascending: false })
       .limit(1);
     if (photos?.[0]) {
@@ -211,6 +213,7 @@ export default async function HomePage() {
       .eq('is_public', true)
       .is('deleted_at', null)
       .not('id', 'in', `(${existingIds.join(',')})`)
+      .order('rating', { ascending: false, nullsFirst: false })
       .order('created_at', { ascending: false })
       .limit(8 - galleryPhotos.length);
     galleryPhotos.push(...(extras || []));

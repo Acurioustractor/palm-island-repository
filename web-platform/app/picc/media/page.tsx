@@ -122,8 +122,8 @@ export default function MediaLibraryPage() {
               href: '/picc/media/external-videos',
             },
             {
-              title: 'Triage Untagged',
-              description: 'Review and tag photos that haven\'t been assigned to any service or project yet.',
+              title: 'AI Tag Untagged',
+              description: 'Run AI analysis on untagged photos or review and manually tag remaining items.',
               href: '/picc/media/gallery?filter=untagged',
               stat: `${fmt(stats.untagged)} photos`,
             },

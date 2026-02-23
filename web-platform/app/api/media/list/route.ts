@@ -132,7 +132,29 @@ export async function GET(request: NextRequest) {
 
     if (q) {
       const like = `%${q.replace(/%/g, '\\%')}%`
-      query = query.or(`title.ilike.${like},description.ilike.${like},original_filename.ilike.${like}`)
+      query = query.or(`title.ilike.${like},description.ilike.${like},original_filename.ilike.${like},alt_text.ilike.${like}`)
+    }
+
+    // Tag text search (find photos that have a tag containing the query string)
+    const tagSearch = (searchParams.get('tagSearch') || '').trim()
+    if (tagSearch) {
+      query = query.contains('tags', [tagSearch])
+    }
+
+    // AI analysis status filter
+    const aiStatus = (searchParams.get('aiStatus') || '').trim()
+    if (aiStatus === 'analyzed') {
+      query = query.not('metadata->ai_analysis->analyzed_at', 'is', null)
+    } else if (aiStatus === 'unanalyzed') {
+      query = query.or('metadata.is.null,metadata->ai_analysis.is.null')
+    }
+
+    // Has description filter
+    const hasDescription = searchParams.get('hasDescription')
+    if (hasDescription === 'true') {
+      query = query.not('description', 'is', null).neq('description', '')
+    } else if (hasDescription === 'false') {
+      query = query.or('description.is.null,description.eq.')
     }
 
     const { data, error, count } = await query

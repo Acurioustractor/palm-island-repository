@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { getGHLClient } from '@/lib/ghl/client';
 
 function getSupabase() {
   return createClient(
@@ -61,26 +62,28 @@ export async function POST(request: Request) {
       );
     }
 
-    // TODO: Wire to GHL when webhook URL is configured.
-    // When GHL_SUBSCRIBE_WEBHOOK_URL is set, forward the contact:
-    //
-    // const ghlWebhookUrl = process.env.GHL_SUBSCRIBE_WEBHOOK_URL;
-    // if (ghlWebhookUrl) {
-    //   await fetch(ghlWebhookUrl, {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify({
-    //       email: email.toLowerCase().trim(),
-    //       name: name?.trim() || '',
-    //       tags: (interests || []).map((i: string) => `interest:${i}`),
-    //       source: 'website_subscribe_form',
-    //     }),
-    //   });
-    // }
+    // Push to GHL if configured
+    const ghl = getGHLClient();
+    let ghlResult = null;
+
+    if (ghl.isConfigured()) {
+      const nameParts = (name?.trim() || '').split(' ');
+      ghlResult = await ghl.createContact({
+        email: email.toLowerCase().trim(),
+        firstName: nameParts[0] || '',
+        lastName: nameParts.slice(1).join(' ') || '',
+        tags: [
+          'newsletter-subscriber',
+          ...(interests || []).map((i: string) => `interest:${i}`),
+        ],
+        source: 'website_subscribe_form',
+      });
+    }
 
     return NextResponse.json({
       success: true,
       message: 'Successfully subscribed!',
+      ghl: ghlResult?.success ? 'synced' : ghlResult?.reason || 'not configured',
     });
   } catch (error: unknown) {
     console.error('Subscribe error:', error);

@@ -82,24 +82,26 @@ export default async function ServiceDetailPage({ params }: PageProps) {
       .eq('status', 'published')
       .limit(6),
 
-    // Gallery images — generous limit, ordered by featured then newest
+    // Gallery images — generous limit, ordered by rating then featured then newest
     supabase
       .from('media_files')
-      .select('id, public_url, title, caption, alt_text, file_type, is_featured, tags')
+      .select('id, public_url, title, caption, alt_text, file_type, is_featured, tags, rating')
       .contains('tags', [serviceTag])
       .eq('file_type', 'image')
       .is('deleted_at', null)
+      .order('rating', { ascending: false, nullsFirst: false })
       .order('is_featured', { ascending: false })
       .order('created_at', { ascending: false })
       .limit(24),
 
-    // Hero image — tagged service + hero
+    // Hero image — tagged service + hero, prefer highest rated
     supabase
       .from('media_files')
       .select('public_url')
       .contains('tags', [serviceTag, 'hero'])
       .eq('file_type', 'image')
       .is('deleted_at', null)
+      .order('rating', { ascending: false, nullsFirst: false })
       .limit(1),
 
     // Hero video — tagged service + hero, file_type video

@@ -1,88 +1,56 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Bell, Check, Trash2, ArrowLeft, Users, FileText, AlertCircle, Info, CheckCircle } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Bell, Check, Trash2, ArrowLeft, FileText, AlertCircle, Info, CheckCircle, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 
 interface Notification {
   id: string;
-  type: 'info' | 'success' | 'warning' | 'story';
+  type: string;
   title: string;
   message: string;
-  timestamp: string;
+  created_at: string;
   read: boolean;
-  actionUrl?: string;
+  action_url?: string;
+  recipient_type?: string;
 }
 
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState<Notification[]>([
-    {
-      id: '1',
-      type: 'story',
-      title: 'New Story Submission',
-      message: 'Elder Mary Smith submitted a new story about cultural practices',
-      timestamp: '2024-01-15T10:30:00',
-      read: false,
-      actionUrl: '/picc/submissions'
-    },
-    {
-      id: '2',
-      type: 'success',
-      title: 'Story Published',
-      message: 'The Station project update has been published successfully',
-      timestamp: '2024-01-15T09:15:00',
-      read: false,
-      actionUrl: '/picc/published'
-    },
-    {
-      id: '3',
-      type: 'info',
-      title: 'Weekly Digest Ready',
-      message: 'Your weekly platform activity digest is ready to view',
-      timestamp: '2024-01-14T08:00:00',
-      read: true,
-      actionUrl: '/picc/analytics'
-    },
-    {
-      id: '4',
-      type: 'warning',
-      title: 'Storage Warning',
-      message: 'You are using 85% of your storage limit. Consider upgrading or archiving old content.',
-      timestamp: '2024-01-13T14:20:00',
-      read: true,
-      actionUrl: '/picc/settings'
-    },
-    {
-      id: '5',
-      type: 'story',
-      title: 'Community Voice Submission',
-      message: 'An anonymous community member shared a story about youth programs',
-      timestamp: '2024-01-12T16:45:00',
-      read: true,
-      actionUrl: '/picc/community-voice'
-    }
-  ]);
-
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
+  const [loading, setLoading] = useState(true);
 
-  const markAsRead = (id: string) => {
+  const fetchNotifications = useCallback(async () => {
+    try {
+      const filterParam = filter === 'unread' ? '?filter=unread' : '';
+      const res = await fetch(`/api/notifications${filterParam}`);
+      const data = await res.json();
+      setNotifications(data.notifications || []);
+      setUnreadCount(data.unreadCount || 0);
+    } catch (err) {
+      console.error('Failed to fetch notifications:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [filter]);
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
+
+  const markAsRead = async (id: string) => {
+    await fetch(`/api/notifications/${id}/read`, { method: 'PATCH' });
     setNotifications(notifications.map(n =>
       n.id === id ? { ...n, read: true } : n
     ));
+    setUnreadCount(prev => Math.max(0, prev - 1));
   };
 
-  const markAllAsRead = () => {
+  const markAllAsRead = async () => {
+    await fetch('/api/notifications/read-all', { method: 'POST' });
     setNotifications(notifications.map(n => ({ ...n, read: true })));
-  };
-
-  const deleteNotification = (id: string) => {
-    setNotifications(notifications.filter(n => n.id !== id));
-  };
-
-  const clearAll = () => {
-    if (confirm('Are you sure you want to delete all notifications?')) {
-      setNotifications([]);
-    }
+    setUnreadCount(0);
   };
 
   const getNotificationIcon = (type: string) => {
@@ -94,7 +62,10 @@ export default function NotificationsPage() {
       case 'warning':
         return <AlertCircle className="h-5 w-5 text-orange-600" />;
       case 'story':
+      case 'capture':
         return <FileText className="h-5 w-5 text-picc-ochre-600" />;
+      case 'grant':
+        return <FileText className="h-5 w-5 text-purple-600" />;
       default:
         return <Bell className="h-5 w-5 text-gray-600" />;
     }
@@ -102,26 +73,16 @@ export default function NotificationsPage() {
 
   const getNotificationBg = (type: string, read: boolean) => {
     if (read) return 'bg-white';
-
     switch (type) {
-      case 'info':
-        return 'bg-blue-50';
-      case 'success':
-        return 'bg-green-50';
-      case 'warning':
-        return 'bg-orange-50';
+      case 'info': return 'bg-blue-50';
+      case 'success': return 'bg-green-50';
+      case 'warning': return 'bg-orange-50';
       case 'story':
-        return 'bg-picc-ochre-50';
-      default:
-        return 'bg-gray-50';
+      case 'capture': return 'bg-amber-50';
+      case 'grant': return 'bg-purple-50';
+      default: return 'bg-gray-50';
     }
   };
-
-  const filteredNotifications = filter === 'unread'
-    ? notifications.filter(n => !n.read)
-    : notifications;
-
-  const unreadCount = notifications.filter(n => !n.read).length;
 
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);
@@ -159,7 +120,14 @@ export default function NotificationsPage() {
               </div>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex gap-3">
+              <button
+                onClick={fetchNotifications}
+                className="text-sm text-gray-600 hover:text-gray-800 font-medium flex items-center gap-1"
+              >
+                <RefreshCw className="h-4 w-4" />
+                Refresh
+              </button>
               {unreadCount > 0 && (
                 <button
                   onClick={markAllAsRead}
@@ -169,13 +137,6 @@ export default function NotificationsPage() {
                   Mark all as read
                 </button>
               )}
-              <button
-                onClick={clearAll}
-                className="text-sm text-red-600 hover:text-red-700 font-medium flex items-center gap-1"
-              >
-                <Trash2 className="h-4 w-4" />
-                Clear all
-              </button>
             </div>
           </div>
         </div>
@@ -205,7 +166,12 @@ export default function NotificationsPage() {
         </div>
 
         {/* Notifications List */}
-        {filteredNotifications.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
+            <div className="animate-spin w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-4" />
+            <p className="text-gray-600">Loading notifications...</p>
+          </div>
+        ) : notifications.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
             <Bell className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No notifications</h3>
@@ -215,7 +181,7 @@ export default function NotificationsPage() {
           </div>
         ) : (
           <div className="space-y-2">
-            {filteredNotifications.map((notification) => (
+            {notifications.map((notification) => (
               <div
                 key={notification.id}
                 className={`rounded-lg border transition-all ${
@@ -246,16 +212,16 @@ export default function NotificationsPage() {
 
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-gray-500">
-                          {formatTimestamp(notification.timestamp)}
+                          {formatTimestamp(notification.created_at)}
                         </span>
 
                         <div className="flex items-center gap-2">
-                          {notification.actionUrl && (
+                          {notification.action_url && (
                             <Link
-                              href={notification.actionUrl}
+                              href={notification.action_url}
                               className="text-xs text-blue-600 hover:text-blue-700 font-medium"
                             >
-                              View →
+                              View &rarr;
                             </Link>
                           )}
 
@@ -267,13 +233,6 @@ export default function NotificationsPage() {
                               Mark as read
                             </button>
                           )}
-
-                          <button
-                            onClick={() => deleteNotification(notification.id)}
-                            className="text-xs text-gray-400 hover:text-red-600"
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </button>
                         </div>
                       </div>
                     </div>
@@ -283,48 +242,6 @@ export default function NotificationsPage() {
             ))}
           </div>
         )}
-
-        {/* Notification Preferences */}
-        <div className="mt-6 bg-white rounded-lg border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Notification Preferences</h2>
-          <div className="space-y-3">
-            <label className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
-              <div>
-                <div className="font-medium text-gray-900">New Story Submissions</div>
-                <div className="text-sm text-gray-600">Get notified when community members submit stories</div>
-              </div>
-              <input
-                type="checkbox"
-                defaultChecked
-                className="h-5 w-5 rounded text-blue-600 focus:ring-2 focus:ring-blue-500"
-              />
-            </label>
-
-            <label className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
-              <div>
-                <div className="font-medium text-gray-900">Weekly Digest</div>
-                <div className="text-sm text-gray-600">Receive weekly summary of platform activity</div>
-              </div>
-              <input
-                type="checkbox"
-                defaultChecked
-                className="h-5 w-5 rounded text-blue-600 focus:ring-2 focus:ring-blue-500"
-              />
-            </label>
-
-            <label className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
-              <div>
-                <div className="font-medium text-gray-900">System Alerts</div>
-                <div className="text-sm text-gray-600">Important system updates and warnings</div>
-              </div>
-              <input
-                type="checkbox"
-                defaultChecked
-                className="h-5 w-5 rounded text-blue-600 focus:ring-2 focus:ring-blue-500"
-              />
-            </label>
-          </div>
-        </div>
       </div>
     </div>
   );

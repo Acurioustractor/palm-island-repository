@@ -209,7 +209,7 @@ export default async function AboutPage() {
                 period: '2007-2009',
                 description: 'Palm Island Community Company established. Rachel Atkinson appointed as sole employee in 2007, with formal service delivery beginning in 2009.',
                 significance: 'Planting seeds of transformation',
-                image: 'https://uaxhjzqrdotoahjnxmbj.supabase.co/storage/v1/object/public/story-media/annual-report-2024/1771305448522-6ug8k8-img-002.jpg',
+                image: 'https://uaxhjzqrdotoahjnxmbj.supabase.co/storage/v1/object/public/story-media/1764215451340-cif9ut.jpg',
                 alt: 'Rachel Atkinson — PICC founding CEO',
               },
               {

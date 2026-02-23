@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Users, MapPin, BookOpen, Camera, Heart, Lightbulb, Award, Globe, Video, Map } from 'lucide-react';
 import { BespokeIcon } from '@/components/ui/BespokeIcon';
 import Breadcrumbs from '@/components/wiki/Breadcrumbs';
+import ProjectMediaGallery from '@/components/wiki/ProjectMediaGallery';
 
 export default function EldersTripPage() {
   const breadcrumbs = [
@@ -269,6 +270,13 @@ export default function EldersTripPage() {
           </div>
         </div>
       </div>
+
+      {/* Photo Gallery & Videos */}
+      <ProjectMediaGallery
+        projectTag="project:elders-trips"
+        title="Elders Trip Gallery"
+        limit={16}
+      />
 
       {/* Links to Related Pages */}
       <div className="grid md:grid-cols-3 gap-4">

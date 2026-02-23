@@ -476,6 +476,7 @@ function OverviewTab({ project, onUpdate }: { project: ProjectData; onUpdate: (u
 // ============= CONTENT & MEDIA TAB =============
 function ContentMediaTab({ project, onUpdate }: { project: ProjectData; onUpdate: (u: Partial<ProjectData>) => void }) {
   const innovationTag = `innovation:${project.slug}`
+  const projectTag = `project:${project.slug}`
 
   // Photos
   const [photos, setPhotos] = useState<any[]>([])
@@ -516,11 +517,20 @@ function ContentMediaTab({ project, onUpdate }: { project: ProjectData; onUpdate
   const loadPhotos = async () => {
     setPhotosLoading(true)
     try {
-      const res = await fetch(`/api/media/list?limit=50&fileType=image&tags=${encodeURIComponent(innovationTag)}`)
-      if (res.ok) {
-        const data = await res.json()
-        setPhotos(data.data || [])
-      }
+      // Fetch both innovation: and project: tagged photos, deduplicate
+      const [res1, res2] = await Promise.all([
+        fetch(`/api/media/list?limit=50&fileType=image&tags=${encodeURIComponent(innovationTag)}`),
+        fetch(`/api/media/list?limit=50&fileType=image&tags=${encodeURIComponent(projectTag)}`),
+      ])
+      const d1 = res1.ok ? (await res1.json()).data || [] : []
+      const d2 = res2.ok ? (await res2.json()).data || [] : []
+      const seen = new Set<string>()
+      const merged = [...d1, ...d2].filter((p: any) => {
+        if (seen.has(p.id)) return false
+        seen.add(p.id)
+        return true
+      })
+      setPhotos(merged)
     } catch {}
     setPhotosLoading(false)
   }
@@ -528,11 +538,19 @@ function ContentMediaTab({ project, onUpdate }: { project: ProjectData; onUpdate
   const loadVideos = async () => {
     setVideosLoading(true)
     try {
-      const res = await fetch(`/api/media/list?limit=20&fileType=video&tags=${encodeURIComponent(innovationTag)}`)
-      if (res.ok) {
-        const data = await res.json()
-        setVideos(data.data || [])
-      }
+      const [res1, res2] = await Promise.all([
+        fetch(`/api/media/list?limit=20&fileType=video&tags=${encodeURIComponent(innovationTag)}`),
+        fetch(`/api/media/list?limit=20&fileType=video&tags=${encodeURIComponent(projectTag)}`),
+      ])
+      const d1 = res1.ok ? (await res1.json()).data || [] : []
+      const d2 = res2.ok ? (await res2.json()).data || [] : []
+      const seen = new Set<string>()
+      const merged = [...d1, ...d2].filter((v: any) => {
+        if (seen.has(v.id)) return false
+        seen.add(v.id)
+        return true
+      })
+      setVideos(merged)
     } catch {}
     setVideosLoading(false)
   }
@@ -546,7 +564,7 @@ function ContentMediaTab({ project, onUpdate }: { project: ProjectData; onUpdate
         const all = data.data || data.stories || []
         const filtered = all.filter((s: any) => {
           const tags = Array.isArray(s.tags) ? s.tags : []
-          return tags.includes(innovationTag) || tags.includes(project.slug)
+          return tags.includes(innovationTag) || tags.includes(projectTag) || tags.includes(project.slug)
         })
         setStories(filtered)
       }

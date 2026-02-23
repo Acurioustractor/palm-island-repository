@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { Heart, TrendingUp, Award, BookOpen, Users, Lightbulb, Sparkles, Bed, Package, Truck, Apple } from 'lucide-react';
 import { BespokeIcon } from '@/components/ui/BespokeIcon';
 import Breadcrumbs from '@/components/wiki/Breadcrumbs';
+import ProjectMediaGallery from '@/components/wiki/ProjectMediaGallery';
 
 interface StormStory {
   id: string;
@@ -438,6 +439,13 @@ export default function StormRecoveryPage() {
           </div>
         </div>
       )}
+
+      {/* Photo Gallery & Videos */}
+      <ProjectMediaGallery
+        projectTag="project:storm-recovery"
+        title="Storm Recovery Gallery"
+        limit={16}
+      />
 
       {/* Links to Related Pages */}
       <div className="grid md:grid-cols-3 gap-4">

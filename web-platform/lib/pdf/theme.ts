@@ -92,12 +92,47 @@ export function fmtFullCurrency(n: number): string {
   return n < 0 ? `($${formatted})` : `$${formatted}`
 }
 
+// ── Spacing Scale ───────────────────────────────────
+export const SP = {
+  xs: 4,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 24,
+  xxl: 32,
+  xxxl: 48,
+} as const
+
 // ── Base Styles ──────────────────────────────────────
 export const baseStyles = StyleSheet.create({
   // Standard content page
   page: {
     flexDirection: 'column',
     backgroundColor: C.white,
+    fontFamily: 'Inter',
+    fontSize: 9.5,
+    color: C.rock,
+    paddingTop: 60,
+    paddingBottom: 50,
+    paddingHorizontal: MARGIN,
+  },
+
+  // Sand-tinted content page (for warm sections)
+  pageSand: {
+    flexDirection: 'column',
+    backgroundColor: C.sand,
+    fontFamily: 'Inter',
+    fontSize: 9.5,
+    color: C.rock,
+    paddingTop: 60,
+    paddingBottom: 50,
+    paddingHorizontal: MARGIN,
+  },
+
+  // Shell/light content page
+  pageShell: {
+    flexDirection: 'column',
+    backgroundColor: C.shell,
     fontFamily: 'Inter',
     fontSize: 9.5,
     color: C.rock,
@@ -144,51 +179,59 @@ export const baseStyles = StyleSheet.create({
     color: C.muted,
   },
 
-  // Section label
+  // Section label — uppercase tracking label above headings
   sectionLabel: {
     fontSize: 7.5,
     fontWeight: 'bold',
     textTransform: 'uppercase',
-    letterSpacing: 2,
-    color: C.reef,
+    letterSpacing: 2.5,
+    color: C.ochre,
     marginBottom: 6,
   },
 
-  // Headings — Caveat for display warmth
+  // Headings — Caveat for display warmth, bolder sizing
   h1: {
     fontFamily: 'Caveat',
-    fontSize: 32,
+    fontSize: 36,
+    fontWeight: 'bold',
+    color: C.ocean,
+    marginBottom: 10,
+    lineHeight: 1.1,
+  },
+  h2: {
+    fontFamily: 'Caveat',
+    fontSize: 26,
     fontWeight: 'bold',
     color: C.ocean,
     marginBottom: 8,
     lineHeight: 1.15,
   },
-  h2: {
-    fontFamily: 'Caveat',
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: C.ocean,
-    marginBottom: 6,
-    lineHeight: 1.2,
-  },
   h3: {
     fontSize: 14,
     fontWeight: 'bold',
     color: C.ocean,
-    marginBottom: 4,
+    marginBottom: 6,
   },
   h4: {
     fontSize: 11,
     fontWeight: 'bold',
     color: C.ocean,
-    marginBottom: 3,
+    marginBottom: 4,
+  },
+
+  // Display text — for large pull quotes and editorial text
+  display: {
+    fontFamily: 'Caveat',
+    fontSize: 20,
+    color: C.ocean,
+    lineHeight: 1.3,
   },
 
   // Body text
   body: {
     fontSize: 9.5,
     color: C.driftwood,
-    lineHeight: 1.65,
+    lineHeight: 1.7,
   },
   bodySmall: {
     fontSize: 8.5,
@@ -200,5 +243,44 @@ export const baseStyles = StyleSheet.create({
     color: C.driftwood,
     lineHeight: 1.7,
     marginBottom: 16,
+  },
+
+  // Caption / fine print
+  caption: {
+    fontSize: 7.5,
+    color: C.muted,
+    lineHeight: 1.4,
+  },
+
+  // ── Layout helpers ──────────────────────────────────
+  row: {
+    flexDirection: 'row',
+  },
+  rowWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  col40: {
+    width: '38%',
+  },
+  col60: {
+    width: '58%',
+  },
+  col48: {
+    width: '48%',
+  },
+  col31: {
+    width: '31%',
+  },
+
+  // ── Accent bar — ochre stripe at bottom of sections ──
+  accentBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 6,
+    backgroundColor: C.ochre,
   },
 })

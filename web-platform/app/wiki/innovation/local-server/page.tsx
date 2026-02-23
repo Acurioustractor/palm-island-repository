@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { BarChart3, Shield, Database, Zap, Globe, Lightbulb, Award, Heart, AlertTriangle, Building2, Lock, DollarSign, GraduationCap } from 'lucide-react';
 import { BespokeIcon } from '@/components/ui/BespokeIcon';
 import Breadcrumbs from '@/components/wiki/Breadcrumbs';
+import ProjectMediaGallery from '@/components/wiki/ProjectMediaGallery';
 
 export default function LocalServerPage() {
   const breadcrumbs = [
@@ -401,6 +402,13 @@ export default function LocalServerPage() {
           </div>
         </div>
       </div>
+
+      {/* Photo Gallery & Videos */}
+      <ProjectMediaGallery
+        projectTag="project:local-server"
+        title="Local Server Gallery"
+        limit={16}
+      />
 
       {/* Links to Related Pages */}
       <div className="grid md:grid-cols-3 gap-4">

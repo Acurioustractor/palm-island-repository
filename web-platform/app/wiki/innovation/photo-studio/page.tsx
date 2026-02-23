@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Sparkles, Camera, Heart, Users, Shield, Lightbulb, Award, BookOpen, Smartphone, Building2, PartyPopper } from 'lucide-react';
 import { BespokeIcon } from '@/components/ui/BespokeIcon';
 import Breadcrumbs from '@/components/wiki/Breadcrumbs';
+import ProjectMediaGallery from '@/components/wiki/ProjectMediaGallery';
 
 export default function PhotoStudioPage() {
   const breadcrumbs = [
@@ -332,6 +333,13 @@ export default function PhotoStudioPage() {
           </div>
         </div>
       </div>
+
+      {/* Photo Gallery & Videos */}
+      <ProjectMediaGallery
+        projectTag="project:photo-studio"
+        title="Photo Studio Gallery"
+        limit={16}
+      />
 
       {/* Links to Related Pages */}
       <div className="grid md:grid-cols-3 gap-4">

@@ -9,6 +9,7 @@
  * GET /api/pdf/generate?type=focus-report&focus=service&id=<slug>
  * GET /api/pdf/generate?type=focus-report&focus=project&id=<slug>
  * GET /api/pdf/generate?type=focus-report&focus=theme&id=<tag>
+ * GET /api/pdf/generate?type=evidence-package&grantId=<uuid>
  *
  * Returns a PDF blob with Content-Disposition: attachment.
  */
@@ -131,6 +132,60 @@ async function generateBrandGuide() {
     React.createElement(BrandGuidePDF) as any
   )
   return { buffer, filename: 'PICC-Brand-Guide.pdf' }
+}
+
+async function generateEvidencePackage(grantId: string) {
+  const [{ renderToBuffer }, { default: EvidencePackagePDF }] = await Promise.all([
+    import('@react-pdf/renderer'),
+    import('@/lib/pdf/templates/EvidencePackagePDF'),
+  ])
+
+  const { createClient } = await import('@supabase/supabase-js')
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+
+  const { data: grant } = await supabase
+    .from('service_grants')
+    .select('id, grant_name, funder_name, fiscal_year')
+    .eq('id', grantId)
+    .single()
+
+  if (!grant) throw new Error(`Grant not found: ${grantId}`)
+
+  const { data: outcomes } = await supabase
+    .from('grant_outcomes')
+    .select('*, evidence_links(*)')
+    .eq('grant_id', grantId)
+    .order('created_at', { ascending: true })
+
+  const packageData = {
+    grantName: grant.grant_name,
+    funderName: grant.funder_name || '',
+    fiscalYear: grant.fiscal_year || '2024-25',
+    outcomes: (outcomes || []).map((o: any) => ({
+      outcome_name: o.outcome_name,
+      outcome_description: o.outcome_description,
+      target_metric: o.target_metric,
+      target_value: o.target_value,
+      actual_value: o.actual_value,
+      status: o.status,
+      evidence: (o.evidence_links || []).map((e: any) => ({
+        evidence_type: e.evidence_type,
+        evidence_title: e.evidence_title || 'Untitled',
+        relevance_score: e.relevance_score || 0.5,
+        notes: e.notes,
+      })),
+    })),
+  }
+
+  const buffer = await renderToBuffer(
+    React.createElement(EvidencePackagePDF, { data: packageData }) as any
+  )
+  const safeName = grant.grant_name.replace(/[^a-zA-Z0-9-_ ]/g, '').replace(/\s+/g, '-')
+  return { buffer, filename: `PICC-Evidence-Package-${safeName}.pdf` }
 }
 
 async function generateFocusReport(focusType: string, id: string) {
@@ -301,6 +356,17 @@ export async function GET(request: NextRequest) {
         }
         result = await generateFocusReport(focusParam, idParam)
         break
+      case 'evidence-package': {
+        const grantId = searchParams.get('grantId')
+        if (!grantId) {
+          return NextResponse.json(
+            { error: 'evidence-package requires ?grantId=<uuid>' },
+            { status: 400 }
+          )
+        }
+        result = await generateEvidencePackage(grantId)
+        break
+      }
       default:
         return NextResponse.json(
           { error: `Unknown type: ${type}. Options: annual-report, stories, services, history, brand-guide, focus-report` },

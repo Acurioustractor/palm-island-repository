@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { X, Search, Loader2, Image as ImageIcon, Film, ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react'
+import { X, Search, Loader2, Image as ImageIcon, Film, ChevronLeft, ChevronRight, SlidersHorizontal, Star } from 'lucide-react'
 
 type MediaFile = {
   id: string
@@ -22,7 +22,7 @@ type MediaFile = {
 
 export type MediaPickerKind = 'image' | 'video'
 
-type SortOption = 'newest' | 'oldest' | 'filename' | 'size'
+type SortOption = 'newest' | 'oldest' | 'filename' | 'size' | 'rating'
 
 type Props = {
   open: boolean
@@ -42,9 +42,19 @@ const PAGE_SIZE = 60
 const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   { value: 'newest', label: 'Newest' },
   { value: 'oldest', label: 'Oldest' },
+  { value: 'rating', label: 'Top Rated' },
   { value: 'filename', label: 'Filename' },
   { value: 'size', label: 'Largest' },
 ]
+
+const COLOR_LABELS = [
+  { value: 'red', bg: 'bg-red-500', ring: 'ring-red-300' },
+  { value: 'orange', bg: 'bg-orange-500', ring: 'ring-orange-300' },
+  { value: 'yellow', bg: 'bg-yellow-400', ring: 'ring-yellow-300' },
+  { value: 'green', bg: 'bg-green-500', ring: 'ring-green-300' },
+  { value: 'blue', bg: 'bg-blue-500', ring: 'ring-blue-300' },
+  { value: 'purple', bg: 'bg-purple-500', ring: 'ring-purple-300' },
+] as const
 
 const TAG_FILTERS = [
   { value: '', label: 'All' },
@@ -80,6 +90,8 @@ export default function MediaPickerDialog({ open, kind, onClose, onPick, onPickM
   const [page, setPage] = useState(0)
   const [sort, setSort] = useState<SortOption>('newest')
   const [tagFilter, setTagFilter] = useState('')
+  const [minRating, setMinRating] = useState(0)
+  const [colorLabel, setColorLabel] = useState('')
   const [showFilters, setShowFilters] = useState(false)
   const [selected, setSelected] = useState<Set<string>>(new Set())
 
@@ -99,8 +111,10 @@ export default function MediaPickerDialog({ open, kind, onClose, onPick, onPickM
     const q = query.trim()
     if (q) params.set('q', q)
     if (tagFilter) params.set('tags', tagFilter)
+    if (minRating > 0) params.set('minRating', String(minRating))
+    if (colorLabel) params.set('colorLabel', colorLabel)
     return `/api/media/list?${params.toString()}`
-  }, [kind, query, page, sort, tagFilter])
+  }, [kind, query, page, sort, tagFilter, minRating, colorLabel])
 
   // Reset on open
   useEffect(() => {
@@ -111,6 +125,8 @@ export default function MediaPickerDialog({ open, kind, onClose, onPick, onPickM
     setPage(0)
     setSort('newest')
     setTagFilter('')
+    setMinRating(0)
+    setColorLabel('')
     setShowFilters(false)
     setSelected(new Set())
   }, [open, kind, initialQuery])
@@ -118,7 +134,7 @@ export default function MediaPickerDialog({ open, kind, onClose, onPick, onPickM
   // Reset page when filters change
   useEffect(() => {
     setPage(0)
-  }, [query, sort, tagFilter])
+  }, [query, sort, tagFilter, minRating, colorLabel])
 
   // Fetch data
   useEffect(() => {
@@ -228,7 +244,7 @@ export default function MediaPickerDialog({ open, kind, onClose, onPick, onPickM
                 type="button"
                 onClick={() => setShowFilters(!showFilters)}
                 className={`px-3 py-2 rounded-lg border text-sm font-medium flex items-center gap-1.5 transition-colors ${
-                  showFilters || tagFilter ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                  showFilters || tagFilter || minRating > 0 || colorLabel ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                 }`}
               >
                 <SlidersHorizontal className="w-4 h-4" />
@@ -238,37 +254,81 @@ export default function MediaPickerDialog({ open, kind, onClose, onPick, onPickM
 
             {/* Expandable filter row */}
             {showFilters && (
-              <div className="flex flex-wrap items-center gap-4">
-                {/* Tag filter chips */}
-                <div className="flex flex-wrap gap-1.5">
-                  {TAG_FILTERS.map(tf => (
-                    <button
-                      key={tf.value}
-                      type="button"
-                      onClick={() => setTagFilter(tf.value)}
-                      className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                        tagFilter === tf.value
-                          ? 'bg-gray-900 text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
+              <div className="space-y-3">
+                <div className="flex flex-wrap items-center gap-4">
+                  {/* Tag filter chips */}
+                  <div className="flex flex-wrap gap-1.5">
+                    {TAG_FILTERS.map(tf => (
+                      <button
+                        key={tf.value}
+                        type="button"
+                        onClick={() => setTagFilter(tf.value)}
+                        className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                          tagFilter === tf.value
+                            ? 'bg-gray-900 text-white'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                      >
+                        {tf.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Sort dropdown */}
+                  <div className="flex items-center gap-2 ml-auto">
+                    <span className="text-xs text-gray-500">Sort:</span>
+                    <select
+                      value={sort}
+                      onChange={(e) => setSort(e.target.value as SortOption)}
+                      className="text-xs bg-white border border-gray-300 rounded-lg px-2 py-1 focus:ring-2 focus:ring-picc-red"
                     >
-                      {tf.label}
-                    </button>
-                  ))}
+                      {SORT_OPTIONS.map(opt => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
-                {/* Sort dropdown */}
-                <div className="flex items-center gap-2 ml-auto">
-                  <span className="text-xs text-gray-500">Sort:</span>
-                  <select
-                    value={sort}
-                    onChange={(e) => setSort(e.target.value as SortOption)}
-                    className="text-xs bg-white border border-gray-300 rounded-lg px-2 py-1 focus:ring-2 focus:ring-picc-red"
-                  >
-                    {SORT_OPTIONS.map(opt => (
-                      <option key={opt.value} value={opt.value}>{opt.label}</option>
-                    ))}
-                  </select>
+                {/* Star rating + color label row */}
+                <div className="flex flex-wrap items-center gap-4">
+                  {/* Star rating filter */}
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs text-gray-500">Min rating:</span>
+                    <div className="flex gap-0.5">
+                      {[1, 2, 3, 4, 5].map(n => (
+                        <button
+                          key={n}
+                          type="button"
+                          onClick={() => setMinRating(minRating === n ? 0 : n)}
+                          className="p-0.5 transition-colors"
+                          title={minRating === n ? 'Clear rating filter' : `${n}+ stars`}
+                        >
+                          <Star className={`w-4 h-4 ${n <= minRating ? 'fill-amber-400 text-amber-400' : 'text-gray-300 hover:text-gray-400'}`} />
+                        </button>
+                      ))}
+                    </div>
+                    {minRating > 0 && (
+                      <span className="text-[10px] text-gray-500">{minRating}+</span>
+                    )}
+                  </div>
+
+                  {/* Color label filter */}
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs text-gray-500">Color:</span>
+                    <div className="flex gap-1">
+                      {COLOR_LABELS.map(c => (
+                        <button
+                          key={c.value}
+                          type="button"
+                          onClick={() => setColorLabel(colorLabel === c.value ? '' : c.value)}
+                          className={`w-5 h-5 rounded-full ${c.bg} transition-all ${
+                            colorLabel === c.value ? `ring-2 ${c.ring} scale-110` : 'opacity-60 hover:opacity-100'
+                          }`}
+                          title={colorLabel === c.value ? 'Clear color filter' : c.value}
+                        />
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             )}

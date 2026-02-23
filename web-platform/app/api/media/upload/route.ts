@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { extractGpsFromBuffer } from '@/lib/media/extract-exif';
+import Anthropic from '@anthropic-ai/sdk';
 
 // Server-side Supabase client with service role (bypasses RLS)
 function getServerClient() {
@@ -15,27 +16,80 @@ function getServerClient() {
   });
 }
 
-// Simple AI analysis (placeholder - we'll enhance this)
-async function analyzeImage(file: File): Promise<string[]> {
-  // For now, return basic tags based on file properties
-  // TODO: Integrate with actual AI service (AWS Rekognition, Google Vision, etc.)
+/** Simplified report-aligned tag taxonomy */
+const VALID_TAGS = [
+  'community', 'youth', 'culture', 'services', 'staff',
+  'landscape', 'event', 'hero-quality', 'portrait', 'group',
+  'aerial', 'close-up', 'wide',
+] as const;
 
-  const autoTags: string[] = [];
+const AI_ANALYSIS_PROMPT = `Analyze this photo from Palm Island (Bwgcolman), an Aboriginal community.
 
-  // Add file type tag
-  if (file.type.includes('jpeg') || file.type.includes('jpg')) {
-    autoTags.push('photo');
+Assign 2-5 tags from ONLY these: community, youth, culture, services, staff, landscape, event, hero-quality, portrait, group, aerial, close-up, wide
+- hero-quality: only if high-res, well-composed, suitable as cover/full-page
+- portrait: 1 person is the clear subject
+- group: 3+ people visible
+- landscape: scenery, place, environment with no/minimal people
+
+Return JSON: { "tags": [...], "description": "1-2 sentences", "alt_text": "max 125 chars" }
+Return ONLY the JSON, no other text.`;
+
+/** Fire-and-forget AI analysis for a newly uploaded image */
+async function analyzeImageAsync(mediaId: string, publicUrl: string) {
+  try {
+    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+    const response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-5-20250929',
+      max_tokens: 500,
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'image', source: { type: 'url', url: publicUrl } },
+          { type: 'text', text: AI_ANALYSIS_PROMPT },
+        ],
+      }],
+    });
+
+    const aiText = response.content[0].type === 'text' ? response.content[0].text : '';
+    const jsonMatch = aiText.match(/\{[\s\S]*\}/);
+
+    if (!jsonMatch) {
+      console.error(`AI analysis for ${mediaId}: no JSON in response`);
+      return;
+    }
+
+    const analysis = JSON.parse(jsonMatch[0]);
+    const aiTags: string[] = (analysis.tags || [])
+      .filter((t: string) => VALID_TAGS.includes(t as any));
+
+    const supabase = getServerClient();
+    const now = new Date().toISOString();
+
+    // Get existing metadata to merge
+    const { data: existing } = await supabase
+      .from('media_files')
+      .select('metadata')
+      .eq('id', mediaId)
+      .single();
+
+    await supabase
+      .from('media_files')
+      .update({
+        tags: aiTags,
+        description: analysis.description || null,
+        alt_text: analysis.alt_text || null,
+        metadata: {
+          ...(existing?.metadata || {}),
+          ai_analysis: { analyzed_at: now },
+        },
+      })
+      .eq('id', mediaId);
+
+    console.log(`AI analysis complete for ${mediaId}: ${aiTags.join(', ')}`);
+  } catch (err: any) {
+    console.error(`AI analysis failed for ${mediaId}:`, err?.message);
   }
-
-  // Add size category
-  if (file.size > 5000000) {
-    autoTags.push('high-resolution');
-  }
-
-  // Placeholder tags - these would come from AI
-  // Example: autoTags.push('outdoor', 'people', 'event');
-
-  return autoTags;
 }
 
 function normalizeStorageMimeType(file: File): string | undefined {
@@ -60,8 +114,9 @@ export async function POST(request: NextRequest) {
     const year = formData.get('year') as string;
     const description = formData.get('description') as string;
     const collection = formData.get('collection') as string;
-    const enableAI = formData.get('enableAI') === 'true';
+    const enableAI = formData.get('enableAI') !== 'false'; // default true
     const projectSlug = (formData.get('projectSlug') as string) || '';
+    const serviceSlug = (formData.get('serviceSlug') as string) || '';
     const usageContext = (formData.get('usageContext') as string) || '';
     const title = (formData.get('title') as string) || '';
     const altText = (formData.get('altText') as string) || '';
@@ -183,20 +238,15 @@ export async function POST(request: NextRequest) {
       userTags = [];
     }
 
-    // Run AI analysis if enabled
-    let aiTags: string[] = [];
-    if (enableAI) {
-      aiTags = await analyzeImage(file);
-    }
-
-    // Combine tags
+    // Combine tags (user tags only — AI tags applied async after upload)
     const extraTags: string[] = [];
     if (collection) extraTags.push(`collection:${collection}`);
     if (year) extraTags.push(`year:${year}`);
     if (projectSlug?.trim()) extraTags.push(`project:${projectSlug.trim()}`);
+    if (serviceSlug?.trim()) { extraTags.push(`service:${serviceSlug.trim()}`); extraTags.push('services'); }
     if (usageContext?.trim()) extraTags.push(`usage:${usageContext.trim()}`);
 
-    const allTags = Array.from(new Set([...userTags, ...aiTags, ...extraTags]));
+    const allTags = Array.from(new Set([...userTags, ...extraTags]));
 
     // Generate unique filename
     const fileExt = file.name.split('.').pop();
@@ -267,7 +317,6 @@ export async function POST(request: NextRequest) {
         upload_year: year ? parseInt(year) : new Date().getFullYear(),
         collection: collection || null,
         ai_analyzed: enableAI,
-        ai_tags: aiTags,
         user_tags: userTags,
         ...(normalizedContentType !== file.type ? { original_mime_type: file.type } : {}),
       },
@@ -301,11 +350,18 @@ export async function POST(request: NextRequest) {
 
     const [mediaFile] = await insertResponse.json();
 
+    // Fire-and-forget: AI analysis runs async after response is sent
+    if (enableAI && isImage) {
+      analyzeImageAsync(mediaFile.id, publicUrl).catch((err) => {
+        console.error('Background AI analysis error:', err);
+      });
+    }
+
     return NextResponse.json({
       success: true,
       file: mediaFile,
       message: 'Photo uploaded successfully',
-      aiTags: enableAI ? aiTags : null,
+      aiPending: enableAI && isImage,
     });
 
   } catch (err: any) {
