@@ -11,11 +11,12 @@
     "typecheck": "tsc --noEmit",
     "check-env": "node scripts/check-env.js",
     "review-db": "node scripts/review-database.js",
-    "predev": "npm run check-env",
+    "predev": "rm -rf .next && npm run check-env",
     "db:generate": "drizzle-kit generate:pg",
     "db:migrate": "drizzle-kit push:pg",
     "ai:train": "python scripts/train_palm_island_llm.py",
-    "ai:embed": "python scripts/generate_embeddings.py"
+    "ai:embed": "python scripts/generate_embeddings.py",
+    "health-check": "node scripts/route-health-check.mjs"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.43",
