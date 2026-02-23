@@ -15,7 +15,7 @@ export const maxDuration = 60
  * Clients can also pass ?mode=deep to force Claude for a single request.
  */
 function getChatModel(mode?: string | null) {
-  const envModel = process.env.CHAT_MODEL || 'minimax'
+  const envModel = process.env.CHAT_MODEL || 'claude'
   const useClaude = mode === 'deep' || envModel === 'claude'
   if (useClaude) {
     return anthropic('claude-sonnet-4-5-20250929')

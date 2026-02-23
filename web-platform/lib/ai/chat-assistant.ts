@@ -6,14 +6,14 @@
  */
 
 import { generateText, streamText as aiStreamText } from 'ai'
-import { minimax } from 'vercel-minimax-ai-provider'
+import { anthropic } from '@ai-sdk/anthropic'
 import { createServerComponentClient } from '@/lib/supabase/server'
 import { semanticSearch } from './embeddings'
 import { expandQuery } from './query-expansion'
 import { aiCache, CACHE_TTL } from './cache'
 import { getExpandedContext } from './context-builder'
 
-const model = minimax('MiniMax-M2')
+const model = anthropic('claude-sonnet-4-5-20250929')
 
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system'
