@@ -13,12 +13,12 @@ import { BespokeIcon, type BespokeIconName } from '@/components/ui/BespokeIcon'
 import { extractSourcesFromMessage } from '@/lib/chat/extract-sources'
 
 const STARTERS: Array<{ text: string; icon: BespokeIconName }> = [
-  { text: 'What services does PICC offer?', icon: 'health' },
-  { text: 'Tell me about the Elders Cultural Trips', icon: 'story' },
-  { text: "What was PICC's income last year?", icon: 'timeline' },
-  { text: 'How many staff does PICC employ?', icon: 'quote' },
-  { text: 'What is the Digital Service Centre?', icon: 'photo' },
-  { text: "I have a vision for Palm Island's future", icon: 'community' },
+  { text: 'What is The Centre and The Station project?', icon: 'story' },
+  { text: 'Show me highlights from the annual report', icon: 'timeline' },
+  { text: 'Tell me the history of Palm Island and Hull River', icon: 'community' },
+  { text: 'What are the plans for the next 20 years?', icon: 'quote' },
+  { text: 'What do Elders say about the future?', icon: 'photo' },
+  { text: "I have a vision for Palm Island's future", icon: 'health' },
 ]
 
 export default function ChatPage() {

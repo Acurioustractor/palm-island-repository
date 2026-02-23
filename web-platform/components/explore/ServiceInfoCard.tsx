@@ -1,6 +1,7 @@
 'use client'
 
-import { Activity, Users, Calendar, Award, TrendingUp } from 'lucide-react'
+import Link from 'next/link'
+import { Activity, Users, Calendar, Award, TrendingUp, ArrowRight } from 'lucide-react'
 import type { ServiceData } from './ToolResultRenderer'
 
 interface ServiceInfoCardProps {
@@ -10,6 +11,7 @@ interface ServiceInfoCardProps {
 
 export function ServiceInfoCard({ data, darkMode = false }: ServiceInfoCardProps) {
   const { service, metrics, achievements } = data
+  const photos = (data as any).photos as Array<{ url: string; alt: string }> | undefined
 
   return (
     <div className={`my-2 rounded-2xl overflow-hidden ${
@@ -17,23 +19,53 @@ export function ServiceInfoCard({ data, darkMode = false }: ServiceInfoCardProps
         ? 'bg-white/[0.04] border border-white/[0.06]'
         : 'bg-white border border-gray-100'
     }`}>
+      {/* Photos strip */}
+      {photos && photos.length > 0 && (
+        <div className="flex overflow-hidden">
+          {photos.map((p, i) => (
+            <div key={i} className="flex-1 min-w-0 aspect-[3/2] relative">
+              <img
+                src={p.url}
+                alt={p.alt}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Header */}
       <div className={`px-6 py-5 ${
         darkMode
           ? 'bg-gradient-to-r from-picc-ochre/10 to-picc-red/5'
           : 'bg-gradient-to-r from-warm-50 to-warm-100'
       }`}>
-        <h3 className={`text-lg font-bold ${darkMode ? 'text-white/90' : 'text-gray-900'}`}>{service.name}</h3>
+        <Link
+          href={`/services/${service.slug}`}
+          className={`text-lg font-bold hover:underline ${darkMode ? 'text-white/90' : 'text-gray-900'}`}
+        >
+          {service.name}
+        </Link>
         {service.description && (
           <p className={`mt-1 text-sm line-clamp-2 ${darkMode ? 'text-white/50' : 'text-gray-600'}`}>{service.description}</p>
         )}
-        {service.category && (
-          <span className={`mt-2 inline-block px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
-            darkMode ? 'bg-white/[0.06] text-white/60' : 'bg-white/70 text-gray-600'
-          }`}>
-            {service.category}
-          </span>
-        )}
+        <div className="mt-2 flex items-center gap-3">
+          {service.category && (
+            <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
+              darkMode ? 'bg-white/[0.06] text-white/60' : 'bg-white/70 text-gray-600'
+            }`}>
+              {service.category}
+            </span>
+          )}
+          <Link
+            href={`/services/${service.slug}`}
+            className={`inline-flex items-center gap-1 text-xs font-semibold ${
+              darkMode ? 'text-picc-ochre-300 hover:text-picc-ochre-200' : 'text-warm-700 hover:text-warm-800'
+            }`}
+          >
+            View full page <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
       </div>
 
       {/* Metrics Bar */}

@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { Quote } from 'lucide-react'
 import type { QuoteData } from './ToolResultRenderer'
@@ -60,17 +61,35 @@ export function QuoteCarousel({ quotes, darkMode = false }: QuoteCarouselProps) 
 
             {/* Attribution */}
             <footer className="mt-4 flex items-center justify-between">
-              <div>
-                {quote.storyTitle && quote.storyId && (
-                  <Link
-                    href={`/stories/${quote.storyId}`}
-                    className={`text-sm transition-colors ${
-                      darkMode ? 'text-white/40 hover:text-picc-ochre-300' : 'text-gray-600 hover:text-gray-900'
-                    }`}
-                  >
-                    From: <span className="font-medium">{quote.storyTitle}</span>
-                  </Link>
+              <div className="flex items-center gap-3">
+                {quote.speakerImage && (
+                  <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-white/20">
+                    <Image
+                      src={quote.speakerImage}
+                      alt={quote.speakerName || 'Speaker'}
+                      width={40}
+                      height={40}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                 )}
+                <div>
+                  {quote.speakerName && (
+                    <div className={`text-sm font-semibold ${darkMode ? 'text-white/70' : 'text-gray-800'}`}>
+                      {quote.speakerName}
+                    </div>
+                  )}
+                  {quote.storyTitle && quote.storyId && (
+                    <Link
+                      href={`/stories/${quote.storyId}`}
+                      className={`text-xs transition-colors ${
+                        darkMode ? 'text-white/40 hover:text-picc-ochre-300' : 'text-gray-500 hover:text-gray-700'
+                      }`}
+                    >
+                      From: <span className="font-medium">{quote.storyTitle}</span>
+                    </Link>
+                  )}
+                </div>
               </div>
               {quote.themes && quote.themes.length > 0 && (
                 <div className="flex gap-1.5">

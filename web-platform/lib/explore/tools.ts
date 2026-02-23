@@ -32,6 +32,14 @@ function buildPublicUrl(bucket: string, path: string): string {
   return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${bucket}/${path}`
 }
 
+/** Resolve a media_files row to a usable URL — prefer public_url, fall back to storage path */
+function resolveMediaUrl(row: { public_url?: string | null; file_path?: string | null; bucket_name?: string | null }): string | null {
+  if (row.public_url) return row.public_url
+  if (row.file_path && row.bucket_name) return buildPublicUrl(row.bucket_name, row.file_path)
+  if (row.file_path) return buildPublicUrl('story-media', row.file_path)
+  return null
+}
+
 // ─── Schema definitions ──────────────────────────────────────────────────────
 
 const searchStoriesSchema = z.object({
@@ -57,6 +65,7 @@ const exploreTimelineSchema = z.object({
 
 const findQuotesSchema = z.object({
   themes: z.array(z.string()).optional().describe('Themes to search for (e.g. ["health", "elders", "community"])'),
+  query: z.string().optional().describe('Text search — finds quotes from stories matching this keyword in title (e.g. "elders", "healing")'),
   limit: z.number().min(1).max(6).default(3).describe('Number of quotes to return'),
 })
 
@@ -104,10 +113,10 @@ export const searchStories = defineTool({
       .from('stories')
       .select(`
         id, title, content, category, tags, story_date, published_at, location,
-        story_media (file_path, supabase_bucket, alt_text, media_type)
+        story_media (file_path, supabase_bucket, alt_text, media_type),
+        profiles:storyteller_id (profile_image_url, preferred_name, full_name)
       `)
       .eq('status', 'published')
-      .eq('is_public', true)
       .order('published_at', { ascending: false })
       .limit(limit)
 
@@ -120,7 +129,15 @@ export const searchStories = defineTool({
     }
 
     if (query) {
-      dbQuery = dbQuery.or(`title.ilike.%${query}%,content.ilike.%${query}%`)
+      // Try exact phrase first, then split into significant keywords for title matching
+      const words = query.split(/\s+/).filter(w => w.length >= 4)
+      if (words.length > 1) {
+        // Match any keyword in title, or full phrase in content
+        const titleConditions = words.map(w => `title.ilike.%${w}%`)
+        dbQuery = dbQuery.or([...titleConditions, `content.ilike.%${query}%`].join(','))
+      } else {
+        dbQuery = dbQuery.or(`title.ilike.%${query}%,content.ilike.%${query}%`)
+      }
     }
 
     const { data: stories, error } = await dbQuery
@@ -136,19 +153,24 @@ export const searchStories = defineTool({
         file_path: string; supabase_bucket: string; alt_text: string | null; media_type: string
       }> | null
       const heroImage = media?.find((m: { media_type: string }) => m.media_type === 'image')
+      const profile = s.profiles as { profile_image_url: string | null; preferred_name: string | null; full_name: string } | null
+      // Use story_media hero first, fall back to storyteller profile image
+      const imageUrl = heroImage
+        ? buildPublicUrl(heroImage.supabase_bucket, heroImage.file_path)
+        : profile?.profile_image_url || null
       return {
         id: s.id,
         title: s.title,
-        excerpt: typeof s.content === 'string' ? s.content.slice(0, 200) + '...' : '',
+        excerpt: typeof s.content === 'string'
+          ? s.content.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim().slice(0, 200) + '...'
+          : '',
         category: s.category,
         tags: s.tags,
         storyDate: s.story_date,
         publishedAt: s.published_at,
         location: s.location,
-        heroImage: heroImage
-          ? buildPublicUrl(heroImage.supabase_bucket, heroImage.file_path)
-          : null,
-        heroAlt: heroImage?.alt_text || s.title,
+        heroImage: imageUrl,
+        heroAlt: heroImage?.alt_text || profile?.preferred_name || profile?.full_name || s.title,
       }
     })
 
@@ -165,22 +187,55 @@ export const getServiceInfo = defineTool({
     const { serviceSlug, serviceName } = input
     const supabase = getSupabase()
 
-    let query = supabase
-      .from('organization_services')
-      .select('id, name, slug, description, service_category, is_active')
-      .eq('is_active', true)
+    // Try slug first, then name search, then fuzzy slug match
+    let service: any = null
 
     if (serviceSlug) {
-      query = query.eq('slug', serviceSlug)
-    } else if (serviceName) {
-      query = query.ilike('name', `%${serviceName}%`)
+      const { data } = await supabase
+        .from('organization_services')
+        .select('id, name, slug, description, service_category, is_active')
+        .eq('is_active', true)
+        .eq('slug', serviceSlug)
+        .limit(1)
+      service = data?.[0]
     }
 
-    const { data: services } = await query.limit(1)
-    const service = services?.[0]
-    if (!service) return { found: false, service: null, metrics: null, achievements: [] }
+    // Fallback: search by name (handles both serviceName and serviceSlug as text)
+    if (!service) {
+      const searchText = serviceName || serviceSlug?.replace(/[-_]/g, ' ') || ''
+      if (searchText) {
+        const { data } = await supabase
+          .from('organization_services')
+          .select('id, name, slug, description, service_category, is_active')
+          .eq('is_active', true)
+          .ilike('name', `%${searchText}%`)
+          .limit(1)
+        service = data?.[0]
+      }
+    }
+    if (!service) {
+      // Return all active services as suggestions
+      const { data: allServices } = await supabase
+        .from('organization_services')
+        .select('name, slug, description, service_category')
+        .eq('is_active', true)
+        .order('name')
+      return {
+        found: false,
+        service: null,
+        metrics: null,
+        achievements: [],
+        suggestions: (allServices || []).map((s: any) => ({
+          name: s.name,
+          slug: s.slug,
+          description: s.description,
+          category: s.service_category,
+        })),
+      }
+    }
 
-    const [metricsResult, achievementsResult] = await Promise.all([
+    const serviceTag = `service:${service.slug}`
+    const [metricsResult, achievementsResult, photosResult] = await Promise.all([
       supabase
         .from('service_metrics')
         .select('fiscal_year, clients_served, sessions_delivered, events_held, staff_count, key_achievement, headline_stat_value, headline_stat_label')
@@ -192,6 +247,15 @@ export const getServiceInfo = defineTool({
         .select('achievement_text, category, fiscal_year')
         .eq('category', service.service_category || service.slug)
         .order('fiscal_year', { ascending: false })
+        .limit(5),
+      supabase
+        .from('media_files')
+        .select('id, public_url, file_path, bucket_name, title, alt_text')
+        .contains('tags', [serviceTag])
+        .eq('file_type', 'image')
+        .is('deleted_at', null)
+        .order('rating', { ascending: false, nullsFirst: false })
+        .order('is_featured', { ascending: false })
         .limit(5),
     ])
 
@@ -206,6 +270,9 @@ export const getServiceInfo = defineTool({
       metrics: metricsResult.data?.[0] || null,
       recentMetrics: metricsResult.data || [],
       achievements: achievementsResult.data || [],
+      photos: (photosResult.data || [])
+        .map((p: any) => ({ url: resolveMediaUrl(p), alt: p.alt_text || p.title || service.name }))
+        .filter((p: any) => p.url !== null),
     }
   },
 })
@@ -266,23 +333,66 @@ export const findQuotes = defineTool({
   description: 'Find community quotes by theme or impact. Returns quotes with attribution from published stories.',
   parameters: findQuotesSchema,
   execute: async (input: FindQuotesInput) => {
-    const { themes, limit } = input
+    const { themes, query: searchQuery, limit } = input
     const supabase = getSupabase()
 
-    let query = supabase
-      .from('story_quotes')
-      .select(`
-        id, quote_text, themes, impact_score, is_featured,
-        stories:story_id (id, title, status)
-      `)
-      .order('impact_score', { ascending: false, nullsFirst: false })
-      .limit(limit * 2)
+    // Strategy: search by themes first, then supplement with story-title-matched quotes
+    let allQuotes: any[] = []
 
+    // 1. Theme-based search
     if (themes && themes.length > 0) {
-      query = query.overlaps('themes', themes)
+      const { data } = await supabase
+        .from('story_quotes')
+        .select(`
+          id, quote_text, themes, impact_score, is_featured, context_before,
+          stories:story_id (id, title, status, storyteller_id,
+            profiles:storyteller_id (full_name, preferred_name, profile_image_url, is_elder)
+          )
+        `)
+        .overlaps('themes', themes)
+        .order('impact_score', { ascending: false, nullsFirst: false })
+        .limit(limit * 3)
+
+      allQuotes = data || []
     }
 
-    const { data, error } = await query
+    // 2. Story-title-matched quotes (finds quotes from stories about the topic even if themes are null)
+    if (searchQuery && allQuotes.length < limit * 3) {
+      const words = searchQuery.split(/\s+/).filter(w => w.length >= 4)
+      const titleConditions = words.length > 0
+        ? words.map(w => `title.ilike.%${w}%`).join(',')
+        : `title.ilike.%${searchQuery}%`
+
+      const { data: matchingStories } = await supabase
+        .from('stories')
+        .select('id')
+        .eq('status', 'published')
+        .or(titleConditions)
+        .limit(20)
+
+      if (matchingStories && matchingStories.length > 0) {
+        const storyIds = matchingStories.map(s => s.id)
+        const existingIds = new Set(allQuotes.map((q: any) => q.id))
+
+        const { data: storyQuotes } = await supabase
+          .from('story_quotes')
+          .select(`
+            id, quote_text, themes, impact_score, is_featured, context_before,
+            stories:story_id (id, title, status, storyteller_id,
+              profiles:storyteller_id (full_name, preferred_name, profile_image_url, is_elder)
+            )
+          `)
+          .in('story_id', storyIds)
+          .order('impact_score', { ascending: false, nullsFirst: false })
+          .limit(limit * 3)
+
+        const extra = (storyQuotes || []).filter((q: any) => !existingIds.has(q.id))
+        allQuotes = [...allQuotes, ...extra]
+      }
+    }
+
+    const data = allQuotes
+    const error = null
 
     if (error) {
       console.error('findQuotes error:', error)
@@ -290,24 +400,45 @@ export const findQuotes = defineTool({
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const filtered = (data || [] as any[])
+    const published = (data || [] as any[])
       .filter((q: any) => {
         const story = q.stories as { status: string } | null
         return story && story.status === 'published'
       })
-      .slice(0, limit)
-      .map((q: any) => {
-        const story = q.stories as { id: string; title: string } | null
-        return {
-          id: q.id,
-          text: q.quote_text,
-          themes: q.themes,
-          impactScore: q.impact_score,
-          isFeatured: q.is_featured,
-          storyTitle: story?.title || null,
-          storyId: story?.id || null,
-        }
-      })
+
+    // Diversify: max 2 quotes per story to show range of voices
+    const storyCount = new Map<string, number>()
+    const diverse = published.filter((q: any) => {
+      const storyId = (q.stories as any)?.id
+      if (!storyId) return true
+      const count = storyCount.get(storyId) || 0
+      if (count >= 2) return false
+      storyCount.set(storyId, count + 1)
+      return true
+    })
+
+    const filtered = diverse.slice(0, limit).map((q: any) => {
+      const story = q.stories as { id: string; title: string; profiles: any } | null
+      const profile = story?.profiles as { full_name: string; preferred_name: string | null; profile_image_url: string | null; is_elder: boolean | null } | null
+      // Try to extract speaker name from context_before (e.g. "Elder Ethel:" or "Frank said:")
+      let speakerName = profile?.preferred_name || profile?.full_name || null
+      const ctx = (q.context_before as string | null) || ''
+      const speakerMatch = ctx.match(/^(?:Elder\s+)?([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s*[:—–-]/)
+      if (speakerMatch) {
+        speakerName = speakerMatch[1]
+      }
+      return {
+        id: q.id,
+        text: q.quote_text,
+        themes: q.themes,
+        impactScore: q.impact_score,
+        isFeatured: q.is_featured,
+        storyTitle: story?.title || null,
+        storyId: story?.id || null,
+        speakerName,
+        speakerImage: profile?.profile_image_url || null,
+      }
+    })
 
     return { quotes: filtered, total: filtered.length }
   },
@@ -342,86 +473,119 @@ export const getPhotoGallery = defineTool({
       }
     }
 
-    // 2. Search story_media via stories
-    let storyPhotos: { id: string; url: string; alt: string; caption: string | null }[] = []
+    // 2. Search media_files library by tags first (most reliable source)
+    let photos: { id: string; url: string; alt: string; caption: string | null }[] = []
 
-    let storyQuery = supabase
-      .from('stories')
-      .select('id')
-      .eq('status', 'published')
-      .eq('is_public', true)
-      .limit(10)
-
+    // Build tag candidates from the topic/service
+    const tagCandidates: string[] = []
     if (serviceSlug) {
-      storyQuery = storyQuery.eq('related_service', serviceSlug)
+      tagCandidates.push(`service:${serviceSlug}`)
     } else if (topic) {
-      storyQuery = storyQuery.or(`title.ilike.%${topic}%,tags.cs.{${topic}}`)
+      const topicLower = topic.toLowerCase()
+      // Map topic keywords to known project/event tags
+      const tagMap: Array<{ keywords: string[]; tag: string }> = [
+        { keywords: ['elder', 'cultural trip', 'elders trip'], tag: 'project:elders-trips' },
+        { keywords: ['photo studio', 'photo shoot', 'professional photo'], tag: 'event:photo-shoot-oct-2025' },
+        { keywords: ['storm', 'cyclone', 'recovery', 'kirrilee'], tag: 'project:storm-recovery' },
+        { keywords: ['server', 'local server', 'digital', 'internet'], tag: 'project:local-server' },
+        { keywords: ['centre', 'station', 'the centre'], tag: 'project:the-centre-the-station' },
+        { keywords: ['health'], tag: 'service:health-services' },
+        { keywords: ['family', 'children'], tag: 'service:family-services' },
+        { keywords: ['justice'], tag: 'service:justice-services' },
+        { keywords: ['youth'], tag: 'service:youth-services' },
+        { keywords: ['housing'], tag: 'service:housing' },
+        { keywords: ['crisis', 'safe house'], tag: 'service:crisis-services' },
+      ]
+      for (const { keywords, tag } of tagMap) {
+        if (keywords.some(kw => topicLower.includes(kw))) {
+          tagCandidates.push(tag)
+        }
+      }
+      // Also try generic kebab-case as a tag and as project: prefix
+      const kebab = topicLower.replace(/\s+/g, '-')
+      tagCandidates.push(kebab, `project:${kebab}`)
     }
 
-    const { data: storyData } = await storyQuery
-    if (storyData && storyData.length > 0) {
-      const storyIds = storyData.map(s => s.id)
-      const { data: mediaData } = await supabase
-        .from('story_media')
-        .select('id, file_path, file_name, alt_text, caption, supabase_bucket')
-        .eq('media_type', 'image')
-        .in('story_id', storyIds)
-        .limit(limit)
-
-      storyPhotos = (mediaData || []).map(m => ({
-        id: m.id,
-        url: buildPublicUrl(m.supabase_bucket, m.file_path),
-        alt: m.alt_text || m.file_name,
-        caption: m.caption,
-      }))
-    }
-
-    // 3. Also search main media_files library by tags and filename
-    if (storyPhotos.length < limit) {
-      const remaining = limit - storyPhotos.length
-      let mediaQuery = supabase
+    // Tag-based search on media_files
+    if (tagCandidates.length > 0) {
+      const { data } = await supabase
         .from('media_files')
-        .select('id, public_url, original_filename, title, description, tags')
-        .eq('is_public', true)
+        .select('id, public_url, file_path, bucket_name, original_filename, title, description, tags, rating')
         .eq('file_type', 'image')
         .is('deleted_at', null)
+        .overlaps('tags', tagCandidates)
+        .order('rating', { ascending: false, nullsFirst: false })
+        .order('created_at', { ascending: false })
+        .limit(limit)
+
+      photos = (data || [])
+        .map(m => ({ id: m.id, url: resolveMediaUrl(m), alt: m.title || m.original_filename, caption: m.description }))
+        .filter((p): p is typeof p & { url: string } => p.url !== null)
+    }
+
+    // 3. Fallback: text search on media_files filename/title/description
+    if (photos.length < limit && topic) {
+      const remaining = limit - photos.length
+      const likeTerm = `%${topic}%`
+      const { data } = await supabase
+        .from('media_files')
+        .select('id, public_url, file_path, bucket_name, original_filename, title, description, tags, rating')
+        .eq('file_type', 'image')
+        .is('deleted_at', null)
+        .or(`original_filename.ilike.${likeTerm},title.ilike.${likeTerm},description.ilike.${likeTerm}`)
+        .order('rating', { ascending: false, nullsFirst: false })
         .order('created_at', { ascending: false })
         .limit(remaining)
 
+      const existingIds = new Set(photos.map(p => p.id))
+      const extra = (data || [])
+        .map(m => ({ id: m.id, url: resolveMediaUrl(m), alt: m.title || m.original_filename, caption: m.description }))
+        .filter((p): p is typeof p & { url: string } => p.url !== null)
+        .filter(m => !existingIds.has(m.id))
+      photos = [...photos, ...extra].slice(0, limit)
+    }
+
+    // 4. Last resort: search story_media via related stories
+    if (photos.length < limit) {
+      const remaining = limit - photos.length
+      let storyQuery = supabase
+        .from('stories')
+        .select('id')
+        .eq('status', 'published')
+        .limit(10)
+
       if (serviceSlug) {
-        mediaQuery = mediaQuery.contains('tags', [`service:${serviceSlug}`])
+        storyQuery = storyQuery.eq('related_service', serviceSlug)
       } else if (topic) {
-        const searchTerm = topic.toLowerCase().replace(/\s+/g, '-')
-        const likeTerm = `%${topic}%`
-        // Map common topic aliases to specific tags
-        const topicLower = topic.toLowerCase()
-        const isPhotoStudio = topicLower.includes('photo studio') || topicLower.includes('photo shoot') || topicLower.includes('professional photo')
-        if (isPhotoStudio) {
-          mediaQuery = mediaQuery.contains('tags', ['event:photo-shoot-oct-2025'])
-        } else {
-          mediaQuery = mediaQuery.or(
-            `original_filename.ilike.${likeTerm},title.ilike.${likeTerm},description.ilike.${likeTerm},tags.cs.{${searchTerm}}`
-          )
-        }
+        storyQuery = storyQuery.or(`title.ilike.%${topic}%,tags.cs.{${topic}}`)
       }
 
-      const { data: libraryData } = await mediaQuery
-      const existingIds = new Set(storyPhotos.map(p => p.id))
-      const libraryPhotos = (libraryData || [])
-        .filter(m => !existingIds.has(m.id))
-        .map(m => ({
-          id: m.id,
-          url: m.public_url,
-          alt: m.title || m.original_filename,
-          caption: m.description,
-        }))
+      const { data: storyData } = await storyQuery
+      if (storyData && storyData.length > 0) {
+        const storyIds = storyData.map(s => s.id)
+        const { data: mediaData } = await supabase
+          .from('story_media')
+          .select('id, file_path, file_name, alt_text, caption, supabase_bucket')
+          .eq('media_type', 'image')
+          .in('story_id', storyIds)
+          .limit(remaining)
 
-      storyPhotos = [...storyPhotos, ...libraryPhotos].slice(0, limit)
+        const existingIds = new Set(photos.map(p => p.id))
+        const storyPhotos = (mediaData || [])
+          .filter(m => !existingIds.has(m.id))
+          .map(m => ({
+            id: m.id,
+            url: buildPublicUrl(m.supabase_bucket, m.file_path),
+            alt: m.alt_text || m.file_name,
+            caption: m.caption,
+          }))
+        photos = [...photos, ...storyPhotos].slice(0, limit)
+      }
     }
 
     return {
-      photos: storyPhotos,
-      total: storyPhotos.length,
+      photos,
+      total: photos.length,
     }
   },
 })
