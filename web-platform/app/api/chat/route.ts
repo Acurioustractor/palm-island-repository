@@ -1,26 +1,21 @@
 import { streamText, stepCountIs, convertToModelMessages } from 'ai'
-import { minimax } from 'vercel-minimax-ai-provider'
-import { anthropic } from '@ai-sdk/anthropic'
+import { createAnthropic } from '@ai-sdk/anthropic'
 import { exploreTools } from '@/lib/explore/tools'
 import { EXPLORE_SYSTEM_PROMPT } from '@/lib/explore/system-prompt'
 import { rateLimit, RateLimitType } from '@/lib/ai/rate-limit'
 import { getExpandedContext } from '@/lib/ai/context-builder'
+import { expandQuery } from '@/lib/ai/query-expansion'
 
 export const maxDuration = 60
 
-/**
- * Model selection: CHAT_MODEL env var controls which model is used.
- * - 'minimax' (default) — MiniMax-M2 for fast/cheap everyday chat
- * - 'claude' — Claude Sonnet for deep analysis mode
- * Clients can also pass ?mode=deep to force Claude for a single request.
- */
-function getChatModel(mode?: string | null) {
-  const envModel = process.env.CHAT_MODEL || 'claude'
-  const useClaude = mode === 'deep' || envModel === 'claude'
-  if (useClaude) {
-    return anthropic('claude-sonnet-4-5-20250929')
+function getChatModel() {
+  const apiKey = process.env.ANTHROPIC_API_KEY
+  if (!apiKey) {
+    console.error('ANTHROPIC_API_KEY is not set!')
+    throw new Error('ANTHROPIC_API_KEY is not configured')
   }
-  return minimax('MiniMax-M2')
+  const provider = createAnthropic({ apiKey })
+  return provider('claude-sonnet-4-5-20250929')
 }
 
 export async function POST(request: Request) {
@@ -32,8 +27,6 @@ export async function POST(request: Request) {
     )
   }
 
-  const url = new URL(request.url)
-  const mode = url.searchParams.get('mode')
   const { messages } = await request.json()
 
   // Extract latest user message for RAG context
@@ -44,15 +37,27 @@ export async function POST(request: Request) {
       ? latestUserMsg.content.map((p: { text?: string }) => p.text || '').join(' ')
       : ''
 
-  // Get RAG context from expanded context builder
+  // Expand query for better search (typo correction, synonyms)
+  let searchQuery = userText
+  try {
+    const expanded = await expandQuery(userText, {
+      context: 'Palm Island community knowledge base',
+      maxAlternatives: 2
+    })
+    searchQuery = expanded.expanded || userText
+  } catch (e) {
+    // Non-fatal — use original query
+  }
+
+  // Get context from all data tables (8000 token budget — Claude has 200K window)
   let ragContext = ''
   let ragSources: Array<{ title: string; url: string; type: string }> = []
   try {
-    const expanded = await getExpandedContext(userText, { limit: 5, maxContextTokens: 3000 })
+    const expanded = await getExpandedContext(searchQuery, { limit: 8, maxContextTokens: 8000 })
     ragContext = expanded.context
     ragSources = expanded.sources
   } catch (e) {
-    console.error('RAG context error:', e)
+    console.error('Context builder error:', e)
   }
 
   // Build dynamic system prompt with RAG context appended
@@ -70,7 +75,7 @@ ${ragSources.map(s => `- ${s.title} (${s.type}): ${s.url}`).join('\n')}
 
   try {
     const result = streamText({
-      model: getChatModel(mode),
+      model: getChatModel(),
       system: systemWithRAG,
       messages: await convertToModelMessages(messages),
       tools: exploreTools,

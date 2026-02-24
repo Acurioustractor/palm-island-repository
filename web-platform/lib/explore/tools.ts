@@ -140,11 +140,26 @@ export const searchStories = defineTool({
       }
     }
 
-    const { data: stories, error } = await dbQuery
+    let { data: stories, error } = await dbQuery
 
     if (error) {
       console.error('searchStories error:', error)
       return { stories: [], total: 0 }
+    }
+
+    // Fallback: if query returned nothing, return most recent published stories
+    if ((!stories || stories.length === 0) && query) {
+      const { data: fallback } = await supabase
+        .from('stories')
+        .select(`
+          id, title, content, category, tags, story_date, published_at, location,
+          story_media (file_path, supabase_bucket, alt_text, media_type),
+          profiles:storyteller_id (profile_image_url, preferred_name, full_name)
+        `)
+        .eq('status', 'published')
+        .order('published_at', { ascending: false })
+        .limit(limit)
+      stories = fallback
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -279,8 +294,20 @@ export const getServiceInfo = defineTool({
 
 // ─── exploreTimeline ─────────────────────────────────────────────────────────
 
+// Pre-PICC historical milestones (not in governance_achievements table)
+const HISTORICAL_MILESTONES = [
+  { id: 'hist-1', fiscal_year: '1914', category: 'history', achievement_text: 'Hull River Aboriginal Settlement established on Djiru people\'s land in Mission Beach region', display_order: 1 },
+  { id: 'hist-2', fiscal_year: '1918', category: 'history', achievement_text: 'Category 5 cyclone destroyed Hull River Settlement on 10 March 1918; survivors transferred to Palm Island', display_order: 2 },
+  { id: 'hist-3', fiscal_year: '1918', category: 'history', achievement_text: 'Palm Island gazetted as Aboriginal reserve — people from 50+ language groups forcibly relocated over following decades', display_order: 3 },
+  { id: 'hist-4', fiscal_year: '1985', category: 'history', achievement_text: 'Palm Island Community Company formed by a small group of concerned residents to fill service gaps', display_order: 4 },
+  { id: 'hist-5', fiscal_year: '2007', category: 'governance', achievement_text: 'PICC transitioned to community-controlled Aboriginal and Torres Strait Islander Corporation under CATSI Act', display_order: 5 },
+  { id: 'hist-6', fiscal_year: '2009', category: 'governance', achievement_text: 'PICC begins formal governance framework and strategic planning', display_order: 6 },
+  { id: 'hist-7', fiscal_year: '2017', category: 'governance', achievement_text: 'PICC awarded delegated authority for Child Safety — first Indigenous org in Queensland', display_order: 7 },
+  { id: 'hist-8', fiscal_year: '2023', category: 'community', achievement_text: 'Elders Advisory Group journey to Hull River — reconnecting with history of forced removal', display_order: 8 },
+]
+
 export const exploreTimeline = defineTool({
-  description: 'Explore PICC\'s historical timeline of achievements and events by era or topic.',
+  description: 'Explore PICC\'s historical timeline of achievements and events by era or topic. Includes pre-PICC history (Hull River, forced removals) and PICC operational milestones.',
   parameters: exploreTimelineSchema,
   execute: async (input: ExploreTimelineInput) => {
     const { era, dateFrom, dateTo, topic, limit } = input
@@ -291,7 +318,7 @@ export const exploreTimeline = defineTool({
       early: ['2013-14', '2016-17'],
       growth: ['2017-18', '2020-21'],
       recent: ['2021-22', '2025-26'],
-      all: ['2009-10', '2025-26'],
+      all: ['1914', '2025-26'],
     }
 
     const [from, to] = dateFrom && dateTo
@@ -308,21 +335,36 @@ export const exploreTimeline = defineTool({
       .limit(limit)
 
     if (topic) {
-      query = query.ilike('category', `%${topic}%`)
+      query = query.or(`category.ilike.%${topic}%,achievement_text.ilike.%${topic}%`)
     }
 
     const { data, error } = await query
 
     if (error) {
       console.error('exploreTimeline error:', error)
-      return { events: [], era, total: 0 }
+    }
+
+    let events = data || []
+
+    // Include historical milestones when relevant (pre-2007 era, history topic, or empty results)
+    const includeHistory = from < '2007' || !events.length ||
+      (topic && ['history', 'hull river', 'removal', 'founding', 'cyclone', 'reserve'].some(kw => topic.toLowerCase().includes(kw)))
+
+    if (includeHistory) {
+      const filtered = HISTORICAL_MILESTONES.filter(m => {
+        if (topic && !m.achievement_text.toLowerCase().includes(topic.toLowerCase()) && !m.category.includes(topic.toLowerCase())) {
+          return false
+        }
+        return m.fiscal_year >= from && m.fiscal_year <= to
+      })
+      events = [...filtered, ...events]
     }
 
     return {
-      events: data || [],
+      events,
       era,
       dateRange: { from, to },
-      total: data?.length || 0,
+      total: events.length,
     }
   },
 })
@@ -391,13 +433,22 @@ export const findQuotes = defineTool({
       }
     }
 
-    const data = allQuotes
-    const error = null
-
-    if (error) {
-      console.error('findQuotes error:', error)
-      return { quotes: [], total: 0 }
+    // Fallback: if no quotes matched, return highest-impact featured quotes
+    if (allQuotes.length === 0) {
+      const { data: featured } = await supabase
+        .from('story_quotes')
+        .select(`
+          id, quote_text, themes, impact_score, is_featured, context_before,
+          stories:story_id (id, title, status, storyteller_id,
+            profiles:storyteller_id (full_name, preferred_name, profile_image_url, is_elder)
+          )
+        `)
+        .order('impact_score', { ascending: false, nullsFirst: false })
+        .limit(limit * 3)
+      allQuotes = featured || []
     }
+
+    const data = allQuotes
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const published = (data || [] as any[])
@@ -691,6 +742,64 @@ export const submitCommunityVision = defineTool({
   },
 })
 
+// ─── getCommunityVisions ────────────────────────────────────────────────────
+
+const getCommunityVisionsSchema = z.object({
+  category: z.string().optional().describe('Filter by category: youth, health, culture, economic, governance, environment'),
+  limit: z.number().min(1).max(20).default(10).describe('Number of visions to return'),
+})
+
+type GetCommunityVisionsInput = z.infer<typeof getCommunityVisionsSchema>
+
+export const getCommunityVisions = defineTool({
+  description: 'Get community visions and aspirations for PICC\'s future and next 20 years. Shows what community members, Elders, and staff envision for Palm Island.',
+  parameters: getCommunityVisionsSchema,
+  execute: async (input: GetCommunityVisionsInput) => {
+    const { category, limit } = input
+    const supabase = getSupabase()
+
+    let query = supabase
+      .from('community_visions')
+      .select('id, vision_text, category, author_name, is_anonymous, created_at')
+      .order('created_at', { ascending: false })
+      .limit(limit)
+
+    if (category) {
+      query = query.eq('category', category)
+    }
+
+    const { data: visions, error } = await query
+
+    if (error) {
+      console.error('getCommunityVisions error:', error)
+      return { visions: [], total: 0 }
+    }
+
+    // Also get future-themed elder quotes
+    const { data: elderQuotes } = await supabase
+      .from('elder_quotes')
+      .select('id, text, speaker_name, speaker_role, theme')
+      .or('text.ilike.%future%,text.ilike.%next%,theme.ilike.%future%,theme.ilike.%vision%')
+      .limit(5)
+
+    return {
+      visions: (visions || []).map((v: any) => ({
+        text: v.vision_text,
+        category: v.category,
+        author: v.is_anonymous ? 'Community member' : (v.author_name || 'Community member'),
+        date: v.created_at,
+      })),
+      elderVoices: (elderQuotes || []).map((q: any) => ({
+        text: q.text,
+        speaker: q.speaker_name,
+        role: q.speaker_role,
+        theme: q.theme,
+      })),
+      total: visions?.length || 0,
+    }
+  },
+})
+
 // ─── getInnovationProjects ──────────────────────────────────────────────────
 
 const getInnovationProjectsSchema = z.object({
@@ -701,11 +810,34 @@ const getInnovationProjectsSchema = z.object({
 type GetInnovationProjectsInput = z.infer<typeof getInnovationProjectsSchema>
 
 export const getInnovationProjects = defineTool({
-  description: 'Get information about PICC innovation projects including Elders trips, Photo Studio, Healthy Meals, The Centre, and more.',
+  description: 'Get information about PICC innovation projects. Projects include: The Centre & The Station (Townsville hub), Elders Cultural Trips, Photo Studio, Healthy Meals, On-Country Server, Movember, Recycling/Goods, Annual Report. Use this for ANY question about PICC projects, initiatives, or "what is [project name]?".',
   parameters: getInnovationProjectsSchema,
   execute: async (input: GetInnovationProjectsInput) => {
-    const { projectSlug, status } = input
+    let { projectSlug, status } = input
     const supabase = getSupabase()
+
+    // Fuzzy slug matching — try exact slug first, then search by name
+    if (projectSlug) {
+      const { data: exact } = await supabase
+        .from('projects')
+        .select('id, name, slug, description, tagline, status, hero_image_url, target_beneficiaries, actual_beneficiaries, budget_total, budget_spent')
+        .eq('slug', projectSlug)
+        .limit(1)
+
+      if (!exact || exact.length === 0) {
+        // Try fuzzy: convert slug to name search
+        const nameSearch = projectSlug.replace(/[-_]/g, ' ')
+        const { data: fuzzy } = await supabase
+          .from('projects')
+          .select('id, name, slug, description, tagline, status, hero_image_url, target_beneficiaries, actual_beneficiaries, budget_total, budget_spent')
+          .or(`name.ilike.%${nameSearch}%,slug.ilike.%${projectSlug}%,description.ilike.%${nameSearch}%`)
+          .limit(1)
+
+        if (fuzzy && fuzzy.length > 0) {
+          projectSlug = fuzzy[0].slug
+        }
+      }
+    }
 
     let query = supabase
       .from('projects')
@@ -730,10 +862,11 @@ export const getInnovationProjects = defineTool({
       return { projects: [], total: 0, message: 'No innovation projects found.' }
     }
 
-    // For single project, also fetch notes and stories
+    // For single project, also fetch notes, stories, and media
     if (projectSlug && projects.length === 1) {
       const proj = projects[0]
-      const [notesResult, storiesResult] = await Promise.all([
+      const projectTag = `project:${proj.slug}`
+      const [notesResult, storiesResult, mediaResult] = await Promise.all([
         supabase
           .from('project_notes')
           .select('id, content, note_type, author_name, created_at')
@@ -746,7 +879,24 @@ export const getInnovationProjects = defineTool({
           .eq('status', 'published')
           .or(`title.ilike.%${proj.name}%,content.ilike.%${proj.name}%`)
           .limit(3),
+        supabase
+          .from('media_files')
+          .select('id, public_url, file_path, bucket_name, title, alt_text, file_type')
+          .contains('tags', [projectTag])
+          .is('deleted_at', null)
+          .order('rating', { ascending: false, nullsFirst: false })
+          .limit(8),
       ])
+
+      const photos = (mediaResult.data || [])
+        .filter((m: any) => m.file_type === 'image')
+        .map((m: any) => ({ url: resolveMediaUrl(m), alt: m.alt_text || m.title || proj.name }))
+        .filter((p: any) => p.url !== null)
+
+      const videos = (mediaResult.data || [])
+        .filter((m: any) => m.file_type === 'video')
+        .map((m: any) => ({ url: resolveMediaUrl(m), title: m.title }))
+        .filter((v: any) => v.url !== null)
 
       return {
         project: {
@@ -762,6 +912,8 @@ export const getInnovationProjects = defineTool({
         },
         notes: notesResult.data || [],
         relatedStories: storiesResult.data || [],
+        photos,
+        videos,
         total: 1,
       }
     }
@@ -1126,6 +1278,7 @@ export const exploreTools = {
   getPhotoGallery,
   exploreKnowledgeGraph,
   submitCommunityVision,
+  getCommunityVisions,
   getServiceMetrics,
   getFinancialSummary,
   submitServiceUpdate,

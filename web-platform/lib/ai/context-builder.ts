@@ -11,7 +11,6 @@
  */
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
-import { getRAGContext } from '@/lib/scraper/rag-search'
 import PICC_KNOWLEDGE_BASE, { generateExecutiveSummary } from '@/lib/picc-knowledge-base'
 
 // ---------------------------------------------------------------------------
@@ -86,22 +85,35 @@ function detectIntents(query: string): DetectedIntents {
 
 async function searchInterviews(supabase: SupabaseClient, query: string, limit = 3): Promise<{ text: string; sources: ExpandedSource[] }> {
   try {
-    const { data: interviews } = await supabase
-      .from('interviews')
-      .select('id, interview_title, storyteller_id, profiles:storyteller_id(full_name)')
-      .or(`interview_title.ilike.%${query}%`)
-      .limit(limit)
-
-    if (!interviews || interviews.length === 0) return { text: '', sources: [] }
-
-    // Get segments for matched interviews
-    const interviewIds = interviews.map((i: any) => i.id)
+    // Search segments FIRST (content-level), then get parent interviews
     const { data: segments } = await supabase
       .from('interview_segments')
       .select('interview_id, segment_text')
-      .in('interview_id', interviewIds)
       .ilike('segment_text', `%${query}%`)
-      .limit(5)
+      .limit(limit * 2)
+
+    // Also search by interview title
+    const { data: titleMatches } = await supabase
+      .from('interviews')
+      .select('id, interview_title, storyteller_id, profiles:storyteller_id(full_name)')
+      .ilike('interview_title', `%${query}%`)
+      .limit(limit)
+
+    // Combine unique interview IDs
+    const interviewIds = new Set<string>()
+    segments?.forEach((s: any) => interviewIds.add(s.interview_id))
+    titleMatches?.forEach((i: any) => interviewIds.add(i.id))
+
+    if (interviewIds.size === 0) return { text: '', sources: [] }
+
+    // Fetch interview details for all matched IDs
+    const { data: interviews } = await supabase
+      .from('interviews')
+      .select('id, interview_title, storyteller_id, profiles:storyteller_id(full_name)')
+      .in('id', Array.from(interviewIds))
+      .limit(limit)
+
+    if (!interviews || interviews.length === 0) return { text: '', sources: [] }
 
     const parts: string[] = []
     const sources: ExpandedSource[] = []
@@ -114,6 +126,146 @@ async function searchInterviews(supabase: SupabaseClient, query: string, limit =
       parts.push(`Interview with ${name}: "${interview.interview_title}"${segmentText ? `\n${segmentText}` : ''}`)
       sources.push({ title: `Interview: ${interview.interview_title}`, url: `/wiki/people/${interview.storyteller_id}`, type: 'interview' })
     }
+
+    return { text: parts.join('\n'), sources }
+  } catch {
+    return { text: '', sources: [] }
+  }
+}
+
+// ─── Stories search ─────────────────────────────────────────────────────────
+
+async function searchStories(supabase: SupabaseClient, query: string, limit = 5): Promise<{ text: string; sources: ExpandedSource[] }> {
+  try {
+    // Split query into keywords for broader matching
+    const keywords = query.toLowerCase().split(/\s+/).filter(w => w.length >= 4)
+
+    let stories: any[] = []
+
+    // Try exact phrase first
+    const { data: exactMatches } = await supabase
+      .from('stories')
+      .select('id, title, excerpt, category, slug')
+      .or(`title.ilike.%${query}%,excerpt.ilike.%${query}%`)
+      .eq('status', 'published')
+      .limit(limit)
+
+    stories = exactMatches || []
+
+    // If not enough, try keyword matching
+    if (stories.length < limit && keywords.length > 0) {
+      const keywordFilters = keywords.map(kw => `title.ilike.%${kw}%`).join(',')
+      const { data: kwMatches } = await supabase
+        .from('stories')
+        .select('id, title, excerpt, category, slug')
+        .or(keywordFilters)
+        .eq('status', 'published')
+        .limit(limit)
+
+      const existingIds = new Set(stories.map(s => s.id))
+      for (const s of (kwMatches || [])) {
+        if (!existingIds.has(s.id) && stories.length < limit) {
+          stories.push(s)
+        }
+      }
+    }
+
+    if (stories.length === 0) return { text: '', sources: [] }
+
+    const parts = stories.map((s: any) =>
+      `"${s.title}" (${s.category || 'story'}): ${s.excerpt?.substring(0, 200) || 'No excerpt'}`
+    )
+    const sources = stories.map((s: any) => ({
+      title: s.title,
+      url: `/stories/${s.id}`,
+      type: 'story'
+    }))
+
+    return { text: parts.join('\n'), sources }
+  } catch {
+    return { text: '', sources: [] }
+  }
+}
+
+// ─── Projects search ────────────────────────────────────────────────────────
+
+async function getProjectsContext(supabase: SupabaseClient, query: string): Promise<{ text: string; sources: ExpandedSource[] }> {
+  try {
+    const { data: projects } = await supabase
+      .from('projects')
+      .select('id, name, slug, description, tagline, status')
+      .order('name')
+
+    if (!projects || projects.length === 0) return { text: '', sources: [] }
+
+    const parts = [`PICC runs ${projects.length} innovation projects:\n`]
+    for (const p of projects) {
+      parts.push(`- **${p.name}** (${p.status}): ${p.tagline || p.description?.substring(0, 120) || ''}`)
+    }
+
+    // Source cards for keyword-matched projects
+    const lower = query.toLowerCase()
+    const matched = projects.filter((p: any) =>
+      p.name?.toLowerCase().includes(lower) ||
+      p.slug?.toLowerCase().includes(lower) ||
+      p.description?.toLowerCase().includes(lower)
+    )
+
+    const sources: ExpandedSource[] = matched.length >= 1 && matched.length <= 3
+      ? matched.map((p: any) => ({ title: p.name, url: `/wiki/innovation/${p.slug}`, type: 'project' }))
+      : [{ title: 'PICC Innovation Projects', url: '/wiki/innovation', type: 'project' }]
+
+    return { text: parts.join('\n'), sources }
+  } catch {
+    return { text: '', sources: [] }
+  }
+}
+
+// ─── Extracted quotes search ────────────────────────────────────────────────
+
+async function searchExtractedQuotes(supabase: SupabaseClient, query: string, limit = 5): Promise<{ text: string; sources: ExpandedSource[] }> {
+  try {
+    const { data: quotes } = await supabase
+      .from('extracted_quotes')
+      .select('id, quote_text, speaker_name, themes, story_id')
+      .or(`quote_text.ilike.%${query}%,speaker_name.ilike.%${query}%`)
+      .limit(limit)
+
+    if (!quotes || quotes.length === 0) return { text: '', sources: [] }
+
+    const parts = quotes.map((q: any) =>
+      `"${q.quote_text}" — ${q.speaker_name || 'Community member'}${q.themes ? ` [${q.themes.join(', ')}]` : ''}`
+    )
+
+    return {
+      text: parts.join('\n'),
+      sources: [{ title: 'Community Voices', url: '/voices', type: 'quote' }]
+    }
+  } catch {
+    return { text: '', sources: [] }
+  }
+}
+
+// ─── Knowledge entries search ───────────────────────────────────────────────
+
+async function searchKnowledgeEntries(supabase: SupabaseClient, query: string, limit = 3): Promise<{ text: string; sources: ExpandedSource[] }> {
+  try {
+    const { data: entries } = await supabase
+      .from('knowledge_entries')
+      .select('id, slug, title, summary, content, entry_type, category')
+      .or(`title.ilike.%${query}%,content.ilike.%${query}%,summary.ilike.%${query}%`)
+      .limit(limit)
+
+    if (!entries || entries.length === 0) return { text: '', sources: [] }
+
+    const parts = entries.map((e: any) =>
+      `[${e.title}]: ${e.summary || e.content?.substring(0, 300) || ''}`
+    )
+    const sources = entries.map((e: any) => ({
+      title: e.title,
+      url: `/wiki/${e.slug}`,
+      type: 'knowledge'
+    }))
 
     return { text: parts.join('\n'), sources }
   } catch {
@@ -325,6 +477,30 @@ async function getPartnersContext(supabase: SupabaseClient): Promise<{ text: str
   }
 }
 
+async function getCommunityVisionsContext(supabase: SupabaseClient): Promise<{ text: string; sources: ExpandedSource[] }> {
+  try {
+    const { data: visions } = await supabase
+      .from('community_visions')
+      .select('vision_text, category, author_name, is_anonymous')
+      .order('created_at', { ascending: false })
+      .limit(10)
+
+    if (!visions || visions.length === 0) return { text: '', sources: [] }
+
+    const parts = visions.map((v: any) => {
+      const author = v.is_anonymous ? 'Community member' : (v.author_name || 'Community member')
+      return `"${v.vision_text}" — ${author} (${v.category || 'general'})`
+    })
+
+    return {
+      text: `Community visions for PICC's next 20 years (${visions.length} recorded):\n${parts.join('\n')}`,
+      sources: [{ title: 'Community Visions for the Future', url: '/voices', type: 'vision' }]
+    }
+  } catch {
+    return { text: '', sources: [] }
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Condensed org identity (always included)
 // ---------------------------------------------------------------------------
@@ -374,52 +550,67 @@ export async function getExpandedContext(
   // 1. Always include org identity (condensed)
   sections['PICC Organization'] = getOrgIdentityContext()
 
-  // 2. Call existing RAG for vector search results
-  try {
-    const ragResult = await getRAGContext(query, { limit, maxContextTokens: Math.floor(maxContextTokens * 0.3) })
-    if (ragResult.context) {
-      sections['Knowledge Base'] = ragResult.context
-    }
-    allSources.push(...ragResult.sources.map(s => ({ ...s, type: 'knowledge' })))
-  } catch (err) {
-    console.error('RAG context error (non-fatal):', err)
-  }
-
-  // 3. ALWAYS search all key tables in parallel for maximum recall
-  //    Intent detection boosts relevance but never gates access
+  // 2. Search ALL key tables in parallel for maximum recall
   const searches: Promise<void>[] = []
 
-  // Always search services (core of what people ask about)
+  // Stories — richest content source
+  searches.push(
+    searchStories(supabase, query, 5).then(r => { if (r.text) { sections['Stories'] = r.text; allSources.push(...r.sources) } })
+  )
+
+  // Services
   searches.push(
     getServicesContext(supabase, query).then(r => { if (r.text) { sections['Services'] = r.text; allSources.push(...r.sources) } })
   )
 
-  // Always search people/leadership
+  // Innovation projects
+  searches.push(
+    getProjectsContext(supabase, query).then(r => { if (r.text) { sections['Innovation Projects'] = r.text; allSources.push(...r.sources) } })
+  )
+
+  // People/leadership
   searches.push(
     getPeopleContext(supabase).then(r => { if (r.text) { sections['People & Leadership'] = r.text; allSources.push(...r.sources) } })
   )
 
-  // Always search elder quotes and interviews
+  // Elder quotes
   searches.push(
     searchElderQuotes(supabase, query, intents.quotes ? 8 : 3).then(r => { if (r.text) { sections['Elder Voices'] = r.text; allSources.push(...r.sources) } })
   )
+
+  // Extracted quotes from stories
+  searches.push(
+    searchExtractedQuotes(supabase, query, 5).then(r => { if (r.text) { sections['Community Quotes'] = r.text; allSources.push(...r.sources) } })
+  )
+
+  // Interviews — search segments, not just titles
   searches.push(
     searchInterviews(supabase, query, intents.quotes ? 5 : 2).then(r => { if (r.text) { sections['Interviews'] = r.text; allSources.push(...r.sources) } })
   )
 
-  // Always search history
+  // History
   searches.push(
     getHistoryContext(supabase, query).then(r => { if (r.text) { sections['History & Governance'] = r.text; allSources.push(...r.sources) } })
   )
 
-  // Always include financials (even a summary)
+  // Financials
   searches.push(
     getFinancialContext(supabase).then(r => { if (r.text) { sections['Financial Data'] = r.text; allSources.push(...r.sources) } })
   )
 
-  // Always search partners
+  // Partners
   searches.push(
     getPartnersContext(supabase).then(r => { if (r.text) { sections['Partners'] = r.text; allSources.push(...r.sources) } })
+  )
+
+  // Community visions
+  searches.push(
+    getCommunityVisionsContext(supabase).then(r => { if (r.text) { sections['Community Visions & Future'] = r.text; allSources.push(...r.sources) } })
+  )
+
+  // Knowledge entries (wiki)
+  searches.push(
+    searchKnowledgeEntries(supabase, query, 3).then(r => { if (r.text) { sections['Knowledge Base'] = r.text; allSources.push(...r.sources) } })
   )
 
   await Promise.all(searches)
