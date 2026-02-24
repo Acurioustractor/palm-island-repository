@@ -2,10 +2,10 @@
 
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport } from 'ai'
-import { useState, useRef, useEffect, useCallback, FormEvent, useMemo } from 'react'
+import { useState, useRef, useEffect, useCallback, FormEvent, useMemo, memo } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Loader2, ArrowUp } from 'lucide-react'
+import { Loader2, ArrowUp, Menu, X } from 'lucide-react'
 import { MessageRenderer } from '@/components/explore/MessageRenderer'
 import ChatSourceCards from '@/components/chat/ChatSourceCards'
 import ChatRelatedContent from '@/components/chat/ChatRelatedContent'
@@ -21,6 +21,37 @@ const STARTERS: Array<{ text: string; icon: BespokeIconName }> = [
   { text: "I have a vision for Palm Island's future", icon: 'health' },
 ]
 
+const MemoMessage = memo(function MemoMessage({
+  message,
+  isLast,
+  latestAssistantSources,
+}: {
+  message: import('ai').UIMessage
+  isLast: boolean
+  latestAssistantSources: Array<{ title: string; url: string; type: string }>
+}) {
+  const sources = useMemo(
+    () => message.role === 'assistant' ? extractSourcesFromMessage(message) : [],
+    [message]
+  )
+
+  return (
+    <div>
+      <MessageRenderer message={message} darkMode={false} />
+      {sources.length > 0 && (
+        <div className="mt-3 ml-11">
+          <ChatSourceCards sources={sources} compact />
+        </div>
+      )}
+      {message.role === 'assistant' && isLast && latestAssistantSources.length > 0 && (
+        <div className="mt-4 ml-11">
+          <ChatRelatedContent sources={latestAssistantSources} />
+        </div>
+      )}
+    </div>
+  )
+})
+
 export default function ChatPage() {
   const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({ api: '/api/chat' }),
@@ -29,6 +60,7 @@ export default function ChatPage() {
   const [input, setInput] = useState('')
   const [mounted, setMounted] = useState(false)
   const [heroVisible, setHeroVisible] = useState(true)
+  const [menuOpen, setMenuOpen] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const isLoading = status === 'streaming' || status === 'submitted'
@@ -40,8 +72,15 @@ export default function ChatPage() {
     if (hasMessages) setHeroVisible(false)
   }, [hasMessages])
 
+  // Scroll to bottom — throttled to avoid jitter during streaming
+  const scrollTickRef = useRef(false)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    if (scrollTickRef.current) return
+    scrollTickRef.current = true
+    requestAnimationFrame(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+      scrollTickRef.current = false
+    })
   }, [messages])
 
   const handleInputChange = useCallback((value: string) => {
@@ -97,13 +136,24 @@ export default function ChatPage() {
             />
             <span className="font-semibold text-sm">Home</span>
           </Link>
-          <div className="flex items-center gap-4 text-sm">
+          <div className="hidden sm:flex items-center gap-4 text-sm">
             <Link href="/stories" className="text-picc-earth-300 hover:text-picc-ochre transition-colors">Stories</Link>
             <Link href="/services" className="text-picc-earth-300 hover:text-picc-ochre transition-colors">Services</Link>
             <Link href="/timeline" className="text-picc-earth-300 hover:text-picc-ochre transition-colors">Timeline</Link>
             <Link href="/voices" className="text-picc-earth-300 hover:text-picc-ochre transition-colors">Voices</Link>
           </div>
+          <button onClick={() => setMenuOpen(!menuOpen)} className="sm:hidden p-1.5 text-picc-earth-300 hover:text-picc-ochre">
+            {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
+        {menuOpen && (
+          <div className="sm:hidden border-t border-warm-200 px-6 py-3 flex flex-col gap-2 text-sm bg-white/80">
+            <Link href="/stories" onClick={() => setMenuOpen(false)} className="text-picc-earth-300 hover:text-picc-ochre py-1">Stories</Link>
+            <Link href="/services" onClick={() => setMenuOpen(false)} className="text-picc-earth-300 hover:text-picc-ochre py-1">Services</Link>
+            <Link href="/timeline" onClick={() => setMenuOpen(false)} className="text-picc-earth-300 hover:text-picc-ochre py-1">Timeline</Link>
+            <Link href="/voices" onClick={() => setMenuOpen(false)} className="text-picc-earth-300 hover:text-picc-ochre py-1">Voices</Link>
+          </div>
+        )}
       </nav>
 
       {/* Hero / Welcome State */}
@@ -200,27 +250,12 @@ export default function ChatPage() {
           >
             <div className="max-w-3xl mx-auto w-full px-6 py-6 space-y-6">
               {messages.map((message, index) => (
-                <div key={message.id}>
-                  <MessageRenderer message={message} darkMode={false} />
-
-                  {/* Source cards after assistant messages with tool results */}
-                  {message.role === 'assistant' && (() => {
-                    const sources = extractSourcesFromMessage(message)
-                    if (sources.length === 0) return null
-                    return (
-                      <div className="mt-3 ml-11">
-                        <ChatSourceCards sources={sources} compact />
-                      </div>
-                    )
-                  })()}
-
-                  {/* Related content after the latest assistant message */}
-                  {message.role === 'assistant' && index === messages.length - 1 && latestAssistantSources.length > 0 && (
-                    <div className="mt-4 ml-11">
-                      <ChatRelatedContent sources={latestAssistantSources} />
-                    </div>
-                  )}
-                </div>
+                <MemoMessage
+                  key={message.id}
+                  message={message}
+                  isLast={index === messages.length - 1}
+                  latestAssistantSources={latestAssistantSources}
+                />
               ))}
 
               {/* Streaming indicator */}

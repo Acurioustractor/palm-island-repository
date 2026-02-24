@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect, useRef } from 'react'
 import type { UIMessage } from 'ai'
 import { Sparkles } from 'lucide-react'
 import { ToolResultRenderer } from './ToolResultRenderer'
@@ -19,6 +20,8 @@ function getToolName(part: { type: string }): string | null {
 
 export function MessageRenderer({ message, darkMode = false }: MessageRendererProps) {
   const isUser = message.role === 'user'
+  // Track which part indices have already appeared so we don't re-animate them
+  const seenPartsRef = useRef(new Set<number>())
 
   if (isUser) {
     return (
@@ -49,6 +52,11 @@ export function MessageRenderer({ message, darkMode = false }: MessageRendererPr
 
       <div className="flex flex-col gap-4 flex-1 min-w-0">
         {message.parts.map((part, i) => {
+          const isNew = !seenPartsRef.current.has(i)
+          if (part.type === 'text' || (part as any).state === 'output-available') {
+            seenPartsRef.current.add(i)
+          }
+
           if (part.type === 'text' && part.text) {
             return (
               <div
@@ -72,7 +80,7 @@ export function MessageRenderer({ message, darkMode = false }: MessageRendererPr
 
             if (toolPart.state === 'output-available' && toolPart.output !== undefined) {
               return (
-                <div key={i} className="w-full animate-slide-up">
+                <div key={i} className={`w-full ${isNew ? 'animate-slide-up' : ''}`}>
                   <ToolResultRenderer
                     toolName={toolName}
                     result={toolPart.output}
@@ -108,6 +116,9 @@ function getSearchingLabel(toolName: string): string {
     case 'getPhotoGallery': return 'Gathering photos...'
     case 'exploreKnowledgeGraph': return 'Mapping connections...'
     case 'submitCommunityVision': return 'Recording your vision...'
+    case 'getCommunityVisions': return 'Finding community visions...'
+    case 'getInnovationProjects': return 'Looking up projects...'
+    case 'getFinancialSummary': return 'Pulling financial data...'
     default: return 'Searching...'
   }
 }
