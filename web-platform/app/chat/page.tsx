@@ -53,7 +53,7 @@ const MemoMessage = memo(function MemoMessage({
 })
 
 export default function ChatPage() {
-  const { messages, sendMessage, status } = useChat({
+  const { messages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({ api: '/api/chat' }),
   })
 
@@ -257,6 +257,35 @@ export default function ChatPage() {
                   latestAssistantSources={latestAssistantSources}
                 />
               ))}
+
+              {/* Error banner */}
+              {error && !isLoading && (
+                <div className="rounded-2xl bg-red-50 border border-red-200 px-5 py-4 flex items-center gap-3">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-500">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-red-800">Something went wrong. Try again.</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      const lastUser = [...messages].reverse().find(m => m.role === 'user')
+                      if (lastUser) {
+                        const text = lastUser.parts
+                          .filter((p): p is { type: 'text'; text: string } => p.type === 'text')
+                          .map(p => p.text)
+                          .join(' ')
+                        if (text) sendMessage({ text })
+                      }
+                    }}
+                    className="flex-shrink-0 px-3 py-1.5 rounded-lg bg-red-100 text-red-700 text-xs font-medium hover:bg-red-200 transition-colors"
+                  >
+                    Retry
+                  </button>
+                </div>
+              )}
 
               {/* Streaming indicator */}
               {isLoading && messages[messages.length - 1]?.role === 'user' && (

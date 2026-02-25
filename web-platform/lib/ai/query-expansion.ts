@@ -12,9 +12,13 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { aiCache, CACHE_TTL } from './cache'
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY
-})
+let _anthropic: Anthropic | null = null
+function getAnthropicClient() {
+  if (!_anthropic) {
+    _anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  }
+  return _anthropic
+}
 
 export interface ExpandedQuery {
   original: string
@@ -64,8 +68,8 @@ export async function expandQuery(
   }
 
   try {
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5-20250929',
+    const response = await getAnthropicClient().messages.create({
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 500,
       system: `You are a query expansion expert for a ${context}.
 Your task is to analyze search queries and expand them to improve search results.

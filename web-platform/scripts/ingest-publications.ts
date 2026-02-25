@@ -167,7 +167,7 @@ async function main() {
     // Claude analysis
     console.log('  Analyzing with Claude...')
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-5-20250929',
       max_tokens: 4096,
       system: 'You are analyzing a document from the Palm Island Community Company (PICC), an Aboriginal community organisation on Palm Island, QLD, Australia.',
       messages: [{

@@ -528,9 +528,20 @@ function getOrgIdentityContext(): string {
 // ---------------------------------------------------------------------------
 
 function truncateToTokenBudget(text: string, maxTokens: number): string {
-  const maxChars = maxTokens * 4 // rough estimate
+  const maxChars = maxTokens * 4 // rough estimate (4 chars/token)
   if (text.length <= maxChars) return text
-  return text.substring(0, maxChars) + '...'
+  // Find the last sentence boundary before the limit
+  const truncated = text.substring(0, maxChars)
+  const lastSentence = truncated.search(/[.!?\n][^.!?\n]*$/)
+  if (lastSentence > maxChars * 0.8) {
+    return truncated.substring(0, lastSentence + 1)
+  }
+  // Fallback: break at last whitespace
+  const lastSpace = truncated.lastIndexOf(' ')
+  if (lastSpace > maxChars * 0.8) {
+    return truncated.substring(0, lastSpace) + '...'
+  }
+  return truncated + '...'
 }
 
 // ---------------------------------------------------------------------------
@@ -541,7 +552,7 @@ export async function getExpandedContext(
   query: string,
   options: { maxContextTokens?: number; limit?: number } = {}
 ): Promise<ExpandedContextResult> {
-  const { maxContextTokens = 12000, limit = 10 } = options
+  const { maxContextTokens = 25000, limit = 10 } = options
   const supabase = getSupabase()
   const intents = detectIntents(query)
   const allSources: ExpandedSource[] = []

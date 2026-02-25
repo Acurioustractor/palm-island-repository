@@ -111,7 +111,7 @@ async function ocrPdfWithVision(pdfPath: string): Promise<string> {
     console.log(`  OCR page ${i + 1}/${pages.length}...`)
 
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-5-20250929',
       max_tokens: 4096,
       messages: [{
         role: 'user',
@@ -186,7 +186,7 @@ async function main() {
   // Step 2: Claude deep analysis
   console.log('\n[2/4] Claude deep analysis...')
   const analysisResponse = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-sonnet-4-5-20250929',
     max_tokens: 8192,
     system: `You are analyzing a Palm Island Community Company (PICC) annual report for fiscal year ${YEAR} (July-June). Extract comprehensive structured information. Be precise with numbers, names, and dates.`,
     messages: [{

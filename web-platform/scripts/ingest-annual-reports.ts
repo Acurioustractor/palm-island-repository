@@ -173,7 +173,7 @@ async function analyzeReport(text: string, fiscalYear: string): Promise<ReportAn
 
   console.log(`  Running Claude deep analysis...`)
   const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-sonnet-4-5-20250929',
     max_tokens: 8192,
     system: `You are analyzing a Palm Island Community Company (PICC) annual report for fiscal year ${fiscalYear} (July-June).
 Extract comprehensive structured information. Be precise with numbers, names, and dates.

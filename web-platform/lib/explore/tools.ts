@@ -1267,6 +1267,420 @@ export const suggestDataEnrichment = defineTool({
   },
 })
 
+// ─── getBoardAndLeadership ──────────────────────────────────────────────────
+
+const getBoardAndLeadershipSchema = z.object({
+  includeMessages: z.boolean().default(false).describe('Include leadership messages (CEO/Chair messages for annual report)'),
+})
+
+type GetBoardAndLeadershipInput = z.infer<typeof getBoardAndLeadershipSchema>
+
+export const getBoardAndLeadership = defineTool({
+  description: 'Get PICC board members and leadership team — names, roles, bios, and optionally their leadership messages.',
+  parameters: getBoardAndLeadershipSchema,
+  execute: async (input: GetBoardAndLeadershipInput) => {
+    const { includeMessages } = input
+    const supabase = getSupabase()
+
+    const boardSelect = 'name, role, bio, photo_url, start_date, end_date, display_order'
+    const { data: board } = await supabase
+      .from('board_members')
+      .select(boardSelect)
+      .order('display_order', { ascending: true })
+
+    const leadershipSelect = includeMessages
+      ? 'full_name, position, bio, photo_url, leadership_type, message_title, message_content, featured_quote'
+      : 'full_name, position, bio, photo_url, leadership_type, featured_quote'
+    const { data: leaders } = await supabase
+      .from('leadership')
+      .select(leadershipSelect)
+      .eq('is_active', true)
+      .order('position_order', { ascending: true })
+
+    return {
+      board: board || [],
+      leadership: leaders || [],
+      boardCount: board?.length || 0,
+      leadershipCount: leaders?.length || 0,
+    }
+  },
+})
+
+// ─── getInterview ───────────────────────────────────────────────────────────
+
+const getInterviewSchema = z.object({
+  interviewId: z.string().optional().describe('Specific interview ID to retrieve'),
+  search: z.string().optional().describe('Search interview titles, themes, or segment text'),
+  limit: z.number().default(5).describe('Max interviews to return'),
+})
+
+type GetInterviewInput = z.infer<typeof getInterviewSchema>
+
+export const getInterview = defineTool({
+  description: 'Search or retrieve interviews and their transcript segments. Contains 34 interviews with 2000+ transcript segments from community members.',
+  parameters: getInterviewSchema,
+  execute: async (input: GetInterviewInput) => {
+    const { interviewId, search, limit } = input
+    const supabase = getSupabase()
+
+    if (interviewId) {
+      const { data: interview } = await supabase
+        .from('interviews')
+        .select('id, interview_title, interview_date, interview_location, interview_type, key_themes, interview_notes, status, privacy_level, is_public')
+        .eq('id', interviewId)
+        .single()
+
+      if (!interview) return { found: false, error: 'Interview not found' }
+
+      // Check privacy
+      if (!interview.is_public && interview.privacy_level === 'restricted') {
+        return { found: true, interview: { ...interview, segments: [] }, note: 'This interview has restricted access. Segments not shown.' }
+      }
+
+      const { data: segments } = await supabase
+        .from('interview_segments')
+        .select('segment_index, speaker, segment_text')
+        .eq('interview_id', interviewId)
+        .order('segment_index', { ascending: true })
+        .limit(50)
+
+      return { found: true, interview, segments: segments || [] }
+    }
+
+    // Search mode
+    let query = supabase
+      .from('interviews')
+      .select('id, interview_title, interview_date, interview_type, key_themes, status, is_public')
+      .eq('status', 'completed')
+      .order('interview_date', { ascending: false })
+      .limit(limit)
+
+    if (search) {
+      query = query.or(`interview_title.ilike.%${search}%,key_themes.cs.{${search}}`)
+    }
+
+    const { data: interviews } = await query
+
+    // If searching, also search segments
+    let matchingSegments: Array<{ interview_id: string; segment_text: string; speaker: string }> = []
+    if (search) {
+      const { data } = await supabase
+        .from('interview_segments')
+        .select('interview_id, segment_text, speaker')
+        .ilike('segment_text', `%${search}%`)
+        .limit(10)
+      matchingSegments = data || []
+    }
+
+    return {
+      interviews: interviews || [],
+      matchingSegments,
+      count: interviews?.length || 0,
+    }
+  },
+})
+
+// ─── getPhotoCollections ────────────────────────────────────────────────────
+
+const getPhotoCollectionsSchema = z.object({
+  slug: z.string().optional().describe('Get a specific collection by slug'),
+})
+
+type GetPhotoCollectionsInput = z.infer<typeof getPhotoCollectionsSchema>
+
+export const getPhotoCollections = defineTool({
+  description: 'Get curated photo collections — named galleries of photos grouped by theme, event, or project.',
+  parameters: getPhotoCollectionsSchema,
+  execute: async (input: GetPhotoCollectionsInput) => {
+    const { slug } = input
+    const supabase = getSupabase()
+
+    if (slug) {
+      const { data: collection } = await supabase
+        .from('photo_collections')
+        .select('id, name, slug, description, item_count, is_public')
+        .eq('slug', slug)
+        .eq('is_public', true)
+        .single()
+
+      if (!collection) return { found: false }
+
+      // Get photos in this collection via collection_items
+      const { data: items } = await supabase
+        .from('collection_items')
+        .select('media_files(id, file_url, alt_text, caption, tags)')
+        .eq('collection_id', collection.id)
+        .limit(20)
+
+      return {
+        found: true,
+        collection,
+        photos: items?.map((i: any) => i.media_files).filter(Boolean) || [],
+      }
+    }
+
+    const { data: collections } = await supabase
+      .from('photo_collections')
+      .select('name, slug, description, item_count, is_public')
+      .eq('is_public', true)
+      .order('created_at', { ascending: false })
+
+    return { collections: collections || [], count: collections?.length || 0 }
+  },
+})
+
+// ─── getAnnualReportArchive ─────────────────────────────────────────────────
+
+const getAnnualReportArchiveSchema = z.object({
+  year: z.string().optional().describe('Specific fiscal year (e.g. "2023-24")'),
+})
+
+type GetAnnualReportArchiveInput = z.infer<typeof getAnnualReportArchiveSchema>
+
+export const getAnnualReportArchive = defineTool({
+  description: 'Get past annual reports — titles, themes, executive summaries, and download links.',
+  parameters: getAnnualReportArchiveSchema,
+  execute: async (input: GetAnnualReportArchiveInput) => {
+    const { year } = input
+    const supabase = getSupabase()
+
+    let query = supabase
+      .from('annual_reports')
+      .select('id, fiscal_year, title, subtitle, theme, status, executive_summary, leadership_message_author, year_highlights, looking_forward, pdf_url, web_version_url, published_date, views, downloads')
+      .order('fiscal_year', { ascending: false })
+      .limit(10)
+
+    if (year) query = query.eq('fiscal_year', year)
+
+    const { data } = await query
+
+    return { reports: data || [], count: data?.length || 0 }
+  },
+})
+
+// ─── getPublications ────────────────────────────────────────────────────────
+
+const getPublicationsSchema = z.object({
+  category: z.string().optional().describe('Filter by category'),
+  search: z.string().optional().describe('Search title or description'),
+})
+
+type GetPublicationsInput = z.infer<typeof getPublicationsSchema>
+
+export const getPublications = defineTool({
+  description: 'Get PICC publications — reports, research papers, and documents with download links.',
+  parameters: getPublicationsSchema,
+  execute: async (input: GetPublicationsInput) => {
+    const { category, search } = input
+    const supabase = getSupabase()
+
+    let query = supabase
+      .from('publications')
+      .select('slug, title, subtitle, description, category, tags, pdf_url, author, published_date, fiscal_year, is_featured')
+      .eq('status', 'published')
+      .order('published_date', { ascending: false })
+      .limit(20)
+
+    if (category) query = query.eq('category', category)
+    if (search) query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`)
+
+    const { data } = await query
+
+    return { publications: data || [], count: data?.length || 0 }
+  },
+})
+
+// ─── getDeepHistory ─────────────────────────────────────────────────────────
+
+const getDeepHistorySchema = z.object({
+  search: z.string().optional().describe('Search history events by keyword'),
+  eventType: z.string().optional().describe('Filter by event type (e.g. "milestone", "cultural", "governance")'),
+  era: z.string().optional().describe('Filter by era name'),
+})
+
+type GetDeepHistoryInput = z.infer<typeof getDeepHistorySchema>
+
+export const getDeepHistory = defineTool({
+  description: 'Get detailed PICC history — timeline events (55+), organizational eras, and story-linked events. Deeper than exploreTimeline which only covers governance achievements.',
+  parameters: getDeepHistorySchema,
+  execute: async (input: GetDeepHistoryInput) => {
+    const { search, eventType, era } = input
+    const supabase = getSupabase()
+
+    // Timeline events (main history table)
+    let eventsQuery = supabase
+      .from('timeline_events')
+      .select('id, title, description, event_date, event_type, location_name, significance, is_featured, image_url')
+      .order('event_date', { ascending: false })
+      .limit(30)
+
+    if (search) eventsQuery = eventsQuery.or(`title.ilike.%${search}%,description.ilike.%${search}%`)
+    if (eventType) eventsQuery = eventsQuery.eq('event_type', eventType)
+
+    const { data: events } = await eventsQuery
+
+    // Organization eras
+    let erasQuery = supabase
+      .from('organization_history')
+      .select('era_name, year_start, year_end, description, milestones')
+      .order('year_start', { ascending: true })
+
+    if (era) erasQuery = erasQuery.ilike('era_name', `%${era}%`)
+
+    const { data: eras } = await erasQuery
+
+    // Story timeline events (events linked to stories)
+    let storyEventsQuery = supabase
+      .from('story_timeline_events')
+      .select('event_title, event_description, event_date, story_sections(story_id)')
+      .order('event_date', { ascending: false })
+      .limit(20)
+
+    if (search) storyEventsQuery = storyEventsQuery.or(`event_title.ilike.%${search}%,event_description.ilike.%${search}%`)
+
+    const { data: storyEvents } = await storyEventsQuery
+
+    return {
+      events: events || [],
+      eras: eras || [],
+      storyEvents: storyEvents || [],
+      totalEvents: (events?.length || 0) + (storyEvents?.length || 0),
+    }
+  },
+})
+
+// ─── getImpactIndicators ────────────────────────────────────────────────────
+
+const getImpactIndicatorsSchema = z.object({
+  serviceArea: z.string().optional().describe('Filter by service area'),
+  indicatorType: z.string().optional().describe('Filter by indicator type'),
+})
+
+type GetImpactIndicatorsInput = z.infer<typeof getImpactIndicatorsSchema>
+
+export const getImpactIndicators = defineTool({
+  description: 'Get impact measurement indicators — KPIs, outcomes, and change metrics tracked across services and stories.',
+  parameters: getImpactIndicatorsSchema,
+  execute: async (input: GetImpactIndicatorsInput) => {
+    const { serviceArea, indicatorType } = input
+    const supabase = getSupabase()
+
+    let query = supabase
+      .from('impact_indicators')
+      .select('id, service_area, indicator_type, indicator_name, indicator_description, measurement_type, value_numeric, value_text, value_category, baseline_value, target_value, change_observed, significance, measurement_date, pattern_category')
+      .order('measurement_date', { ascending: false })
+      .limit(30)
+
+    if (serviceArea) query = query.ilike('service_area', `%${serviceArea}%`)
+    if (indicatorType) query = query.eq('indicator_type', indicatorType)
+
+    const { data } = await query
+
+    return { indicators: data || [], count: data?.length || 0 }
+  },
+})
+
+// ─── getImmersiveStories ────────────────────────────────────────────────────
+
+const getImmersiveStoriesSchema = z.object({
+  slug: z.string().optional().describe('Get a specific immersive story by slug'),
+})
+
+type GetImmersiveStoriesInput = z.infer<typeof getImmersiveStoriesSchema>
+
+export const getImmersiveStories = defineTool({
+  description: 'Get immersive/multimedia story experiences — rich scrollytelling stories with sections, media, and interactive elements.',
+  parameters: getImmersiveStoriesSchema,
+  execute: async (input: GetImmersiveStoriesInput) => {
+    const { slug } = input
+    const supabase = getSupabase()
+
+    if (slug) {
+      const { data: story } = await supabase
+        .from('immersive_stories')
+        .select('id, title, subtitle, slug, hero_media_url, hero_media_type, is_published, published_at')
+        .eq('slug', slug)
+        .eq('is_published', true)
+        .single()
+
+      if (!story) return { found: false }
+
+      // Get sections for this story (via project_id link or direct)
+      const { data: sections } = await supabase
+        .from('story_sections')
+        .select('section_order, section_type, title, content, media_url, media_type, media_caption, quote_author, quote_role')
+        .eq('story_id', story.id)
+        .order('section_order', { ascending: true })
+
+      return { found: true, story, sections: sections || [] }
+    }
+
+    const { data: stories } = await supabase
+      .from('immersive_stories')
+      .select('title, subtitle, slug, hero_media_url, is_published, published_at')
+      .eq('is_published', true)
+      .order('published_at', { ascending: false })
+
+    return { stories: stories || [], count: stories?.length || 0 }
+  },
+})
+
+// ─── getGrantsAndPartnerships ───────────────────────────────────────────────
+
+const getGrantsAndPartnershipsSchema = z.object({
+  serviceSlug: z.string().optional().describe('Filter grants/partners by service slug'),
+})
+
+type GetGrantsAndPartnershipsInput = z.infer<typeof getGrantsAndPartnershipsSchema>
+
+export const getGrantsAndPartnerships = defineTool({
+  description: 'Get grant funding information and partnership details for PICC services. Includes grant deadlines, outcomes, and partner-service relationships.',
+  parameters: getGrantsAndPartnershipsSchema,
+  execute: async (input: GetGrantsAndPartnershipsInput) => {
+    const { serviceSlug } = input
+    const supabase = getSupabase()
+
+    // Get partners (already in RAG but no direct tool)
+    const { data: partners } = await supabase
+      .from('partners')
+      .select('name, partner_type, description, logo_url, website_url, is_active')
+      .eq('is_active', true)
+      .order('name')
+
+    // Service grants
+    let grantsQuery = supabase
+      .from('service_grants')
+      .select('*')
+      .limit(30)
+
+    if (serviceSlug) {
+      const { data: svc } = await supabase
+        .from('organization_services')
+        .select('id')
+        .eq('slug', serviceSlug)
+        .single()
+      if (svc) grantsQuery = grantsQuery.eq('service_id', svc.id)
+    }
+
+    const { data: grants } = await grantsQuery
+
+    // Grant deadlines
+    const { data: deadlines } = await supabase
+      .from('grant_deadlines')
+      .select('*')
+      .gte('deadline_date', new Date().toISOString().split('T')[0])
+      .order('deadline_date', { ascending: true })
+      .limit(10)
+
+    return {
+      partners: partners || [],
+      grants: grants || [],
+      upcomingDeadlines: deadlines || [],
+      partnerCount: partners?.length || 0,
+    }
+  },
+})
+
 // ─── Export all tools ────────────────────────────────────────────────────────
 
 export const exploreTools = {
@@ -1285,4 +1699,13 @@ export const exploreTools = {
   submitMeetingNote,
   getContentReadiness,
   suggestDataEnrichment,
+  getBoardAndLeadership,
+  getInterview,
+  getPhotoCollections,
+  getAnnualReportArchive,
+  getPublications,
+  getDeepHistory,
+  getImpactIndicators,
+  getImmersiveStories,
+  getGrantsAndPartnerships,
 }

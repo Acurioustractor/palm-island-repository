@@ -98,7 +98,7 @@ export async function rerankResults(
 
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5-20250929',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 1000,
       system: `You are a search relevance expert for the Palm Island Community knowledge base.
 Your task is to rerank search results by relevance to the user's query.

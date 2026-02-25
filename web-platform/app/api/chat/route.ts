@@ -49,11 +49,11 @@ export async function POST(request: Request) {
     // Non-fatal — use original query
   }
 
-  // Get context from all data tables (8000 token budget — Claude has 200K window)
+  // Get context from all data tables (25K token budget — Claude has 200K window)
   let ragContext = ''
   let ragSources: Array<{ title: string; url: string; type: string }> = []
   try {
-    const expanded = await getExpandedContext(searchQuery, { limit: 8, maxContextTokens: 8000 })
+    const expanded = await getExpandedContext(searchQuery, { limit: 10, maxContextTokens: 25000 })
     ragContext = expanded.context
     ragSources = expanded.sources
   } catch (e) {
@@ -73,11 +73,17 @@ ${ragSources.map(s => `- ${s.title} (${s.type}): ${s.url}`).join('\n')}
 `
     : EXPLORE_SYSTEM_PROMPT
 
+  // Trim conversation history if it's getting too long (~80K tokens)
+  const estimatedTokens = JSON.stringify(messages).length / 4
+  const trimmedMessages = estimatedTokens > 80_000
+    ? messages.slice(-20)
+    : messages
+
   try {
     const result = streamText({
       model: getChatModel(),
       system: systemWithRAG,
-      messages: await convertToModelMessages(messages),
+      messages: await convertToModelMessages(trimmedMessages),
       tools: exploreTools,
       stopWhen: stepCountIs(5),
     })

@@ -39,6 +39,8 @@
     "@tanstack/react-query": "^5.17.19",
     "@tanstack/react-query-devtools": "^5.91.2",
     "@types/leaflet": "^1.9.21",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.36.2",
     "@vercel/postgres": "^0.5.1",
     "@xenova/transformers": "^2.10.1",
     "agentation": "^2.2.0",
@@ -73,7 +75,6 @@
     "tailwind-merge": "^2.2.0",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5.3.3",
-    "vercel-minimax-ai-provider": "^0.0.2",
     "zod": "^4.3.6",
     "zustand": "^4.4.7"
   },

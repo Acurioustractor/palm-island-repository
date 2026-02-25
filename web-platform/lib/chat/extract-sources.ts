@@ -53,6 +53,172 @@ export function extractSourcesFromMessage(message: UIMessage): ChatSource[] {
         break
       }
 
+      case 'getInnovationProjects': {
+        if (data.project) {
+          const p = data.project as { slug: string; name: string }
+          sources.push({
+            id: p.slug,
+            title: p.name,
+            url: `/wiki/innovation/${p.slug}`,
+            type: 'project',
+          })
+        }
+        const projects = data.projects as Array<{ slug: string; name: string }> | undefined
+        if (projects) {
+          for (const p of projects) {
+            sources.push({
+              id: p.slug,
+              title: p.name,
+              url: `/wiki/innovation/${p.slug}`,
+              type: 'project',
+            })
+          }
+        }
+        break
+      }
+
+      case 'exploreTimeline': {
+        sources.push({
+          id: 'timeline',
+          title: 'PICC Timeline',
+          url: '/timeline',
+          type: 'timeline',
+        })
+        break
+      }
+
+      case 'getServiceMetrics': {
+        if (data.service) {
+          const metrics = data.annualMetrics as Array<{ organization_service_id?: string }> | undefined
+          const slug = metrics?.[0]?.organization_service_id || 'metrics'
+          sources.push({
+            id: slug,
+            title: data.service as string,
+            url: '/services',
+            type: 'service',
+          })
+        }
+        break
+      }
+
+      case 'getBoardAndLeadership': {
+        sources.push({
+          id: 'board',
+          title: 'Board & Leadership',
+          url: '/about',
+          type: 'board',
+        })
+        break
+      }
+
+      case 'getInterview': {
+        if (data.interview) {
+          const iv = data.interview as { id: string; interview_title: string }
+          sources.push({
+            id: iv.id,
+            title: iv.interview_title || 'Interview',
+            url: `/wiki/people`,
+            type: 'interview',
+          })
+        }
+        const interviews = data.interviews as Array<{ id: string; interview_title: string }> | undefined
+        if (interviews) {
+          for (const iv of interviews.slice(0, 5)) {
+            sources.push({
+              id: iv.id,
+              title: iv.interview_title,
+              url: `/wiki/people`,
+              type: 'interview',
+            })
+          }
+        }
+        break
+      }
+
+      case 'getAnnualReportArchive': {
+        const reports = data.reports as Array<{ fiscal_year: string; title?: string }> | undefined
+        if (reports) {
+          for (const r of reports) {
+            sources.push({
+              id: r.fiscal_year,
+              title: r.title || `Annual Report ${r.fiscal_year}`,
+              url: '/annual-reports',
+              type: 'report',
+            })
+          }
+        }
+        break
+      }
+
+      case 'getPublications': {
+        const pubs = data.publications as Array<{ slug: string; title: string }> | undefined
+        if (pubs) {
+          for (const p of pubs) {
+            sources.push({
+              id: p.slug,
+              title: p.title,
+              url: '/publications',
+              type: 'publication',
+            })
+          }
+        }
+        break
+      }
+
+      case 'getDeepHistory': {
+        sources.push({
+          id: 'deep-history',
+          title: 'PICC History & Timeline',
+          url: '/timeline',
+          type: 'history',
+        })
+        break
+      }
+
+      case 'getImpactIndicators': {
+        sources.push({
+          id: 'impact',
+          title: 'Impact Indicators',
+          url: '/explore',
+          type: 'impact',
+        })
+        break
+      }
+
+      case 'getImmersiveStories': {
+        if (data.story) {
+          const s = data.story as { slug: string; title: string }
+          sources.push({
+            id: s.slug,
+            title: s.title,
+            url: `/immersive-stories/${s.slug}`,
+            type: 'immersive',
+          })
+        }
+        const immStories = data.stories as Array<{ slug: string; title: string }> | undefined
+        if (immStories) {
+          for (const s of immStories) {
+            sources.push({
+              id: s.slug,
+              title: s.title,
+              url: `/immersive-stories/${s.slug}`,
+              type: 'immersive',
+            })
+          }
+        }
+        break
+      }
+
+      case 'getGrantsAndPartnerships': {
+        sources.push({
+          id: 'partners',
+          title: 'Partners & Grants',
+          url: '/about',
+          type: 'partner',
+        })
+        break
+      }
+
       case 'findQuotes': {
         const quotes = data.quotes as Array<{ storyId?: string; storyTitle?: string }> | undefined
         if (quotes) {
