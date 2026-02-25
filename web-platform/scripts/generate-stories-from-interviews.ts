@@ -1,7 +1,7 @@
 import { config } from 'dotenv';
 import { resolve } from 'path';
 import { createClient } from '@supabase/supabase-js';
-import OpenAI from 'openai';
+import Anthropic from '@anthropic-ai/sdk';
 import { batchEmbeddings } from '../lib/scraper/embeddings';
 
 config({ path: resolve(process.cwd(), '.env.local') });
@@ -11,8 +11,8 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY!
 });
 
 interface Interview {
@@ -118,15 +118,16 @@ Return ONLY valid JSON in this exact format:
   "summary": "One sentence summary of the story"
 }`;
 
-  const completion = await openai.chat.completions.create({
-    model: 'gpt-4o',
-    messages: [{ role: 'user', content: prompt }],
-    temperature: 0.7,
+  const response = await anthropic.messages.create({
+    model: 'claude-sonnet-4-5-20250929',
     max_tokens: 2000,
-    response_format: { type: 'json_object' }
+    messages: [{ role: 'user', content: prompt }],
   });
 
-  const result = JSON.parse(completion.choices[0].message.content!);
+  const text = response.content[0].type === 'text' ? response.content[0].text : '';
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error('Failed to parse AI response');
+  const result = JSON.parse(jsonMatch[0]);
   return result as StoryGeneration;
 }
 
@@ -163,8 +164,8 @@ async function generateStoriesFromInterviews() {
   console.log(`📚 Found ${interviews.length} interviews with transcripts\n`);
 
   // Ask for confirmation
-  console.log('⚠️  WARNING: This will use OpenAI API to analyze transcripts');
-  console.log(`   Estimated cost: ~$${(interviews.length * 0.05).toFixed(2)} (GPT-4)` );
+  console.log('⚠️  WARNING: This will use Anthropic API to analyze transcripts');
+  console.log(`   Estimated cost: ~$${(interviews.length * 0.02).toFixed(2)} (Claude Sonnet)` );
   console.log('\nProcessing interviews...\n');
 
   let successCount = 0;

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import OpenAI from 'openai'
+import Anthropic from '@anthropic-ai/sdk'
 
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -11,9 +11,9 @@ function getSupabase() {
 
 export async function POST(request: NextRequest) {
   try {
-    const apiKey = process.env.OPENAI_API_KEY
+    const apiKey = process.env.ANTHROPIC_API_KEY
     if (!apiKey) {
-      return NextResponse.json({ error: 'OPENAI_API_KEY not configured' }, { status: 500 })
+      return NextResponse.json({ error: 'ANTHROPIC_API_KEY not configured' }, { status: 500 })
     }
 
     const body = await request.json()
@@ -101,7 +101,14 @@ export async function POST(request: NextRequest) {
 
     const contextDoc = contextParts.join('\n')
 
-    const prompt = `You are writing a thematic overview summary for the Palm Island Community Company (PICC) annual report for FY ${fy_label}.
+    const anthropic = new Anthropic({ apiKey })
+
+    const response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-5-20250929',
+      max_tokens: 2000,
+      messages: [{
+        role: 'user',
+        content: `You are writing a thematic overview summary for the Palm Island Community Company (PICC) annual report for FY ${fy_label}.
 
 Based on the data below, produce a JSON response with this structure:
 {
@@ -127,21 +134,14 @@ Data:
 ${contextDoc}
 
 Respond with ONLY valid JSON, no markdown fences.`
-
-    const openai = new OpenAI({ apiKey })
-
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o',
-      max_tokens: 2000,
-      messages: [{ role: 'user', content: prompt }],
+      }],
     })
 
-    const text = completion.choices[0]?.message?.content || ''
+    const text = response.content[0].type === 'text' ? response.content[0].text : ''
     let overview
     try {
       overview = JSON.parse(text)
     } catch {
-      // Try to extract JSON from response
       const match = text.match(/\{[\s\S]*\}/)
       if (match) {
         overview = JSON.parse(match[0])

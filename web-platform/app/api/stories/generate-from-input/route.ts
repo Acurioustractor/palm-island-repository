@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import OpenAI from 'openai';
+import Anthropic from '@anthropic-ai/sdk';
 
 /**
  * POST /api/stories/generate-from-input
@@ -22,12 +22,12 @@ export async function POST(request: Request) {
       );
     }
 
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
-      return NextResponse.json({ error: 'OpenAI API key not configured' }, { status: 500 });
+      return NextResponse.json({ error: 'Anthropic API key not configured' }, { status: 500 });
     }
 
-    const openai = new OpenAI({ apiKey });
+    const anthropic = new Anthropic({ apiKey });
 
     let inputContent = '';
 
@@ -48,12 +48,10 @@ export async function POST(request: Request) {
       ? 'The storyteller is an ELDER - use respectful framing (Elder, Uncle/Aunty). Treat with utmost cultural sensitivity.'
       : '';
 
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o',
-      messages: [
-        {
-          role: 'system',
-          content: `You are a story writer for the Palm Island Community Company (PICC), an Indigenous community-controlled organisation in Queensland, Australia.
+    const response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-5-20250929',
+      max_tokens: 2000,
+      system: `You are a story writer for the Palm Island Community Company (PICC), an Indigenous community-controlled organisation in Queensland, Australia.
 
 Your task is to create a compelling, respectful community story from the provided input.
 
@@ -79,24 +77,26 @@ Respond in JSON format with these fields:
   "cultural_sensitivity_level": "low/medium/high",
   "elder_approval_needed": true/false,
   "related_service": "service name if mentioned, or null"
-}`
-        },
+}`,
+      messages: [
         {
           role: 'user',
           content: `Create a story from this input:\n\nStoryteller: ${storyteller_name || 'Community Member'}\n\n${inputContent}`
         }
       ],
-      response_format: { type: 'json_object' },
-      temperature: 0.7,
-      max_tokens: 2000,
     });
 
-    const content = response.choices[0]?.message?.content;
+    const content = response.content[0].type === 'text' ? response.content[0].text : '';
     if (!content) {
       return NextResponse.json({ error: 'No response from AI' }, { status: 500 });
     }
 
-    const story = JSON.parse(content);
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      return NextResponse.json({ error: 'Failed to parse AI response' }, { status: 500 });
+    }
+
+    const story = JSON.parse(jsonMatch[0]);
 
     return NextResponse.json({
       success: true,
