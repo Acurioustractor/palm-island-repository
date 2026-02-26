@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { StoryCardGrid } from './StoryCardGrid'
 import { ServiceInfoCard } from './ServiceInfoCard'
 import { TimelineDisplay } from './TimelineDisplay'
@@ -33,6 +34,7 @@ export function ToolResultRenderer({ toolName, result, darkMode = false }: ToolR
       return <QuoteCarousel quotes={data.quotes as QuoteData[]} darkMode={darkMode} />
 
     case 'getPhotoGallery':
+      if (!data.photos?.length) return null
       return <PhotoGalleryInline photos={data.photos as PhotoData[]} />
 
     case 'exploreKnowledgeGraph':
@@ -110,6 +112,10 @@ export function ToolResultRenderer({ toolName, result, darkMode = false }: ToolR
 
     case 'getCommunityVisions':
       if (data.visions?.length > 0 || data.elderVoices?.length > 0) return <CommunityVisionsDisplay data={data} darkMode={darkMode} />
+      return null
+
+    case 'escalateToHuman':
+      if (data.escalated) return <EscalationCard data={data} darkMode={darkMode} />
       return null
 
     default:
@@ -349,14 +355,9 @@ function ProjectDetail({ data, darkMode }: { data: any; darkMode?: boolean }) {
           <div className={`text-xs font-semibold uppercase tracking-wide mb-2 ${darkMode ? 'text-white/40' : 'text-gray-400'}`}>
             Videos ({data.videos.length})
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {data.videos.map((v: any, i: number) => (
-              <a key={i} href={v.url} target="_blank" rel="noreferrer" className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
-                darkMode ? 'hover:bg-white/[0.06] text-white/70' : 'hover:bg-gray-50 text-gray-700'
-              }`}>
-                <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" /></svg>
-                {v.title || `Video ${i + 1}`}
-              </a>
+              <InlineVideo key={i} url={v.url} title={v.title || `Video ${i + 1}`} darkMode={darkMode} />
             ))}
           </div>
         </div>
@@ -406,6 +407,75 @@ function ProjectList({ projects, darkMode }: { projects: any[]; darkMode?: boole
             </span>
           </div>
         ))}
+      </div>
+    </div>
+  )
+}
+
+// ─── Inline Video Player ────────────────────────────────────────────────────
+
+function InlineVideo({ url, title, darkMode }: { url: string; title: string; darkMode?: boolean }) {
+  const [playing, setPlaying] = useState(false)
+
+  // Detect YouTube/Vimeo/Descript vs direct video file
+  const youtubeMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([^&\s]+)/)
+  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/)
+  const descriptMatch = url.match(/share\.descript\.com\/(?:view|embed)\/([A-Za-z0-9]+)/)
+  const isEmbed = !!(youtubeMatch || vimeoMatch || descriptMatch)
+
+  const getEmbedUrl = () => {
+    if (youtubeMatch) return `https://www.youtube.com/embed/${youtubeMatch[1]}?autoplay=1&rel=0`
+    if (vimeoMatch) return `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1`
+    if (descriptMatch) return `https://share.descript.com/embed/${descriptMatch[1]}`
+    return url
+  }
+
+  if (isEmbed) {
+    return (
+      <div className="rounded-xl overflow-hidden">
+        {!playing ? (
+          <button
+            onClick={() => setPlaying(true)}
+            className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors rounded-xl ${
+              darkMode ? 'bg-white/[0.04] hover:bg-white/[0.08] text-white/70' : 'bg-gray-50 hover:bg-gray-100 text-gray-700'
+            }`}
+          >
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+              darkMode ? 'bg-white/[0.08]' : 'bg-gray-200'
+            }`}>
+              <svg className="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" /></svg>
+            </div>
+            <span className="text-sm font-medium">{title}</span>
+          </button>
+        ) : (
+          <div className="aspect-video">
+            <iframe
+              src={getEmbedUrl()}
+              title={title}
+              className="w-full h-full rounded-xl"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // Direct video file (.mp4 etc) — use native <video> tag
+  return (
+    <div className="rounded-xl overflow-hidden">
+      <video
+        controls
+        preload="metadata"
+        playsInline
+        className="w-full rounded-xl"
+        poster=""
+      >
+        <source src={url} type="video/mp4" />
+      </video>
+      <div className={`text-xs mt-1.5 px-1 ${darkMode ? 'text-white/40' : 'text-gray-500'}`}>
+        {title}
       </div>
     </div>
   )
@@ -1146,6 +1216,71 @@ function GrantsAndPartnershipsCard({ data, darkMode }: { data: any; darkMode?: b
 }
 
 // ─── Community Visions Component ────────────────────────────────────────────
+
+// ─── Escalation Card ─────────────────────────────────────────────────────────
+
+function EscalationCard({ data, darkMode }: { data: any; darkMode?: boolean }) {
+  const isCrisis = data.category === 'crisis'
+  const contacts = data.contacts as { phone: string; email: string; address: string; hours: string }
+  const crisisContacts = data.crisisContacts as Record<string, string> | null
+
+  return (
+    <div className={`my-3 rounded-2xl overflow-hidden border-2 ${
+      isCrisis
+        ? 'border-red-300 bg-red-50'
+        : darkMode ? 'border-picc-ochre/30 bg-white/[0.03]' : 'border-picc-ochre/30 bg-warm-50'
+    }`}>
+      <div className={`px-5 py-4 flex items-start gap-3 ${isCrisis ? 'bg-red-100' : darkMode ? 'bg-white/[0.04]' : 'bg-warm-100/50'}`}>
+        <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
+          isCrisis ? 'bg-red-200 text-red-700' : 'bg-picc-ochre/20 text-picc-ochre'
+        }`}>
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+          </svg>
+        </div>
+        <div>
+          <h3 className={`font-semibold text-sm ${isCrisis ? 'text-red-900' : darkMode ? 'text-white' : 'text-picc-earth'}`}>
+            {isCrisis ? 'Crisis Support' : 'Speak with the PICC Team'}
+          </h3>
+          <p className={`text-sm mt-1 ${isCrisis ? 'text-red-800' : darkMode ? 'text-white/70' : 'text-picc-earth-300'}`}>
+            {data.message}
+          </p>
+        </div>
+      </div>
+
+      {isCrisis && crisisContacts && (
+        <div className="px-5 py-3 bg-red-50 border-t border-red-200">
+          <div className="text-xs font-bold uppercase tracking-wide text-red-700 mb-2">24/7 Crisis Lines</div>
+          <div className="space-y-1.5">
+            {Object.entries(crisisContacts).map(([key, value]) => (
+              <a key={key} href={`tel:${value.replace(/\s/g, '')}`} className="flex items-center justify-between text-sm text-red-800 hover:text-red-900">
+                <span className="capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
+                <span className="font-semibold">{value}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className={`px-5 py-3 space-y-2 ${isCrisis ? 'border-t border-red-200' : darkMode ? 'border-t border-white/[0.06]' : 'border-t border-warm-200'}`}>
+        <div className={`text-xs font-bold uppercase tracking-wide mb-2 ${darkMode ? 'text-white/40' : 'text-gray-500'}`}>
+          Contact PICC
+        </div>
+        <a href={`tel:${contacts.phone.replace(/\s/g, '')}`} className={`flex items-center gap-2 text-sm font-medium ${darkMode ? 'text-white/80 hover:text-picc-ochre-300' : 'text-picc-earth hover:text-picc-ochre'}`}>
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+          {contacts.phone}
+        </a>
+        <a href={`mailto:${contacts.email}`} className={`flex items-center gap-2 text-sm ${darkMode ? 'text-white/60 hover:text-picc-ochre-300' : 'text-picc-earth-300 hover:text-picc-ochre'}`}>
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+          {contacts.email}
+        </a>
+        <p className={`text-xs ${darkMode ? 'text-white/30' : 'text-gray-400'}`}>
+          {contacts.hours}
+        </p>
+      </div>
+    </div>
+  )
+}
 
 function CommunityVisionsDisplay({ data, darkMode }: { data: any; darkMode?: boolean }) {
   return (

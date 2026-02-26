@@ -33,6 +33,11 @@ export function VideoEmbed({
     if (vimeoMatch) {
       return `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1`;
     }
+    // Descript
+    const descriptMatch = videoUrl.match(/share\.descript\.com\/(?:view|embed)\/([A-Za-z0-9]+)/);
+    if (descriptMatch) {
+      return `https://share.descript.com/embed/${descriptMatch[1]}`;
+    }
     return videoUrl;
   };
 
