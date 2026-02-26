@@ -8,6 +8,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { getStaticReportData } from './data-2024';
+import { getFinancials, parseFiscalYear } from '@/lib/financials/get-financials';
 
 function createServiceClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -274,12 +275,11 @@ export async function getReportData(fiscalYear?: string): Promise<ReportData> {
         .order('created_at', { ascending: false })
         .limit(6),
 
-      // Financials for the fiscal year
-      supabase
-        .from('annual_financials')
-        .select('total_income, total_expenditure, net_result, breakdown')
-        .eq('fiscal_year', fy)
-        .maybeSingle(),
+      // Financials for the fiscal year — use shared module with correct integer conversion
+      getFinancials({ fiscalYear: fy, limit: 1 }).then(records => ({
+        data: records[0] ?? null,
+        error: null,
+      })),
 
       // Innovation projects
       supabase
@@ -329,12 +329,19 @@ export async function getReportData(fiscalYear?: string): Promise<ReportData> {
       caption: p.caption || undefined,
     }));
 
-    const financials = financialsResult.data
+    const finRecord = financialsResult.data as import('@/lib/financials/get-financials').FinancialRecord | null
+    const financials = finRecord
       ? {
-          total_income: financialsResult.data.total_income,
-          total_expenditure: financialsResult.data.total_expenditure,
-          net_result: financialsResult.data.net_result,
-          breakdown: financialsResult.data.breakdown || [],
+          total_income: finRecord.total_income,
+          total_expenditure: finRecord.total_expenditure,
+          net_result: finRecord.net_result,
+          breakdown: Object.entries(finRecord.expense_breakdown).map(([category, amount]) => ({
+            category: category.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+            amount,
+            percentage: finRecord.total_expenditure > 0
+              ? Math.round((amount / finRecord.total_expenditure) * 100)
+              : 0,
+          })),
         }
       : null;
 

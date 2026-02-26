@@ -13,7 +13,8 @@ import Anthropic from '@anthropic-ai/sdk'
 import { aiCache, CACHE_TTL } from './cache'
 
 let _anthropic: Anthropic | null = null
-function getAnthropicClient() {
+function getAnthropicClient(): Anthropic | null {
+  if (!process.env.ANTHROPIC_API_KEY) return null
   if (!_anthropic) {
     _anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
   }
@@ -68,7 +69,13 @@ export async function expandQuery(
   }
 
   try {
-    const response = await getAnthropicClient().messages.create({
+    const client = getAnthropicClient()
+    if (!client) {
+      // No Anthropic key — use basic expansion (free)
+      return basicQueryExpansion(query)
+    }
+
+    const response = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 500,
       system: `You are a query expansion expert for a ${context}.

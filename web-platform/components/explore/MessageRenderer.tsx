@@ -58,8 +58,13 @@ export function MessageRenderer({ message, darkMode = false }: MessageRendererPr
           }
 
           if (part.type === 'text' && part.text) {
-            // Strip <follow-ups> tags — they're parsed separately for chip rendering
-            const cleanText = part.text.replace(/<follow-ups>[^<]*<\/follow-ups>/g, '').trim()
+            // Strip <think> tags (MiniMax reasoning) and <follow-ups> tags (parsed separately)
+            // Also strip incomplete <think> tags during streaming (no closing tag yet)
+            const cleanText = part.text
+              .replace(/<think>[\s\S]*?<\/think>/g, '')
+              .replace(/<think>[\s\S]*$/g, '')
+              .replace(/<follow-ups>[^<]*<\/follow-ups>/g, '')
+              .trim()
             if (!cleanText) return null
             return (
               <div

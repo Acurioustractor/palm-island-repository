@@ -118,6 +118,10 @@ export function ToolResultRenderer({ toolName, result, darkMode = false }: ToolR
       if (data.escalated) return <EscalationCard data={data} darkMode={darkMode} />
       return null
 
+    case 'collectContactDetails':
+      // Contact form is rendered by ContactOptIn component in chat page
+      return null
+
     default:
       return null
   }
@@ -489,10 +493,24 @@ function FinancialSummaryCard({ data, darkMode }: { data: any; darkMode?: boolea
     total_expenditure?: number
     surplus_deficit?: number
     total_assets?: number
+    net_assets?: number
+    audited?: boolean
+    revenue_growth?: number | null
+    expenditure_growth?: number | null
   }>
+  const expenseBreakdown = data.expense_breakdown as Array<{
+    category: string; label: string; amount: number; percentage: number; yoy_change?: number | null
+  }> | undefined
+  const ratios = data.ratios as Array<{
+    label: string; value: number; status: string
+  }> | undefined
 
   const fmt = (n: number | undefined) =>
-    n != null ? `$${(n / 1000).toFixed(0)}K` : '—'
+    n != null
+      ? Math.abs(n) >= 1_000_000
+        ? `${n < 0 ? '-' : ''}$${(Math.abs(n) / 1_000_000).toFixed(1)}M`
+        : `${n < 0 ? '-' : ''}$${(Math.abs(n) / 1000).toFixed(0)}K`
+      : '—'
 
   const latest = financials[0]
   const prev = financials[1]
@@ -501,6 +519,11 @@ function FinancialSummaryCard({ data, darkMode }: { data: any; darkMode?: boolea
     if (current == null || previous == null || previous === 0) return null
     return ((current - previous) / previous * 100).toFixed(1)
   }
+
+  // Colours for stacked expense bar
+  const expenseColors = [
+    '#D97706', '#2563EB', '#059669', '#7C3AED', '#DC2626', '#0891B2',
+  ]
 
   return (
     <div className={`my-3 rounded-2xl overflow-hidden border ${darkMode ? 'bg-white/[0.03] border-white/[0.08]' : 'bg-white border-gray-200'}`}>
@@ -511,14 +534,17 @@ function FinancialSummaryCard({ data, darkMode }: { data: any; darkMode?: boolea
         {[
           { label: 'Revenue', value: latest?.total_revenue, prevValue: prev?.total_revenue },
           { label: 'Expenditure', value: latest?.total_expenditure, prevValue: prev?.total_expenditure },
-          { label: 'Surplus/Deficit', value: latest?.surplus_deficit, prevValue: prev?.surplus_deficit },
-          { label: 'Total Assets', value: latest?.total_assets, prevValue: prev?.total_assets },
+          { label: 'Net Result', value: latest?.surplus_deficit, prevValue: prev?.surplus_deficit, colored: true },
+          { label: 'Net Assets', value: latest?.net_assets, prevValue: prev?.net_assets },
         ].map((stat) => {
           const change = yoyChange(stat.value, stat.prevValue)
+          const valueColor = stat.colored && stat.value != null
+            ? stat.value >= 0 ? 'text-green-600' : 'text-red-500'
+            : darkMode ? 'text-white' : 'text-gray-900'
           return (
             <div key={stat.label}>
               <div className={`text-xs ${darkMode ? 'text-white/40' : 'text-gray-500'}`}>{stat.label}</div>
-              <div className={`text-lg font-bold mt-0.5 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              <div className={`text-lg font-bold mt-0.5 ${valueColor}`}>
                 {fmt(stat.value)}
               </div>
               {change && (
@@ -532,10 +558,109 @@ function FinancialSummaryCard({ data, darkMode }: { data: any; darkMode?: boolea
           )
         })}
       </div>
+
+      {/* Expense breakdown stacked bar */}
+      {expenseBreakdown && expenseBreakdown.length > 0 && (
+        <div className={`px-5 py-3 border-t ${darkMode ? 'border-white/[0.06]' : 'border-gray-100'}`}>
+          <div className={`text-xs font-semibold uppercase tracking-wide mb-2 ${darkMode ? 'text-white/40' : 'text-gray-400'}`}>
+            Expense Breakdown
+          </div>
+          {/* Stacked bar */}
+          <div className="flex h-4 rounded-full overflow-hidden mb-3">
+            {expenseBreakdown.map((item, i) => (
+              <div
+                key={item.category}
+                style={{ width: `${item.percentage}%`, backgroundColor: expenseColors[i % expenseColors.length] }}
+                title={`${item.label}: ${fmt(item.amount)} (${item.percentage}%)`}
+              />
+            ))}
+          </div>
+          {/* Legend */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1.5">
+            {expenseBreakdown.map((item, i) => (
+              <div key={item.category} className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: expenseColors[i % expenseColors.length] }} />
+                <span className={`text-xs flex-1 truncate ${darkMode ? 'text-white/60' : 'text-gray-600'}`}>{item.label}</span>
+                <span className={`text-xs font-medium tabular-nums ${darkMode ? 'text-white/80' : 'text-gray-800'}`}>{item.percentage}%</span>
+                {item.yoy_change != null && (
+                  <span className={`text-[10px] ${item.yoy_change >= 0 ? 'text-red-400' : 'text-green-500'}`}>
+                    {item.yoy_change >= 0 ? '+' : ''}{item.yoy_change}%
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Ratios */}
+      {ratios && ratios.length > 0 && (
+        <div className={`px-5 py-3 border-t ${darkMode ? 'border-white/[0.06]' : 'border-gray-100'}`}>
+          <div className={`text-xs font-semibold uppercase tracking-wide mb-2 ${darkMode ? 'text-white/40' : 'text-gray-400'}`}>
+            Key Ratios
+          </div>
+          <div className="flex flex-wrap gap-3">
+            {ratios.map((r) => {
+              const statusColor = r.status === 'healthy' ? 'bg-green-100 text-green-800'
+                : r.status === 'watch' ? 'bg-amber-100 text-amber-800'
+                : 'bg-red-100 text-red-800'
+              return (
+                <div key={r.label} className={`rounded-lg px-3 py-2 ${darkMode ? 'bg-white/[0.04]' : 'bg-gray-50'}`}>
+                  <div className={`text-xs ${darkMode ? 'text-white/40' : 'text-gray-500'}`}>{r.label}</div>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className={`text-sm font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {typeof r.value === 'number' && r.value < 10 ? r.value.toFixed(1) : r.value}
+                      {r.label.includes('%') || r.label.includes('Ratio') && r.value > 10 ? '%' : ''}
+                    </span>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${statusColor}`}>
+                      {r.status}
+                    </span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Trend rows (multi-year) */}
       {financials.length > 1 && (
         <div className={`px-5 py-3 border-t ${darkMode ? 'border-white/[0.06]' : 'border-gray-100'}`}>
-          <div className={`text-xs ${darkMode ? 'text-white/40' : 'text-gray-400'}`}>
-            Showing {financials.length} year{financials.length > 1 ? 's' : ''} of data
+          <div className={`text-xs font-semibold uppercase tracking-wide mb-2 ${darkMode ? 'text-white/40' : 'text-gray-400'}`}>
+            Year-over-Year
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className={darkMode ? 'text-white/40' : 'text-gray-400'}>
+                  <th className="text-left py-1 pr-3 font-medium">Year</th>
+                  <th className="text-right py-1 px-2 font-medium">Revenue</th>
+                  <th className="text-right py-1 px-2 font-medium">Expenditure</th>
+                  <th className="text-right py-1 pl-2 font-medium">Net Result</th>
+                </tr>
+              </thead>
+              <tbody>
+                {financials.map((f) => (
+                  <tr key={f.fiscal_year} className={darkMode ? 'text-white/70' : 'text-gray-700'}>
+                    <td className="py-1 pr-3 font-medium">{f.fiscal_year}</td>
+                    <td className="text-right py-1 px-2 tabular-nums">{fmt(f.total_revenue)}</td>
+                    <td className="text-right py-1 px-2 tabular-nums">{fmt(f.total_expenditure)}</td>
+                    <td className={`text-right py-1 pl-2 tabular-nums font-medium ${
+                      (f.surplus_deficit ?? 0) >= 0 ? 'text-green-600' : 'text-red-500'
+                    }`}>{fmt(f.surplus_deficit)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Audit status */}
+      {data.auditor_name && (
+        <div className={`px-5 py-2 border-t ${darkMode ? 'border-white/[0.06]' : 'border-gray-100'}`}>
+          <div className={`text-xs ${darkMode ? 'text-white/30' : 'text-gray-400'}`}>
+            Audited by {data.auditor_name}
           </div>
         </div>
       )}

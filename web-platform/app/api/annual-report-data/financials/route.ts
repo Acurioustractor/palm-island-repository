@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { getFinancials, parseFiscalYear } from '@/lib/financials/get-financials'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,7 +13,6 @@ function getSupabase() {
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = getSupabase()
     const { searchParams } = new URL(request.url)
     const fy = searchParams.get('fy')
 
@@ -20,18 +20,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'fiscal year (fy) required' }, { status: 400 })
     }
 
-    const fiscalYear = parseInt(fy)
+    const fiscalYear = parseFiscalYear(fy)
+    const records = await getFinancials({ fiscalYear, limit: 1 })
 
-    const { data, error } = await supabase
-      .from('annual_financials')
-      .select('*')
-      .eq('fiscal_year', fiscalYear)
-      .limit(1)
-      .maybeSingle()
-
-    if (error) throw error
-
-    return NextResponse.json({ financials: data, fiscal_year: fiscalYear })
+    return NextResponse.json({ financials: records[0] ?? null, fiscal_year: fiscalYear })
   } catch (error: any) {
     console.error('Financials GET error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })

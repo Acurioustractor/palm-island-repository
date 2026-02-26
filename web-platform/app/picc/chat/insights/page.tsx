@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, MessageSquare, ThumbsUp, ThumbsDown, TrendingUp, Clock, Users } from 'lucide-react'
+import { ArrowLeft, MessageSquare, ThumbsUp, TrendingUp, Clock, Users, AlertCircle, Phone, Check } from 'lucide-react'
 
 interface AnalyticsData {
   period: { days: number; since: string }
@@ -28,6 +28,24 @@ interface AnalyticsData {
     startedAt: string
     firstMessage: string
   }>
+  unresolvedSessions: Array<{
+    sessionId: string
+    firstMessage: string
+    audience: string
+    sentiment: string
+    hasContact: boolean
+    startedAt: string
+  }>
+  contactRequests: Array<{
+    sessionId: string
+    name: string
+    contactMethod: string
+    reason: string
+    firstMessage: string
+    startedAt: string
+    followedUp: boolean
+    followedUpAt: string | null
+  }>
 }
 
 function StatCard({ label, value, icon: Icon, subtext }: {
@@ -52,18 +70,27 @@ function StatCard({ label, value, icon: Icon, subtext }: {
   )
 }
 
-function BarChart({ data, maxBars = 10 }: { data: Array<{ label: string; value: number }>; maxBars?: number }) {
+function BarChart({ data, maxBars = 10, onBarClick, activeLabel }: {
+  data: Array<{ label: string; value: number }>
+  maxBars?: number
+  onBarClick?: (label: string) => void
+  activeLabel?: string | null
+}) {
   const items = data.slice(0, maxBars)
   const maxVal = Math.max(...items.map(d => d.value), 1)
 
   return (
     <div className="space-y-2">
       {items.map((item) => (
-        <div key={item.label} className="flex items-center gap-3">
+        <div
+          key={item.label}
+          className={`flex items-center gap-3 ${onBarClick ? 'cursor-pointer hover:bg-warm-50 -mx-2 px-2 py-0.5 rounded-lg transition-colors' : ''} ${activeLabel === item.label ? 'bg-picc-ochre/5 ring-1 ring-picc-ochre/20 -mx-2 px-2 py-0.5 rounded-lg' : ''}`}
+          onClick={() => onBarClick?.(item.label)}
+        >
           <span className="text-xs text-picc-earth-300 w-28 truncate text-right">{item.label}</span>
           <div className="flex-1 h-6 bg-warm-50 rounded-full overflow-hidden">
             <div
-              className="h-full bg-picc-ochre/70 rounded-full transition-all duration-500"
+              className={`h-full rounded-full transition-all duration-500 ${activeLabel === item.label ? 'bg-picc-ochre' : 'bg-picc-ochre/70'}`}
               style={{ width: `${(item.value / maxVal) * 100}%` }}
             />
           </div>
@@ -104,6 +131,8 @@ export default function ChatInsightsPage() {
   const [data, setData] = useState<AnalyticsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [days, setDays] = useState(7)
+  const [topicFilter, setTopicFilter] = useState<string | null>(null)
+  const [followUpLoading, setFollowUpLoading] = useState<string | null>(null)
 
   useEffect(() => {
     setLoading(true)
@@ -120,6 +149,39 @@ export default function ChatInsightsPage() {
     negative: 'bg-red-100 text-red-800',
     urgent: 'bg-orange-100 text-orange-800',
   }
+
+  const handleMarkFollowedUp = async (sessionId: string) => {
+    setFollowUpLoading(sessionId)
+    try {
+      await fetch('/api/chat/contact/follow-up', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId }),
+      })
+      // Update local state
+      if (data) {
+        setData({
+          ...data,
+          contactRequests: data.contactRequests.map(c =>
+            c.sessionId === sessionId
+              ? { ...c, followedUp: true, followedUpAt: new Date().toISOString() }
+              : c
+          ),
+        })
+      }
+    } catch {
+      // Non-fatal
+    } finally {
+      setFollowUpLoading(null)
+    }
+  }
+
+  // Filter recent sessions by selected topic (searches firstMessage text)
+  const filteredSessions = topicFilter && data
+    ? data.recentSessions.filter(s =>
+        s.firstMessage.toLowerCase().includes(topicFilter.toLowerCase())
+      )
+    : data?.recentSessions || []
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-warm-50 to-cream">
@@ -179,11 +241,25 @@ export default function ChatInsightsPage() {
 
             {/* Two column layout */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Top queries */}
+              {/* Top topics (clickable for drill-down) */}
               <div className="bg-white rounded-2xl border border-warm-200 p-5">
-                <h2 className="text-sm font-semibold text-picc-earth uppercase tracking-wide mb-4">Top Topics</h2>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-sm font-semibold text-picc-earth uppercase tracking-wide">Top Topics</h2>
+                  {topicFilter && (
+                    <button
+                      onClick={() => setTopicFilter(null)}
+                      className="text-xs text-picc-ochre hover:underline"
+                    >
+                      Clear filter
+                    </button>
+                  )}
+                </div>
                 {data.topTopics.length > 0 ? (
-                  <BarChart data={data.topTopics.map(t => ({ label: t.topic, value: t.count }))} />
+                  <BarChart
+                    data={data.topTopics.map(t => ({ label: t.topic, value: t.count }))}
+                    onBarClick={(label) => setTopicFilter(topicFilter === label ? null : label)}
+                    activeLabel={topicFilter}
+                  />
                 ) : (
                   <p className="text-sm text-picc-earth-200">No classified topics yet. Run the nightly analysis script.</p>
                 )}
@@ -235,14 +311,105 @@ export default function ChatInsightsPage() {
               </div>
             </div>
 
-            {/* Recent sessions table */}
+            {/* Unanswered Questions panel */}
+            {data.unresolvedSessions && data.unresolvedSessions.length > 0 && (
+              <div className="bg-white rounded-2xl border border-red-200 overflow-hidden">
+                <div className="px-5 py-4 border-b border-red-100 bg-red-50/50 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-red-500" />
+                  <h2 className="text-sm font-semibold text-picc-earth uppercase tracking-wide">
+                    Unanswered Questions ({data.unresolvedSessions.length})
+                  </h2>
+                </div>
+                <div className="divide-y divide-warm-100 max-h-[350px] overflow-y-auto">
+                  {data.unresolvedSessions.map((s) => (
+                    <div key={s.sessionId} className="px-5 py-3 flex items-center gap-4">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-picc-earth">
+                          {s.firstMessage || '(empty)'}
+                        </p>
+                        <p className="text-xs text-picc-earth-200 mt-0.5">
+                          {new Date(s.startedAt).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                          {s.sentiment && <span className={`ml-2 px-1.5 py-0.5 rounded text-[10px] ${sentimentColors[s.sentiment] || 'bg-gray-100 text-gray-700'}`}>{s.sentiment}</span>}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {s.hasContact && (
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-200">
+                            Has contact
+                          </span>
+                        )}
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-warm-50 text-picc-earth-300 capitalize">
+                          {s.audience}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Contact Follow-ups panel */}
+            {data.contactRequests && data.contactRequests.length > 0 && (
+              <div className="bg-white rounded-2xl border border-picc-ochre/30 overflow-hidden">
+                <div className="px-5 py-4 border-b border-picc-ochre/20 bg-picc-ochre/5 flex items-center gap-2">
+                  <Phone className="w-4 h-4 text-picc-ochre" />
+                  <h2 className="text-sm font-semibold text-picc-earth uppercase tracking-wide">
+                    Contact Follow-ups ({data.contactRequests.filter(c => !c.followedUp).length} pending)
+                  </h2>
+                </div>
+                <div className="divide-y divide-warm-100 max-h-[400px] overflow-y-auto">
+                  {data.contactRequests.map((c) => (
+                    <div key={c.sessionId} className={`px-5 py-3 ${c.followedUp ? 'opacity-60' : ''}`}>
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-picc-earth">{c.name}</span>
+                            <span className="text-xs text-picc-earth-200">{c.contactMethod}</span>
+                          </div>
+                          <p className="text-sm text-picc-earth-300 mt-0.5 truncate">
+                            {c.firstMessage || '(no message)'}
+                          </p>
+                          <p className="text-xs text-picc-earth-200 mt-0.5">
+                            {new Date(c.startedAt).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                            {c.reason && <span className="ml-2 text-picc-earth-200">· {c.reason}</span>}
+                          </p>
+                        </div>
+                        <div className="flex-shrink-0">
+                          {c.followedUp ? (
+                            <span className="flex items-center gap-1 text-xs text-green-700 px-2 py-1 rounded-lg bg-green-50">
+                              <Check className="w-3 h-3" />
+                              Done
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() => handleMarkFollowedUp(c.sessionId)}
+                              disabled={followUpLoading === c.sessionId}
+                              className="text-xs px-3 py-1.5 rounded-lg bg-picc-ochre text-white hover:bg-picc-ochre-600 disabled:opacity-50 transition-colors"
+                            >
+                              {followUpLoading === c.sessionId ? 'Saving...' : 'Mark followed up'}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Recent sessions table (filtered by topic when active) */}
             <div className="bg-white rounded-2xl border border-warm-200 overflow-hidden">
-              <div className="px-5 py-4 border-b border-warm-200">
-                <h2 className="text-sm font-semibold text-picc-earth uppercase tracking-wide">Recent Sessions</h2>
+              <div className="px-5 py-4 border-b border-warm-200 flex items-center justify-between">
+                <h2 className="text-sm font-semibold text-picc-earth uppercase tracking-wide">
+                  {topicFilter ? `Sessions about "${topicFilter}"` : 'Recent Sessions'}
+                </h2>
+                {topicFilter && (
+                  <span className="text-xs text-picc-earth-200">{filteredSessions.length} results</span>
+                )}
               </div>
               <div className="divide-y divide-warm-100 max-h-[400px] overflow-y-auto">
-                {data.recentSessions.length > 0 ? (
-                  data.recentSessions.map((s) => (
+                {filteredSessions.length > 0 ? (
+                  filteredSessions.map((s) => (
                     <div key={s.sessionId} className="px-5 py-3 flex items-center gap-4">
                       <div className="flex-1 min-w-0">
                         <p className="text-sm text-picc-earth truncate">
@@ -260,7 +427,10 @@ export default function ChatInsightsPage() {
                   ))
                 ) : (
                   <div className="px-5 py-8 text-center text-sm text-picc-earth-200">
-                    No chat sessions recorded yet. Sessions will appear here once users interact with Ask Palm AI.
+                    {topicFilter
+                      ? `No sessions found matching "${topicFilter}".`
+                      : 'No chat sessions recorded yet. Sessions will appear here once users interact with Ask Palm AI.'
+                    }
                   </div>
                 )}
               </div>

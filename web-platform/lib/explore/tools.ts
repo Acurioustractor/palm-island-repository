@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { createClient } from '@supabase/supabase-js'
 import { buildKnowledgeGraph } from '@/lib/ai/knowledge-graph'
 import { checkCompleteness, type CompletenessReport, type ServiceCompleteness } from '@/lib/content-readiness/check-completeness'
+import { getFinancials, formatFiscalYear, type FinancialRecord } from '@/lib/financials/get-financials'
 
 // Zod v4's toJSONSchema() produces valid JSON Schema but the AI SDK tool()
 // function doesn't auto-convert Zod v4 schemas correctly for Anthropic's API.
@@ -1057,26 +1058,118 @@ export const getServiceMetrics = defineTool({
 
 const getFinancialSummarySchema = z.object({
   fiscalYear: z.string().optional().describe('Fiscal year (e.g. "2023-24"). Defaults to latest.'),
+  focus: z.enum(['overview', 'expenses', 'trends', 'ratios']).default('overview')
+    .describe('What to focus on: overview (headline numbers + breakdown %), expenses (6-category detail with YoY), trends (all years with growth rates), ratios (labour %, admin %, current ratio)'),
 })
 
 type GetFinancialSummaryInput = z.infer<typeof getFinancialSummarySchema>
 
+function pct(part: number, whole: number): number {
+  return whole > 0 ? Math.round((part / whole) * 1000) / 10 : 0
+}
+
+function yoyGrowth(current: number, previous: number): number | null {
+  if (!previous || previous === 0) return null
+  return Math.round(((current - previous) / previous) * 1000) / 10
+}
+
 export const getFinancialSummary = defineTool({
-  description: 'Get PICC financial summary — revenue, expenditure, and breakdown by category.',
+  description: 'Get PICC financial summary — revenue, expenditure, expense breakdown, trends, and ratios. Use focus=overview for headline numbers, focus=expenses for category detail, focus=trends for multi-year growth, focus=ratios for health indicators.',
   parameters: getFinancialSummarySchema,
   execute: async (input: GetFinancialSummaryInput) => {
-    const { fiscalYear } = input
-    const supabase = getSupabase()
+    const { fiscalYear, focus } = input
 
-    let query = supabase
-      .from('annual_financials')
-      .select('*')
-      .order('fiscal_year', { ascending: false })
-      .limit(3)
-    if (fiscalYear) query = query.eq('fiscal_year', fiscalYear)
-    const { data } = await query
+    const limit = focus === 'trends' ? 10 : 3
+    const records = await getFinancials({ fiscalYear, limit })
 
-    return { financials: data || [], count: data?.length || 0 }
+    if (records.length === 0) {
+      return { financials: [], count: 0 }
+    }
+
+    const latest = records[0]
+    const prev = records[1] || null
+
+    // Build expense breakdown with percentages
+    const breakdownEntries = Object.entries(latest.expense_breakdown).map(([key, amount]) => ({
+      category: key,
+      label: key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+      amount,
+      percentage: pct(amount, latest.total_expenditure),
+      yoy_change: prev ? yoyGrowth(amount, (prev.expense_breakdown as Record<string, number>)[key]) : null,
+    })).sort((a, b) => b.amount - a.amount)
+
+    // Base financial row shape for the renderer
+    const toFinancialRow = (r: FinancialRecord) => ({
+      fiscal_year: r.fiscal_year_display,
+      total_revenue: r.total_income,
+      total_expenditure: r.total_expenditure,
+      surplus_deficit: r.net_result,
+      total_assets: r.total_assets,
+      net_assets: r.net_assets,
+      audited: r.audited,
+      ...r.expense_breakdown,
+    })
+
+    if (focus === 'overview') {
+      return {
+        financials: records.map(toFinancialRow),
+        expense_breakdown: breakdownEntries,
+        count: records.length,
+      }
+    }
+
+    if (focus === 'expenses') {
+      return {
+        financials: [toFinancialRow(latest)],
+        expense_breakdown: breakdownEntries,
+        count: 1,
+      }
+    }
+
+    if (focus === 'trends') {
+      const trendRows = records.map((r, i) => {
+        const prevRecord = records[i + 1] || null
+        return {
+          ...toFinancialRow(r),
+          revenue_growth: prevRecord ? yoyGrowth(r.total_income, prevRecord.total_income) : null,
+          expenditure_growth: prevRecord ? yoyGrowth(r.total_expenditure, prevRecord.total_expenditure) : null,
+        }
+      })
+      return {
+        financials: trendRows,
+        expense_breakdown: breakdownEntries,
+        count: trendRows.length,
+        summary: records.length >= 2
+          ? `Revenue ${yoyGrowth(records[0].total_income, records[records.length - 1].total_income) ?? 0}% over ${records.length} years`
+          : null,
+      }
+    }
+
+    // focus === 'ratios'
+    const labourRatio = pct(latest.expense_breakdown.labour_costs, latest.total_expenditure)
+    const adminRatio = pct(latest.expense_breakdown.administration_expenses, latest.total_expenditure)
+    const currentRatio = latest.total_liabilities > 0
+      ? Math.round((latest.total_assets / latest.total_liabilities) * 100) / 100
+      : null
+
+    const ratioHealth = (label: string, value: number, thresholds: { good: [number, number]; warn: [number, number] }) => {
+      const status = value >= thresholds.good[0] && value <= thresholds.good[1] ? 'healthy'
+        : value >= thresholds.warn[0] && value <= thresholds.warn[1] ? 'watch' : 'concern'
+      return { label, value, status }
+    }
+
+    return {
+      financials: [toFinancialRow(latest)],
+      expense_breakdown: breakdownEntries,
+      ratios: [
+        ratioHealth('Labour Cost Ratio', labourRatio, { good: [50, 65], warn: [40, 70] }),
+        ratioHealth('Admin Overhead', adminRatio, { good: [10, 20], warn: [5, 30] }),
+        ...(currentRatio != null ? [ratioHealth('Current Ratio (Assets/Liabilities)', currentRatio, { good: [1.2, 3], warn: [1, 5] })] : []),
+      ],
+      audited: latest.audited,
+      auditor_name: latest.auditor_name,
+      count: 1,
+    }
   },
 })
 
@@ -1797,6 +1890,28 @@ export const escalateToHuman = defineTool({
   },
 })
 
+// ─── collectContactDetails ───────────────────────────────────────────────────
+
+const collectContactDetailsSchema = z.object({
+  reason: z.string().describe('Why the person wants to leave details (e.g. "wants to donate", "partnership interest", "volunteer")'),
+  interest: z.string().optional().describe('What they are interested in (e.g. "recycling program partnership", "donation")'),
+})
+
+type CollectContactDetailsInput = z.infer<typeof collectContactDetailsSchema>
+
+export const collectContactDetails = defineTool({
+  description: 'Offer the user a form to leave their contact details so PICC can follow up. Use when someone wants to donate, partner, volunteer, leave their details, get involved, or otherwise connect with PICC. Do NOT tell them you cannot collect details — use this tool instead.',
+  parameters: collectContactDetailsSchema,
+  execute: async (input: CollectContactDetailsInput) => {
+    return {
+      collectContact: true,
+      reason: input.reason,
+      interest: input.interest,
+      message: 'Great — you can leave your details below and someone from PICC will be in touch.',
+    }
+  },
+})
+
 // ─── Export all tools ────────────────────────────────────────────────────────
 
 export const exploreTools = {
@@ -1825,4 +1940,5 @@ export const exploreTools = {
   getImmersiveStories,
   getGrantsAndPartnerships,
   escalateToHuman,
+  collectContactDetails,
 }

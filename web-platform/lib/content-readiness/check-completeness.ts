@@ -1,4 +1,5 @@
 import { createServerSupabase } from '@/lib/supabase/client'
+import { parseFiscalYear } from '@/lib/financials/get-financials'
 
 export type CompletenessStatus = 'green' | 'amber' | 'red'
 
@@ -58,8 +59,8 @@ async function checkServiceCompleteness(
     supabase
       .from('service_metrics')
       .select('id', { count: 'exact', head: true })
-      .eq('service_id', service.id)
-      .eq('fiscal_year', CURRENT_FY),
+      .eq('organization_service_id', service.id)
+      .eq('fiscal_year', parseFiscalYear(CURRENT_FY)),
     supabase
       .from('stories')
       .select('id', { count: 'exact', head: true })

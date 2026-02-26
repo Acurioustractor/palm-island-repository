@@ -5,7 +5,7 @@ import { DefaultChatTransport } from 'ai'
 import { useState, useRef, useEffect, useCallback, FormEvent, useMemo, memo } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Loader2, ArrowUp, Menu, X, ThumbsUp, ThumbsDown, Mic, MicOff } from 'lucide-react'
+import { Loader2, ArrowUp, Menu, X, ThumbsUp, ThumbsDown, Mic, MicOff, Send } from 'lucide-react'
 import { MessageRenderer } from '@/components/explore/MessageRenderer'
 import ChatSourceCards from '@/components/chat/ChatSourceCards'
 import ChatRelatedContent from '@/components/chat/ChatRelatedContent'
@@ -132,11 +132,18 @@ function useVoiceInput(onResult: (text: string) => void) {
 
 // ─── Feedback Component ─────────────────────────────────────────────────────
 
-function FeedbackButtons({ sessionId, messageIndex }: { sessionId: string; messageIndex: number }) {
+function FeedbackButtons({ sessionId, messageIndex, onNegativeFeedback }: {
+  sessionId: string
+  messageIndex: number
+  onNegativeFeedback?: () => void
+}) {
   const [submitted, setSubmitted] = useState<'helpful' | 'not_helpful' | null>(null)
 
   const submit = async (rating: 'helpful' | 'not_helpful') => {
     setSubmitted(rating)
+    if (rating === 'not_helpful' && onNegativeFeedback) {
+      onNegativeFeedback()
+    }
     try {
       await fetch('/api/chat/feedback', {
         method: 'POST',
@@ -178,7 +185,103 @@ function FeedbackButtons({ sessionId, messageIndex }: { sessionId: string; messa
   )
 }
 
+// ─── Contact Opt-In Component ───────────────────────────────────────────────
+
+function ContactOptIn({ sessionId, reason }: { sessionId: string; reason: 'negative_feedback' | 'escalation' | 'contact_interest' }) {
+  const [state, setState] = useState<'idle' | 'form' | 'submitting' | 'submitted' | 'dismissed'>('form')
+  const [name, setName] = useState('')
+  const [phoneOrEmail, setPhoneOrEmail] = useState('')
+
+  const handleSubmit = async () => {
+    if (!name.trim() || !phoneOrEmail.trim()) return
+    setState('submitting')
+    try {
+      await fetch('/api/chat/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId,
+          name: name.trim(),
+          phoneOrEmail: phoneOrEmail.trim(),
+          reason,
+        }),
+      })
+      setState('submitted')
+    } catch {
+      setState('form')
+    }
+  }
+
+  if (state === 'dismissed' || state === 'idle') return null
+
+  if (state === 'submitted') {
+    return (
+      <div className="ml-11 mt-3 px-4 py-3 rounded-2xl bg-green-50 border border-green-200">
+        <p className="text-sm text-green-800">Thanks — someone from PICC will be in touch.</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="ml-11 mt-3 px-4 py-4 rounded-2xl bg-warm-50 border border-warm-200">
+      <p className="text-sm font-medium text-picc-earth mb-1">Want us to get back to you?</p>
+      <p className="text-xs text-picc-earth-300 mb-3">Leave your details and we&apos;ll follow up.</p>
+      <div className="space-y-2">
+        <input
+          type="text"
+          placeholder="Name"
+          value={name}
+          onChange={e => setName(e.target.value)}
+          className="w-full px-3 py-2 rounded-lg border border-warm-200 bg-white text-sm text-picc-earth placeholder:text-picc-earth-200 focus:outline-none focus:border-picc-ochre focus:ring-2 focus:ring-picc-ochre/10"
+        />
+        <input
+          type="text"
+          placeholder="Phone or email"
+          value={phoneOrEmail}
+          onChange={e => setPhoneOrEmail(e.target.value)}
+          className="w-full px-3 py-2 rounded-lg border border-warm-200 bg-white text-sm text-picc-earth placeholder:text-picc-earth-200 focus:outline-none focus:border-picc-ochre focus:ring-2 focus:ring-picc-ochre/10"
+        />
+      </div>
+      <div className="flex gap-2 mt-3">
+        <button
+          onClick={handleSubmit}
+          disabled={!name.trim() || !phoneOrEmail.trim() || state === 'submitting'}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-picc-ochre text-white text-xs font-medium hover:bg-picc-ochre-600 disabled:opacity-40 transition-colors"
+        >
+          <Send className="w-3 h-3" />
+          {state === 'submitting' ? 'Sending...' : 'Send'}
+        </button>
+        <button
+          onClick={() => setState('dismissed')}
+          className="px-3 py-1.5 rounded-lg text-xs text-picc-earth-300 hover:bg-warm-100 transition-colors"
+        >
+          No thanks
+        </button>
+      </div>
+    </div>
+  )
+}
+
 // ─── Memoised Message ───────────────────────────────────────────────────────
+
+// Detect if a message contains an escalateToHuman or collectContactDetails tool invocation
+function hasContactTrigger(message: import('ai').UIMessage): 'escalation' | 'contact_interest' | null {
+  for (const p of message.parts) {
+    const part = p as Record<string, unknown>
+    if (typeof part.type !== 'string') continue
+    // Check all possible AI SDK formats
+    const toolNames = ['escalateToHuman', 'collectContactDetails']
+    for (const toolName of toolNames) {
+      if (part.type === `tool-${toolName}`) return toolName === 'escalateToHuman' ? 'escalation' : 'contact_interest'
+      if (part.toolName === toolName) return toolName === 'escalateToHuman' ? 'escalation' : 'contact_interest'
+      if (part.type === 'tool-invocation') {
+        const inv = part.toolInvocation as Record<string, unknown> | undefined
+        if (inv?.toolName === toolName) return toolName === 'escalateToHuman' ? 'escalation' : 'contact_interest'
+      }
+    }
+  }
+  return null
+}
 
 const MemoMessage = memo(function MemoMessage({
   message,
@@ -187,6 +290,8 @@ const MemoMessage = memo(function MemoMessage({
   sessionId,
   messageIndex,
   onFollowUp,
+  sessionHasEscalation,
+  sessionContactTrigger,
 }: {
   message: import('ai').UIMessage
   isLast: boolean
@@ -194,7 +299,11 @@ const MemoMessage = memo(function MemoMessage({
   sessionId: string
   messageIndex: number
   onFollowUp?: (text: string) => void
+  sessionHasEscalation: boolean
+  sessionContactTrigger: 'escalation' | 'contact_interest' | null
 }) {
+  const [showContactOptIn, setShowContactOptIn] = useState(false)
+
   const sources = useMemo(
     () => message.role === 'assistant' ? extractSourcesFromMessage(message) : [],
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -206,6 +315,12 @@ const MemoMessage = memo(function MemoMessage({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [message.id, message.parts.length, isLast]
   )
+
+  // Show contact opt-in on the last assistant message if escalation or contact collection detected
+  const showEscalationForm = message.role === 'assistant' && isLast && sessionHasEscalation
+  const contactReason: 'negative_feedback' | 'escalation' | 'contact_interest' = sessionContactTrigger === 'contact_interest'
+    ? 'contact_interest'
+    : showEscalationForm ? 'escalation' : 'negative_feedback'
 
   return (
     <div>
@@ -221,7 +336,14 @@ const MemoMessage = memo(function MemoMessage({
         </div>
       )}
       {message.role === 'assistant' && isLast && (
-        <FeedbackButtons sessionId={sessionId} messageIndex={messageIndex} />
+        <FeedbackButtons
+          sessionId={sessionId}
+          messageIndex={messageIndex}
+          onNegativeFeedback={() => setShowContactOptIn(true)}
+        />
+      )}
+      {(showContactOptIn || showEscalationForm) && (
+        <ContactOptIn sessionId={sessionId} reason={contactReason} />
       )}
       {followUps.length > 0 && onFollowUp && (
         <div className="mt-3 ml-11 flex flex-wrap gap-2">
@@ -243,6 +365,8 @@ const MemoMessage = memo(function MemoMessage({
   if (prev.message.id !== next.message.id) return false
   if (prev.isLast !== next.isLast) return false
   if (prev.messageIndex !== next.messageIndex) return false
+  if (prev.sessionHasEscalation !== next.sessionHasEscalation) return false
+  if (prev.sessionContactTrigger !== next.sessionContactTrigger) return false
   // During streaming the last message keeps changing — always re-render it
   if (next.isLast) return false
   // For completed messages, parts count change means tool results arrived
@@ -274,6 +398,23 @@ export default function ChatPage() {
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const isLoading = status === 'streaming' || status === 'submitted'
   const hasMessages = messages.length > 0
+
+  // Track if any message in the session contains an escalation or contact collection trigger
+  // Must depend on total parts count — tool parts arrive mid-stream on existing messages
+  const totalPartsCount = messages.reduce((sum, m) => sum + m.parts.length, 0)
+  const sessionContactTrigger = useMemo(
+    () => {
+      for (const m of messages) {
+        if (m.role !== 'assistant') continue
+        const trigger = hasContactTrigger(m)
+        if (trigger) return trigger
+      }
+      return null
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [messages.length, totalPartsCount]
+  )
+  const sessionHasEscalation = sessionContactTrigger !== null
 
   const handleVoiceResult = useCallback((text: string) => {
     setInput(prev => prev ? `${prev} ${text}` : text)
@@ -557,6 +698,8 @@ export default function ChatPage() {
                   sessionId={sessionId}
                   messageIndex={index}
                   onFollowUp={!isLoading ? handleFollowUp : undefined}
+                  sessionHasEscalation={sessionHasEscalation}
+                  sessionContactTrigger={sessionContactTrigger}
                 />
               ))}
 

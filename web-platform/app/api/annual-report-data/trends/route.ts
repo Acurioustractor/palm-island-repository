@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { getFinancials, formatFiscalYear } from '@/lib/financials/get-financials';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -12,32 +13,26 @@ export async function GET(request: NextRequest) {
   const toYear = parseInt(searchParams.get('to') || '2026');
 
   try {
-    // Run all queries in parallel with individual error handling
-    const [metricsResult, financialsResult, servicesResult, staffResult] = await Promise.allSettled([
+    // Run all queries in parallel — financials via shared module, rest direct
+    const [financialRecords, metricsResult, servicesResult, staffResult] = await Promise.all([
+      getFinancials({ limit: 50 }),
       supabase
         .from('service_metrics')
         .select('fiscal_year, clients_served, sessions_delivered')
         .gte('fiscal_year', fromYear)
-        .lte('fiscal_year', toYear),
-      supabase
-        .from('annual_financials')
-        .select('fiscal_year, total_income, labour_costs, administration_expenses, property_energy_expenses, motor_vehicle_expenses, travel_training_expenses, client_related_costs')
-        .gte('fiscal_year', fromYear)
-        .lte('fiscal_year', toYear),
+        .lte('fiscal_year', toYear)
+        .then(r => r.data),
       supabase
         .from('organization_services')
-        .select('id, created_at'),
+        .select('id, created_at')
+        .then(r => r.data),
       supabase
         .from('staff_statistics')
         .select('fiscal_year, total_staff, indigenous_staff_count, palm_island_resident_count')
         .gte('fiscal_year', fromYear)
-        .lte('fiscal_year', toYear),
+        .lte('fiscal_year', toYear)
+        .then(r => r.data),
     ]);
-
-    const metricsData = metricsResult.status === 'fulfilled' ? metricsResult.value.data : null;
-    const financialsData = financialsResult.status === 'fulfilled' ? financialsResult.value.data : null;
-    const servicesData = servicesResult.status === 'fulfilled' ? servicesResult.value.data : null;
-    const staffData = staffResult.status === 'fulfilled' ? staffResult.value.data : null;
 
     // Aggregate metrics by fiscal year
     const yearMap: Record<number, {
@@ -60,9 +55,9 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    // Aggregate client data (fixed column references)
-    if (metricsData) {
-      for (const row of metricsData) {
+    // Aggregate client data
+    if (metricsResult) {
+      for (const row of metricsResult) {
         const fy = row.fiscal_year;
         if (yearMap[fy]) {
           yearMap[fy].clients_served += row.clients_served || 0;
@@ -71,27 +66,18 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Revenue + expenditure data (fixed: compute total_expenditure from expense columns)
-    if (financialsData) {
-      for (const row of financialsData) {
-        const fy = row.fiscal_year;
-        if (yearMap[fy]) {
-          yearMap[fy].revenue += row.total_income || 0;
-          yearMap[fy].expenditure += (
-            (row.labour_costs || 0) +
-            (row.administration_expenses || 0) +
-            (row.property_energy_expenses || 0) +
-            (row.motor_vehicle_expenses || 0) +
-            (row.travel_training_expenses || 0) +
-            (row.client_related_costs || 0)
-          );
-        }
+    // Revenue + expenditure from shared financial records
+    for (const rec of financialRecords) {
+      const fy = rec.fiscal_year;
+      if (fy >= fromYear && fy <= toYear && yearMap[fy]) {
+        yearMap[fy].revenue += rec.total_income;
+        yearMap[fy].expenditure += rec.total_expenditure;
       }
     }
 
-    // Staff data (fixed: include indigenous + resident counts)
-    if (staffData) {
-      for (const row of staffData) {
+    // Staff data
+    if (staffResult) {
+      for (const row of staffResult) {
         const fy = row.fiscal_year;
         if (yearMap[fy]) {
           yearMap[fy].staff_count = row.total_staff || 0;
@@ -102,7 +88,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Services count
-    const totalServices = servicesData?.length || 0;
+    const totalServices = servicesResult?.length || 0;
     for (const fy of Object.keys(yearMap).map(Number)) {
       yearMap[fy].services_count = totalServices;
     }
@@ -112,7 +98,7 @@ export async function GET(request: NextRequest) {
       .sort(([a], [b]) => Number(a) - Number(b))
       .filter(([, v]) => v.clients_served > 0 || v.revenue > 0 || v.staff_count > 0)
       .map(([year, vals]) => ({
-        fiscal_year: `${Number(year) - 1}-${String(year).slice(2)}`,
+        fiscal_year: formatFiscalYear(Number(year)),
         fiscal_year_end: Number(year),
         clients_served: vals.clients_served || null,
         sessions_delivered: vals.sessions_delivered || null,

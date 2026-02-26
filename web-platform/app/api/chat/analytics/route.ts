@@ -17,7 +17,7 @@ export async function GET(request: Request) {
   const supabase = getSupabase()
 
   // Parallel queries for dashboard data
-  const [sessionsResult, analyticsResult, feedbackResult, recentSessionsResult] = await Promise.all([
+  const [sessionsResult, analyticsResult, feedbackResult, recentSessionsResult, unresolvedResult, contactSessionsResult] = await Promise.all([
     // Session counts by day
     supabase
       .from('chat_sessions')
@@ -28,7 +28,7 @@ export async function GET(request: Request) {
     // Analytics (classified sessions)
     supabase
       .from('chat_analytics')
-      .select('topics, sentiment, intent, was_resolved, tools_used, audience')
+      .select('session_id, topics, sentiment, intent, was_resolved, tools_used, audience')
       .gte('analyzed_at', since),
 
     // Feedback counts
@@ -44,12 +44,32 @@ export async function GET(request: Request) {
       .gte('started_at', since)
       .order('started_at', { ascending: false })
       .limit(50),
+
+    // Unresolved sessions (from analytics)
+    supabase
+      .from('chat_analytics')
+      .select('session_id, sentiment, audience, analyzed_at')
+      .eq('was_resolved', false)
+      .gte('analyzed_at', since)
+      .order('analyzed_at', { ascending: false })
+      .limit(50),
+
+    // Sessions with contact info in metadata
+    supabase
+      .from('chat_sessions')
+      .select('session_id, messages, audience, started_at, metadata')
+      .not('metadata->contact', 'is', null)
+      .gte('started_at', since)
+      .order('started_at', { ascending: false })
+      .limit(50),
   ])
 
   const sessions = sessionsResult.data || []
   const analytics = analyticsResult.data || []
   const feedback = feedbackResult.data || []
   const recentSessions = recentSessionsResult.data || []
+  const unresolvedAnalytics = unresolvedResult.data || []
+  const contactSessions = contactSessionsResult.data || []
 
   // Aggregate: sessions per day
   const sessionsPerDay: Record<string, number> = {}
@@ -150,6 +170,42 @@ export async function GET(request: Request) {
         ? (s.messages[0] as { content?: string }).content?.substring(0, 100) || ''
         : '',
     })),
+    unresolvedSessions: (() => {
+      // Build a lookup from session_id to session data
+      const sessionMap = new Map(recentSessions.map(s => [s.session_id, s]))
+      return unresolvedAnalytics.map(ua => {
+        const session = sessionMap.get(ua.session_id)
+        const messages = session?.messages as Array<{ content?: string }> | undefined
+        const contactMeta = (session as { metadata?: { contact?: Record<string, unknown> } })?.metadata?.contact
+        return {
+          sessionId: ua.session_id,
+          firstMessage: Array.isArray(messages) && messages.length > 0
+            ? messages[0]?.content?.substring(0, 150) || ''
+            : '',
+          audience: ua.audience || session?.audience || 'community',
+          sentiment: ua.sentiment,
+          hasContact: !!contactMeta,
+          startedAt: session?.started_at || ua.analyzed_at,
+        }
+      })
+    })(),
+    contactRequests: contactSessions.map(s => {
+      const meta = s.metadata as { contact?: { name?: string; phone_or_email?: string; reason?: string; followed_up_at?: string } }
+      const contact = meta?.contact
+      const messages = s.messages as Array<{ content?: string }> | undefined
+      return {
+        sessionId: s.session_id,
+        name: contact?.name || '',
+        contactMethod: contact?.phone_or_email || '',
+        reason: contact?.reason || '',
+        firstMessage: Array.isArray(messages) && messages.length > 0
+          ? messages[0]?.content?.substring(0, 150) || ''
+          : '',
+        startedAt: s.started_at,
+        followedUp: !!contact?.followed_up_at,
+        followedUpAt: contact?.followed_up_at || null,
+      }
+    }),
   }), {
     headers: { 'Content-Type': 'application/json' },
   })

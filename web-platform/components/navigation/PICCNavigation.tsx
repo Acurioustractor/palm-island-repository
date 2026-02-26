@@ -8,7 +8,8 @@ import {
   Menu, X, Search,
   Plus, Upload,
   ChevronRight, ChevronDown,
-  ChevronsLeft, ChevronsRight, Wrench, Building2, Lightbulb, Palette
+  ChevronsLeft, ChevronsRight, Wrench, Building2, Lightbulb, Palette, DollarSign,
+  BarChart3, ClipboardCheck
 } from 'lucide-react';
 import { useSidebar } from './SidebarProvider';
 import { PICCLogo } from '@/components/ui/PICCLogo';
@@ -36,6 +37,9 @@ const staffNavigation: { [key: string]: NavSection } = {
       { label: 'Search', href: '/picc/search', icon: Search, description: 'Search all content' },
       { label: 'Annual Reports', href: '/picc/annual-reports', icon: FileText, description: 'Reports hub & workflow' },
       { label: 'Report Builder', href: '/picc/reports/builder', icon: FileText, description: 'On-demand audience reports' },
+      { label: 'Financials', href: '/picc/financials', icon: DollarSign, description: 'Financial overview & ratios' },
+      { label: 'Impact', href: '/picc/impact', icon: BarChart3, description: 'Service impact metrics' },
+      { label: 'Report Readiness', href: '/picc/report-readiness', icon: ClipboardCheck, description: 'Annual report status' },
       { label: 'Brand', href: '/picc/brand', icon: Palette, description: 'Brand assets & guidelines' },
     ],
   },
@@ -64,6 +68,9 @@ const advancedNavigation: { [key: string]: NavSection } = {
       { label: 'Search', href: '/picc/search', icon: Search, description: 'Search all content' },
       { label: 'Annual Reports', href: '/picc/annual-reports', icon: FileText, description: 'Reports hub & workflow' },
       { label: 'Report Builder', href: '/picc/reports/builder', icon: FileText, description: 'On-demand audience reports' },
+      { label: 'Financials', href: '/picc/financials', icon: DollarSign, description: 'Financial overview & ratios' },
+      { label: 'Impact', href: '/picc/impact', icon: BarChart3, description: 'Service impact metrics' },
+      { label: 'Report Readiness', href: '/picc/report-readiness', icon: ClipboardCheck, description: 'Annual report status' },
     ],
   },
   content: {

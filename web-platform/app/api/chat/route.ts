@@ -1,5 +1,6 @@
 import { streamText, stepCountIs, convertToModelMessages } from 'ai'
 import { createAnthropic } from '@ai-sdk/anthropic'
+import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
 import { exploreTools } from '@/lib/explore/tools'
 import { getExploreSystemPrompt } from '@/lib/explore/system-prompt'
 import { rateLimit, RateLimitType } from '@/lib/ai/rate-limit'
@@ -10,13 +11,25 @@ import { logChatMessage } from '@/lib/chat/session-logger'
 export const maxDuration = 60
 
 function getChatModel() {
-  const apiKey = process.env.ANTHROPIC_API_KEY
-  if (!apiKey) {
-    console.error('ANTHROPIC_API_KEY is not set!')
-    throw new Error('ANTHROPIC_API_KEY is not configured')
+  // Primary: MiniMax M2.5 via OpenAI-compatible API (~95% cheaper than Sonnet)
+  const minimaxKey = process.env.MINIMAX_API_KEY
+  if (minimaxKey) {
+    const minimax = createOpenAICompatible({
+      name: 'minimax',
+      baseURL: 'https://api.minimax.io/v1',
+      apiKey: minimaxKey,
+    })
+    return minimax.chatModel('MiniMax-M2.5')
   }
-  const provider = createAnthropic({ apiKey })
-  return provider('claude-sonnet-4-5-20250929')
+
+  // Fallback: Claude Haiku (cheapest Anthropic option)
+  const anthropicKey = process.env.ANTHROPIC_API_KEY
+  if (anthropicKey) {
+    const provider = createAnthropic({ apiKey: anthropicKey })
+    return provider('claude-haiku-4-5-20251001')
+  }
+
+  throw new Error('No AI API key configured (MINIMAX_API_KEY or ANTHROPIC_API_KEY)')
 }
 
 export async function POST(request: Request) {
@@ -55,11 +68,11 @@ export async function POST(request: Request) {
     // Non-fatal — use original query
   }
 
-  // Get context from all data tables (25K token budget — Claude has 200K window)
+  // Get context from all data tables (15K token budget — sufficient for MiniMax/Haiku)
   let ragContext = ''
   let ragSources: Array<{ title: string; url: string; type: string }> = []
   try {
-    const expanded = await getExpandedContext(searchQuery, { limit: 10, maxContextTokens: 25000 })
+    const expanded = await getExpandedContext(searchQuery, { limit: 8, maxContextTokens: 15000 })
     ragContext = expanded.context
     ragSources = expanded.sources
   } catch (e) {
