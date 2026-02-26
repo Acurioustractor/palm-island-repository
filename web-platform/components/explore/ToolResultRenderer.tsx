@@ -339,25 +339,37 @@ function ProjectDetail({ data, darkMode }: { data: any; darkMode?: boolean }) {
           </div>
         )}
       </div>
+      {data.videos?.length > 0 && (() => {
+        // Sort: embeddable videos (Descript/YouTube/Vimeo) first, then .mp4s
+        const isEmbeddable = (url: string) => /youtube|youtu\.be|vimeo\.com|descript\.com/.test(url)
+        const sorted = [...data.videos].sort((a: any, b: any) => {
+          const aEmbed = isEmbeddable(a.url) ? 0 : 1
+          const bEmbed = isEmbeddable(b.url) ? 0 : 1
+          return aEmbed - bEmbed
+        })
+        return (
+          <div className="px-5 pb-4">
+            <div className={`text-xs font-semibold uppercase tracking-wide mb-2 ${darkMode ? 'text-white/40' : 'text-gray-400'}`}>
+              Videos ({data.videos.length})
+            </div>
+            <div className="space-y-3">
+              {sorted.map((v: any, i: number) => (
+                <InlineVideo key={i} url={v.url} title={v.title || `Video ${i + 1}`} darkMode={darkMode} />
+              ))}
+            </div>
+          </div>
+        )
+      })()}
       {data.photos?.length > 0 && (
         <div className="px-5 pb-4">
+          <div className={`text-xs font-semibold uppercase tracking-wide mb-2 ${darkMode ? 'text-white/40' : 'text-gray-400'}`}>
+            Photos ({data.photos.length})
+          </div>
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
             {data.photos.slice(0, 8).map((photo: any, i: number) => (
               <div key={i} className="aspect-square rounded-lg overflow-hidden">
                 <img src={photo.url} alt={photo.alt || ''} className="w-full h-full object-cover" />
               </div>
-            ))}
-          </div>
-        </div>
-      )}
-      {data.videos?.length > 0 && (
-        <div className="px-5 pb-4">
-          <div className={`text-xs font-semibold uppercase tracking-wide mb-2 ${darkMode ? 'text-white/40' : 'text-gray-400'}`}>
-            Videos ({data.videos.length})
-          </div>
-          <div className="space-y-3">
-            {data.videos.map((v: any, i: number) => (
-              <InlineVideo key={i} url={v.url} title={v.title || `Video ${i + 1}`} darkMode={darkMode} />
             ))}
           </div>
         </div>
@@ -415,7 +427,7 @@ function ProjectList({ projects, darkMode }: { projects: any[]; darkMode?: boole
 // ─── Inline Video Player ────────────────────────────────────────────────────
 
 function InlineVideo({ url, title, darkMode }: { url: string; title: string; darkMode?: boolean }) {
-  const [playing, setPlaying] = useState(false)
+  const [expanded, setExpanded] = useState(false)
 
   // Detect YouTube/Vimeo/Descript vs direct video file
   const youtubeMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([^&\s]+)/)
@@ -424,45 +436,33 @@ function InlineVideo({ url, title, darkMode }: { url: string; title: string; dar
   const isEmbed = !!(youtubeMatch || vimeoMatch || descriptMatch)
 
   const getEmbedUrl = () => {
-    if (youtubeMatch) return `https://www.youtube.com/embed/${youtubeMatch[1]}?autoplay=1&rel=0`
-    if (vimeoMatch) return `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1`
+    if (youtubeMatch) return `https://www.youtube.com/embed/${youtubeMatch[1]}?rel=0`
+    if (vimeoMatch) return `https://player.vimeo.com/video/${vimeoMatch[1]}`
     if (descriptMatch) return `https://share.descript.com/embed/${descriptMatch[1]}`
     return url
   }
 
   if (isEmbed) {
+    // Embeddable videos show inline immediately (no click to reveal)
     return (
       <div className="rounded-xl overflow-hidden">
-        {!playing ? (
-          <button
-            onClick={() => setPlaying(true)}
-            className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors rounded-xl ${
-              darkMode ? 'bg-white/[0.04] hover:bg-white/[0.08] text-white/70' : 'bg-gray-50 hover:bg-gray-100 text-gray-700'
-            }`}
-          >
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-              darkMode ? 'bg-white/[0.08]' : 'bg-gray-200'
-            }`}>
-              <svg className="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" /></svg>
-            </div>
-            <span className="text-sm font-medium">{title}</span>
-          </button>
-        ) : (
-          <div className="aspect-video">
-            <iframe
-              src={getEmbedUrl()}
-              title={title}
-              className="w-full h-full rounded-xl"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          </div>
-        )}
+        <div className="aspect-video">
+          <iframe
+            src={getEmbedUrl()}
+            title={title}
+            className="w-full h-full rounded-xl"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
+        <div className={`text-xs mt-1.5 px-1 ${darkMode ? 'text-white/40' : 'text-gray-500'}`}>
+          {title}
+        </div>
       </div>
     )
   }
 
-  // Direct video file (.mp4 etc) — use native <video> tag
+  // Direct video file (.mp4 etc) — show native player inline
   return (
     <div className="rounded-xl overflow-hidden">
       <video
@@ -470,7 +470,6 @@ function InlineVideo({ url, title, darkMode }: { url: string; title: string; dar
         preload="metadata"
         playsInline
         className="w-full rounded-xl"
-        poster=""
       >
         <source src={url} type="video/mp4" />
       </video>

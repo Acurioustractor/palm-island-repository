@@ -23,14 +23,40 @@ const AUDIENCES: Array<{ id: Audience; label: string; description: string }> = [
   { id: 'staff', label: 'Staff', description: 'PICC team member' },
 ]
 
-const STARTERS: Array<{ text: string; icon: BespokeIconName }> = [
-  { text: 'What is The Centre and The Station project?', icon: 'story' },
-  { text: 'Show me highlights from the annual report', icon: 'timeline' },
-  { text: 'Tell me the history of Palm Island and Hull River', icon: 'community' },
-  { text: 'What are the plans for the next 20 years?', icon: 'quote' },
-  { text: 'What do Elders say about the future?', icon: 'photo' },
-  { text: "I have a vision for Palm Island's future", icon: 'health' },
-]
+const STARTERS_BY_AUDIENCE: Record<Audience, Array<{ text: string; icon: BespokeIconName }>> = {
+  community: [
+    { text: 'What services are available on Palm Island?', icon: 'health' },
+    { text: 'What is The Centre and The Station project?', icon: 'story' },
+    { text: 'Tell me the history of Palm Island and Hull River', icon: 'community' },
+    { text: 'What do Elders say about the future?', icon: 'photo' },
+    { text: 'What programs are there for young people?', icon: 'quote' },
+    { text: "I have a vision for Palm Island's future", icon: 'timeline' },
+  ],
+  funder: [
+    { text: 'Show me highlights from the annual report', icon: 'timeline' },
+    { text: 'What are the financial results for 2024-25?', icon: 'quote' },
+    { text: 'How many people does PICC employ?', icon: 'community' },
+    { text: 'What are the key service outcomes this year?', icon: 'health' },
+    { text: 'Tell me about governance and compliance', icon: 'story' },
+    { text: 'What are the plans for the next 20 years?', icon: 'photo' },
+  ],
+  partner: [
+    { text: 'What is The Centre and The Station project?', icon: 'story' },
+    { text: 'How can organisations partner with PICC?', icon: 'community' },
+    { text: 'What programs are running right now?', icon: 'health' },
+    { text: 'Show me the innovation projects', icon: 'timeline' },
+    { text: 'What are the plans for the next 20 years?', icon: 'quote' },
+    { text: 'Tell me about the youth pathways program', icon: 'photo' },
+  ],
+  staff: [
+    { text: 'Show me the latest service metrics', icon: 'health' },
+    { text: 'What did the community say this week?', icon: 'community' },
+    { text: 'Show me highlights from the annual report', icon: 'timeline' },
+    { text: 'What is the content readiness for the annual report?', icon: 'story' },
+    { text: 'Give me an overview of all innovation projects', icon: 'quote' },
+    { text: 'Who are the board members and leadership?', icon: 'photo' },
+  ],
+}
 
 // ─── Follow-up parsing ──────────────────────────────────────────────────────
 
@@ -238,7 +264,7 @@ export default function ChatPage() {
     [sessionId, audience]
   )
 
-  const { messages, sendMessage, status, error } = useChat({ transport })
+  const { messages, sendMessage, setMessages, status, error } = useChat({ transport })
 
   const [input, setInput] = useState('')
   const [mounted, setMounted] = useState(false)
@@ -253,6 +279,14 @@ export default function ChatPage() {
     setInput(prev => prev ? `${prev} ${text}` : text)
   }, [])
   const voice = useVoiceInput(handleVoiceResult)
+
+  const handleNewChat = useCallback(() => {
+    setMessages([])
+    setInput('')
+    setHeroVisible(true)
+    // Generate fresh session ID
+    try { sessionStorage.removeItem('palm-ai-session-id') } catch {}
+  }, [setMessages])
 
   useEffect(() => { setMounted(true) }, [])
 
@@ -369,10 +403,22 @@ export default function ChatPage() {
             <Link href="/services" className="text-picc-earth-300 hover:text-picc-ochre transition-colors">Services</Link>
             <Link href="/timeline" className="text-picc-earth-300 hover:text-picc-ochre transition-colors">Timeline</Link>
             <Link href="/voices" className="text-picc-earth-300 hover:text-picc-ochre transition-colors">Voices</Link>
+            {hasMessages && (
+              <button onClick={handleNewChat} className="ml-2 px-3 py-1 rounded-full text-xs font-medium bg-picc-ochre/10 text-picc-ochre hover:bg-picc-ochre/20 transition-colors">
+                New chat
+              </button>
+            )}
           </div>
-          <button onClick={() => setMenuOpen(!menuOpen)} className="sm:hidden p-1.5 text-picc-earth-300 hover:text-picc-ochre">
-            {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+          <div className="flex items-center gap-2 sm:hidden">
+            {hasMessages && (
+              <button onClick={handleNewChat} className="px-2.5 py-1 rounded-full text-xs font-medium bg-picc-ochre/10 text-picc-ochre">
+                New
+              </button>
+            )}
+            <button onClick={() => setMenuOpen(!menuOpen)} className="p-1.5 text-picc-earth-300 hover:text-picc-ochre">
+              {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
         {menuOpen && (
           <div className="sm:hidden border-t border-warm-200 px-6 py-3 flex flex-col gap-2 text-sm bg-white/80">
@@ -436,7 +482,7 @@ export default function ChatPage() {
         {/* Starter prompts */}
         <div className={`mt-8 px-6 max-w-2xl mx-auto w-full transition-all duration-500 delay-150 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            {STARTERS.map((starter) => (
+            {STARTERS_BY_AUDIENCE[audience].map((starter) => (
               <button
                 key={starter.text}
                 onClick={() => handleStarterSelect(starter.text)}

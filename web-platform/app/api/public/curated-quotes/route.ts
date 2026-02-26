@@ -77,6 +77,8 @@ export async function GET(request: NextRequest) {
     elderQuery.limit(limit * 2)
 
     // Also fetch quotes from published stories (definitely real content)
+    // NOTE: storyteller_id is who told/recorded the story, not always who is quoted.
+    // For interview-style stories (title names the subject), the quote may be from the subject.
     const storyQuery = supabase
       .from('stories')
       .select(`
@@ -130,19 +132,47 @@ export async function GET(request: NextRequest) {
     }
 
     // Map story quotes (real published content)
+    // Guard against misattribution: if the story title names a different person
+    // than the storyteller, the quote is likely from the subject, not the teller.
     for (const q of storyResult.data || []) {
       const text = String(q.quote_text || '').trim()
       if (!text || text.length < 30) continue
 
       const storyteller = q.storyteller as any
-      const authorName = storyteller?.preferred_name || storyteller?.full_name || null
+      const tellerName = storyteller?.preferred_name || storyteller?.full_name || null
+      const title = String(q.title || '')
+
+      // Check if title names a different person (e.g., "Jema Richardson: ..." but storyteller is Ida)
+      const titlePersonMatch = title.match(/^(?:Elder\s+)?([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s*[:\-–—]/)
+      let authorName = tellerName
+      let photoUrl = storyteller?.profile_image_url || null
+      if (titlePersonMatch && tellerName) {
+        const titleFirst = titlePersonMatch[1].replace(/^(Aunty|Uncle|Elder)\s+/, '').split(' ')[0]
+        const tellerFirst = tellerName.replace(/^(Aunty|Uncle|Elder)\s+/, '').split(' ')[0]
+        if (titleFirst !== tellerFirst && !tellerName.includes(titleFirst) && !titlePersonMatch[1].includes(tellerFirst)) {
+          // Title names a different person — quote is likely from them, not the storyteller
+          // Use title person as author, clear photo to avoid wrong face
+          authorName = titlePersonMatch[1]
+          photoUrl = null
+          // Try to find the actual person's profile
+          const { data: subjectProfile } = await supabase
+            .from('profiles')
+            .select('preferred_name, profile_image_url')
+            .or(`preferred_name.ilike.%${titleFirst}%,full_name.ilike.%${titleFirst}%`)
+            .limit(1)
+          if (subjectProfile?.[0]) {
+            authorName = subjectProfile[0].preferred_name || authorName
+            photoUrl = subjectProfile[0].profile_image_url || null
+          }
+        }
+      }
 
       quotes.push({
         id: q.id,
         text,
         author: authorName,
         role: storyteller?.community_role || (storyteller?.is_elder ? 'Elder' : 'Community Member'),
-        photo_url: storyteller?.profile_image_url || null,
+        photo_url: photoUrl,
         theme: null,
         source: 'story',
         is_elder: Boolean(storyteller?.is_elder),

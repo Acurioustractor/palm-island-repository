@@ -303,7 +303,7 @@ const HISTORICAL_MILESTONES = [
   { id: 'hist-5', fiscal_year: '2007', category: 'governance', achievement_text: 'PICC transitioned to community-controlled Aboriginal and Torres Strait Islander Corporation under CATSI Act', display_order: 5 },
   { id: 'hist-6', fiscal_year: '2009', category: 'governance', achievement_text: 'PICC begins formal governance framework and strategic planning', display_order: 6 },
   { id: 'hist-7', fiscal_year: '2017', category: 'governance', achievement_text: 'PICC awarded delegated authority for Child Safety — first Indigenous org in Queensland', display_order: 7 },
-  { id: 'hist-8', fiscal_year: '2023', category: 'community', achievement_text: 'Elders Advisory Group journey to Hull River — reconnecting with history of forced removal', display_order: 8 },
+  { id: 'hist-8', fiscal_year: '2025', category: 'community', achievement_text: 'Elders Advisory Group journey to Hull River — reconnecting with history of forced removal', display_order: 8 },
 ]
 
 export const exploreTimeline = defineTool({
@@ -468,36 +468,66 @@ export const findQuotes = defineTool({
       return true
     })
 
-    const filtered = diverse.slice(0, limit).map((q: any) => {
+    // Resolve speaker names and look up correct profile images
+    const filtered = await Promise.all(diverse.slice(0, limit).map(async (q: any) => {
       const story = q.stories as { id: string; title: string; profiles: any } | null
-      const profile = story?.profiles as { full_name: string; preferred_name: string | null; profile_image_url: string | null; is_elder: boolean | null } | null
+      const storyProfile = story?.profiles as { full_name: string; preferred_name: string | null; profile_image_url: string | null; is_elder: boolean | null } | null
       // Extract actual speaker from context_before — multi-speaker stories attribute
       // quotes to the story's storyteller by default, which is often wrong.
-      // Patterns: "Aunty Ethel on...", "Elder Frank said...", "Winni stood on...", "Cyndel described..."
       let speakerName: string | null = null
+      let speakerIsDifferent = false
       const ctx = (q.context_before as string | null) || ''
-      const speakerPatterns = [
-        /^(?:Aunty|Uncle|Elder)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s*[:—–\-]/,  // "Aunty Ethel:"
-        /^(?:Aunty|Uncle|Elder)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s+(?:on|said|described|reflected|explained|recalled|shared|spoke|talked|honoured)/,  // "Aunty Ethel on..."
-        /^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s*[:—–\-]/,  // "Frank:"
-        /^([A-Z][a-z]+(?:e|i|y))\s+(?:on|said|described|reflected|explained|recalled|shared|spoke|talked|stood|honoured)/,  // "Winni stood on..." (name ending in vowel-like)
-        /^([A-Z][a-z]{2,})\s+(?:on|said|described|reflected|explained|recalled|shared|spoke|talked|stood|honoured)/,  // "Cyndel described..."
-      ]
-      for (const pattern of speakerPatterns) {
-        const match = ctx.match(pattern)
-        if (match) {
-          speakerName = match[1]
-          // Restore honorific if it was in the context
-          if (/^Aunty\s/i.test(ctx)) speakerName = `Aunty ${speakerName}`
-          else if (/^Uncle\s/i.test(ctx)) speakerName = `Uncle ${speakerName}`
-          else if (/^Elder\s/i.test(ctx)) speakerName = `Elder ${speakerName}`
-          break
+
+      if (ctx) {
+        // "An Elder on..." — anonymous, no profile to look up
+        if (/^An Elder\b/i.test(ctx)) {
+          speakerName = 'An Elder'
+          speakerIsDifferent = true
+        } else {
+          const speakerPatterns = [
+            /^(?:Aunty|Uncle|Elder)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s*[:—–\-]/,
+            /^(?:Aunty|Uncle|Elder)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s+(?:on|said|described|reflected|explained|recalled|shared|spoke|talked|honoured)/,
+            /^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s*[:—–\-]/,
+            /^([A-Z][a-z]{2,}(?:\s+[A-Z][a-z]+)*)\s+(?:on|said|described|reflected|explained|recalled|shared|spoke|talked|stood|honoured)/,
+          ]
+          for (const pattern of speakerPatterns) {
+            const match = ctx.match(pattern)
+            if (match) {
+              speakerName = match[1]
+              if (/^Aunty\s/i.test(ctx)) speakerName = `Aunty ${speakerName}`
+              else if (/^Uncle\s/i.test(ctx)) speakerName = `Uncle ${speakerName}`
+              else if (/^Elder\s/i.test(ctx)) speakerName = `Elder ${speakerName}`
+              // Check if this is a different person from the storyteller
+              const storytellerName = storyProfile?.preferred_name || storyProfile?.full_name || ''
+              const cleanSpeaker = speakerName.replace(/^(Aunty|Uncle|Elder)\s+/, '')
+              if (storytellerName && !storytellerName.includes(cleanSpeaker) && !cleanSpeaker.includes(storytellerName.split(' ')[0])) {
+                speakerIsDifferent = true
+              }
+              break
+            }
+          }
         }
       }
-      // Only fall back to story storyteller if no speaker found in context
+
+      // Fall back to story storyteller if no speaker found in context
       if (!speakerName) {
-        speakerName = profile?.preferred_name || profile?.full_name || null
+        speakerName = storyProfile?.preferred_name || storyProfile?.full_name || null
       }
+
+      // Look up correct profile image when speaker differs from storyteller
+      let speakerImage: string | null = null
+      if (speakerIsDifferent && speakerName && speakerName !== 'An Elder') {
+        const cleanName = speakerName.replace(/^(Aunty|Uncle|Elder)\s+/, '')
+        const { data: speakerProfiles } = await supabase
+          .from('profiles')
+          .select('profile_image_url')
+          .or(`preferred_name.ilike.%${cleanName}%,full_name.ilike.%${cleanName}%`)
+          .limit(1)
+        speakerImage = speakerProfiles?.[0]?.profile_image_url || null
+      } else if (!speakerIsDifferent) {
+        speakerImage = storyProfile?.profile_image_url || null
+      }
+
       return {
         id: q.id,
         text: q.quote_text,
@@ -507,9 +537,9 @@ export const findQuotes = defineTool({
         storyTitle: story?.title || null,
         storyId: story?.id || null,
         speakerName,
-        speakerImage: profile?.profile_image_url || null,
+        speakerImage,
       }
-    })
+    }))
 
     return { quotes: filtered, total: filtered.length }
   },
@@ -886,7 +916,7 @@ export const getInnovationProjects = defineTool({
     if (projectSlug && projects.length === 1) {
       const proj = projects[0]
       const projectTag = `project:${proj.slug}`
-      const [notesResult, storiesResult, mediaResult] = await Promise.all([
+      const [notesResult, storiesResult, photosResult, videosResult] = await Promise.all([
         supabase
           .from('project_notes')
           .select('id, content, note_type, author_name, created_at')
@@ -903,18 +933,25 @@ export const getInnovationProjects = defineTool({
           .from('media_files')
           .select('id, public_url, file_path, bucket_name, title, alt_text, file_type')
           .contains('tags', [projectTag])
+          .eq('file_type', 'image')
           .is('deleted_at', null)
           .order('rating', { ascending: false, nullsFirst: false })
           .limit(8),
+        supabase
+          .from('media_files')
+          .select('id, public_url, file_path, bucket_name, title, alt_text, file_type')
+          .contains('tags', [projectTag])
+          .eq('file_type', 'video')
+          .is('deleted_at', null)
+          .order('rating', { ascending: false, nullsFirst: false })
+          .limit(6),
       ])
 
-      const photos = (mediaResult.data || [])
-        .filter((m: any) => m.file_type === 'image')
+      const photos = (photosResult.data || [])
         .map((m: any) => ({ url: resolveMediaUrl(m), alt: m.alt_text || m.title || proj.name }))
         .filter((p: any) => p.url !== null)
 
-      const videos = (mediaResult.data || [])
-        .filter((m: any) => m.file_type === 'video')
+      const videos = (videosResult.data || [])
         .map((m: any) => ({ url: resolveMediaUrl(m), title: m.title }))
         .filter((v: any) => v.url !== null)
 
