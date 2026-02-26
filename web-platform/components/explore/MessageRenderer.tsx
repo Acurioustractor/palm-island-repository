@@ -58,6 +58,9 @@ export function MessageRenderer({ message, darkMode = false }: MessageRendererPr
           }
 
           if (part.type === 'text' && part.text) {
+            // Strip <follow-ups> tags — they're parsed separately for chip rendering
+            const cleanText = part.text.replace(/<follow-ups>[^<]*<\/follow-ups>/g, '').trim()
+            if (!cleanText) return null
             return (
               <div
                 key={i}
@@ -69,7 +72,7 @@ export function MessageRenderer({ message, darkMode = false }: MessageRendererPr
                   }
                 `}
               >
-                <ChatMarkdown content={part.text} />
+                <ChatMarkdown content={cleanText} />
               </div>
             )
           }

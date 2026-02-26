@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import dynamic from 'next/dynamic';
 import type { Components } from 'react-markdown';
 
@@ -55,10 +56,10 @@ interface ChatMarkdownProps {
   className?: string;
 }
 
-export default function ChatMarkdown({ content, className = '' }: ChatMarkdownProps) {
+export default memo(function ChatMarkdown({ content, className = '' }: ChatMarkdownProps) {
   return (
     <div className={`chat-markdown text-lg leading-relaxed ${className}`}>
       <ReactMarkdown components={components}>{content}</ReactMarkdown>
     </div>
   );
-}
+});

@@ -5,12 +5,23 @@ import { DefaultChatTransport } from 'ai'
 import { useState, useRef, useEffect, useCallback, FormEvent, useMemo, memo } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Loader2, ArrowUp, Menu, X } from 'lucide-react'
+import { Loader2, ArrowUp, Menu, X, ThumbsUp, ThumbsDown, Mic, MicOff } from 'lucide-react'
 import { MessageRenderer } from '@/components/explore/MessageRenderer'
 import ChatSourceCards from '@/components/chat/ChatSourceCards'
 import ChatRelatedContent from '@/components/chat/ChatRelatedContent'
 import { BespokeIcon, type BespokeIconName } from '@/components/ui/BespokeIcon'
 import { extractSourcesFromMessage } from '@/lib/chat/extract-sources'
+
+// ─── Types ──────────────────────────────────────────────────────────────────
+
+type Audience = 'community' | 'funder' | 'partner' | 'staff'
+
+const AUDIENCES: Array<{ id: Audience; label: string; description: string }> = [
+  { id: 'community', label: 'Community', description: 'Palm Island resident or community member' },
+  { id: 'funder', label: 'Funder', description: 'Government or funding partner' },
+  { id: 'partner', label: 'Partner', description: 'Partner organisation' },
+  { id: 'staff', label: 'Staff', description: 'PICC team member' },
+]
 
 const STARTERS: Array<{ text: string; icon: BespokeIconName }> = [
   { text: 'What is The Centre and The Station project?', icon: 'story' },
@@ -21,18 +32,153 @@ const STARTERS: Array<{ text: string; icon: BespokeIconName }> = [
   { text: "I have a vision for Palm Island's future", icon: 'health' },
 ]
 
+// ─── Follow-up parsing ──────────────────────────────────────────────────────
+
+function extractFollowUps(message: import('ai').UIMessage): string[] {
+  const textParts = message.parts
+    .filter((p): p is { type: 'text'; text: string } => p.type === 'text')
+    .map(p => p.text)
+    .join('')
+  const match = textParts.match(/<follow-ups>([^<]*)<\/follow-ups>/)
+  if (!match) return []
+  return match[1].split('|').map(q => q.trim()).filter(q => q.length > 0).slice(0, 3)
+}
+
+// ─── Session ID ─────────────────────────────────────────────────────────────
+
+function getOrCreateSessionId(): string {
+  if (typeof window === 'undefined') return ''
+  const key = 'palm-ai-session-id'
+  try {
+    let id = sessionStorage.getItem(key)
+    if (!id) {
+      id = crypto.randomUUID()
+      sessionStorage.setItem(key, id)
+    }
+    return id
+  } catch {
+    // Safari private browsing or storage disabled
+    return crypto.randomUUID()
+  }
+}
+
+// ─── Voice Input Hook ───────────────────────────────────────────────────────
+
+function useVoiceInput(onResult: (text: string) => void) {
+  const [listening, setListening] = useState(false)
+  const [supported, setSupported] = useState(false)
+  const recognitionRef = useRef<any>(null)
+  const onResultRef = useRef(onResult)
+  onResultRef.current = onResult
+
+  useEffect(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    setSupported(!!SpeechRecognition)
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition()
+      recognition.continuous = false
+      recognition.interimResults = false
+      recognition.lang = 'en-AU'
+      recognition.onresult = (e: any) => {
+        const transcript = e.results[0]?.[0]?.transcript
+        if (transcript) onResultRef.current(transcript)
+        setListening(false)
+      }
+      recognition.onerror = () => setListening(false)
+      recognition.onend = () => setListening(false)
+      recognitionRef.current = recognition
+    }
+  }, [])
+
+  const toggle = useCallback(() => {
+    if (!recognitionRef.current) return
+    if (listening) {
+      recognitionRef.current.stop()
+      setListening(false)
+    } else {
+      recognitionRef.current.start()
+      setListening(true)
+    }
+  }, [listening])
+
+  return { listening, supported, toggle }
+}
+
+// ─── Feedback Component ─────────────────────────────────────────────────────
+
+function FeedbackButtons({ sessionId, messageIndex }: { sessionId: string; messageIndex: number }) {
+  const [submitted, setSubmitted] = useState<'helpful' | 'not_helpful' | null>(null)
+
+  const submit = async (rating: 'helpful' | 'not_helpful') => {
+    setSubmitted(rating)
+    try {
+      await fetch('/api/chat/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, messageIndex, rating }),
+      })
+    } catch {
+      // Non-fatal
+    }
+  }
+
+  if (submitted) {
+    return (
+      <span className="text-xs text-picc-earth-200 ml-11">
+        {submitted === 'helpful' ? 'Thanks for the feedback.' : 'Noted. We\'ll work on improving.'}
+      </span>
+    )
+  }
+
+  return (
+    <div className="flex gap-1.5 ml-11 mt-1">
+      <button
+        onClick={() => submit('helpful')}
+        className="p-1 rounded-md text-picc-earth-200 hover:text-green-600 hover:bg-green-50 transition-colors"
+        title="Helpful"
+        aria-label="Mark response as helpful"
+      >
+        <ThumbsUp className="w-3.5 h-3.5" />
+      </button>
+      <button
+        onClick={() => submit('not_helpful')}
+        className="p-1 rounded-md text-picc-earth-200 hover:text-red-500 hover:bg-red-50 transition-colors"
+        title="Not helpful"
+        aria-label="Mark response as not helpful"
+      >
+        <ThumbsDown className="w-3.5 h-3.5" />
+      </button>
+    </div>
+  )
+}
+
+// ─── Memoised Message ───────────────────────────────────────────────────────
+
 const MemoMessage = memo(function MemoMessage({
   message,
   isLast,
   latestAssistantSources,
+  sessionId,
+  messageIndex,
+  onFollowUp,
 }: {
   message: import('ai').UIMessage
   isLast: boolean
   latestAssistantSources: Array<{ title: string; url: string; type: string }>
+  sessionId: string
+  messageIndex: number
+  onFollowUp?: (text: string) => void
 }) {
   const sources = useMemo(
     () => message.role === 'assistant' ? extractSourcesFromMessage(message) : [],
-    [message]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [message.id, message.parts.length]
+  )
+
+  const followUps = useMemo(
+    () => message.role === 'assistant' && isLast ? extractFollowUps(message) : [],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [message.id, message.parts.length, isLast]
   )
 
   return (
@@ -48,14 +194,51 @@ const MemoMessage = memo(function MemoMessage({
           <ChatRelatedContent sources={latestAssistantSources} />
         </div>
       )}
+      {message.role === 'assistant' && isLast && (
+        <FeedbackButtons sessionId={sessionId} messageIndex={messageIndex} />
+      )}
+      {followUps.length > 0 && onFollowUp && (
+        <div className="mt-3 ml-11 flex flex-wrap gap-2">
+          {followUps.map((q, i) => (
+            <button
+              key={i}
+              onClick={() => onFollowUp(q)}
+              className="text-xs px-3 py-1.5 rounded-full bg-warm-100 text-picc-earth-300 hover:bg-picc-ochre/10 hover:text-picc-ochre border border-warm-200 hover:border-picc-ochre/30 transition-all duration-200"
+            >
+              {q}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
+}, (prev, next) => {
+  // Custom comparator: skip re-render for non-streaming (completed) messages
+  if (prev.message.id !== next.message.id) return false
+  if (prev.isLast !== next.isLast) return false
+  if (prev.messageIndex !== next.messageIndex) return false
+  // During streaming the last message keeps changing — always re-render it
+  if (next.isLast) return false
+  // For completed messages, parts count change means tool results arrived
+  if (prev.message.parts.length !== next.message.parts.length) return false
+  return true
 })
 
+// ─── Main Chat Page ─────────────────────────────────────────────────────────
+
 export default function ChatPage() {
-  const { messages, sendMessage, status, error } = useChat({
-    transport: new DefaultChatTransport({ api: '/api/chat' }),
-  })
+  const [sessionId] = useState(getOrCreateSessionId)
+  const [audience, setAudience] = useState<Audience>('community')
+
+  const transport = useMemo(
+    () => new DefaultChatTransport({
+      api: '/api/chat',
+      body: { sessionId, audience },
+    }),
+    [sessionId, audience]
+  )
+
+  const { messages, sendMessage, status, error } = useChat({ transport })
 
   const [input, setInput] = useState('')
   const [mounted, setMounted] = useState(false)
@@ -66,21 +249,37 @@ export default function ChatPage() {
   const isLoading = status === 'streaming' || status === 'submitted'
   const hasMessages = messages.length > 0
 
+  const handleVoiceResult = useCallback((text: string) => {
+    setInput(prev => prev ? `${prev} ${text}` : text)
+  }, [])
+  const voice = useVoiceInput(handleVoiceResult)
+
   useEffect(() => { setMounted(true) }, [])
 
   useEffect(() => {
     if (hasMessages) setHeroVisible(false)
   }, [hasMessages])
 
-  // Scroll to bottom — throttled to avoid jitter during streaming
-  const scrollTickRef = useRef(false)
+  // Scroll to bottom — debounced to avoid jitter during streaming
+  const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const lastMessageCountRef = useRef(0)
   useEffect(() => {
-    if (scrollTickRef.current) return
-    scrollTickRef.current = true
-    requestAnimationFrame(() => {
+    const isNewMessage = messages.length !== lastMessageCountRef.current
+    lastMessageCountRef.current = messages.length
+
+    if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current)
+
+    if (isNewMessage) {
+      // New message: scroll immediately
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-      scrollTickRef.current = false
-    })
+    } else {
+      // Streaming token: debounce scroll to every 300ms
+      scrollTimerRef.current = setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'auto' })
+      }, 300)
+    }
+
+    return () => { if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current) }
   }, [messages])
 
   const handleInputChange = useCallback((value: string) => {
@@ -105,6 +304,11 @@ export default function ChatPage() {
     await sendMessage({ text })
   }
 
+  const handleFollowUp = useCallback(async (text: string) => {
+    if (isLoading) return
+    await sendMessage({ text })
+  }, [isLoading, sendMessage])
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
@@ -114,11 +318,35 @@ export default function ChatPage() {
   }
 
   // Extract sources from the latest assistant message's tool results
+  // Stabilize: only recompute when message count or last message parts change
+  const lastAssistantId = messages.length > 0
+    ? [...messages].reverse().find(m => m.role === 'assistant')?.id
+    : undefined
+  const lastAssistantPartsLen = messages.length > 0
+    ? [...messages].reverse().find(m => m.role === 'assistant')?.parts.length
+    : 0
   const latestAssistantSources = useMemo(() => {
     const lastAssistant = [...messages].reverse().find(m => m.role === 'assistant')
     if (!lastAssistant) return []
     return extractSourcesFromMessage(lastAssistant)
-  }, [messages])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastAssistantId, lastAssistantPartsLen])
+
+  // Voice button component (reused in both input bars)
+  const VoiceButton = voice.supported ? (
+    <button
+      type="button"
+      onClick={voice.toggle}
+      className={`flex-shrink-0 p-2 rounded-xl transition-all duration-200 ${
+        voice.listening
+          ? 'bg-red-100 text-red-600 animate-pulse'
+          : 'text-picc-earth-200 hover:text-picc-ochre hover:bg-warm-50'
+      }`}
+      title={voice.listening ? 'Stop listening' : 'Voice input'}
+    >
+      {voice.listening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+    </button>
+  ) : null
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-warm-50 to-cream flex flex-col">
@@ -184,8 +412,29 @@ export default function ChatPage() {
           </p>
         </div>
 
+        {/* Audience selector */}
+        <div className={`mt-6 px-6 max-w-2xl mx-auto w-full transition-all duration-500 delay-100 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <p className="text-xs text-picc-earth-200 text-center mb-2">I am a...</p>
+          <div className="flex justify-center gap-2 flex-wrap">
+            {AUDIENCES.map((a) => (
+              <button
+                key={a.id}
+                onClick={() => setAudience(a.id)}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200 border ${
+                  audience === a.id
+                    ? 'bg-picc-ochre text-white border-picc-ochre shadow-sm'
+                    : 'bg-white/60 text-picc-earth-300 border-warm-200 hover:border-picc-ochre/30 hover:bg-white'
+                }`}
+                title={a.description}
+              >
+                {a.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Starter prompts */}
-        <div className={`mt-10 px-6 max-w-2xl mx-auto w-full transition-all duration-500 delay-150 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+        <div className={`mt-8 px-6 max-w-2xl mx-auto w-full transition-all duration-500 delay-150 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {STARTERS.map((starter) => (
               <button
@@ -217,6 +466,7 @@ export default function ChatPage() {
                 className="flex-1 bg-transparent text-picc-earth placeholder:text-picc-earth-200 text-[15px] leading-relaxed focus:outline-none resize-none"
                 disabled={isLoading}
               />
+              {VoiceButton}
               <button
                 type="submit"
                 disabled={isLoading || !input.trim()}
@@ -232,10 +482,13 @@ export default function ChatPage() {
           </form>
         </div>
 
-        {/* Footer links */}
+        {/* Footer links + consent */}
         <div className={`mt-8 text-center transition-all duration-500 delay-300 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
           <p className="text-xs text-picc-earth-200">
             Powered by Palm AI · Responses include citations
+          </p>
+          <p className="text-xs text-picc-earth-200/60 mt-1">
+            Conversations help us improve. No personal data is stored.
           </p>
         </div>
       </div>
@@ -255,6 +508,9 @@ export default function ChatPage() {
                   message={message}
                   isLast={index === messages.length - 1}
                   latestAssistantSources={latestAssistantSources}
+                  sessionId={sessionId}
+                  messageIndex={index}
+                  onFollowUp={!isLoading ? handleFollowUp : undefined}
                 />
               ))}
 
@@ -317,6 +573,7 @@ export default function ChatPage() {
                   className="flex-1 bg-transparent text-picc-earth placeholder:text-picc-earth-200 text-[15px] leading-relaxed focus:outline-none resize-none"
                   disabled={isLoading}
                 />
+                {VoiceButton}
                 <button
                   type="submit"
                   disabled={isLoading || !input.trim()}

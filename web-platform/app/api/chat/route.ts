@@ -1,10 +1,11 @@
 import { streamText, stepCountIs, convertToModelMessages } from 'ai'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { exploreTools } from '@/lib/explore/tools'
-import { EXPLORE_SYSTEM_PROMPT } from '@/lib/explore/system-prompt'
+import { getExploreSystemPrompt } from '@/lib/explore/system-prompt'
 import { rateLimit, RateLimitType } from '@/lib/ai/rate-limit'
 import { getExpandedContext } from '@/lib/ai/context-builder'
 import { expandQuery } from '@/lib/ai/query-expansion'
+import { logChatMessage } from '@/lib/chat/session-logger'
 
 export const maxDuration = 60
 
@@ -27,7 +28,7 @@ export async function POST(request: Request) {
     )
   }
 
-  const { messages } = await request.json()
+  const { messages, sessionId, audience } = await request.json()
 
   // Extract latest user message for RAG context
   const latestUserMsg = [...messages].reverse().find((m: { role: string }) => m.role === 'user')
@@ -36,6 +37,11 @@ export async function POST(request: Request) {
     : Array.isArray(latestUserMsg?.content)
       ? latestUserMsg.content.map((p: { text?: string }) => p.text || '').join(' ')
       : ''
+
+  // Log user message to chat_sessions (fire-and-forget)
+  if (sessionId && userText) {
+    logChatMessage(sessionId, 'user', userText, audience).catch(() => {})
+  }
 
   // Expand query for better search (typo correction, synonyms)
   let searchQuery = userText
@@ -60,9 +66,12 @@ export async function POST(request: Request) {
     console.error('Context builder error:', e)
   }
 
+  // Build audience-aware system prompt
+  const basePrompt = getExploreSystemPrompt(audience || 'community')
+
   // Build dynamic system prompt with RAG context appended
   const systemWithRAG = ragContext
-    ? `${EXPLORE_SYSTEM_PROMPT}
+    ? `${basePrompt}
 
 ## Retrieved Context (from knowledge base)
 ${ragContext}
@@ -71,7 +80,7 @@ ${ragContext}
 When you use information from the retrieved context above, mention the source naturally. Available sources:
 ${ragSources.map(s => `- ${s.title} (${s.type}): ${s.url}`).join('\n')}
 `
-    : EXPLORE_SYSTEM_PROMPT
+    : basePrompt
 
   // Trim conversation history if it's getting too long (~80K tokens)
   const estimatedTokens = JSON.stringify(messages).length / 4

@@ -296,10 +296,10 @@ export const getServiceInfo = defineTool({
 
 // Pre-PICC historical milestones (not in governance_achievements table)
 const HISTORICAL_MILESTONES = [
-  { id: 'hist-1', fiscal_year: '1914', category: 'history', achievement_text: 'Hull River Aboriginal Settlement established on Djiru people\'s land in Mission Beach region', display_order: 1 },
-  { id: 'hist-2', fiscal_year: '1918', category: 'history', achievement_text: 'Category 5 cyclone destroyed Hull River Settlement on 10 March 1918; survivors transferred to Palm Island', display_order: 2 },
-  { id: 'hist-3', fiscal_year: '1918', category: 'history', achievement_text: 'Palm Island gazetted as Aboriginal reserve — people from 50+ language groups forcibly relocated over following decades', display_order: 3 },
-  { id: 'hist-4', fiscal_year: '1985', category: 'history', achievement_text: 'Palm Island Community Company formed by a small group of concerned residents to fill service gaps', display_order: 4 },
+  { id: 'hist-1', fiscal_year: '1914', category: 'history', achievement_text: 'Hull River Aboriginal Settlement established on Djiru people\'s land in the Mission Beach region of North Queensland', display_order: 1 },
+  { id: 'hist-2', fiscal_year: '1918-03', category: 'history', achievement_text: 'Category 5 cyclone destroyed Hull River Settlement on 10 March 1918 — winds of 240-288 km/h and 305mm rain devastated the settlement', display_order: 2 },
+  { id: 'hist-3', fiscal_year: '1918-06', category: 'history', achievement_text: 'Survivors of Hull River cyclone transferred to Palm Island (June 1918). Palm Island gazetted as Aboriginal reserve — people from 50+ language groups forcibly relocated over following decades', display_order: 3 },
+  { id: 'hist-4', fiscal_year: '1985', category: 'history', achievement_text: 'Palm Island Community Company formed by a small group of concerned residents to fill service gaps left by government', display_order: 4 },
   { id: 'hist-5', fiscal_year: '2007', category: 'governance', achievement_text: 'PICC transitioned to community-controlled Aboriginal and Torres Strait Islander Corporation under CATSI Act', display_order: 5 },
   { id: 'hist-6', fiscal_year: '2009', category: 'governance', achievement_text: 'PICC begins formal governance framework and strategic planning', display_order: 6 },
   { id: 'hist-7', fiscal_year: '2017', category: 'governance', achievement_text: 'PICC awarded delegated authority for Child Safety — first Indigenous org in Queensland', display_order: 7 },
@@ -471,12 +471,32 @@ export const findQuotes = defineTool({
     const filtered = diverse.slice(0, limit).map((q: any) => {
       const story = q.stories as { id: string; title: string; profiles: any } | null
       const profile = story?.profiles as { full_name: string; preferred_name: string | null; profile_image_url: string | null; is_elder: boolean | null } | null
-      // Try to extract speaker name from context_before (e.g. "Elder Ethel:" or "Frank said:")
-      let speakerName = profile?.preferred_name || profile?.full_name || null
+      // Extract actual speaker from context_before — multi-speaker stories attribute
+      // quotes to the story's storyteller by default, which is often wrong.
+      // Patterns: "Aunty Ethel on...", "Elder Frank said...", "Winni stood on...", "Cyndel described..."
+      let speakerName: string | null = null
       const ctx = (q.context_before as string | null) || ''
-      const speakerMatch = ctx.match(/^(?:Elder\s+)?([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s*[:—–-]/)
-      if (speakerMatch) {
-        speakerName = speakerMatch[1]
+      const speakerPatterns = [
+        /^(?:Aunty|Uncle|Elder)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s*[:—–\-]/,  // "Aunty Ethel:"
+        /^(?:Aunty|Uncle|Elder)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s+(?:on|said|described|reflected|explained|recalled|shared|spoke|talked|honoured)/,  // "Aunty Ethel on..."
+        /^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s*[:—–\-]/,  // "Frank:"
+        /^([A-Z][a-z]+(?:e|i|y))\s+(?:on|said|described|reflected|explained|recalled|shared|spoke|talked|stood|honoured)/,  // "Winni stood on..." (name ending in vowel-like)
+        /^([A-Z][a-z]{2,})\s+(?:on|said|described|reflected|explained|recalled|shared|spoke|talked|stood|honoured)/,  // "Cyndel described..."
+      ]
+      for (const pattern of speakerPatterns) {
+        const match = ctx.match(pattern)
+        if (match) {
+          speakerName = match[1]
+          // Restore honorific if it was in the context
+          if (/^Aunty\s/i.test(ctx)) speakerName = `Aunty ${speakerName}`
+          else if (/^Uncle\s/i.test(ctx)) speakerName = `Uncle ${speakerName}`
+          else if (/^Elder\s/i.test(ctx)) speakerName = `Elder ${speakerName}`
+          break
+        }
+      }
+      // Only fall back to story storyteller if no speaker found in context
+      if (!speakerName) {
+        speakerName = profile?.preferred_name || profile?.full_name || null
       }
       return {
         id: q.id,
@@ -1517,7 +1537,21 @@ export const getDeepHistory = defineTool({
     if (search) eventsQuery = eventsQuery.or(`title.ilike.%${search}%,description.ilike.%${search}%`)
     if (eventType) eventsQuery = eventsQuery.eq('event_type', eventType)
 
-    const { data: events } = await eventsQuery
+    const { data: rawEvents } = await eventsQuery
+
+    // Deduplicate against HISTORICAL_MILESTONES (which exploreTimeline also returns)
+    // Match on keywords to avoid showing "Hull River cyclone" twice
+    const milestoneKeywords = HISTORICAL_MILESTONES.map(m => {
+      const words = m.achievement_text.toLowerCase().split(/\s+/).filter(w => w.length > 5)
+      return words.slice(0, 3)
+    })
+    const events = (rawEvents || []).filter((e: any) => {
+      const text = `${e.title} ${e.description}`.toLowerCase()
+      // If this event matches a historical milestone closely, skip it
+      return !milestoneKeywords.some(keywords =>
+        keywords.length > 0 && keywords.every(kw => text.includes(kw))
+      )
+    })
 
     // Organization eras
     let erasQuery = supabase
@@ -1681,6 +1715,51 @@ export const getGrantsAndPartnerships = defineTool({
   },
 })
 
+// ─── escalateToHuman ──────────────────────────────────────────────────────────
+
+const escalateToHumanSchema = z.object({
+  reason: z.string().describe('Why escalation is needed (e.g. "crisis support", "complex query", "user requested")'),
+  category: z.enum(['crisis', 'service_inquiry', 'complaint', 'general', 'unresolved']).default('general')
+    .describe('Category of escalation'),
+  userMessage: z.string().optional().describe('The user message or question to pass along'),
+})
+
+type EscalateToHumanInput = z.infer<typeof escalateToHumanSchema>
+
+export const escalateToHuman = defineTool({
+  description: 'Connect the user to a real person at PICC. Use for crisis situations (DV, child safety, mental health), when the user explicitly asks to speak with someone, or when you cannot resolve their question after multiple attempts.',
+  parameters: escalateToHumanSchema,
+  execute: async (input: EscalateToHumanInput) => {
+    const { reason, category, userMessage } = input
+
+    const isCrisis = category === 'crisis'
+
+    return {
+      escalated: true,
+      category,
+      reason,
+      userMessage,
+      contacts: {
+        phone: '(07) 4770 1177',
+        email: 'admin@picc.com.au',
+        address: 'Palm Island Community Company, Palm Island QLD 4816',
+        hours: 'Monday to Friday, 8:30am - 4:30pm',
+      },
+      crisisContacts: isCrisis ? {
+        emergencyServices: '000',
+        dvConnect: '1800 811 811',
+        '1800RESPECT': '1800 737 732',
+        kidsHelpline: '1800 551 800',
+        lifeline: '13 11 14',
+        mentalHealthLine: '1300 642 255',
+      } : null,
+      message: isCrisis
+        ? 'If you or someone you know is in immediate danger, please call 000. For crisis support, the contacts below are available 24/7.'
+        : 'I can pass your question along to the PICC team, or you can reach them directly using the contact details below.',
+    }
+  },
+})
+
 // ─── Export all tools ────────────────────────────────────────────────────────
 
 export const exploreTools = {
@@ -1708,4 +1787,5 @@ export const exploreTools = {
   getImpactIndicators,
   getImmersiveStories,
   getGrantsAndPartnerships,
+  escalateToHuman,
 }
