@@ -66,13 +66,16 @@ export async function classifyMessage(messageText: string): Promise<Classificati
   try {
     const { text } = await generateText({
       model: getClassifierModel(),
-      system: CLASSIFICATION_PROMPT,
-      prompt: messageText.slice(0, 500), // Cap input to keep costs low
+      messages: [
+        { role: 'system' as const, content: CLASSIFICATION_PROMPT },
+        { role: 'user' as const, content: messageText.slice(0, 500) },
+      ],
       maxOutputTokens: 100,
     })
 
     const jsonMatch = text.match(/\{[\s\S]*\}/)
     if (!jsonMatch) {
+      console.error('[classify-message] No JSON in response:', text)
       return { intent: 'unknown', category: 'unclassified', confidence: 0 }
     }
 
@@ -85,7 +88,8 @@ export async function classifyMessage(messageText: string): Promise<Classificati
       confidence: Math.min(1, Math.max(0, Number(parsed.confidence) || 0)),
     }
   } catch (error) {
-    console.error('[classify-message] Classification failed:', error)
+    const msg = error instanceof Error ? error.message : String(error)
+    console.error('[classify-message] Classification failed:', msg)
     return { intent: 'unknown', category: 'error', confidence: 0 }
   }
 }
