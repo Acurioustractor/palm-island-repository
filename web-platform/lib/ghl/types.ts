@@ -44,3 +44,29 @@ export interface GHLContactSearchResult {
   contacts: GHLContact[]
   total: number
 }
+
+/** Inbound message from GHL webhook */
+export interface GHLInboundMessage {
+  type: string
+  locationId: string
+  contactId: string
+  conversationId: string
+  messageId?: string
+  body: string
+  messageType: 'SMS' | 'WhatsApp' | 'Email' | string
+  direction: 'inbound' | 'outbound'
+  dateAdded?: string
+  attachments?: Array<{
+    url: string
+    contentType: string
+  }>
+}
+
+/** Message sent within a GHL conversation */
+export interface GHLConversationMessage {
+  type: string
+  contactId: string
+  conversationId: string
+  message: string
+  messageType?: 'SMS' | 'WhatsApp' | 'Email'
+}

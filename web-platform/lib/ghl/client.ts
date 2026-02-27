@@ -112,6 +112,31 @@ export class GHLClient {
       body: JSON.stringify({ tags }),
     })
   }
+
+  /** Send a message within an existing GHL conversation */
+  async sendMessage(
+    conversationId: string,
+    message: string,
+    type: 'sms' | 'whatsapp' | 'email' = 'sms'
+  ): Promise<GHLResponse> {
+    return this.request('/conversations/messages', {
+      method: 'POST',
+      body: JSON.stringify({
+        type: type === 'whatsapp' ? 'WhatsApp' : type.toUpperCase(),
+        conversationId,
+        message,
+      }),
+    })
+  }
+
+  /** Get messages in a conversation */
+  async getConversationMessages(
+    conversationId: string,
+    limit = 20
+  ): Promise<GHLResponse<{ messages: Array<{ body: string; direction: string; dateAdded: string }> }>> {
+    const params = new URLSearchParams({ limit: String(limit) })
+    return this.request(`/conversations/${conversationId}/messages?${params}`)
+  }
 }
 
 /** Singleton instance */
