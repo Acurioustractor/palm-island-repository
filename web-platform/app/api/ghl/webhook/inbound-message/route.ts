@@ -7,6 +7,15 @@ import type { GHLInboundMessage } from '@/lib/ghl/types'
 
 export const maxDuration = 30
 
+/** GET — health check for GHL webhook verification */
+export function GET() {
+  return NextResponse.json({
+    status: 'ok',
+    webhook: 'inbound-message',
+    timestamp: new Date().toISOString(),
+  })
+}
+
 /**
  * POST /api/ghl/webhook/inbound-message
  *
