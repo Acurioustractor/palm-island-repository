@@ -1,12 +1,13 @@
 /**
  * Message Intent Classifier
  *
- * Uses MiniMax M2.5 to classify inbound community messages by intent.
- * Fast and cheap (~$0.00006/message).
+ * Primary: keyword-based classification (fast, free, reliable).
+ * Fallback: AI classification via Claude Haiku for ambiguous messages.
+ * MiniMax M2.5 is NOT used here — its <think> tags consume all output tokens
+ * before producing JSON, making it unreliable for structured classification.
  */
 
 import { generateText } from 'ai'
-import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
 import { createAnthropic } from '@ai-sdk/anthropic'
 
 export type MessageIntent = 'story' | 'question' | 'feedback' | 'need' | 'vision' | 'greeting' | 'unknown'
@@ -17,67 +18,100 @@ export interface ClassificationResult {
   confidence: number
 }
 
-function getClassifierModel() {
-  const minimaxKey = process.env.MINIMAX_API_KEY
-  if (minimaxKey) {
-    const minimax = createOpenAICompatible({
-      name: 'minimax',
-      baseURL: 'https://api.minimax.io/v1',
-      apiKey: minimaxKey,
-    })
-    return minimax.chatModel('MiniMax-M2.5')
-  }
-
-  const anthropicKey = process.env.ANTHROPIC_API_KEY
-  if (anthropicKey) {
-    const provider = createAnthropic({ apiKey: anthropicKey })
-    return provider('claude-haiku-4-5-20251001')
-  }
-
-  throw new Error('No AI API key configured for message classification')
-}
-
-const CLASSIFICATION_PROMPT = `You classify incoming community messages for Palm Island Community Company (PICC).
-
-Classify the message into ONE intent:
-- story: sharing a personal experience, testimony, or something that happened to them (e.g. "I went to the healing service and felt great")
-- question: asking for information about services, programs, history, or anything (e.g. "What programs do you have for youth?")
-- feedback: giving feedback about a service or experience — positive or negative (e.g. "The clinic wait times are too long")
-- need: expressing a need for help, support, or a specific service (e.g. "I need help with housing")
-- vision: sharing hopes, ideas, or aspirations for the community's future (e.g. "I wish we had more youth programs")
-- greeting: a simple hello, thanks, or conversational opener (e.g. "Hi", "Thanks for that")
-- unknown: cannot determine intent
-
-Also provide a brief category label (1-3 words) and confidence score (0.0-1.0).
-
-Respond ONLY with JSON: {"intent":"...","category":"...","confidence":0.0}`
-
 /**
  * Classify a community message by intent.
- * Returns intent, category, and confidence score.
+ * Uses keyword patterns first, falls back to Claude Haiku for ambiguous messages.
  */
 export async function classifyMessage(messageText: string): Promise<ClassificationResult> {
-  // Quick checks for obvious greetings
-  const greeting = /^(hi|hello|hey|thanks|thank you|cheers|g'day|yo|sup)\b/i
-  if (greeting.test(messageText.trim()) && messageText.trim().split(/\s+/).length <= 4) {
+  const text = messageText.trim()
+  const lower = text.toLowerCase()
+
+  // 1. Greetings (short messages)
+  if (/^(hi|hello|hey|thanks|thank you|cheers|g'day|yo|sup|howdy|good\s*(morning|afternoon|evening))\b/i.test(text) && text.split(/\s+/).length <= 5) {
     return { intent: 'greeting', category: 'greeting', confidence: 0.95 }
   }
 
+  // 2. Questions (interrogative patterns)
+  if (/\?$/.test(text) || /^(what|where|when|who|how|can|do|does|is|are|which|could|would|will)\b/i.test(text)) {
+    const category = detectCategory(lower)
+    return { intent: 'question', category, confidence: 0.85 }
+  }
+
+  // 3. Needs (explicit help requests)
+  if (/\b(i need|i'm looking for|can you help|help me|looking for help|need help|need support|need assistance|struggling with|where can i get)\b/i.test(lower)) {
+    const category = detectCategory(lower)
+    return { intent: 'need', category, confidence: 0.85 }
+  }
+
+  // 4. Feedback (opinion about services)
+  if (/\b(too (long|slow|short|expensive|far)|wait time|should be|could be better|needs? (to be|improvement)|not good|disappointed|complaint|impressed|excellent service|great service|terrible|awful|love the|hate the)\b/i.test(lower)) {
+    const category = detectCategory(lower)
+    return { intent: 'feedback', category, confidence: 0.80 }
+  }
+
+  // 5. Vision (future-oriented aspirations)
+  if (/\b(i wish|i hope|would be great if|we should|in the future|one day|dream of|imagine if|wouldn't it be|next 20 years|aspir)\b/i.test(lower)) {
+    const category = detectCategory(lower)
+    return { intent: 'vision', category, confidence: 0.80 }
+  }
+
+  // 6. Story (personal experience sharing)
+  if (/\b(i went|i visited|i attended|today i|yesterday i|last week|this morning|i felt|made me feel|my experience|i was at|i saw|happened to me|i remember when)\b/i.test(lower)) {
+    const category = detectCategory(lower)
+    return { intent: 'story', category, confidence: 0.80 }
+  }
+
+  // 7. If no keyword match, try Claude Haiku (if available) for ambiguous messages
+  const aiResult = await classifyWithAI(text)
+  if (aiResult) return aiResult
+
+  // 8. Final fallback: use heuristics on message length/structure
+  if (text.length > 80) {
+    // Long messages are likely stories or feedback
+    const category = detectCategory(lower)
+    return { intent: 'story', category, confidence: 0.50 }
+  }
+
+  return { intent: 'unknown', category: 'unclassified', confidence: 0.30 }
+}
+
+/** Detect topic category from message content */
+function detectCategory(lower: string): string {
+  if (/\b(health|clinic|doctor|medical|healing|nurse)\b/.test(lower)) return 'health'
+  if (/\b(youth|young|kids|children|teenager|after.school)\b/.test(lower)) return 'youth'
+  if (/\b(family|child|parent|mother|father|baby)\b/.test(lower)) return 'family'
+  if (/\b(housing|home|accommodation|rent|shelter)\b/.test(lower)) return 'housing'
+  if (/\b(justice|court|legal|police|law)\b/.test(lower)) return 'justice'
+  if (/\b(crisis|safe house|emergency|danger|violence)\b/.test(lower)) return 'crisis'
+  if (/\b(digital|internet|computer|phone|wifi|telstra)\b/.test(lower)) return 'digital'
+  if (/\b(elder|culture|tradition|ceremony|language)\b/.test(lower)) return 'culture'
+  if (/\b(sport|recreation|game|football|basketball)\b/.test(lower)) return 'sport'
+  if (/\b(food|meal|nutrition|cook|eat)\b/.test(lower)) return 'food'
+  if (/\b(job|employment|work|career|training)\b/.test(lower)) return 'employment'
+  return 'general'
+}
+
+/** AI-based classification via Claude Haiku (optional, for ambiguous messages) */
+async function classifyWithAI(messageText: string): Promise<ClassificationResult | null> {
+  const anthropicKey = process.env.ANTHROPIC_API_KEY
+  if (!anthropicKey) return null
+
   try {
+    const provider = createAnthropic({ apiKey: anthropicKey })
+    const model = provider('claude-haiku-4-5-20251001')
+
     const { text } = await generateText({
-      model: getClassifierModel(),
-      system: CLASSIFICATION_PROMPT,
+      model,
+      system: `Classify this community message into ONE intent: story, question, feedback, need, vision, greeting, or unknown.
+Output ONLY JSON: {"intent":"...","category":"...","confidence":0.0}`,
       messages: [
-        { role: 'user' as const, content: `Classify this message: "${messageText.slice(0, 500)}"` },
+        { role: 'user' as const, content: messageText.slice(0, 500) },
       ],
-      maxOutputTokens: 100,
+      maxOutputTokens: 80,
     })
 
     const jsonMatch = text.match(/\{[\s\S]*\}/)
-    if (!jsonMatch) {
-      console.error('[classify-message] No JSON in response:', text)
-      return { intent: 'unknown', category: 'unclassified', confidence: 0 }
-    }
+    if (!jsonMatch) return null
 
     const parsed = JSON.parse(jsonMatch[0])
     const validIntents: MessageIntent[] = ['story', 'question', 'feedback', 'need', 'vision', 'greeting', 'unknown']
@@ -87,9 +121,7 @@ export async function classifyMessage(messageText: string): Promise<Classificati
       category: String(parsed.category || 'unclassified').slice(0, 50),
       confidence: Math.min(1, Math.max(0, Number(parsed.confidence) || 0)),
     }
-  } catch (error) {
-    const msg = error instanceof Error ? error.message : String(error)
-    console.error('[classify-message] Classification failed:', msg)
-    return { intent: 'unknown', category: 'error', confidence: 0 }
+  } catch {
+    return null // Fall through to keyword-based result
   }
 }
