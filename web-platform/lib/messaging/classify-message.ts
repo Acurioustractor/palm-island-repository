@@ -66,9 +66,9 @@ export async function classifyMessage(messageText: string): Promise<Classificati
   try {
     const { text } = await generateText({
       model: getClassifierModel(),
+      system: CLASSIFICATION_PROMPT,
       messages: [
-        { role: 'system' as const, content: CLASSIFICATION_PROMPT },
-        { role: 'user' as const, content: messageText.slice(0, 500) },
+        { role: 'user' as const, content: `Classify this message: "${messageText.slice(0, 500)}"` },
       ],
       maxOutputTokens: 100,
     })
