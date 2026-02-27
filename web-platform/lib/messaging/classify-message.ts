@@ -31,16 +31,16 @@ export async function classifyMessage(messageText: string): Promise<Classificati
     return { intent: 'greeting', category: 'greeting', confidence: 0.95 }
   }
 
-  // 2. Questions (interrogative patterns)
-  if (/\?$/.test(text) || /^(what|where|when|who|how|can|do|does|is|are|which|could|would|will)\b/i.test(text)) {
-    const category = detectCategory(lower)
-    return { intent: 'question', category, confidence: 0.85 }
-  }
-
-  // 3. Needs (explicit help requests)
+  // 2. Needs — check BEFORE questions (needs often end with ?)
   if (/\b(i need|i'm looking for|can you help|help me|looking for help|need help|need support|need assistance|struggling with|where can i get)\b/i.test(lower)) {
     const category = detectCategory(lower)
     return { intent: 'need', category, confidence: 0.85 }
+  }
+
+  // 3. Questions (interrogative patterns)
+  if (/\?$/.test(text) || /^(what|where|when|who|how|can|do|does|is|are|which|could|would|will)\b/i.test(text)) {
+    const category = detectCategory(lower)
+    return { intent: 'question', category, confidence: 0.85 }
   }
 
   // 4. Feedback (opinion about services)
