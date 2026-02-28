@@ -1,11 +1,1371 @@
 {
-  "generated_at": "2026-02-28T01:18:46.640Z",
-  "total_processed": 5,
+  "generated_at": "2026-02-28T03:01:11.600Z",
+  "total_processed": 443,
   "hero_images": [
     {
-      "path": "/annual-report-photos/2009-10/photo-003.jpg",
+      "path": "/annual-report-photos/2009-10/photo-005.jpg",
       "year": "2009-10",
-      "description": "A group of Indigenous children and adults are actively engaged outdoors. An adult woman rides a bicycle, smiling, while several children run alongside her, also smiling and appearing joyful."
+      "description": "An Indigenous Australian woman sits at a desk in an office setting, smiling and looking directly at the camera. A computer keyboard and telephone are on the desk in front of her, with a map visible on the wall behind."
+    },
+    {
+      "path": "/annual-report-photos/2009-10/photo-007.jpg",
+      "year": "2009-10",
+      "description": "A group of Indigenous adults and children are gathered outdoors under a large banyan tree, playing with a variety of toys spread on the grass. One adult in a pink shirt stands observing the activity, while other adults are seated with the children, engaged in play."
+    },
+    {
+      "path": "/annual-report-photos/2009-10/photo-011.jpg",
+      "year": "2009-10",
+      "description": "A person stands on a concrete dock, facing away from the camera, looking out at the vast blue ocean with distant green islands. They hold a bright yellow object aloft in their right hand."
+    },
+    {
+      "path": "/annual-report-photos/2009-10/photo-018.jpg",
+      "year": "2009-10",
+      "description": "An aerial view reveals a vibrant coastal community with numerous buildings, a long jetty, and a sandy beach, all set against the backdrop of a densely forested mountain. The town appears to be a mix of residential and public structures, including a large multi-purpose building and sports fields."
+    },
+    {
+      "path": "/annual-report-photos/2009-10/photo-019.jpg",
+      "year": "2009-10",
+      "description": "An aerial view of a coastal community, likely Palm Island, nestled between dense green hills and the ocean. The image features numerous houses, a large complex of public buildings possibly a school or community center with a sports field, a sandy beach, and calm water."
+    },
+    {
+      "path": "/annual-report-photos/2009-10/photo-020.jpg",
+      "year": "2009-10",
+      "description": "A tranquil tropical beach scene features a wide sandy shore meeting clear, calm ocean waters, with lush green, forested hills in the background under a cloudy sky. Dark tree branches frame the upper and lower left of the image, adding to the natural vista."
+    },
+    {
+      "path": "/annual-report-photos/2009-10/photo-022.jpg",
+      "year": "2009-10",
+      "description": "A smiling man with grey hair, wearing a light blue shirt and a green and black striped tie, stands indoors next to a glass panel featuring the green turtle logo and text for the 'Palm Island Community Company'."
+    },
+    {
+      "path": "/annual-report-photos/2009-10/photo-027.jpg",
+      "year": "2009-10",
+      "description": "A group of Indigenous women and children are gathered outdoors under large trees, enjoying a community playgroup or picnic. Several children play with toys on a blanket, while adults supervise and interact."
+    },
+    {
+      "path": "/annual-report-photos/2009-10/photo-035.jpg",
+      "year": "2009-10",
+      "description": "A group of Indigenous children sits on concrete bleachers inside a community building, attentively listening to an adult male instructor who stands and gestures."
+    },
+    {
+      "path": "/annual-report-photos/2009-10/photo-039.jpg",
+      "year": "2009-10",
+      "description": "A man stands on a concrete jetty, holding a yellow disc-like object high, looking out over the calm blue sea towards distant green islands under a clear sky. Concrete bollards mark the edge of the jetty."
+    },
+    {
+      "path": "/annual-report-photos/2009-10/photo-041.jpg",
+      "year": "2009-10",
+      "description": "A modern, single-story building with a light facade, dark roof, and dark windows/doors stands behind a well-maintained green lawn. Lush green foliage and a white chain-link fence line the foreground, under a bright, partly cloudy sky."
+    },
+    {
+      "path": "/annual-report-photos/2010-11/photo-000.jpg",
+      "year": "2010-11",
+      "description": "A wide shot of a coastal landscape features sandbanks exposed at low tide, calm shallow water, and a range of verdant hills on the horizon under a clear blue sky with some scattered clouds."
+    },
+    {
+      "path": "/annual-report-photos/2010-11/photo-001.jpg",
+      "year": "2010-11",
+      "description": "A vertical landscape photograph captures a serene coastal scene under a bright sky, featuring a distant forested hill, sparkling water reflecting sunlight, and a sandy foreshore with shallow tidal pools."
+    },
+    {
+      "path": "/annual-report-photos/2010-11/photo-002.jpg",
+      "year": "2010-11",
+      "description": "A dynamic shot of three boys engaging in water recreation: one is mid-air performing a tuck dive into clear blue water, another watches from a concrete pier, and a third swims in the background."
+    },
+    {
+      "path": "/annual-report-photos/2010-11/photo-015.jpg",
+      "year": "2010-11",
+      "description": "A headshot of an older Caucasian man with grey hair, wearing a dark suit and a green and blue striped tie, smiling directly at the camera against a plain light background."
+    },
+    {
+      "path": "/annual-report-photos/2010-11/photo-016.jpg",
+      "year": "2010-11",
+      "description": "A person viewed from behind stands on a concrete pier, holding a bright yellow object aloft towards a vast expanse of blue water. Distant green islands are visible on the horizon under a clear sky."
+    },
+    {
+      "path": "/annual-report-photos/2010-11/photo-017.jpg",
+      "year": "2010-11",
+      "description": "A vertical outdoor shot captures a serene coastal scene featuring a white concrete bollard on a weathered pier in the foreground. Beyond it, calm blue ocean waters extend to a distant green island under a clear, light blue sky."
+    },
+    {
+      "path": "/annual-report-photos/2010-11/photo-018.jpg",
+      "year": "2010-11",
+      "description": "A smiling woman with short, curly brown hair wears a red and white striped top, looking directly at the camera. She has a warm, inviting expression on her face."
+    },
+    {
+      "path": "/annual-report-photos/2010-11/photo-019.jpg",
+      "year": "2010-11",
+      "description": "Two young people are by the water, with one in mid-air jumping into the water from a concrete structure and the other standing on the structure watching. The jumper is shirtless and wearing dark shorts, making a 'rock on' hand gesture, while the other person wears a dark t-shirt and shorts."
+    },
+    {
+      "path": "/annual-report-photos/2010-11/photo-020.jpg",
+      "year": "2010-11",
+      "description": "A young boy in mid-air jumps from a concrete pier into water, making a peace sign with an excited expression. Another person with long hair leans on a metal railing in the background, observing the water."
+    },
+    {
+      "path": "/annual-report-photos/2010-11/photo-111.jpg",
+      "year": "2010-11",
+      "description": "A young Indigenous boy with curly hair smiles brightly and gives a thumbs-up gesture while looking directly at the camera. He is wearing an orange t-shirt, and in the background, a television is displaying a colorful animated scene."
+    },
+    {
+      "path": "/annual-report-photos/2010-11/photo-246.jpg",
+      "year": "2010-11",
+      "description": "Two young Indigenous men are training in an indoor boxing gym. The man in the foreground, wearing a single boxing glove, looks directly at the camera, while another man in the background practices with a speed bag. A heavy bag with \"Jim Bradley Speedball\" branding and a kangaroo logo is visible on the right."
+    },
+    {
+      "path": "/annual-report-photos/2010-11/photo-247.jpg",
+      "year": "2010-11",
+      "description": "A close-up portrait captures a young child with brown hair and dark eyes, smiling warmly while looking directly at the camera. The child is wearing a red shirt and appears to be holding a red crayon or pencil, with a blurred background suggesting an indoor setting."
+    },
+    {
+      "path": "/annual-report-photos/2010-11/photo-248.jpg",
+      "year": "2010-11",
+      "description": "A person with traditional white body paint and a colorful lei dances on sand, wearing a pink fringed skirt at an outdoor event."
+    },
+    {
+      "path": "/annual-report-photos/2010-11/photo-250.jpg",
+      "year": "2010-11",
+      "description": "Three individuals, likely women, are seated at a table indoors, engaged in an activity involving papers. The central figure, a young Indigenous woman with long curly hair, smiles brightly towards someone off-camera, while another person writes on paper."
+    },
+    {
+      "path": "/annual-report-photos/2010-11/photo-251.jpg",
+      "year": "2010-11",
+      "description": "A scenic view of a coastal area, featuring a blue and white ferry boat docked at a wooden pier. The foreground includes a sandy beach and green foliage, framed by dark tree branches, while lush green hills rise in the distance across the calm water."
+    },
+    {
+      "path": "/annual-report-photos/2011-12/photo-000.jpg",
+      "year": "2011-12",
+      "description": "An aerial view captures a vibrant tropical coastline featuring lush green forested hills and mountains sloping down to pristine sandy beaches. The clear blue ocean transitions to lighter turquoise shades over shallow areas, potentially revealing coral reefs, with a small coastal settlement visible in the distance along the bay."
+    },
+    {
+      "path": "/annual-report-photos/2011-12/photo-001.jpg",
+      "year": "2011-12",
+      "description": "A headshot-style portrait features an older man with grey hair, smiling gently at the camera. He is dressed in a dark pinstripe suit, a light blue collared shirt, and a green and dark blue striped tie."
+    },
+    {
+      "path": "/annual-report-photos/2011-12/photo-003.jpg",
+      "year": "2011-12",
+      "description": "A smiling older man in a light blue shirt and white pants leans against a blue pillar on a wooden deck, with a light blue building visible behind him and construction materials on the ground to the left."
+    },
+    {
+      "path": "/annual-report-photos/2011-12/photo-004.jpg",
+      "year": "2011-12",
+      "description": "A smiling older woman with curly brown hair is featured in a professional portrait, wearing a black blazer over a patterned blouse."
+    },
+    {
+      "path": "/annual-report-photos/2011-12/photo-006.jpg",
+      "year": "2011-12",
+      "description": "A vibrant outdoor scene features a calm body of water reflecting numerous light-trunked trees, likely eucalyptus or paperbark, that line its banks. The foreground shows several tree trunks with exposed roots at the water's edge, and fallen leaves dot the water's surface."
+    },
+    {
+      "path": "/annual-report-photos/2011-12/photo-007.jpg",
+      "year": "2011-12",
+      "description": "A decorated pier with balloons and palm fronds extends into the blue ocean, featuring a sign overhead that reads \"Great Palm Island\". A boat is docked alongside the pier, and a few people are visible on the structure, with a rocky shoreline in the foreground."
+    },
+    {
+      "path": "/annual-report-photos/2011-12/photo-009.jpg",
+      "year": "2011-12",
+      "description": "A man in a red shirt and patterned shorts stands proudly next to a white pickup truck, branded with the \"Palm Island Community Company\" logo, against a scenic backdrop of blue ocean and distant islands."
+    },
+    {
+      "path": "/annual-report-photos/2011-12/photo-010.jpg",
+      "year": "2011-12",
+      "description": "Two smiling men are seen riding a single horse along a dirt path next to a paved road, enjoying a sunny day outdoors. The background features lush trees and a clear sky, suggesting a tropical or subtropical environment."
+    },
+    {
+      "path": "/annual-report-photos/2011-12/photo-011.jpg",
+      "year": "2011-12",
+      "description": "Two young Indigenous women participate in an outdoor event, with one speaking into a microphone while holding notes, and the other standing behind her. They both wear green and yellow polo shirts, and other individuals are partially visible in the sunny background."
+    },
+    {
+      "path": "/annual-report-photos/2011-12/photo-012.jpg",
+      "year": "2011-12",
+      "description": "An older Indigenous woman and a young Indigenous girl, both smiling warmly, are pictured embracing against a light-colored outdoor wall. The woman wears a pink top, and the girl wears a light blue tank top and an orange bracelet."
+    },
+    {
+      "path": "/annual-report-photos/2011-12/photo-013.jpg",
+      "year": "2011-12",
+      "description": "Four smiling Indigenous women are featured in the foreground of an outdoor community gathering. One woman stands behind two seated women, while a fourth woman is seated at a table, all appearing happy and engaged in the event."
+    },
+    {
+      "path": "/annual-report-photos/2011-12/photo-014.jpg",
+      "year": "2011-12",
+      "description": "Two Indigenous women and five children are sitting on a blue tarp outdoors, surrounded by colorful toys. The adults and some children are smiling, creating a warm, community-focused scene."
+    },
+    {
+      "path": "/annual-report-photos/2011-12/photo-015.jpg",
+      "year": "2011-12",
+      "description": "An aerial view of a tropical coastline featuring a pristine sandy beach curving along a dense green forest. The clear turquoise water reveals shallow coral formations transitioning to a deeper blue ocean, with a few buildings visible within the trees."
+    },
+    {
+      "path": "/annual-report-photos/2011-12/photo-016.jpg",
+      "year": "2011-12",
+      "description": "A serene landscape view of a calm body of water reflecting the sky and the surrounding environment, bordered by dense pine trees on the far bank. Bare tree branches extend into the water from a grassy bank in the foreground."
+    },
+    {
+      "path": "/annual-report-photos/2011-12/photo-017.jpg",
+      "year": "2011-12",
+      "description": "Two smiling Indigenous Australian women are seated indoors, looking towards the camera. The younger woman on the left wears a blue top, and the older woman on the right wears a patterned white and purple blouse, with informational posters visible on the walls in the background."
+    },
+    {
+      "path": "/annual-report-photos/2011-12/photo-018.jpg",
+      "year": "2011-12",
+      "description": "A smiling Indigenous man with curly hair and a beard is seated at a wooden table, wearing a light blue collared shirt with an embroidered logo on the pocket. He is looking directly at the camera with a friendly expression."
+    },
+    {
+      "path": "/annual-report-photos/2011-12/photo-019.jpg",
+      "year": "2011-12",
+      "description": "A panoramic outdoor shot showcasing a lush, green landscape with hills, trees, and a prominent bare tree in the foreground, overlooking a coastal town, a serene blue ocean, and multiple islands in the distance under a partly cloudy sky."
+    },
+    {
+      "path": "/annual-report-photos/2011-12/photo-020.jpg",
+      "year": "2011-12",
+      "description": "An Indigenous woman with short, curly brown hair smiles warmly while holding a dark mug in a brightly lit kitchen. A white electric kettle and a colorful bouquet of artificial flowers are on the counter beside her."
+    },
+    {
+      "path": "/annual-report-photos/2011-12/photo-021.jpg",
+      "year": "2011-12",
+      "description": "Three women, including two Indigenous Australian women and one Caucasian woman, are smiling warmly at the camera in an indoor setting. They appear to be staff or community members, likely from the Palm Island Community Company."
+    },
+    {
+      "path": "/annual-report-photos/2011-12/photo-022.jpg",
+      "year": "2011-12",
+      "description": "A tranquil landscape featuring a body of water with a green-blue hue, surrounded by lush foliage and trees in the foreground, and rocky, tree-lined banks in the distance under a bright sky."
+    },
+    {
+      "path": "/annual-report-photos/2011-12/photo-024.jpg",
+      "year": "2011-12",
+      "description": "A diverse group of seven adults, including men and women, smiling and posing for a photo outdoors in a lush tropical setting with palm trees and a white structure in the background."
+    },
+    {
+      "path": "/annual-report-photos/2011-12/photo-025.jpg",
+      "year": "2011-12",
+      "description": "An aerial view of a coastal town nestled between a vast forested mountain range and the clear blue ocean. The town features residential buildings, a main road along the coast, a jetty with boats, and stretches of sandy beach."
+    },
+    {
+      "path": "/annual-report-photos/2012-13/photo-000.jpg",
+      "year": "2012-13",
+      "description": "A young Indigenous girl with a top knot hairstyle crouches on a wooden deck, smiling at the camera while playing with a wooden toy service station. She is wearing a striped top, denim shorts, and pink thongs."
+    },
+    {
+      "path": "/annual-report-photos/2012-13/photo-001.jpg",
+      "year": "2012-13",
+      "description": "Four men, including two Indigenous men, stand smiling outdoors on a new rubber-mulch playground. They appear to be community leaders or partners at a project site, with a blue and white building visible in the background."
+    },
+    {
+      "path": "/annual-report-photos/2012-13/photo-002.jpg",
+      "year": "2012-13",
+      "description": "An aerial view captures a coastal town nestled against a densely forested mountain, featuring numerous houses, a sandy beach, a pier with boats, and vibrant blue ocean waters."
+    },
+    {
+      "path": "/annual-report-photos/2012-13/photo-004.jpg",
+      "year": "2012-13",
+      "description": "An Indigenous woman with dark reddish-brown hair smiles gently, wearing a vibrant blue patterned top, against a plain, light background. She is captured in a professional portrait."
+    },
+    {
+      "path": "/annual-report-photos/2012-13/photo-005.jpg",
+      "year": "2012-13",
+      "description": "A smiling Indigenous woman in an orange collared shirt and lanyard stands on a wooden deck, leaning on a railing. She is outdoors in front of a light blue building with windows and doors."
+    },
+    {
+      "path": "/annual-report-photos/2012-13/photo-006.jpg",
+      "year": "2012-13",
+      "description": "Three young children are playing in a brightly lit indoor space, possibly a daycare or classroom, featuring a round wooden table with chairs, a small bed, and colorful educational materials and toys on a green floor mat."
+    },
+    {
+      "path": "/annual-report-photos/2012-13/photo-007.jpg",
+      "year": "2012-13",
+      "description": "An Indigenous Australian woman with dark skin and hair tied back is in a kitchen, looking towards the camera with a slight smile while reaching into a large plastic container filled with chopped fruit. She is wearing a purple shirt, and a white refrigerator and kitchen cabinets are visible in the background."
+    },
+    {
+      "path": "/annual-report-photos/2012-13/photo-008.jpg",
+      "year": "2012-13",
+      "description": "A young Aboriginal girl with dark hair tied back is engrossed in an art activity at a table, holding a small green object in one hand and red tongs in the other, with baskets of colorful craft materials nearby. In the blurry background, a banner partially reads \"DEADLY KIDS\"."
+    },
+    {
+      "path": "/annual-report-photos/2012-13/photo-009.jpg",
+      "year": "2012-13",
+      "description": "A young Indigenous child with dark skin and hair in a top bun sits on a grey playground slide outdoors, wearing a light purple long-sleeve top and white pants, giving a cheerful thumbs-up gesture towards the camera."
+    },
+    {
+      "path": "/annual-report-photos/2012-13/photo-010.jpg",
+      "year": "2012-13",
+      "description": "Indigenous children, adorned with white body paint, participate in an outdoor cultural dance or ceremony on a grassy field, with adults in traditional attire visible in the background."
+    },
+    {
+      "path": "/annual-report-photos/2012-13/photo-011.jpg",
+      "year": "2012-13",
+      "description": "An Indigenous woman with long dark hair and a bright smile sits at an office desk, wearing a green and black polo shirt. She is looking to her right, and the office cubicle behind her features various posters and documents."
+    },
+    {
+      "path": "/annual-report-photos/2012-13/photo-012.jpg",
+      "year": "2012-13",
+      "description": "An adult Indigenous woman and a young Indigenous child are engaged in playing with colorful wooden peg puzzles at a table in a bright classroom or childcare setting."
+    },
+    {
+      "path": "/annual-report-photos/2012-13/photo-013.jpg",
+      "year": "2012-13",
+      "description": "Four Indigenous Australian men are gathered outdoors in a natural, bushy setting. An older man with a beard and a cap sits on the left, next to a younger man with a mustache and sunglasses on his head, wearing a black and orange polo shirt with a \"Palm Island\" logo. Another younger man stands behind them, and an older man with grey hair stands on the right."
+    },
+    {
+      "path": "/annual-report-photos/2012-13/photo-015.jpg",
+      "year": "2012-13",
+      "description": "A close-up shot of several vibrant cushions adorned with Indigenous Australian artwork, showcasing various dot paintings and animal motifs in warm, earthy tones and bright greens, resting on a floor inside an orange-hued space."
+    },
+    {
+      "path": "/annual-report-photos/2012-13/photo-017.jpg",
+      "year": "2012-13",
+      "description": "A close-up shot of several handcrafted, elongated pod-like objects, some painted with vibrant colors such as red, pink, green, and purple, hanging by strings. In the background, abstract artworks with strokes of green, yellow, and red paint on brown paper are visible."
+    },
+    {
+      "path": "/annual-report-photos/2012-13/photo-018.jpg",
+      "year": "2012-13",
+      "description": "A diverse group of eight people, including men and women, walk along a sandy beach on a sunny day. They appear to be engaged in conversation, with a lush, green, hilly landscape and calm bay in the background."
+    },
+    {
+      "path": "/annual-report-photos/2012-13/photo-020.jpg",
+      "year": "2012-13",
+      "description": "A close-up shot of a light-colored surface, possibly fabric, covered with numerous colorful handprints in various sizes and hues, including red, orange, yellow, green, blue, black, and white."
+    },
+    {
+      "path": "/annual-report-photos/2013-14/photo-000.jpg",
+      "year": "2013-14",
+      "description": "A group portrait of five smiling Indigenous people, including three adult women and two young girls, sitting together indoors. One woman is wearing a black and orange polo shirt with the \"Palm Island Community Company\" logo."
+    },
+    {
+      "path": "/annual-report-photos/2013-14/photo-002.jpg",
+      "year": "2013-14",
+      "description": "Three young Indigenous women sit on blue posts at the edge of a pier, looking out over a vast, calm blue ocean towards distant islands. The scene captures a moment of quiet contemplation by the water under a clear, bright sky."
+    },
+    {
+      "path": "/annual-report-photos/2013-14/photo-003.jpg",
+      "year": "2013-14",
+      "description": "A scenic view of a sandy beach featuring a protective rock wall (revetment) lining the coast. Palm trees and lush green hills stretch along the shoreline, meeting the calm blue ocean under a partly cloudy sky."
+    },
+    {
+      "path": "/annual-report-photos/2013-14/photo-004.jpg",
+      "year": "2013-14",
+      "description": "A headshot portrait of an older Caucasian man with gray hair, smiling directly at the camera. He is wearing a dark suit, a white shirt, and a green and blue striped tie."
+    },
+    {
+      "path": "/annual-report-photos/2013-14/photo-005.jpg",
+      "year": "2013-14",
+      "description": "A headshot portrait of an older woman with short, dark curly hair, wearing a patterned black, red, and white top. She is looking directly at the camera with a gentle smile against a soft, blurred indoor background."
+    },
+    {
+      "path": "/annual-report-photos/2013-14/photo-006.jpg",
+      "year": "2013-14",
+      "description": "A man wearing glasses and a striped shirt sits at a desk in a medical office or clinic, looking directly at the camera. The desk is cluttered with medical equipment, an anatomical torso model, papers, and a computer monitor."
+    },
+    {
+      "path": "/annual-report-photos/2013-14/photo-007.jpg",
+      "year": "2013-14",
+      "description": "Three Indigenous women smile brightly behind a display counter in the Palm Island Community Shop, with a large sign for the shop and various merchandise like jewelry visible in the foreground."
+    },
+    {
+      "path": "/annual-report-photos/2013-14/photo-008.jpg",
+      "year": "2013-14",
+      "description": "Two smiling Indigenous girls in yellow and green school uniforms are sitting on a blue bench outdoors, eating yogurt from small containers. They appear to be in a schoolyard or community setting with colorful structures in the blurred background."
+    },
+    {
+      "path": "/annual-report-photos/2013-14/photo-009.jpg",
+      "year": "2013-14",
+      "description": "A smiling Caucasian man in a red polo shirt with a white collar and white trim on the sleeves, featuring a green turtle logo, stands against a blurred background with colorful shapes. He has a short beard and is wearing a dark watch on his left wrist."
+    },
+    {
+      "path": "/annual-report-photos/2013-14/photo-011.jpg",
+      "year": "2013-14",
+      "description": "An Indigenous Australian woman with a warm smile is seated behind a reception desk, looking directly at the camera. The desk has a 'RECEPTION' sign in red letters and various documents on top, while office shelving and decor are visible in the background."
+    },
+    {
+      "path": "/annual-report-photos/2013-14/photo-012.jpg",
+      "year": "2013-14",
+      "description": "Three women are engaged in a medical procedure in a clinical setting. An Indigenous woman, wearing a red polo shirt, is having her blood drawn from her arm by a healthcare professional, while another woman, wearing a plaid top, observes and interacts with her."
+    },
+    {
+      "path": "/annual-report-photos/2013-14/photo-013.jpg",
+      "year": "2013-14",
+      "description": "A young child with curly hair and a pink top intently plays with playdough and a small wooden rolling pin at a table, with another child's hand visible on the right reaching into a container of pink playdough."
+    },
+    {
+      "path": "/annual-report-photos/2013-14/photo-015.jpg",
+      "year": "2013-14",
+      "description": "An elevated view of a tranquil coastal scene on a sunny day, featuring clear blue-green shallow water transitioning to a sandy beach. Along the shore, there's a concrete esplanade, palm trees, a prominent white building, and other structures, all backed by a large green, tree-covered mountain under a partly cloudy blue sky."
+    },
+    {
+      "path": "/annual-report-photos/2013-14/photo-069.jpg",
+      "year": "2013-14",
+      "description": "A smiling man with dark hair, wearing a black suit and a green and black striped tie, is posing for a headshot against a plain white background."
+    },
+    {
+      "path": "/annual-report-photos/2013-14/photo-071.jpg",
+      "year": "2013-14",
+      "description": "A headshot of an Indigenous Australian woman with dark hair pulled back, wearing glasses, and a purple and white patterned top, smiling gently against a plain grey background."
+    },
+    {
+      "path": "/annual-report-photos/2013-14/photo-072.jpg",
+      "year": "2013-14",
+      "description": "A headshot portrait of an older Indigenous Australian man, possibly a community elder or leader, wearing a dark suit, a light blue collared shirt, and a green and blue striped tie, looking directly at the viewer with a slight smile."
+    },
+    {
+      "path": "/annual-report-photos/2013-14/photo-073.jpg",
+      "year": "2013-14",
+      "description": "A smiling woman with dark skin and braided hair looks directly at the camera, wearing a white shirt and a bright pink cardigan. The background is brightly lit and out of focus."
+    },
+    {
+      "path": "/annual-report-photos/2013-14/photo-081.jpg",
+      "year": "2013-14",
+      "description": "A headshot of a smiling man of color with short dark hair, wearing a dark pinstriped suit jacket, a light blue collared shirt, and a green and blue striped tie, against a plain light grey background."
+    },
+    {
+      "path": "/annual-report-photos/2013-14/photo-082.jpg",
+      "year": "2013-14",
+      "description": "A close-up headshot of a smiling man with a bald head and a white goatee, wearing a dark suit jacket over a blue collared shirt and a green and black striped tie."
+    },
+    {
+      "path": "/annual-report-photos/2013-14/photo-084.jpg",
+      "year": "2013-14",
+      "description": "A light blue building housing the Palm Island Children and Family Centre is seen with a branded white van parked in front. Stairs lead up to the building's entrance, which features a decorative dark gate."
+    },
+    {
+      "path": "/annual-report-photos/2014-15/photo-000.jpg",
+      "year": "2014-15",
+      "description": "A serene, light blue landscape featuring a vast body of water with sunlight reflecting off its surface, distant landforms, and a sky with scattered clouds."
+    },
+    {
+      "path": "/annual-report-photos/2014-15/photo-001.jpg",
+      "year": "2014-15",
+      "description": "An aerial view of a vibrant green tropical landscape with a calm body of water, possibly a bay or river, nestled between lush, tree-covered hills. The image is rendered in a monochromatic orange hue."
+    },
+    {
+      "path": "/annual-report-photos/2014-15/photo-002.jpg",
+      "year": "2014-15",
+      "description": "An aerial view captures the vibrant tropical landscape of an island, featuring a lush green forest-covered hill, a curving sandy beach, and crystal-clear turquoise ocean waters revealing extensive coral reefs beneath the surface."
+    },
+    {
+      "path": "/annual-report-photos/2014-15/photo-005.jpg",
+      "year": "2014-15",
+      "description": "A man of Indigenous appearance, wearing a green sports jersey and a light green cap, sits outdoors and smiles at the camera while holding two pieces of light-colored, curved wood, possibly in preparation for carving. Trees and some background clutter are visible."
+    },
+    {
+      "path": "/annual-report-photos/2014-15/photo-006.jpg",
+      "year": "2014-15",
+      "description": "A scenic view of a wooden pier or jetty extending into calm, clear blue-green water under a bright blue sky with scattered white clouds. A sandy beach with gentle waves and a rocky shoreline occupies the right and foreground, while distant hills or islands are visible across the bay."
+    },
+    {
+      "path": "/annual-report-photos/2014-15/photo-007.jpg",
+      "year": "2014-15",
+      "description": "Four Indigenous women and girls, likely from Palm Island, pose for a photograph, smiling. The background suggests an outdoor market or festival setting, and one woman's shirt promotes the 'Palm Island Spring Festival - September 2014'."
+    },
+    {
+      "path": "/annual-report-photos/2014-15/photo-008.jpg",
+      "year": "2014-15",
+      "description": "A high-angle view overlooks a tropical coastal town featuring houses nestled among lush green trees, a prominent tree with reddish-orange leaves, and the calm blue ocean stretching to distant hills. The foreground is framed by leafy branches."
+    },
+    {
+      "path": "/annual-report-photos/2014-15/photo-009.jpg",
+      "year": "2014-15",
+      "description": "A monochromatic orange-toned landscape photo depicts a wide beach at low tide, with wet sand, rocks, and sunlight glinting off the calm ocean. A tree-covered hill forms the right coastline, while distant mountains are visible across the water under a lightly clouded sky."
+    },
+    {
+      "path": "/annual-report-photos/2014-15/photo-011.jpg",
+      "year": "2014-15",
+      "description": "Three young children are seated at a table, drawing on paper with markers. The child in the center is laughing with their mouth wide open, wearing a striped shirt with Elmo, while the other two children in blue and orange shirts smile and look at their drawings."
+    },
+    {
+      "path": "/annual-report-photos/2014-15/photo-012.jpg",
+      "year": "2014-15",
+      "description": "Three smiling Indigenous women are seated at a table indoors, looking towards the camera. Papers and booklets are visible on the table, and a large, vibrant yellow and brown artwork hangs on the wall behind them."
+    },
+    {
+      "path": "/annual-report-photos/2014-15/photo-013.jpg",
+      "year": "2014-15",
+      "description": "An older Indigenous man in a blue patterned polo shirt and black cap leans on a white van featuring the green turtle logo and \"Palm Island COMMUNITY COMPANY\" branding. He looks directly at the camera, with natural light suggesting an outdoor setting."
+    },
+    {
+      "path": "/annual-report-photos/2014-15/photo-014.jpg",
+      "year": "2014-15",
+      "description": "A wide panoramic view captures a serene coastal scene with calm blue waters leading to distant mountainous islands under a bright blue sky dotted with white clouds. On the right, a wooden pier extends into the water from a sandy beach, bordered by a rocky embankment."
+    },
+    {
+      "path": "/annual-report-photos/2014-15/photo-015.jpg",
+      "year": "2014-15",
+      "description": "Five Indigenous women, three in the foreground smiling at the camera, are pictured indoors. The central woman wears a grey t-shirt with \"MADE TO LOOK\" text, while the woman on the right wears a vibrant blue and orange shirt with \"SPRING FESTIVAL\" and fruit imagery. Two other women are visible in the blurred background."
+    },
+    {
+      "path": "/annual-report-photos/2014-15/photo-016.jpg",
+      "year": "2014-15",
+      "description": "A smiling woman with dark, curly hair and sunglasses on her head is seated at a desk indoors, wearing a green and black polo shirt featuring the 'Palm Island Community Company' logo."
+    },
+    {
+      "path": "/annual-report-photos/2014-15/photo-017.jpg",
+      "year": "2014-15",
+      "description": "Three Indigenous Australian children, a young girl and two boys, pose outdoors in front of a building. The girl and the boy in the middle are smiling and making peace signs, while the boy on the right has a more serious expression and makes a similar hand gesture. The image has an orange overlay."
+    },
+    {
+      "path": "/annual-report-photos/2014-15/photo-019.jpg",
+      "year": "2014-15",
+      "description": "A man in a light blue polo shirt stands smiling next to a reception desk, while a woman with glasses and a patterned blue shirt sits behind the desk, also smiling at the camera. The setting appears to be an office or community center reception area."
+    },
+    {
+      "path": "/annual-report-photos/2014-15/photo-020.jpg",
+      "year": "2014-15",
+      "description": "A low-angle shot of a lush palm tree, displaying its green fronds and some coconuts, set against a vibrant blue sky with scattered white clouds."
+    },
+    {
+      "path": "/annual-report-photos/2014-15/photo-021.jpg",
+      "year": "2014-15",
+      "description": "A serene landscape photo featuring a vast expanse of light blue water with sparkling sunlight reflections, distant mountains, and a light blue sky with scattered clouds."
+    },
+    {
+      "path": "/annual-report-photos/2015-16/photo-000.jpg",
+      "year": "2015-16",
+      "description": "A group of Indigenous Australian women and children, including several babies and toddlers, are smiling while leaning on a metal railing on a wooden deck. They appear to be multi-generational families in an outdoor setting, with a light blue building in the background."
+    },
+    {
+      "path": "/annual-report-photos/2015-16/photo-003.jpg",
+      "year": "2015-16",
+      "description": "Three young children, wearing hats and school-like uniforms, stand side-by-side on a colorful outdoor playground structure and smile directly at the camera. The child in the center wears a Batman shirt, and the playground features orange, purple, and blue bars."
+    },
+    {
+      "path": "/annual-report-photos/2015-16/photo-004.jpg",
+      "year": "2015-16",
+      "description": "A smiling Indigenous woman, wearing a red apron over a grey and orange shirt, holds a tray of freshly baked goods (likely pies) near an open industrial oven in a commercial bakery setting. The oven is made of stainless steel with glass viewing panels and number labels '3' and '5'."
+    },
+    {
+      "path": "/annual-report-photos/2015-16/photo-006.jpg",
+      "year": "2015-16",
+      "description": "A man in a blue shirt, appearing to be a mechanic, smiles while leaning over the open hood of a car, surrounded by tools and equipment in an indoor garage setting."
+    },
+    {
+      "path": "/annual-report-photos/2015-16/photo-007.jpg",
+      "year": "2015-16",
+      "description": "Two Indigenous men proudly hold a large red fish on a jetty, with one man smiling at the camera. The background shows open water and distant land, suggesting a coastal or island setting."
+    },
+    {
+      "path": "/annual-report-photos/2015-16/photo-008.jpg",
+      "year": "2015-16",
+      "description": "Three smiling men, two wearing yellow polo shirts and one in a grey polo shirt and a cap, stand outdoors. The man in the center gives a thumbs-up, and the man on the left has \"Palm Island Community\" written on his shirt."
+    },
+    {
+      "path": "/annual-report-photos/2015-16/photo-010.jpg",
+      "year": "2015-16",
+      "description": "Two Indigenous women are seated at an outdoor table, engaged in conversation. One woman, in a wheelchair, has her back to the camera, while the other smiles and gestures with her hands while speaking."
+    },
+    {
+      "path": "/annual-report-photos/2015-16/photo-011.jpg",
+      "year": "2015-16",
+      "description": "Three children, appearing to be of Indigenous descent, sit smiling on a blue carpet in what looks like a classroom. A sign with the word \"COLOURS\" and color swatches is visible on the wall in the background."
+    },
+    {
+      "path": "/annual-report-photos/2015-16/photo-012.jpg",
+      "year": "2015-16",
+      "description": "An Indigenous woman, possibly a healthcare worker, is examining the ear of an Indigenous boy with an otoscope. The boy is seated and looks attentive, while the woman kneels beside him, focusing on the examination in an indoor medical or clinic setting with office shelves and an eye chart visible in the background."
+    },
+    {
+      "path": "/annual-report-photos/2015-16/photo-013.jpg",
+      "year": "2015-16",
+      "description": "Four young Indigenous children, wearing blue bucket hats, are sitting on a red bench outdoors, smiling happily at the camera. Two children on the left wear purple t-shirts, while the two on the right wear a white and a light pink t-shirt respectively."
+    },
+    {
+      "path": "/annual-report-photos/2015-16/photo-014.jpg",
+      "year": "2015-16",
+      "description": "A joyful Indigenous man, wearing a blue shirt with an Aboriginal flag patch and an orange cap, gently holds a beaming Indigenous baby who wears a light blue bib. Both are smiling warmly, set against a bright, possibly outdoor, background."
+    },
+    {
+      "path": "/annual-report-photos/2016-17/photo-000.jpg",
+      "year": "2016-17",
+      "description": "A composite image featuring an Indigenous man holding a baby, and an older Indigenous girl, all in black and white, against a light blue background adorned with vibrant purple, yellow, pink, and dark blue paint brush strokes."
+    },
+    {
+      "path": "/annual-report-photos/2016-17/photo-001.jpg",
+      "year": "2016-17",
+      "description": "A smiling older woman, likely Indigenous, is pictured in a close-up portrait, seated in front of an abstract blue and white background. She is wearing a patterned top and appears to be sitting at a table."
+    },
+    {
+      "path": "/annual-report-photos/2016-17/photo-003.jpg",
+      "year": "2016-17",
+      "description": "An aerial view captures a vibrant tropical coastline with deep blue waters transitioning to clear turquoise over shallow reefs, a sandy beach, and a densely forested headland in the foreground. In the distance, a small coastal settlement is nestled against rolling green hills under a hazy sky."
+    },
+    {
+      "path": "/annual-report-photos/2016-17/photo-004.jpg",
+      "year": "2016-17",
+      "description": "A smiling Indigenous Australian woman with glasses and her hair tied up holds a happy baby, both looking directly at the camera. They are outdoors with a blurred green background."
+    },
+    {
+      "path": "/annual-report-photos/2016-17/photo-007.jpg",
+      "year": "2016-17",
+      "description": "A smiling Indigenous Australian woman with dark, curly hair holds a happy baby wearing a white fluffy jumpsuit. They are looking directly at the camera in a bright, possibly outdoor or semi-outdoor setting."
+    },
+    {
+      "path": "/annual-report-photos/2016-17/photo-008.jpg",
+      "year": "2016-17",
+      "description": "A young Indigenous boy, wearing a school-like uniform, smiles brightly as he intently writes or draws with a pencil on paper in an outdoor setting."
+    },
+    {
+      "path": "/annual-report-photos/2016-17/photo-009.jpg",
+      "year": "2016-17",
+      "description": "A smiling Indigenous Australian woman wearing a patterned shirt and a lanyard sits next to a child, both partially visible in an outdoor setting, likely engaging in a community activity."
+    },
+    {
+      "path": "/annual-report-photos/2016-17/photo-010.jpg",
+      "year": "2016-17",
+      "description": "An Indigenous woman, wearing a Palm Island branded shirt, sits on the floor with five young Indigenous children, reading an animal picture book to them. They are in an indoor setting, possibly a classroom or childcare center, with toy kitchen furniture visible in the background."
+    },
+    {
+      "path": "/annual-report-photos/2016-17/photo-011.jpg",
+      "year": "2016-17",
+      "description": "Indigenous Australian artwork featuring a golden snake with traditional dot painting patterns, coiling amidst black leaves and a pink flower. The background is a speckled purple with white and gold splashes."
+    },
+    {
+      "path": "/annual-report-photos/2016-17/photo-012.jpg",
+      "year": "2016-17",
+      "description": "An abstract painting featuring a vibrant purple background with white and gold splatters, large black heart-shaped leaves with white outlines and red accents, and a central golden curved band adorned with black, white, and red dot patterns and yellow star-like elements, characteristic of Indigenous Australian art."
+    },
+    {
+      "path": "/annual-report-photos/2016-17/photo-013.jpg",
+      "year": "2016-17",
+      "description": "A smiling woman, likely a staff member, wears a black head covering and a polo shirt with the 'Palm Island Community Company' logo, captured indoors."
+    },
+    {
+      "path": "/annual-report-photos/2017-18/photo-000.jpg",
+      "year": "2017-18",
+      "description": "A family of four, consisting of two adults and two children, smiles warmly while posing outdoors against a backdrop of lush palm trees. The man is squatting, while the woman stands behind him with an arm around one of the children."
+    },
+    {
+      "path": "/annual-report-photos/2017-18/photo-001.jpg",
+      "year": "2017-18",
+      "description": "A smiling young Indigenous girl with curly brown hair sits barefoot on a large rock by the ocean, wearing a dark blue t-shirt and white patterned shorts."
+    },
+    {
+      "path": "/annual-report-photos/2017-18/photo-002.jpg",
+      "year": "2017-18",
+      "description": "A serene tropical beach scene features several leaning palm trees framing a sandy path that runs alongside a calm ocean bay. The water reveals low tide flats, with distant green hills and islands visible under a bright blue sky dotted with white clouds."
+    },
+    {
+      "path": "/annual-report-photos/2017-18/photo-003.jpg",
+      "year": "2017-18",
+      "description": "Two Indigenous girls, one older and one younger, are engaged in a painting activity at an outdoor table. The younger girl in a pink dress actively paints a sculptured object, while the older girl in a teal polo shirt with Indigenous art designs watches and assists."
+    },
+    {
+      "path": "/annual-report-photos/2017-18/photo-004.jpg",
+      "year": "2017-18",
+      "description": "Five Indigenous children sit barefoot on colorful stools on sandy ground covered with leaves, holding white cups and looking towards the camera, with a beach and ocean in the background."
+    },
+    {
+      "path": "/annual-report-photos/2017-18/photo-005.jpg",
+      "year": "2017-18",
+      "description": "A group of thirteen Indigenous children and young people are gathered on rocks at a sandy beach, posing for a photo. They are smiling and looking at the camera, with a calm ocean and distant mountainous islands under a blue sky with white clouds in the background."
+    },
+    {
+      "path": "/annual-report-photos/2017-18/photo-006.jpg",
+      "year": "2017-18",
+      "description": "Seven Indigenous men are standing side-by-side on a sandy path, facing the viewer, with a bright blue sky and a coastal beach scene in the background. They are casually dressed and appear to be part of a community group."
+    },
+    {
+      "path": "/annual-report-photos/2017-18/photo-007.jpg",
+      "year": "2017-18",
+      "description": "A smiling Indigenous man in a yellow and blue work shirt leans on a wooden railing outdoors, with a blurred background of green foliage."
+    },
+    {
+      "path": "/annual-report-photos/2017-18/photo-008.jpg",
+      "year": "2017-18",
+      "description": "Two Indigenous Australian women and two young girls smile and pose for the camera on a porch or veranda. One of the women holds a binder with the title \"Ready Together\" and a Queensland government logo."
+    },
+    {
+      "path": "/annual-report-photos/2017-18/photo-009.jpg",
+      "year": "2017-18",
+      "description": "Eight Indigenous children are gathered outdoors on a patterned mat, eating snacks from plates and looking at books. They are sitting on the ground under dappled sunlight, with rocks, grass, and a paved area visible in the background."
+    },
+    {
+      "path": "/annual-report-photos/2017-18/photo-010.jpg",
+      "year": "2017-18",
+      "description": "A healthcare worker, possibly Indigenous, leans in to examine the ear of a young child with an otoscope, while the child is held by an adult. The child looks directly at the viewer with a finger in their mouth."
+    },
+    {
+      "path": "/annual-report-photos/2017-18/photo-011.jpg",
+      "year": "2017-18",
+      "description": "A close-up portrait of an older Indigenous Australian woman with dark, curly hair, looking directly at the camera with a thoughtful and serious expression. Two other Indigenous women are visible, blurred in the background, suggesting a community setting."
+    },
+    {
+      "path": "/annual-report-photos/2018-19/photo-000.jpg",
+      "year": "2018-19",
+      "description": "Two men, seen from behind, stand amidst dense bushland, appearing to observe their surroundings. One man wears a wide-brimmed hat, while the other wears a cap and a shirt with \"Palm Island Community Company\" visible on the back. The photo is in black and white."
+    },
+    {
+      "path": "/annual-report-photos/2018-19/photo-001.jpg",
+      "year": "2018-19",
+      "description": "A young Indigenous girl with face paint on her cheek smiles warmly at the camera. She is wearing a bright orange and yellow shirt with \"Gathering\" written on it, set against a blurred outdoor background of people and greenery."
+    },
+    {
+      "path": "/annual-report-photos/2018-19/photo-002.jpg",
+      "year": "2018-19",
+      "description": "A young boy and an adult man are standing on a pier, engaged in fishing. The boy looks out to the left while the man holds a fishing rod, looking towards the water."
+    },
+    {
+      "path": "/annual-report-photos/2018-19/photo-003.jpg",
+      "year": "2018-19",
+      "description": "Two young Indigenous girls smile directly at the camera, with other children blurred in the background. The girl on the left has white flower face paint and a purple t-shirt, while the girl on the right wears a light blue tank top with 'Constable Clancy Says Police are your friends' badges."
+    },
+    {
+      "path": "/annual-report-photos/2018-19/photo-004.jpg",
+      "year": "2018-19",
+      "description": "Five Indigenous women are sitting side-by-side on an outdoor bench, smiling at the camera. The background features a beach and water, with a palm tree trunk visible on the right."
+    },
+    {
+      "path": "/annual-report-photos/2018-19/photo-005.jpg",
+      "year": "2018-19",
+      "description": "A black and white, close-up portrait of a smiling young Indigenous boy wearing a polo shirt with text on the collar. He is looking slightly to the side, with a blurred background suggesting an indoor setting and other people."
+    },
+    {
+      "path": "/annual-report-photos/2018-19/photo-006.jpg",
+      "year": "2018-19",
+      "description": "A group of seven Indigenous men sit outdoors on a concrete ledge by the water, with a pier visible in the background. Several men are clapping or have their hands clasped, and many are wearing vibrant shirts featuring Aboriginal art designs."
+    },
+    {
+      "path": "/annual-report-photos/2018-19/photo-007.jpg",
+      "year": "2018-19",
+      "description": "Two smiling young Indigenous girls, one with face paint, are captured in a close-up outdoors, likely at a community event."
+    },
+    {
+      "path": "/annual-report-photos/2018-19/photo-008.jpg",
+      "year": "2018-19",
+      "description": "A young Indigenous girl wearing a sun hat with antennae and a Moana t-shirt sits on a wooden bench, holding a bowl of food and smiling gently at the camera."
+    },
+    {
+      "path": "/annual-report-photos/2018-19/photo-009.jpg",
+      "year": "2018-19",
+      "description": "A diverse group of people gathers on a grassy field by the ocean at sunset, with tall palm trees and event tents in the background. Several individuals are facing away from the camera, including a 'Liaison Officer' and 'Police' officer."
+    },
+    {
+      "path": "/annual-report-photos/2018-19/photo-010.jpg",
+      "year": "2018-19",
+      "description": "A smiling Indigenous woman in a blue patterned polo shirt is in sharp focus, looking directly at the camera. Another smiling woman, also wearing a blue patterned shirt, is blurred in the background."
+    },
+    {
+      "path": "/annual-report-photos/2018-19/photo-011.jpg",
+      "year": "2018-19",
+      "description": "Two young boys, shirtless and in swim shorts, stand on what appears to be a dock or pier. The boy on the left is focused on a small object in his hands, while the boy on the right, seen from behind, holds a fishing rod, suggesting they are preparing for fishing."
+    },
+    {
+      "path": "/annual-report-photos/2018-19/photo-012.jpg",
+      "year": "2018-19",
+      "description": "An Indigenous woman and a young girl are prominently featured holding a banner that reads \"Domestic Violence It's With Us!\" with a red handprint symbol during an outdoor community event. Several other people are visible in the background, also participating."
+    },
+    {
+      "path": "/annual-report-photos/2018-19/photo-013.jpg",
+      "year": "2018-19",
+      "description": "A black and white photograph shows three men, likely Indigenous Australians, in an indoor setting. The man in the foreground, with a beard, holds a paintbrush and looks directly at the camera while appearing to paint on a surface. Two other men are blurred in the background, also looking towards the camera."
+    },
+    {
+      "path": "/annual-report-photos/2018-19/photo-014.jpg",
+      "year": "2018-19",
+      "description": "An older Indigenous man and a younger Indigenous woman are engaged in a shopping interaction inside a community thrift store. The man holds up a green jacket on a hanger while the woman looks at it, holding a small item in her hand."
+    },
+    {
+      "path": "/annual-report-photos/2018-19/photo-015.jpg",
+      "year": "2018-19",
+      "description": "Three children are silhouetted against a vibrant sunset sky on a beach, with two wading in the shallow water near the horizon and one running along the shore in the foreground."
+    },
+    {
+      "path": "/annual-report-photos/2018-19/photo-016.jpg",
+      "year": "2018-19",
+      "description": "A smiling Indigenous woman with glasses rests her hand on the shoulder of a smiling Indigenous man, both looking directly at the camera. The woman is wearing a yellow and teal polo shirt with 'Palm Island Community Company' logo."
+    },
+    {
+      "path": "/annual-report-photos/2018-19/photo-017.jpg",
+      "year": "2018-19",
+      "description": "A young Indigenous man with short curly hair, a brow piercing, and an earring smiles warmly at the camera, with blurry figures visible in the background, suggesting a community gathering."
+    },
+    {
+      "path": "/annual-report-photos/2019-20/photo-000.jpg",
+      "year": "2019-20",
+      "description": "A smiling older woman with short, reddish-brown hair and a patterned black and white top with an orange neckline is pictured from the chest up, leaning on a dark surface."
+    },
+    {
+      "path": "/annual-report-photos/2019-20/photo-001.jpg",
+      "year": "2019-20",
+      "description": "A picturesque tropical beach scene features a bright blue sky with white clouds, a calm turquoise ocean, and distant islands on the horizon. A large palm tree frames the right side of the image, while four people walk along the white sandy beach."
+    },
+    {
+      "path": "/annual-report-photos/2019-20/photo-002.jpg",
+      "year": "2019-20",
+      "description": "A smiling older woman with short, light brown hair looks directly at the camera, wearing a vibrant patterned top against a plain gray background."
+    },
+    {
+      "path": "/annual-report-photos/2019-20/photo-003.jpg",
+      "year": "2019-20",
+      "description": "A young person with curly hair and a green and yellow polo shirt smiles broadly, looking towards an older person whose back is partially visible in the foreground, suggesting a friendly outdoor conversation."
+    },
+    {
+      "path": "/annual-report-photos/2019-20/photo-004.jpg",
+      "year": "2019-20",
+      "description": "An Indigenous man and boy sit on wooden steps in front of a light blue building, both looking at the camera and smiling. The man has his arm around the boy's shoulder, and the boy is wearing a green and yellow polo shirt."
+    },
+    {
+      "path": "/annual-report-photos/2019-20/photo-005.jpg",
+      "year": "2019-20",
+      "description": "An older Indigenous woman with reddish-brown hair is in the foreground, looking directly at the camera with a faint smile, while three other people are blurred in the background."
+    },
+    {
+      "path": "/annual-report-photos/2019-20/photo-006.jpg",
+      "year": "2019-20",
+      "description": "Two Indigenous women are engaged in a conversation indoors. One woman, seen from behind, wears a vibrant shirt featuring the Aboriginal flag symbol on its sleeve. The other woman, who is older, smiles warmly while gesturing with her hands."
+    },
+    {
+      "path": "/annual-report-photos/2019-20/photo-007.jpg",
+      "year": "2019-20",
+      "description": "A close-up portrait of an Indigenous Australian woman wearing a teal polo shirt with the \"Palm Island Community Company\" logo. Two other Indigenous women are blurred in the background, one in yellow and one in blue."
+    },
+    {
+      "path": "/annual-report-photos/2019-20/photo-008.jpg",
+      "year": "2019-20",
+      "description": "An Indigenous Australian woman, wearing an orange and blue polo shirt with an Indigenous dot-art pattern, smiles at the camera while steaming milk at a coffee machine in an indoor cafe or community kitchen."
+    },
+    {
+      "path": "/annual-report-photos/2019-20/photo-009.jpg",
+      "year": "2019-20",
+      "description": "Three Indigenous women are pictured indoors, with one on the left partially visible from the back, wearing a shirt adorned with an Aboriginal flag. The other two women stand behind a red counter, facing each other and engaged in a conversation."
+    },
+    {
+      "path": "/annual-report-photos/2019-20/photo-010.jpg",
+      "year": "2019-20",
+      "description": "A close-up portrait of an older Indigenous man with a serious expression, wearing a yellow t-shirt that says 'STAY GOLD'. He is looking directly at the camera, with vibrant Indigenous artwork visible in the soft-focused background."
+    },
+    {
+      "path": "/annual-report-photos/2019-20/photo-011.jpg",
+      "year": "2019-20",
+      "description": "A man in a dark bucket hat with 'ECO PRO' and 'RAYERS' logos on it looks thoughtfully to his left, resting his chin on his hand. Another blurred figure is visible in the background."
+    },
+    {
+      "path": "/annual-report-photos/2019-20/photo-013.jpg",
+      "year": "2019-20",
+      "description": "Two smiling Indigenous women, wearing 'Palm Island Community Company' shirts, stand outdoors with one's arm around the other, against a blurred background of a building and greenery."
+    },
+    {
+      "path": "/annual-report-photos/2019-20/photo-014.jpg",
+      "year": "2019-20",
+      "description": "Three individuals, two adults and one child, are seated on a dark leather couch indoors. A young woman reads a book to a small child who points at the pages, while an older woman in a blue patterned shirt and visor observes them."
+    },
+    {
+      "path": "/annual-report-photos/2019-20/photo-015.jpg",
+      "year": "2019-20",
+      "description": "A woman, likely Indigenous Australian, with dark skin and hair pulled back, wears a black polo shirt with green and white patterns, and a \"Palm Island\" turtle logo. She has a serious expression and is in front of a light blue building, with part of another person visible on the right."
+    },
+    {
+      "path": "/annual-report-photos/2019-20/photo-016.jpg",
+      "year": "2019-20",
+      "description": "A First Nations woman with curly brown hair and a yellow polka-dot top looks directly at the camera with a calm expression. Behind her, abstract Indigenous artworks in yellow, orange, black, and white are visible."
+    },
+    {
+      "path": "/annual-report-photos/2019-20/photo-017.jpg",
+      "year": "2019-20",
+      "description": "The image showcases vibrant pink bougainvillea flowers in the foreground, set against a sunny coastal landscape featuring a sandy beach, calm blue ocean, and a long pier extending into the water under a clear sky."
+    },
+    {
+      "path": "/annual-report-photos/2019-20/photo-018.jpg",
+      "year": "2019-20",
+      "description": "A smiling Indigenous man with light eyes in a black polo shirt featuring yellow dot art is in focus in the foreground, looking to the side. Behind him, a smiling Indigenous woman in a red and black polo shirt with similar dot art is blurred in the background, both appearing to be outdoors."
+    },
+    {
+      "path": "/annual-report-photos/2019-20/photo-019.jpg",
+      "year": "2019-20",
+      "description": "A young Indigenous woman with a bright smile looks directly at the camera, wearing a black polo shirt with a yellow dotted design on the sleeves and the \"Palm Island COMMUNITY COMPANY\" logo. She is outdoors, with a blurred background of greenery and light-colored structures."
+    },
+    {
+      "path": "/annual-report-photos/2019-20/photo-020.jpg",
+      "year": "2019-20",
+      "description": "A wide shot of a pristine beach on a sunny day with a clear blue sky and white clouds. Four people walk along a narrow sand spit extending into calm, clear turquoise water, with a distant jetty and islands visible on the horizon."
+    },
+    {
+      "path": "/annual-report-photos/2019-20/photo-021.jpg",
+      "year": "2019-20",
+      "description": "A vibrant tropical landscape featuring a sandy beach, multiple tall palm trees in the foreground and midground, leading to a calm blue ocean with several distant islands under a bright blue sky dotted with white clouds."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-000.jpg",
+      "year": "2020-21",
+      "description": "A group of Indigenous children walk barefoot on a concrete pier next to clear blue ocean water under a bright, sunny sky. Distant islands are visible on the horizon."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-001.jpg",
+      "year": "2020-21",
+      "description": "A vibrant, seamless pattern featuring concentric circles made of dots, reminiscent of Indigenous Australian dot painting. The circles are predominantly blue and gold/yellow, set against a dark red or reddish-brown background with outer rings also in reddish-brown or orange tones."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-002.jpg",
+      "year": "2020-21",
+      "description": "A serene outdoor landscape features a sandy beach and calm ocean water reflecting sunlight, with distant islands under a bright blue sky filled with fluffy white clouds."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-006.jpg",
+      "year": "2020-21",
+      "description": "An abstract, repeating pattern features numerous concentric circles made of small dots in blue, gold, and orange-red, set against a dark reddish-purple background. The circles vary in size and overlap slightly, creating a dense, textured design reminiscent of Indigenous Australian dot painting."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-007.jpg",
+      "year": "2020-21",
+      "description": "A repeating pattern of concentric circles, formed by dots in shades of blue, golden yellow, and orange, on a dark blue background, all set against a textured dark red base. The style is characteristic of Indigenous Australian dot painting."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-008.jpg",
+      "year": "2020-21",
+      "description": "An abstract black and white image featuring a halftone-like pattern of small white dots on a black background. The density of the dots varies, appearing more concentrated in the corners of the image."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-011.jpg",
+      "year": "2020-21",
+      "description": "A monochromatic abstract pattern composed of numerous small white dots on a black background, creating a grainy, scattered texture that resembles digital noise or a halftone screen."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-012.jpg",
+      "year": "2020-21",
+      "description": "A smiling older woman with short, light brown hair, wearing a black and white patterned top and a gold necklace, poses for a portrait against a blurry green outdoor background."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-013.jpg",
+      "year": "2020-21",
+      "description": "An intricate abstract pattern features numerous overlapping concentric circles made from blue, yellow, and orange dots, set against a dark reddish-purple background, characteristic of Indigenous Australian dot painting. The varying circle sizes create a dynamic and textured visual."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-014.jpg",
+      "year": "2020-21",
+      "description": "A group of six smiling older adults, three standing behind and three seated at a table in front, posing for a photo in an indoor setting with a plain white background."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-017.jpg",
+      "year": "2020-21",
+      "description": "A vibrant, intricate pattern composed of overlapping concentric circles. Each circle is formed by small dots in shades of blue, gold, and reddish-brown, set against a dark reddish-brown background, resembling traditional Aboriginal dot painting."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-018.jpg",
+      "year": "2020-21",
+      "description": "The image features a seamless, abstract pattern composed of numerous concentric circles made of dots in varying sizes. The color palette includes shades of blue, orange, and yellow dots on a dark reddish-brown background, reminiscent of Indigenous Australian dot painting."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-019.jpg",
+      "year": "2020-21",
+      "description": "A scenic landscape view of a tropical coastline, featuring a sandy beach, dense green tree-covered hills, and clear blue water under a bright sky. Several small figures are visible walking on the beach."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-020.jpg",
+      "year": "2020-21",
+      "description": "A high-contrast abstract pattern featuring numerous white dots of varying sizes against a solid black background. The dots are denser and more prominent towards the edges and corners, resembling a halftone or stippled effect."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-021.jpg",
+      "year": "2020-21",
+      "description": "A black background covered with a scattered pattern of small white dots, which appear denser and more concentrated in the corners and edges, resembling digital noise or a halftone screen."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-024.jpg",
+      "year": "2020-21",
+      "description": "An abstract, repeating pattern featuring concentric circles formed by small dots. The circles are rendered in shades of yellow and orange against a vibrant blue interior and a reddish-brown background."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-025.jpg",
+      "year": "2020-21",
+      "description": "A smiling young Indigenous woman is pictured in a headshot, wearing a blue and pink polo shirt featuring the \"Palm Island Community Company\" logo. She stands indoors with blurred artwork visible in the background."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-028.jpg",
+      "year": "2020-21",
+      "description": "A vibrant, densely packed pattern featuring numerous concentric circles, composed of small dots in shades of blue, gold, and orange, set against a reddish-brown background. The circles vary in size and overlap, creating a rich visual texture."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-029.jpg",
+      "year": "2020-21",
+      "description": "A vibrant, repeating pattern resembling Indigenous Australian dot painting, featuring concentric circles in shades of royal blue, golden yellow, and reddish-brown against a reddish-brown background."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-030.jpg",
+      "year": "2020-21",
+      "description": "Three elderly women with warm smiles are seated at an outdoor table, engaging socially. The background shows parts of a building and lush greenery, suggesting a community gathering."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-031.jpg",
+      "year": "2020-21",
+      "description": "A black background is filled with a dynamic pattern of small, irregularly sized white square dots. The density of the dots varies, appearing denser towards the edges and corners, creating a textured, almost speckled or halftone appearance."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-032.jpg",
+      "year": "2020-21",
+      "description": "The image is an abstract pattern of sparse white dots on a solid black background, creating a visual effect similar to digital noise or a starry night sky."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-035.jpg",
+      "year": "2020-21",
+      "description": "A vibrant, abstract artwork featuring numerous overlapping concentric circles, composed of small dots in shades of pink, orange, yellow, and brown, set against a light pink background. The pattern evokes styles often seen in Aboriginal art."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-036.jpg",
+      "year": "2020-21",
+      "description": "Three Indigenous females of different ages are gathered around a large wooden table indoors, all smiling warmly. A young girl faces away from the camera, interacting with two adult women."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-039.jpg",
+      "year": "2020-21",
+      "description": "A vibrant abstract pattern featuring numerous overlapping concentric circles, created using small dots in shades of pink, orange, yellow, and deep red-brown. The composition evokes Indigenous Australian dot painting styles, with varying circle sizes filling the entire frame."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-040.jpg",
+      "year": "2020-21",
+      "description": "The image displays a vibrant, seamless pattern composed of numerous concentric circles made of dots. The circles vary in size and are rendered in shades of pink, orange, yellow, and deep reddish-brown, creating an abstract and visually rich design."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-041.jpg",
+      "year": "2020-21",
+      "description": "A scenic view of a sandy beach and calm blue ocean, with several tall palm trees lining the right side. Distant mountainous islands rise from the water under a bright blue sky with scattered white clouds."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-046.jpg",
+      "year": "2020-21",
+      "description": "The image displays a vibrant, abstract pattern composed of numerous concentric circles, rendered in the style of Indigenous Australian dot painting. The circles feature dots in various shades of pink, orange, yellow, and maroon, creating a visually rich and textured background."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-047.jpg",
+      "year": "2020-21",
+      "description": "The image captures a dynamic scene of children playing in vibrant turquoise water. One child is mid-air, jumping into the water, while other children are swimming or standing at the water's edge."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-050.jpg",
+      "year": "2020-21",
+      "description": "A vibrant, repeating pattern composed of numerous concentric circles, each formed by colored dots in shades of pink, orange, yellow, and brown, reminiscent of Aboriginal dot painting art. The circles vary in size and are densely packed across the frame."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-051.jpg",
+      "year": "2020-21",
+      "description": "This image features a vibrant, abstract pattern composed of numerous concentric circles made of dots in shades of pink, orange, yellow, and brown, characteristic of Indigenous Australian dot painting."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-052.jpg",
+      "year": "2020-21",
+      "description": "A smiling Indigenous woman in a maroon polo shirt holds and feeds a baby with a bottle, looking directly at the camera in an indoor setting."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-076.jpg",
+      "year": "2020-21",
+      "description": "The image displays a vibrant, repeating pattern of concentric circles, reminiscent of Indigenous Australian dot painting. The circles are composed of yellow and orange dots on a deep blue base, set against a reddish-brown background."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-077.jpg",
+      "year": "2020-21",
+      "description": "This image features a vibrant, repeating pattern of concentric circles, created using small dots in shades of pink, orange, yellow, and brown, reminiscent of Indigenous Australian dot painting."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-081.jpg",
+      "year": "2020-21",
+      "description": "An abstract background pattern composed of white dots of varying sizes and densities against a solid black background, creating a halftone-like effect. The density of dots varies across the image, appearing denser towards the corners."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-084.jpg",
+      "year": "2020-21",
+      "description": "The image displays a repeating pattern of concentric circles made from small dots in various shades of blue and green, set against a lighter green background. This mosaic-like design evokes a sense of traditional Indigenous art."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-085.jpg",
+      "year": "2020-21",
+      "description": "A male doctor with glasses and a beard is examining an Indigenous woman with a stethoscope in what appears to be a clinical setting. The woman is seated and wearing a vibrant blue floral dress and a blue cardigan, while the doctor is leaning over her."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-088.jpg",
+      "year": "2020-21",
+      "description": "The image displays a vibrant, repeating pattern inspired by Aboriginal dot art, featuring numerous concentric circles made of blue, orange, and yellow dots on a dark reddish-brown background. The circles vary in size and are arranged in an overlapping, organic manner."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-089.jpg",
+      "year": "2020-21",
+      "description": "A man in a grey t-shirt and cap is being served coffee by a smiling woman in a brown t-shirt over a counter in an indoor cafe or shop. The woman is holding multiple coffee cups, appearing to hand some to the man, while a coffee machine and various shop items are visible in the background."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-092.jpg",
+      "year": "2020-21",
+      "description": "This image features a black background uniformly covered with a texture of scattered white dots, varying in density to create a subtle gradient or stipple effect. The density of the dots appears higher in the corner areas."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-094.jpg",
+      "year": "2020-21",
+      "description": "A seamless pattern featuring concentric circles made of dots in shades of blue, gold, and reddish-brown, reminiscent of Indigenous Australian dot art. The circles vary in size and are densely arranged across the entire frame."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-095.jpg",
+      "year": "2020-21",
+      "description": "A young Indigenous woman sits on an examination bed, holding a baby on her lap, while an older nurse in blue scrubs sits next to them, smiling and interacting with the baby in a bright clinic room."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-097.jpg",
+      "year": "2020-21",
+      "description": "The image displays a black background with a scattered pattern of small white dots, creating a textured or halftone effect. The density of the dots varies across the frame, forming an abstract pattern."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-098.jpg",
+      "year": "2020-21",
+      "description": "An abstract pattern featuring numerous concentric circles made of small dots in shades of dark blue, light blue, yellow, and orange, set against a dark reddish-brown background. The design is reminiscent of Indigenous Australian dot painting."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-099.jpg",
+      "year": "2020-21",
+      "description": "The image features a dense, repeating pattern of concentric circles, meticulously formed from small dots in shades of blue, yellow, and orange, against a dark red-purple backdrop. The varied sizes and overlapping arrangement of the circles are characteristic of Indigenous Australian dot painting art."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-100.jpg",
+      "year": "2020-21",
+      "description": "A long shot of a covered pier extending into the ocean under a bright, cloudy sky. Several people are visible, including one standing on the pier looking out, two below by steps leading into the water, and another further down the pier."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-105.jpg",
+      "year": "2020-21",
+      "description": "This image displays a seamless pattern composed of numerous concentric circles, created using small dots in shades of pink, orange, and brown, characteristic of Indigenous Australian dot painting."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-106.jpg",
+      "year": "2020-21",
+      "description": "A young boy stands on concrete steps under a pier, looking out at the clear blue-green water where another person is swimming. Sunlight highlights his back, showing water streaking down it."
+    },
+    {
+      "path": "/annual-report-photos/2020-21/photo-107.jpg",
+      "year": "2020-21",
+      "description": "An abstract image featuring white dots of varying density on a black background, creating a halftone or stipple effect. The dots are denser in the corners, particularly top-right and bottom-left, and sparser towards the center."
+    },
+    {
+      "path": "/annual-report-photos/2021-22/photo-004.jpg",
+      "year": "2021-22",
+      "description": "A monochrome abstract graphic dominated by white space, featuring a smooth, curvilinear black shape entering the frame from the right side. The image presents a clean, high-contrast visual."
+    },
+    {
+      "path": "/annual-report-photos/2021-22/photo-005.jpg",
+      "year": "2021-22",
+      "description": "A striking silhouette of a pier or jetty structure against a vibrant sunset sky, featuring warm orange and yellow hues, with the structure's supports and the sky's colors reflected in the calm water below."
+    },
+    {
+      "path": "/annual-report-photos/2021-22/photo-008.jpg",
+      "year": "2021-22",
+      "description": "A smiling woman with short, reddish-brown hair looks directly at the camera. She is wearing a patterned blue and white top."
+    },
+    {
+      "path": "/annual-report-photos/2021-22/photo-009.jpg",
+      "year": "2021-22",
+      "description": "A stunning outdoor photograph captures a vibrant orange and yellow sunset over calm ocean waters, with the bright sun reflected on the ripples. A dark pier structure stands on the left, and a single pole rises from the water on the right, silhouetted against the fiery sky and distant faint mountains."
+    },
+    {
+      "path": "/annual-report-photos/2021-22/photo-012.jpg",
+      "year": "2021-22",
+      "description": "A close-up portrait of an older Indigenous woman with short, light brown hair, smiling warmly at the camera. She is wearing a patterned black and white top and a distinctive gold chain necklace with a round pendant. The background is a softly blurred outdoor setting with green foliage."
+    },
+    {
+      "path": "/annual-report-photos/2021-22/photo-014.jpg",
+      "year": "2021-22",
+      "description": "Six smiling individuals, three men and three women, are gathered for a group photo in an indoor setting, with some seated at a wooden table and others standing behind them."
+    },
+    {
+      "path": "/annual-report-photos/2021-22/photo-015.jpg",
+      "year": "2021-22",
+      "description": "An abstract white shape with soft, blurred edges is depicted against a black background. The shape has a straight left side, a wavy right side, a slightly curved top, and a straight bottom, resembling an abstract letter 'R' or a stylized profile."
+    },
+    {
+      "path": "/annual-report-photos/2021-22/photo-017.jpg",
+      "year": "2021-22",
+      "description": "A tranquil landscape photo of a sandy beach curving along calm blue water, backed by lush green hills. Large rocks line the immediate foreground, and distant islands are visible under a blue sky with scattered clouds."
+    },
+    {
+      "path": "/annual-report-photos/2021-22/photo-020.jpg",
+      "year": "2021-22",
+      "description": "Four smiling people, including three women and one man, pose for a photo in an outdoor covered area. Three individuals wear orange shirts with Indigenous artwork and \"COVID-19 PROTECTED\" text, while one woman wears a blue patterned dress."
+    },
+    {
+      "path": "/annual-report-photos/2021-22/photo-027.jpg",
+      "year": "2021-22",
+      "description": "Three adults, appearing to be Indigenous Australians, pose indoors at an 'Early Years Conference' event, wearing matching t-shirts and holding tote bags with 'Palm Island Community' branding. The man on the left has a playful, toothy grin, while the two women smile warmly. A 'Queensland Government' logo and bookshelves filled with books and toys are visible in the background."
+    },
+    {
+      "path": "/annual-report-photos/2021-22/photo-028.jpg",
+      "year": "2021-22",
+      "description": "A diverse group of 17 adults, including Indigenous Australians, are gathered indoors, smiling at the camera. Many are wearing t-shirts related to the 'Early Years Conference Palm Island Community Company' and 'Keeping Culture Strong,' with a video call visible on a large screen in the background."
+    },
+    {
+      "path": "/annual-report-photos/2021-22/photo-032.jpg",
+      "year": "2021-22",
+      "description": "A high-contrast black and white abstract graphic featuring a white, curved silhouette against a black background, forming an intriguing, ambiguous shape."
+    },
+    {
+      "path": "/annual-report-photos/2021-22/photo-034.jpg",
+      "year": "2021-22",
+      "description": "A scenic outdoor shot features four individuals walking along a narrow sandy beach spit extending into calm, clear ocean waters. The background displays distant islands under a vibrant blue sky dotted with fluffy white clouds."
+    },
+    {
+      "path": "/annual-report-photos/2021-22/photo-052.jpg",
+      "year": "2021-22",
+      "description": "An outdoor community event is taking place on Palm Island, featuring a speaker addressing attendees in front of a tent branded 'Palm Island Community Company'. A banner promoting 'White Ribbon Day' with the question 'HOW CAN MEN MAKE CHANGE?' is prominently displayed."
+    },
+    {
+      "path": "/annual-report-photos/2021-22/photo-056.jpg",
+      "year": "2021-22",
+      "description": "Three women are seated around a small white table in an indoor setting, appearing to be engaged in conversation. The table holds a potted plant, a smaller plant in a bottle, and a tissue box."
+    },
+    {
+      "path": "/annual-report-photos/2021-22/photo-057.jpg",
+      "year": "2021-22",
+      "description": "Three Indigenous women are in a medical examination room, all wearing face masks. Two women, likely healthcare staff in Indigenous-patterned shirts, are attending to an older seated woman, who appears to be a patient. Medical equipment is visible beside them, and the room features colorful Indigenous-themed curtains."
+    },
+    {
+      "path": "/annual-report-photos/2021-22/photo-060.jpg",
+      "year": "2021-22",
+      "description": "A vibrant sunset paints the sky and water with shades of orange, yellow, and blue. The calm water reflects the colorful sky, with a few distant markers or buoys visible on the horizon."
+    },
+    {
+      "path": "/annual-report-photos/2021-22/photo-065.jpg",
+      "year": "2021-22",
+      "description": "A scenic outdoor shot featuring a long pier extending into calm blue ocean water, with a small boat docked at its end. Lush green hills line the distant shore under a partly cloudy sky. A paved path and tropical vegetation are visible in the foreground, framed by dark tree branches."
+    },
+    {
+      "path": "/annual-report-photos/2021-22/photo-069.jpg",
+      "year": "2021-22",
+      "description": "The image captures a vibrant outdoor community event where children and adults are queuing barefoot to enter inflatable play structures, including Spider-Man themed bouncy castles and slides, on a sunny day with a clear blue sky and trees in the background."
+    },
+    {
+      "path": "/annual-report-photos/2021-22/photo-078.jpg",
+      "year": "2021-22",
+      "description": "A group of eleven smiling adults, many wearing colorful shirts with Indigenous designs and some in professional attire, pose outdoors under a tree. They appear to be part of the Palm Island community, with 'Palm Island' branding visible on several shirts."
+    },
+    {
+      "path": "/annual-report-photos/2021-22/photo-085.jpg",
+      "year": "2021-22",
+      "description": "An abstract black and white graphic features a large white shape with a straight right edge and top edge, and elegantly curved left and bottom edges, set against a solid black background. The edges of the white shape are slightly blurred, creating a soft transition."
+    },
+    {
+      "path": "/annual-report-photos/2022-23/photo-000.jpg",
+      "year": "2022-23",
+      "description": "A child or young person is captured mid-air, jumping from a concrete pier into vibrant turquoise ocean water with arms raised. In the background, a lush green, tree-lined coastline with a sandy beach stretches under a clear blue sky. A rusty metal pole with painted handprints and designs is visible on the left."
+    },
+    {
+      "path": "/annual-report-photos/2022-23/photo-001.jpg",
+      "year": "2022-23",
+      "description": "A close-up portrait of an older woman with short, reddish-brown hair and glasses, smiling warmly at the camera. She wears a patterned top and a red beaded necklace against a plain light grey background."
+    },
+    {
+      "path": "/annual-report-photos/2022-23/photo-002.jpg",
+      "year": "2022-23",
+      "description": "A smiling senior Indigenous woman with short blonde hair and a patterned shirt looks directly at the camera, wearing a gold chain necklace and earrings, set against a softly blurred green outdoor background."
+    },
+    {
+      "path": "/annual-report-photos/2022-23/photo-003.jpg",
+      "year": "2022-23",
+      "description": "Six people, including four Indigenous and two non-Indigenous individuals, pose for a group photo in what appears to be an office setting. They stand in front of a glass wall featuring a colorful turtle logo and the text \"Palm Island\"."
+    },
+    {
+      "path": "/annual-report-photos/2022-23/photo-004.jpg",
+      "year": "2022-23",
+      "description": "A smiling Indigenous Australian man wearing a black cap is pictured with three children, two girls and one boy, who are also smiling and holding toys. They appear to be at an indoor community event, with a sign in the background clearly stating \"PALM ISLAND\"."
+    },
+    {
+      "path": "/annual-report-photos/2022-23/photo-006.jpg",
+      "year": "2022-23",
+      "description": "Four women, appearing to be Indigenous Australians, stand on a stage indoors, posing for a photo at an event. The woman on the far left holds a green award with 'CPP' visible on it, while the Aboriginal Flag and another blue and green flag are displayed in the background."
+    },
+    {
+      "path": "/annual-report-photos/2022-23/photo-007.jpg",
+      "year": "2022-23",
+      "description": "A picturesque view of a tropical beach featuring light sand, calm blue ocean water, and distant green islands under a partly cloudy sky. On the right, a paved area with several tall palm trees, some laden with coconuts, benches, and a small shaded shelter with a person sitting within it, creates a public park-like setting."
+    },
+    {
+      "path": "/annual-report-photos/2022-23/photo-010.jpg",
+      "year": "2022-23",
+      "description": "A vibrant, high-angle shot captures several children and young adults swimming and jumping into the clear, turquoise ocean water from a concrete pier and steps on a sunny day."
+    },
+    {
+      "path": "/annual-report-photos/2022-23/photo-011.jpg",
+      "year": "2022-23",
+      "description": "A scenic view of a tranquil bay features calm water, a sandy beach, and a coastal road lined with palm trees and streetlights. Verdant hills rise in the background under a blue sky dotted with white clouds."
+    },
+    {
+      "path": "/annual-report-photos/2022-23/photo-012.jpg",
+      "year": "2022-23",
+      "description": "A vibrant outdoor scene of a tropical beach with a large palm tree framing the right side. A small group of four people walk on the wide sandy beach, with calm blue ocean and distant islands under a partly cloudy sky."
+    },
+    {
+      "path": "/annual-report-photos/2022-23/photo-013.jpg",
+      "year": "2022-23",
+      "description": "An Indigenous man happily holds a young child who is pointing and smiling in a brightly lit indoor space with lime green walls and wooden floors. Both the man and child are smiling, conveying a sense of joy and connection."
+    },
+    {
+      "path": "/annual-report-photos/2022-23/photo-015.jpg",
+      "year": "2022-23",
+      "description": "The image captures a bright, sunny sky with fluffy white clouds overhead, overlooking a calm blue ocean with sparkling sunlight reflecting on its surface. A sandy beach curves into the water in the foreground, with a distant landmass visible on the horizon."
+    },
+    {
+      "path": "/annual-report-photos/2022-23/photo-016.jpg",
+      "year": "2022-23",
+      "description": "A scenic outdoor shot of a sandy beach curving along a bay, lined with a rock wall and lush green vegetation including palm trees. Calm blue water extends to distant land under a partly cloudy sky."
+    },
+    {
+      "path": "/annual-report-photos/2023-24/photo-000.jpg",
+      "year": "2023-24",
+      "description": "Four Indigenous men walk along a pristine sandy beach towards the clear blue ocean, with distant islands and a bright blue sky in the background."
+    },
+    {
+      "path": "/annual-report-photos/2023-24/photo-001.jpg",
+      "year": "2023-24",
+      "description": "Four people walk on a sandy land bridge extending into clear, shallow turquoise water under a blue sky with white clouds. In the distance, several large, green islands are visible."
+    },
+    {
+      "path": "/annual-report-photos/2023-24/photo-002.jpg",
+      "year": "2023-24",
+      "description": "A warm headshot of an older woman with short, wavy brown hair, smiling directly at the camera. She is wearing a dark top with intricate gold chain and buckle patterns, against a softly blurred green background."
+    },
+    {
+      "path": "/annual-report-photos/2023-24/photo-003.jpg",
+      "year": "2023-24",
+      "description": "A scenic wide shot of a tropical coastline featuring a sandy beach, clear blue water, and densely forested hills under a bright blue sky. A narrow road winds up one of the hills, and a few small figures are visible walking on the beach."
+    },
+    {
+      "path": "/annual-report-photos/2023-24/photo-004.jpg",
+      "year": "2023-24",
+      "description": "A smiling Indigenous Australian woman with short, light brown hair and a patterned shirt looks directly at the camera in an outdoor setting."
+    },
+    {
+      "path": "/annual-report-photos/2023-24/photo-005.jpg",
+      "year": "2023-24",
+      "description": "Six smiling people, including men and women of varying ages and ethnicities, pose together in an indoor setting in front of a glass wall featuring the 'Palm Island' logo and a colorful turtle graphic."
+    },
+    {
+      "path": "/annual-report-photos/2023-24/photo-006.jpg",
+      "year": "2023-24",
+      "description": "A natural landscape featuring a rocky stream cascading into a dark pool, surrounded by dense green vegetation and a forest of trees on the banks."
+    },
+    {
+      "path": "/annual-report-photos/2023-24/photo-007.jpg",
+      "year": "2023-24",
+      "description": "A group of Indigenous boys and men perform a traditional dance outdoors on a sunny day. They are adorned with white body paint, yellow headbands, and yellow loincloths, raising their arms in unison."
+    },
+    {
+      "path": "/annual-report-photos/2023-24/photo-008.jpg",
+      "year": "2023-24",
+      "description": "An Indigenous woman wearing glasses and a purple shirt with a purple awareness ribbon is speaking into a microphone. She is positioned indoors, with a blurred background showing large windows that overlook a body of water and distant land. A large pink paper pompom decoration is visible on the right side of the frame."
+    },
+    {
+      "path": "/annual-report-photos/2023-24/photo-009.jpg",
+      "year": "2023-24",
+      "description": "A tranquil coastal scene featuring a calm bay with a distant, tree-covered island under a cloudy sky. The foreground shows a rocky, sandy beach with scattered larger rocks and some sparse vegetation, framed by dark green foliage at the top and right."
+    },
+    {
+      "path": "/annual-report-photos/2023-24/photo-010.jpg",
+      "year": "2023-24",
+      "description": "An adult Indigenous woman and a young Indigenous man smile at the camera outdoors, standing in front of light-colored community buildings with prominent windows."
+    },
+    {
+      "path": "/annual-report-photos/2023-24/photo-011.jpg",
+      "year": "2023-24",
+      "description": "An Indigenous woman wearing a pink patterned shirt speaks into a microphone at an outdoor event. A banner in the background reads \"Deadly Choices: TACKLING INDIGENOUS SMOKING.\" Two other blurred individuals are visible in the foreground."
+    },
+    {
+      "path": "/annual-report-photos/2023-24/photo-013.jpg",
+      "year": "2023-24",
+      "description": "Five women are sitting on outdoor benches, smiling and looking at the camera. They are all wearing lanyards, suggesting they are attending an event or conference, with one woman in the center wearing a distinctively patterned Indigenous-themed shirt."
+    },
+    {
+      "path": "/annual-report-photos/2023-24/photo-014.jpg",
+      "year": "2023-24",
+      "description": "A tranquil tropical beach scene featuring a sandy shore in the foreground with scattered foliage, leading to calm blue-green ocean water where small clusters of trees grow. Overhanging tree branches with green and reddish leaves frame the top of the image against a clear blue sky."
     }
   ]
 }
