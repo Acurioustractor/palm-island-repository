@@ -1,7 +1,7 @@
 /**
  * Tag Existing Photos with AI
  *
- * Reads all images from public/annual-report-photos/ and uses Claude vision
+ * Reads all images from public/annual-report-photos/ and uses Gemini vision
  * to generate descriptions, tags, and metadata. Stores results in media_files table.
  *
  * Usage:
@@ -12,10 +12,10 @@
  */
 
 import { config } from 'dotenv'
-import { resolve, join, basename, dirname } from 'path'
+import { resolve, join, basename } from 'path'
 import { promises as fs } from 'fs'
 import { createClient } from '@supabase/supabase-js'
-import OpenAI from 'openai'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
 config({ path: resolve(__dirname, '../.env.local') })
 
@@ -24,9 +24,8 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-})
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY!)
+const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
@@ -34,8 +33,7 @@ const PHOTOS_DIR = resolve(__dirname, '../public/annual-report-photos')
 const DRY_RUN = process.argv.includes('--dry-run')
 const YEAR_FILTER = process.argv.find(a => a.startsWith('--year='))?.split('=')?.[1]
 const LIMIT = parseInt(process.argv.find(a => a.startsWith('--limit='))?.split('=')?.[1] || '0')
-const BATCH_SIZE = 5 // Process 5 images concurrently
-const RATE_LIMIT_MS = 500
+const RATE_LIMIT_MS = 4500 // Gemini free tier: 15 RPM → ~4s between calls
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -46,7 +44,7 @@ interface PhotoAnalysis {
   people_count: number
   setting: 'indoor' | 'outdoor' | 'aerial' | 'mixed'
   content_type: 'portrait' | 'group' | 'landscape' | 'event' | 'building' | 'document' | 'artwork' | 'activity'
-  hero_quality: boolean // Could this be a hero image?
+  hero_quality: boolean
   cultural_sensitivity: 'low' | 'medium' | 'high'
   palm_island_relevant: boolean
 }
@@ -74,7 +72,7 @@ async function getImagesInDir(dir: string): Promise<string[]> {
     .sort()
 }
 
-function getMediaType(filename: string): 'image/jpeg' | 'image/png' | 'image/webp' {
+function getMimeType(filename: string): string {
   const ext = filename.toLowerCase().split('.').pop()
   if (ext === 'png') return 'image/png'
   if (ext === 'webp') return 'image/webp'
@@ -84,25 +82,9 @@ function getMediaType(filename: string): 'image/jpeg' | 'image/png' | 'image/web
 async function analyzeImage(imagePath: string, fiscalYear: string): Promise<PhotoAnalysis> {
   const imageData = await fs.readFile(imagePath)
   const base64 = imageData.toString('base64')
-  const mediaType = getMediaType(basename(imagePath))
+  const mimeType = getMimeType(basename(imagePath))
 
-  const response = await openai.chat.completions.create({
-    model: 'gpt-4o-mini',
-    max_tokens: 500,
-    messages: [
-      {
-        role: 'user',
-        content: [
-          {
-            type: 'image_url',
-            image_url: {
-              url: `data:${mediaType};base64,${base64}`,
-              detail: 'low',
-            },
-          },
-          {
-            type: 'text',
-            text: `Analyze this photo from a Palm Island Community Company annual report (fiscal year ${fiscalYear}).
+  const prompt = `Analyze this photo from a Palm Island Community Company annual report (fiscal year ${fiscalYear}).
 
 Return a JSON object with these fields:
 - description: 1-2 sentence description of what's in the image
@@ -115,14 +97,19 @@ Return a JSON object with these fields:
 - cultural_sensitivity: "low" | "medium" | "high" — high for ceremony/sacred, medium for identifiable individuals
 - palm_island_relevant: true if clearly shows Palm Island community, landscape, or activities
 
-Return ONLY valid JSON, no markdown.`,
-          },
-        ],
-      },
-    ],
-  })
+Return ONLY valid JSON, no markdown fences.`
 
-  const text = response.choices[0]?.message?.content || ''
+  const result = await model.generateContent([
+    {
+      inlineData: {
+        mimeType,
+        data: base64,
+      },
+    },
+    { text: prompt },
+  ])
+
+  const text = result.response.text()
 
   try {
     const cleaned = text.replace(/```json?\n?/g, '').replace(/```/g, '').trim()
@@ -147,8 +134,9 @@ Return ONLY valid JSON, no markdown.`,
 async function main() {
   console.log('═══════════════════════════════════════')
   console.log(' Photo Tagging — Annual Report Photos')
-  console.log(`═══════════════════════════════════════`)
+  console.log('═══════════════════════════════════════')
   if (DRY_RUN) console.log('🔍 DRY RUN — no database writes')
+  console.log(`Using: Gemini 2.0 Flash (${RATE_LIMIT_MS}ms rate limit)\n`)
 
   const yearDirs = await getImageDirs()
   console.log(`Found ${yearDirs.length} year directories: ${yearDirs.join(', ')}`)
@@ -162,87 +150,86 @@ async function main() {
     const images = await getImagesInDir(yearDir)
     console.log(`\n📁 ${yearDir}: ${images.length} images`)
 
-    for (let i = 0; i < images.length; i += BATCH_SIZE) {
+    for (const imageFile of images) {
       if (LIMIT && totalProcessed >= LIMIT) break
 
-      const batch = images.slice(i, i + BATCH_SIZE)
+      const imagePath = join(PHOTOS_DIR, yearDir, imageFile)
+      const publicPath = `/annual-report-photos/${yearDir}/${imageFile}`
 
-      for (const imageFile of batch) {
-        if (LIMIT && totalProcessed >= LIMIT) break
+      // Check if already tagged
+      const { data: existing } = await supabase
+        .from('media_files')
+        .select('id')
+        .eq('file_path', publicPath)
+        .single()
 
-        const imagePath = join(PHOTOS_DIR, yearDir, imageFile)
-        const publicPath = `/annual-report-photos/${yearDir}/${imageFile}`
+      if (existing) {
+        totalSkipped++
+        continue
+      }
 
-        // Check if already tagged
-        const { data: existing } = await supabase
-          .from('media_files')
-          .select('id')
-          .eq('file_path', publicPath)
-          .single()
+      try {
+        await sleep(RATE_LIMIT_MS)
+        const analysis = await analyzeImage(imagePath, yearDir)
 
-        if (existing) {
-          totalSkipped++
-          continue
+        if (analysis.hero_quality) {
+          heroImages.push({
+            path: publicPath,
+            year: yearDir,
+            description: analysis.description,
+          })
         }
 
-        try {
-          await sleep(RATE_LIMIT_MS)
-          const analysis = await analyzeImage(imagePath, yearDir)
+        if (!DRY_RUN) {
+          const { error } = await supabase.from('media_files').insert({
+            filename: imageFile,
+            original_filename: imageFile,
+            file_path: publicPath,
+            public_url: publicPath,
+            bucket_name: 'story-media',
+            tenant_id: '9c4e5de2-d80a-4e0b-8a89-1bbf09485532',
+            file_type: 'image',
+            mime_type: getMimeType(imageFile),
+            title: analysis.alt_text,
+            alt_text: analysis.alt_text,
+            description: analysis.description,
+            tags: [
+              'annual-report',
+              yearDir,
+              ...analysis.tags,
+              ...(analysis.hero_quality ? ['hero-quality'] : []),
+            ],
+            page_context: 'annual-report',
+            page_section: yearDir,
+            is_public: true,
+            is_featured: analysis.hero_quality,
+            metadata: {
+              fiscal_year: yearDir,
+              people_count: analysis.people_count,
+              setting: analysis.setting,
+              content_type: analysis.content_type,
+              cultural_sensitivity: analysis.cultural_sensitivity,
+              palm_island_relevant: analysis.palm_island_relevant,
+              ai_analyzed_at: new Date().toISOString(),
+              ai_model: 'gemini-2.5-flash',
+            },
+          })
 
-          if (analysis.hero_quality) {
-            heroImages.push({
-              path: publicPath,
-              year: yearDir,
-              description: analysis.description,
-            })
+          if (error) {
+            console.error(`  ❌ ${imageFile}: ${error.message}`)
+            totalErrors++
+            continue
           }
-
-          if (!DRY_RUN) {
-            const { error } = await supabase.from('media_files').insert({
-              file_path: publicPath,
-              public_url: publicPath,
-              file_type: getMediaType(imageFile).split('/')[1],
-              title: analysis.alt_text,
-              alt_text: analysis.alt_text,
-              ai_description: analysis.description,
-              tags: [
-                'annual-report',
-                yearDir,
-                ...analysis.tags,
-                ...(analysis.hero_quality ? ['hero-quality'] : []),
-              ],
-              page_context: 'annual-report',
-              page_section: yearDir,
-              is_public: true,
-              is_featured: analysis.hero_quality,
-              metadata: {
-                fiscal_year: yearDir,
-                people_count: analysis.people_count,
-                setting: analysis.setting,
-                content_type: analysis.content_type,
-                cultural_sensitivity: analysis.cultural_sensitivity,
-                palm_island_relevant: analysis.palm_island_relevant,
-                ai_analyzed_at: new Date().toISOString(),
-              },
-            })
-
-            if (error) {
-              console.error(`  ❌ ${imageFile}: ${error.message}`)
-              totalErrors++
-              continue
-            }
-          }
-
-          totalProcessed++
-          if (totalProcessed % 10 === 0) {
-            console.log(`  Processed ${totalProcessed}...`)
-          }
-        } catch (err) {
-          console.error(`  ❌ ${imageFile}: ${err instanceof Error ? err.message : err}`)
-          totalErrors++
         }
+
+        console.log(`  ✅ ${imageFile}: ${analysis.description.slice(0, 80)}`)
+        totalProcessed++
+      } catch (err) {
+        console.error(`  ❌ ${imageFile}: ${err instanceof Error ? err.message : err}`)
+        totalErrors++
       }
     }
+    if (LIMIT && totalProcessed >= LIMIT) break
   }
 
   // Write hero images manifest
@@ -253,7 +240,9 @@ async function main() {
     }
 
     if (!DRY_RUN) {
-      const manifestPath = resolve(__dirname, '../content/photo-manifest.json')
+      const manifestDir = resolve(__dirname, '../content')
+      await fs.mkdir(manifestDir, { recursive: true })
+      const manifestPath = join(manifestDir, 'photo-manifest.json')
       await fs.writeFile(
         manifestPath,
         JSON.stringify(

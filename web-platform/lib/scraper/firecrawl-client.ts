@@ -1,18 +1,19 @@
 /**
  * Firecrawl Client for PICC Knowledge Scraping
  *
- * Primary scraper using Firecrawl for deep web crawling with JavaScript rendering
+ * Primary scraper using Firecrawl v1 API for deep web crawling with JavaScript rendering
  */
 
 import Firecrawl from '@mendable/firecrawl-js'
 
-// Initialize Firecrawl client
+// Initialize Firecrawl client — use v1 API
 const getFirecrawl = () => {
   const apiKey = process.env.FIRECRAWL_API_KEY
   if (!apiKey) {
     throw new Error('FIRECRAWL_API_KEY is not set')
   }
-  return new Firecrawl({ apiKey })
+  const client = new Firecrawl({ apiKey })
+  return (client as any).v1 || client
 }
 
 export interface ScrapeResult {
@@ -45,12 +46,11 @@ export async function scrapeUrl(url: string): Promise<ScrapeResult> {
   try {
     const firecrawl = getFirecrawl()
 
-    const response = await (firecrawl as any).scrapeUrl(url, {
+    const response = await firecrawl.scrapeUrl(url, {
       formats: ['markdown', 'html'],
       onlyMainContent: true,
     })
 
-    // Type guard for the response
     const doc = response as any
 
     if (!doc || !doc.markdown) {
@@ -123,8 +123,7 @@ export async function crawlSite(
       crawlOptions.excludePaths = excludePaths
     }
 
-    // Use crawlAndWait to get all documents when the crawl completes
-    const response = await (firecrawl as any).crawlUrl(url, crawlOptions)
+    const response = await firecrawl.crawlUrl(url, crawlOptions)
     const result = response as any
 
     if (!result || !result.success) {
@@ -136,7 +135,6 @@ export async function crawlSite(
       }
     }
 
-    // Handle different response formats
     const documents = result.data || result.documents || []
     const pages: ScrapeResult[] = documents.map((page: any) => ({
       url: page.metadata?.sourceURL || page.url || url,
@@ -173,7 +171,7 @@ export async function crawlSite(
 export async function mapSite(url: string): Promise<string[]> {
   try {
     const firecrawl = getFirecrawl()
-    const response = await (firecrawl as any).map(url)
+    const response = await firecrawl.mapUrl(url)
     const result = response as any
 
     if (!result || !result.links) {

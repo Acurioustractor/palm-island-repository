@@ -2,7 +2,7 @@
  * Generate History Stories from Scraped Content
  *
  * Queries scraped_content and historical_artifacts for Palm Island history material,
- * groups by chapter, and generates draft stories using Claude.
+ * groups by chapter, and generates draft stories using Gemini.
  * All stories are created as drafts (is_public: false, status: 'draft') for human review.
  *
  * Usage:
@@ -14,7 +14,7 @@
 import { config } from 'dotenv'
 import { resolve } from 'path'
 import { createClient } from '@supabase/supabase-js'
-import OpenAI from 'openai'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
 config({ path: resolve(__dirname, '../.env.local') })
 
@@ -23,12 +23,12 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-})
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY!)
+const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
 
 const DRY_RUN = process.argv.includes('--dry-run')
 const CHAPTER_FILTER = process.argv.find(a => a.startsWith('--chapter='))?.split('=')?.[1]
+const RATE_LIMIT_MS = 5000 // 15 RPM free tier
 
 // ─── Chapter Definitions ─────────────────────────────────────────────────────
 
@@ -91,17 +91,8 @@ const CHAPTERS = [
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function matchChapter(text: string): string | null {
-  const lower = text.toLowerCase()
-  for (const chapter of CHAPTERS) {
-    const matches = chapter.keywords.filter(kw => lower.includes(kw)).length
-    if (matches >= 2) return chapter.ref
-  }
-  // Single strong keyword match
-  for (const chapter of CHAPTERS) {
-    if (chapter.keywords.some(kw => lower.includes(kw))) return chapter.ref
-  }
-  return null
+function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms))
 }
 
 async function generateStory(
@@ -119,13 +110,7 @@ async function generateStory(
     .map((s, i) => `[Source ${i + 1}: ${s.title} (${s.source})]:\n${s.content.slice(0, 2000)}`)
     .join('\n\n---\n\n')
 
-  const response = await openai.chat.completions.create({
-    model: 'gpt-4o-mini',
-    max_tokens: 3000,
-    messages: [
-      {
-        role: 'user',
-        content: `You are writing a history story for the Palm Island Community Company (PICC) website.
+  const prompt = `You are writing a history story for the Palm Island Community Company (PICC) website.
 
 Chapter: "${chapterTitle}" (ref: ${chapterRef})
 Cultural sensitivity level: ${sensitivity}
@@ -147,12 +132,11 @@ Return a JSON object with:
 - summary: A 2-3 sentence summary
 - sources_cited: Array of source titles/URLs used
 
-Return ONLY valid JSON, no markdown fences.`,
-      },
-    ],
-  })
+Return ONLY valid JSON, no markdown fences.`
 
-  const text = response.choices[0]?.message?.content || ''
+  const result = await model.generateContent(prompt)
+  const text = result.response.text()
+
   try {
     const cleaned = text.replace(/```json?\n?/g, '').replace(/```/g, '').trim()
     return JSON.parse(cleaned)
@@ -172,7 +156,8 @@ async function main() {
   console.log('═══════════════════════════════════════')
   console.log(' Generate History Stories from Sources')
   console.log('═══════════════════════════════════════')
-  if (DRY_RUN) console.log('🔍 DRY RUN — no database writes\n')
+  if (DRY_RUN) console.log('🔍 DRY RUN — no database writes')
+  console.log(`Using: Gemini 2.0 Flash\n`)
 
   const chaptersToProcess = CHAPTER_FILTER
     ? CHAPTERS.filter(c => c.ref === CHAPTER_FILTER)
@@ -235,6 +220,7 @@ async function main() {
 
     // Generate
     console.log(`  ✍️  Generating story...`)
+    await sleep(RATE_LIMIT_MS)
     const story = await generateStory(
       chapter.ref,
       chapter.title,
@@ -247,10 +233,11 @@ async function main() {
 
     if (!DRY_RUN) {
       const { error } = await supabase.from('stories').insert({
+        storyteller_id: '00000000-0000-0000-0000-000000000001',
         title: story.title,
         content: story.content,
         summary: story.summary,
-        story_category: 'history',
+        category: 'history',
         location: 'Palm Island',
         tags: ['history', `history-${chapter.ref}`, chapter.ref, 'generated', 'draft'],
         is_public: false,
@@ -263,6 +250,7 @@ async function main() {
           sources_cited: story.sources_cited,
           generated_at: new Date().toISOString(),
           generated_by: 'generate-history-stories.ts',
+          ai_model: 'gemini-2.5-flash',
           source_count: sources.length,
         },
       })
