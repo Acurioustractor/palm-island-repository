@@ -1,5 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async redirects() {
+    return [
+      { source: '/wiki/stories', destination: '/stories', permanent: true },
+      { source: '/wiki/timeline', destination: '/wiki/history', permanent: true },
+      { source: '/wiki/categories', destination: '/wiki', permanent: true },
+      { source: '/wiki/places', destination: '/wiki', permanent: true },
+      { source: '/wiki/topics', destination: '/wiki', permanent: true },
+      { source: '/wiki/achievements', destination: '/wiki', permanent: true },
+      { source: '/wiki/culture', destination: '/wiki', permanent: true },
+      { source: '/wiki/services', destination: '/wiki', permanent: true },
+    ]
+  },
   images: {
     remotePatterns: [
       {

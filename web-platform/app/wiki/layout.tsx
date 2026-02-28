@@ -13,7 +13,7 @@ export default function WikiLayout({
   return (
     <div className="min-h-screen bg-gray-50">
       <WikiNavigation />
-      <main className="lg:ml-72">
+      <main className="xl:ml-72 transition-all duration-300">
         {children}
       </main>
     </div>

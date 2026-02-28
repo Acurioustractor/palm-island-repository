@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { getChapterArtifacts } from '@/lib/history/get-artifacts';
 import { getChapterBySlug, HISTORY_CHAPTERS } from '@/lib/history/chapters';
+import { getChapterHeroImage, getChapterGalleryPhotos } from '@/lib/wiki/get-photos';
 import ChapterPage from '@/components/wiki/ChapterPage';
 import type { Metadata } from 'next';
 
@@ -37,12 +38,17 @@ export default async function ChapterRoute({ params }: PageProps) {
   const prev = idx > 0 ? HISTORY_CHAPTERS[idx - 1] : null;
   const next = idx < HISTORY_CHAPTERS.length - 1 ? HISTORY_CHAPTERS[idx + 1] : null;
 
+  const heroImage = getChapterHeroImage(slug);
+  const photos = getChapterGalleryPhotos(slug);
+
   return (
     <ChapterPage
       chapter={chapter}
       artifacts={artifacts}
       prevChapter={prev}
       nextChapter={next}
+      heroImage={heroImage}
+      photos={photos}
     />
   );
 }
