@@ -138,6 +138,38 @@ export async function getRelatedArtifacts(
 }
 
 /**
+ * Fetch featured artifacts — one notable artifact per chapter with images preferred
+ */
+export async function getFeaturedArtifacts(limit = 6): Promise<HistoricalArtifact[]> {
+  const supabase = getSupabase()
+
+  // Get artifacts that have images, spread across chapters
+  const { data, error } = await supabase
+    .from('historical_artifacts')
+    .select(ARTIFACT_COLUMNS)
+    .eq('is_verified', true)
+    .neq('cultural_sensitivity_level', 'restricted')
+    .not('image_url', 'is', null)
+    .not('content_summary', 'is', null)
+    .order('date_original', { ascending: true, nullsFirst: false })
+
+  if (error || !data) return []
+
+  // Pick one per chapter to ensure variety
+  const seen = new Set<string>()
+  const featured: HistoricalArtifact[] = []
+  for (const a of data) {
+    const ref = a.chapter_ref || 'uncategorized'
+    if (seen.has(ref)) continue
+    seen.add(ref)
+    featured.push(a)
+    if (featured.length >= limit) break
+  }
+
+  return featured
+}
+
+/**
  * Get artifact counts per chapter (for showing badge counts)
  */
 export async function getArtifactCounts(): Promise<Record<string, number>> {

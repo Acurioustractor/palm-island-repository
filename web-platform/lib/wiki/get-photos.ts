@@ -59,6 +59,9 @@ const CHAPTER_GALLERY_PHOTOS: Record<string, PhotoEntry[]> = {
     { path: A('queensland-state-archives-1360-coconut-palm-avenue-palm-island-c-1935.png'), year: '1935', description: 'Coconut palm avenue, Palm Island, c.1935' },
     { path: A('queensland-state-archives-1355-palm-island-c-1935.png'), year: '1935', description: 'Palm Island, c.1935 — Queensland State Archives' },
     { path: A('queensland-state-archives-1385-huts-built-from-palm-leaves-and-roofed-with-grass-palm-island-c-1935.png'), year: '1935', description: 'Huts built from palm leaves and roofed with grass, Palm Island, c.1935' },
+    { path: A('queensland-state-archives-1365-plaited-palms-used-by-natives-for-building-huts-palm-island-c-1935.png'), year: '1935', description: 'Plaited palms used for building huts, Palm Island, c.1935' },
+    { path: A('queensland-state-archives-1353-tourists-purchasing-curios-at-palm-island-c-1935.png'), year: '1935', description: 'Tourists purchasing curios at Palm Island, c.1935' },
+    { path: A('queensland-state-archives-5803-hon-james-christian-peterson-home-secretary-and-party-with-residents-of-fantome-island-june-1931.png'), year: '1931', description: 'Home Secretary Peterson with Fantome Island residents, June 1931' },
   ],
   'hull-river': [
     { path: A('mbhs-hull-river-settlement-group-1916.jpg'), year: '1916', description: 'Large group at Hull River Aboriginal Settlement, 1916' },
@@ -72,9 +75,11 @@ const CHAPTER_GALLERY_PHOTOS: Record<string, PhotoEntry[]> = {
   ],
   languages: [
     { path: A('queensland-state-archives-5800-dancers-palm-island-june-1931.png'), year: '1931', description: 'Dancers, Palm Island, June 1931' },
+    { path: A('queensland-state-archives-5798-dancers-palm-island-june-1931.png'), year: '1931', description: 'Dancers, Palm Island, June 1931 — additional angle' },
+    { path: A('queensland-state-archives-1376-natives-display-before-tourists-at-palm-island-c-1935.png'), year: '1935', description: 'Cultural display before tourists at Palm Island, c.1935' },
+    { path: A('queensland-state-archives-1367-munday-williams-torres-strait-native-champion-coconut-peeler-palm-island-c-1935.png'), year: '1935', description: 'Munday Williams, Torres Strait Islander, champion coconut peeler, c.1935' },
     { path: A('queensland-state-archives-1366-a-native-preparing-for-a-war-dance-at-palm-island-c-1935.png'), year: '1935', description: 'A native preparing for a war dance at Palm Island, c.1935' },
     { path: A('queensland-state-archives-1380-palm-island-natives-in-war-paint-c-1935.png'), year: '1935', description: 'Palm Island natives in war paint, c.1935' },
-    { path: A('queensland-state-archives-1350-a-typical-palm-island-native-c-1935.png'), year: '1935', description: 'A typical Palm Island native, c.1935' },
     { path: A('queensland-state-archives-5796-brass-band-palm-island-june-1931.png'), year: '1931', description: 'Brass band, Palm Island, June 1931' },
     { path: A('queensland-state-archives-1359-natives-mending-fishing-nets-at-palm-island-c-1935.png'), year: '1935', description: 'Natives mending fishing nets at Palm Island, c.1935' },
   ],

@@ -5,7 +5,7 @@ import {
   Globe, Users, Sparkles, Heart, BarChart3, AlertTriangle,
 } from 'lucide-react';
 import { HISTORY_CHAPTERS } from '@/lib/history/chapters';
-import { getArtifactCounts } from '@/lib/history/get-artifacts';
+import { getArtifactCounts, getFeaturedArtifacts } from '@/lib/history/get-artifacts';
 import { getChapterHeroImage, getWikiHubHero } from '@/lib/wiki/get-photos';
 import { WikiSearchBar } from '@/components/wiki/WikiSearchBar';
 
@@ -48,6 +48,13 @@ export default async function WikiIndexPage() {
 
   const totalArtifacts = Object.values(artifactCounts).reduce((sum, n) => sum + n, 0);
   const heroImage = getWikiHubHero();
+
+  let featuredArtifacts: Awaited<ReturnType<typeof getFeaturedArtifacts>> = [];
+  try {
+    featuredArtifacts = await getFeaturedArtifacts(6);
+  } catch {
+    // Gracefully degrade
+  }
 
   return (
     <div className="min-h-screen">
@@ -123,6 +130,56 @@ export default async function WikiIndexPage() {
             })}
           </div>
         </section>
+
+        {/* Featured Artifacts */}
+        {featuredArtifacts.length > 0 && (
+          <section className="mb-16">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                <Clock className="h-8 w-8 text-picc-ochre" />
+                Featured Artifacts
+              </h2>
+              <Link href="/wiki/history" className="text-picc-ochre hover:text-picc-ochre/80 font-medium flex items-center gap-1">
+                Browse all <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {featuredArtifacts.map((artifact) => (
+                <Link
+                  key={artifact.id}
+                  href={`/wiki/artifact/${artifact.id}`}
+                  className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-picc-ochre/50 hover:shadow-lg transition-all"
+                >
+                  {artifact.image_url && (
+                    <div className="h-40 overflow-hidden">
+                      <img
+                        src={artifact.image_url}
+                        alt={artifact.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                  )}
+                  <div className="p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      {artifact.date_original && (
+                        <span className="text-xs font-semibold text-picc-ochre">
+                          {new Date(artifact.date_original).getFullYear()}
+                        </span>
+                      )}
+                      <span className="text-xs text-gray-500 capitalize">{artifact.artifact_type?.replace('_', ' ')}</span>
+                    </div>
+                    <h3 className="text-sm font-bold text-gray-900 group-hover:text-picc-ochre transition-colors line-clamp-2">
+                      {artifact.title}
+                    </h3>
+                    {artifact.content_summary && (
+                      <p className="text-xs text-gray-600 mt-2 line-clamp-3">{artifact.content_summary}</p>
+                    )}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Innovation Section */}
         <section className="mb-16">
