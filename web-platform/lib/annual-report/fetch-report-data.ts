@@ -9,6 +9,8 @@
 import { createClient } from '@supabase/supabase-js';
 import { getStaticReportData } from './data-2024';
 import { getFinancials, parseFiscalYear } from '@/lib/financials/get-financials';
+import { getPagePhotos, type PagePhotoMap } from './page-photos';
+import { assignVoicesToPages, type VoiceAssignments } from './voice-assignments';
 
 function createServiceClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -153,6 +155,8 @@ export interface ReportData {
     magnificentSeven: Array<{ name: string; role: string }>;
     climateData: Array<{ metric: string; current: string; projected: string }>;
   } | null;
+  pagePhotos: PagePhotoMap;
+  voiceAssignments: VoiceAssignments;
 }
 
 /**
@@ -511,6 +515,8 @@ export async function getReportData(fiscalYear?: string): Promise<ReportData> {
       compliance,
       historyEras,
       resilienceStories: staticData.resilienceStories,
+      pagePhotos: getPagePhotos(fy),
+      voiceAssignments: assignVoicesToPages(communityVoices),
     };
   } catch (err) {
     console.error('Error fetching report data from Supabase, using static fallback:', err);

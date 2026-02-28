@@ -13,6 +13,7 @@
  * Supports audience-targeted generation via `audience` prop.
  */
 import React from 'react'
+import path from 'path'
 import {
   Document,
   Page,
@@ -25,6 +26,10 @@ import {
 } from '@react-pdf/renderer'
 
 import { C, A4_W, A4_H, MARGIN, CONTENT_W, SP, baseStyles, fmtCurrency, fmtFullCurrency } from '../theme'
+
+// ── Local asset resolver (Gemini-generated illustrations) ──
+const assetPath = (filename: string) =>
+  path.join(process.cwd(), 'public', 'report-assets', filename)
 import {
   RunningHeader,
   PageNumber,
@@ -509,19 +514,21 @@ export default function AnnualReportPDF({
   // Compliance data
   const comp = data.compliance
 
-  // Community voices split
+  // Community voices — use pre-assigned voice distribution
   const allVoices = data.communityVoices || []
-  const elderVoices = allVoices.filter((v) => v.type === 'elder_quote')
-  const youthVoices = allVoices.filter((v) => v.category === 'youth')
-  const generalVoices = allVoices.filter((v) => v.type !== 'elder_quote' && v.category !== 'youth')
+  const va = data.voiceAssignments
+
+  // Page photos — real community photos with AI fallbacks
+  const pp = data.pagePhotos
 
   // History eras
   const eras = data.historyEras || []
 
   // ── 1. CoverPage ───────────────────────────────────
+  // Uses DB cover photo, then pagePhotos, falls back to AI illustration
   const CoverPage = () => (
     <PhotoCover
-      photoUrl={data.coverPhoto?.url || null}
+      photoUrl={data.coverPhoto?.url || pp.cover?.hero || assetPath('island-aerial-golden.png')}
       title={coverSubtitle}
       subtitle="PALM ISLAND COMMUNITY COMPANY"
       year={yearRange}
@@ -563,6 +570,11 @@ export default function AnnualReportPDF({
       />
 
       <View style={ls.ackOuter}>
+        {/* Cultural motif — real landscape photo or dot painting turtle fallback */}
+        <Image
+          src={pp.acknowledgement?.hero || assetPath('dot-pattern-turtle.png')}
+          style={{ width: 180, height: 100, objectFit: 'contain', marginBottom: 16, opacity: 0.85 }}
+        />
         <SectionDivider width={80} color={C.ochre} opacity={0.3} dotCount={7} />
         <View style={ls.ackBorder}>
           <Text style={ls.ackTitle}>Acknowledgement of Country</Text>
@@ -577,6 +589,130 @@ export default function AnnualReportPDF({
       <PageNumber />
     </Page>
   )
+
+  // ── 2b. ContentsPage ──────────────────────────────
+  // Table of contents with Palm Island map illustration
+  const ContentsPage = () => {
+    const tocItems = [
+      { label: 'Acknowledgement of Country', page: '2' },
+      { label: 'From Our Leaders', page: '4' },
+      { label: `Year ${yearNumber} in Numbers`, page: '5' },
+      { label: 'Life on Palm Island', page: '6' },
+      { label: `Year ${yearNumber} Highlights`, page: '7' },
+      { label: 'Community Voices', page: '8' },
+      { label: 'Youth Voices', page: '9' },
+      { label: 'Community Resilience', page: '10' },
+      { label: 'Board of Directors', page: '12' },
+      { label: 'Compliance & Registration', page: '13' },
+      { label: 'Programs & Services', page: '15' },
+      { label: 'Innovation Projects', page: '16' },
+      { label: 'Financial Summary', page: '17' },
+      { label: 'Our Journey', page: '19' },
+      { label: 'The Next 20 Years', page: '20' },
+      { label: 'Our Partners', page: '21' },
+    ]
+
+    return (
+      <Page size="A4" style={s.page}>
+        <RunningHeader left={headerLeft} right={headerRight} />
+
+        {/* Palm Island map illustration */}
+        <Image
+          src={assetPath('palm-island-map.png')}
+          style={{ width: '100%', height: 180, objectFit: 'cover', borderRadius: 10, marginBottom: 20 }}
+        />
+
+        <Text style={s.sectionLabel}>Contents</Text>
+        <Text style={s.h1}>Inside This Report</Text>
+
+        {/* Dot divider strip */}
+        <Image
+          src={assetPath('dot-divider-strip.png')}
+          style={{ width: '100%', height: 24, objectFit: 'cover', marginVertical: 12 }}
+        />
+
+        {tocItems.map((item, i) => (
+          <View
+            key={i}
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              paddingVertical: 7,
+              borderBottom: `0.5pt solid ${C.border}`,
+            }}
+          >
+            <Text style={{ fontSize: 10, color: C.driftwood }}>{item.label}</Text>
+            <Text style={{ fontSize: 10, fontWeight: 'bold', color: C.ocean }}>{item.page}</Text>
+          </View>
+        ))}
+
+        <PageNumber />
+      </Page>
+    )
+  }
+
+  // ── 2c. PartnersPage ─────────────────────────────
+  // Acknowledgement of funders and partners
+  const PartnersPage = () => {
+    const partners = [
+      { name: 'Queensland Government', category: 'Government' },
+      { name: 'Australian Government — NIAA', category: 'Government' },
+      { name: 'Department of Social Services', category: 'Government' },
+      { name: 'Queensland Health', category: 'Government' },
+      { name: 'Department of Children, Youth Justice & Multicultural Affairs', category: 'Government' },
+      { name: 'Townsville Hospital and Health Service', category: 'Health' },
+      { name: 'Palm Island Aboriginal Shire Council', category: 'Community' },
+      { name: 'ATSILS (Aboriginal & Torres Strait Islander Legal Service)', category: 'Justice' },
+    ]
+
+    const partnersByCategory = partners.reduce((acc, p) => {
+      if (!acc[p.category]) acc[p.category] = []
+      acc[p.category].push(p.name)
+      return acc
+    }, {} as Record<string, string[]>)
+
+    return (
+      <Page size="A4" style={s.pageShell}>
+        <RunningHeader left={headerLeft} right={headerRight} />
+        <ConstellationPattern seed={21} opacity={0.04} color={C.ocean} />
+
+        <Text style={s.sectionLabel}>Acknowledgements</Text>
+        <Text style={s.h1}>Our Partners</Text>
+        <WaveLine width={60} marginVertical={6} color={C.ochre} />
+        <Text style={[s.lead, { marginBottom: 10 }]}>
+          We gratefully acknowledge the organisations and government agencies that support our work.
+        </Text>
+
+        {/* Partners turtle illustration */}
+        <Image
+          src={assetPath('partners-turtle.png')}
+          style={{ width: '100%', height: 140, objectFit: 'cover', borderRadius: 10, marginBottom: 16 }}
+        />
+
+        {Object.entries(partnersByCategory).map(([category, names]) => (
+          <View key={category} wrap={false} style={{ marginBottom: 14 }}>
+            <Text style={{ fontSize: 11, fontWeight: 'bold', color: C.ocean, marginBottom: 6, borderBottom: `1pt solid ${C.border}`, paddingBottom: 4 }}>
+              {category}
+            </Text>
+            {names.map((name, i) => (
+              <Text key={i} style={{ fontSize: 9.5, color: C.driftwood, lineHeight: 1.8, paddingLeft: 8 }}>
+                {name}
+              </Text>
+            ))}
+          </View>
+        ))}
+
+        {/* Dot divider */}
+        <Image
+          src={assetPath('dot-divider-strip.png')}
+          style={{ width: '100%', height: 20, objectFit: 'cover', marginTop: 16 }}
+        />
+
+        <PageNumber />
+      </Page>
+    )
+  }
 
   // ── 3. MessagesPage ────────────────────────────────
   // Asymmetric portrait/text layout — magazine editorial feel
@@ -808,7 +944,7 @@ export default function AnnualReportPDF({
   // ── 7. CommunityVoicesPage ─────────────────────────
   // Sand background, larger quotes with portrait pairing, voice-type coding
   const CommunityVoicesPage = () => {
-    const voices = generalVoices.slice(0, 6)
+    const voices = va.communityVoices.voices.length > 0 ? va.communityVoices.voices : allVoices.filter((v) => v.type !== 'elder_quote' && v.category !== 'youth').slice(0, 6)
     if (voices.length === 0) return null
 
     return (
@@ -819,9 +955,15 @@ export default function AnnualReportPDF({
         <Text style={s.sectionLabel}>Community Voices</Text>
         <Text style={s.h1}>What Our Community Says</Text>
         <WaveLine width={60} marginVertical={6} color={C.ochre} />
-        <Text style={[s.lead, { marginBottom: 14 }]}>
+        <Text style={[s.lead, { marginBottom: 10 }]}>
           Real voices from the people at the heart of everything we do.
         </Text>
+
+        {/* Community photo — real photo or AI fallback */}
+        <Image
+          src={pp.communityVoices?.hero || assetPath('community-celebration.png')}
+          style={{ width: '100%', height: 140, objectFit: 'cover', borderRadius: 10, marginBottom: 14 }}
+        />
 
         {/* First voice — large editorial quote */}
         {voices[0] && (
@@ -873,7 +1015,7 @@ export default function AnnualReportPDF({
   // ── 8. YouthVoicesPage ─────────────────────────────
   // Energetic — bolder colors, larger quotes, ConstellationPattern
   const YouthVoicesPage = () => {
-    const voices = youthVoices.length > 0 ? youthVoices : allVoices.filter((v) => v.type === 'story').slice(0, 3)
+    const voices = va.youthVoices.voices.length > 0 ? va.youthVoices.voices : allVoices.filter((v) => v.category === 'youth' || v.type === 'story').slice(0, 3)
     if (voices.length === 0) return null
 
     return (
@@ -884,9 +1026,15 @@ export default function AnnualReportPDF({
         <Text style={s.sectionLabel}>Youth Voices</Text>
         <Text style={s.h1}>Our Young People Speak</Text>
         <WaveLine width={60} marginVertical={6} color={C.coral} />
-        <Text style={[s.lead, { marginBottom: 14 }]}>
+        <Text style={[s.lead, { marginBottom: 10 }]}>
           32% of Palm Island is youth. Their voices shape our future.
         </Text>
+
+        {/* Youth photo — real photo or AI fallback */}
+        <Image
+          src={pp.youthVoices?.hero || assetPath('youth-programs.png')}
+          style={{ width: '100%', height: 130, objectFit: 'cover', borderRadius: 10, marginBottom: 14 }}
+        />
 
         {voices.map((voice, i) => (
           <View key={voice.id || i} wrap={false} style={{ marginBottom: 16 }}>
@@ -938,9 +1086,15 @@ export default function AnnualReportPDF({
         <Text style={s.sectionLabel}>Community Resilience</Text>
         <Text style={s.h1}>13,000 Years of Flood Knowledge</Text>
         <WaveLine width={60} marginVertical={6} color={C.starGold} />
-        <Text style={[s.lead, { marginBottom: 14 }]}>
+        <Text style={[s.lead, { marginBottom: 10 }]}>
           {rs.subtitle}
         </Text>
+
+        {/* Resilience photo — real photo or AI fallback */}
+        <Image
+          src={pp.resilience?.hero || assetPath('hull-river-history.png')}
+          style={{ width: '100%', height: 120, objectFit: 'cover', borderRadius: 10, marginBottom: 14 }}
+        />
 
         {/* Gubbal creation story — editorial quote */}
         <View wrap={false} style={{ marginBottom: 16 }}>
@@ -989,7 +1143,7 @@ export default function AnnualReportPDF({
     const rs = data.resilienceStories
     if (!rs) return null
 
-    const resilienceVoices = allVoices.filter((v) => v.category === 'resilience').slice(0, 4)
+    const resilienceVoices = va.floodStories.voices.length > 0 ? va.floodStories.voices : allVoices.filter((v) => v.category === 'resilience').slice(0, 4)
     if (resilienceVoices.length === 0) return null
 
     return (
@@ -1056,9 +1210,12 @@ export default function AnnualReportPDF({
         <Text style={s.sectionLabel}>Governance</Text>
         <Text style={s.h1}>Board of Directors</Text>
         <WaveLine width={60} marginVertical={6} color={C.ochre} />
-        <Text style={[s.lead, { marginBottom: 14 }]}>
-          Guiding the organisation with experience, vision and community commitment.
-        </Text>
+
+        {/* Governance photo — real board photo or AI fallback */}
+        <Image
+          src={pp.governance?.hero || assetPath('governance-circle.png')}
+          style={{ width: '100%', height: 130, objectFit: 'cover', borderRadius: 10, marginBottom: 12 }}
+        />
 
         <View style={ls.boardGrid}>
           {sortedBoard.map((member, i) => (
@@ -1219,9 +1376,19 @@ export default function AnnualReportPDF({
       <Text style={s.sectionLabel}>Year {yearNumber} — Our Services</Text>
       <Text style={s.h1}>Programs &amp; Services</Text>
       <WaveLine width={60} marginVertical={6} color={C.ochre} />
-      <Text style={[s.lead, { marginBottom: 12 }]}>
-        Delivering essential services to the Palm Island community.
-      </Text>
+
+      {/* Services photo — real healthcare photo or AI fallback */}
+      <View wrap={false} style={{ flexDirection: 'row', marginBottom: 12 }}>
+        <Image
+          src={pp.services?.hero || assetPath('health-wellbeing.png')}
+          style={{ width: 80, height: 80, objectFit: 'contain', marginRight: 14 }}
+        />
+        <View style={{ flex: 1, justifyContent: 'center' }}>
+          <Text style={[s.lead, { marginBottom: 0 }]}>
+            Delivering essential services to the Palm Island community across health, family, justice, crisis, digital, and economic development.
+          </Text>
+        </View>
+      </View>
 
       {Object.entries(serviceGroups).map(([category, services]) => (
         <View key={category} wrap={false}>
@@ -1359,6 +1526,14 @@ export default function AnnualReportPDF({
           </View>
         </View>
 
+        {/* Gemini expenditure donut chart */}
+        <View wrap={false} style={{ alignItems: 'center', marginBottom: 16 }}>
+          <Image
+            src={assetPath('expenditure-donut.png')}
+            style={{ width: 160, height: 160, objectFit: 'contain' }}
+          />
+        </View>
+
         {/* Expenditure breakdown with visual bars */}
         <Text style={[s.h3, { marginBottom: 12 }]}>Expenditure Breakdown</Text>
         {fin.breakdown.map((item, i) => (
@@ -1459,6 +1634,12 @@ export default function AnnualReportPDF({
           From foundation to community control — Palm Island&apos;s journey of self-determination.
         </Text>
 
+        {/* Journey photo — real aerial photo or AI fallback */}
+        <Image
+          src={pp.journey?.hero || assetPath('journey-timeline-art.png')}
+          style={{ width: '100%', height: 160, objectFit: 'cover', borderRadius: 10, marginBottom: 14 }}
+        />
+
         {/* Year progress indicator */}
         <View wrap={false} style={{ marginBottom: 20, padding: 14, backgroundColor: C.white, borderRadius: 10 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
@@ -1502,7 +1683,7 @@ export default function AnnualReportPDF({
       { label: 'Social Enterprises', current: 3, target: 8, unit: 'enterprises', color: C.ochre },
     ]
 
-    const visions = allVoices.filter((v) => v.type === 'community_vision').slice(0, 2)
+    const visions = va.nextTwenty.voices.length > 0 ? va.nextTwenty.voices : allVoices.filter((v) => v.type === 'community_vision').slice(0, 2)
 
     return (
       <Page size="A4" style={s.page}>
@@ -1512,7 +1693,14 @@ export default function AnnualReportPDF({
         <Text style={s.sectionLabel}>Year {yearNumber} — Looking Forward</Text>
         <Text style={s.h1}>The Next 20 Years</Text>
         <WaveLine width={60} marginVertical={6} color={C.ochre} />
-        <Text style={[s.lead, { marginBottom: 20 }]}>
+
+        {/* Gemini vision illustration — sunrise, stepping stones, Palm Island silhouette */}
+        <Image
+          src={assetPath('next-20-vision.png')}
+          style={{ width: '100%', height: 120, objectFit: 'cover', borderRadius: 10, marginBottom: 14 }}
+        />
+
+        <Text style={[s.lead, { marginBottom: 16 }]}>
           Our targets for PICC&apos;s 20-year milestone in 2029 — and what the community wants for the next 20.
         </Text>
 
@@ -1609,6 +1797,12 @@ export default function AnnualReportPDF({
         trailGap={10}
       />
 
+      {/* Gemini partners turtle — sea turtle with reef ecosystem */}
+      <Image
+        src={assetPath('partners-turtle.png')}
+        style={{ width: 280, height: 100, objectFit: 'cover', borderRadius: 10, marginBottom: 20, opacity: 0.7 }}
+      />
+
       <Image src="/logo/picc-logo-full.png" style={ls.backLogo} />
 
       <Text style={ls.backMission}>
@@ -1644,6 +1838,7 @@ export default function AnnualReportPDF({
     >
       {shouldShow('cover', audience) && <CoverPage />}
       {shouldShow('acknowledgement', audience) && <AcknowledgementPage />}
+      <ContentsPage />
       {shouldShow('messages', audience) && <MessagesPage />}
       {shouldShow('numbers', audience) && <YearInNumbersPage />}
       {shouldShow('photos', audience) && <PhotoSpreadPage />}
@@ -1661,6 +1856,7 @@ export default function AnnualReportPDF({
       {shouldShow('financialDetail', audience) && <FinancialDetailPage />}
       {shouldShow('journey', audience) && <JourneyTimelinePage />}
       {shouldShow('nextTwenty', audience) && <NextTwentyPage />}
+      <PartnersPage />
       {shouldShow('backCover', audience) && <BackCoverPage />}
     </Document>
   )

@@ -9,7 +9,11 @@
  * Use `getReportData()` from fetch-report-data.ts for production use.
  */
 
+import { getPagePhotos } from './page-photos';
+import { assignVoicesToPages } from './voice-assignments';
+
 export function getStaticReportData() {
+  const communityVoices = COMMUNITY_VOICES;
   return {
     report: REPORT,
     statistics: STATISTICS,
@@ -29,10 +33,12 @@ export function getStaticReportData() {
     ],
     financials: null,
     innovationProjects: INNOVATION_PROJECTS,
-    communityVoices: COMMUNITY_VOICES,
+    communityVoices,
     compliance: COMPLIANCE_DATA,
     historyEras: HISTORY_ERAS,
     resilienceStories: RESILIENCE_STORIES,
+    pagePhotos: getPagePhotos('2023-24'),
+    voiceAssignments: assignVoicesToPages(communityVoices),
   };
 }
 
