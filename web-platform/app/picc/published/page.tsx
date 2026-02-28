@@ -49,7 +49,7 @@ export default async function PublishedStoriesPage() {
         </Link>
 
         <Link
-          href="/picc/admin/storytellers"
+          href="/picc/storytellers"
           className="p-6 bg-white border-2 border-gray-200 hover:border-blue-300 rounded-xl transition-all group"
         >
           <div className="flex items-center gap-3 mb-3">

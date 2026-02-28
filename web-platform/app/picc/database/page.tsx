@@ -317,7 +317,7 @@ LIMIT 10;`,
               <div className="text-sm text-gray-600">View and manage innovation projects</div>
             </Link>
             <Link
-              href="/picc/admin/storytellers"
+              href="/picc/storytellers"
               className="block p-3 bg-white hover:bg-gray-50 rounded-lg border border-picc-ochre-200 transition-all"
             >
               <div className="font-semibold text-gray-900 mb-1">View All Stories</div>
