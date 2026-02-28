@@ -49,6 +49,7 @@ export default async function ChapterRoute({ params }: PageProps) {
       nextChapter={next}
       heroImage={heroImage}
       photos={photos}
+      allChapters={HISTORY_CHAPTERS}
     />
   );
 }

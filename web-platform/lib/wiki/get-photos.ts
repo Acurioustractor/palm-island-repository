@@ -19,8 +19,8 @@ const CHAPTER_HERO_IMAGES: Record<string, string> = {
   manbarra: A('view-from-mount-bently-great-palm-island-bwgcolman.jpg'),
   // Settlement from the sea, c.1935 — the reserve as arrivals first saw it
   reserve: A('queensland-state-archives-1384-palm-island-an-aboriginals-settlement-from-the-sea-c-1935.png'),
-  // Sunset at Palm Island, c.1935
-  'hull-river': A('queensland-state-archives-1369-sunset-at-palm-island-c-1935.png'),
+  // Hull River settlement clearing towards sea and Dunk Island, c.1915
+  'hull-river': A('mbhs-hull-river-clearing-towards-sea-1915.png'),
   // Dancers in traditional body paint, 1931 — many tribes, many cultures
   languages: A('queensland-state-archives-5797-dancers-palm-island-june-1931.png'),
   // Boys dormitory, Palm Island, June 1931
@@ -61,12 +61,14 @@ const CHAPTER_GALLERY_PHOTOS: Record<string, PhotoEntry[]> = {
     { path: A('queensland-state-archives-1385-huts-built-from-palm-leaves-and-roofed-with-grass-palm-island-c-1935.png'), year: '1935', description: 'Huts built from palm leaves and roofed with grass, Palm Island, c.1935' },
   ],
   'hull-river': [
+    { path: A('mbhs-hull-river-settlement-group-1916.jpg'), year: '1916', description: 'Large group at Hull River Aboriginal Settlement, 1916' },
+    { path: A('mbhs-kenny-family-hull-river-1914.jpg'), year: '1914', description: 'Superintendent Kenny family at Hull River, c.1914' },
+    { path: A('slq-1918-cyclone-innisfail-panorama-1.png'), year: '1918', description: 'Cyclone damage panorama, Innisfail, March 1918 — State Library of Queensland' },
+    { path: A('slq-1918-cyclone-innisfail-panorama-2.png'), year: '1918', description: 'Cyclone devastation, downtown Innisfail, 1918 — State Library of Queensland' },
+    { path: A('slq-1918-cyclone-mackay-damage.png'), year: '1918', description: 'Cyclone damage, Mackay street, January 1918 — State Library of Queensland' },
+    { path: A('mbhs-mija-memorial-hull-river.jpg'), year: '2000', description: 'Mija Memorial, Hull River — Mission Beach Historical Society' },
     { path: A('queensland-state-archives-1352-the-beach-palm-island-looking-south-c-1935.png'), year: '1935', description: 'The beach, Palm Island, looking south, c.1935' },
     { path: A('queensland-state-archives-1202-tourist-boat-off-palm-island-c-1931.png'), year: '1931', description: 'Tourist boat off Palm Island, c.1931' },
-    { path: A('queensland-state-archives-1351-tourists-landing-at-palm-island-c-1935.png'), year: '1935', description: 'Tourists landing at Palm Island, c.1935' },
-    { path: A('a-sunset-on-palm-island-1938.png'), year: '1938', description: 'A sunset on Palm Island, 1938' },
-    { path: A('queensland-state-archives-1384-palm-island-an-aboriginals-settlement-from-the-sea-c-1935.png'), year: '1935', description: 'Palm Island, an Aboriginal settlement from the sea, c.1935' },
-    { path: A('queensland-state-archives-886-palm-island-north-queensland-c-1928.png'), year: '1928', description: 'Palm Island, North Queensland, c.1928' },
   ],
   languages: [
     { path: A('queensland-state-archives-5800-dancers-palm-island-june-1931.png'), year: '1931', description: 'Dancers, Palm Island, June 1931' },
@@ -77,6 +79,8 @@ const CHAPTER_GALLERY_PHOTOS: Record<string, PhotoEntry[]> = {
     { path: A('queensland-state-archives-1359-natives-mending-fishing-nets-at-palm-island-c-1935.png'), year: '1935', description: 'Natives mending fishing nets at Palm Island, c.1935' },
   ],
   dormitories: [
+    { path: A('findandconnect-girls-home-palm-island-1933.jpg'), year: '1933', description: 'Girls\' Home, Palm Island Aboriginal Settlement, 1933 — Find and Connect / SLQ' },
+    { path: A('findandconnect-boys-dormitory-palm-island-1931.jpg'), year: '1931', description: 'Boys Dormitory inspection, Palm Island, 1931 — Find and Connect / QSA' },
     { path: A('queensland-state-archives-5814-girls-dormitory-palm-island-june-1931.png'), year: '1931', description: 'Girls dormitory, Palm Island, June 1931' },
     { path: A('queensland-state-archives-1368-happy-moments-on-palm-island-c-1935.png'), year: '1935', description: 'Happy moments on Palm Island, c.1935' },
     { path: A('queensland-state-archives-5799-residents-of-palm-island-june-1931.png'), year: '1931', description: 'Residents of Palm Island, June 1931' },
@@ -93,6 +97,7 @@ const CHAPTER_GALLERY_PHOTOS: Record<string, PhotoEntry[]> = {
     { path: A('queensland-state-archives-1355-palm-island-c-1935.png'), year: '1935', description: 'Palm Island, c.1935' },
   ],
   mulrunji: [
+    { path: A('nma-protest-palm-island-2006.jpg'), year: '2006', description: 'Palm Island residents protest during Premier Beattie\'s visit, 2006 — National Museum of Australia' },
     { path: '/annual-report-photos/2018-19/photo-012.jpg', year: '2018', description: 'Community march — "Domestic Violence It\'s With Us!" banner' },
     { path: '/annual-report-photos/2023-24/photo-011.jpg', year: '2023', description: 'Woman speaking into microphone at community event' },
     { path: '/annual-report-photos/2017-18/photo-011.jpg', year: '2017', description: 'Elder woman with thoughtful expression' },
