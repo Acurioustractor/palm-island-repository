@@ -6,7 +6,7 @@ import { Network, X, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 interface GraphNode {
   id: string;
   label: string;
-  type: 'story' | 'person' | 'place' | 'topic' | 'service' | 'event' | 'knowledge' | 'quote';
+  type: 'story' | 'person' | 'place' | 'topic' | 'service' | 'event' | 'knowledge' | 'quote' | 'artifact';
   size?: number;
   color?: string;
   metadata?: Record<string, any>;
@@ -15,7 +15,7 @@ interface GraphNode {
 interface GraphEdge {
   source: string;
   target: string;
-  type: 'mentions' | 'collaborates' | 'influences' | 'located_at' | 'related_to' | 'created';
+  type: 'mentions' | 'collaborates' | 'influences' | 'located_at' | 'related_to' | 'created' | 'timeline';
   strength?: number;
   label?: string;
 }
@@ -54,6 +54,7 @@ export function KnowledgeGraph({
     event: '#A4343A', // picc-red
     knowledge: '#2D2319', // picc-earth
     quote: '#C8922A', // picc-ochre
+    artifact: '#6B8F71', // sage green
   };
 
   // Simple force-directed layout simulation

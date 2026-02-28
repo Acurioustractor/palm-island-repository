@@ -71,11 +71,75 @@ export default async function ArtifactDetailPage({ params }: PageProps) {
     artifact.cultural_sensitivity_level === 'medium';
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <Breadcrumbs items={breadcrumbs} className="mb-6" />
+    <div className="min-h-screen">
+      {/* Hero Image */}
+      {artifact.image_url ? (
+        <div className="relative h-[40vh] min-h-[300px] max-h-[500px] overflow-hidden">
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${artifact.image_url})` }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-gray-50" />
+          <div className="relative z-10 h-full flex flex-col justify-end max-w-4xl mx-auto px-4 pb-8">
+            <Breadcrumbs items={breadcrumbs} className="mb-4 [&_a]:text-white/70 [&_a:hover]:text-white [&_span]:text-white/50 [&_li:last-child_span]:text-white" />
+            <div className="flex items-center gap-3 mb-3">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/20 backdrop-blur-sm text-white rounded-full text-sm">
+                <TypeIcon className="h-3.5 w-3.5" />
+                {typeInfo.label}
+              </span>
+              {artifact.date_original && (
+                <span className="text-sm text-white/80 flex items-center gap-1">
+                  <Clock className="h-3.5 w-3.5" />
+                  {formatDate(artifact.date_original)}
+                </span>
+              )}
+            </div>
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">{artifact.title}</h1>
+            {artifact.source_name && (
+              <p className="text-white/70">
+                Source: <span className="font-medium text-white/90">{artifact.source_name}</span>
+              </p>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="max-w-4xl mx-auto px-4 pt-8">
+          <Breadcrumbs items={breadcrumbs} className="mb-6" />
+          {chapter && (
+            <Link
+              href={`/wiki/history/${chapter.slug}`}
+              className="inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-picc-ochre mb-6 transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to {chapter.title}
+            </Link>
+          )}
+          <header className="mb-8">
+            <div className="flex items-center gap-3 mb-3">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-stone-100 text-stone-700 rounded-full text-sm">
+                <TypeIcon className="h-3.5 w-3.5" />
+                {typeInfo.label}
+              </span>
+              {artifact.date_original && (
+                <span className="text-sm text-gray-500 flex items-center gap-1">
+                  <Clock className="h-3.5 w-3.5" />
+                  {formatDate(artifact.date_original)}
+                </span>
+              )}
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">{artifact.title}</h1>
+            {artifact.source_name && (
+              <p className="text-gray-500">
+                Source: <span className="font-medium">{artifact.source_name}</span>
+              </p>
+            )}
+          </header>
+        </div>
+      )}
 
-      {/* Back link */}
-      {chapter && (
+      <div className="max-w-4xl mx-auto px-4 py-8">
+      {/* Back link (only when hero is shown, breadcrumbs are in hero) */}
+      {artifact.image_url && chapter && (
         <Link
           href={`/wiki/history/${chapter.slug}`}
           className="inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-picc-ochre mb-6 transition-colors"
@@ -85,28 +149,6 @@ export default async function ArtifactDetailPage({ params }: PageProps) {
         </Link>
       )}
 
-      {/* Header */}
-      <header className="mb-8">
-        <div className="flex items-center gap-3 mb-3">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-stone-100 text-stone-700 rounded-full text-sm">
-            <TypeIcon className="h-3.5 w-3.5" />
-            {typeInfo.label}
-          </span>
-          {artifact.date_original && (
-            <span className="text-sm text-gray-500 flex items-center gap-1">
-              <Clock className="h-3.5 w-3.5" />
-              {formatDate(artifact.date_original)}
-            </span>
-          )}
-        </div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">{artifact.title}</h1>
-        {artifact.source_name && (
-          <p className="text-gray-500">
-            Source: <span className="font-medium">{artifact.source_name}</span>
-          </p>
-        )}
-      </header>
-
       {/* Cultural Sensitivity Notice */}
       {isSensitive && (
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-8 flex items-start gap-3">
@@ -115,17 +157,6 @@ export default async function ArtifactDetailPage({ params }: PageProps) {
             This artifact contains culturally sensitive content. It is shared with respect
             to preserve historical truth and honour those affected.
           </p>
-        </div>
-      )}
-
-      {/* Image */}
-      {artifact.image_url && (
-        <div className="mb-8">
-          <img
-            src={artifact.image_url}
-            alt={artifact.title}
-            className="w-full max-h-[500px] object-contain bg-stone-100 rounded-xl"
-          />
         </div>
       )}
 
@@ -260,6 +291,7 @@ export default async function ArtifactDetailPage({ params }: PageProps) {
         chapterRef={artifact.chapter_ref || undefined}
         contentTitle={artifact.title}
       />
+      </div>
     </div>
   );
 }

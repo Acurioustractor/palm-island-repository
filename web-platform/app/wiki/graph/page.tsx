@@ -1,13 +1,16 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { Suspense, useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { BookOpen } from 'lucide-react';
+import { BookOpen, ArrowLeft, Clock } from 'lucide-react';
+import Link from 'next/link';
 import { BespokeIcon, type BespokeIconName } from '@/components/ui/BespokeIcon';
 import Breadcrumbs from '@/components/wiki/Breadcrumbs';
 import KnowledgeGraph from '@/components/wiki/KnowledgeGraph';
+import { HISTORY_CHAPTERS } from '@/lib/history/chapters';
 
-type NodeType = 'story' | 'person' | 'service' | 'knowledge' | 'quote';
+type NodeType = 'story' | 'person' | 'service' | 'knowledge' | 'quote' | 'artifact';
 
 const TYPE_FILTERS: Array<{ type: NodeType; label: string; icon: BespokeIconName }> = [
   { type: 'story', label: 'Stories', icon: 'story' },
@@ -15,16 +18,39 @@ const TYPE_FILTERS: Array<{ type: NodeType; label: string; icon: BespokeIconName
   { type: 'service', label: 'Services', icon: 'community' },
   { type: 'knowledge', label: 'Knowledge', icon: 'knowledge' },
   { type: 'quote', label: 'Quotes', icon: 'quote' },
+  { type: 'artifact', label: 'Artifacts', icon: 'knowledge' },
 ];
 
 export default function KnowledgeGraphPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-warm-50 to-cream flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-picc-ochre mx-auto mb-4"></div>
+          <p className="text-picc-earth-300">Loading knowledge graph...</p>
+        </div>
+      </div>
+    }>
+      <KnowledgeGraphPageInner />
+    </Suspense>
+  );
+}
+
+function KnowledgeGraphPageInner() {
+  const searchParams = useSearchParams();
+  const chapterSlug = searchParams.get('chapter');
+  const chapter = chapterSlug ? HISTORY_CHAPTERS.find(c => c.slug === chapterSlug) : null;
+
   const [graphData, setGraphData] = useState<{ nodes: any[]; edges: any[] }>({
     nodes: [],
     edges: [],
   });
   const [loading, setLoading] = useState(true);
   const [activeFilters, setActiveFilters] = useState<Set<NodeType>>(
-    new Set<NodeType>(['story', 'person', 'service', 'knowledge', 'quote'])
+    new Set<NodeType>(chapter
+      ? ['artifact', 'story', 'person', 'service', 'knowledge', 'quote']
+      : ['story', 'person', 'service', 'knowledge', 'quote']
+    )
   );
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -160,7 +186,50 @@ export default function KnowledgeGraphPage() {
         });
       }
 
-      // 5. Load service-story links for additional edges
+      // 5. Load history artifacts (filtered by chapter if specified)
+      const artifactQuery = supabase
+        .from('history_artifacts')
+        .select('id, title, artifact_type, chapter_ref, date_original, content_summary')
+        .limit(chapterSlug ? 200 : 50);
+
+      if (chapterSlug) {
+        artifactQuery.eq('chapter_ref', chapterSlug);
+      }
+
+      const { data: artifacts } = await artifactQuery;
+
+      if (artifacts) {
+        artifacts.forEach((artifact: any) => {
+          if (!nodeMap.has(artifact.id)) {
+            nodes.push({
+              id: artifact.id,
+              label: artifact.title.length > 30 ? artifact.title.substring(0, 27) + '...' : artifact.title,
+              type: 'artifact',
+              size: 12,
+              metadata: {
+                artifactType: artifact.artifact_type,
+                chapter: artifact.chapter_ref,
+                date: artifact.date_original,
+              },
+            });
+            nodeMap.set(artifact.id, true);
+          }
+        });
+
+        // Connect artifacts in the same chapter to each other
+        if (chapterSlug && artifacts.length > 1) {
+          for (let i = 0; i < artifacts.length - 1; i++) {
+            edges.push({
+              source: artifacts[i].id,
+              target: artifacts[i + 1].id,
+              type: 'timeline',
+              strength: 0.3,
+            });
+          }
+        }
+      }
+
+      // 6. Load service-story links for additional edges
       const { data: storyLinks } = await supabase
         .from('service_story_links')
         .select('story_id, service_name')
@@ -186,7 +255,7 @@ export default function KnowledgeGraphPage() {
     }
 
     loadGraph();
-  }, []);
+  }, [chapterSlug]);
 
   // Filter nodes and edges based on active filters and search
   const filteredData = useMemo(() => {
@@ -231,6 +300,34 @@ export default function KnowledgeGraphPage() {
       <div className="max-w-7xl mx-auto px-6 sm:px-8 py-8">
         <Breadcrumbs items={breadcrumbs} className="mb-6" />
 
+        {/* Chapter Context Banner */}
+        {chapter && (
+          <div className="mb-6 bg-gradient-to-r from-picc-ochre/10 to-warm-50 border border-picc-ochre/20 rounded-xl p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Clock className="h-5 w-5 text-picc-ochre" />
+              <div>
+                <p className="text-sm text-picc-earth-300">Viewing artifacts from</p>
+                <p className="font-semibold text-picc-earth">{chapter.title} <span className="font-normal text-picc-earth-300">({chapter.dateRange})</span></p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <Link
+                href={`/wiki/history/${chapter.slug}`}
+                className="inline-flex items-center gap-1.5 text-sm text-picc-ochre hover:text-picc-ochre/80 transition-colors"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to chapter
+              </Link>
+              <Link
+                href="/wiki/graph"
+                className="text-sm text-picc-earth-300 hover:text-picc-earth transition-colors"
+              >
+                View all
+              </Link>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
@@ -240,7 +337,9 @@ export default function KnowledgeGraphPage() {
             </h1>
           </div>
           <p className="text-lg text-picc-earth-300">
-            Explore the relationships between stories, people, services, and knowledge
+            {chapter
+              ? `Exploring connections for ${chapter.title}`
+              : 'Explore the relationships between stories, people, services, and knowledge'}
           </p>
         </div>
 
@@ -295,6 +394,8 @@ export default function KnowledgeGraphPage() {
                 window.location.href = `/wiki/${node.id}`;
               } else if (node.type === 'service') {
                 window.location.href = `/services`;
+              } else if (node.type === 'artifact') {
+                window.location.href = `/wiki/artifact/${node.id}`;
               }
             }}
           />
