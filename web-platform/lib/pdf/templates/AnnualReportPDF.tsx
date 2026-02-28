@@ -528,7 +528,7 @@ export default function AnnualReportPDF({
   // Uses DB cover photo, then pagePhotos, falls back to AI illustration
   const CoverPage = () => (
     <PhotoCover
-      photoUrl={data.coverPhoto?.url || pp.cover?.hero || assetPath('island-aerial-golden.png')}
+      photoUrl={data.coverPhoto?.url || pp.cover?.hero || assetPath('island-aerial-golden.jpg')}
       title={coverSubtitle}
       subtitle="PALM ISLAND COMMUNITY COMPANY"
       year={yearRange}
@@ -572,7 +572,7 @@ export default function AnnualReportPDF({
       <View style={ls.ackOuter}>
         {/* Cultural motif — real landscape photo or dot painting turtle fallback */}
         <Image
-          src={pp.acknowledgement?.hero || assetPath('dot-pattern-turtle.png')}
+          src={pp.acknowledgement?.hero || assetPath('dot-pattern-turtle.jpg')}
           style={{ width: 180, height: 100, objectFit: 'contain', marginBottom: 16, opacity: 0.85 }}
         />
         <SectionDivider width={80} color={C.ochre} opacity={0.3} dotCount={7} />
@@ -618,7 +618,7 @@ export default function AnnualReportPDF({
 
         {/* Palm Island map illustration */}
         <Image
-          src={assetPath('palm-island-map.png')}
+          src={assetPath('palm-island-map.jpg')}
           style={{ width: '100%', height: 180, objectFit: 'cover', borderRadius: 10, marginBottom: 20 }}
         />
 
@@ -627,7 +627,7 @@ export default function AnnualReportPDF({
 
         {/* Dot divider strip */}
         <Image
-          src={assetPath('dot-divider-strip.png')}
+          src={assetPath('dot-divider-strip.jpg')}
           style={{ width: '100%', height: 24, objectFit: 'cover', marginVertical: 12 }}
         />
 
@@ -686,7 +686,7 @@ export default function AnnualReportPDF({
 
         {/* Partners turtle illustration */}
         <Image
-          src={assetPath('partners-turtle.png')}
+          src={assetPath('partners-turtle.jpg')}
           style={{ width: '100%', height: 140, objectFit: 'cover', borderRadius: 10, marginBottom: 16 }}
         />
 
@@ -705,7 +705,7 @@ export default function AnnualReportPDF({
 
         {/* Dot divider */}
         <Image
-          src={assetPath('dot-divider-strip.png')}
+          src={assetPath('dot-divider-strip.jpg')}
           style={{ width: '100%', height: 20, objectFit: 'cover', marginTop: 16 }}
         />
 
@@ -961,7 +961,7 @@ export default function AnnualReportPDF({
 
         {/* Community photo — real photo or AI fallback */}
         <Image
-          src={pp.communityVoices?.hero || assetPath('community-celebration.png')}
+          src={pp.communityVoices?.hero || assetPath('community-celebration.jpg')}
           style={{ width: '100%', height: 140, objectFit: 'cover', borderRadius: 10, marginBottom: 14 }}
         />
 
@@ -1032,7 +1032,7 @@ export default function AnnualReportPDF({
 
         {/* Youth photo — real photo or AI fallback */}
         <Image
-          src={pp.youthVoices?.hero || assetPath('youth-programs.png')}
+          src={pp.youthVoices?.hero || assetPath('youth-programs.jpg')}
           style={{ width: '100%', height: 130, objectFit: 'cover', borderRadius: 10, marginBottom: 14 }}
         />
 
@@ -1092,7 +1092,7 @@ export default function AnnualReportPDF({
 
         {/* Resilience photo — real photo or AI fallback */}
         <Image
-          src={pp.resilience?.hero || assetPath('hull-river-history.png')}
+          src={pp.resilience?.hero || assetPath('hull-river-history.jpg')}
           style={{ width: '100%', height: 120, objectFit: 'cover', borderRadius: 10, marginBottom: 14 }}
         />
 
@@ -1213,7 +1213,7 @@ export default function AnnualReportPDF({
 
         {/* Governance photo — real board photo or AI fallback */}
         <Image
-          src={pp.governance?.hero || assetPath('governance-circle.png')}
+          src={pp.governance?.hero || assetPath('governance-circle.jpg')}
           style={{ width: '100%', height: 130, objectFit: 'cover', borderRadius: 10, marginBottom: 12 }}
         />
 
@@ -1380,7 +1380,7 @@ export default function AnnualReportPDF({
       {/* Services photo — real healthcare photo or AI fallback */}
       <View wrap={false} style={{ flexDirection: 'row', marginBottom: 12 }}>
         <Image
-          src={pp.services?.hero || assetPath('health-wellbeing.png')}
+          src={pp.services?.hero || assetPath('health-wellbeing.jpg')}
           style={{ width: 80, height: 80, objectFit: 'contain', marginRight: 14 }}
         />
         <View style={{ flex: 1, justifyContent: 'center' }}>
@@ -1529,7 +1529,7 @@ export default function AnnualReportPDF({
         {/* Gemini expenditure donut chart */}
         <View wrap={false} style={{ alignItems: 'center', marginBottom: 16 }}>
           <Image
-            src={assetPath('expenditure-donut.png')}
+            src={assetPath('expenditure-donut.jpg')}
             style={{ width: 160, height: 160, objectFit: 'contain' }}
           />
         </View>
@@ -1636,7 +1636,7 @@ export default function AnnualReportPDF({
 
         {/* Journey photo — real aerial photo or AI fallback */}
         <Image
-          src={pp.journey?.hero || assetPath('journey-timeline-art.png')}
+          src={pp.journey?.hero || assetPath('journey-timeline-art.jpg')}
           style={{ width: '100%', height: 160, objectFit: 'cover', borderRadius: 10, marginBottom: 14 }}
         />
 
@@ -1696,7 +1696,7 @@ export default function AnnualReportPDF({
 
         {/* Gemini vision illustration — sunrise, stepping stones, Palm Island silhouette */}
         <Image
-          src={assetPath('next-20-vision.png')}
+          src={assetPath('next-20-vision.jpg')}
           style={{ width: '100%', height: 120, objectFit: 'cover', borderRadius: 10, marginBottom: 14 }}
         />
 
@@ -1799,7 +1799,7 @@ export default function AnnualReportPDF({
 
       {/* Gemini partners turtle — sea turtle with reef ecosystem */}
       <Image
-        src={assetPath('partners-turtle.png')}
+        src={assetPath('partners-turtle.jpg')}
         style={{ width: 280, height: 100, objectFit: 'cover', borderRadius: 10, marginBottom: 20, opacity: 0.7 }}
       />
 

@@ -102,17 +102,17 @@ export function getManifestPhotoByKeywords(
 const DEFAULT_ASSIGNMENTS: Record<string, { photoPath: string; fallbackAsset: string; caption?: string }> = {
   cover: {
     photoPath: '/annual-report-photos/2009-10/photo-020.jpg',
-    fallbackAsset: 'island-aerial-golden.png',
+    fallbackAsset: 'island-aerial-golden.jpg',
     caption: 'Palm Island — tropical beach and hills',
   },
   acknowledgement: {
     photoPath: '/annual-report-photos/2009-10/photo-020.jpg',
-    fallbackAsset: 'dot-pattern-turtle.png',
+    fallbackAsset: 'dot-pattern-turtle.jpg',
     caption: 'Palm Island landscape',
   },
   contents: {
     photoPath: '',
-    fallbackAsset: 'palm-island-map.png',
+    fallbackAsset: 'palm-island-map.jpg',
   },
   messages: {
     photoPath: '/annual-report-photos/2009-10/photo-022.jpg',
@@ -129,39 +129,39 @@ const DEFAULT_ASSIGNMENTS: Record<string, { photoPath: string; fallbackAsset: st
   },
   communityVoices: {
     photoPath: '/annual-report-photos/2015-16/photo-000.jpg',
-    fallbackAsset: 'community-celebration.png',
+    fallbackAsset: 'community-celebration.jpg',
     caption: 'Women and children from the Palm Island community',
   },
   youthVoices: {
     photoPath: '',
-    fallbackAsset: 'youth-programs.png',
+    fallbackAsset: 'youth-programs.jpg',
   },
   governance: {
     photoPath: '/annual-report-photos/2018-19/photo-006.jpg',
-    fallbackAsset: 'governance-circle.png',
+    fallbackAsset: 'governance-circle.jpg',
     caption: 'Board members in art shirts',
   },
   services: {
     photoPath: '/annual-report-photos/2021-22/photo-057.jpg',
-    fallbackAsset: 'health-wellbeing.png',
+    fallbackAsset: 'health-wellbeing.jpg',
     caption: 'Healthcare workers serving the community',
   },
   journey: {
     photoPath: '/annual-report-photos/2009-10/photo-018.jpg',
-    fallbackAsset: 'journey-timeline-art.png',
+    fallbackAsset: 'journey-timeline-art.jpg',
     caption: 'Aerial view of Palm Island community',
   },
   resilience: {
     photoPath: '',
-    fallbackAsset: 'hull-river-history.png',
+    fallbackAsset: 'hull-river-history.jpg',
   },
   financials: {
     photoPath: '',
-    fallbackAsset: 'expenditure-donut.png',
+    fallbackAsset: 'expenditure-donut.jpg',
   },
   backCover: {
     photoPath: '',
-    fallbackAsset: 'partners-turtle.png',
+    fallbackAsset: 'partners-turtle.jpg',
   },
 }
 
