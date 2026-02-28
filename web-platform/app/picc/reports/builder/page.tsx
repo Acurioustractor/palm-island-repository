@@ -3,8 +3,12 @@
 import React, { useState } from 'react'
 import {
   FileText, Users, DollarSign, Heart, Shield,
-  Download, Loader2, Check,
+  Download, Loader2, Check, Play, FileDown,
 } from 'lucide-react'
+import { Player } from '@remotion/player'
+import { ImpactSummary } from '@/lib/video/compositions/ImpactSummary'
+import type { ImpactSummaryProps } from '@/lib/video/compositions/ImpactSummary'
+import { VIDEO } from '@/lib/video/theme'
 
 const AUDIENCES = [
   {
@@ -61,9 +65,43 @@ const AUDIENCES = [
 
 const YEARS = ['2024-25', '2023-24'] as const
 
+// Default props for video preview — will be replaced with live data in Option B
+function getVideoProps(year: string, audience: string | null): ImpactSummaryProps {
+  return {
+    title: 'Impact Summary',
+    subtitle: 'Making Palm Island a safer, stronger and more prosperous place to live.',
+    year,
+    orgName: 'Palm Island Community Company',
+    logoUrl: '/logo/picc-logo-full.png',
+    photos: [
+      '/hero-assets/stills/palm-sunset-pier.jpg',
+      '/hero-assets/stills/waterfall-landscape.jpg',
+      '/hero-assets/stills/kids-beach-palm.jpg',
+      '/hero-assets/stills/memorial-gathering.jpg',
+      '/hero-assets/stills/centre-youth-landscaping.jpg',
+      '/hero-assets/stills/pier-turquoise.jpg',
+      '/hero-assets/stills/daycare-playground.jpg',
+      '/hero-assets/stills/mountain-valley.jpg',
+    ],
+    stats: [
+      { label: 'Community Members Served', value: '2,847' },
+      { label: 'Programs Delivered', value: '8' },
+      { label: 'Staff Employed', value: '197' },
+      { label: 'Stories Captured', value: '340+' },
+    ],
+    quote: {
+      text: 'This place has given my family hope again. The kids are going to school, and I feel supported.',
+      author: 'Community Member',
+    },
+  }
+}
+
+type OutputMode = 'pdf' | 'video'
+
 export default function ReportBuilderPage() {
   const [selectedAudience, setSelectedAudience] = useState<string | null>(null)
   const [selectedYear, setSelectedYear] = useState<string>('2024-25')
+  const [outputMode, setOutputMode] = useState<OutputMode>('pdf')
   const [generating, setGenerating] = useState(false)
   const [batchGenerating, setBatchGenerating] = useState(false)
   const [batchProgress, setBatchProgress] = useState<{audience: string; status: 'pending' | 'downloading' | 'done' | 'failed'}[]>([])
@@ -228,6 +266,64 @@ export default function ReportBuilderPage() {
           </p>
         )}
       </div>
+
+      {/* Output Mode Toggle */}
+      <div className="mb-8">
+        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
+          Output Format
+        </h2>
+        <div className="flex gap-3">
+          <button
+            onClick={() => setOutputMode('pdf')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
+              outputMode === 'pdf'
+                ? 'bg-gray-900 text-white border-gray-900'
+                : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
+            }`}
+          >
+            <FileDown className="h-4 w-4" />
+            PDF Report
+          </button>
+          <button
+            onClick={() => setOutputMode('video')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
+              outputMode === 'video'
+                ? 'bg-gray-900 text-white border-gray-900'
+                : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
+            }`}
+          >
+            <Play className="h-4 w-4" />
+            Video Preview
+          </button>
+        </div>
+      </div>
+
+      {/* Video Preview */}
+      {outputMode === 'video' && (
+        <div className="mb-8 p-6 bg-gray-950 rounded-xl border border-gray-800">
+          <div className="flex items-center gap-2 mb-4">
+            <Play className="h-4 w-4 text-amber-500" />
+            <h3 className="font-semibold text-white text-sm">Impact Summary Preview</h3>
+            <span className="text-xs text-gray-500 ml-auto">Remotion Player · 1920×1080 · 30fps</span>
+          </div>
+          <div className="rounded-lg overflow-hidden" style={{ aspectRatio: '16/9' }}>
+            <Player
+              component={ImpactSummary as unknown as React.FC<Record<string, unknown>>}
+              inputProps={getVideoProps(selectedYear, selectedAudience)}
+              durationInFrames={VIDEO.durationInFrames}
+              compositionWidth={VIDEO.width}
+              compositionHeight={VIDEO.height}
+              fps={VIDEO.fps}
+              style={{ width: '100%' }}
+              controls
+              autoPlay={false}
+            />
+          </div>
+          <p className="mt-3 text-xs text-gray-500">
+            Preview only — video export requires Lambda rendering (Option B). Data shown is static; live Supabase data in next phase.
+          </p>
+        </div>
+      )}
 
       {/* Generate Button */}
       <div className="flex items-center gap-4">
