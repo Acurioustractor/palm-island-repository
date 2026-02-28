@@ -23,17 +23,23 @@ export function TableOfContents({ content, sticky = true, className = '' }: Tabl
     // Extract headings from content or DOM
     const headingElements = document.querySelectorAll('h2, h3, h4');
     const tocItems: TOCItem[] = [];
+    const seenIds = new Map<string, number>();
 
     headingElements.forEach((heading) => {
-      const id = heading.id || heading.textContent?.toLowerCase().replace(/\s+/g, '-') || '';
+      let baseId = heading.id || heading.textContent?.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') || '';
       const level = parseInt(heading.tagName[1]);
       const text = heading.textContent || '';
 
-      if (!heading.id && id) {
+      // Deduplicate IDs
+      const count = seenIds.get(baseId) || 0;
+      seenIds.set(baseId, count + 1);
+      const id = count > 0 ? `${baseId}-${count}` : baseId;
+
+      if (!heading.id || (count > 0 && heading.id === baseId)) {
         heading.id = id;
       }
 
-      tocItems.push({ id, text, level });
+      tocItems.push({ id: heading.id, text, level });
     });
 
     setItems(tocItems);
@@ -94,12 +100,12 @@ export function TableOfContents({ content, sticky = true, className = '' }: Tabl
       </div>
 
       <ul className="space-y-2">
-        {items.map((item) => {
+        {items.map((item, index) => {
           const isActive = activeId === item.id;
           const indent = (item.level - 2) * 12; // h2 = 0, h3 = 12px, h4 = 24px
 
           return (
-            <li key={item.id} style={{ paddingLeft: `${indent}px` }}>
+            <li key={`${item.id}-${index}`} style={{ paddingLeft: `${indent}px` }}>
               <button
                 onClick={() => scrollToHeading(item.id)}
                 className={`

@@ -9,6 +9,60 @@ import {
   MapPin, Heart, TrendingUp, Users, BarChart3, PanelLeftClose, PanelLeftOpen,
 } from 'lucide-react';
 
+function SidebarSearch() {
+  const [query, setQuery] = React.useState('');
+  const [results, setResults] = React.useState<Array<{ id: string; title: string; type: string; url: string }>>([]);
+  const [searching, setSearching] = React.useState(false);
+  const timeoutRef = React.useRef<ReturnType<typeof setTimeout>>();
+
+  const handleSearch = (value: string) => {
+    setQuery(value);
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    if (!value.trim()) { setResults([]); return; }
+
+    timeoutRef.current = setTimeout(async () => {
+      setSearching(true);
+      try {
+        const res = await fetch(`/api/wiki/search?q=${encodeURIComponent(value)}&limit=5`);
+        if (res.ok) {
+          const data = await res.json();
+          setResults(data.results?.slice(0, 5) || []);
+        }
+      } catch { /* ignore */ }
+      setSearching(false);
+    }, 300);
+  };
+
+  return (
+    <div className="p-4 border-b border-gray-200 relative">
+      <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus-within:border-picc-ochre focus-within:ring-1 focus-within:ring-picc-ochre/30 transition-all">
+        <Search className="h-4 w-4 text-gray-400 flex-shrink-0" />
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => handleSearch(e.target.value)}
+          placeholder="Search wiki..."
+          className="bg-transparent text-sm text-gray-900 placeholder-gray-500 outline-none w-full"
+        />
+      </div>
+      {results.length > 0 && (
+        <div className="absolute left-4 right-4 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
+          {results.map((r) => (
+            <a
+              key={r.id}
+              href={r.url}
+              className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 transition-colors"
+            >
+              <span className="text-xs text-picc-ochre font-medium uppercase">{r.type}</span>
+              <span className="text-gray-900 truncate">{r.title}</span>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 interface NavItem {
   label: string;
   href: string;
@@ -164,15 +218,7 @@ export function WikiNavigation() {
             </div>
 
             {/* Quick Search */}
-            <div className="p-4 border-b border-gray-200">
-              <Link
-                href="/search"
-                className="flex items-center gap-2 w-full px-4 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-300 rounded-lg transition-all group"
-              >
-                <Search className="h-4 w-4 text-gray-400 group-hover:text-picc-red" />
-                <span className="text-sm text-gray-600 group-hover:text-picc-red">Search wiki...</span>
-              </Link>
-            </div>
+            <SidebarSearch />
 
             {/* Main Navigation */}
             <div className="p-4 space-y-4">

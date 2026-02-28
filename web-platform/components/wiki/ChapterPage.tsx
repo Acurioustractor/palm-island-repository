@@ -4,7 +4,7 @@ import Link from 'next/link';
 import {
   Clock, FileText, AlertTriangle, ArrowLeft, ArrowRight,
   Newspaper, BookOpen, Camera, Map, Scale, ChevronDown, ChevronUp,
-  Filter, List,
+  Filter, List, Globe,
 } from 'lucide-react';
 import { HeroSection } from '@/components/story-scroll/HeroSection';
 import { ImageGallery } from '@/components/story-scroll/ImageGallery';
@@ -170,10 +170,10 @@ export default function ChapterPage({
         </div>
       )}
 
-      {/* Mobile TOC Button */}
+      {/* Mobile TOC Button — offset above Elder Review button */}
       <button
         onClick={() => setShowMobileToc(!showMobileToc)}
-        className="lg:hidden fixed bottom-6 right-6 z-40 bg-picc-ochre text-white p-3 rounded-full shadow-lg hover:bg-picc-ochre/90 transition-colors"
+        className="lg:hidden fixed bottom-20 right-6 z-40 bg-stone-800 text-white p-3 rounded-full shadow-lg hover:bg-stone-700 transition-colors"
         aria-label="Table of contents"
       >
         <List className="h-5 w-5" />
@@ -216,6 +216,13 @@ export default function ChapterPage({
               <span className="flex items-center gap-1.5">
                 {Object.keys(artifactsByType).length} source type{Object.keys(artifactsByType).length !== 1 ? 's' : ''}
               </span>
+              <Link
+                href={`/wiki/graph?chapter=${chapter.slug}`}
+                className="ml-auto flex items-center gap-1.5 text-picc-ochre hover:text-picc-ochre/80 font-medium transition-colors"
+              >
+                <Globe className="h-4 w-4" />
+                Knowledge Graph
+              </Link>
             </div>
 
             {/* Chapter Narrative */}
@@ -353,42 +360,71 @@ export default function ChapterPage({
                     const typeInfo = ARTIFACT_TYPE_LABELS[artifact.artifact_type] || { label: artifact.artifact_type, icon: FileText, color: 'bg-stone-100 text-stone-700 border-stone-200' };
                     const Icon = typeInfo.icon;
                     return (
-                      <Link
-                        key={artifact.id}
-                        href={`/wiki/artifact/${artifact.id}`}
-                        className="group bg-white rounded-lg border border-gray-200 p-4 hover:border-picc-ochre/50 hover:shadow-md transition-all"
-                      >
-                        <div className="flex items-start gap-3">
-                          {artifact.image_url ? (
-                            <img
-                              src={artifact.image_url}
-                              alt={artifact.title}
-                              className="w-20 h-20 object-cover rounded flex-shrink-0"
-                            />
-                          ) : (
-                            <div className={`w-12 h-12 rounded flex items-center justify-center flex-shrink-0 border ${typeInfo.color}`}>
-                              <Icon className="h-5 w-5" />
-                            </div>
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <h3 className="text-sm font-semibold text-gray-900 group-hover:text-picc-ochre transition-colors line-clamp-2">
-                              {artifact.title}
-                            </h3>
-                            <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
-                              {artifact.date_original && <span>{formatDate(artifact.date_original)}</span>}
-                              {artifact.source_name && (
-                                <>
-                                  {artifact.date_original && <span className="opacity-50">|</span>}
-                                  <span>{artifact.source_name}</span>
-                                </>
+                      <div key={artifact.id} className="relative group/card">
+                        <Link
+                          href={`/wiki/artifact/${artifact.id}`}
+                          className="block bg-white rounded-lg border border-gray-200 p-4 hover:border-picc-ochre/50 hover:shadow-md transition-all"
+                        >
+                          <div className="flex items-start gap-3">
+                            {artifact.image_url ? (
+                              <img
+                                src={artifact.image_url}
+                                alt={artifact.title}
+                                className="w-20 h-20 object-cover rounded flex-shrink-0"
+                              />
+                            ) : (
+                              <div className={`w-12 h-12 rounded flex items-center justify-center flex-shrink-0 border ${typeInfo.color}`}>
+                                <Icon className="h-5 w-5" />
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <h3 className="text-sm font-semibold text-gray-900 group-hover/card:text-picc-ochre transition-colors line-clamp-2">
+                                {artifact.title}
+                              </h3>
+                              <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
+                                {artifact.date_original && <span>{formatDate(artifact.date_original)}</span>}
+                                {artifact.source_name && (
+                                  <>
+                                    {artifact.date_original && <span className="opacity-50">|</span>}
+                                    <span>{artifact.source_name}</span>
+                                  </>
+                                )}
+                              </div>
+                              {artifact.content_summary && (
+                                <p className="text-xs text-gray-600 mt-1.5 line-clamp-3">{artifact.content_summary}</p>
                               )}
                             </div>
-                            {artifact.content_summary && (
-                              <p className="text-xs text-gray-600 mt-1.5 line-clamp-3">{artifact.content_summary}</p>
-                            )}
                           </div>
-                        </div>
-                      </Link>
+                        </Link>
+                        {/* Desktop hover preview — appears below card */}
+                        {(artifact.image_url || artifact.content_summary) && (
+                          <div className="hidden lg:block absolute left-0 top-full mt-2 w-80 bg-white rounded-xl border border-gray-200 shadow-xl z-30 opacity-0 pointer-events-none group-hover/card:opacity-100 group-hover/card:pointer-events-auto transition-opacity duration-200">
+                            {artifact.image_url && (
+                              <img
+                                src={artifact.image_url}
+                                alt={artifact.title}
+                                className="w-full h-48 object-cover rounded-t-xl"
+                              />
+                            )}
+                            <div className="p-4">
+                              <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium border mb-2 ${typeInfo.color}`}>
+                                <Icon className="h-3 w-3" />
+                                {typeInfo.label}
+                              </div>
+                              <h4 className="text-sm font-bold text-gray-900 mb-1">{artifact.title}</h4>
+                              {artifact.date_original && (
+                                <p className="text-xs text-picc-ochre font-medium mb-2">{formatDate(artifact.date_original)}</p>
+                              )}
+                              {artifact.content_summary && (
+                                <p className="text-xs text-gray-600 leading-relaxed">{artifact.content_summary}</p>
+                              )}
+                              {artifact.source_name && (
+                                <p className="text-[10px] text-gray-400 mt-2">Source: {artifact.source_name}</p>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     );
                   })}
                 </div>
