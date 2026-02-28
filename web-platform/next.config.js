@@ -12,6 +12,14 @@ const nextConfig = {
       { source: '/wiki/services', destination: '/wiki', permanent: true },
     ]
   },
+  outputFileTracingExcludes: {
+    '*': [
+      './public/annual-report-photos/**',
+      './public/archive-photos/**',
+      './public/cyclone-kirrily-temp/**',
+      './public/service-icons/**',
+    ],
+  },
   images: {
     remotePatterns: [
       {
