@@ -58,12 +58,14 @@ export async function GET(request: Request) {
       people: any[];
       services: any[];
       knowledge: any[];
+      artifacts: any[];
       ragChunks: any[];
     } = {
       stories: [],
       people: [],
       services: [],
       knowledge: [],
+      artifacts: [],
       ragChunks: []
     };
 
@@ -98,6 +100,13 @@ export async function GET(request: Request) {
       );
     }
 
+    // Historical artifacts search
+    if (type === 'all' || type === 'artifacts') {
+      searchPromises.push(
+        searchArtifacts(searchQuery, limit).then(data => { results.artifacts = data; })
+      );
+    }
+
     // RAG semantic search (if enabled, using expanded query)
     if (useSemanticSearch && (type === 'all' || type === 'semantic')) {
       searchPromises.push(
@@ -124,7 +133,8 @@ export async function GET(request: Request) {
       results.stories.length +
       results.people.length +
       results.services.length +
-      results.knowledge.length;
+      results.knowledge.length +
+      results.artifacts.length;
 
     return NextResponse.json({
       query,
@@ -274,6 +284,42 @@ async function searchKnowledge(query: string, limit: number) {
     type: 'knowledge',
     url: `/wiki/${entry.slug || entry.id}`
   }));
+}
+
+async function searchArtifacts(query: string, limit: number) {
+  try {
+    const { data, error } = await supabase
+      .from('historical_artifacts')
+      .select(`
+        id,
+        title,
+        content_summary,
+        artifact_type,
+        source_name,
+        date_original,
+        chapter_ref,
+        image_url
+      `)
+      .eq('is_verified', true)
+      .neq('cultural_sensitivity_level', 'restricted')
+      .or(`title.ilike.%${query}%,content_summary.ilike.%${query}%,content_text.ilike.%${query}%`)
+      .order('date_original', { ascending: true, nullsFirst: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('Artifacts search error:', error);
+      return [];
+    }
+
+    return (data || []).map(artifact => ({
+      ...artifact,
+      type: 'artifact',
+      summary: artifact.content_summary,
+      url: `/wiki/artifact/${artifact.id}`
+    }));
+  } catch {
+    return [];
+  }
 }
 
 // POST endpoint for more complex semantic queries with query expansion

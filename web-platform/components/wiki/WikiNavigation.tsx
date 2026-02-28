@@ -46,8 +46,19 @@ export function WikiNavigation() {
       { label: 'Edit Profile', href: '/profile/edit', icon: Users },
       { label: 'Upload Media', href: '/media/upload', icon: Sparkles },
     ],
+    history: [
+      { label: 'All Chapters', href: '/wiki/history', icon: Clock },
+      { label: 'Manbarra Country', href: '/wiki/history/manbarra', icon: MapPin },
+      { label: 'The Reserve', href: '/wiki/history/reserve', icon: Clock },
+      { label: 'Hull River', href: '/wiki/history/hull-river', icon: Clock },
+      { label: 'Many Tribes', href: '/wiki/history/languages', icon: Globe },
+      { label: 'Dormitories', href: '/wiki/history/dormitories', icon: Clock },
+      { label: '1957 Strike', href: '/wiki/history/strike-1957', icon: Heart },
+      { label: 'Mulrunji', href: '/wiki/history/mulrunji', icon: Clock },
+      { label: 'Self-Determination', href: '/wiki/history/self-determination', icon: TrendingUp },
+      { label: 'PICC Today', href: '/wiki/history/picc', icon: Sparkles },
+    ],
     knowledge: [
-      { label: 'History & Heritage', href: '/wiki/history', icon: Clock },
       { label: 'Culture & Language', href: '/wiki/culture', icon: Globe },
       { label: 'Services & Programs', href: '/wiki/services', icon: Heart },
       { label: 'Achievements', href: '/wiki/achievements', icon: Sparkles },
@@ -194,6 +205,45 @@ export function WikiNavigation() {
                       ${
                         isActive(item.href)
                           ? 'bg-warm-50 text-picc-red font-medium'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }
+                    `}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    <span>{item.label}</span>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* History Section */}
+          <div>
+            <button
+              onClick={() => toggleSection('history')}
+              className="flex items-center justify-between w-full px-4 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50 rounded-lg transition-all"
+            >
+              <span className="flex items-center gap-2">
+                <Clock className="h-5 w-5 text-picc-ochre" />
+                History
+              </span>
+              {expandedSections.has('history') ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
+            </button>
+            {expandedSections.has('history') && (
+              <div className="ml-4 mt-2 space-y-1 max-h-64 overflow-y-auto">
+                {mainNavigation.history.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`
+                      flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all
+                      ${
+                        isActive(item.href)
+                          ? 'bg-picc-ochre-50 text-picc-ochre font-medium'
                           : 'text-gray-700 hover:bg-gray-50'
                       }
                     `}

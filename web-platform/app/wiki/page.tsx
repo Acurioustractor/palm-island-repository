@@ -124,12 +124,13 @@ export default function WikiIndexPage() {
       const data = await response.json();
 
       if (data.results) {
-        // Combine stories and knowledge results
+        // Combine stories, knowledge, people, and artifact results
         const combinedResults = [
           ...data.results.stories.map((s: any) => ({ ...s, resultType: 'story' })),
           ...data.results.knowledge.map((k: any) => ({ ...k, resultType: 'knowledge' })),
           ...data.results.people.map((p: any) => ({ ...p, resultType: 'person' })),
-        ].slice(0, 5);
+          ...(data.results.artifacts || []).map((a: any) => ({ ...a, resultType: 'artifact' })),
+        ].slice(0, 8);
 
         setSearchResults(combinedResults);
       }
@@ -291,7 +292,7 @@ export default function WikiIndexPage() {
               {/* Search Suggestions */}
               <div className="flex flex-wrap gap-2 mt-4">
                 <span className="text-sm text-warm-200">Try:</span>
-                {['Elder stories', 'Youth programs', 'Cultural heritage', 'Health services'].map((suggestion) => (
+                {['Hull River cyclone', 'Elder stories', '1957 strike', 'Manbarra country', 'Self-determination'].map((suggestion) => (
                   <button
                     key={suggestion}
                     type="button"
@@ -312,14 +313,17 @@ export default function WikiIndexPage() {
                   {searchResults.map((result: any) => {
                     const href = result.url || (
                       result.resultType === 'person' ? `/wiki/people/${result.id}` :
+                      result.resultType === 'artifact' ? `/wiki/artifact/${result.id}` :
                       result.resultType === 'knowledge' ? `/wiki/${result.slug || result.id}` :
                       `/stories/${result.id}`
                     );
                     const title = result.title || result.full_name || result.name;
-                    const subtitle = result.summary || result.bio || result.description;
+                    const subtitle = result.summary || result.bio || result.description || result.content_summary;
                     const badge = result.resultType === 'person' ? 'Person' :
+                                  result.resultType === 'artifact' ? 'Artifact' :
                                   result.resultType === 'knowledge' ? 'Knowledge' : 'Story';
                     const badgeColor = result.resultType === 'person' ? 'bg-sage-100 text-sage-700' :
+                                       result.resultType === 'artifact' ? 'bg-stone-100 text-stone-700' :
                                        result.resultType === 'knowledge' ? 'bg-warm-100 text-picc-ochre' :
                                        'bg-warm-100 text-picc-red';
 
