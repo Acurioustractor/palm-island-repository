@@ -21,18 +21,18 @@ const MIGRATED_PREFIXES: Record<string, string> = {
   '/documents/': 'platform-documents',
 
   // Phase 2: Videos + Hero Assets (256MB)
-  // '/hero-assets/': 'platform-media',
-  // '/video/': 'platform-media',
+  '/hero-assets/': 'platform-media',
+  '/video/': 'platform-media',
 
   // Phase 3: Photo Archives (112MB)
-  // '/annual-report-photos/': 'platform-media',
-  // '/archive-photos/': 'platform-media',
+  '/annual-report-photos/': 'platform-media',
+  '/archive-photos/': 'platform-media',
 
   // Phase 4: Report Assets + Icons (14MB)
-  // '/report-assets/': 'platform-media',
-  // '/service-icons/': 'platform-media',
-  // '/icons/bespoke-white/': 'platform-icons',
-  // '/icons/bespoke/': 'platform-icons',
+  '/report-assets/': 'platform-media',
+  '/service-icons/': 'platform-media',
+  '/icons/bespoke-white/': 'platform-icons',
+  '/icons/bespoke/': 'platform-icons',
 };
 
 /**
