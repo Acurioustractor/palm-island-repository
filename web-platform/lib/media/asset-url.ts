@@ -18,7 +18,7 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
  */
 const MIGRATED_PREFIXES: Record<string, string> = {
   // Phase 1: Documents (774MB)
-  // '/documents/': 'platform-documents',
+  '/documents/': 'platform-documents',
 
   // Phase 2: Videos + Hero Assets (256MB)
   // '/hero-assets/': 'platform-media',
