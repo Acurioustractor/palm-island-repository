@@ -4,6 +4,7 @@ import { Mic, BookOpen, Users, Heart, ArrowRight, Sparkles, Image as ImageIcon }
 import { FALLBACKS } from '@/lib/stats/current-stats';
 import { getHeroImage, getHeroVideo, getPageMedia } from '@/lib/media/utils';
 import VideoHero from '@/components/video/VideoHero';
+import { assetUrl } from '@/lib/media/asset-url';
 
 export default async function CommunityPage() {
   const supabase = createServerSupabase();
@@ -58,7 +59,7 @@ export default async function CommunityPage() {
       {/* Hero Section */}
       {true ? (
         <VideoHero
-          videoSrc={heroVideo?.public_url || '/hero-assets/clips/elders-on-country.mp4'}
+          videoSrc={heroVideo?.public_url || assetUrl('/hero-assets/clips/elders-on-country.mp4')}
           overlay="gradient-brand"
           height="tall"
           parallax

@@ -7,6 +7,7 @@ import { SERVICES } from '@/lib/stats/current-stats';
 import { getLiveStats } from '@/lib/stats/get-live-stats';
 import { getCuratedQuotes } from '@/lib/quotes/get-curated-quotes';
 import VideoHero from '@/components/video/VideoHero';
+import { assetUrl } from '@/lib/media/asset-url';
 
 export const metadata: Metadata = {
   title: 'Road to 20 Years | Palm Island Community Company',
@@ -139,9 +140,9 @@ export default async function RoadTo20YearsPage() {
     <div className="min-h-screen bg-white">
       {/* Hero */}
       <VideoHero
-        videoSrc="/video/road-to-20-years.mp4"
-        videoSrcMobile="/video/road-to-20-years-mobile.mp4"
-        poster="/video/road-to-20-years-poster.jpg"
+        videoSrc={assetUrl("/video/road-to-20-years.mp4")}
+        videoSrcMobile={assetUrl("/video/road-to-20-years-mobile.mp4")}
+        poster={assetUrl("/video/road-to-20-years-poster.jpg")}
         overlay="cinematic"
         height="tall"
         parallax

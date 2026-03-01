@@ -7,6 +7,7 @@
 
 import { NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@/lib/supabase/server'
+import { assetUrl } from '@/lib/media/asset-url'
 
 export const dynamic = 'force-dynamic'
 
@@ -123,7 +124,7 @@ export async function GET(request: Request) {
         heroImages: yearImages.slice(0, 3), // First 3 images for card
 
         // PDF
-        pdfPath: entry.structured_data?.pdf_path || `/documents/annual-reports/picc-annual-report-${fiscalYear}.pdf`,
+        pdfPath: assetUrl(entry.structured_data?.pdf_path || `/documents/annual-reports/picc-annual-report-${fiscalYear}.pdf`),
         pdfSize: entry.structured_data?.pdf_size,
 
         // Content

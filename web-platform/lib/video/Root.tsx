@@ -8,18 +8,19 @@ import { Composition } from 'remotion'
 import { ImpactSummary } from './compositions/ImpactSummary'
 import type { ImpactSummaryProps } from './compositions/ImpactSummary'
 import { VIDEO } from './theme'
+import { assetUrl } from '@/lib/media/asset-url'
 
 const LOGO = '/logo/picc-logo-full.png'
 
 const HERO_PHOTOS = [
-  '/hero-assets/stills/palm-sunset-pier.jpg',
-  '/hero-assets/stills/waterfall-landscape.jpg',
-  '/hero-assets/stills/kids-beach-palm.jpg',
-  '/hero-assets/stills/memorial-gathering.jpg',
-  '/hero-assets/stills/centre-youth-landscaping.jpg',
-  '/hero-assets/stills/pier-turquoise.jpg',
-  '/hero-assets/stills/daycare-playground.jpg',
-  '/hero-assets/stills/mountain-valley.jpg',
+  assetUrl('/hero-assets/stills/palm-sunset-pier.jpg'),
+  assetUrl('/hero-assets/stills/waterfall-landscape.jpg'),
+  assetUrl('/hero-assets/stills/kids-beach-palm.jpg'),
+  assetUrl('/hero-assets/stills/memorial-gathering.jpg'),
+  assetUrl('/hero-assets/stills/centre-youth-landscaping.jpg'),
+  assetUrl('/hero-assets/stills/pier-turquoise.jpg'),
+  assetUrl('/hero-assets/stills/daycare-playground.jpg'),
+  assetUrl('/hero-assets/stills/mountain-valley.jpg'),
 ]
 
 const defaultImpactProps: ImpactSummaryProps = {

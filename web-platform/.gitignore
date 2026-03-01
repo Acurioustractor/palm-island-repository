@@ -21,6 +21,18 @@ next-env.d.ts
 # Generated images (scratch/working files)
 /images/
 
+# Heavy static assets migrated to Supabase Storage
+/public/documents/
+/public/hero-assets/
+/public/video/
+/public/annual-report-photos/
+/public/archive-photos/
+/public/report-assets/
+/public/service-icons/
+/public/icons/bespoke/
+/public/icons/bespoke-white/
+/public/cyclone-kirrily-temp/
+
 # Debug
 npm-debug.log*
 yarn-debug.log*

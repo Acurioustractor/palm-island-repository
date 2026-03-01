@@ -1,5 +1,6 @@
 import { createServerComponentClient } from '@/lib/supabase/server'
 import TwentyYearsClient from './TwentyYearsClient'
+import { assetUrl } from '@/lib/media/asset-url'
 
 export default async function TwentyYearsPage() {
   const supabase = await createServerComponentClient()
@@ -29,7 +30,7 @@ export default async function TwentyYearsPage() {
   return (
     <TwentyYearsClient
       heroImage={heroImageData?.public_url || null}
-      heroVideo={heroVideoData?.public_url || '/hero-assets/clips/palm-island-sunset.mp4'}
+      heroVideo={heroVideoData?.public_url || assetUrl('/hero-assets/clips/palm-island-sunset.mp4')}
     />
   )
 }

@@ -9,24 +9,25 @@ import {
   Play, Film, Sparkles, Clock, Monitor,
   ChevronRight, Settings2,
 } from 'lucide-react'
+import { assetUrl } from '@/lib/media/asset-url'
 
 // ── Shared assets ────────────────────────────────────
 const LOGO = '/logo/picc-logo-full.png'
 
 const HERO = {
-  sunset: '/hero-assets/stills/palm-sunset-pier.jpg',
-  waterfall: '/hero-assets/stills/waterfall-landscape.jpg',
-  kids: '/hero-assets/stills/kids-beach-palm.jpg',
-  gathering: '/hero-assets/stills/memorial-gathering.jpg',
-  youth: '/hero-assets/stills/centre-youth-landscaping.jpg',
-  pier: '/hero-assets/stills/pier-turquoise.jpg',
-  playground: '/hero-assets/stills/daycare-playground.jpg',
-  mountain: '/hero-assets/stills/mountain-valley.jpg',
-  palmSunset: '/hero-assets/stills/palm-sunset-palms.jpg',
-  sweeping: '/hero-assets/stills/youth-sweeping-centre.jpg',
-  youthTeam: '/hero-assets/stills/youth-team-photo.jpg',
-  dinner: '/hero-assets/stills/group-dinner.jpg',
-  aerial: '/hero-assets/stills/jetty-aerial.jpg',
+  sunset: assetUrl('/hero-assets/stills/palm-sunset-pier.jpg'),
+  waterfall: assetUrl('/hero-assets/stills/waterfall-landscape.jpg'),
+  kids: assetUrl('/hero-assets/stills/kids-beach-palm.jpg'),
+  gathering: assetUrl('/hero-assets/stills/memorial-gathering.jpg'),
+  youth: assetUrl('/hero-assets/stills/centre-youth-landscaping.jpg'),
+  pier: assetUrl('/hero-assets/stills/pier-turquoise.jpg'),
+  playground: assetUrl('/hero-assets/stills/daycare-playground.jpg'),
+  mountain: assetUrl('/hero-assets/stills/mountain-valley.jpg'),
+  palmSunset: assetUrl('/hero-assets/stills/palm-sunset-palms.jpg'),
+  sweeping: assetUrl('/hero-assets/stills/youth-sweeping-centre.jpg'),
+  youthTeam: assetUrl('/hero-assets/stills/youth-team-photo.jpg'),
+  dinner: assetUrl('/hero-assets/stills/group-dinner.jpg'),
+  aerial: assetUrl('/hero-assets/stills/jetty-aerial.jpg'),
 }
 
 // ── Video presets ────────────────────────────────────

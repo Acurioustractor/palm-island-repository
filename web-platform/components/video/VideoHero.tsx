@@ -3,6 +3,7 @@
 import { ReactNode } from 'react'
 import VideoBackground from './VideoBackground'
 import type { OverlayPreset } from './overlayPresets'
+import { assetUrl } from '@/lib/media/asset-url'
 
 interface VideoHeroProps {
   /** Poster image (also used as fallback) */
@@ -33,8 +34,8 @@ interface VideoHeroProps {
  */
 export default function VideoHero({
   poster,
-  videoSrc = '/video/hero-desktop-web.mp4',
-  videoSrcMobile = '/video/hero-mobile.mp4',
+  videoSrc = assetUrl('/video/hero-desktop-web.mp4'),
+  videoSrcMobile = assetUrl('/video/hero-mobile.mp4'),
   overlay = 'gradient-brand',
   height = 'tall',
   contentPosition = 'center',

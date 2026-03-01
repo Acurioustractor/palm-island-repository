@@ -8,6 +8,7 @@ import { getHeroVideo, getMediaByTags } from "@/lib/media/utils";
 import { CommunityQuotesSection } from "@/components/quotes/CommunityQuotesSection";
 import AboutCountdownSection from "@/components/about/AboutCountdownSection";
 import { createServerSupabase } from "@/lib/supabase/client";
+import { assetUrl } from "@/lib/media/asset-url";
 
 export default async function AboutPage() {
   const supabase = createServerSupabase();
@@ -39,7 +40,7 @@ export default async function AboutPage() {
     <div className="relative min-h-screen bg-white">
       {/* 1. Video Hero */}
       <VideoHero
-        videoSrc={heroVideo?.public_url || '/hero-assets/clips/palm-island-aerial.mp4'}
+        videoSrc={heroVideo?.public_url || assetUrl('/hero-assets/clips/palm-island-aerial.mp4')}
         overlay="gradient-brand"
         height="tall"
         parallax
@@ -81,7 +82,7 @@ export default async function AboutPage() {
             </div>
             <div className="bg-white rounded-2xl border border-warm-200 overflow-hidden h-96">
               <img
-                src="/hero-assets/stills/pier-turquoise.jpg"
+                src={assetUrl("/hero-assets/stills/pier-turquoise.jpg")}
                 alt="Palm Island pier and turquoise waters"
                 className="w-full h-full object-cover"
               />

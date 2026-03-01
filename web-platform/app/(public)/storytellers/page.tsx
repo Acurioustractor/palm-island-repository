@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { User, BookOpen, MapPin, Search, UserPlus, ArrowRight } from 'lucide-react';
 import VideoHero from '@/components/video/VideoHero';
+import { assetUrl } from '@/lib/media/asset-url';
 
 interface Storyteller {
   id: string;
@@ -103,7 +104,7 @@ export default function StorytellerGalleryPage() {
     <div className="min-h-screen bg-white">
       {/* Video Hero */}
       <VideoHero
-        videoSrc="/hero-assets/clips/kids-beach.mp4"
+        videoSrc={assetUrl("/hero-assets/clips/kids-beach.mp4")}
         overlay="gradient-brand"
         height="medium"
         parallax

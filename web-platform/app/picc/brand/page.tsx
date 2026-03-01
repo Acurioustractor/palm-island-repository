@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Download, Copy, Check, Palette, Type, Image as ImageIcon, Grid3X3, Loader2, Video, Package, Sparkles, MessageSquareQuote, Brush, Users, Monitor, FileText } from 'lucide-react'
+import { assetUrl } from '@/lib/media/asset-url'
 
 // ═══════════════════════════════════════════════════════════════
 //  DATA — Web Brand (tailwind.config.js)
@@ -180,7 +181,7 @@ const snippets = [
 
 const FALLBACK_VIDEOS = [
   { title: 'Palm Island - Our Story', url: 'https://www.youtube.com/watch?v=placeholder', description: 'Overview of Palm Island and PICC' },
-  { title: 'PICC 20 Year Journey', url: '/video/road-to-20-years-poster.jpg', description: 'Celebrating 20 years of community service' },
+  { title: 'PICC 20 Year Journey', url: assetUrl('/video/road-to-20-years-poster.jpg'), description: 'Celebrating 20 years of community service' },
 ]
 
 // ═══════════════════════════════════════════════════════════════
@@ -660,12 +661,12 @@ export default function BrandHubPage() {
         <p className="text-sm text-gray-500 mb-6">{bespokeIcons.length} custom icons with transparent backgrounds. Available in ochre (light) and white (dark).</p>
         <h3 className="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wider">Standard — for light backgrounds</h3>
         <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-4 mb-10">
-          {bespokeIcons.map(icon => (<a key={icon} href={`/icons/bespoke/${icon}.png`} download={`${icon}.png`} className="group flex flex-col items-center gap-2 p-3 rounded-xl hover:bg-gray-50 transition-colors" title={`Download ${icon}.png`}><div className="w-12 h-12 flex items-center justify-center"><img src={`/icons/bespoke/${icon}.png`} alt={icon} className="w-10 h-10 object-contain" /></div><span className="text-[10px] text-gray-500 text-center truncate w-full">{icon}</span></a>))}
+          {bespokeIcons.map(icon => (<a key={icon} href={assetUrl(`/icons/bespoke/${icon}.png`)} download={`${icon}.png`} className="group flex flex-col items-center gap-2 p-3 rounded-xl hover:bg-gray-50 transition-colors" title={`Download ${icon}.png`}><div className="w-12 h-12 flex items-center justify-center"><img src={assetUrl(`/icons/bespoke/${icon}.png`)} alt={icon} className="w-10 h-10 object-contain" /></div><span className="text-[10px] text-gray-500 text-center truncate w-full">{icon}</span></a>))}
         </div>
         <h3 className="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wider">White — for dark backgrounds</h3>
         <div className="rounded-2xl p-4" style={{ backgroundColor: '#1A1A2E' }}>
           <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-4">
-            {bespokeIcons.map(icon => (<a key={icon} href={`/icons/bespoke-white/${icon}.png`} download={`${icon}-white.png`} className="group flex flex-col items-center gap-2 p-3 rounded-xl hover:bg-white/10 transition-colors" title={`Download ${icon}-white.png`}><div className="w-12 h-12 flex items-center justify-center"><img src={`/icons/bespoke-white/${icon}.png`} alt={`${icon} (white)`} className="w-10 h-10 object-contain" /></div><span className="text-[10px] text-gray-400 text-center truncate w-full">{icon}</span></a>))}
+            {bespokeIcons.map(icon => (<a key={icon} href={assetUrl(`/icons/bespoke-white/${icon}.png`)} download={`${icon}-white.png`} className="group flex flex-col items-center gap-2 p-3 rounded-xl hover:bg-white/10 transition-colors" title={`Download ${icon}-white.png`}><div className="w-12 h-12 flex items-center justify-center"><img src={assetUrl(`/icons/bespoke-white/${icon}.png`)} alt={`${icon} (white)`} className="w-10 h-10 object-contain" /></div><span className="text-[10px] text-gray-400 text-center truncate w-full">{icon}</span></a>))}
           </div>
         </div>
       </section>
@@ -691,7 +692,7 @@ export default function BrandHubPage() {
           </div>
           <div className="bg-white border border-gray-200 rounded-xl p-6 flex flex-col gap-3">
             <div className="flex items-center gap-3"><Grid3X3 className="w-8 h-8 text-gray-600" /><div><h3 className="text-sm font-semibold text-gray-900">Service Icons</h3><p className="text-xs text-gray-500">{bespokeIcons.length} bespoke icons</p></div></div>
-            <a href="/icons/bespoke/community.png" download="community.png" className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors justify-center"><Download className="w-3.5 h-3.5" />Download Sample</a>
+            <a href={assetUrl("/icons/bespoke/community.png")} download="community.png" className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors justify-center"><Download className="w-3.5 h-3.5" />Download Sample</a>
           </div>
           <div className="bg-white border border-gray-200 rounded-xl p-6 flex flex-col gap-3">
             <div className="flex items-center gap-3"><Palette className="w-8 h-8 text-gray-600" /><div><h3 className="text-sm font-semibold text-gray-900">Brand Guide PDF</h3><p className="text-xs text-gray-500">Complete brand reference</p></div></div>

@@ -13,6 +13,7 @@ import {
   TrendingUp, Star, Sparkles
 } from 'lucide-react';
 import VideoBackground from '@/components/video/VideoBackground';
+import { assetUrl } from '@/lib/media/asset-url';
 import { CommunityQuotesSection } from '@/components/quotes/CommunityQuotesSection';
 import { MILESTONES } from '@/lib/stats/current-stats';
 import type { HomeServiceData, HomeStats, InnovationProject } from './page';
@@ -284,9 +285,9 @@ export default function HomePageClient({ services, stats, innovationProjects, ga
     <div className="min-h-screen bg-white">
       {/* HERO SECTION */}
       <VideoBackground
-        videoSrc="/video/hero-desktop-web.mp4"
-        videoSrcMobile="/video/hero-mobile.mp4"
-        poster="/video/hero-poster.jpg"
+        videoSrc={assetUrl("/video/hero-desktop-web.mp4")}
+        videoSrcMobile={assetUrl("/video/hero-mobile.mp4")}
+        poster={assetUrl("/video/hero-poster.jpg")}
         overlay="gradient-brand"
         height="screen"
         parallax

@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import type { TripStop } from '@/components/elders/EldersTripMap'
 import Modal from '@/components/ui/Modal'
+import { assetUrl } from '@/lib/media/asset-url'
 
 // Dynamically import the map component to avoid SSR issues with Leaflet
 const EldersTripMap = dynamic(() => import('@/components/elders/EldersTripMap'), {
@@ -702,7 +703,7 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
         <video
           autoPlay muted loop playsInline
           className="absolute inset-0 w-full h-full object-cover"
-          src="/hero-assets/clips/country-waterfall.mp4"
+          src={assetUrl('/hero-assets/clips/country-waterfall.mp4')}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/50" />
         <div className="relative h-full flex items-center justify-center text-center px-6">

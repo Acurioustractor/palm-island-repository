@@ -9,6 +9,7 @@ import {
   Calendar, Activity, Target, ChevronRight,
 } from 'lucide-react';
 import VideoHero from '@/components/video/VideoHero';
+import { assetUrl } from '@/lib/media/asset-url';
 import { FINANCIALS, MILESTONES } from '@/lib/stats/current-stats';
 import { BarChart, Bar, Legend } from 'recharts';
 import {
@@ -160,7 +161,7 @@ export default function ImpactPageClient({
       {/* HERO                                                             */}
       {/* ================================================================ */}
       <VideoHero
-        videoSrc={heroVideoSrc || '/hero-assets/clips/youth-team-group.mp4'}
+        videoSrc={heroVideoSrc || assetUrl('/hero-assets/clips/youth-team-group.mp4')}
         overlay="gradient-brand"
         height="tall"
         parallax

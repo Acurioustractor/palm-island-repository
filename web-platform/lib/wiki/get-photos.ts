@@ -1,4 +1,5 @@
 import photoManifest from '@/content/photo-manifest.json'
+import { assetUrl } from '@/lib/media/asset-url'
 
 export interface PhotoEntry {
   path: string
@@ -7,7 +8,7 @@ export interface PhotoEntry {
 }
 
 // Shorthand for archive photo paths
-const A = (name: string) => `/archive-photos/${name}`
+const A = (name: string) => assetUrl(`/archive-photos/${name}`)
 
 /**
  * Chapter hero images — hand-curated to match each era's theme.
@@ -28,11 +29,11 @@ const CHAPTER_HERO_IMAGES: Record<string, string> = {
   // Residents of Palm Island, June 1931 — community solidarity
   'strike-1957': A('queensland-state-archives-5795-residents-of-palm-island-june-1931.png'),
   // Community gathering at sunset with liaison officers — memorial/justice
-  mulrunji: '/annual-report-photos/2018-19/photo-009.jpg',
+  mulrunji: assetUrl('/annual-report-photos/2018-19/photo-009.jpg'),
   // Man proudly standing next to PICC-branded vehicle — community ownership
-  'self-determination': '/annual-report-photos/2011-12/photo-009.jpg',
+  'self-determination': assetUrl('/annual-report-photos/2011-12/photo-009.jpg'),
   // Group of men standing together on coastal path — community today (modern)
-  picc: '/annual-report-photos/2017-18/photo-006.jpg',
+  picc: assetUrl('/annual-report-photos/2017-18/photo-006.jpg'),
 }
 
 /**
@@ -103,28 +104,28 @@ const CHAPTER_GALLERY_PHOTOS: Record<string, PhotoEntry[]> = {
   ],
   mulrunji: [
     { path: A('nma-protest-palm-island-2006.jpg'), year: '2006', description: 'Palm Island residents protest during Premier Beattie\'s visit, 2006 — National Museum of Australia' },
-    { path: '/annual-report-photos/2018-19/photo-012.jpg', year: '2018', description: 'Community march — "Domestic Violence It\'s With Us!" banner' },
-    { path: '/annual-report-photos/2023-24/photo-011.jpg', year: '2023', description: 'Woman speaking into microphone at community event' },
-    { path: '/annual-report-photos/2017-18/photo-011.jpg', year: '2017', description: 'Elder woman with thoughtful expression' },
-    { path: '/annual-report-photos/2013-14/photo-002.jpg', year: '2013', description: 'Young women on pier looking out to sea' },
-    { path: '/annual-report-photos/2021-22/photo-005.jpg', year: '2021', description: 'Silhouette of pier at sunset' },
-    { path: '/annual-report-photos/2018-19/photo-006.jpg', year: '2018', description: 'Men gathered by the water' },
+    { path: assetUrl('/annual-report-photos/2018-19/photo-012.jpg'), year: '2018', description: 'Community march — "Domestic Violence It\'s With Us!" banner' },
+    { path: assetUrl('/annual-report-photos/2023-24/photo-011.jpg'), year: '2023', description: 'Woman speaking into microphone at community event' },
+    { path: assetUrl('/annual-report-photos/2017-18/photo-011.jpg'), year: '2017', description: 'Elder woman with thoughtful expression' },
+    { path: assetUrl('/annual-report-photos/2013-14/photo-002.jpg'), year: '2013', description: 'Young women on pier looking out to sea' },
+    { path: assetUrl('/annual-report-photos/2021-22/photo-005.jpg'), year: '2021', description: 'Silhouette of pier at sunset' },
+    { path: assetUrl('/annual-report-photos/2018-19/photo-006.jpg'), year: '2018', description: 'Men gathered by the water' },
   ],
   'self-determination': [
-    { path: '/annual-report-photos/2009-10/photo-022.jpg', year: '2009', description: 'Man standing next to Palm Island Community Company logo' },
-    { path: '/annual-report-photos/2012-13/photo-001.jpg', year: '2012', description: 'Community leaders at new playground project' },
-    { path: '/annual-report-photos/2021-22/photo-052.jpg', year: '2021', description: 'Speaker addressing community at outdoor event' },
-    { path: '/annual-report-photos/2015-16/photo-008.jpg', year: '2015', description: 'Three staff members in PICC shirts, thumbs up' },
-    { path: '/annual-report-photos/2021-22/photo-078.jpg', year: '2021', description: 'Large group in Indigenous shirts' },
-    { path: '/annual-report-photos/2013-14/photo-007.jpg', year: '2013', description: 'Women in Palm Island Community Shop' },
+    { path: assetUrl('/annual-report-photos/2009-10/photo-022.jpg'), year: '2009', description: 'Man standing next to Palm Island Community Company logo' },
+    { path: assetUrl('/annual-report-photos/2012-13/photo-001.jpg'), year: '2012', description: 'Community leaders at new playground project' },
+    { path: assetUrl('/annual-report-photos/2021-22/photo-052.jpg'), year: '2021', description: 'Speaker addressing community at outdoor event' },
+    { path: assetUrl('/annual-report-photos/2015-16/photo-008.jpg'), year: '2015', description: 'Three staff members in PICC shirts, thumbs up' },
+    { path: assetUrl('/annual-report-photos/2021-22/photo-078.jpg'), year: '2021', description: 'Large group in Indigenous shirts' },
+    { path: assetUrl('/annual-report-photos/2013-14/photo-007.jpg'), year: '2013', description: 'Women in Palm Island Community Shop' },
   ],
   picc: [
-    { path: '/annual-report-photos/2017-18/photo-005.jpg', year: '2017', description: 'Children on rocks at beach' },
-    { path: '/annual-report-photos/2015-16/photo-000.jpg', year: '2015', description: 'Women and children at railing' },
-    { path: '/annual-report-photos/2022-23/photo-010.jpg', year: '2022', description: 'Kids jumping into turquoise ocean' },
-    { path: '/annual-report-photos/2020-21/photo-047.jpg', year: '2020', description: 'Children playing in water' },
-    { path: '/annual-report-photos/2013-14/photo-000.jpg', year: '2013', description: 'Family group portrait' },
-    { path: '/annual-report-photos/2021-22/photo-069.jpg', year: '2021', description: 'Community event with inflatables' },
+    { path: assetUrl('/annual-report-photos/2017-18/photo-005.jpg'), year: '2017', description: 'Children on rocks at beach' },
+    { path: assetUrl('/annual-report-photos/2015-16/photo-000.jpg'), year: '2015', description: 'Women and children at railing' },
+    { path: assetUrl('/annual-report-photos/2022-23/photo-010.jpg'), year: '2022', description: 'Kids jumping into turquoise ocean' },
+    { path: assetUrl('/annual-report-photos/2020-21/photo-047.jpg'), year: '2020', description: 'Children playing in water' },
+    { path: assetUrl('/annual-report-photos/2013-14/photo-000.jpg'), year: '2013', description: 'Family group portrait' },
+    { path: assetUrl('/annual-report-photos/2021-22/photo-069.jpg'), year: '2021', description: 'Community event with inflatables' },
   ],
 }
 

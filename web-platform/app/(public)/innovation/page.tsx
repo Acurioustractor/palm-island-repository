@@ -12,6 +12,7 @@ import {
 import { createServerComponentClient } from '@/lib/supabase/server';
 import { getCuratedQuotes } from '@/lib/quotes/get-curated-quotes';
 import { getHeroImage, getMediaByTags } from '@/lib/media/utils';
+import { assetUrl } from '@/lib/media/asset-url';
 
 export const metadata: Metadata = {
   title: 'Innovation on Country | Palm Island Community Company',
@@ -162,7 +163,7 @@ export default async function InnovationPage() {
         overlay="gradient"
         textPosition="center"
         backgroundImage={heroImage || undefined}
-        backgroundVideo="/hero-assets/clips/centre-youth-work.mp4"
+        backgroundVideo={assetUrl("/hero-assets/clips/centre-youth-work.mp4")}
       >
         <div className="mt-8">
           <Lightbulb className="w-16 h-16 text-white mx-auto opacity-80" />
@@ -254,7 +255,7 @@ export default async function InnovationPage() {
                               className={`h-40 bg-gradient-to-br ${gradient} flex items-center justify-center`}
                             >
                               <Image
-                                src={`/icons/bespoke-white/${icon}.png`}
+                                src={assetUrl(`/icons/bespoke-white/${icon}.png`)}
                                 alt=""
                                 width={48}
                                 height={48}

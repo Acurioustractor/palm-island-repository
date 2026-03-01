@@ -5,6 +5,8 @@
  * the wiki history hub, navigation, and chapter pages.
  */
 
+import { assetUrl } from '@/lib/media/asset-url'
+
 export interface HistoryChapter {
   slug: string
   title: string
@@ -26,7 +28,7 @@ export const HISTORY_CHAPTERS: HistoryChapter[] = [
     summary:
       'For thousands of years, the Manbarra people lived on these islands — part of the broader Wulgurukaba nation, the "canoe people" of the Halifax Bay coast.',
     sensitivity: 'standard',
-    image: '/hero-assets/stills/waterfall.jpg',
+    image: assetUrl('/hero-assets/stills/waterfall.jpg'),
   },
   {
     slug: 'reserve',
@@ -36,7 +38,7 @@ export const HISTORY_CHAPTERS: HistoryChapter[] = [
     summary:
       'Under the Aboriginals Protection Act, the government could remove any Aboriginal person to any reserve, for any reason, without appeal.',
     sensitivity: 'high',
-    image: '/hero-assets/stills/mountain-valley.jpg',
+    image: assetUrl('/hero-assets/stills/mountain-valley.jpg'),
   },
   {
     slug: 'hull-river',
@@ -46,7 +48,7 @@ export const HISTORY_CHAPTERS: HistoryChapter[] = [
     summary:
       'A Category 5 cyclone obliterated Hull River settlement in March 1918. Survivors were transferred to Palm Island, carrying their languages, knowledge, and grief.',
     sensitivity: 'high',
-    image: '/hero-assets/stills/mountain-valley.jpg',
+    image: assetUrl('/hero-assets/stills/mountain-valley.jpg'),
   },
   {
     slug: 'languages',

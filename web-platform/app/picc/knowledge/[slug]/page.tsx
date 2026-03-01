@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Download, Calendar, FileText, Image as ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
+import { assetUrl } from '@/lib/media/asset-url';
 
 interface KnowledgeEntry {
   id: string;
@@ -90,7 +91,7 @@ export default function KnowledgeEntryPage() {
 
   const getPdfPath = () => {
     if (!entry?.fiscal_year) return null;
-    return `/documents/annual-reports/picc-annual-report-${entry.fiscal_year}.pdf`;
+    return assetUrl(`/documents/annual-reports/picc-annual-report-${entry.fiscal_year}.pdf`);
   };
 
   if (loading) {

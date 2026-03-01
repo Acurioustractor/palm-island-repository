@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { assetUrl } from '@/lib/media/asset-url'
 
 export type BespokeIconName =
   // Services
@@ -26,7 +27,7 @@ interface BespokeIconProps {
 export function BespokeIcon({ name, size = 24, darkMode = false, className = '' }: BespokeIconProps) {
   return (
     <Image
-      src={`/icons/bespoke/${name}.png`}
+      src={assetUrl(`/icons/bespoke/${name}.png`)}
       alt=""
       width={size}
       height={size}

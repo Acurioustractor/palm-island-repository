@@ -14,11 +14,15 @@ const nextConfig = {
   },
   outputFileTracingExcludes: {
     '/*': [
+      '**/public/documents/**',
+      '**/public/hero-assets/**',
+      '**/public/video/**',
       '**/public/annual-report-photos/**',
       '**/public/archive-photos/**',
-      '**/public/cyclone-kirrily-temp/**',
+      '**/public/report-assets/**',
       '**/public/service-icons/**',
       '**/public/icons/**',
+      '**/public/cyclone-kirrily-temp/**',
     ],
   },
   images: {

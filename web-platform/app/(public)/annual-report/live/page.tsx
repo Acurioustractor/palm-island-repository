@@ -22,6 +22,7 @@ import {
   PrintButton,
 } from '@/components/annual-report/live/EditorialComponents';
 import { createServerComponentClient } from '@/lib/supabase/server';
+import { assetUrl } from '@/lib/media/asset-url';
 
 import { fetchLiveReportData, getCurrentFiscalYear } from '@/lib/annual-report/fetch-live-report-data';
 import { parseAudience, shouldShowWebSection, type ReportAudience, AUDIENCE_CONFIGS } from '@/lib/annual-report/audience-config';
@@ -85,7 +86,7 @@ export default async function LiveAnnualReportPage({
           autoPlay muted loop playsInline
           preload="auto"
           className="absolute inset-0 w-full h-full object-cover"
-          src="/hero-assets/clips/mountain-panorama.mp4"
+          src={assetUrl("/hero-assets/clips/mountain-panorama.mp4")}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60" />
 

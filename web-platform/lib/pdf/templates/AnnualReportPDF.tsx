@@ -26,13 +26,15 @@ import {
 
 import { C, A4_W, A4_H, MARGIN, CONTENT_W, SP, baseStyles, fmtCurrency, fmtFullCurrency } from '../theme'
 
+import { assetUrl } from '@/lib/media/asset-url'
+
 // ── Asset resolver using URLs (avoids bundling public/ into serverless functions) ──
 const getBaseUrl = () => {
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
   return `http://localhost:${process.env.PORT || 3000}`
 }
 const assetPath = (filename: string) =>
-  `${getBaseUrl()}/report-assets/${filename}`
+  `${getBaseUrl()}${assetUrl(`/report-assets/${filename}`)}`
 import {
   RunningHeader,
   PageNumber,

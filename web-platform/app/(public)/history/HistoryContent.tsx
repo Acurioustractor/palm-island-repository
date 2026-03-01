@@ -14,6 +14,7 @@ import {
 } from '@/components/story-scroll';
 import { ArrowRight } from 'lucide-react';
 import ArtifactsList from '@/components/history/ArtifactsList';
+import { assetUrl } from '@/lib/media/asset-url';
 import type { ChapterArtifacts } from '@/lib/history/get-artifacts';
 
 // ─── Language Groups ───────────────────────────────────────────────────────────
@@ -107,18 +108,18 @@ const PICC_TIMELINE = [
 
 // ─── Gallery Photos ─────────────────────────────────────────────────────────────
 const GALLERY_PHOTOS = [
-  { url: '/annual-report-photos/2009-10/photo-001.jpg', alt: 'PICC early days, 2009-10', caption: 'Foundation — 2009' },
-  { url: '/annual-report-photos/2010-11/photo-002.jpg', alt: 'Community gathering, 2010-11', caption: 'Growth begins — 2010' },
-  { url: '/annual-report-photos/2011-12/photo-003.jpg', alt: 'Service delivery, 2011-12', caption: 'Building capacity — 2011' },
-  { url: '/annual-report-photos/2013-14/photo-002.jpg', alt: 'Team expansion, 2013-14', caption: 'Expanding services — 2013' },
-  { url: '/annual-report-photos/2015-16/photo-001.jpg', alt: 'Community programs, 2015-16', caption: 'Community programs — 2015' },
-  { url: '/annual-report-photos/2017-18/photo-001.jpg', alt: 'Youth engagement, 2017-18', caption: 'Youth engagement — 2017' },
-  { url: '/annual-report-photos/2019-20/photo-003.jpg', alt: 'Service transition, 2019-20', caption: 'Transition era — 2019' },
-  { url: '/annual-report-photos/2020-21/photo-005.jpg', alt: 'Community control milestone, 2020-21', caption: 'Community control — 2021' },
-  { url: '/annual-report-photos/2020-21/photo-010.jpg', alt: 'Celebration, 2020-21', caption: 'Celebration — 2021' },
-  { url: '/annual-report-photos/2021-22/photo-002.jpg', alt: 'Self-determination era, 2021-22', caption: 'Self-determination — 2022' },
-  { url: '/annual-report-photos/2022-23/photo-001.jpg', alt: 'New services, 2022-23', caption: 'New era — 2023' },
-  { url: '/annual-report-photos/2023-24/photo-001.jpg', alt: 'Looking forward, 2023-24', caption: 'Looking forward — 2024' },
+  { url: assetUrl('/annual-report-photos/2009-10/photo-001.jpg'), alt: 'PICC early days, 2009-10', caption: 'Foundation — 2009' },
+  { url: assetUrl('/annual-report-photos/2010-11/photo-002.jpg'), alt: 'Community gathering, 2010-11', caption: 'Growth begins — 2010' },
+  { url: assetUrl('/annual-report-photos/2011-12/photo-003.jpg'), alt: 'Service delivery, 2011-12', caption: 'Building capacity — 2011' },
+  { url: assetUrl('/annual-report-photos/2013-14/photo-002.jpg'), alt: 'Team expansion, 2013-14', caption: 'Expanding services — 2013' },
+  { url: assetUrl('/annual-report-photos/2015-16/photo-001.jpg'), alt: 'Community programs, 2015-16', caption: 'Community programs — 2015' },
+  { url: assetUrl('/annual-report-photos/2017-18/photo-001.jpg'), alt: 'Youth engagement, 2017-18', caption: 'Youth engagement — 2017' },
+  { url: assetUrl('/annual-report-photos/2019-20/photo-003.jpg'), alt: 'Service transition, 2019-20', caption: 'Transition era — 2019' },
+  { url: assetUrl('/annual-report-photos/2020-21/photo-005.jpg'), alt: 'Community control milestone, 2020-21', caption: 'Community control — 2021' },
+  { url: assetUrl('/annual-report-photos/2020-21/photo-010.jpg'), alt: 'Celebration, 2020-21', caption: 'Celebration — 2021' },
+  { url: assetUrl('/annual-report-photos/2021-22/photo-002.jpg'), alt: 'Self-determination era, 2021-22', caption: 'Self-determination — 2022' },
+  { url: assetUrl('/annual-report-photos/2022-23/photo-001.jpg'), alt: 'New services, 2022-23', caption: 'New era — 2023' },
+  { url: assetUrl('/annual-report-photos/2023-24/photo-001.jpg'), alt: 'Looking forward, 2023-24', caption: 'Looking forward — 2024' },
 ];
 
 // ─── Main Component ─────────────────────────────────────────────────────────────
@@ -134,7 +135,7 @@ export default function HistoryContent({ artifacts }: HistoryContentProps) {
       <HeroSection
         title="Our History, Our Country"
         subtitle="Manbarra & Bwgcolman — from before time, through storm and separation, to self-determination"
-        backgroundVideo="/hero-assets/clips/palm-island-sunset.mp4"
+        backgroundVideo={assetUrl("/hero-assets/clips/palm-island-sunset.mp4")}
         overlay="gradient"
         textPosition="center"
       />
@@ -142,7 +143,7 @@ export default function HistoryContent({ artifacts }: HistoryContentProps) {
       {/* ── Chapter 2: Manbarra Country ─────────────────────────────────────── */}
       <SideBySideSection
         title="Manbarra Country"
-        mediaUrl="/hero-assets/stills/waterfall.jpg"
+        mediaUrl={assetUrl("/hero-assets/stills/waterfall.jpg")}
         mediaPosition="left"
         mediaAlt="Waterfall on Palm Island — Manbarra Country"
         content={
@@ -205,7 +206,7 @@ export default function HistoryContent({ artifacts }: HistoryContentProps) {
 
       {/* ── Chapter 4: Hull River ───────────────────────────────────────────── */}
       <FullBleedImage
-        imageUrl="/hero-assets/stills/mountain-valley.jpg"
+        imageUrl={assetUrl("/hero-assets/stills/mountain-valley.jpg")}
         alt="The ranges of North Queensland — near the site of the former Hull River settlement"
         height="medium"
         caption="The ranges of North Queensland — near where Hull River settlement once stood"
@@ -346,7 +347,7 @@ export default function HistoryContent({ artifacts }: HistoryContentProps) {
 
       {/* ── Chapter 7: The Strike of 1957 ───────────────────────────────────── */}
       <FullBleedImage
-        imageUrl="/hero-assets/stills/pier-turquoise.jpg"
+        imageUrl={assetUrl("/hero-assets/stills/pier-turquoise.jpg")}
         alt="Palm Island pier — where the seven strike leaders were taken before dawn"
         height="short"
         caption="Palm Island pier — where the strike leaders were taken in a dawn raid"
@@ -354,7 +355,7 @@ export default function HistoryContent({ artifacts }: HistoryContentProps) {
 
       <SideBySideSection
         title="The Strike of 1957"
-        mediaUrl="/hero-assets/stills/memorial-gathering.jpg"
+        mediaUrl={assetUrl("/hero-assets/stills/memorial-gathering.jpg")}
         mediaType="image"
         mediaPosition="right"
         mediaAlt="Community gathering on Palm Island"
@@ -424,7 +425,7 @@ export default function HistoryContent({ artifacts }: HistoryContentProps) {
 
       {/* ── Chapter 9: Mulrunji ─────────────────────────────────────────────── */}
       <FullBleedImage
-        imageUrl="/hero-assets/stills/palm-sunset-pier.jpg"
+        imageUrl={assetUrl("/hero-assets/stills/palm-sunset-pier.jpg")}
         alt="Palm Island at sunset — a community that has endured"
         height="medium"
         caption="Palm Island — a community that has endured, and continues to endure"

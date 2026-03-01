@@ -10,6 +10,7 @@ import {
 } from '@/lib/media/utils';
 import { getCuratedQuotes } from '@/lib/quotes/get-curated-quotes';
 import { createServerSupabase } from '@/lib/supabase/client';
+import { assetUrl } from '@/lib/media/asset-url';
 import { AnnualReportContent } from './AnnualReportContent';
 
 export const dynamic = 'force-dynamic';
@@ -89,7 +90,7 @@ export default async function AnnualReport2025Page() {
         communityVoices={communityVoices}
         media={{
           heroImage: heroImage || undefined,
-          heroVideoUrl: heroVideo?.public_url || '/video/hero-desktop-web.mp4',
+          heroVideoUrl: heroVideo?.public_url || assetUrl('/video/hero-desktop-web.mp4'),
           ceoPhotoUrl: ceoPhoto?.public_url || undefined,
           chairPhotoUrl: chairPhoto?.public_url || undefined,
           elderPhotos: elderMedia.map((m: any) => ({

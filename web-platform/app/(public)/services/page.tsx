@@ -7,6 +7,7 @@ import { BespokeIcon } from '@/components/ui/BespokeIcon';
 import { getServiceIcon } from '@/lib/services/service-icons';
 import nextDynamic from 'next/dynamic';
 import AdminServiceCard from '@/components/admin/AdminServiceCard';
+import { assetUrl } from '@/lib/media/asset-url';
 
 const InteractiveServiceMap = nextDynamic(
   () => import('@/components/report/InteractiveServiceMap'),
@@ -132,7 +133,7 @@ export default async function ServicesIndexPage() {
         <video
           autoPlay muted loop playsInline
           className="absolute inset-0 w-full h-full object-cover"
-          src={heroVideo?.public_url || '/hero-assets/clips/daycare-celebration.mp4'}
+          src={heroVideo?.public_url || assetUrl('/hero-assets/clips/daycare-celebration.mp4')}
         />
         {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-picc-earth-600/85 via-picc-earth-600/75 to-picc-earth/85" />
