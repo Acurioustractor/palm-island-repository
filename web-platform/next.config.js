@@ -13,12 +13,12 @@ const nextConfig = {
     ]
   },
   outputFileTracingExcludes: {
-    '/': [
-      './public/annual-report-photos/**/*',
-      './public/archive-photos/**/*',
-      './public/cyclone-kirrily-temp/**/*',
-      './public/service-icons/**/*',
-      './public/icons/**/*',
+    '/*': [
+      '**/public/annual-report-photos/**',
+      '**/public/archive-photos/**',
+      '**/public/cyclone-kirrily-temp/**',
+      '**/public/service-icons/**',
+      '**/public/icons/**',
     ],
   },
   images: {

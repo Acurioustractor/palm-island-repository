@@ -8,7 +8,11 @@
  *   4. AI-generated fallback from report-assets/
  */
 
-import path from 'path'
+// Use URLs instead of filesystem paths to avoid bundling public/ into serverless functions
+const getBaseUrl = () => {
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
+  return `http://localhost:${process.env.PORT || 3000}`
+}
 
 // ── Types ─────────────────────────────────────────────
 
@@ -47,13 +51,13 @@ interface PhotoManifest {
 // ── Helpers ───────────────────────────────────────────
 
 const publicPath = (relativePath: string) =>
-  path.join(process.cwd(), 'public', relativePath)
+  `${getBaseUrl()}/${relativePath}`
 
 const assetPath = (filename: string) =>
-  path.join(process.cwd(), 'public', 'report-assets', filename)
+  `${getBaseUrl()}/report-assets/${filename}`
 
 const photoPath = (manifestPath: string) =>
-  path.join(process.cwd(), 'public', manifestPath)
+  `${getBaseUrl()}/${manifestPath}`
 
 /**
  * Search the photo manifest for photos matching any of the given keywords.
