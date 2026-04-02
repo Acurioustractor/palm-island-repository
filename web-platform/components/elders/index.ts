@@ -75,6 +75,14 @@ export type { StoryData } from './StoryCard'
 export { default as ImageLightbox, useLightbox } from './ImageLightbox'
 export type { LightboxImage } from './ImageLightbox'
 
+// Milestone timeline
+export { default as ElderMilestoneTimeline } from './ElderMilestoneTimeline'
+export type { Milestone, ElderMilestoneTimelineProps } from './ElderMilestoneTimeline'
+
+// External sharing
+export { default as ExternalSharingPanel } from './ExternalSharingPanel'
+export type { ExternalSharingPanelProps } from './ExternalSharingPanel'
+
 // Content sections system
 export {
   ElderContentRenderer,

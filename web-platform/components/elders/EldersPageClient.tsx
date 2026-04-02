@@ -37,9 +37,22 @@ import QuoteCard, { type QuoteData } from '@/components/elders/QuoteCard'
 import StoryCard, { type StoryData } from '@/components/elders/StoryCard'
 import ImageLightbox, { type LightboxImage } from '@/components/elders/ImageLightbox'
 import { ElderContentRenderer, type ElderContentData } from '@/components/elders/ElderContentSections'
+import YouthEngagement from '@/components/elders/YouthEngagement'
+import ElderMilestoneTimeline from '@/components/elders/ElderMilestoneTimeline'
+import ExternalSharingPanel from '@/components/elders/ExternalSharingPanel'
+import Next20YearsVision from '@/components/elders/Next20YearsVision'
+import IntergenerationalMap from '@/components/elders/IntergenerationalMap'
 
 type ElderQuote = QuoteData
 type ElderStory = StoryData
+
+export type ElderInterview = {
+  id: string
+  title: string
+  date?: string | null
+  status?: string
+  href: string
+}
 
 export type ElderCard = {
   id: string
@@ -55,6 +68,7 @@ export type ElderCard = {
   featuredQuote: ElderQuote | null
   quotes: ElderQuote[]
   stories: ElderStory[]
+  interviews: ElderInterview[]
   profileHref: string
 }
 
@@ -64,6 +78,7 @@ type TripMedia = {
   images: Array<{ id: string; url: string; title: string | null; caption: string | null }>
   storyHref: string
   immersiveStoryHref: string
+  stops?: Array<{ id: string; name: string; description?: string | null; lat: number; lng: number }>
 }
 
 type ElderInsights = {
@@ -262,7 +277,11 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
     setSearchQuery('')
   }, [])
 
-  const stops = useMemo(() => makeStops(), [])
+  const stops = useMemo(() => {
+    // Use dynamic stops from DB if available, otherwise fall back to hardcoded
+    if (trip.stops && trip.stops.length > 0) return trip.stops
+    return makeStops()
+  }, [trip.stops])
 
   const quoteCoverage = useMemo(() => {
     if (!insights.stats.totalElders) return 0
@@ -362,8 +381,13 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
     return {
       quotes: activeElder.quotes,
       stories: activeElder.stories,
-      // Future: these would come from the server component
-      interviews: [],
+      interviews: (activeElder.interviews || []).map((i) => ({
+        id: i.id,
+        title: i.title,
+        date: i.date,
+        status: i.status,
+        href: i.href,
+      })),
       mediaGalleries: [],
       projects: [],
       events: [],
@@ -460,11 +484,10 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
                 PICC Elders Group
               </div>
               <h1 className="mt-4 text-4xl md:text-6xl font-bold text-white leading-tight">
-                Voices that guide our community
+                Connecting Generations Through Culture
               </h1>
               <p className="mt-4 text-lg md:text-xl text-white/90">
-                This page is a gathering of Elder voices and images. It shares their stories, their words, and the
-                journey they made together so we can listen, learn, and carry respect for Country and family.
+                Our Elders carry the knowledge, stories, and cultural strength that connect Palm Island&apos;s past to its future. This page celebrates their voices and the pathways they&apos;re building for the next generation.
               </p>
               <div className="mt-8 flex flex-wrap gap-3 justify-center">
                 <a
@@ -696,6 +719,11 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
             </div>
           )}
         </div>
+      </section>
+
+      {/* Youth Engagement */}
+      <section id="youth-engagement" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-6">
+        <YouthEngagement />
       </section>
 
       {/* Connection to Country — cinematic video interstitial */}
@@ -1049,6 +1077,14 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
         </div>
       </section>
 
+      {/* Next 20 Years Vision */}
+      <Next20YearsVision />
+
+      {/* Intergenerational Connection Map */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <IntergenerationalMap />
+      </section>
+
       {/* Elder Modal */}
       <Modal
         isOpen={!!activeElder}
@@ -1115,9 +1151,27 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
             <ElderContentRenderer
               elderName={activeElder.name}
               data={elderContentData}
-              sections={['quotes', 'stories']}
+              sections={['quotes', 'stories', 'interviews']}
               layout="two-column"
             />
+
+            {/* Milestone Timeline */}
+            <div className="mt-8">
+              <ElderMilestoneTimeline
+                elderId={activeElder.id}
+                elderName={activeElder.name}
+              />
+            </div>
+
+            {/* External Sharing */}
+            <div className="mt-8">
+              <ExternalSharingPanel
+                elderId={activeElder.id}
+                elderName={activeElder.name}
+                quoteCount={activeElder.quotes.length}
+                storyCount={activeElder.stories.length}
+              />
+            </div>
 
             {/* Add Content Prompt */}
             <div className="mt-8 rounded-2xl border border-stone-200 bg-gradient-to-br from-stone-50 to-picc-ochre-50 p-5">

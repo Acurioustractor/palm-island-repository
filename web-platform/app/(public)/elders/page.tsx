@@ -485,6 +485,30 @@ export default async function EldersPage() {
     highlightedQuotes,
   }
 
+  // Group interviews by storyteller
+  const interviewsByProfile = new Map<string, InterviewRow[]>()
+  for (const i of interviews) {
+    const pid = i.storyteller_id || ''
+    if (!pid) continue
+    const list = interviewsByProfile.get(pid) || []
+    list.push(i)
+    interviewsByProfile.set(pid, list)
+  }
+
+  // Fetch dynamic trip stops (fall back to empty if table doesn't exist yet)
+  let tripStops: Array<{ id: string; name: string; description: string | null; lat: number; lng: number; stop_order: number }> = []
+  try {
+    const { data } = await supabase
+      .from('elder_trip_stops')
+      .select('id, name, description, lat, lng, stop_order')
+      .eq('trip_name', 'elders-trip-2024')
+      .order('stop_order', { ascending: true })
+      .limit(50)
+    tripStops = Array.isArray(data) ? data : []
+  } catch {
+    tripStops = []
+  }
+
   const eldersView = elders
     .filter((e) => e && e.id)
     .map((e) => {
@@ -496,6 +520,11 @@ export default async function EldersPage() {
         .slice()
         .sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)))
         .slice(0, 8)
+
+      const elderInterviews = (interviewsByProfile.get(e.id) || [])
+        .slice()
+        .sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)))
+        .slice(0, 10)
 
       return {
         id: e.id,
@@ -528,6 +557,13 @@ export default async function EldersPage() {
           summary: safeText(s.excerpt),
           createdAt: s.created_at,
           href: `/stories/${s.id}`,
+        })),
+        interviews: elderInterviews.map((i) => ({
+          id: i.id,
+          title: i.interview_title || 'Untitled Interview',
+          date: i.created_at,
+          status: i.status || undefined,
+          href: `/picc/interviews/${i.id}`,
         })),
         profileHref: `/wiki/people/${e.id}`,
       }
@@ -577,6 +613,13 @@ export default async function EldersPage() {
         images: tripImagesView,
         storyHref: tripStoryHref,
         immersiveStoryHref,
+        stops: tripStops.map((s) => ({
+          id: s.id,
+          name: s.name,
+          description: s.description,
+          lat: s.lat,
+          lng: s.lng,
+        })),
       }}
     />
   )
