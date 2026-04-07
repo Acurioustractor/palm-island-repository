@@ -61,8 +61,11 @@ async function getLintReport(): Promise<LintReport | null> {
 }
 
 async function getVaultData() {
-  const elKey = process.env.EMPATHY_LEDGER_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (!elKey) return null
+  const elKey = process.env.EMPATHY_LEDGER_SERVICE_KEY
+  if (!elKey) {
+    console.warn('[vault] EMPATHY_LEDGER_SERVICE_KEY not set')
+    return null
+  }
 
   const client = createClient(EL_URL, elKey)
 
@@ -113,13 +116,28 @@ async function getVaultData() {
 export default async function VaultBrowserPage() {
   const [data, lint] = await Promise.all([getVaultData(), getLintReport()])
 
-  if (!data) {
+  if (!data && !lint) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-warm-50">
-        <p className="text-stone-500">Vault unavailable.</p>
+        <div className="text-center max-w-md px-6">
+          <p className="text-stone-700 font-semibold mb-2">Vault unavailable</p>
+          <p className="text-sm text-stone-500">
+            Set <code className="px-1.5 py-0.5 bg-stone-100 rounded">EMPATHY_LEDGER_SERVICE_KEY</code> and run{' '}
+            <code className="px-1.5 py-0.5 bg-stone-100 rounded">npx tsx scripts/lint-picc-vault.ts</code> to populate the vault.
+          </p>
+        </div>
       </div>
     )
   }
+
+  // Prefer lint-report stats (persisted, authoritative) and fall back to live counts.
+  const stats = {
+    quotes: lint?.total_quotes ?? data?.stats.quotes ?? 0,
+    transcripts: lint?.total_transcripts ?? data?.stats.transcripts ?? 0,
+    storytellers: lint?.total_storytellers ?? data?.totalAuthors ?? 0,
+    themes: lint?.total_themes ?? data?.totalThemes ?? 0,
+  }
+  const elDown = !data
 
   return (
     <div className="min-h-screen bg-[#FAF8F5]">
@@ -165,30 +183,43 @@ export default async function VaultBrowserPage() {
           </div>
         )}
 
+        {/* ─── EL CONNECTION WARNING ─── */}
+        {elDown && (
+          <div className="mb-8 rounded-xl border border-amber-200 bg-amber-50 p-4 flex items-start gap-3">
+            <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+            <div className="text-sm">
+              <p className="font-semibold text-amber-900">Live EL connection unavailable</p>
+              <p className="text-amber-700 mt-0.5">
+                Showing cached counts from the latest lint run. Set <code className="px-1 bg-white/60 rounded">EMPATHY_LEDGER_SERVICE_KEY</code> in the deployment env to enable live storyteller, theme, and transcript browsing.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* ─── STATS GRID ─── */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
           <StatCard
             icon={Mic}
             label="Voices"
-            value={data.stats.quotes}
+            value={stats.quotes}
             sub="extracted quotes"
           />
           <StatCard
             icon={BookOpen}
             label="Transcripts"
-            value={data.stats.transcripts}
+            value={stats.transcripts}
             sub="interviews captured"
           />
           <StatCard
             icon={Users}
             label="Storytellers"
-            value={data.totalAuthors}
+            value={stats.storytellers}
             sub="named voices"
           />
           <StatCard
             icon={Tag}
             label="Themes"
-            value={data.totalThemes}
+            value={stats.themes}
             sub="extracted by AI"
           />
         </div>
@@ -268,6 +299,7 @@ export default async function VaultBrowserPage() {
         )}
 
         {/* ─── TOP STORYTELLERS ─── */}
+        {data && (<>
         <div className="mb-12">
           <h2 className="text-xs font-semibold tracking-[0.2em] uppercase text-picc-ochre mb-4">
             Top voices in the vault
@@ -339,6 +371,7 @@ export default async function VaultBrowserPage() {
             ))}
           </div>
         </div>
+        </>)}
 
         {/* ─── HOW TO USE ─── */}
         <div className="rounded-2xl bg-[#0B4F6C] text-white p-8">

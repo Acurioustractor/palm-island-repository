@@ -12,11 +12,21 @@ const EL_URL = 'https://yvnuayzslukamizrlhwb.supabase.co'
 export const PICC_ORG_ID = '084f851c-72e0-41fb-b5ba-f3088f44862d'
 
 let cached: SupabaseClient | null = null
+let warned = false
 
 function getELClient(): SupabaseClient | null {
   if (cached) return cached
-  const key = process.env.EMPATHY_LEDGER_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (!key) return null
+  // EL is a separate Supabase project — only EMPATHY_LEDGER_SERVICE_KEY works.
+  // Never fall back to SUPABASE_SERVICE_ROLE_KEY: it belongs to PICC's project
+  // and would silently return empty results against EL (RLS denies all).
+  const key = process.env.EMPATHY_LEDGER_SERVICE_KEY
+  if (!key) {
+    if (!warned) {
+      console.warn('[el-server] EMPATHY_LEDGER_SERVICE_KEY not set — EL data unavailable')
+      warned = true
+    }
+    return null
+  }
   cached = createClient(EL_URL, key, {
     auth: { autoRefreshToken: false, persistSession: false },
   })
