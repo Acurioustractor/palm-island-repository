@@ -27,11 +27,20 @@ interface ToastContextType {
 
 const ToastContext = React.createContext<ToastContextType | undefined>(undefined)
 
+// No-op fallback for SSR prerendering (ToastProvider isn't mounted during static generation)
+const noopToast: ToastContextType = {
+  toasts: [],
+  addToast: () => {},
+  removeToast: () => {},
+  success: () => {},
+  error: () => {},
+  warning: () => {},
+  info: () => {},
+}
+
 export function useToast() {
   const context = React.useContext(ToastContext)
-  if (!context) {
-    throw new Error('useToast must be used within a ToastProvider')
-  }
+  if (!context) return noopToast
   return context
 }
 
