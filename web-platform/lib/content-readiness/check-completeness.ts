@@ -22,18 +22,30 @@ export type ServiceCompleteness = {
 
 export type ReportSectionCompleteness = {
   section: string
+  category: string
   status: CompletenessStatus
   details: string
+  needed: number
+  have: number
+  link?: string
 }
 
 export type CompletenessReport = {
+  fiscalYear: string
   services: ServiceCompleteness[]
   reportSections: ReportSectionCompleteness[]
   overallScore: number
   generatedAt: string
+  recommendations: string[]
 }
 
-const CURRENT_FY = '2024-25'
+// Get current fiscal year
+export function getCurrentFiscalYear(): string {
+  const now = new Date()
+  const startYear = now.getMonth() >= 6 ? now.getFullYear() : now.getFullYear() - 1
+  const endYear = startYear + 1
+  return `${startYear}-${String(endYear).slice(-2)}`
+}
 
 function scoreToStatus(score: number): CompletenessStatus {
   if (score >= 70) return 'green'
@@ -49,18 +61,21 @@ function booleanScore(checks: Record<string, boolean>): number {
 
 async function checkServiceCompleteness(
   supabase: ReturnType<typeof createServerSupabase>,
-  service: { id: string; name: string; slug: string; description: string | null; metadata: any }
+  service: { id: string; name: string; slug: string; description: string | null; metadata: any },
+  fiscalYear: string
 ): Promise<ServiceCompleteness> {
   const hasDescription = !!service.description && service.description.length > 20
   const hasCoverPhoto = !!service.metadata?.cover_photo_id
   const hasGpsCoords = !!service.metadata?.latitude && !!service.metadata?.longitude
+
+  const fyInt = parseFiscalYear(fiscalYear)
 
   const [metricsResult, storiesResult, notesResult, grantsResult] = await Promise.allSettled([
     supabase
       .from('service_metrics')
       .select('id', { count: 'exact', head: true })
       .eq('organization_service_id', service.id)
-      .eq('fiscal_year', parseFiscalYear(CURRENT_FY)),
+      .eq('fiscal_year', fyInt),
     supabase
       .from('stories')
       .select('id', { count: 'exact', head: true })
@@ -108,11 +123,13 @@ async function checkServiceCompleteness(
 }
 
 async function checkReportSections(
-  supabase: ReturnType<typeof createServerSupabase>
+  supabase: ReturnType<typeof createServerSupabase>,
+  fiscalYear: string
 ): Promise<ReportSectionCompleteness[]> {
   const sections: ReportSectionCompleteness[] = []
+  const fyInt = parseInt(fiscalYear.split('-')[0]) + 1
 
-  // CEO / Leadership Message — actual column is leadership_message
+  // CEO / Leadership Message
   try {
     const { data } = await supabase
       .from('annual_reports')
@@ -125,22 +142,30 @@ async function checkReportSections(
     const hasIt = hasLeadership || hasExecSummary
     sections.push({
       section: 'CEO Message',
+      category: 'Leadership',
       status: hasIt ? 'green' : 'red',
       details: hasLeadership
         ? 'Leadership message found in latest report'
         : hasExecSummary
           ? 'Executive summary found (no separate leadership message)'
           : 'No leadership message in latest report',
+      needed: 1,
+      have: hasIt ? 1 : 0,
+      link: '/picc/annual-reports',
     })
   } catch {
     sections.push({
       section: 'CEO Message',
+      category: 'Leadership',
       status: 'red',
       details: 'Could not query annual_reports table',
+      needed: 1,
+      have: 0,
+      link: '/picc/annual-reports',
     })
   }
 
-  // Chair Message — check for a second leadership message or acknowledgements
+  // Chair Message
   try {
     const { data } = await supabase
       .from('annual_reports')
@@ -152,80 +177,117 @@ async function checkReportSections(
       (!!data?.acknowledgement_of_country && data.acknowledgement_of_country.length > 0)
     sections.push({
       section: 'Chair Message',
+      category: 'Leadership',
       status: hasIt ? 'green' : 'amber',
       details: hasIt
         ? 'Acknowledgements found in latest report'
-        : 'No chair/acknowledgement message yet — can be added later',
+        : 'No chair/acknowledgement message yet',
+      needed: 1,
+      have: hasIt ? 1 : 0,
+      link: '/picc/annual-reports',
     })
   } catch {
     sections.push({
       section: 'Chair Message',
+      category: 'Leadership',
       status: 'amber',
       details: 'Could not query annual_reports table',
+      needed: 1,
+      have: 0,
+      link: '/picc/annual-reports',
     })
   }
 
-  // Financial Data — fiscal_year is stored as integer (e.g. 2025 for FY 2024-25)
+  // Financial Data
   try {
-    const fyInt = parseInt(CURRENT_FY.split('-')[0]) + 1 // '2024-25' → 2025
     const { count } = await supabase
       .from('annual_financials')
       .select('id', { count: 'exact', head: true })
       .eq('fiscal_year', fyInt)
-    const hasIt = (count ?? 0) > 0
+    const have = count ?? 0
+    const hasIt = have > 0
     sections.push({
       section: 'Financial Data',
+      category: 'Finance',
       status: hasIt ? 'green' : 'red',
-      details: hasIt ? `Financial records found for FY${fyInt}` : `No financial data for ${CURRENT_FY}`,
+      details: hasIt ? `Financial records found for FY${fyInt}` : `No financial data for ${fiscalYear}`,
+      needed: 1,
+      have,
+      link: '/picc/financials',
     })
   } catch {
     sections.push({
       section: 'Financial Data',
+      category: 'Finance',
       status: 'red',
       details: 'Could not query annual_financials table',
+      needed: 1,
+      have: 0,
+      link: '/picc/financials',
     })
   }
 
-  // Community Voices
+  // Community Voices (quotes)
   try {
     const { count } = await supabase
       .from('extracted_quotes')
       .select('id', { count: 'exact', head: true })
-    const hasIt = (count ?? 0) > 0
+      .eq('is_curated', true)
+    const have = count ?? 0
+    const hasIt = have >= 5
     sections.push({
       section: 'Community Voices',
-      status: hasIt ? 'green' : 'red',
-      details: hasIt ? `${count} quotes available` : 'No extracted quotes found',
+      category: 'Content',
+      status: hasIt ? 'green' : have > 0 ? 'amber' : 'red',
+      details: hasIt ? `${have} curated quotes available` : `${have} quotes (need 5+)`,
+      needed: 5,
+      have,
+      link: '/picc/stories',
     })
   } catch {
     sections.push({
       section: 'Community Voices',
+      category: 'Content',
       status: 'red',
-      details: 'Could not query extracted_quotes table',
+      details: 'No curated quotes found',
+      needed: 5,
+      have: 0,
+      link: '/picc/stories',
     })
   }
 
-  // Gallery Photos
+  // Gallery Photos - FY specific
   try {
     const { count } = await supabase
       .from('media_files')
       .select('id', { count: 'exact', head: true })
       .contains('tags', ['annual-report'])
-    const enough = (count ?? 0) >= 5
+      .contains('tags', [`fy:${fiscalYear}`])
+    const have = count ?? 0
+    const needed = 15
+    const hasIt = have >= needed
     sections.push({
       section: 'Gallery Photos',
-      status: enough ? 'green' : (count ?? 0) > 0 ? 'amber' : 'red',
-      details: `${count ?? 0} photos tagged 'annual-report' (need >= 5)`,
+      category: 'Media',
+      status: hasIt ? 'green' : have > 0 ? 'amber' : 'red',
+      details: `${have} photos for ${fiscalYear} (need ${needed}+)`,
+      needed,
+      have,
+      link: '/picc/media/gallery',
     })
   } catch {
     sections.push({
       section: 'Gallery Photos',
+      category: 'Media',
       status: 'red',
       details: 'Could not query media_files table',
+      needed: 15,
+      have: 0,
+      link: '/picc/media/gallery',
     })
   }
 
-  // Elder Quotes — match Aunty/Uncle/Elder in attribution
+  // Elder Quotes
   try {
     const { count: elderCount1 } = await supabase
       .from('extracted_quotes')
@@ -239,18 +301,26 @@ async function checkReportSections(
       .from('extracted_quotes')
       .select('id', { count: 'exact', head: true })
       .ilike('attribution', '%uncle%')
-    const total = (elderCount1 ?? 0) + (elderCount2 ?? 0) + (elderCount3 ?? 0)
-    const hasIt = total > 0
+    const have = (elderCount1 ?? 0) + (elderCount2 ?? 0) + (elderCount3 ?? 0)
+    const hasIt = have >= 2
     sections.push({
       section: 'Elder Quotes',
-      status: hasIt ? 'green' : 'red',
-      details: hasIt ? `${total} elder quotes available (Aunty/Uncle/Elder)` : 'No elder quotes found',
+      category: 'Content',
+      status: hasIt ? 'green' : have > 0 ? 'amber' : 'red',
+      details: hasIt ? `${have} elder quotes available` : `${have} elder quotes (need 2+)`,
+      needed: 2,
+      have,
+      link: '/picc/stories',
     })
   } catch {
     sections.push({
       section: 'Elder Quotes',
+      category: 'Content',
       status: 'red',
-      details: 'Could not query extracted_quotes table',
+      details: 'No elder quotes found',
+      needed: 2,
+      have: 0,
+      link: '/picc/stories',
     })
   }
 
@@ -260,25 +330,128 @@ async function checkReportSections(
       .from('media_files')
       .select('id', { count: 'exact', head: true })
       .contains('tags', ['board-member'])
-    const enough = (count ?? 0) >= 3
+    const have = count ?? 0
+    const needed = 3
+    const hasIt = have >= needed
     sections.push({
       section: 'Board Photos',
-      status: enough ? 'green' : (count ?? 0) > 0 ? 'amber' : 'red',
-      details: `${count ?? 0} photos tagged 'board-member' (need >= 3)`,
+      category: 'Media',
+      status: hasIt ? 'green' : have > 0 ? 'amber' : 'red',
+      details: `${have} board member photos (need ${needed}+)`,
+      needed,
+      have,
+      link: '/picc/media/gallery',
     })
   } catch {
     sections.push({
       section: 'Board Photos',
+      category: 'Media',
       status: 'red',
-      details: 'Could not query media_files table',
+      details: 'No board member photos found',
+      needed: 3,
+      have: 0,
+      link: '/picc/media/gallery',
+    })
+  }
+
+  // Service Stories - FY specific
+  try {
+    const startDate = `${parseInt(fiscalYear.split('-')[0])}-07-01`
+    const endDate = `${fyInt}-06-30`
+    const { count } = await supabase
+      .from('stories')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'published')
+      .gte('created_at', startDate)
+      .lte('created_at', endDate)
+    const have = count ?? 0
+    const needed = 8
+    const hasIt = have >= needed
+    sections.push({
+      section: 'Service Stories',
+      category: 'Content',
+      status: hasIt ? 'green' : have > 0 ? 'amber' : 'red',
+      details: `${have} stories from ${fiscalYear} (need ${needed}+)`,
+      needed,
+      have,
+      link: '/picc/stories',
+    })
+  } catch {
+    sections.push({
+      section: 'Service Stories',
+      category: 'Content',
+      status: 'red',
+      details: 'Could not query stories table',
+      needed: 8,
+      have: 0,
+      link: '/picc/stories',
+    })
+  }
+
+  // Innovation Projects
+  try {
+    const { count } = await supabase
+      .from('innovation_projects')
+      .select('id', { count: 'exact', head: true })
+      .eq('fiscal_year', fyInt)
+    const have = count ?? 0
+    const hasIt = have >= 1
+    sections.push({
+      section: 'Innovation Projects',
+      category: 'Impact',
+      status: hasIt ? 'green' : have > 0 ? 'amber' : 'amber',
+      details: hasIt ? `${have} innovation projects for ${fiscalYear}` : 'No innovation projects recorded',
+      needed: 1,
+      have,
+      link: '/picc/reports',
+    })
+  } catch {
+    sections.push({
+      section: 'Innovation Projects',
+      category: 'Impact',
+      status: 'amber',
+      details: 'Could not query innovation_projects table',
+      needed: 1,
+      have: 0,
+      link: '/picc/reports',
     })
   }
 
   return sections
 }
 
-export async function checkCompleteness(): Promise<CompletenessReport> {
+function generateRecommendations(
+  reportSections: ReportSectionCompleteness[],
+  services: ServiceCompleteness[]
+): string[] {
+  const recs: string[] = []
+
+  // Check sections
+  for (const section of reportSections) {
+    if (section.status === 'red') {
+      recs.push(`Add ${section.section} - currently missing`)
+    } else if (section.status === 'amber' && section.have < section.needed) {
+      recs.push(`Increase ${section.section}: have ${section.have}, need ${section.needed}`)
+    }
+  }
+
+  // Check services
+  const incompleteServices = services.filter(s => s.status !== 'green')
+  if (incompleteServices.length > 0) {
+    recs.push(`${incompleteServices.length} services need attention before report`)
+  }
+
+  // Add positive notes
+  if (reportSections.every(s => s.status === 'green') && services.every(s => s.status === 'green')) {
+    recs.push('🎉 All report content is ready!')
+  }
+
+  return recs.slice(0, 5) // Limit to top 5
+}
+
+export async function checkCompleteness(fiscalYear?: string): Promise<CompletenessReport> {
   const supabase = createServerSupabase()
+  const fy = fiscalYear || getCurrentFiscalYear()
 
   // Fetch all active services
   const { data: servicesRaw } = await supabase
@@ -291,11 +464,11 @@ export async function checkCompleteness(): Promise<CompletenessReport> {
 
   // Check services in parallel
   const serviceResults = await Promise.all(
-    services.map((s) => checkServiceCompleteness(supabase, s))
+    services.map((s) => checkServiceCompleteness(supabase, s, fy))
   )
 
   // Check report sections
-  const reportSections = await checkReportSections(supabase)
+  const reportSections = await checkReportSections(supabase, fy)
 
   // Overall score: average of all service scores and report section scores
   const reportSectionScores = reportSections.map((s) =>
@@ -310,10 +483,14 @@ export async function checkCompleteness(): Promise<CompletenessReport> {
       ? Math.round(allScores.reduce((a, b) => a + b, 0) / allScores.length)
       : 0
 
+  const recommendations = generateRecommendations(reportSections, serviceResults)
+
   return {
+    fiscalYear: fy,
     services: serviceResults,
     reportSections,
     overallScore,
     generatedAt: new Date().toISOString(),
+    recommendations,
   }
 }
