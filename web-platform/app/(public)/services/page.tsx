@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Users, Activity, ArrowRight, Camera, Film } from 'lucide-react';
+import { Users, Activity, ArrowRight, Camera, Film, Quote } from 'lucide-react';
 import { createServerSupabase } from '@/lib/supabase/client';
 import { getHeroImage, getHeroVideo } from '@/lib/media/utils';
 import { BespokeIcon } from '@/components/ui/BespokeIcon';
@@ -8,6 +8,7 @@ import { getServiceIcon } from '@/lib/services/service-icons';
 import nextDynamic from 'next/dynamic';
 import AdminServiceCard from '@/components/admin/AdminServiceCard';
 import { assetUrl } from '@/lib/media/asset-url';
+import { getELQuotes, getELStats } from '@/lib/empathy-ledger/el-server';
 
 const InteractiveServiceMap = nextDynamic(
   () => import('@/components/report/InteractiveServiceMap'),
@@ -106,8 +107,74 @@ export default async function ServicesIndexPage() {
     videoCountMap.set((s as any).slug, videoCount || 0);
   }
 
+  // ─── Empathy Ledger voices for services ───
+  // Pull all PICC quotes and match each service to relevant voices by keywords
+  const elQuotes = await getELQuotes({ limit: 600, minImpact: 30 }).catch(() => []);
+  const elStats = await getELStats().catch(() => ({ quotes: 0, transcripts: 0, stories: 0, media: 0 }));
+
+  // Service-to-keyword mapping for EL quote matching
+  const serviceKeywords: Record<string, string[]> = {
+    'safe-house': ['safe house', 'children', 'safe', 'kids', 'home'],
+    'womens-service': ['women', 'shelter', 'safe', 'family violence', 'domestic'],
+    'family_wellbeing': ['family', 'wellbeing', 'parenting', 'mums'],
+    'ferdy-s-haven': ['ferdy', 'healing', 'women'],
+    'bwgcolman-healing': ['health', 'healing', 'medical', 'doctor', 'clinic', 'bwgcolman'],
+    'bwgcolman-way': ['child protection', 'community control', 'delegated', 'bwgcolman way'],
+    'first-1000-days': ['baby', 'babies', 'first', 'days', 'maternal', 'pregnancy'],
+    'early_learning': ['early learning', 'daycare', 'childcare', 'playgroup'],
+    'early-childhood-services': ['daycare', 'childcare', 'cfc', 'early childhood', 'children'],
+    'youth-service': ['youth', 'young', 'kids', 'school', 'teen', 'footy', 'sport'],
+    'sport-recreation': ['sport', 'footy', 'recreation', 'team'],
+    'community-justice-group': ['justice', 'court', 'legal', 'community justice'],
+    'diversionary-service': ['mens', 'diversionary', 'sober', 'drink', 'safe'],
+    'cultural_centre': ['cultural', 'culture', 'art', 'painting', 'workshop'],
+    'cultural-programs': ['culture', 'language', 'tradition', 'cultural'],
+    'elder_support': ['elder', 'old people', 'aged care', 'eldercare'],
+    'community-hub': ['community', 'hub', 'event', 'gathering'],
+    'mechanic': ['mechanic', 'car', 'workshop', 'vehicle'],
+    'construction-maintenance': ['construction', 'maintenance', 'building', 'workshop'],
+    'digital_services': ['digital', 'computer', 'technology', 'online'],
+    'blue-card-service': ['blue card', 'check', 'screening'],
+    'safe-haven': ['safe haven', 'children', 'haven'],
+    'family-care-service': ['family', 'care', 'children'],
+    'family-participation-program': ['family', 'participation'],
+    'ndis-service': ['ndis', 'disability'],
+    'sewb-service': ['wellbeing', 'mental', 'emotional'],
+    'womens-healing-service': ['women', 'healing'],
+    'mens_programs': ['men', 'mens', 'group'],
+    'children-s-lunch-progam': ['lunch', 'school', 'food', 'breakfast'],
+    'store-retail': ['store', 'shop', 'retail'],
+    'dfv-service': ['dv', 'violence', 'family violence', 'safe'],
+  };
+
+  function findQuoteForService(slug: string): any | null {
+    const keywords = serviceKeywords[slug] || [];
+    if (keywords.length === 0) return null;
+
+    // Find quotes whose text contains any of the service keywords
+    const candidates: any[] = [];
+    for (const q of elQuotes) {
+      const text = (q.quote_text || '').toLowerCase();
+      if (!text || text.length < 30 || text.length > 280) continue;
+      if (keywords.some(kw => text.includes(kw))) {
+        candidates.push(q);
+      }
+    }
+
+    // Sort by impact, prefer named voices
+    candidates.sort((a, b) => {
+      const aNamed = a.author_name && a.author_name.toLowerCase() !== 'unknown' ? 1 : 0;
+      const bNamed = b.author_name && b.author_name.toLowerCase() !== 'unknown' ? 1 : 0;
+      if (aNamed !== bNamed) return bNamed - aNamed;
+      return (b.impact_score || 0) - (a.impact_score || 0);
+    });
+
+    return candidates[0] || null;
+  }
+
   const allServices = (services || []).map((s: any) => {
     const m = metricsMap.get(s.id);
+    const elQuote = findQuoteForService(s.slug);
     return {
       id: s.id,
       name: s.name,
@@ -122,6 +189,12 @@ export default async function ServicesIndexPage() {
       cover_photo: coverPhotoMap.get(s.slug) || null,
       photo_count: photoCountMap.get(s.slug) || 0,
       has_video: (videoCountMap.get(s.slug) || 0) > 0,
+      el_quote: elQuote ? {
+        text: elQuote.quote_text,
+        author: elQuote.author_name && elQuote.author_name.toLowerCase() !== 'unknown'
+          ? elQuote.author_name
+          : 'Community Member',
+      } : null,
     };
   });
 
@@ -145,9 +218,13 @@ export default async function ServicesIndexPage() {
           <h1 className="text-5xl md:text-6xl font-bold mb-4">
             {allServices.length} Integrated Services
           </h1>
-          <p className="text-xl md:text-2xl font-light max-w-3xl mx-auto opacity-90">
+          <p className="text-xl md:text-2xl font-light max-w-3xl mx-auto opacity-90 mb-8">
             Comprehensive, culturally-informed support across every aspect of community life on Palm Island
           </p>
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur rounded-full text-sm">
+            <Quote className="w-4 h-4 text-picc-ochre" />
+            <span className="text-white/80">{elStats.quotes} community voices captured</span>
+          </div>
         </div>
       </section>
 
@@ -235,6 +312,17 @@ export default async function ServicesIndexPage() {
                       <p className="text-gray-600 mb-4 line-clamp-3">
                         {service.description || 'Supporting the Palm Island community.'}
                       </p>
+
+                      {service.el_quote && (
+                        <div className="mb-4 pl-3 border-l-2 border-picc-ochre/40">
+                          <p className="text-xs italic text-gray-500 leading-relaxed line-clamp-3">
+                            &ldquo;{service.el_quote.text}&rdquo;
+                          </p>
+                          <p className="text-[11px] text-picc-ochre mt-1 font-medium">
+                            — {service.el_quote.author}
+                          </p>
+                        </div>
+                      )}
 
                       <div className="flex items-center justify-between text-sm mb-4">
                         {service.staff_count ? (

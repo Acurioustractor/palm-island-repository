@@ -42,6 +42,8 @@ export interface ImpactPageProps {
   staffHistory: { year: string; staff: number; indigenous: number }[];
   latestServiceData: { clients: number; sessions: number };
   latestServiceYear: string | null;
+  leadership?: { text: string; author: string } | null;
+  impactVoices?: { text: string; author: string; theme: string | null }[];
 }
 
 // ---------------------------------------------------------------------------
@@ -142,6 +144,8 @@ export default function ImpactPageClient({
   staffHistory,
   latestServiceData,
   latestServiceYear,
+  leadership,
+  impactVoices = [],
 }: ImpactPageProps) {
   // Compute real YoY changes
   const incomeChange = yoyChange(incomeHistory.map((d) => d.income));
@@ -230,6 +234,31 @@ export default function ImpactPageClient({
             index={3}
           />
         </motion.div>
+
+        {/* ================================================================ */}
+        {/* LEADERSHIP VOICE — Why these numbers matter                       */}
+        {/* ================================================================ */}
+        {leadership && (
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="relative bg-gradient-to-br from-[#0B4F6C] via-[#0a3f57] to-[#082a3a] text-white rounded-2xl p-10 md:p-14 overflow-hidden"
+          >
+            <div className="absolute top-6 left-8 text-picc-ochre/20 text-9xl font-serif leading-none select-none">
+              &ldquo;
+            </div>
+            <div className="relative max-w-3xl mx-auto text-center">
+              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-picc-ochre mb-6">
+                Why these numbers matter
+              </p>
+              <blockquote className="font-serif italic text-xl md:text-2xl leading-relaxed mb-6">
+                {leadership.text}
+              </blockquote>
+              <p className="text-sm text-picc-ochre">— {leadership.author}</p>
+            </div>
+          </motion.section>
+        )}
 
         {/* ================================================================ */}
         {/* REVENUE GROWTH CHART                                             */}
@@ -563,6 +592,164 @@ export default function ImpactPageClient({
             <span>2029: 20 Years</span>
           </div>
         </motion.section>
+
+        {/* ================================================================ */}
+        {/* YEAR-BY-YEAR BREAKDOWN — every year of growth                    */}
+        {/* ================================================================ */}
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeIn}
+          className="bg-white rounded-2xl p-8 md:p-10 border border-gray-100 shadow-sm"
+        >
+          <div className="mb-8">
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-picc-ochre mb-3">
+              Year by year
+            </p>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+              Every year of the journey
+            </h2>
+            <p className="text-sm text-gray-500">
+              From 2010 to {lastYear} — every staff member, every dollar, every milestone in one place.
+            </p>
+          </div>
+
+          <div className="overflow-x-auto -mx-2 px-2">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b-2 border-gray-200 text-xs uppercase tracking-wider text-gray-400">
+                  <th className="text-left py-3 px-3 font-semibold">Year</th>
+                  <th className="text-right py-3 px-3 font-semibold">Income</th>
+                  <th className="text-right py-3 px-3 font-semibold">Total Staff</th>
+                  <th className="text-right py-3 px-3 font-semibold">Indigenous</th>
+                  <th className="text-right py-3 px-3 font-semibold">% Indigenous</th>
+                  <th className="text-right py-3 px-3 font-semibold">Labour Costs</th>
+                </tr>
+              </thead>
+              <tbody>
+                {incomeHistory.map((fy, i) => {
+                  const staffRow = staffHistory.find(s => s.year === fy.year)
+                  const indigPct = staffRow && staffRow.staff > 0
+                    ? Math.round((staffRow.indigenous / staffRow.staff) * 100)
+                    : null
+                  const isLatest = i === incomeHistory.length - 1
+                  return (
+                    <tr
+                      key={fy.year}
+                      className={`border-b border-gray-100 hover:bg-gray-50 transition-colors ${
+                        isLatest ? 'bg-picc-ochre/5 font-semibold' : ''
+                      }`}
+                    >
+                      <td className={`py-3 px-3 ${isLatest ? 'text-picc-ochre' : 'text-gray-700'}`}>
+                        {fy.year}
+                        {isLatest && <span className="ml-2 text-xs font-normal text-picc-ochre/60">latest</span>}
+                      </td>
+                      <td className="py-3 px-3 text-right text-gray-700">
+                        {fy.income > 0 ? formatMillions(fy.income) : '—'}
+                      </td>
+                      <td className="py-3 px-3 text-right text-gray-700">
+                        {staffRow?.staff || '—'}
+                      </td>
+                      <td className="py-3 px-3 text-right text-gray-700">
+                        {staffRow?.indigenous || '—'}
+                      </td>
+                      <td className="py-3 px-3 text-right text-gray-700">
+                        {indigPct !== null ? `${indigPct}%` : '—'}
+                      </td>
+                      <td className="py-3 px-3 text-right text-gray-500">
+                        {fy.labour > 0 ? formatMillions(fy.labour) : '—'}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+              <tfoot>
+                <tr className="border-t-2 border-gray-200">
+                  <td className="py-3 px-3 text-xs text-gray-400">{incomeHistory.length} years</td>
+                  <td className="py-3 px-3 text-right text-xs text-gray-400">
+                    {(() => {
+                      const first = incomeHistory[0]?.income || 0
+                      const last = incomeHistory[incomeHistory.length - 1]?.income || 0
+                      const growth = first > 0 ? Math.round(((last - first) / first) * 100) : 0
+                      return `+${growth}% growth`
+                    })()}
+                  </td>
+                  <td className="py-3 px-3 text-right text-xs text-gray-400">
+                    {(() => {
+                      const first = staffHistory[0]?.staff || 0
+                      const last = staffHistory[staffHistory.length - 1]?.staff || 0
+                      return `+${last - first}`
+                    })()}
+                  </td>
+                  <td className="py-3 px-3 text-right text-xs text-gray-400">
+                    {(() => {
+                      const last = staffHistory[staffHistory.length - 1]
+                      return last ? `+${(last.indigenous || 0) - (staffHistory[0]?.indigenous || 0)}` : '—'
+                    })()}
+                  </td>
+                  <td colSpan={2} className="py-3 px-3 text-right text-xs text-gray-400">
+                    Source: Annual financials & staff statistics
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </motion.section>
+
+        {/* ================================================================ */}
+        {/* COMMUNITY IMPACT VOICES                                          */}
+        {/* ================================================================ */}
+        {impactVoices.length > 0 && (
+          <motion.section
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeIn}
+            className="py-8"
+          >
+            <div className="text-center mb-10">
+              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-picc-ochre mb-3">
+                Voices behind the numbers
+              </p>
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
+                What community impact sounds like
+              </h2>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              {impactVoices.map((voice, i) => (
+                <div
+                  key={i}
+                  className="bg-white border border-gray-200 rounded-2xl p-7 hover:border-picc-ochre/40 transition-colors"
+                >
+                  <div className="text-picc-ochre text-5xl font-serif leading-none mb-2 opacity-30">
+                    &ldquo;
+                  </div>
+                  <p className="font-serif italic text-gray-700 leading-relaxed text-base mb-4 line-clamp-5 -mt-3">
+                    {voice.text}
+                  </p>
+                  <p className="text-sm font-semibold text-picc-ochre">{voice.author}</p>
+                  {voice.theme && (
+                    <p className="text-xs text-gray-400 mt-1 capitalize">
+                      {voice.theme.replace(/_/g, ' ')}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="text-center mt-10">
+              <Link
+                href="/picc/pcap"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-picc-ochre hover:gap-3 transition-all"
+              >
+                Explore all 525 sovereign voices
+                <span aria-hidden>→</span>
+              </Link>
+            </div>
+          </motion.section>
+        )}
       </div>
     </div>
   );

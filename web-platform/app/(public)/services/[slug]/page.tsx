@@ -2,6 +2,80 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { createServerSupabase } from '@/lib/supabase/client';
 import { ServiceStoryPage } from '@/components/services/ServiceStoryPage';
+import { getELQuotes } from '@/lib/empathy-ledger/el-server';
+
+// Service slug → keywords for EL quote matching
+const SERVICE_KEYWORDS: Record<string, string[]> = {
+  'safe-house': ['safe house', 'children', 'safe', 'kids', 'placement'],
+  'womens-service': ['women', 'shelter', 'safe', 'family violence', 'domestic'],
+  'family_wellbeing': ['family', 'wellbeing', 'parenting', 'mums'],
+  'ferdy-s-haven': ['ferdy', 'healing', 'women', 'support'],
+  'bwgcolman-healing': ['health', 'healing', 'medical', 'doctor', 'clinic', 'bwgcolman'],
+  'bwgcolman-way': ['child protection', 'community control', 'delegated', 'bwgcolman way', 'self-determination'],
+  'first-1000-days': ['baby', 'babies', 'first', 'days', 'maternal', 'pregnancy'],
+  'early_learning': ['early learning', 'daycare', 'childcare', 'playgroup'],
+  'early-childhood-services': ['daycare', 'childcare', 'cfc', 'early childhood', 'children'],
+  'youth-service': ['youth', 'young', 'kids', 'school', 'teen', 'footy', 'sport'],
+  'sport-recreation': ['sport', 'footy', 'recreation', 'team'],
+  'community-justice-group': ['justice', 'court', 'legal', 'community justice'],
+  'diversionary-service': ['mens', 'diversionary', 'sober', 'drink', 'safe'],
+  'cultural_centre': ['cultural', 'culture', 'art', 'painting', 'workshop'],
+  'cultural-programs': ['culture', 'language', 'tradition', 'cultural'],
+  'elder_support': ['elder', 'old people', 'aged care', 'eldercare'],
+  'community-hub': ['community', 'hub', 'event', 'gathering'],
+  'mechanic': ['mechanic', 'car', 'workshop', 'vehicle'],
+  'construction-maintenance': ['construction', 'maintenance', 'building', 'workshop'],
+  'digital_services': ['digital', 'computer', 'technology', 'online'],
+  'blue-card-service': ['blue card', 'check', 'screening'],
+  'safe-haven': ['safe haven', 'children', 'haven'],
+  'family-care-service': ['family', 'care', 'children'],
+  'family-participation-program': ['family', 'participation'],
+  'ndis-service': ['ndis', 'disability'],
+  'sewb-service': ['wellbeing', 'mental', 'emotional'],
+  'womens-healing-service': ['women', 'healing'],
+  'mens_programs': ['men', 'mens', 'group'],
+  'children-s-lunch-progam': ['lunch', 'school', 'food', 'breakfast'],
+  'store-retail': ['store', 'shop', 'retail'],
+  'dfv-service': ['dv', 'violence', 'family violence', 'safe'],
+};
+
+async function getServiceVoices(slug: string, limit: number = 6) {
+  const keywords = SERVICE_KEYWORDS[slug] || [];
+  if (keywords.length === 0) return [];
+
+  const elQuotes = await getELQuotes({ limit: 600, minImpact: 30 }).catch(() => []);
+
+  const matches = elQuotes
+    .filter(q => {
+      const text = (q.quote_text || '').toLowerCase();
+      if (!text || text.length < 30 || text.length > 320) return false;
+      return keywords.some(kw => text.includes(kw));
+    })
+    .sort((a, b) => {
+      const aNamed = a.author_name && a.author_name.toLowerCase() !== 'unknown' ? 1 : 0;
+      const bNamed = b.author_name && b.author_name.toLowerCase() !== 'unknown' ? 1 : 0;
+      if (aNamed !== bNamed) return bNamed - aNamed;
+      return (b.impact_score || 0) - (a.impact_score || 0);
+    });
+
+  // Dedupe by author + truncate text
+  const seen = new Set<string>();
+  const result: { text: string; author: string; theme: string | null }[] = [];
+  for (const q of matches) {
+    const raw = (q.author_name || '').trim();
+    const author = !raw || raw.toLowerCase() === 'unknown' ? 'Community Member' : raw;
+    const key = `${author}::${(q.quote_text || '').slice(0, 40)}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    result.push({
+      text: q.quote_text || '',
+      author,
+      theme: Array.isArray(q.themes) && q.themes.length > 0 ? q.themes[0] : null,
+    });
+    if (result.length >= limit) break;
+  }
+  return result;
+}
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -51,7 +125,8 @@ export default async function ServiceDetailPage({ params }: PageProps) {
 
   const serviceTag = `service:${slug}`;
 
-  // Parallel data fetching — cast wide net for all available media
+  // Parallel data fetching — cast wide net for all available media + EL voices
+  const elVoicesPromise = getServiceVoices(slug, 6)
   const [
     metricsResult,
     storiesResult,
@@ -179,6 +254,9 @@ export default async function ServiceDetailPage({ params }: PageProps) {
   // Primary video for the video section (first non-hero video, or first video)
   const primaryVideoUrl = uniqueVideos[0]?.public_url || null;
 
+  // Resolve EL voices
+  const elVoices = await elVoicesPromise;
+
   return (
     <ServiceStoryPage
       service={service}
@@ -189,6 +267,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
       heroVideo={heroVideo}
       videos={uniqueVideos}
       videoUrl={primaryVideoUrl}
+      elVoices={elVoices}
     />
   );
 }

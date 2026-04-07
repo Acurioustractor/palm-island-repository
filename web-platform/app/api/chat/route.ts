@@ -10,26 +10,32 @@ import { logChatMessage } from '@/lib/chat/session-logger'
 
 export const maxDuration = 60
 
-function getChatModel() {
-  // Primary: MiniMax M2.5 via OpenAI-compatible API (~95% cheaper than Sonnet)
+function getMiniMaxModel() {
   const minimaxKey = process.env.MINIMAX_API_KEY
-  if (minimaxKey) {
-    const minimax = createOpenAICompatible({
-      name: 'minimax',
-      baseURL: 'https://api.minimax.io/v1',
-      apiKey: minimaxKey,
-    })
-    return minimax.chatModel('MiniMax-M2.5')
-  }
+  if (!minimaxKey) return null
+  const minimax = createOpenAICompatible({
+    name: 'minimax',
+    baseURL: 'https://api.minimax.io/v1',
+    apiKey: minimaxKey,
+  })
+  return minimax.chatModel('MiniMax-M2.5')
+}
 
-  // Fallback: Claude Haiku (cheapest Anthropic option)
+function getAnthropicModel() {
   const anthropicKey = process.env.ANTHROPIC_API_KEY
-  if (anthropicKey) {
-    const provider = createAnthropic({ apiKey: anthropicKey })
-    return provider('claude-haiku-4-5-20251001')
-  }
+  if (!anthropicKey) return null
+  const provider = createAnthropic({ apiKey: anthropicKey })
+  return provider('claude-haiku-4-5-20251001')
+}
 
-  throw new Error('No AI API key configured (MINIMAX_API_KEY or ANTHROPIC_API_KEY)')
+function getChatModel() {
+  const model = getMiniMaxModel() || getAnthropicModel()
+  if (!model) throw new Error('No AI API key configured (MINIMAX_API_KEY or ANTHROPIC_API_KEY)')
+  return model
+}
+
+function getFallbackModel() {
+  return getAnthropicModel()
 }
 
 export async function POST(request: Request) {
@@ -101,21 +107,91 @@ ${ragSources.map(s => `- ${s.title} (${s.type}): ${s.url}`).join('\n')}
     ? messages.slice(-20)
     : messages
 
-  try {
-    const result = streamText({
-      model: getChatModel(),
+  const modelMessages = await convertToModelMessages(trimmedMessages)
+
+  const doStream = (model: ReturnType<typeof getChatModel>) => {
+    return streamText({
+      model,
       system: systemWithRAG,
-      messages: await convertToModelMessages(trimmedMessages),
+      messages: modelMessages,
       tools: exploreTools,
       stopWhen: stepCountIs(5),
+      onError: ({ error }) => {
+        console.error('Stream error from model:', error)
+      },
     })
-
-    return result.toUIMessageStreamResponse()
-  } catch (error: any) {
-    console.error('Chat stream error:', error)
-    return new Response(
-      JSON.stringify({ error: error?.message || 'Chat failed' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    )
   }
+
+  // Try primary model; on failure, fall back to Anthropic
+  const primaryModel = getChatModel()
+  const result = doStream(primaryModel)
+
+  // Use a TransformStream to detect errors in the first chunk and retry with fallback
+  const { readable, writable } = new TransformStream()
+  const writer = writable.getWriter()
+  const reader = result.toUIMessageStreamResponse().body!.getReader()
+
+  const pump = async () => {
+    let firstChunk = true
+    try {
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) {
+          await writer.close()
+          return
+        }
+
+        // Check first chunk for error indicators
+        if (firstChunk) {
+          firstChunk = false
+          const text = new TextDecoder().decode(value)
+          if (text.includes('error') && text.includes('authorized_error')) {
+            console.error('Primary model auth failed, attempting fallback')
+            reader.cancel()
+
+            const fallback = getFallbackModel()
+            if (fallback) {
+              const fallbackResult = doStream(fallback)
+              const fallbackReader = fallbackResult.toUIMessageStreamResponse().body!.getReader()
+              while (true) {
+                const chunk = await fallbackReader.read()
+                if (chunk.done) { await writer.close(); return }
+                await writer.write(chunk.value)
+              }
+            }
+
+            await writer.close()
+            return
+          }
+        }
+
+        await writer.write(value)
+      }
+    } catch (err) {
+      console.error('Stream pump error:', err)
+      // Try fallback on any stream error
+      try {
+        const fallback = getFallbackModel()
+        if (fallback) {
+          console.log('Falling back to Anthropic after stream error')
+          const fallbackResult = doStream(fallback)
+          const fallbackReader = fallbackResult.toUIMessageStreamResponse().body!.getReader()
+          while (true) {
+            const chunk = await fallbackReader.read()
+            if (chunk.done) break
+            await writer.write(chunk.value)
+          }
+        }
+      } catch (fallbackErr) {
+        console.error('Fallback also failed:', fallbackErr)
+      }
+      await writer.close()
+    }
+  }
+
+  pump()
+
+  return new Response(readable, {
+    headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+  })
 }

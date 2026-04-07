@@ -91,11 +91,24 @@ export default function ExternalSharingPanel({
         throw new Error(body?.error ?? `Request failed (${res.status})`)
       }
 
-      const data = await res.json()
+      // Download the PDF blob
+      const blob = await res.blob()
+      const disposition = res.headers.get('Content-Disposition')
+      const filenameMatch = disposition?.match(/filename="?([^"]+)"?/)
+      const filename = filenameMatch?.[1] ?? `elder-${packageType}.pdf`
+
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(url)
 
       toast.success(
-        'Package Ready',
-        `${data.contents?.stories ?? 0} stories and ${data.contents?.quotes ?? 0} quotes compiled.`
+        'Package Downloaded',
+        `${filename} has been saved.`
       )
     } catch (err) {
       toast.error(

@@ -53,11 +53,12 @@ export function PublicNavigation() {
       href: '/annual-report/live',
       hasDropdown: true,
       dropdownItems: [
+        { label: 'The Sovereignty of Care 2027', href: '/20-years/strategy', featured: true },
+        { label: 'Empathy Ledger', href: '/empathy-ledger', featured: true },
         { label: 'Annual Report 2024-25', href: '/annual-report/live', featured: true },
-        { label: '20-Year Vision', href: '/20-years', featured: true },
-        { label: 'Innovation', href: '/innovation', featured: true },
+        { label: '20-Year Vision', href: '/20-years' },
+        { label: 'Innovation', href: '/innovation' },
         { label: 'Thematic Reports', href: '/thematic-reports' },
-        { label: 'Annual Reports', href: '/annual-report/live' },
         { label: 'Ask AI', href: '/chat' },
       ]
     },

@@ -84,6 +84,10 @@ interface HistoryData {
 export interface TwentyYearsClientProps {
   heroImage?: string | null
   heroVideo?: string | null
+  voices?: { text: string; author: string; theme: string | null }[]
+  elQuoteCount?: number
+  elTranscriptCount?: number
+  rachelLegacy?: { text: string; author: string } | null
 }
 
 function formatBudget(value: number): string {
@@ -106,7 +110,7 @@ const ERA_BG: Record<string, string> = {
   'community-controlled': 'bg-warm-50',
 }
 
-export default function TwentyYearsClient({ heroImage, heroVideo }: TwentyYearsClientProps) {
+export default function TwentyYearsClient({ heroImage, heroVideo, voices = [], elQuoteCount = 0, elTranscriptCount = 0, rachelLegacy }: TwentyYearsClientProps) {
   const [data, setData] = useState<HistoryData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -362,6 +366,72 @@ export default function TwentyYearsClient({ heroImage, heroVideo }: TwentyYearsC
           events={milestones}
           backgroundColor="bg-white"
         />
+      )}
+
+      {/* RACHEL'S LEGACY QUOTE */}
+      {rachelLegacy && (
+        <section className="py-24 px-6 bg-gradient-to-br from-[#0B4F6C] via-[#0a3f57] to-[#082a3a] text-white relative overflow-hidden">
+          <div className="absolute top-10 left-10 text-picc-ochre/10 text-[200px] font-serif leading-none select-none">&ldquo;</div>
+          <div className="relative max-w-3xl mx-auto text-center">
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-picc-ochre mb-8">
+              The Vision
+            </p>
+            <blockquote className="font-serif italic text-2xl md:text-4xl leading-relaxed mb-8">
+              {rachelLegacy.text}
+            </blockquote>
+            <p className="text-picc-ochre text-sm">— {rachelLegacy.author}</p>
+          </div>
+        </section>
+      )}
+
+      {/* COMMUNITY VOICES */}
+      {voices.length > 0 && (
+        <section className="py-20 px-6 bg-white">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-14">
+              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-picc-ochre mb-3">
+                Sovereign Voices
+              </p>
+              <h2 className="text-3xl md:text-5xl font-bold text-gray-900 tracking-tight mb-4">
+                The voices behind the numbers
+              </h2>
+              <p className="text-lg text-gray-500 max-w-2xl mx-auto">
+                {elQuoteCount} community voices captured in the Empathy Ledger.
+                {elTranscriptCount} interviews preserved for the next generation.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {voices.slice(0, 6).map((voice, i) => (
+                <div
+                  key={i}
+                  className="bg-warm-50 border border-warm-100 rounded-2xl p-7 hover:border-picc-ochre/40 transition-colors"
+                >
+                  <div className="text-picc-ochre text-5xl font-serif leading-none mb-2 opacity-30">&ldquo;</div>
+                  <p className="font-serif italic text-gray-700 leading-relaxed text-base mb-4 line-clamp-5 -mt-3">
+                    {voice.text}
+                  </p>
+                  <p className="text-sm font-semibold text-picc-ochre">{voice.author}</p>
+                  {voice.theme && (
+                    <p className="text-xs text-gray-400 mt-1 capitalize">
+                      {voice.theme.replace(/_/g, ' ')}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-12 text-center">
+              <a
+                href="/20-years/strategy"
+                className="inline-flex items-center gap-3 px-8 py-4 bg-picc-ochre text-white rounded-full font-semibold hover:bg-picc-ochre/90 transition-all"
+              >
+                Read the Sovereignty of Care Strategy
+                <span aria-hidden>→</span>
+              </a>
+            </div>
+          </div>
+        </section>
       )}
 
       {/* LOOKING AHEAD */}

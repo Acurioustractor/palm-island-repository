@@ -537,11 +537,11 @@ export default function HistoryContent({ artifacts }: HistoryContentProps) {
                 <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-picc-ochre mt-2 transition-colors" />
               </Link>
               <Link
-                href="/wiki/people"
+                href="/elders"
                 className="group p-4 bg-stone-50 rounded-xl border border-stone-200 hover:border-picc-ochre/50 transition-all"
               >
                 <div className="font-semibold text-gray-900 group-hover:text-picc-ochre text-sm">
-                  Our People
+                  Our Elders
                 </div>
                 <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-picc-ochre mt-2 transition-colors" />
               </Link>

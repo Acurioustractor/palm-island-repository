@@ -545,6 +545,92 @@ function truncateToTokenBudget(text: string, maxTokens: number): string {
 }
 
 // ---------------------------------------------------------------------------
+// Empathy Ledger search — sovereign source of truth for community voices
+// ---------------------------------------------------------------------------
+
+async function searchEmpathyLedger(
+  query: string,
+  limit: number
+): Promise<{ text: string; sources: ExpandedSource[] }> {
+  try {
+    const elKey = process.env.EMPATHY_LEDGER_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (!elKey) return { text: '', sources: [] }
+
+    // Lazy import to avoid circular deps & only load when needed
+    const { createClient } = await import('@supabase/supabase-js')
+    const PICC_ORG_ID = '084f851c-72e0-41fb-b5ba-f3088f44862d'
+    const supabase = createClient('https://yvnuayzslukamizrlhwb.supabase.co', elKey)
+
+    const tokens = query
+      .toLowerCase()
+      .split(/\s+/)
+      .filter(t => t.length > 3 && !['what', 'when', 'where', 'about', 'tell', 'show', 'with', 'have', 'this', 'that', 'they', 'from'].includes(t))
+      .slice(0, 4)
+
+    let candidates: any[] = []
+
+    if (tokens.length > 0) {
+      // Search by ilike across quote_text for any of the tokens
+      for (const token of tokens) {
+        const { data } = await supabase
+          .from('extracted_quotes')
+          .select('quote_text, author_name, themes, impact_score, category')
+          .eq('organization_id', PICC_ORG_ID)
+          .ilike('quote_text', `%${token}%`)
+          .order('impact_score', { ascending: false })
+          .limit(8)
+        if (data) candidates.push(...data)
+      }
+    }
+
+    // If we don't have enough matches, supplement with high-impact quotes
+    if (candidates.length < limit) {
+      const { data: topQuotes } = await supabase
+        .from('extracted_quotes')
+        .select('quote_text, author_name, themes, impact_score, category')
+        .eq('organization_id', PICC_ORG_ID)
+        .order('impact_score', { ascending: false })
+        .limit(limit * 2)
+      if (topQuotes) candidates.push(...topQuotes)
+    }
+
+    // Dedupe and clean
+    const seen = new Set<string>()
+    const unique: any[] = []
+    for (const q of candidates) {
+      const text = (q.quote_text || '').trim()
+      if (!text || seen.has(text)) continue
+      seen.add(text)
+      unique.push(q)
+      if (unique.length >= limit) break
+    }
+
+    if (unique.length === 0) return { text: '', sources: [] }
+
+    // Format for context
+    const lines = unique.map(q => {
+      const raw = (q.author_name || '').trim()
+      const author = !raw || raw.toLowerCase() === 'unknown' ? 'Community Member' : raw
+      const themes = Array.isArray(q.themes) && q.themes.length > 0 ? ` [${q.themes.slice(0, 2).join(', ')}]` : ''
+      return `"${q.quote_text}" — ${author}${themes}`
+    })
+
+    const text = `Sovereign voices from the Empathy Ledger (PICC's source of truth, ${unique.length} of 525+ quotes):\n${lines.join('\n')}`
+
+    const sources: ExpandedSource[] = unique.slice(0, 6).map((q, i) => ({
+      type: 'quote',
+      title: `${(q.author_name || 'Community Member')}: "${(q.quote_text || '').substring(0, 60)}..."`,
+      url: '/picc/pcap',
+    }))
+
+    return { text, sources }
+  } catch (err) {
+    console.warn('[searchEmpathyLedger] failed:', err instanceof Error ? err.message : err)
+    return { text: '', sources: [] }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Main export: getExpandedContext
 // ---------------------------------------------------------------------------
 
@@ -622,6 +708,13 @@ export async function getExpandedContext(
   // Knowledge entries (wiki)
   searches.push(
     searchKnowledgeEntries(supabase, query, 3).then(r => { if (r.text) { sections['Knowledge Base'] = r.text; allSources.push(...r.sources) } })
+  )
+
+  // Empathy Ledger sovereign quotes — the source of truth
+  searches.push(
+    searchEmpathyLedger(query, intents.quotes ? 12 : 6).then(r => {
+      if (r.text) { sections['Empathy Ledger Voices'] = r.text; allSources.push(...r.sources) }
+    })
   )
 
   await Promise.all(searches)

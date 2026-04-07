@@ -2,19 +2,28 @@ import { getRecentStories, getFeaturedStories, getElderStories } from '@/lib/sto
 import { StoryCard, StoryGrid } from '@/components/stories/StoryCard';
 import { getPageMedia } from '@/lib/media/utils';
 import Link from 'next/link';
-import { ArrowRight, Shield } from 'lucide-react';
+import { ArrowRight, Shield, Sparkles } from 'lucide-react';
 import { CommunityQuotesSection } from '@/components/quotes/CommunityQuotesSection';
+import { getELQuotes, groupQuotesByAuthor, getELStats } from '@/lib/empathy-ledger/el-server';
 
 export const revalidate = 300; // Revalidate every 5 minutes
 
 export default async function StoriesPage() {
-  // Fetch different story collections
-  const [featuredStories, recentStories, elderStories, heroMedia] = await Promise.all([
+  // Fetch different story collections — local PICC + Empathy Ledger
+  const [featuredStories, recentStories, elderStories, heroMedia, elQuotes, elStats] = await Promise.all([
     getFeaturedStories(3),
     getRecentStories(12),
     getElderStories(6),
-    getPageMedia({ pageContext: 'stories', pageSection: 'hero', fileType: 'image', limit: 1 })
+    getPageMedia({ pageContext: 'stories', pageSection: 'hero', fileType: 'image', limit: 1 }),
+    getELQuotes({ limit: 60, minImpact: 50 }),
+    getELStats(),
   ]);
+
+  // Group EL quotes by author for the "voices" section
+  const elVoicesByAuthor = groupQuotesByAuthor(elQuotes);
+  const topELVoices = Array.from(elVoicesByAuthor.entries())
+    .sort((a, b) => b[1].length - a[1].length)
+    .slice(0, 8);
 
   const heroImage = heroMedia && heroMedia.length > 0 ? heroMedia[0].public_url : null;
 
@@ -159,6 +168,52 @@ export default async function StoriesPage() {
             showThemes
           />
         </section>
+
+        {/* ─── Empathy Ledger Voices ─── */}
+        {topELVoices.length > 0 && (
+          <section className="mb-20 -mx-6 lg:-mx-8 px-6 lg:px-8 py-16 bg-gradient-to-br from-[#0B4F6C]/5 via-transparent to-[#C8963E]/5 rounded-3xl">
+            <div className="mb-10">
+              <p className="text-sm font-medium tracking-[0.15em] uppercase text-[#C8963E] mb-3 flex items-center gap-2">
+                <Sparkles className="w-4 h-4" />
+                Empathy Ledger
+              </p>
+              <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight mb-2">
+                {elStats.quotes} sovereign voices
+              </h2>
+              <p className="text-base text-gray-500 leading-relaxed max-w-2xl">
+                Community voices captured, analyzed, and stored in the Empathy Ledger —
+                Palm Island&apos;s sovereign data infrastructure. Every voice belongs to its speaker.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {topELVoices.map(([name, voiceQuotes]) => {
+                const top = voiceQuotes[0];
+                return (
+                  <div key={name} className="bg-white rounded-2xl border border-gray-200 p-6 hover:border-[#C8963E] transition-colors">
+                    <p className="text-xs font-semibold tracking-wider uppercase text-[#C8963E] mb-3">{name}</p>
+                    <p className="font-serif italic text-gray-800 leading-relaxed text-sm mb-3 line-clamp-4">
+                      &ldquo;{top.quote_text}&rdquo;
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      {voiceQuotes.length} {voiceQuotes.length === 1 ? 'quote' : 'quotes'}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="mt-8 text-center">
+              <Link
+                href="/picc/pcap"
+                className="inline-flex items-center gap-2 text-sm font-medium text-[#0B4F6C] hover:gap-3 transition-all"
+              >
+                Explore Data Sovereignty
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </section>
+        )}
 
         {/* Recent Stories */}
         {recentStories && recentStories.length > 0 && (

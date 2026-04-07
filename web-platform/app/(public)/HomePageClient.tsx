@@ -238,14 +238,29 @@ export type GalleryPhoto = {
   alt_text: string | null;
 };
 
+interface HomeVoice {
+  text: string;
+  author: string;
+  theme: string | null;
+  count: number;
+}
+
+interface HomeELStats {
+  quotes: number;
+  transcripts: number;
+  storytellers: number;
+}
+
 interface HomePageClientProps {
   services: HomeServiceData[];
   stats: HomeStats;
   innovationProjects: InnovationProject[];
   galleryPhotos: GalleryPhoto[];
+  voices?: HomeVoice[];
+  elStats?: HomeELStats;
 }
 
-export default function HomePageClient({ services, stats, innovationProjects, galleryPhotos }: HomePageClientProps) {
+export default function HomePageClient({ services, stats, innovationProjects, galleryPhotos, voices = [], elStats }: HomePageClientProps) {
   const { scrollY } = useScroll();
   const heroOpacity = useTransform(scrollY, [0, 600], [1, 0]);
   const heroScale = useTransform(scrollY, [0, 600], [1, 1.05]);
@@ -441,6 +456,97 @@ export default function HomePageClient({ services, stats, innovationProjects, ga
           </motion.div>
         </div>
       </section>
+
+      {/* COMMUNITY VOICES — Empathy Ledger */}
+      {voices && voices.length > 0 && (
+        <section className="editorial-section bg-gradient-to-br from-[#0B4F6C] via-[#0a3f57] to-[#082a3a] text-white overflow-hidden">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={fadeInUp}
+              className="text-center mb-16"
+            >
+              <p className="text-sm font-semibold tracking-[0.2em] uppercase text-picc-ochre mb-3">
+                Empathy Ledger · Sovereign Voices
+              </p>
+              <h2 className="text-3xl md:text-5xl font-bold tracking-[-0.02em] leading-tight mb-6">
+                Every voice belongs to its speaker
+              </h2>
+              <p className="text-lg text-white/60 max-w-2xl mx-auto leading-relaxed">
+                {elStats?.quotes || 525} community voices captured, analyzed, and stored
+                in sovereign infrastructure. The community owns the narrative.
+              </p>
+            </motion.div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {voices.slice(0, 6).map((voice, index) => (
+                <motion.blockquote
+                  key={`${voice.author}-${index}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.08 }}
+                  className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-7 hover:bg-white/10 hover:border-picc-ochre/40 transition-all"
+                >
+                  <div className="text-picc-ochre text-5xl font-serif leading-none mb-2 absolute top-4 left-6 opacity-30">
+                    &ldquo;
+                  </div>
+                  <p className="font-serif italic text-base md:text-lg leading-relaxed mb-4 mt-4 line-clamp-5">
+                    {voice.text}
+                  </p>
+                  <footer className="flex items-center justify-between border-t border-white/10 pt-3">
+                    <div>
+                      <p className="text-sm font-semibold text-picc-ochre">{voice.author}</p>
+                      {voice.theme && (
+                        <p className="text-xs text-white/40 mt-0.5 capitalize">
+                          {voice.theme.replace(/_/g, ' ')}
+                        </p>
+                      )}
+                    </div>
+                    {voice.count > 1 && (
+                      <span className="text-xs text-white/30">{voice.count} quotes</span>
+                    )}
+                  </footer>
+                </motion.blockquote>
+              ))}
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              className="mt-14 flex flex-col md:flex-row items-center justify-center gap-6 text-center"
+            >
+              <div className="grid grid-cols-3 gap-8 md:gap-12">
+                <div>
+                  <div className="text-3xl md:text-4xl font-serif text-picc-ochre">{elStats?.quotes || 525}</div>
+                  <div className="text-xs uppercase tracking-wider text-white/50 mt-1">Quotes</div>
+                </div>
+                <div>
+                  <div className="text-3xl md:text-4xl font-serif text-picc-ochre">{elStats?.transcripts || 116}</div>
+                  <div className="text-xs uppercase tracking-wider text-white/50 mt-1">Transcripts</div>
+                </div>
+                <div>
+                  <div className="text-3xl md:text-4xl font-serif text-picc-ochre">{elStats?.storytellers || 50}+</div>
+                  <div className="text-xs uppercase tracking-wider text-white/50 mt-1">Voices</div>
+                </div>
+              </div>
+            </motion.div>
+
+            <div className="mt-10 text-center">
+              <Link
+                href="/picc/pcap"
+                className="inline-flex items-center gap-3 px-7 py-3.5 bg-picc-ochre text-[#0B4F6C] text-sm font-semibold rounded-full hover:bg-picc-ochre/90 hover:scale-[0.97] active:scale-95 transition-all duration-300"
+              >
+                Explore Data Sovereignty
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* INNOVATION & SPECIAL PROJECTS */}
       <section className="editorial-section bg-white">

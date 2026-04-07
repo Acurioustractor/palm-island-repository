@@ -1,5 +1,6 @@
 import { createServerSupabase } from '@/lib/supabase/client';
 import { FALLBACKS } from '@/lib/stats/current-stats';
+import { getELQuotes, getELStats, groupQuotesByAuthor } from '@/lib/empathy-ledger/el-server';
 import HomePageClient from './HomePageClient';
 
 export const runtime = 'nodejs';
@@ -33,6 +34,19 @@ export type InnovationProject = {
   status: 'active' | 'planning' | 'completed';
   impactAreas: string[];
   coverImage: string | null;
+};
+
+export type HomeVoice = {
+  text: string;
+  author: string;
+  theme: string | null;
+  count: number;
+};
+
+export type HomeELStats = {
+  quotes: number;
+  transcripts: number;
+  storytellers: number;
 };
 
 export default async function HomePage() {
@@ -219,12 +233,43 @@ export default async function HomePage() {
     galleryPhotos.push(...(extras || []));
   }
 
+  // ─── Empathy Ledger voices for the homepage ───
+  const elQuotes = await getELQuotes({ limit: 200, minImpact: 70 }).catch(() => []);
+  const elStats = await getELStats().catch(() => ({ quotes: 0, transcripts: 0, stories: 0, media: 0 }));
+  const grouped = groupQuotesByAuthor(elQuotes);
+
+  // Pick 4 voices: prefer named speakers, dedupe by author, pull their best quote
+  const voices: HomeVoice[] = [];
+  const seenAuthors = new Set<string>();
+  for (const q of elQuotes) {
+    const raw = (q.author_name || '').trim();
+    const name = !raw || raw.toLowerCase() === 'unknown' ? 'Community Member' : raw;
+    if (seenAuthors.has(name)) continue;
+    if (!q.quote_text || q.quote_text.length < 40 || q.quote_text.length > 320) continue;
+    seenAuthors.add(name);
+    voices.push({
+      text: q.quote_text,
+      author: name,
+      theme: Array.isArray(q.themes) && q.themes.length > 0 ? q.themes[0] : null,
+      count: grouped.get(name)?.length || 1,
+    });
+    if (voices.length >= 6) break;
+  }
+
+  const homeELStats: HomeELStats = {
+    quotes: elStats.quotes,
+    transcripts: elStats.transcripts,
+    storytellers: grouped.size,
+  };
+
   return (
     <HomePageClient
       services={homeServices}
       stats={stats}
       innovationProjects={innovationProjects}
       galleryPhotos={galleryPhotos}
+      voices={voices}
+      elStats={homeELStats}
     />
   );
 }

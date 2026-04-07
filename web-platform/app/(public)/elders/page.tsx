@@ -1,6 +1,7 @@
 import EldersPageClient from '@/components/elders/EldersPageClient'
 import { createServerSupabase } from '@/lib/supabase/client'
 import { cleanupQuoteText, isLikelyJunkQuote, pickBestQuotes } from '@/lib/transcripts/quotable'
+import { getELQuotes, findQuotesForPerson, type ELQuote } from '@/lib/empathy-ledger/el-server'
 
 type ElderProfileRow = {
   id: string
@@ -393,6 +394,52 @@ export default async function EldersPage() {
   } catch {
     // Keep the default direct link if the tag query fails.
   }
+
+  // ─── Augment from Empathy Ledger (sovereign source of truth) ───
+  // Pull all PICC quotes from EL, then match each elder to their voices by name.
+  let elQuotes: ELQuote[] = []
+  try {
+    elQuotes = await getELQuotes({ limit: 1500 })
+  } catch {
+    elQuotes = []
+  }
+
+  // Convert EL quotes into the local QuoteRow shape so the page can render them
+  // alongside the existing PICC quotes. Match each elder by name.
+  const elQuotesAsLocal: QuoteRow[] = []
+  for (const elder of elders) {
+    const elderName = displayName({ preferred_name: elder.preferred_name, full_name: elder.full_name })
+    const matched = findQuotesForPerson(elQuotes, elderName)
+    for (const eq of matched) {
+      const cleaned = cleanupQuoteText(eq.quote_text || '')
+      if (!cleaned || isLikelyJunkQuote(cleaned)) continue
+      elQuotesAsLocal.push({
+        id: `el-${eq.id}`,
+        quote_text: cleaned,
+        attribution: eq.author_name,
+        context: null,
+        theme: Array.isArray(eq.themes) && eq.themes.length > 0 ? eq.themes[0] : null,
+        sentiment: eq.sentiment,
+        impact_area: eq.category,
+        is_validated: eq.approval_status === 'approved',
+        suggested_for_report: (eq.impact_score || 0) >= 50,
+        photo_url: null,
+        profile_id: elder.id,
+        created_at: new Date().toISOString(),
+      })
+    }
+  }
+
+  // Merge local + EL quotes, dedupe by quote text
+  const seenQuoteText = new Set<string>()
+  const mergedQuotes: QuoteRow[] = []
+  for (const q of [...quotes, ...elQuotesAsLocal]) {
+    const key = (q.quote_text || '').trim().toLowerCase()
+    if (!key || seenQuoteText.has(key)) continue
+    seenQuoteText.add(key)
+    mergedQuotes.push(q)
+  }
+  quotes = mergedQuotes
 
   const quotesByProfile = new Map<string, QuoteRow[]>()
   for (const q of quotes) {

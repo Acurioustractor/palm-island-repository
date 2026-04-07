@@ -53,7 +53,7 @@ export async function getLiveStats(): Promise<LiveStats> {
       // Latest staff stats
       supabase
         .from('staff_statistics')
-        .select('total_staff, indigenous_percentage, fiscal_year')
+        .select('total_staff, indigenous_staff_count, fiscal_year')
         .order('fiscal_year', { ascending: false })
         .limit(1)
         .single(),
@@ -104,10 +104,15 @@ export async function getLiveStats(): Promise<LiveStats> {
     const totalIncome = financialData?.total_income ?? FINANCIALS.totalIncome
     const incomeMillions = totalIncome / 1_000_000
 
+    // Compute Indigenous percentage from real count
+    const indigPct = staffData?.total_staff && staffData?.indigenous_staff_count
+      ? Math.round((staffData.indigenous_staff_count / staffData.total_staff) * 100)
+      : STAFF.indigenousPct
+
     return {
       staff: {
         total: staffData?.total_staff ?? STAFF.total,
-        indigenousPct: staffData?.indigenous_percentage ?? STAFF.indigenousPct,
+        indigenousPct: indigPct,
       },
       services: {
         total: servicesResult.count ?? SERVICES.total,

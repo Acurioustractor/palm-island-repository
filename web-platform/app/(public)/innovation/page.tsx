@@ -13,6 +13,7 @@ import { createServerComponentClient } from '@/lib/supabase/server';
 import { getCuratedQuotes } from '@/lib/quotes/get-curated-quotes';
 import { getHeroImage, getMediaByTags } from '@/lib/media/utils';
 import { assetUrl } from '@/lib/media/asset-url';
+import { getELQuotes } from '@/lib/empathy-ledger/el-server';
 
 export const metadata: Metadata = {
   title: 'Innovation on Country | Palm Island Community Company',
@@ -131,15 +132,36 @@ async function getInnovationProjects() {
 
 export default async function InnovationPage() {
   // Fetch all data in parallel
-  const [projects, quotes, heroImageUrl, heroTagMedia] = await Promise.all([
+  const [projects, quotes, heroImageUrl, heroTagMedia, elQuotes] = await Promise.all([
     getInnovationProjects(),
     getCuratedQuotes({ limit: 1, source_type: 'elder' }),
     getHeroImage('innovation'),
     getMediaByTags(['innovation', 'hero'], 1, 'image'),
+    getELQuotes({ limit: 300, minImpact: 50 }).catch(() => []),
   ]);
 
   const heroImage = heroImageUrl || heroTagMedia[0]?.public_url || null;
   const elderQuote = quotes[0] || null;
+
+  // Pick 3 innovation-themed voices from EL
+  const innovationVoices: { text: string; author: string; theme: string | null }[] = [];
+  const seenVoiceAuthors = new Set<string>();
+  for (const q of elQuotes) {
+    const text = (q.quote_text || '').toLowerCase();
+    if (!text || text.length < 50 || text.length > 280) continue;
+    const isInnovation = /(innovat|future|build|new|change|technology|digital|sovereign|next|create|design)/i.test(text);
+    if (!isInnovation) continue;
+    const raw = (q.author_name || '').trim();
+    const name = !raw || raw.toLowerCase() === 'unknown' ? 'Community Member' : raw;
+    if (seenVoiceAuthors.has(name)) continue;
+    seenVoiceAuthors.add(name);
+    innovationVoices.push({
+      text: q.quote_text || '',
+      author: name,
+      theme: Array.isArray(q.themes) && q.themes.length > 0 ? q.themes[0] : null,
+    });
+    if (innovationVoices.length >= 3) break;
+  }
 
   // Group projects by theme
   const projectsByTheme = new Map<Theme, typeof projects>();
@@ -339,6 +361,56 @@ export default async function InnovationPage() {
           photoUrl={elderQuote.photo_url || undefined}
           size="large"
         />
+      )}
+
+      {/* Community voices on innovation — Empathy Ledger */}
+      {innovationVoices.length > 0 && (
+        <section className="py-20 px-6 bg-warm-50">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-picc-ochre mb-3">
+                Empathy Ledger · Voices of Innovation
+              </p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                What innovation sounds like
+              </h2>
+              <p className="text-lg text-gray-500 max-w-2xl mx-auto">
+                Real community voices from our sovereign data archive — what change looks like
+                from inside the work.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              {innovationVoices.map((voice, i) => (
+                <div
+                  key={i}
+                  className="bg-white border border-warm-100 rounded-2xl p-7 hover:border-picc-ochre/40 transition-colors"
+                >
+                  <div className="text-picc-ochre text-5xl font-serif leading-none mb-2 opacity-30">&ldquo;</div>
+                  <p className="font-serif italic text-gray-700 leading-relaxed text-base mb-4 line-clamp-5 -mt-3">
+                    {voice.text}
+                  </p>
+                  <p className="text-sm font-semibold text-picc-ochre">{voice.author}</p>
+                  {voice.theme && (
+                    <p className="text-xs text-gray-400 mt-1 capitalize">
+                      {voice.theme.replace(/_/g, ' ')}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-10 text-center">
+              <Link
+                href="/picc/pcap"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-picc-ochre hover:gap-3 transition-all"
+              >
+                Explore all 525 sovereign voices
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+        </section>
       )}
 
       {/* Road to 20 Years Teaser */}

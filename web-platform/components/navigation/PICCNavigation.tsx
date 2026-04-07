@@ -9,7 +9,7 @@ import {
   Plus, Upload,
   ChevronRight, ChevronDown,
   ChevronsLeft, ChevronsRight, Wrench, Building2, Lightbulb, Palette, DollarSign,
-  BarChart3, ClipboardCheck
+  BarChart3, ClipboardCheck, Shield, ExternalLink, Target, Sparkles
 } from 'lucide-react';
 import { useSidebar } from './SidebarProvider';
 import { PICCLogo } from '@/components/ui/PICCLogo';
@@ -27,114 +27,99 @@ interface NavSection {
   items: NavItem[];
 }
 
-// Staff view: essentials + consolidated content section
+// Staff view: streamlined for the new model
+// Content (stories, media, voices) lives in Empathy Ledger
+// PICC focuses on: strategy, services, reports, governance, innovation
 const staffNavigation: { [key: string]: NavSection } = {
   essentials: {
-    title: 'Essentials',
+    title: 'Overview',
     icon: LayoutDashboard,
     items: [
-      { label: 'Dashboard', href: '/picc/dashboard', icon: LayoutDashboard, description: 'Overview & stats' },
+      { label: 'Dashboard', href: '/picc/dashboard', icon: LayoutDashboard, description: 'Live stats from EL + PICC' },
+      { label: 'Strategy 2027', href: '/20-years/strategy', icon: Target, description: 'The Sovereignty of Care' },
+      { label: 'Data Sovereignty', href: '/picc/pcap', icon: Shield, description: 'PCAP — community ownership' },
       { label: 'Search', href: '/picc/search', icon: Search, description: 'Search all content' },
+    ],
+  },
+  reports: {
+    title: 'Reports & Impact',
+    icon: FileText,
+    items: [
       { label: 'Annual Reports', href: '/picc/annual-reports', icon: FileText, description: 'Reports hub & workflow' },
       { label: 'Report Builder', href: '/picc/reports/builder', icon: FileText, description: 'On-demand audience reports' },
-      { label: 'Financials', href: '/picc/financials', icon: DollarSign, description: 'Financial overview & ratios' },
-      { label: 'Impact', href: '/picc/impact', icon: BarChart3, description: 'Service impact metrics' },
       { label: 'Report Readiness', href: '/picc/report-readiness', icon: ClipboardCheck, description: 'Annual report status' },
+      { label: 'Impact', href: '/picc/impact', icon: BarChart3, description: 'Service impact metrics' },
+      { label: 'Financials', href: '/picc/financials', icon: DollarSign, description: 'Financial overview & ratios' },
+    ],
+  },
+  organisation: {
+    title: 'Organisation',
+    icon: Building2,
+    items: [
+      { label: 'Services', href: '/picc/services', icon: Building2, description: '31 community services' },
+      { label: 'Innovation', href: '/picc/innovation', icon: Lightbulb, description: 'Innovation projects' },
+      { label: 'Elders Room', href: '/picc/elders-room', icon: Users, description: 'Elder-controlled space' },
       { label: 'Brand', href: '/picc/brand', icon: Palette, description: 'Brand assets & guidelines' },
     ],
   },
-  content: {
-    title: 'Content',
-    icon: BookOpen,
+  ledger: {
+    title: 'Empathy Ledger',
+    icon: Sparkles,
     items: [
-      { label: 'Stories', href: '/picc/stories', icon: BookOpen, description: 'All stories with bulk actions' },
-      { label: 'Media', href: '/picc/media', icon: Image, description: 'Media library' },
-      { label: 'Storytellers', href: '/picc/storytellers', icon: Users, description: 'All storytellers' },
-      { label: 'Services', href: '/picc/services', icon: Building2, description: 'Service content hub' },
-      { label: 'Innovation', href: '/picc/innovation', icon: Lightbulb, description: 'Innovation projects' },
-      { label: 'Create Story', href: '/picc/create', icon: Plus, description: 'Add new story' },
-      { label: 'Upload Media', href: '/picc/media/upload', icon: Upload, description: 'Upload new media' },
+      { label: 'Open Empathy Ledger', href: 'https://empathy-ledger-v2.vercel.app', icon: ExternalLink, description: 'Stories, voices, transcripts' },
+      { label: 'Photo Picker', href: '/20-years/strategy/photos', icon: Image, description: 'Browse PICC photos in EL' },
     ],
   },
 };
 
-// Advanced view: consolidated nav
+// Advanced view: same model as staff but with admin tools surfaced
 const advancedNavigation: { [key: string]: NavSection } = {
   main: {
-    title: 'Main',
+    title: 'Overview',
     icon: LayoutDashboard,
     items: [
-      { label: 'Dashboard', href: '/picc/dashboard', icon: LayoutDashboard, description: 'Overview & stats' },
+      { label: 'Dashboard', href: '/picc/dashboard', icon: LayoutDashboard, description: 'Live stats from EL + PICC' },
+      { label: 'Strategy 2027', href: '/20-years/strategy', icon: Target, description: 'The Sovereignty of Care' },
+      { label: 'Data Sovereignty', href: '/picc/pcap', icon: Shield, description: 'PCAP — community ownership' },
       { label: 'Search', href: '/picc/search', icon: Search, description: 'Search all content' },
+    ],
+  },
+  reports: {
+    title: 'Reports & Impact',
+    icon: FileText,
+    items: [
       { label: 'Annual Reports', href: '/picc/annual-reports', icon: FileText, description: 'Reports hub & workflow' },
       { label: 'Report Builder', href: '/picc/reports/builder', icon: FileText, description: 'On-demand audience reports' },
-      { label: 'Financials', href: '/picc/financials', icon: DollarSign, description: 'Financial overview & ratios' },
-      { label: 'Impact', href: '/picc/impact', icon: BarChart3, description: 'Service impact metrics' },
       { label: 'Report Readiness', href: '/picc/report-readiness', icon: ClipboardCheck, description: 'Annual report status' },
+      { label: 'Impact', href: '/picc/impact', icon: BarChart3, description: 'Service impact metrics' },
+      { label: 'Financials', href: '/picc/financials', icon: DollarSign, description: 'Financial overview & ratios' },
     ],
   },
-  content: {
-    title: 'Content',
-    icon: BookOpen,
+  organisation: {
+    title: 'Organisation',
+    icon: Building2,
     items: [
-      { label: 'Story Library', href: '/picc/stories', icon: BookOpen, description: 'All stories with bulk actions' },
-      { label: 'Create Story', href: '/picc/create', icon: Plus, description: 'Add new story' },
-      { label: 'Storytellers', href: '/picc/storytellers', icon: Users, description: 'All storytellers' },
-      { label: 'Media', href: '/picc/media', icon: Image, description: 'Media library' },
-      { label: 'Services', href: '/picc/services', icon: Building2, description: 'Service content hub' },
+      { label: 'Services', href: '/picc/services', icon: Building2, description: '31 community services' },
       { label: 'Innovation', href: '/picc/innovation', icon: Lightbulb, description: 'Innovation projects' },
-      { label: 'Upload Media', href: '/picc/media/upload', icon: Upload, description: 'Upload new media' },
+      { label: 'Elders Room', href: '/picc/elders-room', icon: Users, description: 'Elder-controlled space' },
+      { label: 'Brand', href: '/picc/brand', icon: Palette, description: 'Brand assets & guidelines' },
     ],
   },
-  analytics: {
-    title: 'Analytics & Insights',
-    icon: LayoutDashboard,
+  ledger: {
+    title: 'Empathy Ledger',
+    icon: Sparkles,
     items: [
-      { label: 'Overview', href: '/picc/analytics', icon: LayoutDashboard, description: 'Key metrics' },
-      { label: 'Story Analytics', href: '/picc/insights/patterns', icon: LayoutDashboard, description: 'Story insights' },
-      { label: 'Impact Dashboard', href: '/picc/insights/impact', icon: LayoutDashboard, description: 'Impact analysis' },
-      { label: 'Timeline View', href: '/picc/insights/timeline', icon: LayoutDashboard, description: 'Timeline analysis' },
-      { label: 'Export Reports', href: '/picc/reports', icon: LayoutDashboard, description: 'Download reports' },
-    ],
-  },
-  studio: {
-    title: 'Content Studio',
-    icon: LayoutDashboard,
-    items: [
-      { label: 'Export Studio', href: '/picc/content-studio', icon: LayoutDashboard, description: 'Social media exports' },
-      { label: 'Newsletter Builder', href: '/picc/newsletter', icon: LayoutDashboard, description: 'Create newsletters' },
-      { label: 'Quote Cards', href: '/picc/quote-cards', icon: LayoutDashboard, description: 'Generate quote images' },
-      { label: 'Report Generator', href: '/picc/report-generator', icon: LayoutDashboard, description: 'Funder reports' },
-    ],
-  },
-  imports: {
-    title: 'Import & Data',
-    icon: LayoutDashboard,
-    items: [
-      { label: 'Import Stories', href: '/import', icon: LayoutDashboard, description: 'Bulk import stories' },
-      { label: 'Import Transcripts', href: '/stories/import-transcript', icon: LayoutDashboard, description: 'Import interview transcripts' },
-      { label: 'Storytellers', href: '/storytellers/add', icon: LayoutDashboard, description: 'Add storytellers' },
-      { label: 'Bulk Photo Upload', href: '/picc/media/upload-bulk', icon: LayoutDashboard, description: 'Bulk photo import' },
-    ],
-  },
-  knowledge: {
-    title: 'Knowledge Base',
-    icon: LayoutDashboard,
-    items: [
-      { label: 'AI Chat', href: '/chat', icon: LayoutDashboard, description: 'Ask about PICC' },
-      { label: 'Storytellers', href: '/picc/storytellers', icon: LayoutDashboard, description: 'Interviews & stories' },
-      { label: 'Innovation', href: '/picc/innovation', icon: LayoutDashboard, description: 'Innovation projects' },
-      { label: 'Services', href: '/picc/services', icon: LayoutDashboard, description: 'PICC services' },
-      { label: 'Annual Reports', href: '/picc/knowledge/annual-reports', icon: LayoutDashboard, description: 'Report data' },
+      { label: 'Open Empathy Ledger', href: 'https://empathy-ledger-v2.vercel.app', icon: ExternalLink, description: 'Stories, voices, transcripts' },
+      { label: 'Photo Picker', href: '/20-years/strategy/photos', icon: Image, description: 'Browse PICC photos in EL' },
+      { label: 'AI Chat', href: '/chat', icon: BookOpen, description: 'Ask about PICC' },
     ],
   },
   settings: {
     title: 'Settings',
-    icon: LayoutDashboard,
+    icon: Wrench,
     items: [
-      { label: 'General', href: '/picc/settings', icon: LayoutDashboard, description: 'General settings' },
-      { label: 'Team', href: '/picc/team', icon: LayoutDashboard, description: 'Manage team' },
-      { label: 'Notifications', href: '/picc/notifications', icon: LayoutDashboard, description: 'Notifications' },
+      { label: 'General', href: '/picc/settings', icon: Wrench, description: 'General settings' },
+      { label: 'Team', href: '/picc/team', icon: Users, description: 'Manage team' },
       { label: 'Database', href: '/picc/database', icon: LayoutDashboard, description: 'Database tools' },
     ],
   },

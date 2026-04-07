@@ -67,6 +67,12 @@ interface VideoItem {
   file_type: string;
 }
 
+interface ELVoice {
+  text: string;
+  author: string;
+  theme: string | null;
+}
+
 interface Props {
   service: ServiceData;
   metrics: ServiceMetric[];
@@ -76,6 +82,7 @@ interface Props {
   heroVideo: string | null;
   videos: VideoItem[];
   videoUrl: string | null;
+  elVoices?: ELVoice[];
 }
 
 export function ServiceStoryPage({
@@ -87,6 +94,7 @@ export function ServiceStoryPage({
   heroVideo,
   videos,
   videoUrl,
+  elVoices = [],
 }: Props) {
   const latestMetrics = metrics[0] || null;
   const quote = stories.find((s) => s.quote_text)?.quote_text || null;
@@ -313,6 +321,55 @@ export function ServiceStoryPage({
           </div>
         </div>
       </section>
+
+      {/* ─── EMPATHY LEDGER VOICES — sovereign data ─── */}
+      {elVoices.length > 0 && (
+        <section className="py-20 px-6 bg-warm-50">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-picc-ochre mb-3">
+                Empathy Ledger · Voices of {service.name}
+              </p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                Community voices behind this work
+              </h2>
+              <p className="text-lg text-gray-500 max-w-2xl mx-auto">
+                Real voices from the sovereign archive — what {service.name.toLowerCase()} sounds like from inside the work.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {elVoices.map((voice, i) => (
+                <div
+                  key={i}
+                  className="bg-white border border-warm-100 rounded-2xl p-7 hover:border-picc-ochre/40 transition-colors"
+                >
+                  <div className="text-picc-ochre text-5xl font-serif leading-none mb-2 opacity-30">&ldquo;</div>
+                  <p className="font-serif italic text-gray-700 leading-relaxed text-base mb-4 line-clamp-5 -mt-3">
+                    {voice.text}
+                  </p>
+                  <p className="text-sm font-semibold text-picc-ochre">{voice.author}</p>
+                  {voice.theme && (
+                    <p className="text-xs text-gray-400 mt-1 capitalize">
+                      {voice.theme.replace(/_/g, ' ')}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-10 text-center">
+              <Link
+                href="/picc/pcap"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-picc-ochre hover:gap-3 transition-all"
+              >
+                Explore all 525 sovereign voices
+                <span aria-hidden>→</span>
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   );
 }
