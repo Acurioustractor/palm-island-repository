@@ -66,6 +66,7 @@ const staffNavigation: { [key: string]: NavSection } = {
     title: 'Empathy Ledger',
     icon: Sparkles,
     items: [
+      { label: 'Knowledge Vault', href: '/picc/vault', icon: Sparkles, description: 'Second brain · vault browser' },
       { label: 'Open Empathy Ledger', href: 'https://empathy-ledger-v2.vercel.app', icon: ExternalLink, description: 'Stories, voices, transcripts' },
       { label: 'Photo Picker', href: '/20-years/strategy/photos', icon: Image, description: 'Browse PICC photos in EL' },
     ],
@@ -109,6 +110,7 @@ const advancedNavigation: { [key: string]: NavSection } = {
     title: 'Empathy Ledger',
     icon: Sparkles,
     items: [
+      { label: 'Knowledge Vault', href: '/picc/vault', icon: Sparkles, description: 'Second brain · vault browser' },
       { label: 'Open Empathy Ledger', href: 'https://empathy-ledger-v2.vercel.app', icon: ExternalLink, description: 'Stories, voices, transcripts' },
       { label: 'Photo Picker', href: '/20-years/strategy/photos', icon: Image, description: 'Browse PICC photos in EL' },
       { label: 'AI Chat', href: '/chat', icon: BookOpen, description: 'Ask about PICC' },

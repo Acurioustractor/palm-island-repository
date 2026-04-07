@@ -114,3 +114,4 @@ debug/
 .claude/cache/
 .claude/tsc-cache/
 .mcp.json
+.gstack/
