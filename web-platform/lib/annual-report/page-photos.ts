@@ -8,6 +8,7 @@
  *   4. AI-generated fallback from report-assets/
  */
 
+import { createClient } from '@supabase/supabase-js'
 import { assetUrl } from '@/lib/media/asset-url'
 
 // Use URLs instead of filesystem paths to avoid bundling public/ into serverless functions
@@ -108,17 +109,17 @@ export function getManifestPhotoByKeywords(
 const DEFAULT_ASSIGNMENTS: Record<string, { photoPath: string; fallbackAsset: string; caption?: string }> = {
   cover: {
     photoPath: '/annual-report-photos/2009-10/photo-020.jpg',
-    fallbackAsset: 'island-aerial-golden.jpg',
+    fallbackAsset: 'cover-hero.jpg',
     caption: 'Palm Island — tropical beach and hills',
   },
   acknowledgement: {
     photoPath: '/annual-report-photos/2009-10/photo-020.jpg',
-    fallbackAsset: 'dot-pattern-turtle.jpg',
+    fallbackAsset: 'acknowledgement-art.jpg',
     caption: 'Palm Island landscape',
   },
   contents: {
     photoPath: '',
-    fallbackAsset: 'palm-island-map.jpg',
+    fallbackAsset: 'palm-island-map-v2.jpg',
   },
   messages: {
     photoPath: '/annual-report-photos/2009-10/photo-022.jpg',
@@ -131,35 +132,35 @@ const DEFAULT_ASSIGNMENTS: Record<string, { photoPath: string; fallbackAsset: st
   },
   photos: {
     photoPath: '',
-    fallbackAsset: '',
+    fallbackAsset: 'photo-spread-bg.jpg',
   },
   communityVoices: {
     photoPath: '/annual-report-photos/2015-16/photo-000.jpg',
-    fallbackAsset: 'community-celebration.jpg',
+    fallbackAsset: 'community-gathering.jpg',
     caption: 'Women and children from the Palm Island community',
   },
   youthVoices: {
     photoPath: '',
-    fallbackAsset: 'youth-programs.jpg',
+    fallbackAsset: 'youth-energy.jpg',
   },
   governance: {
     photoPath: '/annual-report-photos/2018-19/photo-006.jpg',
-    fallbackAsset: 'governance-circle.jpg',
+    fallbackAsset: 'governance-board.jpg',
     caption: 'Board members in art shirts',
   },
   services: {
     photoPath: '/annual-report-photos/2021-22/photo-057.jpg',
-    fallbackAsset: 'health-wellbeing.jpg',
+    fallbackAsset: 'services-delivery.jpg',
     caption: 'Healthcare workers serving the community',
   },
   journey: {
     photoPath: '/annual-report-photos/2009-10/photo-018.jpg',
-    fallbackAsset: 'journey-timeline-art.jpg',
+    fallbackAsset: 'journey-timeline-v2.jpg',
     caption: 'Aerial view of Palm Island community',
   },
   resilience: {
     photoPath: '',
-    fallbackAsset: 'hull-river-history.jpg',
+    fallbackAsset: 'next-20-sunrise.jpg',
   },
   financials: {
     photoPath: '',
@@ -167,7 +168,11 @@ const DEFAULT_ASSIGNMENTS: Record<string, { photoPath: string; fallbackAsset: st
   },
   backCover: {
     photoPath: '',
-    fallbackAsset: 'partners-turtle.jpg',
+    fallbackAsset: 'back-cover-reef.jpg',
+  },
+  highlights: {
+    photoPath: '',
+    fallbackAsset: 'highlights-mosaic.jpg',
   },
 }
 
@@ -249,4 +254,52 @@ const MANIFEST_KEYWORDS: Record<string, string[]> = {
   photos: ['community', 'celebration', 'event', 'gathering'],
   youthVoices: ['youth', 'children', 'young', 'kids', 'school'],
   resilience: ['aerial', 'cyclone', 'flood', 'history'],
+}
+
+// ── Map page_section values to DEFAULT_ASSIGNMENTS keys ──
+
+const SECTION_TO_PAGE_KEY: Record<string, string> = {
+  'cover': 'cover',
+  'acknowledgement': 'acknowledgement',
+  'messages': 'messages',
+  'numbers': 'numbers',
+  'community-voices': 'communityVoices',
+  'youth-voices': 'youthVoices',
+  'services': 'services',
+  'governance': 'governance',
+  'photos': 'photos',
+  'journey': 'journey',
+  'next-20': 'resilience',
+  'highlights': 'backCover',
+}
+
+/**
+ * Query media_files for photos assigned to annual report pages.
+ * Returns overrides keyed by page key (matching DEFAULT_ASSIGNMENTS).
+ */
+export async function getSupabaseOverrides(): Promise<Record<string, { url: string; caption?: string }>> {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!url || !key) return {}
+
+  const supabase = createClient(url, key, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  })
+
+  const { data } = await supabase
+    .from('media_files')
+    .select('public_url, caption, page_section, display_order')
+    .eq('page_context', 'annual-report')
+    .not('page_section', 'is', null)
+    .order('display_order')
+
+  const overrides: Record<string, { url: string; caption?: string }> = {}
+  for (const row of data || []) {
+    const pageKey = SECTION_TO_PAGE_KEY[row.page_section] || row.page_section
+    // Only take the first match per page key (highest priority by display_order)
+    if (!overrides[pageKey]) {
+      overrides[pageKey] = { url: row.public_url, caption: row.caption || undefined }
+    }
+  }
+  return overrides
 }

@@ -9,7 +9,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { getStaticReportData } from './data-2024';
 import { getFinancials, parseFiscalYear } from '@/lib/financials/get-financials';
-import { getPagePhotos, type PagePhotoMap } from './page-photos';
+import { getPagePhotos, getSupabaseOverrides, type PagePhotoMap } from './page-photos';
 import { assignVoicesToPages, type VoiceAssignments } from './voice-assignments';
 
 function createServiceClient() {
@@ -515,7 +515,7 @@ export async function getReportData(fiscalYear?: string): Promise<ReportData> {
       compliance,
       historyEras,
       resilienceStories: staticData.resilienceStories,
-      pagePhotos: getPagePhotos(fy),
+      pagePhotos: getPagePhotos(fy, await getSupabaseOverrides()),
       voiceAssignments: assignVoicesToPages(communityVoices),
     };
   } catch (err) {

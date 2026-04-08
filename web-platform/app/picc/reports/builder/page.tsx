@@ -1,9 +1,11 @@
 'use client'
 
 import React, { useState } from 'react'
+import { useToast } from '@/components/ui/Toast'
+import Link from 'next/link'
 import {
   FileText, Users, DollarSign, Heart, Shield,
-  Download, Loader2, Check, Play, FileDown,
+  Download, Loader2, Check, Play, FileDown, ImageIcon,
 } from 'lucide-react'
 import { Player } from '@remotion/player'
 import { ImpactSummary } from '@/lib/video/compositions/ImpactSummary'
@@ -101,6 +103,7 @@ type OutputMode = 'pdf' | 'video'
 
 export default function ReportBuilderPage() {
   const [selectedAudience, setSelectedAudience] = useState<string | null>(null)
+  const toast = useToast()
   const [selectedYear, setSelectedYear] = useState<string>('2024-25')
   const [outputMode, setOutputMode] = useState<OutputMode>('pdf')
   const [generating, setGenerating] = useState(false)
@@ -150,7 +153,7 @@ export default function ReportBuilderPage() {
       }
     } catch (err) {
       console.error('Batch generation failed:', err)
-      alert('Batch generation failed. Please try again.')
+      toast.error('Batch generation failed', 'Please try again.')
     } finally {
       setBatchGenerating(false)
     }
@@ -181,7 +184,7 @@ export default function ReportBuilderPage() {
       URL.revokeObjectURL(url)
     } catch (err) {
       console.error('Report generation failed:', err)
-      alert('Report generation failed. Please try again.')
+      toast.error('Report generation failed', 'Please try again.')
     } finally {
       setGenerating(false)
     }
@@ -198,6 +201,13 @@ export default function ReportBuilderPage() {
         <p className="text-gray-500">
           Generate audience-targeted annual reports. Each audience gets the sections and emphasis that matter most to them.
         </p>
+        <Link
+          href="/picc/reports/photos"
+          className="inline-flex items-center gap-2 mt-3 text-sm text-purple-600 hover:text-purple-800 font-medium"
+        >
+          <ImageIcon className="h-4 w-4" />
+          Manage Report Photos
+        </Link>
       </div>
 
       {/* Year Selection */}

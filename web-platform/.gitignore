@@ -98,3 +98,19 @@ logs
 *.sln
 *.sw?
 .env*.local
+
+# Generated knowledge vault (run scripts/generate-picc-vault.ts to regenerate)
+picc-vault/
+raw-intake/processed/
+
+# Binary assets — per project rule, upload to Supabase Storage, never commit
+/*.png
+/*.jpg
+/*.jpeg
+/*.pdf
+/*.pen
+/*.mp4
+/*.mov
+
+# Claude agent cache
+.claude/cache/

@@ -6,7 +6,9 @@ When implementing communications, notifications, CRM, or contact management feat
 
 ## Debugging & Bug Fixes
 
-Before attempting surface-level fixes (CSS, UI styling, quick patches), investigate the underlying data structures and component architecture first. When a bug manifests visually, the root cause is often a data format mismatch, schema issue, or broken prop chain — not a styling problem. After 2 failed fix attempts, stop and trace the actual data flow end-to-end before trying again.
+Before attempting surface-level fixes (CSS, UI styling, quick patches), investigate the underlying data structures and component architecture first. When a bug manifests visually, the root cause is often a data format mismatch, schema issue, or broken prop chain — not a styling problem.
+
+**Two-Strike Rule**: After 2 failed fix attempts, STOP patching. Do not attempt a third incremental fix. Instead: (1) identify the root architectural issue causing the bug to persist, (2) propose a proper fix that addresses the underlying problem, (3) explain what was wrong with the incremental approach. Only then implement the architectural fix. This prevents the token-burning spiral of 5+ patch attempts that compound wrong assumptions.
 
 ## Data & Dashboards
 
@@ -21,6 +23,10 @@ Primary language is TypeScript. Always ensure `tsc --noEmit` and `next build` pa
 ## Database (Supabase)
 
 Always verify column names match exactly between migration SQL, TypeScript types, and query code before running. Common issue: column name mismatches causing silent failures. Use Supabase MCP tools for migrations, not REST API or raw psql.
+
+**Bulk Operation Safety**: Before any bulk import, backfill, or data migration, always run a scoped `SELECT count(*)` dry run first and confirm the scope with the user. Never run aggressive imports without confirming the exact filter criteria match the intended records. Snapshot affected rows before mutating.
+
+**No Hardcoded Org Data**: Never hardcode organization-specific names, logos, quotes, or content into shared components or templates. All org-specific content must come from the database or config. If a component needs org-specific data, pass it as props sourced from Supabase.
 
 ## Deployment
 
@@ -81,77 +87,12 @@ Project: uaxhjzqrdotoahjnxmbj
 Credentials: See .env.local
 ```
 
-## Key Files for Annual Reports System
+## Key Directories
 
-### Database (Run these first)
-- `supabase/migrations/001_annual_reports_system.sql` - Schema for all report tables
-- `supabase/migrations/002_sample_data.sql` - Sample Elder quotes, feedback, reports
-
-### Core Data
-- `lib/picc-knowledge-base.ts` - Hardcoded PICC statistics and organizational data
-
-### PDF Generation (React PDF)
-```
-lib/pdf/theme.ts                             - Brand colors, A4 dimensions, typography
-lib/pdf/register-fonts.ts                    - Inter + Caveat font registration
-lib/pdf/components/                          - Reusable PDF components (StatBox, Card, QuoteBlock, etc.)
-lib/pdf/templates/AnnualReportPDF.tsx         - Annual report book template
-lib/pdf/templates/StoriesPDF.tsx              - Stories collection template
-lib/pdf/templates/ServicesPDF.tsx             - Services guide template
-lib/pdf/templates/HistoryPDF.tsx              - History/timeline template
-app/api/pdf/generate/route.ts                - Unified PDF API endpoint
-components/ui/DownloadPdfButton.tsx           - Public page download button
-components/annual-report-data/GeneratePdfButton.tsx - Admin PDF generation button
-```
-
-### Legacy PDF Pipeline (WeasyPrint — `annual-reports/` directory)
-```
-annual-reports/scripts/assemble_content.py   - Pull content from Supabase → JSON
-annual-reports/scripts/generate_pdf.py       - Generate PDF from JSON via WeasyPrint
-annual-reports/scripts/validate_data.py      - Validate database readiness
-annual-reports/scripts/validate_pdf.py       - Validate generated PDF quality
-annual-reports/templates/annual-report.html  - Jinja2 template
-annual-reports/templates/styles/             - Brand CSS + layout CSS
-```
-
-### API Routes
-```
-app/api/annual-reports/route.ts                    - Main reports CRUD
-app/api/annual-reports/[id]/populate/route.ts      - Auto-populate sections
-app/api/reports/[program]/generate/route.ts        - Program report generator
-app/api/reports/elder-wisdom/route.ts              - Elder Wisdom collection
-app/api/stories/export-collection/route.ts         - Story collection export
-app/api/community-feedback/route.ts                - Feedback CRUD
-```
-
-### Pages
-```
-app/annual-report/live/page.tsx                    - Real-time dashboard
-app/reports/page.tsx                               - Reports hub
-app/reports/elder-wisdom/page.tsx                  - Elder Wisdom viewer
-app/reports/community-voices/page.tsx              - Community feedback UI
-app/reports/story-collection/page.tsx              - Story export interface
-app/reports/programs/page.tsx                      - Program reports selector
-```
-
-### Components
-```
-components/story-scroll/                           - ABC-style scroll components
-components/annual-reports/                         - Report-specific components
-```
-
-## Program Slugs
-
-| Slug | Service |
-|------|---------|
-| `health-services` | Bwgcolman Healing Service |
-| `family-services` | Family Care Service |
-| `children-family-centre` | Children & Family Centre |
-| `delegated-authority` | Delegated Authority |
-| `digital-service-centre` | Digital Service Centre |
-| `justice-services` | Justice Services |
-| `crisis-services` | Crisis Services / Safe House |
-| `economic-development` | Economic Development |
+- PDF system: `lib/pdf/` (theme, components, templates) — API: `/api/pdf/generate`
+- Legacy PDF: `annual-reports/scripts/` (WeasyPrint, deprecated)
+- Migrations: `supabase/migrations/`
+- Program slugs: query `SELECT slug, name FROM services`
 
 ## Fiscal Year Convention
 
@@ -164,15 +105,6 @@ PICC uses July-June fiscal years (e.g., "2024-25" = July 2024 to June 2025).
 - Sensitivity levels: `standard`, `sensitive`, `restricted`
 - Hull River narrative is central to organizational identity
 
-## NPM Scripts
-
-```bash
-npm run dev                 # Start development server
-npm run seed:reports        # Seed report sample data
-npm run reports:live        # Open live dashboard
-npm run reports:hub         # Open reports hub
-```
-
 ## Available Claude Code Skills
 
 | Skill | Purpose |
@@ -183,3 +115,4 @@ npm run reports:hub         # Open reports hub
 | `/report` | Generate annual report PDF end-to-end |
 | `/data-cleanup` | Run data enrichment/cleanup pipelines with validation |
 | `/predeploy` | Full validation checklist before pushing to production |
+| `/preflight` | Environment health check before feature work (cache, ports, env vars, types) |
