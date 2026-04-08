@@ -241,10 +241,12 @@ export default function EldersTripMap({ stops, className = '' }: Props) {
           className="h-full w-full"
           style={{ background: '#f0ebe3' }}
         >
-          {/* Warm-toned map tiles */}
+          {/* Warm-toned map tiles — CartoDB Voyager (free, no auth, no domain whitelist) */}
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            url="https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+            subdomains="abcd"
+            maxZoom={20}
           />
 
           <FitBounds points={stops} />
