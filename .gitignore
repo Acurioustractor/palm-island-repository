@@ -1,3 +1,7 @@
+# Obsidian vault config (per-user workspace, cache, plugins)
+.obsidian/
+.trash/
+
 # Dependencies
 node_modules/
 npm-debug.log*

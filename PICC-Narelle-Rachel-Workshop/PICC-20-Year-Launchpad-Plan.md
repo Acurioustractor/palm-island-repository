@@ -1,12 +1,19 @@
 ---
 status: ACTIVE
 generated: 2026-04-08
+updated: 2026-04-09
 generator: plan-ceo-review (CEO Review — adapted for strategic plan)
 project: PICC Web Platform
 branch: main
 mode: SELECTIVE EXPANSION
 approach: A — The Launchpad
+companion_docs:
+  - PICC-Services-Projects-Review-for-Narelle.md
+  - PICC-Narelle-Interview-Framework.md
 ---
+
+> **Alignment note (9 April 2026)** — This plan now sits alongside two companion docs. The **Narelle services/projects review** is the operational truth-check. The **Narelle interview framework** is the single session that feeds the annual report, the 20-year celebration, and the Bwgcolman Way case study at the same time. Before the Rachel workshop, run the Narelle interview and fold her answers into sections M2 (next-20 vision), M3 (Bwgcolman Way), and E1 (20 voices for 20 years). The Rachel workshop spine is Part H of the interview framework.
+
 
 # PICC 20-Year Launchpad Plan
 

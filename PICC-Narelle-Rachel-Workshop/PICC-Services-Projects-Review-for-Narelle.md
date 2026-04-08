@@ -3,6 +3,8 @@
 **A working document for Narelle, Rachel and the PICC team**
 **Originally pulled 8 April 2026 · Updated 9 April 2026 after alignment pass**
 
+> **How this doc fits with the interview and the 20-year plan:** This is the **operational truth-check** — the list of what's in the Empathy Ledger today, with space for Narelle's corrections. It is read *alongside* the **Narelle Interview Framework** (`PICC-Narelle-Interview-Framework.md`), which is the structured conversation that turns these corrections into annual report content, 20-year celebration material, and the Bwgcolman Way case study — all from a single session. The output of both docs feeds the **20-Year Launchpad Plan** (`PICC-20-Year-Launchpad-Plan.md`) that goes to Rachel.
+
 ---
 
 ## What's new in this version (9 April)
@@ -628,10 +630,10 @@ Two-year pilot project. Walk-in Blue Card liaison helping community members navi
 
 ## E — Aged Care & Connection
 
-### 20. Aged Care Services ⚠ urgent flag
+### 20. Aged Care Services [URGENT]
 
 **Type:** Service · **Status:** Active
-**Priority in ledger:** Urgent — next meeting 10 April 2026
+**Priority in ledger:** URGENT — next meeting 10 April 2026
 
 **Description:**
 Aged care services for Palm Island elders. Currently no dedicated facility — urgent need being raised with council and mayor. Elders meeting on the 10th to discuss aged care and relocation.
@@ -707,7 +709,7 @@ Central community gathering space led by Jacinta Gaia. Coordinates major events,
 **Draft description** *(auto-drafted 9 April — please review):*
 Community engagement and outreach program connecting Palm Island residents with PICC's services and supports.
 
-**⚠ Flag for Narelle — biggest question in this doc:**
+**[FLAG FOR NARELLE] — biggest question in this doc:**
 This entry has no historical description anywhere — not in EL, not in PICC, not in the 17-year annual report archive, not in code. We need to know: (a) is this a specific named program, (b) the name PICC uses for its general community outreach function, or (c) a legacy entry that should be retired? The draft above is a placeholder only.
 
 **Narelle's review:** *(please clarify what this actually is, or tell us to retire it)*
@@ -794,11 +796,11 @@ This is the practical list of things we need from PICC to finalise the 2024–25
 ## Service-level data gaps
 
 1. **Descriptions for the 5 services that were missing them — STATUS: filled, 3 need your review**:
-   - ✅ **Family Care Service** — filled from existing PICC content
-   - ✅ **Ferdies Haven** — filled from existing PICC content
-   - 🟡 **Children and Family Centre** — auto-drafted, needs your review (section 12)
-   - 🔴 **Palm Island Community Connection** — auto-drafted placeholder, needs your clarification on what this actually is (section 24)
-   - 🟡 **Social Enterprises** — auto-drafted from 23/24 annual report content, needs your review (section 28)
+   - [DONE] **Family Care Service** — filled from existing PICC content
+   - [DONE] **Ferdies Haven** — filled from existing PICC content
+   - [REVIEW] **Children and Family Centre** — auto-drafted, needs your review (section 12)
+   - [CLARIFY] **Palm Island Community Connection** — auto-drafted placeholder, needs your clarification on what this actually is (section 24)
+   - [REVIEW] **Social Enterprises** — auto-drafted from 23/24 annual report content, needs your review (section 28)
 
 2. **Two PICC-only services that aren't in EL — decide keep or retire**:
    - Children's Lunch Program *(note: currently stored as "Children's Lunch Progam" — typo in DB)*
