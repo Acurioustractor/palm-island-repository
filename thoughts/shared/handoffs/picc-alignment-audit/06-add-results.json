@@ -1,0 +1,65 @@
+{
+  "timestamp": "2026-04-08T19:44:59.542Z",
+  "before": {
+    "picc_services": 31,
+    "picc_projects": 8,
+    "el_null_services": [
+      {
+        "id": "afb3e32f-2da8-404b-84d1-0c5df7b7056e",
+        "name": "Palm Island Community Connection",
+        "description": null,
+        "metadata": {}
+      },
+      {
+        "id": "9ea23c4f-fdb1-41ee-97ce-02d80f72b479",
+        "name": "Children and Family Centre",
+        "description": null,
+        "metadata": {}
+      },
+      {
+        "id": "c0e57503-9732-4516-9ccb-1ab245fdb9a0",
+        "name": "Social Enterprises",
+        "description": null,
+        "metadata": {}
+      },
+      {
+        "id": "5abeda34-ed2c-4823-8780-287b92aa94ec",
+        "name": "Family Care Service",
+        "description": null,
+        "metadata": {}
+      },
+      {
+        "id": "5731b729-039c-49ce-8001-90ea17fe04d2",
+        "name": "Ferdies Haven",
+        "description": null,
+        "metadata": {}
+      }
+    ]
+  },
+  "after": {
+    "picc_services": 38,
+    "picc_projects": 9,
+    "el_null_services": [
+      {
+        "name": "Children and Family Centre",
+        "description": "The Children and Family Centre (CFC) is PICC's purpose-built family support hub on Palm Island. Established in 2011 and moved into its dedicated facility in June 2012 (arriving by barge), the CFC has been a central place where Palm Island families connect with early childhood, health, and family support in one place. The centre expanded into primary health care in 2013-14, serving hundreds of patients. Today the CFC continues to house the Early Childhood Learning Centre and supports a range of family programs. In 2023 PICC presented 'The Storyline of the Palm Island Children and Family Centre' at the SNAICC Conference in Darwin."
+      },
+      {
+        "name": "Family Care Service",
+        "description": "Support for children and families involved with child protection, providing kinship care support, family preservation services, and culturally safe out-of-home care arrangements when children cannot remain at home."
+      },
+      {
+        "name": "Ferdies Haven",
+        "description": "Day-based social and emotional wellbeing service supporting women 18 and over through individual case management, support group programs, and community engagement. Originally established as a drug and alcohol rehabilitation centre in 1993, Ferdy's Haven has evolved into a place of healing where community members can access casework support, participate in weekly women's groups (Tuesdays and Wednesdays), or simply find a safe, quiet space to sit and reflect. The service has been running women's support groups since 2014, with long-term participants who return regularly. Staff also provide targeted support for high school girls through education programs in partnership with the local school."
+      },
+      {
+        "name": "Palm Island Community Connection",
+        "description": "Community engagement and outreach program connecting Palm Island residents with PICC's services and supports."
+      },
+      {
+        "name": "Social Enterprises",
+        "description": "The umbrella for PICC's community-owned enterprises — a record 44 staff members across Digital Service Centre (21 Palm Islanders in partnership with Telstra taking calls from customers across Australia), Retail (bakery, store, fuel, mechanic operations at the Retail Centre), and Logistics (catering, equipment, event support, supply chain for all PICC programs). Approximately 25% of PICC's entire workforce. Social enterprises demonstrate that community-owned businesses can create sustainable employment in a remote community — 44 jobs created through enterprise, not grants."
+      }
+    ]
+  }
+}

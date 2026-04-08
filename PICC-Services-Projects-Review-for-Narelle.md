@@ -1,7 +1,27 @@
 # PICC Services & Projects Review
 
 **A working document for Narelle, Rachel and the PICC team**
-**Pulled from the Empathy Ledger — 8 April 2026**
+**Originally pulled 8 April 2026 · Updated 9 April 2026 after alignment pass**
+
+---
+
+## What's new in this version (9 April)
+
+Since the first version of this doc, we've done an alignment pass between PICC's own Supabase and the Empathy Ledger. Summary of what changed:
+
+- **10 PICC services renamed** to match canonical EL names (slugs unchanged so URLs don't break)
+- **5 PICC projects renamed** to match canonical EL names (slugs unchanged)
+- **2 services soft-deactivated** in PICC (Mechanic → rolls up under Retail, Construction & Maintenance → rolls up under Logistics)
+- **7 EL services added to PICC** as downstream mirrors (Aged Care Services, BEAI, Children and Family Centre, Logistics, Men's Group, Palm Island Community Connection, Social Enterprises)
+- **1 EL project added to PICC** (Uncle Allan Palm Island Art)
+- **All 5 NULL EL service descriptions filled** — 2 from existing PICC content, 3 from auto-drafts that need your review (marked **[DRAFT — Narelle review]** below)
+
+**What's still waiting on you:**
+
+- 3 auto-drafted descriptions to review and approve (Children and Family Centre, Palm Island Community Connection, Social Enterprises)
+- 2 PICC-only services to decide on (Children's Lunch Program, First 1,000 Days Program) — keep, retire, or fold into another service?
+- 3 PICC projects not yet in EL (Healthy Meals Program, On-Country Server, Goods/Recycling) — should these be added to EL as canonical?
+- The "Children's Lunch Progam" entry has a typo in the database (missing "r" in "Progam") — quick fix or leave alone?
 
 ---
 
@@ -23,14 +43,14 @@ At the end of the document there is a section called **What we still need to get
 
 ## Snapshot of what is in the Empathy Ledger today
 
-- **28 services** captured
-- **6 active projects** captured
+- **28 services** captured in EL (30 active in PICC's mirror — difference is the 2 PICC-only services flagged for your review)
+- **6 active projects** captured in EL (9 in PICC — difference is 3 PICC projects not yet added to EL)
 - **839 quotable moments** from community already linked
 - **76 named storytellers**
 - **123 community transcripts**
 - **452 themes** surfaced from community voice
 
-Of the 28 services, **5 currently have no description** in the ledger and need one written. They are flagged below.
+**Description status (as of 9 April):** All 28 EL services now have descriptions. **3 of those are auto-drafts** that need your approval — flagged **[DRAFT — Narelle review]** below. **2 PICC-only services** (Children's Lunch Program, First 1,000 Days Program) need your decision: keep, retire, or fold into another service?
 
 ---
 
@@ -40,7 +60,7 @@ Of the 28 services, **5 currently have no description** in the ledger and need o
 
 ## Where PICC sits in the Empathy Ledger right now
 
-PICC is one of the first organisations in Australia to use the Empathy Ledger as its sovereign data and storytelling home. Today the ledger holds **28 services, 6 active projects, 839 quotable moments, 76 named storytellers, 123 transcripts and 452 themes** — all linked, all consent-governed, all queryable.
+PICC is one of the first organisations in Australia to use the Empathy Ledger as its sovereign data and storytelling home. Today the ledger holds **28 services** (all now with descriptions), **6 active projects**, **839 quotable moments**, **76 named storytellers**, **123 transcripts** and **452 themes** — all linked, all consent-governed, all queryable. PICC's own Supabase mirrors this with 30 active services and 9 projects (slight differences flagged for your review).
 
 ## The point of this document
 
@@ -208,9 +228,9 @@ Community photo sharing and storytelling installation on Palm Island. Community-
 
 ---
 
-## 6. Uncle Allan Palm Island Art
+## 6. Uncle Allan Palm Island Art *(added to PICC 9 April)*
 
-**Status:** Active
+**Status:** Active (in_progress in PICC)
 **Slug:** uncle-allan
 **Started:** January 2026
 
@@ -420,19 +440,20 @@ Funded service running youth patrol, night cafe, and crisis support. Safe space 
 
 ---
 
-### 10. Family Care Service ⚠ description missing
+### 10. Family Care Service
 
 **Type:** Program · **Status:** Active
 
-**Description in ledger:** *(none)*
+**Description** *(filled 9 April — pushed from existing PICC content):*
+Support for children and families involved with child protection, providing kinship care support, family preservation services, and culturally safe out-of-home care arrangements when children cannot remain at home. Works closely with the Bwgcolman Way (Delegated Authority) and Safe House. In 2023–24 the service provided 6,698 family care placement nights supporting 16–23 children each quarter.
 
-**Narelle's reflection / what should the description say?**
+**Narelle's reflection:**
 *[space for input]*
 
 **24/25 data we need:**
 - Family Care Placement Nights (was 6,698 in 23/24)
 - Updated number for 24/25
-- A short description of the service
+- Any new programs or partnerships
 
 ---
 
@@ -453,27 +474,33 @@ Engaging families in decision-making about their children and community, strengt
 
 ---
 
-### 12. Children and Family Centre ⚠ description missing
+### 12. Children and Family Centre **[DRAFT — Narelle review]**
 
 **Type:** Program · **Status:** Active
 
-**Description in ledger:** *(none)*
+**Draft description** *(auto-drafted 9 April — please review):*
+The Children and Family Centre (CFC) is PICC's purpose-built family support hub on Palm Island. Established in 2011 and moved into its dedicated facility in June 2012 (arriving by barge), the CFC has been a central place where Palm Island families connect with early childhood, health, and family support in one place. The centre expanded into primary health care in 2013–14, serving hundreds of patients. Today the CFC continues to house the Early Childhood Learning Centre and supports a range of family programs. In 2023 PICC presented "The Storyline of the Palm Island Children and Family Centre" at the SNAICC Conference in Darwin.
 
-**Narelle's reflection / what should the description say?**
-*[space for input]*
+**Narelle's review:** *(please approve, edit, or rewrite)*
 
-**Note:** The Early Childhood Learning Centre is now housed in the old CFC building — worth confirming the relationship between the two.
+**Note:** The Early Childhood Learning Centre is now housed in the old CFC building — worth confirming the relationship between the two. Is CFC the building/umbrella and ECLC the specific early childhood service within it?
 
 ---
 
-### 13. Ferdies Haven ⚠ description missing
+### 13. Ferdies Haven
 
 **Type:** Program · **Status:** Active
 
-**Description in ledger:** *(none)*
+**Description** *(filled 9 April — pushed from existing PICC content):*
+Day-based social and emotional wellbeing service supporting women 18 and over through individual case management, support group programs, and community engagement. Originally established as a drug and alcohol rehabilitation centre in 1993, Ferdies Haven has evolved into a place of healing where community members can access casework support, participate in weekly women's groups (Tuesdays and Wednesdays), or simply find a safe, quiet space to sit and reflect. Running women's support groups continuously since 2014, with long-term participants who return regularly. Staff also provide targeted support for high school girls through education programs in partnership with the local school.
 
-**Narelle's reflection / what should the description say?**
+**Narelle's reflection:**
 *[space for input]*
+
+**24/25 data we need:**
+- Women supported across the year
+- Women's group attendance
+- High school girls' program outcomes
 
 ---
 
@@ -673,14 +700,17 @@ Central community gathering space led by Jacinta Gaia. Coordinates major events,
 
 ---
 
-### 24. Palm Island Community Connection ⚠ description missing
+### 24. Palm Island Community Connection **[DRAFT — Narelle review, biggest question mark]**
 
 **Type:** Program · **Status:** Active
 
-**Description in ledger:** *(none)*
+**Draft description** *(auto-drafted 9 April — please review):*
+Community engagement and outreach program connecting Palm Island residents with PICC's services and supports.
 
-**Narelle's reflection / what should the description say?**
-*[space for input]*
+**⚠ Flag for Narelle — biggest question in this doc:**
+This entry has no historical description anywhere — not in EL, not in PICC, not in the 17-year annual report archive, not in code. We need to know: (a) is this a specific named program, (b) the name PICC uses for its general community outreach function, or (c) a legacy entry that should be retired? The draft above is a placeholder only.
+
+**Narelle's review:** *(please clarify what this actually is, or tell us to retire it)*
 
 ---
 
@@ -744,16 +774,16 @@ Retail arm: bakery, fuel station, mechanics shop, coffee shop, variety store. Ke
 
 ---
 
-### 28. Social Enterprises ⚠ description missing
+### 28. Social Enterprises **[DRAFT — Narelle review]**
 
 **Type:** Program · **Status:** Active
 
-**Description in ledger:** *(none)*
+**Draft description** *(auto-drafted 9 April from PICC 23/24 annual report content — please review):*
+The umbrella for PICC's community-owned enterprises — a record 44 staff members across Digital Service Centre (21 Palm Islanders in partnership with Telstra taking calls from customers across Australia), Retail (bakery, store, fuel, mechanic operations at the Retail Centre), and Logistics (catering, equipment, event support, supply chain for all PICC programs). Approximately 25% of PICC's entire workforce. Social enterprises demonstrate that community-owned businesses can create sustainable employment in a remote community — 44 jobs created through enterprise, not grants.
 
-**Narelle's reflection / what should the description say?**
-*[space for input]*
+**Narelle's review:** *(please approve, edit, or rewrite)*
 
-**Note:** The 23/24 annual report recorded **44 staff across PICC social enterprises** (~25% of all PICC staff). This is the umbrella concept above Retail / Logistics / Digital Service Centre — worth confirming with Narelle whether it should stay as a standalone entry or merge into the Centres of Excellence.
+**Note:** This is the umbrella concept above Retail / Logistics / Digital Service Centre — worth confirming whether it should stay as a standalone entry or merge into the Centres of Excellence grouping.
 
 ---
 
@@ -763,16 +793,23 @@ This is the practical list of things we need from PICC to finalise the 2024–25
 
 ## Service-level data gaps
 
-1. **Descriptions for the 5 services missing them**:
-   - Children and Family Centre
-   - Family Care Service
-   - Ferdies Haven
-   - Palm Island Community Connection
-   - Social Enterprises
+1. **Descriptions for the 5 services that were missing them — STATUS: filled, 3 need your review**:
+   - ✅ **Family Care Service** — filled from existing PICC content
+   - ✅ **Ferdies Haven** — filled from existing PICC content
+   - 🟡 **Children and Family Centre** — auto-drafted, needs your review (section 12)
+   - 🔴 **Palm Island Community Connection** — auto-drafted placeholder, needs your clarification on what this actually is (section 24)
+   - 🟡 **Social Enterprises** — auto-drafted from 23/24 annual report content, needs your review (section 28)
 
-2. **Confirm the 28 services list is correct** — Narelle mentioned ~31 services. Which 3 are missing? They need to be added.
+2. **Two PICC-only services that aren't in EL — decide keep or retire**:
+   - Children's Lunch Program *(note: currently stored as "Children's Lunch Progam" — typo in DB)*
+   - First 1,000 Days Program
 
-3. **Confirm groupings** — are the categories above (Health, Women & Family, Youth, Justice, Aged Care, Hub, Centres of Excellence) the right way to organise these in the annual report?
+3. **Three PICC-only projects that aren't in EL — decide if they should be added to EL as canonical**:
+   - Healthy Meals Program
+   - On-Country Server
+   - Goods (Recycling and jobs opportunity) — **important: this is the anchor for the June Philanthropy Australia video**
+
+4. **Confirm groupings** — are the categories above (Health, Women & Family, Youth, Justice, Aged Care, Hub, Centres of Excellence) the right way to organise these in the annual report?
 
 ## Headline 24/25 financial figures (currently we only have 23/24)
 

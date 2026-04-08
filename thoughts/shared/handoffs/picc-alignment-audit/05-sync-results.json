@@ -1,0 +1,111 @@
+{
+  "timestamp": "2026-04-08T19:32:40.988Z",
+  "successful": 17,
+  "failed": 0,
+  "results": [
+    {
+      "type": "svc_rename",
+      "from": "Ferdy's Haven",
+      "to": "Ferdies Haven",
+      "ok": true
+    },
+    {
+      "type": "svc_rename",
+      "from": "Safe Haven",
+      "to": "Safe Haven Service",
+      "ok": true
+    },
+    {
+      "type": "svc_rename",
+      "from": "NDIS Service",
+      "to": "NDIS Services",
+      "ok": true
+    },
+    {
+      "type": "svc_rename",
+      "from": "Youth Service",
+      "to": "Youth Services",
+      "ok": true
+    },
+    {
+      "type": "svc_rename",
+      "from": "Social and Emotional Wellbeing Service",
+      "to": "Social and Emotional Wellbeing",
+      "ok": true
+    },
+    {
+      "type": "svc_rename",
+      "from": "Men's Diversionary Service",
+      "to": "Diversionary Centre",
+      "ok": true
+    },
+    {
+      "type": "svc_rename",
+      "from": "Early Childhood Services (CFC)",
+      "to": "Early Childhood Learning Centre",
+      "ok": true
+    },
+    {
+      "type": "svc_rename",
+      "from": "Store / Retail",
+      "to": "Retail",
+      "ok": true
+    },
+    {
+      "type": "svc_rename",
+      "from": "Blue Card Service",
+      "to": "Blue Card Liaison Service",
+      "ok": true
+    },
+    {
+      "type": "svc_rename",
+      "from": "Bwgcolman Way (Delegated Authority)",
+      "to": "Bwgcolman Way",
+      "ok": true
+    },
+    {
+      "type": "svc_deactivate",
+      "name": "Mechanic",
+      "ok": true
+    },
+    {
+      "type": "svc_deactivate",
+      "name": "Construction & Maintenance",
+      "ok": true
+    },
+    {
+      "type": "proj_rename",
+      "from": "Annual Report System",
+      "to": "PICC Annual Report",
+      "ok": true
+    },
+    {
+      "type": "proj_rename",
+      "from": "Elders Group Activations",
+      "to": "Elders Trips and Storytelling",
+      "ok": true
+    },
+    {
+      "type": "proj_rename",
+      "from": "Movember Connection to Country",
+      "to": "Movember",
+      "ok": true
+    },
+    {
+      "type": "proj_rename",
+      "from": "Palm Island Photo Studio",
+      "to": "PICC Photo Kiosk",
+      "ok": true
+    },
+    {
+      "type": "proj_rename",
+      "from": "The Centre - The Station",
+      "to": "PICC Centre Precinct",
+      "ok": true
+    }
+  ],
+  "post_change_counts": {
+    "active_services": 23,
+    "total_projects": 8
+  }
+}

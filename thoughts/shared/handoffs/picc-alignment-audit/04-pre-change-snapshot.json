@@ -1,0 +1,164 @@
+{
+  "timestamp": "2026-04-08T19:30:07.787Z",
+  "services": [
+    {
+      "id": "e7b649cf-0a85-4048-af4d-18bbf3831e7f",
+      "name": "Ferdy's Haven",
+      "slug": "ferdy-s-haven",
+      "service_category": "wellbeing",
+      "is_active": true,
+      "proposed_name": "Ferdies Haven",
+      "action": "rename"
+    },
+    {
+      "id": "c0000000-0000-0000-0000-000000000010",
+      "name": "Safe Haven",
+      "slug": "safe-haven",
+      "service_category": "youth",
+      "is_active": true,
+      "proposed_name": "Safe Haven Service",
+      "action": "rename"
+    },
+    {
+      "id": "c0000000-0000-0000-0000-000000000009",
+      "name": "NDIS Service",
+      "slug": "ndis-service",
+      "service_category": "other",
+      "is_active": true,
+      "proposed_name": "NDIS Services",
+      "action": "rename"
+    },
+    {
+      "id": "0f763e1d-bd5b-47a1-90bc-62e56ed802ac",
+      "name": "Youth Service",
+      "slug": "youth-service",
+      "service_category": "youth",
+      "is_active": true,
+      "proposed_name": "Youth Services",
+      "action": "rename"
+    },
+    {
+      "id": "c0000000-0000-0000-0000-000000000012",
+      "name": "Social and Emotional Wellbeing Service",
+      "slug": "sewb-service",
+      "service_category": "health",
+      "is_active": true,
+      "proposed_name": "Social and Emotional Wellbeing",
+      "action": "rename"
+    },
+    {
+      "id": "c0000000-0000-0000-0000-000000000004",
+      "name": "Men's Diversionary Service",
+      "slug": "diversionary-service",
+      "service_category": "justice",
+      "is_active": true,
+      "proposed_name": "Diversionary Centre",
+      "action": "rename"
+    },
+    {
+      "id": "c0000000-0000-0000-0000-000000000005",
+      "name": "Early Childhood Services (CFC)",
+      "slug": "early-childhood-services",
+      "service_category": "education",
+      "is_active": true,
+      "proposed_name": "Early Childhood Learning Centre",
+      "action": "rename"
+    },
+    {
+      "id": "1bae794c-a1aa-4feb-9970-939366f563b2",
+      "name": "Store / Retail",
+      "slug": "store-retail",
+      "service_category": "economic",
+      "is_active": true,
+      "proposed_name": "Retail",
+      "action": "rename"
+    },
+    {
+      "id": "65bc5ca4-6791-4a4c-b801-892df5ef1ff3",
+      "name": "Blue Card Service",
+      "slug": "blue-card-service",
+      "service_category": "community",
+      "is_active": true,
+      "proposed_name": "Blue Card Liaison Service",
+      "action": "rename"
+    },
+    {
+      "id": "b711723d-953a-4236-851c-f46cc5d23ff3",
+      "name": "Bwgcolman Way (Delegated Authority)",
+      "slug": "bwgcolman-way",
+      "service_category": "family",
+      "is_active": true,
+      "proposed_name": "Bwgcolman Way",
+      "action": "rename"
+    },
+    {
+      "id": "1ce4e682-b8cc-4fac-bbc5-50facfcf2e8b",
+      "name": "Mechanic",
+      "slug": "mechanic",
+      "is_active": true,
+      "service_category": "community",
+      "action": "deactivate",
+      "rollup_under": "Retail (Centre of Excellence)"
+    },
+    {
+      "id": "0e67b103-c117-41c7-a3bd-c1f7dbbb306b",
+      "name": "Construction & Maintenance",
+      "slug": "construction-maintenance",
+      "is_active": true,
+      "service_category": "economic",
+      "action": "deactivate",
+      "rollup_under": "Logistics (Centre of Excellence)"
+    }
+  ],
+  "projects": [
+    {
+      "id": "496c1bda-190c-4765-aa7a-e0c964c332e9",
+      "name": "Annual Report System",
+      "slug": "annual-report",
+      "status": "in_progress",
+      "project_type": "innovation",
+      "proposed_name": "PICC Annual Report",
+      "action": "rename"
+    },
+    {
+      "id": "26fda424-5b2a-43c8-aadb-159d1cb97ff9",
+      "name": "Elders Group Activations",
+      "slug": "elders-trips",
+      "status": "in_progress",
+      "project_type": "innovation",
+      "proposed_name": "Elders Trips and Storytelling",
+      "action": "rename"
+    },
+    {
+      "id": "86c656a2-941a-469b-93aa-4b1afaa0a345",
+      "name": "Movember Connection to Country",
+      "slug": "movember-connection-to-country",
+      "status": "planning",
+      "project_type": "innovation",
+      "proposed_name": "Movember",
+      "action": "rename"
+    },
+    {
+      "id": "383fd3ff-4c4f-47c7-bd11-7ae80ace19d9",
+      "name": "Palm Island Photo Studio",
+      "slug": "photo-studio",
+      "status": "in_progress",
+      "project_type": "innovation",
+      "proposed_name": "PICC Photo Kiosk",
+      "action": "rename"
+    },
+    {
+      "id": "f96e9748-a953-4f9e-a77e-2256ded6c63d",
+      "name": "The Centre - The Station",
+      "slug": "the-centre-the-station",
+      "status": "in_progress",
+      "project_type": "innovation",
+      "proposed_name": "PICC Centre Precinct",
+      "action": "rename"
+    }
+  ],
+  "serviceFlagForReview": [
+    "Children's Lunch Program",
+    "First 1,000 Days Program"
+  ]
+}
