@@ -24,7 +24,7 @@ Everything needed to run the Narelle interview, feed her answers into the 24/25 
 
 ---
 
-## The six documents in this folder
+## The seven documents in this folder
 
 ### 1. [[PICC-Services-Projects-Review-for-Narelle]]
 
@@ -73,6 +73,14 @@ The 90-minute session with Rachel. Sixteen slides across six sections. Each slid
 
 ---
 
+### 7. [[PICC-Leader-Walkthrough-Master-Brief]]
+
+The evidence layer behind every decision. An inventory of what already exists in the two data homes — PICC Supabase (157 tables, 92 stories, 162 elder quotes, 290 extracted quotes, 6 community visions, 80 governance achievements, 53 timeline events, 2,508 media files, 34 interviews with 2,036 segments, 8 report highlights for 24/25) and the Empathy Ledger v2 canonical archive (17-year annual report summaries, the full growth table 1→197 staff and $1.6M→$23.4M revenue, Rachel as continuous CEO 2007–present). Then proposes five concrete walkthrough experiences that can be built from existing data, cross-references every gap to a section of the Narelle interview framework that unlocks it, names what PICC data can push upstream to EL v2 and what EL v2 can pull into PICC, and gives the tight 20-minute live tour script through `http://localhost:3000`.
+
+**Use:** Read this before the Rachel workshop. It is the answer to "what do we actually have?" Rachel walks out knowing the data is real, the 5 experiences are achievable, the Narelle interview is non-negotiable, and Bwgcolman Way is the anchor.
+
+---
+
 ### 6. [[PICC-Rachel-Workshop-Summary-Template]]
 
 The 48-hour post-workshop summary. A fill-in-the-blanks template Ben uses to write up what Rachel decided within 48 hours of the session — her exact sentence, the seven decisions, the service truth, what's still open, and what happens next. Sent back to Rachel for confirmation. Her confirmation is the trigger that unlocks the next phase of work.
@@ -91,6 +99,7 @@ The 48-hour post-workshop summary. A fill-in-the-blanks template Ben uses to wri
 | Launchpad plan | Rachel workshop, the whole 20-year arc |
 | Rachel workshop slides | Sign-offs that unlock the next phase |
 | Rachel workshop summary template | Locking Rachel's decisions before her memory drifts |
+| Leader walkthrough master brief | Evidence inventory — what exists in PICC + EL v2 and what can be built from it |
 
 ---
 
