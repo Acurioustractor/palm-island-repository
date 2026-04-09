@@ -37,6 +37,14 @@ const SERVICE_KEYWORDS: Record<string, string[]> = {
   'children-s-lunch-progam': ['lunch', 'school', 'food', 'breakfast'],
   'store-retail': ['store', 'shop', 'retail'],
   'dfv-service': ['dv', 'violence', 'family violence', 'safe'],
+  // Added April 2026 — active services missing from map after EL alignment pass
+  'aged-care-services': ['aged care', 'elder', 'elders', 'old people', 'aged', 'eldercare'],
+  'bwgcolman-education-engagement-attainment-initiative': ['school', 'education', 'student', 'attendance', 'engagement officer', 'classroom', 'beai'],
+  'children-and-family-centre': ['cfc', 'children and family', 'family centre', 'children and family centre'],
+  'logistics': ['logistics', 'catering', 'supply', 'equipment'],
+  'men-s-group': ['men', "men's group", 'mens group', 'fathers', 'brothers', 'healing the spirit'],
+  'palm-island-community-connection': ['community connection', 'outreach', 'community engagement'],
+  'social-enterprises': ['enterprise', 'social enterprise', 'employment', 'workforce', 'jobs'],
 };
 
 async function getServiceVoices(slug: string, limit: number = 6) {
