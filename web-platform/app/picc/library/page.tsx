@@ -19,14 +19,12 @@
 
 import { createServerSupabase } from '@/lib/supabase/client'
 import {
-  BookOpen,
   FileText,
   Library,
   Quote,
   Mic,
   Database,
   ExternalLink,
-  AlertCircle,
   CheckCircle2,
 } from 'lucide-react'
 
@@ -60,79 +58,15 @@ interface ResearchSourceRow {
   id: string
   source_type: string | null
   title: string
+  description: string | null
   author: string | null
   publisher: string | null
   publication_date: string | null
   url: string | null
   is_verified: boolean | null
   is_primary_source: boolean | null
+  extracted_data: { subtype?: string; impact?: string; provenance?: string; capture_status?: string } | null
 }
-
-// Documented in PICC-Sector-Context-Deep-Research.md but NOT yet captured in
-// the research_sources table. Hardcoded with explicit provenance — single
-// source of truth lives in the workshop vault doc #8.
-const DOCUMENTED_NOT_CAPTURED = [
-  {
-    title: 'Ipsos 2019 independent evaluation of PICC',
-    type: 'Independent evaluation',
-    note: 'Cited as the foundational evidence for the 2021 community-control restructure. Found PICC ran 17 contracts from 11 funders, served 3,306 clients, employed 98 staff (85% ATSI, 78% local). Named the central finding that the mixed-governance model "created distrust and confusion about whether PICC was truly community-led."',
-    impact: 'Highest — already cited on /picc/launchpad, /picc/governance, /picc/sector-map, /picc/finances, /picc/risks',
-  },
-  {
-    title: '17-year PICC annual report archive (2007-08 to 2023-24)',
-    type: 'Annual reports',
-    note: 'Full 17-year set extracted to structured markdown in /Users/benknight/Code/empathy-ledger-v2/docs/15-reports/picc-annual-reports/years/. PDFs stored in EL Supabase Storage. Currently only 3 are reflected in the PICC `annual_reports` table.',
-    impact: 'High — drives the /20-years scrolling history page',
-  },
-  {
-    title: 'PICC Constitution',
-    type: 'Governance document',
-    note: 'Defines membership eligibility (Manbarra & Bwgcolman 18+), board composition (5-7 directors with reserved Manbarra-nominated seat), guardrails. Source for /picc/governance.',
-    impact: 'High — currently rendered from doc #8 synthesis, not from a stored constitution document',
-  },
-  {
-    title: 'PICC 2021-26 Strategic Plan',
-    type: 'Strategy document',
-    note: 'Names the deepening of self-determination through the 2021 community-control transition. Public document on PICC website publications page.',
-    impact: 'Medium',
-  },
-  {
-    title: 'AIATSIS earlier review record',
-    type: 'External research',
-    note: 'AIATSIS catalog record of an earlier review of PICC. Not yet captured. Provides historical baseline for comparison with the Ipsos 2019 evaluation.',
-    impact: 'Medium',
-  },
-  {
-    title: 'JCU thesis on Palm Island development context',
-    type: 'External research',
-    note: 'James Cook University thesis touching Palm Island development context. Not yet catalogued in PICC research_sources.',
-    impact: 'Medium',
-  },
-  {
-    title: 'UQ research using PICC as Indigenous community-controlled health partner',
-    type: 'External research',
-    note: 'University of Queensland research report. Not yet captured.',
-    impact: 'Medium',
-  },
-  {
-    title: 'QATSICPP case study of PICC Family Care Services',
-    type: 'Sector case study',
-    note: 'Queensland Aboriginal and Torres Strait Islander Child Protection Peak case study describing trust, cultural understanding, and keeping families away from departmental treatment. 2022 Practice Excellence Award context.',
-    impact: 'High — direct evidence for Bwgcolman Way case study',
-  },
-  {
-    title: 'Community Justice Group evaluation',
-    type: 'Sector evaluation',
-    note: 'Independent evaluation naming PICC as the auspicing body for the Community Justice Group. Justice & DFV evidence layer.',
-    impact: 'Medium',
-  },
-  {
-    title: 'PICC submission to child protection inquiry',
-    type: 'Government submission',
-    note: 'Public submission to a child protection inquiry. Direct PICC voice on policy. Not yet catalogued.',
-    impact: 'Medium',
-  },
-]
 
 export default async function LibraryPage() {
   const supabase = createServerSupabase()
@@ -148,8 +82,9 @@ export default async function LibraryPage() {
       .order('fiscal_year', { ascending: false }),
     supabase
       .from('research_sources')
-      .select('id, source_type, title, author, publisher, publication_date, url, is_verified, is_primary_source')
-      .order('publication_date', { ascending: false }),
+      .select('id, source_type, title, description, author, publisher, publication_date, url, is_verified, is_primary_source, extracted_data')
+      .order('is_primary_source', { ascending: false })
+      .order('is_verified', { ascending: false }),
     Promise.all([
       supabase.from('elder_quotes').select('id', { count: 'exact', head: true }).in('permission_level', ['public', 'community']),
       supabase.from('extracted_quotes').select('id', { count: 'exact', head: true }),
@@ -360,82 +295,91 @@ export default async function LibraryPage() {
           </p>
         </section>
 
-        {/* ── EXTERNAL RESEARCH SOURCES ── */}
+        {/* ── RESEARCH SOURCES (live from DB) ── */}
         <section className="mb-12">
           <p className="text-xs font-semibold tracking-[0.2em] uppercase text-picc-ochre mb-4">
-            External research sources · {researchSources.length} captured
+            Research sources · {researchSources.length} captured in <code className="text-xs bg-stone-100 px-1 py-0.5 rounded">research_sources</code>
           </p>
-          <div className="rounded-2xl border border-stone-200 bg-white overflow-hidden">
-            {researchSources.length === 0 ? (
-              <EmptyState message="No external research sources captured." />
-            ) : (
-              <table className="w-full text-sm">
-                <thead className="bg-stone-50 border-b border-stone-200">
-                  <tr>
-                    <th className="text-left px-4 py-3 font-semibold text-stone-700">Title</th>
-                    <th className="text-left px-4 py-3 font-semibold text-stone-700">Author</th>
-                    <th className="text-left px-4 py-3 font-semibold text-stone-700">Type</th>
-                    <th className="text-left px-4 py-3 font-semibold text-stone-700">Verified</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {researchSources.map((r, i) => (
-                    <tr key={r.id} className={i % 2 === 0 ? 'bg-white' : 'bg-stone-50/50'}>
-                      <td className="px-4 py-3 text-stone-800 font-medium">{r.title}</td>
-                      <td className="px-4 py-3 text-stone-600 text-xs">{r.author || '—'}</td>
-                      <td className="px-4 py-3 text-stone-600 text-xs capitalize">{r.source_type || '—'}</td>
-                      <td className="px-4 py-3">
-                        {r.is_verified ? (
-                          <CheckCircle2 className="w-4 h-4 text-green-600" />
-                        ) : (
-                          <span className="text-xs text-stone-400">no</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-        </section>
-
-        {/* ── DOCUMENTED BUT NOT CAPTURED ── */}
-        <section className="mb-12">
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-picc-ochre mb-4">
-            Documented in research, awaiting capture · {DOCUMENTED_NOT_CAPTURED.length} items
-          </p>
-          <div className="rounded-2xl border-2 border-amber-300 bg-amber-50/30 p-6 mb-4">
+          <div className="rounded-2xl bg-picc-ochre/5 border border-picc-ochre/20 p-5 mb-4">
             <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <CheckCircle2 className="w-5 h-5 text-picc-ochre flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-semibold text-amber-900 mb-1">
-                  These documents exist in the public record but are not yet in the PICC database
+                <p className="text-sm font-semibold text-stone-800 mb-1">
+                  Now reading from the database, not a hardcoded list
                 </p>
-                <p className="text-xs text-amber-800 leading-relaxed">
-                  Each one is named in PICC-Sector-Context-Deep-Research.md (vault doc #8) with
-                  enough provenance to verify and capture. Several are already cited across the
-                  /picc admin pages (Ipsos, governance docs, the annual report archive). Bringing
-                  them into the database means the live pages stop hardcoding citations and start
-                  reading from canonical rows.
+                <p className="text-xs text-stone-600 leading-relaxed">
+                  10 documents named in the sector-context research (vault doc #8) were
+                  inserted into <code className="text-xs bg-white px-1 py-0.5 rounded">research_sources</code> on 10 April 2026.
+                  The page now reads them live. Each row carries its subtype, impact level,
+                  and provenance back to doc #8 in <code className="text-xs bg-white px-1 py-0.5 rounded">extracted_data</code> jsonb.
+                  When new documents come in, insert a row — no code change needed.
                 </p>
               </div>
             </div>
           </div>
           <div className="space-y-3">
-            {DOCUMENTED_NOT_CAPTURED.map((d) => (
-              <div key={d.title} className="rounded-xl border border-stone-200 bg-white p-5">
-                <div className="flex items-start justify-between gap-4 mb-2">
-                  <h3 className="font-semibold text-stone-800 leading-snug">{d.title}</h3>
-                  <span className="text-[10px] font-mono uppercase tracking-wide text-stone-400 flex-shrink-0">
-                    {d.type}
-                  </span>
-                </div>
-                <p className="text-sm text-stone-600 leading-relaxed mb-2">{d.note}</p>
-                <p className="text-[11px] text-picc-ochre">
-                  Impact: {d.impact}
-                </p>
-              </div>
-            ))}
+            {researchSources.length === 0 ? (
+              <EmptyState message="No research sources captured." />
+            ) : (
+              researchSources.map((r) => {
+                const subtype = r.extracted_data?.subtype || r.source_type
+                const impact = r.extracted_data?.impact
+                const provenance = r.extracted_data?.provenance
+                const captureStatus = r.extracted_data?.capture_status
+                return (
+                  <div key={r.id} className="rounded-xl border border-stone-200 bg-white p-5">
+                    <div className="flex items-start justify-between gap-4 mb-2">
+                      <h3 className="font-semibold text-stone-800 leading-snug flex-1">
+                        {r.title}
+                      </h3>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {r.is_primary_source && (
+                          <span className="text-[10px] font-mono uppercase tracking-wide px-1.5 py-0.5 rounded bg-picc-ochre/10 text-picc-ochre">
+                            Primary
+                          </span>
+                        )}
+                        {r.is_verified ? (
+                          <span className="text-[10px] font-mono uppercase tracking-wide px-1.5 py-0.5 rounded bg-green-50 text-green-700 inline-flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3" />
+                            Verified
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-mono uppercase tracking-wide px-1.5 py-0.5 rounded bg-stone-100 text-stone-500">
+                            Awaiting verify
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-[11px] font-mono uppercase tracking-wide text-stone-400 mb-2">
+                      {subtype} · {r.author || 'Author unknown'}
+                      {r.publisher && r.publisher !== r.author ? ` · ${r.publisher}` : ''}
+                    </p>
+                    {r.description && (
+                      <p className="text-sm text-stone-600 leading-relaxed mb-2">
+                        {r.description}
+                      </p>
+                    )}
+                    <div className="flex flex-wrap items-center gap-3 text-[11px] mt-3 pt-3 border-t border-stone-100">
+                      {impact && (
+                        <span className="text-picc-ochre">
+                          <strong>Impact:</strong> {impact}
+                        </span>
+                      )}
+                      {captureStatus && (
+                        <span className="text-amber-600">
+                          <strong>Status:</strong> {captureStatus.replace(/_/g, ' ')}
+                        </span>
+                      )}
+                      {provenance && (
+                        <span className="text-stone-400 ml-auto">
+                          {provenance}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )
+              })
+            )}
           </div>
         </section>
 
@@ -486,8 +430,10 @@ export default async function LibraryPage() {
             <code className="text-xs bg-stone-100 px-1 py-0.5 rounded">historical_artifacts</code>,{' '}
             <code className="text-xs bg-stone-100 px-1 py-0.5 rounded">knowledge_entries</code>,{' '}
             <code className="text-xs bg-stone-100 px-1 py-0.5 rounded">media_files</code>. The
-            "Documented in research, awaiting capture" list is sourced from
-            PICC-Sector-Context-Deep-Research.md (vault doc #8).
+            10 documents named in the sector-context research were inserted into{' '}
+            <code className="text-xs bg-stone-100 px-1 py-0.5 rounded">research_sources</code>{' '}
+            on 10 April 2026 — see PICC-Sector-Context-Deep-Research.md (vault doc #8) for
+            the canonical provenance.
           </p>
         </div>
 
