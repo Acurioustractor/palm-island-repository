@@ -32,6 +32,11 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+export const metadata = {
+  title: 'Live Annual Report — Palm Island Community Company',
+  description: 'PICC\'s always-on annual report — real impact, real voices, real numbers from across the community.',
+};
+
 export default async function LiveAnnualReportPage({
   searchParams,
 }: {

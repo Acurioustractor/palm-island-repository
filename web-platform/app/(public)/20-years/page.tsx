@@ -3,6 +3,11 @@ import { getELQuotes, getELStats } from '@/lib/empathy-ledger/el-server'
 import TwentyYearsClient from './TwentyYearsClient'
 import { assetUrl } from '@/lib/media/asset-url'
 
+export const metadata = {
+  title: '20 Years of PICC — Our Story | Palm Island Community Company',
+  description: 'From Hull River to community control — follow PICC\'s 17-year journey of resilience, self-determination, and community-led innovation on Palm Island.',
+}
+
 export const dynamic = 'force-dynamic'
 export const revalidate = 300
 

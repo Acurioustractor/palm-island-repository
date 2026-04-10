@@ -4,6 +4,11 @@ import { getHeroImage, getHeroVideo } from '@/lib/media/utils';
 import { getELQuotes } from '@/lib/empathy-ledger/el-server';
 import ImpactPageClient from './ImpactPageClient';
 
+export const metadata = {
+  title: 'Our Impact — Palm Island Community Company',
+  description: 'PICC\'s impact across health, family, justice, youth, and economic development — backed by real numbers and community voice.',
+};
+
 export default async function ImpactPage() {
   const supabase = createServerSupabase();
 
