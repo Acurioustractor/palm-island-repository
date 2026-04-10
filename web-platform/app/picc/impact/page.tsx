@@ -1,6 +1,11 @@
 import { getServiceImpact } from '@/lib/services/get-service-impact'
 import { ImpactDashboardClient } from './client'
 
+export const metadata = {
+  title: 'Impact Dashboard — PICC Admin',
+  description: 'Service-level impact metrics across PICC\'s active services.',
+}
+
 export const dynamic = 'force-dynamic'
 
 export default async function ImpactPage() {
