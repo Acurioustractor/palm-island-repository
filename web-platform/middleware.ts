@@ -5,15 +5,12 @@ import { updateSession } from '@/lib/supabase/middleware'
 const PROTECTED_ROUTES = [
   '/picc/admin',
   '/picc/content-studio',
-  '/picc/projects',
   '/picc/storytellers',
   '/picc/media/upload',
   '/picc/media/import',
-  '/picc/reports',
   '/picc/settings',
   '/picc/team',
   '/picc/permissions',
-  '/picc/dashboard',
 ]
 
 // Routes that should redirect to dashboard if already authenticated
