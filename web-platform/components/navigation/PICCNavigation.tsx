@@ -9,7 +9,8 @@ import {
   Plus, Upload,
   ChevronRight, ChevronDown,
   ChevronsLeft, ChevronsRight, Wrench, Building2, Lightbulb, Palette, DollarSign,
-  BarChart3, ClipboardCheck, Shield, ExternalLink, Target, Sparkles
+  BarChart3, ClipboardCheck, Shield, ExternalLink, Target, Sparkles,
+  Compass, Landmark, Network, AlertTriangle, Library, Quote, FolderKanban, TrendingUp
 } from 'lucide-react';
 import { useSidebar } from './SidebarProvider';
 import { PICCLogo } from '@/components/ui/PICCLogo';
@@ -36,8 +37,9 @@ const staffNavigation: { [key: string]: NavSection } = {
     icon: LayoutDashboard,
     items: [
       { label: 'Dashboard', href: '/picc/dashboard', icon: LayoutDashboard, description: 'Live stats from EL + PICC' },
+      { label: 'Launchpad', href: '/picc/launchpad', icon: Target, description: '20-year strategic plan' },
+      { label: 'Next-20 Canvas', href: '/picc/next-20', icon: Compass, description: 'Visions + commitments + asks' },
       { label: 'Strategy 2027', href: '/20-years/strategy', icon: Target, description: 'The Sovereignty of Care' },
-      { label: 'Data Sovereignty', href: '/picc/pcap', icon: Shield, description: 'PCAP — community ownership' },
       { label: 'Search', href: '/picc/search', icon: Search, description: 'Search all content' },
     ],
   },
@@ -49,6 +51,7 @@ const staffNavigation: { [key: string]: NavSection } = {
       { label: 'Report Builder', href: '/picc/reports/builder', icon: FileText, description: 'On-demand audience reports' },
       { label: 'Report Readiness', href: '/picc/report-readiness', icon: ClipboardCheck, description: 'Annual report status' },
       { label: 'Impact', href: '/picc/impact', icon: BarChart3, description: 'Service impact metrics' },
+      { label: 'Finances', href: '/picc/finances', icon: TrendingUp, description: '16-year curve + breakdown' },
       { label: 'Financials', href: '/picc/financials', icon: DollarSign, description: 'Financial overview & ratios' },
     ],
   },
@@ -56,7 +59,11 @@ const staffNavigation: { [key: string]: NavSection } = {
     title: 'Organisation',
     icon: Building2,
     items: [
-      { label: 'Services', href: '/picc/services', icon: Building2, description: '31 community services' },
+      { label: 'Services', href: '/picc/services', icon: Building2, description: '30 active services' },
+      { label: 'Projects', href: '/picc/projects', icon: FolderKanban, description: '9 projects' },
+      { label: 'Governance', href: '/picc/governance', icon: Landmark, description: 'Board design + guardrails' },
+      { label: 'Sector Map', href: '/picc/sector-map', icon: Network, description: '3-layer ecosystem view' },
+      { label: 'Risks', href: '/picc/risks', icon: AlertTriangle, description: '8 structural pressures' },
       { label: 'Innovation', href: '/picc/innovation', icon: Lightbulb, description: 'Innovation projects' },
       { label: 'Elders Room', href: '/picc/elders-room', icon: Users, description: 'Elder-controlled space' },
       { label: 'Brand', href: '/picc/brand', icon: Palette, description: 'Brand assets & guidelines' },
@@ -66,6 +73,8 @@ const staffNavigation: { [key: string]: NavSection } = {
     title: 'Empathy Ledger',
     icon: Sparkles,
     items: [
+      { label: 'Library', href: '/picc/library', icon: Library, description: 'Publications + research + EL connections' },
+      { label: 'Voices', href: '/picc/voices', icon: Quote, description: '452 voices + capture sprint' },
       { label: 'Knowledge Vault', href: '/picc/vault', icon: Sparkles, description: 'Second brain · vault browser' },
       { label: 'Open Empathy Ledger', href: 'https://empathy-ledger-v2.vercel.app', icon: ExternalLink, description: 'Stories, voices, transcripts' },
       { label: 'Photo Picker', href: '/20-years/strategy/photos', icon: Image, description: 'Browse PICC photos in EL' },
@@ -80,8 +89,9 @@ const advancedNavigation: { [key: string]: NavSection } = {
     icon: LayoutDashboard,
     items: [
       { label: 'Dashboard', href: '/picc/dashboard', icon: LayoutDashboard, description: 'Live stats from EL + PICC' },
+      { label: 'Launchpad', href: '/picc/launchpad', icon: Target, description: '20-year strategic plan' },
+      { label: 'Next-20 Canvas', href: '/picc/next-20', icon: Compass, description: 'Visions + commitments + asks' },
       { label: 'Strategy 2027', href: '/20-years/strategy', icon: Target, description: 'The Sovereignty of Care' },
-      { label: 'Data Sovereignty', href: '/picc/pcap', icon: Shield, description: 'PCAP — community ownership' },
       { label: 'Search', href: '/picc/search', icon: Search, description: 'Search all content' },
     ],
   },
@@ -93,6 +103,7 @@ const advancedNavigation: { [key: string]: NavSection } = {
       { label: 'Report Builder', href: '/picc/reports/builder', icon: FileText, description: 'On-demand audience reports' },
       { label: 'Report Readiness', href: '/picc/report-readiness', icon: ClipboardCheck, description: 'Annual report status' },
       { label: 'Impact', href: '/picc/impact', icon: BarChart3, description: 'Service impact metrics' },
+      { label: 'Finances', href: '/picc/finances', icon: TrendingUp, description: '16-year curve + breakdown' },
       { label: 'Financials', href: '/picc/financials', icon: DollarSign, description: 'Financial overview & ratios' },
     ],
   },
@@ -100,7 +111,11 @@ const advancedNavigation: { [key: string]: NavSection } = {
     title: 'Organisation',
     icon: Building2,
     items: [
-      { label: 'Services', href: '/picc/services', icon: Building2, description: '31 community services' },
+      { label: 'Services', href: '/picc/services', icon: Building2, description: '30 active services' },
+      { label: 'Projects', href: '/picc/projects', icon: FolderKanban, description: '9 projects' },
+      { label: 'Governance', href: '/picc/governance', icon: Landmark, description: 'Board design + guardrails' },
+      { label: 'Sector Map', href: '/picc/sector-map', icon: Network, description: '3-layer ecosystem view' },
+      { label: 'Risks', href: '/picc/risks', icon: AlertTriangle, description: '8 structural pressures' },
       { label: 'Innovation', href: '/picc/innovation', icon: Lightbulb, description: 'Innovation projects' },
       { label: 'Elders Room', href: '/picc/elders-room', icon: Users, description: 'Elder-controlled space' },
       { label: 'Brand', href: '/picc/brand', icon: Palette, description: 'Brand assets & guidelines' },
@@ -110,6 +125,8 @@ const advancedNavigation: { [key: string]: NavSection } = {
     title: 'Empathy Ledger',
     icon: Sparkles,
     items: [
+      { label: 'Library', href: '/picc/library', icon: Library, description: 'Publications + research + EL connections' },
+      { label: 'Voices', href: '/picc/voices', icon: Quote, description: '452 voices + capture sprint' },
       { label: 'Knowledge Vault', href: '/picc/vault', icon: Sparkles, description: 'Second brain · vault browser' },
       { label: 'Open Empathy Ledger', href: 'https://empathy-ledger-v2.vercel.app', icon: ExternalLink, description: 'Stories, voices, transcripts' },
       { label: 'Photo Picker', href: '/20-years/strategy/photos', icon: Image, description: 'Browse PICC photos in EL' },
