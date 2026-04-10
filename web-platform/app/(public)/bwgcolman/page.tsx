@@ -283,32 +283,94 @@ export default async function BwgcolmanPage() {
         </div>
       </section>
 
-      {/* ── WHY THIS MATTERS ── */}
+      {/* ── HOW IT WORKS LEGALLY ── */}
       <section className="bg-white">
         <div className="max-w-5xl mx-auto px-6 py-20">
           <p className="text-xs font-semibold tracking-[0.25em] uppercase text-picc-ochre mb-4 text-center">
-            Why this matters
+            How it works
           </p>
           <h2 className="font-serif italic text-3xl md:text-4xl text-stone-800 mb-12 text-center">
-            More than a service. A precedent.
+            The legal precision behind community authority
           </h2>
+          <div className="max-w-3xl mx-auto mb-12">
+            <p className="text-lg text-stone-700 leading-relaxed mb-6">
+              Bwgcolman Way sits under <strong>Part 2A of Queensland&apos;s Child Protection Act 1999</strong>.
+              The Act allows the chief executive to delegate certain functions or powers for an
+              Aboriginal or Torres Strait Islander child to a prescribed delegate — but only if
+              that person is an Aboriginal or Torres Strait Islander person, is the CEO of an
+              appropriate entity, holds a working-with-children authority, and is considered
+              suitable and appropriately qualified.
+            </p>
+            <p className="text-lg text-stone-700 leading-relaxed mb-6">
+              For Palm Island, <strong>the sole person delegated by the Director-General is
+              PICC&apos;s CEO</strong>. Decisions are made collaboratively with children and
+              families and in partnership with Child Safety Services. Delegations are made
+              <strong> child by child</strong>, not as a blanket transfer. Children retain
+              legal review rights.
+            </p>
+            <p className="text-lg text-stone-700 leading-relaxed">
+              The statewide blueprint — <em>Reclaiming our Storyline</em>, co-developed by
+              QATSICPP and the Queensland department — ties delegated authority explicitly to
+              healing, breaking cycles of trauma, honest truth-telling, and reconnecting
+              children and families to culture and community. Bwgcolman Way is Palm Island&apos;s
+              local expression of that blueprint.
+            </p>
+          </div>
           <div className="grid md:grid-cols-3 gap-6">
             <WhyCard
               icon={<Shield className="w-5 h-5" />}
               title="A legal first"
-              body="Section 148BA of the Child Protection Act 1999 (Qld) allows decision-making to be delegated from the state director of child safety to a community-controlled organisation. PICC is the first Aboriginal and Torres Strait Islander Community Controlled Organisation in Queensland to achieve this."
+              body="Part 2A of the Child Protection Act 1999 (Qld). PICC is the first ATSICCO in Queensland granted this delegation. The prescribed-delegate criteria ensure the power sits with Aboriginal and Torres Strait Islander leadership, not with a third party."
             />
             <WhyCard
               icon={<Heart className="w-5 h-5" />}
-              title="A cultural answer"
-              body="Indigenous child placement principles guide every decision. Children stay connected to family, community, country and culture. The whole community helps keep an eye on the children — a stark contrast to mainland residential care."
+              title="A healing model"
+              body="Bwgcolman Way is not just administrative delegation — it inherits the Reclaiming our Storyline healing frame. Truth-telling, cultural reconnection, and breaking cycles of trauma are structural features, not add-ons. PICC's community voices site says: 'our cultural authority is recognised alongside the law.'"
             />
             <WhyCard
               icon={<Users className="w-5 h-5" />}
               title="A model for the sector"
-              body="Bwgcolman Way gives PICC's CEO the legal authority to act for Palm Island children — but more than that, it shows other ACCOs across Australia what is possible when community control extends to statutory powers."
+              body="Rachel Atkinson has presented Bwgcolman Way at the 2025 ECA Reconciliation Symposium, SNAICC 2025, and the KWY Summit 2026 — positioning it as a broader example of community-controlled systems change, not just a local program."
             />
           </div>
+        </div>
+      </section>
+
+      {/* ── STATEWIDE CONTEXT ── */}
+      <section className="bg-[#FAF8F5] border-y border-stone-200">
+        <div className="max-w-5xl mx-auto px-6 py-16">
+          <p className="text-xs font-semibold tracking-[0.25em] uppercase text-picc-ochre mb-4 text-center">
+            Bwgcolman Way in context
+          </p>
+          <p className="text-stone-600 max-w-3xl mx-auto text-center mb-10 leading-relaxed">
+            Palm Island is one site in a statewide delegated-authority movement. By December
+            2025, 16 Aboriginal and Torres Strait Islander entities were delivering 21
+            delegated-authority services supporting 439 First Nations children across
+            Queensland. Bwgcolman Way is PICC&apos;s expression of that movement — shaped by
+            Palm Island&apos;s own history, culture, and community infrastructure.
+          </p>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="rounded-xl bg-white border border-stone-200 p-6 text-center">
+              <p className="text-3xl font-bold text-picc-earth">439</p>
+              <p className="text-xs text-stone-500 mt-1">First Nations children supported statewide (Dec 2025)</p>
+            </div>
+            <div className="rounded-xl bg-white border border-stone-200 p-6 text-center">
+              <p className="text-3xl font-bold text-picc-earth">16</p>
+              <p className="text-xs text-stone-500 mt-1">ATSICCO entities delivering DA services</p>
+            </div>
+            <div className="rounded-xl bg-white border border-stone-200 p-6 text-center">
+              <p className="text-3xl font-bold text-picc-earth">2027</p>
+              <p className="text-xs text-stone-500 mt-1">Current DA funding extends to 30 June 2027</p>
+            </div>
+          </div>
+          <p className="text-[11px] text-stone-400 mt-6 text-center leading-relaxed">
+            Statewide figures from QFCC reporting. Palm-specific outcome data is not yet in the
+            public record — the Narelle interview Part D7-D8 is designed to capture it.
+            The $107.8M figure in PICC&apos;s annual report is the statewide DA investment
+            envelope, not a Palm-only contract value. Public Queensland expenditure datasets
+            show PICC line items labelled &ldquo;Delegated Authority - Palm Island&rdquo; in
+            2023-24 and 2024-25.
+          </p>
         </div>
       </section>
 
