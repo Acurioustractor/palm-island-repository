@@ -84,6 +84,29 @@ export default function LaunchpadPage() {
           </div>
         </section>
 
+        {/* ─── WHY THIS MATTERS — IPSOS FINDING ─── */}
+        <section className="mb-16">
+          <h2 className="text-xs font-semibold tracking-[0.2em] uppercase text-picc-ochre mb-6">
+            Why this restructure matters
+          </h2>
+          <div className="rounded-2xl border-l-4 border-picc-ochre bg-white p-8 shadow-sm">
+            <p className="text-xs font-mono font-bold text-stone-400 uppercase tracking-wide mb-3">
+              Independent finding · Ipsos 2019 evaluation
+            </p>
+            <p className="font-serif italic text-xl md:text-2xl text-stone-800 leading-relaxed mb-4">
+              &ldquo;The mixed governance model helped stabilise funding and coordination, but
+              also created distrust and confusion about whether PICC was truly community-led.&rdquo;
+            </p>
+            <p className="text-sm text-stone-600 leading-relaxed">
+              The 2021 restructure directly answered that finding. Services, workforce and
+              assets transferred from the 2007 hybrid public company into a member-controlled
+              entity on <strong>30 September 2021</strong>. The next 20 years build on the
+              legitimacy PICC has now earned. The Launchpad uses the 20-year moment to make
+              that legitimacy visible — externally to funders, internally to community.
+            </p>
+          </div>
+        </section>
+
         {/* ─── THREE APPROACHES CONSIDERED ─── */}
         <section className="mb-16">
           <h2 className="text-xs font-semibold tracking-[0.2em] uppercase text-picc-ochre mb-6">
