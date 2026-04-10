@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { createServerComponentClient } from '@/lib/supabase/server';
+import { createServerSupabase } from '@/lib/supabase/client';
 import { ArrowRight } from 'lucide-react';
 import PublicationsFilterableGrid from './PublicationsFilterableGrid';
 
@@ -38,11 +39,37 @@ export default async function PublicationsPage() {
     .eq('status', 'published')
     .order('published_date', { ascending: false }) as { data: Publication[] | null; error: any };
 
+  // Fetch verified research sources using the service-role client
+  // (research_sources has RLS that may block the cookie-based client)
+  const adminSupabase = createServerSupabase();
+  const { data: researchSources } = await adminSupabase
+    .from('research_sources')
+    .select('id, title, description, source_type, author, publisher, is_verified, is_primary_source, extracted_data, url')
+    .eq('is_verified', true)
+    .order('is_primary_source', { ascending: false });
+
+  // Convert research_sources to publication shape so the grid can render them
+  const researchAsPublications: Publication[] = (researchSources || []).map((r: any) => ({
+    id: r.id,
+    slug: `research-${r.id}`,
+    title: r.title,
+    description: r.description || null,
+    category: r.extracted_data?.subtype || r.source_type || 'research',
+    author: r.author || r.publisher || null,
+    status: 'published',
+    is_featured: false,
+    tags: ['research-source'],
+    pdf_url: r.url || null,
+  }));
+
+  // Merge: owned publications first, then verified research sources
+  const allPublications = [...(publications || []), ...researchAsPublications];
+
   // Get featured publication
-  const featured = publications?.find((p: Publication) => p.is_featured) || null;
+  const featured = allPublications?.find((p: Publication) => p.is_featured) || null;
 
   // Get unique categories for filtering
-  const categories = Array.from(new Set(publications?.map((p: Publication) => p.category) || []));
+  const categories = Array.from(new Set(allPublications?.map((p: Publication) => p.category) || []));
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -67,7 +94,7 @@ export default async function PublicationsPage() {
 
       {/* Filterable content (client component) */}
       <PublicationsFilterableGrid
-        publications={publications || []}
+        publications={allPublications}
         categories={categories}
         featured={featured}
       />
