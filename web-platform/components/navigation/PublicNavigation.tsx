@@ -44,8 +44,8 @@ export function PublicNavigation() {
   const navLinks = [
     { label: 'Stories', href: '/stories' },
     { label: 'Services', href: '/services' },
+    { label: 'Bwgcolman Way', href: '/bwgcolman' },
     { label: 'Elders', href: '/elders' },
-    { label: 'Explore', href: '/explore' },
     { label: 'Impact', href: '/impact' },
     { label: 'About', href: '/about' },
     {
