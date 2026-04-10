@@ -24,7 +24,7 @@ Everything needed to run the Narelle interview, feed her answers into the 24/25 
 
 ---
 
-## The seven documents in this folder
+## The eight documents in this folder
 
 ### 1. [[PICC-Services-Projects-Review-for-Narelle]]
 
@@ -78,6 +78,16 @@ The 90-minute session with Rachel. Sixteen slides across six sections. Each slid
 The evidence layer behind every decision. An inventory of what already exists in the two data homes — PICC Supabase (157 tables, 92 stories, 162 elder quotes, 290 extracted quotes, 6 community visions, 80 governance achievements, 53 timeline events, 2,508 media files, 34 interviews with 2,036 segments, 8 report highlights for 24/25) and the Empathy Ledger v2 canonical archive (17-year annual report summaries, the full growth table 1→197 staff and $1.6M→$23.4M revenue, Rachel as continuous CEO 2007–present). Then proposes five concrete walkthrough experiences that can be built from existing data, cross-references every gap to a section of the Narelle interview framework that unlocks it, names what PICC data can push upstream to EL v2 and what EL v2 can pull into PICC, and gives the tight 20-minute live tour script through `http://localhost:3000`.
 
 **Use:** Read this before the Rachel workshop. It is the answer to "what do we actually have?" Rachel walks out knowing the data is real, the 5 experiences are achievable, the Narelle interview is non-negotiable, and Bwgcolman Way is the anchor.
+
+---
+
+### 8. [[PICC-Sector-Context-Deep-Research]]
+
+Where PICC sits in the Australian community-controlled sector. Archive of a 44-minute external deep-research pass (10 April 2026) that maps PICC against the National Agreement on Closing the Gap, the ACCHO/ACCO ecosystem, and the peak bodies (QAIHC, NACCHO, SNAICC) Rachel sits on. Includes the governance evolution from 2007 hybrid shareholder company to 2021 member-controlled entity, the Ipsos 2019 evaluation finding that the mixed-governance model "created distrust about whether PICC was truly community-led" (the exact justification for the 2021 restructure), authoritative 2018-19 Ipsos figures (98 staff, 85% ATSI, 78% local, 17 contracts, 3,306 clients), specific launch date (17 October 2007), the primary health merger date (1 July 2021), and the board constitutional design (5-7 directors, Traditional Owner seat, guardrails).
+
+Best single sentence from the research: **"PICC is best understood not as a single service or charity, but as Palm Island's community infrastructure platform."** This framing now lives in the "PICC in context" section at the top of `/picc/next-20`.
+
+**Use:** The evidence layer behind the sector positioning Ben opens the Rachel workshop with. Companion to doc #7 — #7 holds the internal PICC+EL data inventory, #8 holds the external sector positioning. Updates from this research have been applied to the database: `organization_stats` 2018-19 corrected to Ipsos figures, 3 new `timeline_events` added (2007-10-17 launch, 2021-07-01 health merger, 2021-09-30 transition complete), and 2 new `governance_achievements` for 2024 (Training Awards + Rachel's peak-body roles).
 
 ---
 

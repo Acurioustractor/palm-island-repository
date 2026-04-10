@@ -12,7 +12,7 @@
  */
 
 import { createServerSupabase } from '@/lib/supabase/client'
-import { Sparkles, Compass, AlertCircle, Quote, ArrowRight } from 'lucide-react'
+import { Sparkles, Compass, AlertCircle, Quote, ArrowRight, Landmark, Network } from 'lucide-react'
 
 export const metadata = {
   title: 'Next 20 Years — Working Canvas | PICC',
@@ -133,6 +133,52 @@ export default async function Next20CanvasPage() {
           <p className="text-sm text-white/60">
             From PICC-20-Year-Launchpad-Plan.md
           </p>
+        </div>
+
+        {/* ── PICC IN CONTEXT ── */}
+        <div className="mb-16">
+          <h2 className="text-xs font-semibold tracking-[0.2em] uppercase text-picc-ochre mb-6">
+            PICC in context
+          </h2>
+          <div className="rounded-2xl border border-stone-200 bg-white p-8 md:p-10">
+            <p className="font-serif italic text-xl md:text-2xl leading-relaxed text-stone-800 mb-6">
+              "PICC is best understood not as a single service or charity, but as Palm Island's community infrastructure platform."
+            </p>
+            <p className="text-sm text-stone-600 leading-relaxed mb-8">
+              PICC began in 2007 as a hybrid public company designed to link services, community capacity building and business development on Palm Island. In 2021, it shifted into a new community-controlled entity whose members are eligible Palm Islanders. Today it sits between an ACCHO, a broader ACCO, and a community enterprise group — a community-controlled anchor institution that combines health, child and family safety, justice, disability, aged care, youth, and economic development in one Palm-based organisation.
+            </p>
+
+            <div className="grid md:grid-cols-3 gap-6 mb-8">
+              <ContextCard
+                icon={<Landmark className="w-5 h-5" />}
+                label="Founding arc"
+                body="2005 design phase. Launched 17 October 2007 as a public company limited by shares with Queensland Government, Palm Island Council and Traditional Owners as shareholders."
+              />
+              <ContextCard
+                icon={<Network className="w-5 h-5" />}
+                label="2021 transition"
+                body="New community-controlled company registered June 2020. Services, workforce and assets transferred 30 September 2021. Primary health merged with Queensland Health on 1 July 2021 to form the community-controlled Palm Island Primary Health Centre."
+              />
+              <ContextCard
+                icon={<Sparkles className="w-5 h-5" />}
+                label="Sector position"
+                body="CEO Rachel Atkinson (since 2007): QAIHC Deputy Chair · NACCHO Board · SNAICC Deputy Chair. Three peak community-controlled bodies across health and child safety."
+              />
+            </div>
+
+            <div className="rounded-xl bg-picc-ochre/5 border border-picc-ochre/20 p-5">
+              <p className="text-xs font-semibold tracking-wide uppercase text-picc-ochre mb-2">
+                The arc to lead with
+              </p>
+              <p className="text-sm text-stone-700 leading-relaxed">
+                <strong>PICC has moved from a state-backed service-delivery experiment into a locally member-controlled anchor institution.</strong> The 2019 Ipsos evaluation found that the mixed-governance model helped PICC scale but also created distrust about whether it was truly community-led. The 2021 restructure directly answered that finding. The next 20 years build on the legitimacy PICC has now earned.
+              </p>
+            </div>
+
+            <p className="text-[11px] text-stone-400 mt-4">
+              Source: PICC-Sector-Context-Deep-Research.md (workshop vault doc #8) · Ipsos 2019 evaluation · National Agreement on Closing the Gap · QAIHC / NACCHO / SNAICC public records
+            </p>
+          </div>
         </div>
 
         {/* ── THREE COLUMNS ── */}
@@ -357,6 +403,26 @@ function EmptyState({ message }: { message: string }) {
   return (
     <div className="rounded-xl border-2 border-dashed border-stone-200 p-6 text-center">
       <p className="text-sm text-stone-400">{message}</p>
+    </div>
+  )
+}
+
+function ContextCard({
+  icon,
+  label,
+  body,
+}: {
+  icon: React.ReactNode
+  label: string
+  body: string
+}) {
+  return (
+    <div className="rounded-xl border border-stone-200 bg-[#FAF8F5] p-5">
+      <div className="flex items-center gap-2 mb-2 text-picc-ochre">
+        {icon}
+        <p className="text-xs font-semibold tracking-wide uppercase">{label}</p>
+      </div>
+      <p className="text-sm text-stone-600 leading-relaxed">{body}</p>
     </div>
   )
 }
