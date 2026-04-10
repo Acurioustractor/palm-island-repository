@@ -17,6 +17,7 @@
  */
 
 import { createServerSupabase } from '@/lib/supabase/client'
+import { getELQuotes, getELStats } from '@/lib/empathy-ledger/el-server'
 import {
   Quote,
   Mic,
@@ -64,8 +65,12 @@ const PRIORITY_CATEGORIES = ['community', 'culture', 'elders', 'youth', 'educati
 export default async function VoicesPage() {
   const supabase = createServerSupabase()
 
-  const [elderRes, extractedRes, categoriesRes, suggestedRes] = await Promise.all([
-    // Curated elder quotes — diverse sample across categories
+  // Fetch from BOTH sources in parallel:
+  // 1. PICC local elder_quotes (curated, with permission levels)
+  // 2. EL canonical extracted_quotes (the full 1,128 — via el-server.ts)
+  // 3. EL stats for canonical counts
+  const [elderRes, categoriesRes, elQuotes, elStats] = await Promise.all([
+    // Curated elder quotes from PICC local — diverse sample across categories
     supabase
       .from('elder_quotes')
       .select('id, text, speaker_name, speaker_role, theme, category, is_validated, cultural_sensitivity, permission_level')
@@ -74,32 +79,35 @@ export default async function VoicesPage() {
       .order('created_at', { ascending: false })
       .limit(60),
 
-    // Extracted quotes — high-impact sample with photos where available
-    supabase
-      .from('extracted_quotes')
-      .select('id, quote_text, attribution, theme, sentiment, impact_area, suggested_for_report, is_validated, photo_url')
-      .order('suggested_for_report', { ascending: false })
-      .order('display_order', { ascending: true })
-      .limit(40),
-
-    // Category breakdown across all elder_quotes
+    // Category breakdown across all elder_quotes (PICC local)
     supabase
       .from('elder_quotes')
       .select('category')
       .in('permission_level', ['public', 'community'])
       .neq('cultural_sensitivity', 'restricted'),
 
-    // Voices marked as suggested_for_report in extracted_quotes
-    supabase
-      .from('extracted_quotes')
-      .select('id', { count: 'exact', head: true })
-      .eq('suggested_for_report', true),
+    // EL canonical extracted quotes — the FULL set, not the PICC local 290
+    getELQuotes({ limit: 1200 }),
+
+    // EL canonical stats for the headline counts
+    getELStats(),
   ])
 
   const elderQuotes: ElderQuote[] = (elderRes.data || []) as ElderQuote[]
-  const extractedQuotes: ExtractedQuote[] = (extractedRes.data || []) as ExtractedQuote[]
   const allCategories = (categoriesRes.data || []) as { category: string | null }[]
-  const suggestedCount = suggestedRes.count || 0
+
+  // Convert EL quotes to ExtractedQuote shape for the grid
+  const extractedQuotes: ExtractedQuote[] = elQuotes.slice(0, 40).map((q) => ({
+    id: q.id,
+    quote_text: q.quote_text,
+    attribution: q.author_name || null,
+    theme: Array.isArray(q.themes) && q.themes.length > 0 ? q.themes[0] : null,
+    sentiment: q.sentiment || null,
+    impact_area: q.category || null,
+    suggested_for_report: null,
+    is_validated: q.approval_status === 'approved',
+    photo_url: null,
+  }))
 
   // Build category breakdown for the priority list
   const categoryCounts = new Map<string, number>()
@@ -108,10 +116,10 @@ export default async function VoicesPage() {
     categoryCounts.set(key, (categoryCounts.get(key) || 0) + 1)
   }
 
-  // Total counts
+  // Total counts — EL canonical for extracted, PICC local for elder
   const totalElder = allCategories.length
-  const totalExtracted = extractedQuotes.length // sample shown — see also count below
-  const totalAll = totalElder + 290 // 290 is the known full extracted_quotes count
+  const totalExtractedEL = elStats.quotes // the real EL canonical count
+  const totalAll = totalElder + totalExtractedEL
 
   const youthCount = categoryCounts.get('youth') || 0
   const isYouthGap = youthCount < 10
@@ -156,15 +164,15 @@ export default async function VoicesPage() {
             />
             <CountCard
               icon={<Mic className="w-5 h-5" />}
-              label="Extracted quotes"
-              count={290}
-              sub="From transcripts via AI"
+              label="EL extracted quotes"
+              count={totalExtractedEL}
+              sub="From EL canonical (was 290 in PICC local)"
             />
             <CountCard
               icon={<Sparkles className="w-5 h-5" />}
-              label="Suggested for report"
-              count={suggestedCount}
-              sub="Flagged for annual report use"
+              label="EL transcripts"
+              count={elStats.transcripts}
+              sub="Source material in Empathy Ledger"
             />
             <CountCard
               icon={<Users className="w-5 h-5" />}
@@ -292,7 +300,7 @@ export default async function VoicesPage() {
           </div>
           {extractedQuotes.length > 12 && (
             <p className="text-xs text-stone-400 mt-4 italic">
-              Showing first 12 of {extractedQuotes.length} loaded · 290 total in database.
+              Showing first 12 of {extractedQuotes.length} loaded · {totalExtractedEL.toLocaleString()} total in EL canonical.
             </p>
           )}
         </section>
@@ -317,8 +325,8 @@ export default async function VoicesPage() {
               />
               <SprintCount
                 label="Currently held"
-                value={String(totalElder)}
-                sub="Curated elder quotes (mixed years)"
+                value={String(totalAll)}
+                sub={`${totalElder} curated + ${totalExtractedEL} EL extracted`}
               />
               <SprintCount
                 label="Status"
