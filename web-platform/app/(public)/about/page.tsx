@@ -10,6 +10,11 @@ import AboutCountdownSection from "@/components/about/AboutCountdownSection";
 import { createServerSupabase } from "@/lib/supabase/client";
 import { assetUrl } from "@/lib/media/asset-url";
 
+export const metadata = {
+  title: 'About PICC — Palm Island Community Company',
+  description: 'Bwgcolman — many tribes, one people. PICC is Palm Island\'s community-controlled anchor institution, built across 17 years from a hybrid public company into a member-controlled organisation.',
+};
+
 export default async function AboutPage() {
   const supabase = createServerSupabase();
 
@@ -111,6 +116,37 @@ export default async function AboutPage() {
               </div>
               <h3 className="text-lg font-bold text-picc-earth mb-2">Our Promise</h3>
               <p className="text-sm text-gray-600">Every decision emerges from and returns to community. Sovereignty in practice.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 2.5 Bwgcolman — Cultural foundation */}
+      <section className="editorial-section bg-[#FAF8F5]">
+        <div className="max-w-5xl mx-auto px-4">
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-picc-ochre mb-3 text-center">
+            Cultural Foundation
+          </p>
+          <h2 className="text-3xl md:text-5xl font-extrabold text-picc-earth tracking-[-0.02em] text-center mb-8 font-serif italic">
+            Bwgcolman — many tribes, one people
+          </h2>
+          <div className="grid md:grid-cols-2 gap-10 items-start">
+            <div>
+              <p className="text-lg text-gray-700 leading-relaxed mb-5">
+                Palm Island was gazetted as an Aboriginal reserve in 1914. In the decades that followed, Aboriginal and Torres Strait Islander people were forcibly removed here from <strong>more than 70 Nations</strong> across Queensland.
+              </p>
+              <p className="text-lg text-gray-700 leading-relaxed">
+                Out of that history, a single community formed. <strong>Bwgcolman</strong> is the name Palm Islanders use for themselves — commonly glossed as <em>&ldquo;many tribes, one people.&rdquo;</em> The <strong>Manbarra</strong> are the Traditional Owners of this country. PICC&apos;s constitution reserves a board seat for a Manbarra-nominated director, and membership is open to Manbarra and Bwgcolman people aged 18 and over.
+              </p>
+            </div>
+            <div className="bg-[#0B4F6C] text-white rounded-2xl p-8">
+              <Quote className="w-8 h-8 text-picc-ochre mb-4 opacity-80" />
+              <p className="font-serif italic text-xl md:text-2xl leading-relaxed mb-4">
+                Community control on Palm is not just an administrative model. It is a self-determination response to a long history of imposed control.
+              </p>
+              <p className="text-xs text-white/60 border-l-2 border-picc-ochre pl-3">
+                From the PICC sector-context research, 10 April 2026
+              </p>
             </div>
           </div>
         </div>
