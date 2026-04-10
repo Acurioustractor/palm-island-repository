@@ -148,6 +148,39 @@ export default function GovernancePage() {
           </div>
         </section>
 
+        {/* ── CURRENT BOARD (2023/24) ── */}
+        <section className="mb-12">
+          <h2 className="text-xs font-semibold tracking-[0.2em] uppercase text-picc-ochre mb-6">
+            Current public board (2023/24 annual report)
+          </h2>
+          <div className="rounded-2xl border border-stone-200 bg-white p-8">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              {[
+                { name: 'Luella Bligh', role: 'Chair' },
+                { name: 'Rhonda Phillips', role: 'Director' },
+                { name: 'Allan Palm Island', role: 'Director' },
+                { name: 'Matthew Lindsay', role: 'Director' },
+                { name: 'Harriet Hulthen', role: 'Director' },
+                { name: 'Raymond W. Palmer Snr', role: 'Director' },
+                { name: 'Cassie Lang', role: 'Director' },
+              ].map((d) => (
+                <div
+                  key={d.name}
+                  className="rounded-xl bg-[#FAF8F5] border border-stone-100 p-4 text-center"
+                >
+                  <p className="font-semibold text-stone-800">{d.name}</p>
+                  <p className="text-xs text-picc-ochre font-medium mt-0.5">{d.role}</p>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-stone-500 leading-relaxed">
+              Source: 2023/24 annual report. AGM notices and member-director nomination calls
+              were publicly posted for both the 2024 and 2025 cycles — the next AGM is
+              scheduled for 25 November 2025. Board composition may change after that cycle.
+            </p>
+          </div>
+        </section>
+
         {/* ── GUARDRAILS ── */}
         <section className="mb-12">
           <h2 className="text-xs font-semibold tracking-[0.2em] uppercase text-picc-ochre mb-6">
