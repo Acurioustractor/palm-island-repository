@@ -148,6 +148,10 @@ export const baseStyles = StyleSheet.create({
     fontFamily: 'Inter',
     fontSize: 9.5,
     color: C.rock,
+    // Full-bleed pages (cover, back cover) must have zero padding — React PDF
+    // Page defaults to 36pt padding, so an A4_H-sized image would exceed the
+    // content area and hang the layout engine on pagination.
+    padding: 0,
   },
 
   // Running header
