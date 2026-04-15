@@ -2,19 +2,28 @@
  * Font registration for React PDF.
  * Must be awaited once before rendering any PDF document.
  *
- * Strategy: TTFs live on EL v2 Supabase Storage (public bucket). On first
- * call we prefetch all 11 files in parallel, cache them in module scope,
- * convert each to a base64 data URL, and pass to Font.register. React-PDF
- * accepts data URL strings and parses them synchronously during render.
+ * Strategy: TTFs live on EL v2 Supabase Storage. On first call we prefetch
+ * all 11 files in parallel and write them to /tmp/picc-pdf-fonts/ on the
+ * lambda filesystem, then pass the file paths to Font.register.
  *
- * Why not filesystem: Next.js doesn't trace path.join(process.cwd(), …)
- * reads, so TTFs are missing from the /var/task lambda bundle.
+ * Why this shape:
+ * - Filesystem reads from the project root aren't traced by Next.js into
+ *   the /var/task bundle (outputFileTracingIncludes is unreliable here).
+ * - Direct URL src causes React-PDF to do 11 serial HTTPS fetches inside
+ *   render, blowing the lambda duration budget.
+ * - Data URL (`data:font/ttf;base64,…`) src path uses atob+split+map which
+ *   is O(n) with huge string allocations; 11 × 330KB TTFs hangs the
+ *   lambda for minutes.
+ * - Filesystem paths hit React-PDF's fontkit.open() branch which is fast.
  *
- * Why not direct URL src: React-PDF fetches each URL serially during
- * render, pushing the lambda over its duration budget. Prefetching at
- * registration is ~10x faster.
+ * /tmp on Vercel Lambda is 512 MB writable ephemeral storage — persists
+ * for the container lifetime, so only the first request in a container
+ * pays the prefetch cost.
  */
 import { Font } from '@react-pdf/renderer'
+import fs from 'fs'
+import path from 'path'
+import os from 'os'
 
 const FONT_HOST = 'https://yvnuayzslukamizrlhwb.supabase.co/storage/v1/object/public/profile-images/picc-pdf-fonts'
 
@@ -35,52 +44,50 @@ const FONT_FILES = [
 type FontName = (typeof FONT_FILES)[number]
 
 let registrationPromise: Promise<void> | null = null
-const cache = new Map<FontName, string>()
+const FONT_DIR = path.join(os.tmpdir(), 'picc-pdf-fonts')
 
-async function fetchFontDataUrl(name: FontName): Promise<string> {
-  const cached = cache.get(name)
-  if (cached) return cached
+async function ensureFont(name: FontName): Promise<string> {
+  const dest = path.join(FONT_DIR, name)
+  if (fs.existsSync(dest) && fs.statSync(dest).size > 1000) return dest
   const res = await fetch(`${FONT_HOST}/${name}`)
   if (!res.ok) throw new Error(`Font fetch failed: ${name} (${res.status})`)
   const buf = Buffer.from(await res.arrayBuffer())
-  const url = `data:font/ttf;base64,${buf.toString('base64')}`
-  cache.set(name, url)
-  return url
+  fs.writeFileSync(dest, buf)
+  return dest
 }
 
 async function registerAll(): Promise<void> {
-  const [
-    interRegular, interSemiBold, interBold, interItalic, interBoldItalic,
-    caveatRegular, caveatBold,
-    playfairRegular, playfairBold, playfairItalic, playfairBoldItalic,
-  ] = await Promise.all(FONT_FILES.map(fetchFontDataUrl))
+  fs.mkdirSync(FONT_DIR, { recursive: true })
+  const paths = Object.fromEntries(
+    await Promise.all(FONT_FILES.map(async (n) => [n, await ensureFont(n)] as const)),
+  ) as Record<FontName, string>
 
   Font.register({
     family: 'Inter',
     fonts: [
-      { src: interRegular, fontWeight: 'normal', fontStyle: 'normal' },
-      { src: interSemiBold, fontWeight: 'semibold', fontStyle: 'normal' },
-      { src: interBold, fontWeight: 'bold', fontStyle: 'normal' },
-      { src: interItalic, fontWeight: 'normal', fontStyle: 'italic' },
-      { src: interBoldItalic, fontWeight: 'bold', fontStyle: 'italic' },
+      { src: paths['Inter-Regular.ttf'], fontWeight: 'normal', fontStyle: 'normal' },
+      { src: paths['Inter-SemiBold.ttf'], fontWeight: 'semibold', fontStyle: 'normal' },
+      { src: paths['Inter-Bold.ttf'], fontWeight: 'bold', fontStyle: 'normal' },
+      { src: paths['Inter-Italic.ttf'], fontWeight: 'normal', fontStyle: 'italic' },
+      { src: paths['Inter-BoldItalic.ttf'], fontWeight: 'bold', fontStyle: 'italic' },
     ],
   })
 
   Font.register({
     family: 'Caveat',
     fonts: [
-      { src: caveatRegular, fontWeight: 'normal' },
-      { src: caveatBold, fontWeight: 'bold' },
+      { src: paths['Caveat-Regular.ttf'], fontWeight: 'normal' },
+      { src: paths['Caveat-Bold.ttf'], fontWeight: 'bold' },
     ],
   })
 
   Font.register({
     family: 'PlayfairDisplay',
     fonts: [
-      { src: playfairRegular, fontWeight: 'normal', fontStyle: 'normal' },
-      { src: playfairBold, fontWeight: 'bold', fontStyle: 'normal' },
-      { src: playfairItalic, fontWeight: 'normal', fontStyle: 'italic' },
-      { src: playfairBoldItalic, fontWeight: 'bold', fontStyle: 'italic' },
+      { src: paths['PlayfairDisplay-Regular.ttf'], fontWeight: 'normal', fontStyle: 'normal' },
+      { src: paths['PlayfairDisplay-Bold.ttf'], fontWeight: 'bold', fontStyle: 'normal' },
+      { src: paths['PlayfairDisplay-Italic.ttf'], fontWeight: 'normal', fontStyle: 'italic' },
+      { src: paths['PlayfairDisplay-BoldItalic.ttf'], fontWeight: 'bold', fontStyle: 'italic' },
     ],
   })
 

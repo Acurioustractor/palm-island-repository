@@ -30,12 +30,21 @@ async function call<T>(path: string): Promise<T | null> {
   const b = base();
   const k = key();
   if (!b || !k) return null;
-  const res = await fetch(`${b}${path}`, {
-    headers: { 'x-picc-api-key': k },
-    next: { revalidate: 300 },
-  });
-  if (!res.ok) return null;
-  return (await res.json()) as T;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 15_000);
+  try {
+    const res = await fetch(`${b}${path}`, {
+      headers: { 'x-picc-api-key': k },
+      cache: 'no-store',
+      signal: controller.signal,
+    });
+    if (!res.ok) return null;
+    return (await res.json()) as T;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 export async function getPhotoForSlot(slot: string): Promise<ELPhoto | null> {
