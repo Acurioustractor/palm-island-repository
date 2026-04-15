@@ -46,11 +46,38 @@ Fix attempted (deploy 10): prefetch fonts to `/tmp/picc-pdf-fonts/` at module in
 
 **Result: still hangs 5 min with no body.** Runtime logs show ONLY the recurring `Invalid '' string child outside <Text> component` warning — which is a symptom, not the cause. The hang is now somewhere inside the React-PDF render tree itself, independent of fonts or upstream fetches.
 
+## Update 2 — local-repro diagnosis 2026-04-15 (commit 873471fd)
+
+Ran `npm run dev` locally and watched the render log. Found + fixed **two real bugs**:
+
+1. **URL concatenation bug** in `lib/annual-report/page-photos.ts` + `lib/pdf/templates/AnnualReportPDF.tsx`. `getBaseUrl()` was being prepended to URLs returned by `assetUrl()`, which already returns absolute Supabase URLs for migrated asset prefixes (`/annual-report-photos/`, `/report-assets/`, `/hero-assets/`, etc.). Produced `http://localhost:3000https://…` that React-PDF couldn't fetch.
+2. **Bare path logo ref** — several templates used `src="/logo/picc-logo-full.png"` directly. React-PDF in server mode treats bare paths as filesystem reads → ENOENT. Resolved via `getBaseUrl()` prefix.
+
+With those fixed, all URL errors disappear from the render log. **One remaining issue:**
+
+```
+Node of type IMAGE can't wrap between pages and it's bigger than available page height
+Node of type SVG can't wrap between pages and it's bigger than available page height
+```
+
+React-PDF layout engine hits an Image (or SVG) that exceeds A4 page height, and the layout pass appears to enter a wait/deadlock rather than erroring. The lambda (and local dev) hang silently past their timeout budget.
+
 ## Revised next-session entry point
 
-1. **Reproduce locally** — run `npm run dev` and hit `/api/pdf/generate` with all env vars set (`EL_V2_API_URL`, `EL_V2_API_KEY`, Supabase creds). Trace where it actually hangs; you'll get full stack + console logs that prod runtime logs don't surface.
-2. **Chase the warning first** — grep templates for `''` as a child. Most likely a conditional like `{foo && foo.text}` where `foo === ''`. Replace with `{foo ? <Text>{foo}</Text> : null}`. This could be masking a deeper bug where the "" keeps regenerating and never terminates.
-3. **If warning isn't the cause**, add granular `console.time` blocks around: registerFonts, getReportData, renderToBuffer. Redeploy once to see which phase hangs.
-4. **Nuclear fallback**: downgrade `@react-pdf/renderer` to v3 (`^3.4.5`), which uses different font + render internals. Riskier (breaks other templates potentially) but a known-good baseline.
+Pipeline is now two URL bugs + one layout bug away from a rendered PDF. The URL bugs are fixed (873471fd). What's left:
 
-Do **not** waste another deploy cycle on `outputFileTracingIncludes` or font variant tweaks — that rabbit hole is exhausted.
+1. **Reproduce locally** — `cd web-platform && vercel env pull .env.local --yes && npm run dev`, then `curl http://localhost:3000/api/pdf/generate?type=annual-report&audience=community`.
+2. **Find the oversized node.** Log lines will be: `Node of type IMAGE can't wrap between pages …` and/or `Node of type SVG can't wrap between pages …`. Search the AR template for `<Image>` or `<Svg>` nodes whose `style` has no explicit `height`, or a `height` approaching/exceeding `A4_H` (841 pt). Likely candidates:
+   - full-bleed cover/backcover imagery
+   - the Journey timeline spread (long SVG)
+   - decorative ConstellationPattern / concentric dot SVGs if their size wasn't clamped
+3. **Fix in one of two ways:**
+   - Set a concrete `height` smaller than the page content area, OR
+   - Wrap the offending `<View>` with `wrap={false}` + add `break` to the enclosing page so React-PDF doesn't try to split.
+4. **Verify locally**, then deploy. At that point the end-to-end is closed.
+
+Not worth doing unless steps 1–3 are blocked:
+- Downgrade `@react-pdf/renderer` v4 → v3 (may unblock layout heuristics but risks other templates).
+- Template-wide audit for `''` string children (the recurring warning). Harmless, unrelated to the hang.
+
+Don't waste cycles on `outputFileTracingIncludes` — it's a Next 15 feature; this project is on Next 14.2.33 where it's silently ignored. Fonts now load via `/tmp/` prefetch which works on Vercel Lambda.
