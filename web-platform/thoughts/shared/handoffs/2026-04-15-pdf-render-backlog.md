@@ -38,8 +38,19 @@
 - **Consent writes**: 122 photos `elder_approved=true` + `consent_obtained=true` in EL v2
 - **Middleware allowlist**: `/api/photos` is in `PUBLIC_API_ALWAYS_EXACT`
 
-## Next session entry point
+## Update — extended attempt 2026-04-15 (deploys 8–10)
 
-Start by downgrading `@react-pdf/renderer` to v3 and trying `src: Buffer` directly (pre-data-URL approach). If v3 breaks other templates, switch to the base64-constants-in-TS approach.
+Root-caused the data URL hang: React-PDF 4.3.2 `_load()` for data URLs does `atob(raw).split('').map(c => c.charCodeAt(0))` — O(n) with huge string allocations, hangs on 11 × 330 KB TTFs.
 
-Do **not** waste another deploy cycle on `outputFileTracingIncludes` — it's unreliable for this pattern in this project.
+Fix attempted (deploy 10): prefetch fonts to `/tmp/picc-pdf-fonts/` at module init, pass file paths to `Font.register` (hits `fontkit.open()` fast path). Plus `AbortController`+15 s timeout on EL v2 fetch with `cache: 'no-store'` to bound upstream.
+
+**Result: still hangs 5 min with no body.** Runtime logs show ONLY the recurring `Invalid '' string child outside <Text> component` warning — which is a symptom, not the cause. The hang is now somewhere inside the React-PDF render tree itself, independent of fonts or upstream fetches.
+
+## Revised next-session entry point
+
+1. **Reproduce locally** — run `npm run dev` and hit `/api/pdf/generate` with all env vars set (`EL_V2_API_URL`, `EL_V2_API_KEY`, Supabase creds). Trace where it actually hangs; you'll get full stack + console logs that prod runtime logs don't surface.
+2. **Chase the warning first** — grep templates for `''` as a child. Most likely a conditional like `{foo && foo.text}` where `foo === ''`. Replace with `{foo ? <Text>{foo}</Text> : null}`. This could be masking a deeper bug where the "" keeps regenerating and never terminates.
+3. **If warning isn't the cause**, add granular `console.time` blocks around: registerFonts, getReportData, renderToBuffer. Redeploy once to see which phase hangs.
+4. **Nuclear fallback**: downgrade `@react-pdf/renderer` to v3 (`^3.4.5`), which uses different font + render internals. Riskier (breaks other templates potentially) but a known-good baseline.
+
+Do **not** waste another deploy cycle on `outputFileTracingIncludes` or font variant tweaks — that rabbit hole is exhausted.
