@@ -18,15 +18,18 @@ import { NextRequest, NextResponse } from 'next/server'
 import React from 'react'
 
 export const runtime = 'nodejs'
-export const maxDuration = 60
+export const maxDuration = 300
 
 async function generateAnnualReport(year?: string, audience?: string) {
-  const [{ renderToBuffer }, { default: AnnualReportPDF }, { getReportData }] =
+  const [{ renderToBuffer }, { default: AnnualReportPDF }, { getReportData }, { registerFonts }] =
     await Promise.all([
       import('@react-pdf/renderer'),
       import('@/lib/pdf/templates/AnnualReportPDF'),
       import('@/lib/annual-report/fetch-report-data'),
+      import('@/lib/pdf/register-fonts'),
     ])
+
+  await registerFonts()
 
   const validAudiences = ['community', 'funder', 'board', 'supporter', 'government']
   const audienceProp = audience && validAudiences.includes(audience) ? audience as any : null

@@ -27,6 +27,11 @@ const nextConfig = {
       '**/public/cyclone-kirrily-temp/**',
     ],
   },
+  // PDF font files are loaded at runtime via path.join — Next.js can't trace
+  // these dynamic imports, so include them explicitly for every PDF route.
+  outputFileTracingIncludes: {
+    '/api/pdf/**': ['lib/pdf/fonts/**/*.ttf'],
+  },
   images: {
     remotePatterns: [
       {
