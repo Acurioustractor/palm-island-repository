@@ -1,0 +1,144 @@
+# Community celebration — Bwgcolman Way — Year 17
+# The warm, photo-led form of the report. 12 pages for Palm Island community
+# members — Elders, families, staff. Designed to sit on the kitchen table.
+
+recipe:
+  id: bwgcolman-way--community--year-17
+  created: 2026-04-16
+  title: "Bwgcolman Way — Year Seventeen"
+  subtitle: "From Palm Island, for Palm Island"
+
+audience:
+  persona: community
+  voice: warm
+  register: in-language-friendly
+  page_target: 12
+  include_caveat_headings: true          # Caveat everywhere it earns it
+  caption_style: italic-narrative         # "Aunty Ethel teaching kids at the centre, 2024"
+
+focus:
+  type: project
+  id: bwgcolman-way                       # projects.slug
+  include_related_services:
+    - bwgcolman-way
+    - bwgcolman-healing
+    - family-care-service
+    - safe-house
+    - women-s-shelter
+
+time_window:
+  from: 2007-01-01
+  to: 2024-06-30
+  emphasise: 2024-cycle                   # highlight the 2024 Delegated Authority year
+
+sections:
+  - id: cover
+    photo_slot: cover
+    title: "Bwgcolman Way"
+    subtitle: "Year Seventeen"
+    brand_mode: standard
+
+  - id: acknowledgement_of_country
+    photo_slot: acknowledgement
+    wording: warm_bwgcolman                # includes "many tribes, one people"
+
+  - id: elders_on_country                  # 2-page spread
+    pages: 2
+    photo_slots: [elders-on-country, elders-on-country]   # hero + detail grid
+    quotes:
+      hero_quote_source: elder             # one hero Elder quote
+      tile_quotes: 4                        # 4 photo+quote tiles
+    voice_quota:
+      prefer_elders: true
+      themes: [elders_wisdom, connection_to_country, intergenerational_healing]
+
+  - id: bwgcolman_way_flagship
+    pages: 1
+    native_graphic: before_after_panels    # the 1918/2024 split native panels
+    quotes: 2                               # two Aunty Ethel quotes (before · forward)
+    stats_on_graphic:
+      - label: "Framework adopted"
+        value: "2014"
+      - label: "Delegated Authority live"
+        value: "2024"
+      - label: "Children under DA"
+        value: "100+"
+      - label: "Queensland statewide commitment"
+        value: "$107.8M"
+        footnote: "statewide across ATSICCOs, not PICC-only"
+
+  - id: our_journey
+    pages: 1
+    native_graphic: river_timeline
+    dot_scale: staff_count                 # dots sized by staff at that moment
+    milestones: [2008, 2011, 2014, 2019, 2024]
+    bonus_milestone: { year: 2027, marker: horizon, label: "20-year celebration" }
+
+  - id: community_voices_wall               # 2-page spread
+    pages: 2
+    layout: grid_4x4
+    selection:
+      elders_required: 8-10
+      with_verified_quotes_required: 10+
+      source: extracted_quotes
+      filter: { is_featured: true, themes: [community, cultural_identity, resilience] }
+    unifier_footer:
+      caveat_text: "Many tribes, one people."
+      subtitle: "Bwgcolman — the meaning of the place, and the promise of the work"
+
+  - id: featured_service
+    service_id: bwgcolman-healing
+    pages: 1
+    voice: staff_member                    # direct voice of the practitioner
+
+  - id: featured_service
+    service_id: first-1000-days-program
+    pages: 1
+
+  - id: looking_forward
+    pages: 1
+    native_graphic: commitment_bands
+    commitments: 3
+    tone: promise
+
+  - id: with_thanks
+    pages: 1
+
+  - id: back_cover
+    brand_mode: standard
+    constellation: true
+
+data_selection_rules:
+  quotes:
+    max_per_page: 2
+    prefer_elder_voices: true
+    caveat_elder_quotes: true              # Rule 4 exception applies
+    require_attribution: true
+    anonymous_not_run: true                # Rule 2
+  photos:
+    approved_only: true
+    prefer_cultural: true
+    mode_sequence: [cultural_opener, editorial_spread, operational]
+  statistics:
+    framing_style: human                   # "we teach 2,283 people each year" not "2,283 clients"
+
+editorial_rules:
+  photo_modes: [cultural, editorial, operational]
+  attribution: strict
+  decoration: per_editorial_rule_3         # max one motif per spread
+  caveat_scope: display + elder_exception  # Caveat for elder pull quotes allowed
+  voice_column: maintained
+  service_colors: [mangrove, ochre, turtle-red]   # three max + Ocean constant
+
+output:
+  format: a4-portrait
+  pages_estimated: 12
+  filename_pattern: "picc-bwgcolman-way-community-{report_year}.pdf"
+
+provenance:
+  source_docs:
+    - ANNUAL-REPORT-EDITORIAL.md v1.0 (all six rules applied)
+    - 20-YEAR-BRAND-VISION.md (Year 17 framing)
+    - Empathy Ledger archive · Aunty Ethel interviews
+  reviewer_required: true
+  elder_sign_off_required: true             # community-facing = requires Elder review

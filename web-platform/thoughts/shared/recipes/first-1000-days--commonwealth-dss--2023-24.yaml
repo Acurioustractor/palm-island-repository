@@ -1,0 +1,99 @@
+# Commonwealth DSS brief — First 1,000 Days — 2023-24
+# The narrowest, most formal form the engine produces. 4-page impact brief
+# for a Commonwealth funder decision-maker who needs evidence, not narrative.
+
+recipe:
+  id: first-1000-days--commonwealth-dss--2023-24
+  created: 2026-04-16
+  title: "First 1,000 Days — Health Outcomes Brief 2023-24"
+  subtitle: "Palm Island Community Company · Prepared for Commonwealth DSS"
+
+audience:
+  persona: funder-commonwealth
+  voice: formal
+  register: clinical
+  page_target: 7
+  include_caveat_headings: false        # no warm handwriting for this audience
+  caption_style: factual                # prefer clinical captions
+
+focus:
+  type: service
+  id: first-1000-days-program           # organization_services.slug
+
+time_window:
+  from: 2023-07-01
+  to: 2024-06-30
+  comparison: 2022-23                    # show YoY where data exists
+
+sections:
+  - id: cover
+    photo_slot: feature-first-1000-days
+    title: "First 1,000 Days · Health Outcomes 2023-24"
+    subtitle: "Funder brief · Commonwealth Department of Social Services"
+    brand_mode: formal                   # muted palette, no Caveat cover
+
+  - id: acknowledgement_of_country
+    photo_slot: acknowledgement
+    wording: formal_short                # clipped version
+
+  - id: service_deep_dive
+    service_id: first-1000-days-program
+    pages: 3
+    slots:
+      - what_it_is                       # platform description
+      - clinical_model                   # framework citation (Arabena 2014 MJA)
+      - partners_and_funding             # who funds what
+      - delivery_numbers_2023_24         # service_metrics YoY comparison
+      - outcomes_indicators              # selected from service_metrics
+    voice_quota:
+      max_quotes: 2                      # one rachel, one clinical staff
+      quote_themes: [health_outcomes, community_control]
+
+  - id: funder_accountability
+    pages: 1
+    include:
+      - kpi_vs_deliverable_table         # what was promised · what was delivered
+      - acquittal_statement_placeholder  # user fills with real acquittal
+      - contact_and_reporting_cycle
+
+  - id: back_cover
+    brand_mode: formal
+    content:
+      - organisation_name_and_abn
+      - single_mission_line
+
+data_selection_rules:
+  quotes:
+    max_per_page: 1
+    prefer: { is_featured: true, category: outcomes }
+    exclude_themes: [cultural_ceremony, stolen_generations]  # off-brief for this audience
+    require_attribution: true            # per Editorial Rule 2
+  photos:
+    approved_only: true                  # elder_approved=true via /api/photos
+    prefer: { cultural_tags: clinical } # service-delivery photos over celebration
+  statistics:
+    always_include:
+      - clients_served_fy
+      - episodes_of_care_fy
+      - workforce_indigenous_ratio
+      - compliance_accreditation_status
+
+editorial_rules:                          # all six rules from ANNUAL-REPORT-EDITORIAL.md still apply
+  photo_modes: [operational]              # no cultural-opener full bleeds
+  attribution: strict
+  decoration: minimal                     # no motifs at all for formal funder
+  caveat_scope: none                      # no Caveat exception for this audience
+  voice_column: maintained                # 33% voice column held
+  service_colors: [mangrove]              # single service colour — health is Mangrove
+
+output:
+  format: a4-portrait
+  pages_estimated: 7
+  filename_pattern: "picc-first-1000-days-dss-brief-{report_year}.pdf"
+
+provenance:
+  source_docs:
+    - COO review 2026-04-15 §2.5 (Health services)
+    - Annual Report 2023-24 executive summary
+    - service_metrics table · first-1000-days-program
+  reviewer_required: true                 # Rachel + Narelle sign-off before external release

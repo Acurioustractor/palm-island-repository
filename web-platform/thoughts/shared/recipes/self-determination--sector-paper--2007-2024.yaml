@@ -1,0 +1,156 @@
+# Sector paper — Self-determination: how community control works at PICC
+# A candid methodological paper for other ACCOs, peak bodies, academic/policy
+# readers. 16+ pages. Honest about what's hard, explicit about the model.
+
+recipe:
+  id: self-determination--sector-paper--2007-2024
+  created: 2026-04-16
+  title: "How community control works"
+  subtitle: "Seventeen years of Palm Island Community Company · a sector paper"
+
+audience:
+  persona: sector                          # ACCO peers, QATSICPP, SNAICC, researchers, policy
+  voice: candid-methodological
+  register: peer
+  page_target: 16
+  include_caveat_headings: true            # but used for structural punctuation, not warmth
+  caption_style: methodological             # dates, settings, citation-ready
+
+focus:
+  type: theme
+  id: self_determination                    # extracted_quotes.themes
+  adjacent_themes:
+    - community_control
+    - leadership
+    - cultural_identity
+  service_scope: org                        # all services in scope — this is about the whole
+
+time_window:
+  from: 2007-01-01                          # full PICC arc
+  to: 2024-06-30
+
+sections:
+  - id: cover
+    photo_slot: cover
+    title: "How community control works"
+    subtitle: "Seventeen years of PICC · a sector paper"
+    brand_mode: standard
+
+  - id: acknowledgement_of_country
+    photo_slot: acknowledgement
+    wording: sector_formal
+
+  - id: contents                            # auto
+
+  - id: theme_essay
+    pages: 4
+    theme: self_determination
+    structure:
+      - opening_quote_rachel                # "give us that voice, not the vote"
+      - historical_frame                    # 1918 to 2007 (Stolen Generations context — cite Ipsos 2019)
+      - the_2007_mandate                    # founding conditions
+      - the_14_year_campaign                # from board majority to full control
+      - september_30_2021                   # the transition moment
+      - present_posture                     # what community control looks like now
+    voice_quota:
+      rachel_quotes: 4-6
+      luella_quotes: 2-3
+      elder_quotes: 2
+    external_citations:
+      - "Ipsos 2019 evaluation (DATSIP + Child Safety + Communities)"
+      - "National Agreement on Closing the Gap 2020 · Priority Reform 1"
+      - "Part 2A Child Protection Act 1999 (Qld)"
+
+  - id: bwgcolman_way_flagship
+    pages: 1
+    framing: methodological                 # here is a working model
+    include_fact_check_flags: true          # show where claims need qualifier (e.g., $107.8M is statewide)
+
+  - id: governance
+    pages: 1
+    include:
+      - board_structure_diagram
+      - director_list_real_names
+      - peak_body_seats_held                # Family Matters Qld · Qld First Children & Families
+      - catsi_orc_statement
+
+  - id: risks
+    pages: 1
+    framing: how_we_name_them                 # see Editorial risk page — "naming a risk is not admitting failure"
+
+  - id: financial_summary
+    pages: 1
+    framing: how_money_follows_mandate        # focus on own-source earnings + restricted vs untied
+    graphic: saltwater_rings
+    emphasis:
+      - commonwealth_vs_state_vs_own
+      - own_source_trajectory_2007_to_2024
+
+  - id: project_spotlight
+    project_id: bwgcolman-way
+    pages: 2
+    slots:
+      - the_model
+      - measured_outcomes
+      - what_we_would_do_differently
+
+  - id: project_spotlight
+    project_id: digital-service-centre
+    pages: 2
+    slots:
+      - the_telstra_foundation_client_model
+      - employment_outcomes
+      - community_language_support
+
+  - id: looking_forward
+    pages: 1
+    commitments: 3
+    framing: sector_contribution              # how PICC's model informs other ACCOs
+
+  - id: with_thanks
+    pages: 1
+    emphasis: sector_partners                 # ACCO peers, QATSICPP, SNAICC, researchers
+
+  - id: back_cover
+    brand_mode: standard
+
+data_selection_rules:
+  quotes:
+    max_per_page: 3
+    prefer_self_determination_theme: true
+    include_critique_and_challenge: true      # not all quotes are celebratory
+    require_attribution: strict
+    include_footnotes: true                   # for sector readers who want source
+  photos:
+    approved_only: true
+    prefer_documentary_over_celebration: true
+    mode: editorial                           # not cultural opener
+  statistics:
+    always_with_methodology_note: true
+    show_longitudinal: true                   # where data covers multiple years
+    include_limitations: true                 # what's un-measured
+
+editorial_rules:
+  photo_modes: [editorial, operational]       # less cultural-opener
+  attribution: strict-with-footnotes
+  decoration: minimal                         # sector paper, not celebration
+  caveat_scope: structural-only
+  voice_column: maintained
+  service_colors: [ocean, ochre, mangrove]   # muted serious palette
+
+output:
+  format: a4-portrait
+  pages_estimated: 16
+  filename_pattern: "picc-sector-paper-self-determination-{yearrange}.pdf"
+  also_generate: markdown_version             # sector peers want to quote + cite
+
+provenance:
+  source_docs:
+    - Empathy Ledger archive (all 44 storytellers, 1048 quotes)
+    - Ipsos 2019 evaluation (external)
+    - National Agreement on Closing the Gap
+    - COO review document 2026-04-15
+    - PICC published annual reports 2023-24 and prior
+  reviewer_required: true
+  external_review_recommended: true           # draft to QATSICPP for sector check
+  fact_check_completed: false                 # seven flags from COO doc §0 to resolve first
