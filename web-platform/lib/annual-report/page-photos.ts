@@ -54,14 +54,26 @@ interface PhotoManifest {
 
 // ── Helpers ───────────────────────────────────────────
 
+// assetUrl() may return either an absolute URL (when the asset lives on
+// Supabase Storage) or a site-relative path (for items in public/). Only
+// prepend the base URL in the relative case — concatenating the base
+// onto an absolute URL produces gibberish like `http://localhost:3000https://…`
+// that React-PDF can't fetch, and oversized un-loaded Images then deadlock
+// the render.
+const toAbsolute = (maybePath: string): string => {
+  if (!maybePath) return maybePath
+  if (/^https?:\/\//i.test(maybePath)) return maybePath
+  return `${getBaseUrl()}${maybePath.startsWith('/') ? '' : '/'}${maybePath}`
+}
+
 const publicPath = (relativePath: string) =>
-  `${getBaseUrl()}/${relativePath}`
+  toAbsolute(relativePath.startsWith('/') ? relativePath : `/${relativePath}`)
 
 const assetPath = (filename: string) =>
-  `${getBaseUrl()}${assetUrl(`/report-assets/${filename}`)}`
+  toAbsolute(assetUrl(`/report-assets/${filename}`))
 
 const photoPath = (manifestPath: string) =>
-  `${getBaseUrl()}${assetUrl(manifestPath)}`
+  toAbsolute(assetUrl(manifestPath))
 
 /**
  * Search the photo manifest for photos matching any of the given keywords.

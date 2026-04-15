@@ -33,8 +33,15 @@ const getBaseUrl = () => {
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
   return `http://localhost:${process.env.PORT || 3000}`
 }
-const assetPath = (filename: string) =>
-  `${getBaseUrl()}${assetUrl(`/report-assets/${filename}`)}`
+const assetPath = (filename: string) => {
+  const resolved = assetUrl(`/report-assets/${filename}`)
+  // assetUrl can return an absolute URL (when assets are on Supabase
+  // Storage). Only prepend the base when it's a site-relative path —
+  // otherwise we build `http://localhost:3000https://…` which React-PDF
+  // can't fetch, and oversized unloaded Images deadlock the render.
+  if (/^https?:\/\//i.test(resolved)) return resolved
+  return `${getBaseUrl()}${resolved.startsWith('/') ? '' : '/'}${resolved}`
+}
 import {
   RunningHeader,
   PageNumber,
@@ -537,6 +544,7 @@ export default function AnnualReportPDF({
       title={coverSubtitle}
       subtitle="PALM ISLAND COMMUNITY COMPANY"
       year={yearRange}
+      logoUrl={`${getBaseUrl()}/logo/picc-logo-full.png`}
     />
   )
 
@@ -1808,7 +1816,7 @@ export default function AnnualReportPDF({
         style={{ width: 280, height: 100, objectFit: 'cover', borderRadius: 10, marginBottom: 20, opacity: 0.7 }}
       />
 
-      <Image src="/logo/picc-logo-full.png" style={ls.backLogo} />
+      <Image src={`${getBaseUrl()}/logo/picc-logo-full.png`} style={ls.backLogo} />
 
       <Text style={ls.backMission}>
         Empowering the Palm Island community through self-determination, culture, and service
