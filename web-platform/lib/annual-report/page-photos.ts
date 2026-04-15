@@ -10,6 +10,7 @@
 
 import { createClient } from '@supabase/supabase-js'
 import { assetUrl } from '@/lib/media/asset-url'
+import { getPhotosBySlot } from '@/lib/media/el-photos'
 
 // Use URLs instead of filesystem paths to avoid bundling public/ into serverless functions
 const getBaseUrl = () => {
@@ -274,32 +275,36 @@ const SECTION_TO_PAGE_KEY: Record<string, string> = {
 }
 
 /**
- * Query media_files for photos assigned to annual report pages.
- * Returns overrides keyed by page key (matching DEFAULT_ASSIGNMENTS).
+ * Fetch consent-approved photos from Empathy Ledger v2 and return overrides
+ * keyed by page key (matching DEFAULT_ASSIGNMENTS).
+ *
+ * EL v2 is the source of truth for photo consent. /api/photos already filters
+ * to elder_approved=true AND consent_obtained=true server-side, so anything
+ * returned here is safe to render publicly.
+ *
+ * Returns {} when EL_V2_API_URL / EL_V2_API_KEY are not configured — the
+ * caller then falls back to DEFAULT_ASSIGNMENTS curated paths.
  */
 export async function getSupabaseOverrides(): Promise<Record<string, { url: string; caption?: string }>> {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (!url || !key) return {}
-
-  const supabase = createClient(url, key, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  })
-
-  const { data } = await supabase
-    .from('media_files')
-    .select('public_url, caption, page_section, display_order')
-    .eq('page_context', 'annual-report')
-    .not('page_section', 'is', null)
-    .order('display_order')
-
-  const overrides: Record<string, { url: string; caption?: string }> = {}
-  for (const row of data || []) {
-    const pageKey = SECTION_TO_PAGE_KEY[row.page_section] || row.page_section
-    // Only take the first match per page key (highest priority by display_order)
-    if (!overrides[pageKey]) {
-      overrides[pageKey] = { url: row.public_url, caption: row.caption || undefined }
+  try {
+    const bySlot = await getPhotosBySlot()
+    const overrides: Record<string, { url: string; caption?: string }> = {}
+    for (const [slot, photos] of Object.entries(bySlot)) {
+      if (!photos?.length) continue
+      // Slot names in EL v2 tags already match DEFAULT_ASSIGNMENTS keys for
+      // standard AR slots (cover, communityVoices, governance …). Map section
+      // aliases defensively for any future tag naming drift.
+      const pageKey = SECTION_TO_PAGE_KEY[slot] || slot
+      const p = photos[0]
+      overrides[pageKey] = {
+        url: p.url,
+        caption: p.caption ?? p.alt_text ?? undefined,
+      }
     }
+    return overrides
+  } catch {
+    // Network failure, missing env vars, or EL v2 unavailable — fall back to
+    // curated DEFAULT_ASSIGNMENTS paths. The report still renders.
+    return {}
   }
-  return overrides
 }

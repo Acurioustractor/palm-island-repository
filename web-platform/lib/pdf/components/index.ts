@@ -11,6 +11,7 @@ export { QuoteBlock } from './QuoteBlock'
 export { Card } from './Card'
 export { PhotoCover } from './PhotoCover'
 export { PersonAvatar } from './PersonAvatar'
+export { TaggedPhoto } from './TaggedPhoto'
 
 // Saltwater Country design system
 export { CornerBrackets } from './CornerBrackets'
