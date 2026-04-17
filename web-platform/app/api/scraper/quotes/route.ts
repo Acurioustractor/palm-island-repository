@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import Anthropic from '@anthropic-ai/sdk'
+import { generateText } from 'ai'
+import { getTextModel, stripThinkTags } from '@/lib/ai/models'
 
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -14,10 +15,6 @@ function getSupabase() {
     auth: { autoRefreshToken: false, persistSession: false }
   })
 }
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY
-})
 
 // GET - List extracted quotes
 export async function GET(request: NextRequest) {
@@ -113,14 +110,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Content not found' }, { status: 404 })
     }
 
-    // Use Claude to extract quotes
+    // Extract quotes via MiniMax-first text model
     const contentText = content.markdown_content || content.content
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 2000,
-      messages: [{
-        role: 'user',
-        content: `Analyze this content from Palm Island Community Company and extract meaningful quotes suitable for an annual report.
+    const { text } = await generateText({
+      model: getTextModel(),
+      prompt: `Analyze this content from Palm Island Community Company and extract meaningful quotes suitable for an annual report.
 
 Content:
 ${contentText.substring(0, 8000)}
@@ -145,16 +139,15 @@ Return as JSON array:
   }
 ]
 
-Only extract genuine, impactful quotes that would look good in an annual report. Skip generic or unimportant text.`
-      }]
+Only extract genuine, impactful quotes that would look good in an annual report. Skip generic or unimportant text.`,
+      maxOutputTokens: 2000,
     })
 
-    // Parse the AI response
-    const aiText = response.content[0].type === 'text' ? response.content[0].text : ''
+    // Strip MiniMax <think> tags before JSON parse
+    const aiText = stripThinkTags(text)
     let extractedQuotes: any[] = []
 
     try {
-      // Extract JSON from the response
       const jsonMatch = aiText.match(/\[[\s\S]*\]/)
       if (jsonMatch) {
         extractedQuotes = JSON.parse(jsonMatch[0])

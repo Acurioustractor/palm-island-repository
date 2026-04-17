@@ -5,12 +5,9 @@
  * and AI-assisted interview questions.
  */
 
-import Anthropic from '@anthropic-ai/sdk'
+import { generateText } from 'ai'
 import { aiCache, CACHE_TTL } from './cache'
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY
-})
+import { getTextModel, stripThinkTags } from './models'
 
 export interface StoryPrompt {
   id: string
@@ -298,9 +295,8 @@ export async function generateFollowUpPrompts(
       ? `Story type: ${template.name}. Category: ${template.category}.`
       : ''
 
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 600,
+    const { text: rawText } = await generateText({
+      model: getTextModel(),
       system: `You are helping an Indigenous community member from Palm Island share their story.
 Based on their answers so far, generate thoughtful follow-up questions to help them tell a richer story.
 
@@ -317,20 +313,18 @@ Respond with JSON only:
     {"question": "...", "helpText": "...", "type": "open|feeling|detail|reflection"}
   ]
 }`,
-      messages: [{
-        role: 'user',
-        content: `${context}
+      prompt: `${context}
 
 Previous answers:
 ${Object.entries(answers).map(([q, a]) => `Q: ${q}\nA: ${a}`).join('\n\n')}
 
 ${focusArea ? `Focus on: ${focusArea}` : ''}
 
-Generate ${count} follow-up questions.`
-      }]
+Generate ${count} follow-up questions.`,
+      maxOutputTokens: 600,
     })
 
-    const text = response.content[0].type === 'text' ? response.content[0].text : ''
+    const text = stripThinkTags(rawText)
     const jsonMatch = text.match(/\{[\s\S]*\}/)
 
     if (!jsonMatch) {
@@ -376,9 +370,8 @@ export async function generateStoryDraft(
   const { style = 'first-person', includeQuotes = true } = options
 
   try {
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 2000,
+    const { text: rawText } = await generateText({
+      model: getTextModel(),
       system: `You are helping craft a story for the Palm Island Community knowledge base.
 Transform the interview answers into a cohesive, authentic story.
 
@@ -398,17 +391,15 @@ Respond with JSON:
   "suggestedCategory": "health|culture|community|youth|elder_care|history",
   "keywords": ["keyword1", "keyword2", ...]
 }`,
-      messages: [{
-        role: 'user',
-        content: `${options.title ? `Suggested title: ${options.title}\n\n` : ''}Interview answers:
+      prompt: `${options.title ? `Suggested title: ${options.title}\n\n` : ''}Interview answers:
 
 ${Object.entries(answers).map(([q, a]) => `Q: ${q}\nA: ${a}`).join('\n\n')}
 
-Create a ${style} story from these answers.`
-      }]
+Create a ${style} story from these answers.`,
+      maxOutputTokens: 2000,
     })
 
-    const text = response.content[0].type === 'text' ? response.content[0].text : ''
+    const text = stripThinkTags(rawText)
     const jsonMatch = text.match(/\{[\s\S]*\}/)
 
     if (!jsonMatch) {
@@ -446,9 +437,8 @@ export async function getCulturalGuidance(
   suggestedConsultation: string[]
 }> {
   try {
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 400,
+    const { text: rawText } = await generateText({
+      model: getTextModel(),
       system: `You are a cultural advisor helping ensure stories from Palm Island are shared appropriately.
 Provide guidance on cultural protocols without being overly restrictive.
 
@@ -458,13 +448,11 @@ Respond with JSON:
   "approvalNeeded": true/false,
   "suggestedConsultation": ["Elder", "Traditional Owner", etc.]
 }`,
-      messages: [{
-        role: 'user',
-        content: `Story topic: ${topic}\nStory type: ${storyType}\n\nWhat cultural considerations should the storyteller be aware of?`
-      }]
+      prompt: `Story topic: ${topic}\nStory type: ${storyType}\n\nWhat cultural considerations should the storyteller be aware of?`,
+      maxOutputTokens: 400,
     })
 
-    const text = response.content[0].type === 'text' ? response.content[0].text : ''
+    const text = stripThinkTags(rawText)
     const jsonMatch = text.match(/\{[\s\S]*\}/)
 
     if (jsonMatch) {

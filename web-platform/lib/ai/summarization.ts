@@ -9,12 +9,9 @@
  * - Metadata generation
  */
 
-import Anthropic from '@anthropic-ai/sdk'
+import { generateText } from 'ai'
 import { aiCache, CACHE_TTL } from './cache'
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY
-})
+import { getTextModel, stripThinkTags } from './models'
 
 // Helper to create a content hash for cache keys
 function hashContent(content: string): string {
@@ -99,9 +96,8 @@ export async function summarizeContent(
   }
 
   try {
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 800,
+    const { text: rawText } = await generateText({
+      model: getTextModel(),
       system: `You are an expert content summarizer for the Palm Island Community Company knowledge base.
 Your task is to create accurate, culturally respectful summaries.
 
@@ -124,13 +120,11 @@ Respond ONLY with valid JSON in this exact format:
 }
 
 Keep summaries accurate and respectful. Never fabricate information.`,
-      messages: [{
-        role: 'user',
-        content: `Summarize this content (target: ${maxLength} words, style: ${style}):\n\n${content.substring(0, 8000)}`
-      }]
+      prompt: `Summarize this content (target: ${maxLength} words, style: ${style}):\n\n${content.substring(0, 8000)}`,
+      maxOutputTokens: 800,
     })
 
-    const text = response.content[0].type === 'text' ? response.content[0].text : ''
+    const text = stripThinkTags(rawText)
 
     // Parse JSON response
     const jsonMatch = text.match(/\{[\s\S]*\}/)
@@ -232,9 +226,8 @@ export async function extractMetadata(
   }
 
   try {
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 600,
+    const { text: rawText } = await generateText({
+      model: getTextModel(),
       system: `You are a metadata extraction expert for Indigenous community content.
 Extract structured metadata while respecting cultural context.
 
@@ -252,13 +245,11 @@ Respond ONLY with valid JSON:
   },
   "themes": ["main theme 1", "theme 2"]
 }`,
-      messages: [{
-        role: 'user',
-        content: `${existingTitle ? `Title: ${existingTitle}\n\n` : ''}Content:\n${content.substring(0, 6000)}`
-      }]
+      prompt: `${existingTitle ? `Title: ${existingTitle}\n\n` : ''}Content:\n${content.substring(0, 6000)}`,
+      maxOutputTokens: 600,
     })
 
-    const text = response.content[0].type === 'text' ? response.content[0].text : ''
+    const text = stripThinkTags(rawText)
     const jsonMatch = text.match(/\{[\s\S]*\}/)
 
     if (!jsonMatch) {
@@ -317,19 +308,16 @@ export async function generateOneLiner(
   }
 
   try {
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 100,
-      messages: [{
-        role: 'user',
-        content: `Write a single compelling sentence (under 150 characters) that describes this content. Be accurate and engaging.
+    const { text: rawText } = await generateText({
+      model: getTextModel(),
+      prompt: `Write a single compelling sentence (under 150 characters) that describes this content. Be accurate and engaging.
 
-${title ? `Title: ${title}\n` : ''}Content: ${content.substring(0, 2000)}`
-      }]
+${title ? `Title: ${title}\n` : ''}Content: ${content.substring(0, 2000)}`,
+      maxOutputTokens: 100,
     })
 
-    const text = response.content[0].type === 'text' ? response.content[0].text : ''
-    const result = text.trim().replace(/^["']|["']$/g, '') // Remove quotes if present
+    const text = stripThinkTags(rawText)
+    const result = text.replace(/^["']|["']$/g, '') // Remove quotes if present
 
     // Cache the result (1 hour)
     aiCache.set('oneLiner', cacheKey, result, CACHE_TTL.LONG)
@@ -407,20 +395,17 @@ export async function categorizeContent(
   ]
 
   try {
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 150,
-      messages: [{
-        role: 'user',
-        content: `Categorize this content. Choose from: ${categories.join(', ')}
+    const { text: rawText } = await generateText({
+      model: getTextModel(),
+      prompt: `Categorize this content. Choose from: ${categories.join(', ')}
 
 Respond with JSON: {"primary": "category", "secondary": ["cat1", "cat2"], "confidence": 0.0-1.0}
 
-Content: ${content.substring(0, 3000)}`
-      }]
+Content: ${content.substring(0, 3000)}`,
+      maxOutputTokens: 150,
     })
 
-    const text = response.content[0].type === 'text' ? response.content[0].text : ''
+    const text = stripThinkTags(rawText)
     const jsonMatch = text.match(/\{[\s\S]*\}/)
 
     if (jsonMatch) {

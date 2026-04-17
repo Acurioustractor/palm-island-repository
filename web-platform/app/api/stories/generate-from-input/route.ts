@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import Anthropic from '@anthropic-ai/sdk';
+import { generateText } from 'ai';
+import { getTextModel, stripThinkTags } from '@/lib/ai/models';
 
 /**
  * POST /api/stories/generate-from-input
@@ -22,12 +23,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json({ error: 'Anthropic API key not configured' }, { status: 500 });
+    if (!process.env.MINIMAX_API_KEY && !process.env.ANTHROPIC_API_KEY) {
+      return NextResponse.json({ error: 'No AI API key configured' }, { status: 500 });
     }
-
-    const anthropic = new Anthropic({ apiKey });
 
     let inputContent = '';
 
@@ -48,9 +46,8 @@ export async function POST(request: Request) {
       ? 'The storyteller is an ELDER - use respectful framing (Elder, Uncle/Aunty). Treat with utmost cultural sensitivity.'
       : '';
 
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 2000,
+    const { text: rawText } = await generateText({
+      model: getTextModel(),
       system: `You are a story writer for the Palm Island Community Company (PICC), an Indigenous community-controlled organisation in Queensland, Australia.
 
 Your task is to create a compelling, respectful community story from the provided input.
@@ -78,15 +75,11 @@ Respond in JSON format with these fields:
   "elder_approval_needed": true/false,
   "related_service": "service name if mentioned, or null"
 }`,
-      messages: [
-        {
-          role: 'user',
-          content: `Create a story from this input:\n\nStoryteller: ${storyteller_name || 'Community Member'}\n\n${inputContent}`
-        }
-      ],
+      prompt: `Create a story from this input:\n\nStoryteller: ${storyteller_name || 'Community Member'}\n\n${inputContent}`,
+      maxOutputTokens: 2000,
     });
 
-    const content = response.content[0].type === 'text' ? response.content[0].text : '';
+    const content = stripThinkTags(rawText);
     if (!content) {
       return NextResponse.json({ error: 'No response from AI' }, { status: 500 });
     }

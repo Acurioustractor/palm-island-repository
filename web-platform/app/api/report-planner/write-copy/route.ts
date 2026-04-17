@@ -9,7 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { generateText } from 'ai'
 import { createClient } from '@supabase/supabase-js'
-import { getTextModel } from '@/lib/ai/models'
+import { getTextModel, stripThinkTags } from '@/lib/ai/models'
 
 const PAGE_CONTEXT: Record<string, string> = {
   cover: 'The cover page of the annual report. Sets the tone for the entire document.',
@@ -82,7 +82,7 @@ Write the content directly — no introductions, headings, or meta-commentary. J
       maxOutputTokens: 1024,
     })
 
-    const generatedText = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim()
+    const generatedText = stripThinkTags(text)
 
     if (!generatedText) {
       return NextResponse.json({ error: 'No text generated' }, { status: 500 })

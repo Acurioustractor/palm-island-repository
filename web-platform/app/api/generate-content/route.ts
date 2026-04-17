@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateText } from 'ai';
-import { getTextModel } from '@/lib/ai/models';
+import { getTextModel, stripThinkTags } from '@/lib/ai/models';
 
 // Determine which LLM provider to use (ollama for local testing, default for production)
 const LLM_PROVIDER = process.env.LLM_PROVIDER || 'ollama';
@@ -199,7 +199,7 @@ Return ONLY the social media post text, ready to copy and paste. No explanations
         maxOutputTokens: 2048,
       });
 
-      content = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+      content = stripThinkTags(text);
     }
 
     return NextResponse.json({ content, suggestion: null });

@@ -104,3 +104,12 @@ export function getReasoningModel() {
 export function getAnthropicFallback() {
   return anthropicModel(MODEL_TEXT_LIGHT)
 }
+
+/**
+ * Strip MiniMax M2.x <think>...</think> reasoning blocks from output.
+ * Safe to call on Anthropic output too — it's a no-op there.
+ * Use this BEFORE JSON.parse on any response that may have come from MiniMax.
+ */
+export function stripThinkTags(text: string): string {
+  return text.replace(/<think>[\s\S]*?<\/think>/g, '').trim()
+}
