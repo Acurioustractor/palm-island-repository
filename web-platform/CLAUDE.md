@@ -48,6 +48,12 @@ For multi-phase plans: complete and verify each phase fully (including testing w
 
 Only make changes the user explicitly requested. Do NOT autonomously rework, rename, or refactor adjacent code, content, labels, or UI elements unless asked. If you see something that could be improved, mention it and ask — don't just do it.
 
+## Agent Delegation (Opus 4.7)
+
+Every Agent/Task call MUST include: (1) explicit task budget (tokens or steps), (2) stop criteria ("stop when X passes" — not "stop when done"), (3) fallback ("if you can't find X, return Y, don't guess"), (4) scoped file list (don't pass whole-repo context). Opus 4.7 adaptive thinking + xhigh default means fuzzy agent prompts eat budget reconstructing intent before doing real work. See `~/.claude/rules/opus-4-7-prompting.md`.
+
+Anthropic API calls in this codebase: never set `temperature`, `top_p`, or `top_k` — Opus 4.7 returns 400. Audited 2026-04-18, all clean.
+
 ## Deployment & Testing Protocol
 
 NEVER tell the user to test a feature until:
