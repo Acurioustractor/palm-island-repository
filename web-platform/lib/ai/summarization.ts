@@ -312,12 +312,19 @@ export async function generateOneLiner(
       model: getTextModel(),
       prompt: `Write a single compelling sentence (under 150 characters) that describes this content. Be accurate and engaging.
 
-${title ? `Title: ${title}\n` : ''}Content: ${content.substring(0, 2000)}`,
-      maxOutputTokens: 100,
+${title ? `Title: ${title}\n` : ''}Content: ${content.substring(0, 2000)}
+
+Output ONLY the final sentence — no preamble, no options, no thinking aloud.`,
+      // MiniMax M2.7 burns most of its budget thinking before producing output.
+      // 800 gives it room to finish reasoning and still emit the one-liner.
+      maxOutputTokens: 800,
     })
 
-    const text = stripThinkTags(rawText)
-    const result = text.replace(/^["']|["']$/g, '') // Remove quotes if present
+    // Take the LAST line (after any leaked reasoning) and trim quotes
+    const stripped = stripThinkTags(rawText)
+    const lines = stripped.split('\n').map(l => l.trim()).filter(Boolean)
+    const lastLine = lines[lines.length - 1] || ''
+    const result = lastLine.replace(/^["']|["']$/g, '').slice(0, 200)
 
     // Cache the result (1 hour)
     aiCache.set('oneLiner', cacheKey, result, CACHE_TTL.LONG)
