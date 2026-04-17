@@ -7,8 +7,9 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import { generateText } from 'ai'
 import { createClient } from '@supabase/supabase-js'
+import { getTextModel } from '@/lib/ai/models'
 
 const PAGE_CONTEXT: Record<string, string> = {
   cover: 'The cover page of the annual report. Sets the tone for the entire document.',
@@ -32,8 +33,7 @@ const PAGE_CONTEXT: Record<string, string> = {
 }
 
 export async function POST(request: NextRequest) {
-  const apiKey = process.env.ANTHROPIC_API_KEY
-  if (!apiKey) {
+  if (!process.env.MINIMAX_API_KEY && !process.env.ANTHROPIC_API_KEY) {
     return NextResponse.json({ error: 'AI writing not configured' }, { status: 503 })
   }
 
@@ -75,16 +75,14 @@ ${contextData ? `Relevant data for context:\n${contextData}\n` : ''}
 ${existingText ? `Existing text (improve or rewrite as needed):\n${existingText}\n` : ''}
 Write the content directly — no introductions, headings, or meta-commentary. Just the text that will appear in the report. Keep it concise and impactful (2-4 paragraphs for body text, 1-2 sentences for shorter slots like titles or statements).`
 
-    const client = new Anthropic({ apiKey })
-    const message = await client.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 1024,
+    const { text } = await generateText({
+      model: getTextModel(),
       system: systemPrompt,
-      messages: [{ role: 'user', content: userPrompt }],
+      prompt: userPrompt,
+      maxOutputTokens: 1024,
     })
 
-    const textBlock = message.content.find(b => b.type === 'text')
-    const generatedText = textBlock ? textBlock.text.trim() : ''
+    const generatedText = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim()
 
     if (!generatedText) {
       return NextResponse.json({ error: 'No text generated' }, { status: 500 })

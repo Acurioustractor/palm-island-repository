@@ -1,14 +1,11 @@
-import Anthropic from '@anthropic-ai/sdk';
 import { NextRequest, NextResponse } from 'next/server';
+import { generateText } from 'ai';
+import { getTextModel } from '@/lib/ai/models';
 
-// Determine which LLM provider to use (ollama for local testing, anthropic for production)
+// Determine which LLM provider to use (ollama for local testing, default for production)
 const LLM_PROVIDER = process.env.LLM_PROVIDER || 'ollama';
 const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
 const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'llama3.1:8b';
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
 
 const PICC_BRAND_VOICE = `You are a content writer for Palm Island Indigenous Community Council (PICC). Your job is to transform community stories into authentic social media posts.
 
@@ -195,19 +192,14 @@ Return ONLY the social media post text, ready to copy and paste. No explanations
       content = ollamaData.response || '';
 
     } else {
-      // Call Anthropic API (Claude)
-      const message = await anthropic.messages.create({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 2048,
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ]
+      // Call MiniMax-first text model (falls back to Anthropic Haiku)
+      const { text } = await generateText({
+        model: getTextModel(),
+        prompt,
+        maxOutputTokens: 2048,
       });
 
-      content = message.content[0].type === 'text' ? message.content[0].text : '';
+      content = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
     }
 
     return NextResponse.json({ content, suggestion: null });
@@ -220,7 +212,7 @@ Return ONLY the social media post text, ready to copy and paste. No explanations
         provider: LLM_PROVIDER,
         details: LLM_PROVIDER === 'ollama'
           ? `Make sure Ollama is running at ${OLLAMA_BASE_URL} with model ${OLLAMA_MODEL}`
-          : 'Check your Anthropic API key'
+          : 'Check your MINIMAX_API_KEY or ANTHROPIC_API_KEY'
       },
       { status: 500 }
     );
