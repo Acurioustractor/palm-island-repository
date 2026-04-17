@@ -99,7 +99,7 @@ async function main() {
   console.log('Generating descriptions from historical content...\n');
 
   const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-5-20250929',
+    model: 'claude-sonnet-4-6',
     max_tokens: 4000,
     messages: [{
       role: 'user',

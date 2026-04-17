@@ -4,7 +4,7 @@ export async function GET() {
   const provider = process.env.LLM_PROVIDER || 'ollama';
   const model = provider === 'ollama'
     ? (process.env.OLLAMA_MODEL || 'llama3.1:8b')
-    : 'claude-sonnet-4-5';
+    : 'claude-sonnet-4-6';
 
   return NextResponse.json({
     provider,

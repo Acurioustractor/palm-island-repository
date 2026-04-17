@@ -441,7 +441,7 @@ async function main() {
         const segmentTextForModel = segmentsForModel.map((s) => `[${s.segment_index}] ${s.text}`).join('\n')
 
         const response = await anthropic.messages.create({
-          model: 'claude-sonnet-4-5-20250929',
+          model: 'claude-sonnet-4-6',
           max_tokens: 4000,
           messages: [
             {
@@ -605,7 +605,7 @@ Return ONLY the JSON, no other text.`,
               extracted_quotes: analysis.extracted_quotes,
               segments_used_for_model: segmentsForModel.map((s) => s.segment_index),
             },
-            metadata: { model: 'claude-sonnet-4-5-20250929', generated_at: new Date().toISOString() },
+            metadata: { model: 'claude-sonnet-4-6', generated_at: new Date().toISOString() },
           })
         } catch {
           // optional feature

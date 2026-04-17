@@ -144,7 +144,7 @@ Please provide a JSON response with:
 Return ONLY valid JSON.`;
 
   const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-5-20250929',
+    model: 'claude-sonnet-4-6',
     max_tokens: 2048,
     messages: [
       {
@@ -234,7 +234,7 @@ export async function analyzeCulturalContent(
   }
 
   const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-5-20250929',
+    model: 'claude-sonnet-4-6',
     max_tokens: 1024,
     system: `You are an expert in Indigenous Australian culture, particularly from Palm Island and the Torres Strait region.
 Analyze images for cultural content with sensitivity and respect.
@@ -330,7 +330,7 @@ export async function extractTextFromImage(
   }
 
   const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-5-20250929',
+    model: 'claude-sonnet-4-6',
     max_tokens: 2048,
     messages: [
       {
@@ -420,7 +420,7 @@ export async function generateAltText(
   const contextPrompt = context ? `\nContext: This image is used for ${context}.` : '';
 
   const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-5-20250929',
+    model: 'claude-sonnet-4-6',
     max_tokens: 512,
     messages: [
       {
@@ -509,7 +509,7 @@ export async function compareImages(
   };
 
   const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-5-20250929',
+    model: 'claude-sonnet-4-6',
     max_tokens: 1024,
     messages: [
       {

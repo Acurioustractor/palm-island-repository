@@ -331,7 +331,7 @@ export async function processVoiceStory(
     })
 
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5-20250929',
+      model: 'claude-sonnet-4-6',
       max_tokens: 600,
       system: `You are helping process an oral history recording from Palm Island community.
 Create a respectful, accurate story draft from the transcription.

@@ -1,41 +1,20 @@
 import { streamText, stepCountIs, convertToModelMessages } from 'ai'
-import { createAnthropic } from '@ai-sdk/anthropic'
-import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
 import { exploreTools } from '@/lib/explore/tools'
 import { getExploreSystemPrompt } from '@/lib/explore/system-prompt'
 import { rateLimit, RateLimitType } from '@/lib/ai/rate-limit'
 import { getExpandedContext } from '@/lib/ai/context-builder'
 import { expandQuery } from '@/lib/ai/query-expansion'
 import { logChatMessage } from '@/lib/chat/session-logger'
+import { getTextModel, getAnthropicFallback } from '@/lib/ai/models'
 
 export const maxDuration = 60
 
-function getMiniMaxModel() {
-  const minimaxKey = process.env.MINIMAX_API_KEY
-  if (!minimaxKey) return null
-  const minimax = createOpenAICompatible({
-    name: 'minimax',
-    baseURL: 'https://api.minimax.io/v1',
-    apiKey: minimaxKey,
-  })
-  return minimax.chatModel('MiniMax-M2.5')
-}
-
-function getAnthropicModel() {
-  const anthropicKey = process.env.ANTHROPIC_API_KEY
-  if (!anthropicKey) return null
-  const provider = createAnthropic({ apiKey: anthropicKey })
-  return provider('claude-haiku-4-5-20251001')
-}
-
 function getChatModel() {
-  const model = getMiniMaxModel() || getAnthropicModel()
-  if (!model) throw new Error('No AI API key configured (MINIMAX_API_KEY or ANTHROPIC_API_KEY)')
-  return model
+  return getTextModel()
 }
 
 function getFallbackModel() {
-  return getAnthropicModel()
+  return getAnthropicFallback()
 }
 
 export async function POST(request: Request) {

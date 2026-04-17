@@ -13,7 +13,7 @@ import { expandQuery } from './query-expansion'
 import { aiCache, CACHE_TTL } from './cache'
 import { getExpandedContext } from './context-builder'
 
-const model = anthropic('claude-sonnet-4-5-20250929')
+const model = anthropic('claude-sonnet-4-6')
 
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system'

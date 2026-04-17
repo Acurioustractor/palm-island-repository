@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
     // Use Claude to extract quotes
     const contentText = content.markdown_content || content.content
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5-20250929',
+      model: 'claude-sonnet-4-6',
       max_tokens: 2000,
       messages: [{
         role: 'user',

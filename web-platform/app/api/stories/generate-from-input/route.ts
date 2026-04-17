@@ -49,7 +49,7 @@ export async function POST(request: Request) {
       : '';
 
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5-20250929',
+      model: 'claude-sonnet-4-6',
       max_tokens: 2000,
       system: `You are a story writer for the Palm Island Community Company (PICC), an Indigenous community-controlled organisation in Queensland, Australia.
 

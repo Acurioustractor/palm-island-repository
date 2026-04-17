@@ -100,7 +100,7 @@ export async function summarizeContent(
 
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5-20250929',
+      model: 'claude-sonnet-4-6',
       max_tokens: 800,
       system: `You are an expert content summarizer for the Palm Island Community Company knowledge base.
 Your task is to create accurate, culturally respectful summaries.
@@ -233,7 +233,7 @@ export async function extractMetadata(
 
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5-20250929',
+      model: 'claude-sonnet-4-6',
       max_tokens: 600,
       system: `You are a metadata extraction expert for Indigenous community content.
 Extract structured metadata while respecting cultural context.
@@ -318,7 +318,7 @@ export async function generateOneLiner(
 
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5-20250929',
+      model: 'claude-sonnet-4-6',
       max_tokens: 100,
       messages: [{
         role: 'user',
@@ -408,7 +408,7 @@ export async function categorizeContent(
 
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5-20250929',
+      model: 'claude-sonnet-4-6',
       max_tokens: 150,
       messages: [{
         role: 'user',

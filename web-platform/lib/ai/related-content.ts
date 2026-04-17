@@ -672,7 +672,7 @@ export async function discoverConnections(
 
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5-20250929',
+      model: 'claude-sonnet-4-6',
       max_tokens: 800,
       system: `You are an expert at finding meaningful connections between pieces of content in an Indigenous community knowledge base.
 Look for:

@@ -251,7 +251,7 @@ export async function extractHighlights(
 
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5-20250929',
+      model: 'claude-sonnet-4-6',
       max_tokens: 800,
       system: `You are analyzing a video/audio transcription from Palm Island community content.
 Identify the most important or interesting moments that would make good highlights or clips.

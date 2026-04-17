@@ -289,7 +289,7 @@ export async function POST(request: NextRequest) {
 
     // Use Claude to analyze the transcript
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5-20250929',
+      model: 'claude-sonnet-4-6',
       max_tokens: 4000,
       messages: [{
         role: 'user',
@@ -466,7 +466,7 @@ Return ONLY the JSON, no other text.`
             segments_used_for_model: segmentsForModel.map((s) => s.segment_index),
           },
           metadata: {
-            model: 'claude-sonnet-4-5-20250929',
+            model: 'claude-sonnet-4-6',
             generated_at: new Date().toISOString(),
           },
         })

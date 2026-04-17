@@ -79,7 +79,7 @@ interface FinancialData {
 
 async function extractFinancials(text: string, fiscalYear: string): Promise<FinancialData> {
   const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-5-20250929',
+    model: 'claude-sonnet-4-6',
     max_tokens: 4096,
     system: `You are a financial data extractor analyzing Palm Island Community Company (PICC) annual reports. Extract exact financial figures from the report. Use raw integer numbers (no $ signs, no commas, no decimals). If a figure cannot be found, use null.`,
     messages: [{

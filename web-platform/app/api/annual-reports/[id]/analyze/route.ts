@@ -159,7 +159,7 @@ Sentiment breakdown: ${Object.entries(sentimentBreakdown).map(([k, v]) => `${k}:
 
       try {
         const response = await anthropic.messages.create({
-          model: 'claude-sonnet-4-5-20250929',
+          model: 'claude-sonnet-4-6',
           max_tokens: 2000,
           messages: [{
             role: 'user',
@@ -233,7 +233,7 @@ Important: Be respectful and culturally sensitive. Acknowledge the strength and 
         content_type: 'annual_report',
         content_id: reportId,
         analysis_result: analysis,
-        ai_model: 'claude-sonnet-4-5-20250929'
+        ai_model: 'claude-sonnet-4-6'
       })
 
     return NextResponse.json({
@@ -286,7 +286,7 @@ export async function POST(
         }
 
         const response = await anthropic.messages.create({
-          model: 'claude-sonnet-4-5-20250929',
+          model: 'claude-sonnet-4-6',
           max_tokens: 1000,
           messages: [{
             role: 'user',
@@ -318,7 +318,7 @@ The summary should:
         }
 
         const response = await anthropic.messages.create({
-          model: 'claude-sonnet-4-5-20250929',
+          model: 'claude-sonnet-4-6',
           max_tokens: 800,
           messages: [{
             role: 'user',
@@ -341,7 +341,7 @@ The analysis should weave together the quotes into a cohesive narrative about ho
         const impactQuotes = quotesArray.filter(q => q.impact_area === impact_area)
 
         const response = await anthropic.messages.create({
-          model: 'claude-sonnet-4-5-20250929',
+          model: 'claude-sonnet-4-6',
           max_tokens: 500,
           messages: [{
             role: 'user',

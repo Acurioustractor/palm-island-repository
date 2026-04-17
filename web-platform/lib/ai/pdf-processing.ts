@@ -125,7 +125,7 @@ export async function processPDFWithVision(
   ].filter(Boolean).join(' ');
 
   const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-5-20250929',
+    model: 'claude-sonnet-4-6',
     max_tokens: 4096,
     messages: [
       {
@@ -163,7 +163,7 @@ export async function analyzeAnnualReport(
 
   // Use Claude to analyze and structure the report
   const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-5-20250929',
+    model: 'claude-sonnet-4-6',
     max_tokens: 4096,
     system: `You are analyzing an annual report for the Palm Island Community Company (PICC).
 Extract structured information about community programs, achievements, statistics, and key people.
@@ -371,7 +371,7 @@ Return as JSON array with metric, value, and context.`
   };
 
   const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-5-20250929',
+    model: 'claude-sonnet-4-6',
     max_tokens: 2048,
     messages: [
       {
@@ -414,7 +414,7 @@ export async function compareReports(
   highlights: string[];
 }> {
   const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-5-20250929',
+    model: 'claude-sonnet-4-6',
     max_tokens: 2048,
     system: 'Compare two annual reports and identify key changes, trends, and developments.',
     messages: [

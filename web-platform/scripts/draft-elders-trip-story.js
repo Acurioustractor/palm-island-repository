@@ -382,7 +382,7 @@ console.log(`Drafting story for ${STORY_ID} (${DRY_RUN ? 'dry-run' : 'apply'})..
 console.log(`Elders: ${elderIds.length} • Trip interviews: ${usableInterviews.length} • Quote candidates: ${quoteRows.length} • Using quotes: ${picked.length}`)
 
 const response = await anthropic.messages.create({
-  model: 'claude-sonnet-4-5-20250929',
+  model: 'claude-sonnet-4-6',
   max_tokens: 2200,
   messages: [{ role: 'user', content: prompt }],
 })
@@ -414,7 +414,7 @@ const nextMetadata = {
   key_quotes: keyQuotes,
   featured_people: elderIds,
   last_story_draft_at: startedAt,
-  last_story_draft_model: 'claude-sonnet-4-5-20250929',
+  last_story_draft_model: 'claude-sonnet-4-6',
 }
 
 const nextTags = Array.isArray(story?.tags) ? story.tags.slice() : []

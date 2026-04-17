@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { generateText, stepCountIs } from 'ai'
-import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
-import { createAnthropic } from '@ai-sdk/anthropic'
 import { createServerSupabase } from '@/lib/supabase/client'
 import { exploreTools } from '@/lib/explore/tools'
 import { getExploreSystemPrompt } from '@/lib/explore/system-prompt'
@@ -11,27 +9,12 @@ import { getConversationHistory, shouldEscalate } from '@/lib/messaging/conversa
 import { formatResponse } from '@/lib/messaging/format-response'
 import { canSendMessage } from '@/lib/messaging/cultural-safety'
 import { getGHLClient } from '@/lib/ghl/client'
+import { getTextModel } from '@/lib/ai/models'
 
 export const maxDuration = 30
 
 function getChatModel() {
-  const minimaxKey = process.env.MINIMAX_API_KEY
-  if (minimaxKey) {
-    const minimax = createOpenAICompatible({
-      name: 'minimax',
-      baseURL: 'https://api.minimax.io/v1',
-      apiKey: minimaxKey,
-    })
-    return minimax.chatModel('MiniMax-M2.5')
-  }
-
-  const anthropicKey = process.env.ANTHROPIC_API_KEY
-  if (anthropicKey) {
-    const provider = createAnthropic({ apiKey: anthropicKey })
-    return provider('claude-haiku-4-5-20251001')
-  }
-
-  throw new Error('No AI API key configured')
+  return getTextModel()
 }
 
 /**

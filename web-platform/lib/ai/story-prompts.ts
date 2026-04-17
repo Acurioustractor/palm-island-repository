@@ -299,7 +299,7 @@ export async function generateFollowUpPrompts(
       : ''
 
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5-20250929',
+      model: 'claude-sonnet-4-6',
       max_tokens: 600,
       system: `You are helping an Indigenous community member from Palm Island share their story.
 Based on their answers so far, generate thoughtful follow-up questions to help them tell a richer story.
@@ -377,7 +377,7 @@ export async function generateStoryDraft(
 
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5-20250929',
+      model: 'claude-sonnet-4-6',
       max_tokens: 2000,
       system: `You are helping craft a story for the Palm Island Community knowledge base.
 Transform the interview answers into a cohesive, authentic story.
@@ -447,7 +447,7 @@ export async function getCulturalGuidance(
 }> {
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5-20250929',
+      model: 'claude-sonnet-4-6',
       max_tokens: 400,
       system: `You are a cultural advisor helping ensure stories from Palm Island are shared appropriately.
 Provide guidance on cultural protocols without being overly restrictive.

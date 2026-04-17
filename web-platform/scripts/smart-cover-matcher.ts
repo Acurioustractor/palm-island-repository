@@ -190,7 +190,7 @@ async function main() {
     console.log(`\n  Asking Claude to pick best matches for batch ${Math.floor(i / batchSize) + 1}...\n`);
 
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5-20250929',
+      model: 'claude-sonnet-4-6',
       max_tokens: 2000,
       messages: [{
         role: 'user',
