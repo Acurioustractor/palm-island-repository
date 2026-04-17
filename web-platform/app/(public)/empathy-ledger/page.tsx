@@ -293,7 +293,7 @@ export default async function EmpathyLedgerShowcase() {
                         <span>·</span>
                         <span className="flex items-center gap-1">
                           <CheckCircle2 className="w-3 h-3 text-green-600" />
-                          Analysed by {t.ai_model_version || 'MiniMax-M2.5'}
+                          Analysed by {t.ai_model_version || 'MiniMax-M2.7'}
                         </span>
                       </div>
                     </div>

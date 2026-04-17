@@ -9,8 +9,11 @@
  *
  * Routing policy (cost-aware):
  *   - TEXT (chat, copy, summaries): MiniMax-first → Anthropic Haiku fallback
- *   - STRUCTURED (JSON, tool use): Anthropic only — MiniMax <think> tags break JSON
- *   - VISION (image/PDF analysis): Anthropic Sonnet only — MiniMax M2.5 not vision-reliable
+ *   - STRUCTURED (JSON, tool use): Anthropic only — historical note: MiniMax M2.5
+ *     <think> tags consumed output budget before producing JSON. M2.7 may behave
+ *     differently — re-test before moving JSON-parsing sites to MiniMax.
+ *   - VISION (image/PDF analysis): Anthropic Sonnet only — MiniMax not exposed as
+ *     a vision model via the OpenAI-compatible endpoint we use.
  *   - REASONING (agent core, multi-step): Anthropic Opus — reserve for hard work
  *
  * To bump a model fleet-wide, change the constant here. To override the chat
@@ -26,7 +29,7 @@ export const MODEL_TEXT_HEAVY = 'claude-sonnet-4-6' as const          // creativ
 export const MODEL_TEXT_LIGHT = 'claude-haiku-4-5-20251001' as const  // classification, query expansion, reranking
 export const MODEL_VISION = 'claude-sonnet-4-6' as const              // image/PDF analysis, OCR
 export const MODEL_REASONING = 'claude-opus-4-7' as const             // agent core, multi-step tool use
-export const MODEL_MINIMAX_CHAT = 'MiniMax-M2.5' as const             // chat-only, MiniMax M2.5
+export const MODEL_MINIMAX_CHAT = 'MiniMax-M2.7' as const             // chat + text gen, MiniMax M2.7
 
 // ---------- Vercel AI SDK helpers (for app/api/chat etc.) ----------
 
@@ -75,8 +78,8 @@ export function getStructuredModel() {
 }
 
 /**
- * Vision / multimodal. Anthropic Sonnet — MiniMax M2.5 not vision-reliable
- * via OpenAI-compatible endpoint.
+ * Vision / multimodal. Anthropic Sonnet — MiniMax not exposed as a vision
+ * model via the OpenAI-compatible endpoint we use.
  */
 export function getVisionModel() {
   const model = anthropicModel(MODEL_VISION)

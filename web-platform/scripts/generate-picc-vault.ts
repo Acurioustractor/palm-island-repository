@@ -425,7 +425,7 @@ function generateIndex(stats: Record<string, number>, outDir: string) {
 
   lines.push('## How this vault works', '')
   lines.push('Every voice in this vault came from a real PICC community member.')
-  lines.push('Every theme was extracted by AI analysis (MiniMax-M2.5).')
+  lines.push('Every theme was extracted by AI analysis (MiniMax-M2.7).')
   lines.push('Every link is a backlink Obsidian can follow.', '')
   lines.push('This vault is **regenerated** from the Empathy Ledger any time.')
   lines.push('It is a *view* of the sovereign data, not the data itself.', '')

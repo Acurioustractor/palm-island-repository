@@ -3,8 +3,9 @@
  *
  * Primary: keyword-based classification (fast, free, reliable).
  * Fallback: AI classification via Claude Haiku for ambiguous messages.
- * MiniMax M2.5 is NOT used here — its <think> tags consume all output tokens
- * before producing JSON, making it unreliable for structured classification.
+ * MiniMax M2.5 was NOT usable here — its <think> tags consumed all output
+ * tokens before producing JSON. M2.7 may behave differently — re-test before
+ * routing structured classification through MiniMax.
  */
 
 import { generateText } from 'ai'
