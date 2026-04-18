@@ -5,16 +5,12 @@ import { rateLimit, RateLimitType } from '@/lib/ai/rate-limit'
 import { getExpandedContext } from '@/lib/ai/context-builder'
 import { expandQuery } from '@/lib/ai/query-expansion'
 import { logChatMessage } from '@/lib/chat/session-logger'
-import { getTextModel, getAnthropicFallback } from '@/lib/ai/models'
+import { getTextModel } from '@/lib/ai/models'
 
 export const maxDuration = 60
 
 function getChatModel() {
   return getTextModel()
-}
-
-function getFallbackModel() {
-  return getAnthropicFallback()
 }
 
 export async function POST(request: Request) {
@@ -120,25 +116,15 @@ ${ragSources.map(s => `- ${s.title} (${s.type}): ${s.url}`).join('\n')}
           return
         }
 
-        // Check first chunk for error indicators
+        // First chunk: just check for auth errors and surface them — no Anthropic
+        // fallback here; Anthropic budget is exhausted, silent failover would
+        // bill us. Surface the error to the client instead.
         if (firstChunk) {
           firstChunk = false
           const text = new TextDecoder().decode(value)
           if (text.includes('error') && text.includes('authorized_error')) {
-            console.error('Primary model auth failed, attempting fallback')
+            console.error('MiniMax model auth failed — no fallback configured')
             reader.cancel()
-
-            const fallback = getFallbackModel()
-            if (fallback) {
-              const fallbackResult = doStream(fallback)
-              const fallbackReader = fallbackResult.toUIMessageStreamResponse().body!.getReader()
-              while (true) {
-                const chunk = await fallbackReader.read()
-                if (chunk.done) { await writer.close(); return }
-                await writer.write(chunk.value)
-              }
-            }
-
             await writer.close()
             return
           }
@@ -148,22 +134,6 @@ ${ragSources.map(s => `- ${s.title} (${s.type}): ${s.url}`).join('\n')}
       }
     } catch (err) {
       console.error('Stream pump error:', err)
-      // Try fallback on any stream error
-      try {
-        const fallback = getFallbackModel()
-        if (fallback) {
-          console.log('Falling back to Anthropic after stream error')
-          const fallbackResult = doStream(fallback)
-          const fallbackReader = fallbackResult.toUIMessageStreamResponse().body!.getReader()
-          while (true) {
-            const chunk = await fallbackReader.read()
-            if (chunk.done) break
-            await writer.write(chunk.value)
-          }
-        }
-      } catch (fallbackErr) {
-        console.error('Fallback also failed:', fallbackErr)
-      }
       await writer.close()
     }
   }

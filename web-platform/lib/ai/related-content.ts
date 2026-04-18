@@ -6,12 +6,9 @@
  */
 
 import { createClient } from '@supabase/supabase-js'
-import Anthropic from '@anthropic-ai/sdk'
+import { generateText } from 'ai'
 import { generateEmbeddings } from '../scraper/embeddings'
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY
-})
+import { getTextModel, stripThinkTags } from './models'
 
 function getSupabase() {
   return createClient(
@@ -671,9 +668,8 @@ export async function discoverConnections(
   if (items.length < 2) return []
 
   try {
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 800,
+    const { text: rawText } = await generateText({
+      model: getTextModel(),
       system: `You are an expert at finding meaningful connections between pieces of content in an Indigenous community knowledge base.
 Look for:
 - Thematic connections (shared topics, themes)
@@ -688,15 +684,13 @@ Respond with JSON:
     {"from": "id1", "to": "id2", "relationship": "description", "confidence": 0.0-1.0}
   ]
 }`,
-      messages: [{
-        role: 'user',
-        content: `Find connections between these items:\n\n${items.map(i =>
-          `[${i.id}] ${i.type}: ${i.title}\n${i.content.substring(0, 200)}`
-        ).join('\n\n')}`
-      }]
+      prompt: `Find connections between these items:\n\n${items.map(i =>
+        `[${i.id}] ${i.type}: ${i.title}\n${i.content.substring(0, 200)}`
+      ).join('\n\n')}`,
+      maxOutputTokens: 800,
     })
 
-    const text = response.content[0].type === 'text' ? response.content[0].text : ''
+    const text = stripThinkTags(rawText)
     const jsonMatch = text.match(/\{[\s\S]*\}/)
 
     if (!jsonMatch) return []

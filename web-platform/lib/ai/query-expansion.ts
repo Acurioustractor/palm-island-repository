@@ -9,16 +9,12 @@
  * - Context understanding
  */
 
-import Anthropic from '@anthropic-ai/sdk'
+import { generateText } from 'ai'
 import { aiCache, CACHE_TTL } from './cache'
+import { getTextModel, stripThinkTags } from './models'
 
-let _anthropic: Anthropic | null = null
-function getAnthropicClient(): Anthropic | null {
-  if (!process.env.ANTHROPIC_API_KEY) return null
-  if (!_anthropic) {
-    _anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-  }
-  return _anthropic
+function hasAnyAiKey(): boolean {
+  return Boolean(process.env.MINIMAX_API_KEY || process.env.ANTHROPIC_API_KEY)
 }
 
 export interface ExpandedQuery {
@@ -69,15 +65,13 @@ export async function expandQuery(
   }
 
   try {
-    const client = getAnthropicClient()
-    if (!client) {
-      // No Anthropic key — use basic expansion (free)
+    if (!hasAnyAiKey()) {
+      // No AI key — use basic expansion (free)
       return basicQueryExpansion(query)
     }
 
-    const response = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 500,
+    const { text: rawText } = await generateText({
+      model: getTextModel(),
       system: `You are a query expansion expert for a ${context}.
 Your task is to analyze search queries and expand them to improve search results.
 
@@ -97,13 +91,11 @@ Guidelines:
 - Fix obvious typos
 - Understand user intent
 - Keep expansions relevant and concise`,
-      messages: [{
-        role: 'user',
-        content: `Expand this search query: "${query}"`
-      }]
+      prompt: `Expand this search query: "${query}"`,
+      maxOutputTokens: 500,
     })
 
-    const text = response.content[0].type === 'text' ? response.content[0].text : ''
+    const text = stripThinkTags(rawText)
 
     // Parse JSON response
     const jsonMatch = text.match(/\{[\s\S]*\}/)

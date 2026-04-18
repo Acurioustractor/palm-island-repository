@@ -9,7 +9,7 @@
  */
 
 import { generateText } from 'ai'
-import { createAnthropic } from '@ai-sdk/anthropic'
+import { getTextModel, stripThinkTags } from '@/lib/ai/models'
 
 export type MessageIntent = 'story' | 'question' | 'feedback' | 'need' | 'vision' | 'greeting' | 'unknown'
 
@@ -92,25 +92,20 @@ function detectCategory(lower: string): string {
   return 'general'
 }
 
-/** AI-based classification via Claude Haiku (optional, for ambiguous messages) */
+/** AI-based classification via getTextModel (MiniMax M2.7-first, Anthropic Haiku fallback) */
 async function classifyWithAI(messageText: string): Promise<ClassificationResult | null> {
-  const anthropicKey = process.env.ANTHROPIC_API_KEY
-  if (!anthropicKey) return null
+  if (!process.env.MINIMAX_API_KEY && !process.env.ANTHROPIC_API_KEY) return null
 
   try {
-    const provider = createAnthropic({ apiKey: anthropicKey })
-    const model = provider('claude-haiku-4-5-20251001')
-
-    const { text } = await generateText({
-      model,
+    const { text: rawText } = await generateText({
+      model: getTextModel(),
       system: `Classify this community message into ONE intent: story, question, feedback, need, vision, greeting, or unknown.
 Output ONLY JSON: {"intent":"...","category":"...","confidence":0.0}`,
-      messages: [
-        { role: 'user' as const, content: messageText.slice(0, 500) },
-      ],
-      maxOutputTokens: 80,
+      prompt: messageText.slice(0, 500),
+      maxOutputTokens: 600, // MiniMax needs room to think + emit JSON
     })
 
+    const text = stripThinkTags(rawText)
     const jsonMatch = text.match(/\{[\s\S]*\}/)
     if (!jsonMatch) return null
 

@@ -6,14 +6,14 @@
  */
 
 import { generateText, streamText as aiStreamText } from 'ai'
-import { anthropic } from '@ai-sdk/anthropic'
 import { createServerComponentClient } from '@/lib/supabase/server'
 import { semanticSearch } from './embeddings'
 import { expandQuery } from './query-expansion'
 import { aiCache, CACHE_TTL } from './cache'
 import { getExpandedContext } from './context-builder'
+import { getTextModel, stripThinkTags } from './models'
 
-const model = anthropic('claude-sonnet-4-6')
+const model = getTextModel()
 
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system'
@@ -168,7 +168,7 @@ export async function generateChatResponse(
       messages
     })
 
-    const assistantMessage = response.text || ''
+    const assistantMessage = stripThinkTags(response.text || '')
 
     // Generate suggested follow-up questions
     const suggestedQuestions = await generateSuggestedQuestions(userMessage, assistantMessage)
@@ -214,7 +214,7 @@ Respond with just the questions, one per line, no numbering.`
       }]
     })
 
-    const text = response.text || ''
+    const text = stripThinkTags(response.text || '')
     const questions = text.split('\n').filter(q => q.trim()).slice(0, 3)
 
     // Cache for 30 minutes

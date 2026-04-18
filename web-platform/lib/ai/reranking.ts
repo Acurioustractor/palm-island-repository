@@ -5,12 +5,9 @@
  * This significantly improves search quality by understanding context.
  */
 
-import Anthropic from '@anthropic-ai/sdk'
+import { generateText } from 'ai'
 import { aiCache, CACHE_TTL } from './cache'
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY
-})
+import { getTextModel, stripThinkTags } from './models'
 
 // Helper to create a hash of items for cache key
 function hashItems(items: RerankableItem[]): string {
@@ -97,9 +94,8 @@ export async function rerankResults(
   }))
 
   try {
-    const response = await anthropic.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1000,
+    const { text: rawText } = await generateText({
+      model: getTextModel(),
       system: `You are a search relevance expert for the Palm Island Community knowledge base.
 Your task is to rerank search results by relevance to the user's query.
 
@@ -120,18 +116,16 @@ Respond ONLY with valid JSON in this format:
 
 Score from 0.0 to 1.0. Only include items with score > 0.3.
 Order by score descending.`,
-      messages: [{
-        role: 'user',
-        content: `Query: "${query}"
+      prompt: `Query: "${query}"
 
 Items to rank:
 ${itemsForRanking.map(item =>
   `[${item.index}] ${item.type.toUpperCase()}: ${item.title}\n    ${item.snippet}`
-).join('\n\n')}`
-      }]
+).join('\n\n')}`,
+      maxOutputTokens: 1000,
     })
 
-    const text = response.content[0].type === 'text' ? response.content[0].text : ''
+    const text = stripThinkTags(rawText)
     const jsonMatch = text.match(/\{[\s\S]*\}/)
 
     if (!jsonMatch) {

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import { generateText } from 'ai'
+import { getTextModel, stripThinkTags } from '@/lib/ai/models'
 import type { ContentItem, ContentRecommendation, CurationContext } from '@/lib/content-curator/types'
 
 export const maxDuration = 30
@@ -31,15 +32,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const apiKey = process.env.ANTHROPIC_API_KEY
-    if (!apiKey) {
+    if (!process.env.MINIMAX_API_KEY && !process.env.ANTHROPIC_API_KEY) {
       // Fallback: sort by score
       return NextResponse.json({
         recommendations: fallbackRecommendations(available, context),
       })
     }
-
-    const anthropic = new Anthropic({ apiKey })
 
     // Summarize available content for the prompt (keep token count reasonable)
     const summary = available.slice(0, 60).map((item) => ({
@@ -73,20 +71,14 @@ Return a JSON array of recommendations. Each recommendation has:
 
 Return at most ${maxItems} items. Return ONLY valid JSON, no markdown fences.`
 
-    const response = await anthropic.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 2048,
+    const { text: rawText } = await generateText({
+      model: getTextModel(),
+      maxOutputTokens: 2048,
       system: systemPrompt,
-      messages: [
-        {
-          role: 'user',
-          content: `Here are the available content items:\n\n${JSON.stringify(summary, null, 2)}\n\nRecommend the best items for this page.`,
-        },
-      ],
+      prompt: `Here are the available content items:\n\n${JSON.stringify(summary, null, 2)}\n\nRecommend the best items for this page.`,
     })
 
-    const text =
-      response.content[0].type === 'text' ? response.content[0].text : ''
+    const text = stripThinkTags(rawText)
 
     let parsed: Array<{ id: string; reason: string; confidence: number }>
     try {

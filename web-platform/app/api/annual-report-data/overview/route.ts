@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import Anthropic from '@anthropic-ai/sdk'
+import { generateText } from 'ai'
+import { getTextModel, stripThinkTags } from '@/lib/ai/models'
 
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -11,9 +12,8 @@ function getSupabase() {
 
 export async function POST(request: NextRequest) {
   try {
-    const apiKey = process.env.ANTHROPIC_API_KEY
-    if (!apiKey) {
-      return NextResponse.json({ error: 'ANTHROPIC_API_KEY not configured' }, { status: 500 })
+    if (!process.env.MINIMAX_API_KEY && !process.env.ANTHROPIC_API_KEY) {
+      return NextResponse.json({ error: 'No AI API key configured' }, { status: 500 })
     }
 
     const body = await request.json()
@@ -101,14 +101,10 @@ export async function POST(request: NextRequest) {
 
     const contextDoc = contextParts.join('\n')
 
-    const anthropic = new Anthropic({ apiKey })
-
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 2000,
-      messages: [{
-        role: 'user',
-        content: `You are writing a thematic overview summary for the Palm Island Community Company (PICC) annual report for FY ${fy_label}.
+    const { text: rawText } = await generateText({
+      model: getTextModel(),
+      maxOutputTokens: 2000,
+      prompt: `You are writing a thematic overview summary for the Palm Island Community Company (PICC) annual report for FY ${fy_label}.
 
 Based on the data below, produce a JSON response with this structure:
 {
@@ -133,11 +129,10 @@ Use respectful, strengths-based language appropriate for a First Nations communi
 Data:
 ${contextDoc}
 
-Respond with ONLY valid JSON, no markdown fences.`
-      }],
+Respond with ONLY valid JSON, no markdown fences.`,
     })
 
-    const text = response.content[0].type === 'text' ? response.content[0].text : ''
+    const text = stripThinkTags(rawText)
     let overview
     try {
       overview = JSON.parse(text)

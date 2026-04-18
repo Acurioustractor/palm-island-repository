@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import Anthropic from '@anthropic-ai/sdk'
+import { generateText } from 'ai'
+import { getTextModel, stripThinkTags, MODEL_MINIMAX_CHAT } from '@/lib/ai/models'
 
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -14,10 +15,6 @@ function getSupabase() {
     auth: { autoRefreshToken: false, persistSession: false }
   })
 }
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY
-})
 
 interface AnalysisResult {
   summary: {
@@ -158,12 +155,10 @@ Sentiment breakdown: ${Object.entries(sentimentBreakdown).map(([k, v]) => `${k}:
 `
 
       try {
-        const response = await anthropic.messages.create({
-          model: 'claude-sonnet-4-6',
-          max_tokens: 2000,
-          messages: [{
-            role: 'user',
-            content: `Analyze this annual report content for Palm Island Community Company and provide:
+        const { text: rawText } = await generateText({
+          model: getTextModel(),
+          maxOutputTokens: 2000,
+          prompt: `Analyze this annual report content for Palm Island Community Company and provide:
 
 1. A compelling narrative summary (2-3 paragraphs) that captures the essence of the community's achievements and impact during this reporting period. Make it engaging and suitable for an annual report.
 
@@ -178,11 +173,10 @@ Return as JSON:
   "recommendations": ["recommendation 1", "recommendation 2", ...]
 }
 
-Important: Be respectful and culturally sensitive. Acknowledge the strength and resilience of the Palm Island community.`
-          }]
+Important: Be respectful and culturally sensitive. Acknowledge the strength and resilience of the Palm Island community.`,
         })
 
-        const aiText = response.content[0].type === 'text' ? response.content[0].text : ''
+        const aiText = stripThinkTags(rawText)
         const jsonMatch = aiText.match(/\{[\s\S]*\}/)
         if (jsonMatch) {
           const parsed = JSON.parse(jsonMatch[0])
@@ -233,7 +227,7 @@ Important: Be respectful and culturally sensitive. Acknowledge the strength and 
         content_type: 'annual_report',
         content_id: reportId,
         analysis_result: analysis,
-        ai_model: 'claude-sonnet-4-6'
+        ai_model: MODEL_MINIMAX_CHAT
       })
 
     return NextResponse.json({
@@ -285,12 +279,10 @@ export async function POST(
           })
         }
 
-        const response = await anthropic.messages.create({
-          model: 'claude-sonnet-4-6',
-          max_tokens: 1000,
-          messages: [{
-            role: 'user',
-            content: `Write a brief executive summary (150-200 words) for an annual report based on these community quotes:
+        const { text: rawText } = await generateText({
+          model: getTextModel(),
+          maxOutputTokens: 1500, // extra room for MiniMax thinking + 200-word output
+          prompt: `Write a brief executive summary (150-200 words) for an annual report based on these community quotes:
 
 ${quotesArray.map(q => `"${q.quote_text}" - ${q.attribution || 'Community member'}`).join('\n\n')}
 
@@ -298,13 +290,12 @@ The summary should:
 - Highlight key achievements
 - Emphasize community voice and impact
 - Be suitable for the opening of an annual report
-- Be respectful and culturally appropriate for an Indigenous community`
-          }]
+- Be respectful and culturally appropriate for an Indigenous community
+
+Output ONLY the summary text — no preamble, no thinking aloud.`,
         })
 
-        return NextResponse.json({
-          result: response.content[0].type === 'text' ? response.content[0].text : ''
-        })
+        return NextResponse.json({ result: stripThinkTags(rawText) })
       }
 
       case 'theme_deep_dive': {
@@ -317,21 +308,20 @@ The summary should:
           })
         }
 
-        const response = await anthropic.messages.create({
-          model: 'claude-sonnet-4-6',
-          max_tokens: 800,
-          messages: [{
-            role: 'user',
-            content: `Write a paragraph (100-150 words) analyzing the "${theme}" theme for an annual report section, based on these quotes:
+        const { text: rawText } = await generateText({
+          model: getTextModel(),
+          maxOutputTokens: 1200,
+          prompt: `Write a paragraph (100-150 words) analyzing the "${theme}" theme for an annual report section, based on these quotes:
 
 ${themeQuotes.map(q => `"${q.quote_text}" - ${q.attribution || 'Community member'}`).join('\n\n')}
 
-The analysis should weave together the quotes into a cohesive narrative about how this theme manifests in the community.`
-          }]
+The analysis should weave together the quotes into a cohesive narrative about how this theme manifests in the community.
+
+Output ONLY the paragraph — no preamble.`,
         })
 
         return NextResponse.json({
-          result: response.content[0].type === 'text' ? response.content[0].text : '',
+          result: stripThinkTags(rawText),
           quotes: themeQuotes
         })
       }
@@ -340,18 +330,15 @@ The analysis should weave together the quotes into a cohesive narrative about ho
         const { impact_area } = body
         const impactQuotes = quotesArray.filter(q => q.impact_area === impact_area)
 
-        const response = await anthropic.messages.create({
-          model: 'claude-sonnet-4-6',
-          max_tokens: 500,
-          messages: [{
-            role: 'user',
-            content: `Write a brief impact statement (80-100 words) for the "${impact_area}" area of an annual report${impactQuotes.length > 0 ? `, incorporating these community voices:\n\n${impactQuotes.map(q => `"${q.quote_text}"`).join('\n')}` : '.'}`
-          }]
+        const { text: rawText } = await generateText({
+          model: getTextModel(),
+          maxOutputTokens: 1000,
+          prompt: `Write a brief impact statement (80-100 words) for the "${impact_area}" area of an annual report${impactQuotes.length > 0 ? `, incorporating these community voices:\n\n${impactQuotes.map(q => `"${q.quote_text}"`).join('\n')}` : '.'}
+
+Output ONLY the impact statement — no preamble.`,
         })
 
-        return NextResponse.json({
-          result: response.content[0].type === 'text' ? response.content[0].text : ''
-        })
+        return NextResponse.json({ result: stripThinkTags(rawText) })
       }
 
       default:

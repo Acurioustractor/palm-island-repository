@@ -98,18 +98,38 @@ export function getReasoningModel() {
 }
 
 /**
- * Anthropic-only fallback for chat (used when MiniMax is primary and we want
- * a guaranteed Claude path for retries).
- */
-export function getAnthropicFallback() {
-  return anthropicModel(MODEL_TEXT_LIGHT)
-}
-
-/**
  * Strip MiniMax M2.x <think>...</think> reasoning blocks from output.
  * Safe to call on Anthropic output too — it's a no-op there.
  * Use this BEFORE JSON.parse on any response that may have come from MiniMax.
  */
 export function stripThinkTags(text: string): string {
   return text.replace(/<think>[\s\S]*?<\/think>/g, '').trim()
+}
+
+/**
+ * Sites that still cost Anthropic budget — call this at the top of any
+ * Anthropic-only handler so it fails loudly when the key is missing rather
+ * than silently 401ing on every request.
+ *
+ * Currently used by:
+ *   - lib/ai/vision.ts + app/api/media/* (image analysis — MiniMax not vision-capable here)
+ *   - lib/ai/transcription.ts, voice-recorder.ts, app/api/ai/transcribe (audio)
+ *   - lib/ai/pdf-processing.ts (vision-based PDF parsing)
+ *   - lib/ai/agents/agent-core.ts (tool-use loop — MiniMax tool-call untested)
+ *
+ * Migration paths off Anthropic:
+ *   - Vision: rewrite onto MiniMax vision model SDK (different endpoint than chat)
+ *   - Audio: replace with MiniMax speech-to-text or Whisper
+ *   - PDF: use MiniMax M2.7 on extracted text where vision isn't required
+ *   - Agent: test MiniMax M2.7 tool-call support; fall back to disabling agentic flows
+ */
+export function requireAnthropic(reason: string): void {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    throw new Error(
+      `Anthropic API key required for ${reason}. ` +
+      `MiniMax does not support this capability via the OpenAI-compatible endpoint. ` +
+      `Set ANTHROPIC_API_KEY or migrate this site off Anthropic. ` +
+      `See lib/ai/models.ts for migration paths.`
+    )
+  }
 }

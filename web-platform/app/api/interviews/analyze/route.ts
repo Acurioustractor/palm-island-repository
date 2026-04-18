@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import Anthropic from '@anthropic-ai/sdk'
+import { generateText } from 'ai'
+import { getTextModel, stripThinkTags } from '@/lib/ai/models'
 import { cleanTranscript, cleanupQuoteText, isLikelyJunkQuote } from '@/lib/transcripts/quotable'
 
 function getSupabase() {
@@ -15,10 +16,6 @@ function getSupabase() {
     auth: { autoRefreshToken: false, persistSession: false }
   })
 }
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY
-})
 
 interface ExtractedQuote {
   quote_text: string
@@ -287,13 +284,11 @@ export async function POST(request: NextRequest) {
     const segmentsForModel = pickSegmentsForModel(allSegments, 120)
     const segmentTextForModel = segmentsForModel.map((s) => `[${s.segment_index}] ${s.text}`).join('\n')
 
-    // Use Claude to analyze the transcript
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 4000,
-      messages: [{
-        role: 'user',
-        content: `Analyze these interview transcript segments from ${profileName || 'a community member'} at Palm Island Community Company. Extract meaningful, print-ready quotes for annual reports, community stories, and immersive story experiences.
+    // Use MiniMax-first text model to analyze the transcript
+    const { text: rawText } = await generateText({
+      model: getTextModel(),
+      maxOutputTokens: 4000,
+      prompt: `Analyze these interview transcript segments from ${profileName || 'a community member'} at Palm Island Community Company. Extract meaningful, print-ready quotes for annual reports, community stories, and immersive story experiences.
 
 TRANSCRIPT SEGMENTS (each line starts with a segment index in brackets):
 ${truncateForModel(segmentTextForModel, 24000)}
@@ -329,12 +324,11 @@ Guidelines:
 - Be culturally respectful and sensitive to Indigenous perspectives
 - Recognize the strength and resilience of the Palm Island community
 
-Return ONLY the JSON, no other text.`
-      }]
+Return ONLY the JSON, no other text.`,
     })
 
-    // Parse the AI response
-    const aiText = response.content[0].type === 'text' ? response.content[0].text : ''
+    // Strip MiniMax <think> tags before JSON parse
+    const aiText = stripThinkTags(rawText)
     let analysis: TranscriptAnalysis
 
     try {
