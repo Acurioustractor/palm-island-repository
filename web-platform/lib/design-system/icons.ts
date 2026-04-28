@@ -76,3 +76,65 @@ export const MOTIFS = {
 export function getSectionIcon(section: string): string | undefined {
   return SECTION_ICONS[section]
 }
+
+/**
+ * Pick the best-fit approved icon for a stat / metric / heading label.
+ *
+ * Uses keyword matching against the 14 approved bespoke icons + the 4
+ * approved section icons. Returns null if nothing matches — caller can
+ * fall through to no-icon rendering.
+ *
+ * Tuned for PICC's 2024-25 stats (staff, services, care episodes,
+ * placement nights, NDIS growth, income, blue card notices, etc).
+ */
+export function pickIconForLabel(label: string): string | null {
+  const k = label.toLowerCase()
+
+  // Compliance / governance / authority
+  if (k.includes('blue card') || k.includes('notice') || k.includes('check')) return BESPOKE.restricted
+  if (k.includes('queensland') || k.includes('first') || k.includes('authority') || k.includes('delegat') || k.includes('govern') || k.includes('board') || k.includes('director')) return BESPOKE.governance
+
+  // Health & wellbeing
+  if (k.includes('care') || k.includes('episode') || k.includes('health') || k.includes('wellbeing') || k.includes('healing') || k.includes('clinical')) return SECTION_ICONS.healthWellbeing
+
+  // Children & families
+  if (k.includes('placement') || k.includes('family') || k.includes('families') || k.includes('children') || k.includes('child') || k.includes('kin')) return SECTION_ICONS.childrenFamilies
+
+  // Justice & safety
+  if (k.includes('justice') || k.includes('safety') || k.includes('legal')) return BESPOKE.justice
+
+  // Housing
+  if (k.includes('hous') || k.includes('shelter') || k.includes('tenancy')) return BESPOKE.housing
+
+  // Land / country
+  if (k.includes('land') || k.includes('country') || k.includes('on country') || k.includes('cultural')) return BESPOKE.land
+
+  // Time / growth / trajectory
+  if (k.includes('growth') || k.includes('grew') || k.includes('increase') || k.includes('trend') || k.includes('over time')) return BESPOKE.timeline
+
+  // Hopeful / future
+  if (k.includes('vision') || k.includes('hope') || k.includes('future') || k.includes('aspirat')) return BESPOKE.hopeful
+
+  // Reflective / past
+  if (k.includes('reflect') || k.includes('legacy') || k.includes('history')) return BESPOKE.reflective
+
+  // Crisis
+  if (k.includes('crisis') || k.includes('urgent') || k.includes('risk') || k.includes('press')) return BESPOKE.crisis
+
+  // Quotes / voices
+  if (k.includes('quote') || k.includes('voice') || k.includes('story') || k.includes('testimony')) return BESPOKE.quote
+
+  // Photos
+  if (k.includes('photo') || k.includes('image') || k.includes('portrait')) return BESPOKE.photo
+
+  // Search / discover
+  if (k.includes('search') || k.includes('find')) return BESPOKE.search
+
+  // Knowledge / traditional
+  if (k.includes('knowledge') || k.includes('tradition') || k.includes('elder')) return BESPOKE.traditionalKnowledge
+
+  // Collections / staff / services / income (anything that's "many of X")
+  if (k.includes('staff') || k.includes('member') || k.includes('people') || k.includes('service') || k.includes('income') || k.includes('revenue') || k.includes('budget') || k.includes('total')) return BESPOKE.collection
+
+  return null
+}

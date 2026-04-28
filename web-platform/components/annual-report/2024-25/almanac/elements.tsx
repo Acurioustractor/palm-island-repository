@@ -16,6 +16,7 @@
 import type { ReactNode } from 'react'
 import { C, SECTION_COLOURS, type SectionKey } from './tokens'
 import { BESPOKE, getSectionIcon } from '@/lib/design-system/icons'
+import { assetUrl } from '@/lib/media/asset-url'
 
 // Re-export for any consumers still importing from elements
 export { C, SECTION_COLOURS }
@@ -788,56 +789,87 @@ interface AcknowledgementProps {
   body: string
 }
 
+/**
+ * Acknowledgement of Country — painted-hero treatment.
+ *
+ * The brush-textured island/horizon PNG (approved infographic
+ * #06-stat-hero-horizon, intended use "Use for the acknowledgement")
+ * carries the full visual weight. Acknowledgement text sits over the
+ * painted sky in a quiet centered column. Closing "Bwgcolman" line
+ * anchors the painted island band at the foot.
+ */
 export function Acknowledgement({ body }: AcknowledgementProps) {
+  const heroUrl = assetUrl('/icons/picc/infographics/06-stat-hero-horizon.png')
+
   return (
-    <AmbientSection variant="paper" id="acknowledgement">
-      <div className="flex flex-col justify-center items-center px-6 md:px-12 py-20 md:py-28">
+    <section
+      id="acknowledgement"
+      className="relative w-full overflow-hidden"
+      aria-label="Acknowledgement of Country"
+      style={{ minHeight: '92vh' }}
+    >
+      {/* Painted backdrop — full bleed, fixed-aspect art bottom-anchored
+          so the painted island sits along the foot of the section while
+          the sky climbs into the upper text area. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={heroUrl}
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover object-bottom"
+      />
+
+      {/* Sky scrim — soft cream wash over the upper third so the
+          acknowledgement copy stays readable without hiding the brush. */}
+      <div
+        aria-hidden
+        className="absolute inset-x-0 top-0"
+        style={{
+          height: '55%',
+          background: 'linear-gradient(180deg, rgba(251, 248, 238, 0.78) 0%, rgba(251, 248, 238, 0.45) 65%, rgba(251, 248, 238, 0) 100%)',
+        }}
+      />
+
+      {/* Eyebrow + body — anchored to the upper portion (sky band) */}
+      <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center px-6 pt-20 md:px-12 md:pt-28 text-center">
         <div
-          className="max-w-2xl mx-auto text-center p-10 md:p-16"
-          style={{ backgroundColor: C.sand, position: 'relative' }}
+          className="uppercase mb-6"
+          style={{
+            color: C.turtleRed,
+            opacity: 0.75,
+            letterSpacing: '0.4em',
+            fontSize: 'clamp(10px, 1.1vw, 12px)',
+          }}
         >
-          {/* Corner brackets in turtle red */}
-          {(['tl', 'tr', 'bl', 'br'] as const).map((corner) => {
-            const inset = 16
-            const isTop = corner.startsWith('t')
-            const isLeft = corner.endsWith('l')
-            return (
-              <div
-                key={corner}
-                aria-hidden
-                style={{
-                  position: 'absolute',
-                  width: 24,
-                  height: 24,
-                  top: isTop ? inset : undefined,
-                  bottom: !isTop ? inset : undefined,
-                  left: isLeft ? inset : undefined,
-                  right: !isLeft ? inset : undefined,
-                  borderTop: isTop ? `1px solid ${C.turtleRed}` : 'none',
-                  borderBottom: !isTop ? `1px solid ${C.turtleRed}` : 'none',
-                  borderLeft: isLeft ? `1px solid ${C.turtleRed}` : 'none',
-                  borderRight: !isLeft ? `1px solid ${C.turtleRed}` : 'none',
-                  opacity: 0.6,
-                }}
-              />
-            )
-          })}
+          Acknowledgement of Country
+        </div>
 
-          <p
-            className="leading-relaxed"
-            style={{ color: C.driftwood, fontSize: 14, whiteSpace: 'pre-line' }}
-          >
-            {body}
-          </p>
+        <p
+          className="leading-relaxed"
+          style={{
+            color: C.earth,
+            fontSize: 'clamp(15px, 1.6vw, 18px)',
+            whiteSpace: 'pre-line',
+            maxWidth: '60ch',
+          }}
+        >
+          {body}
+        </p>
+      </div>
 
-          <div
-            className="font-caveat mt-8"
-            style={{ color: C.ocean, fontSize: 26 }}
-          >
-            Bwgcolman — many tribes, one people.
-          </div>
+      {/* Closing line — sits over the painted island band at the foot */}
+      <div className="absolute inset-x-0 bottom-[8%] flex justify-center px-6 z-10">
+        <div
+          className="font-caveat text-center"
+          style={{
+            color: C.midnight,
+            fontSize: 'clamp(28px, 4.5vw, 56px)',
+            lineHeight: 1.05,
+            textShadow: '0 2px 12px rgba(255, 255, 255, 0.55)',
+          }}
+        >
+          Bwgcolman — many tribes, one people.
         </div>
       </div>
-    </AmbientSection>
+    </section>
   )
 }

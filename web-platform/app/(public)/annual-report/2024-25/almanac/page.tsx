@@ -25,6 +25,8 @@ import {
   MarginNote,
 } from '@/components/annual-report/2024-25/almanac/elements'
 import { VideoBreak } from '@/components/annual-report/2024-25/almanac/VideoBreak'
+import { StatHeroHorizon } from '@/components/annual-report/2024-25/almanac/StatHeroHorizon'
+import { ServicesAroundIsland } from '@/components/annual-report/2024-25/almanac/ServicesAroundIsland'
 import { C, SECTION_COLOURS, type SectionKey } from '@/components/annual-report/2024-25/almanac/tokens'
 import { FORWARD_COMMITMENTS } from '@/lib/annual-report/2024-25/content'
 import { VIDEO_TAGS_2025 } from '@/lib/annual-report/data-2025'
@@ -98,6 +100,7 @@ export default async function AlmanacPage() {
           `We acknowledge the Manbarra people as the Traditional Custodians of Palm Island, and the Bwgcolman people — the descendants of the more than forty First Nations forcibly relocated here from across Queensland between 1914 and 1972. We pay our respects to Elders past, present, and emerging.`
         }
       />
+
 
       {/* VIDEO BREAK — Country, before the leadership messages */}
       <VideoBreak
@@ -221,30 +224,59 @@ export default async function AlmanacPage() {
             </h2>
           </div>
 
+          {/* HERO infographic — painted island anchor with categorical
+              service clusters at compass positions. Each dot is one
+              real service from data-2025.ts (24 total, 6 groups). */}
+          <div className="mb-20">
+            <div className="mx-auto max-w-3xl text-center mb-10 px-6">
+              <h3
+                className="font-caveat font-bold leading-tight mb-4"
+                style={{ color: C.ocean, fontSize: 'clamp(28px, 4vw, 42px)' }}
+              >
+                24 services. 6 categories. Bwgcolman-led.
+              </h3>
+              <p
+                className="leading-relaxed mx-auto"
+                style={{ color: C.driftwood, fontSize: 'clamp(14px, 1.5vw, 16px)', maxWidth: 600 }}
+              >
+                Year 17 closed with twenty-four active services across the island —
+                from kinship care and early childhood through to health, justice,
+                youth, economic, and community programs. Every service is led
+                entirely by Bwgcolman people. Hover any dot for the service name.
+              </p>
+            </div>
+            <ServicesAroundIsland services={reportData.services} />
+          </div>
+
+          {/* SUPPORTING stats grid — clean, no icon spam. The "Active
+              Services" stat is now the hero above so we filter it out
+              of the grid to avoid duplication. */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-12">
-            {keyStats.map((stat, i) => {
-              const sectionColours = [C.ocean, C.mangrove, C.ochre, C.turtleRed, C.starGold, C.reef, C.coral, C.earth]
-              const colour = sectionColours[i % sectionColours.length]
-              return (
-                <div key={stat.id} className="text-center">
-                  <div
-                    className="font-caveat font-bold leading-none"
-                    style={{ color: colour, fontSize: 'clamp(40px, 5vw, 64px)' }}
-                  >
-                    {stat.stat_value}
-                  </div>
-                  <div className="mt-2 uppercase" style={{ color: C.driftwood, fontSize: 10, letterSpacing: '0.15em' }}>
-                    {stat.stat_label}
-                  </div>
-                  {stat.stat_description && (
-                    <div className="mt-2 font-caveat" style={{ color: C.earth, opacity: 0.7, fontSize: 13, lineHeight: 1.3 }}>
-                      {stat.stat_description}
+            {keyStats
+              .filter((s) => !/active services?/i.test(s.stat_label))
+              .map((stat, i) => {
+                const sectionColours = [C.ocean, C.mangrove, C.ochre, C.turtleRed, C.starGold, C.reef, C.coral, C.earth]
+                const colour = sectionColours[i % sectionColours.length]
+                return (
+                  <div key={stat.id} className="text-center">
+                    <div
+                      className="font-caveat font-bold leading-none"
+                      style={{ color: colour, fontSize: 'clamp(40px, 5vw, 64px)' }}
+                    >
+                      {stat.stat_value}
                     </div>
-                  )}
-                  <div className="mx-auto mt-3" style={{ width: '40%', height: 1, backgroundColor: colour, opacity: 0.5 }} />
-                </div>
-              )
-            })}
+                    <div className="mt-2 uppercase" style={{ color: C.driftwood, fontSize: 10, letterSpacing: '0.15em' }}>
+                      {stat.stat_label}
+                    </div>
+                    {stat.stat_description && (
+                      <div className="mt-2 font-caveat" style={{ color: C.earth, opacity: 0.7, fontSize: 13, lineHeight: 1.3 }}>
+                        {stat.stat_description}
+                      </div>
+                    )}
+                    <div className="mx-auto mt-3" style={{ width: '40%', height: 1, backgroundColor: colour, opacity: 0.5 }} />
+                  </div>
+                )
+              })}
           </div>
         </div>
       </AmbientSection>
