@@ -103,6 +103,76 @@ export const SP = {
   xxxl: 48,
 } as const
 
+// ── Saltwater Almanac — Section colour map ──────────
+// One of the six rooms of the museum. Each element variant tints from this map.
+export const SECTION = {
+  childrenFamilies: { name: 'Children & Families', color: C.ochre, icon: '03-family' },
+  healthWellbeing: { name: 'Health & Wellbeing', color: C.mangrove, icon: '02-health' },
+  justiceSafety: { name: 'Justice & Safety', color: C.coral, icon: '04-justice' },
+  youth: { name: 'Youth', color: C.reef, icon: '09-youth' },
+  economic: { name: 'Economic', color: C.starGold, icon: '06-economic' },
+  educationCommunity: { name: 'Education & Community', color: C.ocean, icon: '05-community' },
+} as const
+
+export type SectionKey = keyof typeof SECTION
+
+// ── Saltwater Almanac — Atmospheric layer opacity tokens ──
+// The atmospheric layers that run UNDER everything. Tune here, render globally.
+//
+// Quiet by design: the page should feel calm, not busy. If a layer is
+// noticeable, it's too loud. The visitor should feel the gallery, not see it.
+export const AMBIENT = {
+  paperSandOpacity: 0.18,        // sand-tone paper wash (tuned down from 0.25)
+  constellationOpacity: 0.025,   // constellation seed — barely there
+  constellationCount: 9,         // fewer dots, scattered wide
+  waterGrainOpacity: 0,          // disabled globally — opt-in per element only
+  cornerBracketOpacity: 0.18,    // section colour very softly
+  cornerBracketInset: 32,
+  footWaveOpacity: 0.18,
+  footWaveThickness: 0.5,
+  margin: 50,
+} as const
+
+// ── Saltwater Almanac — Element typography tokens ──────
+// Two-font system (per brand guide): Caveat for display + hand, Inter for body.
+// Earlier draft used PlayfairDisplay as a "Canela substitute" but the bold
+// variant fails to embed reliably in React-PDF (Adobe font-extraction errors).
+// We keep the brand's two-font rule.
+//
+// Caveat carries everything warm: monumental numerals, section names,
+// pull-quotes, annotations, sub-lines. Inter does the work: body, labels,
+// captions, UI, dates set in caps.
+//
+// "Monumental" is achieved through size + colour, not through a third face.
+export const TYPE = {
+  /** Caveat — warm display register for monumental numerals and section names */
+  display: 'Caveat',
+  /** Caveat — the curator's hand for annotations, sub-lines, dates */
+  hand: 'Caveat',
+  /** Inter — body, labels, captions, dates in caps, UI */
+  body: 'Inter',
+} as const
+
+// ── Saltwater Almanac — Voice palette ──────────────
+// Three voice types. Each Lantern, Hearth, Horizon uses one of these treatments.
+export const VOICE = {
+  elder: {                         // Lantern — refuses section colour by design
+    bg: C.sand,
+    accent: C.turtleRed,
+    text: C.earth,
+  },
+  community: {                     // Hearth — sand-tinted, warmer than page
+    bg: '#FBF6E4',                 // 4% warmer than sand
+    accent: C.ocean,
+    text: C.rock,
+  },
+  vision: {                        // Horizon — forward-looking
+    bg: C.shell,
+    accent: C.mangrove,
+    text: C.rock,
+  },
+} as const
+
 // ── Base Styles ──────────────────────────────────────
 export const baseStyles = StyleSheet.create({
   // Standard content page

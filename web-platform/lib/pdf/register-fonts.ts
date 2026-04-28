@@ -27,6 +27,9 @@ import os from 'os'
 
 const FONT_HOST = 'https://yvnuayzslukamizrlhwb.supabase.co/storage/v1/object/public/profile-images/picc-pdf-fonts'
 
+// PlayfairDisplay was previously registered but its bold variant fails to
+// embed reliably in React-PDF (Adobe font-extraction errors at open time).
+// Saltwater Almanac uses the brand's two-font rule: Caveat + Inter only.
 const FONT_FILES = [
   'Inter-Regular.ttf',
   'Inter-SemiBold.ttf',
@@ -35,10 +38,6 @@ const FONT_FILES = [
   'Inter-BoldItalic.ttf',
   'Caveat-Regular.ttf',
   'Caveat-Bold.ttf',
-  'PlayfairDisplay-Regular.ttf',
-  'PlayfairDisplay-Bold.ttf',
-  'PlayfairDisplay-Italic.ttf',
-  'PlayfairDisplay-BoldItalic.ttf',
 ] as const
 
 type FontName = (typeof FONT_FILES)[number]
@@ -78,16 +77,6 @@ async function registerAll(): Promise<void> {
     fonts: [
       { src: paths['Caveat-Regular.ttf'], fontWeight: 'normal' },
       { src: paths['Caveat-Bold.ttf'], fontWeight: 'bold' },
-    ],
-  })
-
-  Font.register({
-    family: 'PlayfairDisplay',
-    fonts: [
-      { src: paths['PlayfairDisplay-Regular.ttf'], fontWeight: 'normal', fontStyle: 'normal' },
-      { src: paths['PlayfairDisplay-Bold.ttf'], fontWeight: 'bold', fontStyle: 'normal' },
-      { src: paths['PlayfairDisplay-Italic.ttf'], fontWeight: 'normal', fontStyle: 'italic' },
-      { src: paths['PlayfairDisplay-BoldItalic.ttf'], fontWeight: 'bold', fontStyle: 'italic' },
     ],
   })
 
