@@ -27,6 +27,8 @@ import {
 import { VideoBreak } from '@/components/annual-report/2024-25/almanac/VideoBreak'
 import { StatHeroHorizon } from '@/components/annual-report/2024-25/almanac/StatHeroHorizon'
 import { ServicesAroundIsland } from '@/components/annual-report/2024-25/almanac/ServicesAroundIsland'
+import { SaltwaterRings } from '@/components/annual-report/2024-25/almanac/SaltwaterRings'
+import { ReefLayers } from '@/components/annual-report/2024-25/almanac/ReefLayers'
 import { C, SECTION_COLOURS, type SectionKey } from '@/components/annual-report/2024-25/almanac/tokens'
 import { FORWARD_COMMITMENTS } from '@/lib/annual-report/2024-25/content'
 import { VIDEO_TAGS_2025 } from '@/lib/annual-report/data-2025'
@@ -224,10 +226,10 @@ export default async function AlmanacPage() {
             </h2>
           </div>
 
-          {/* HERO infographic — painted island anchor with categorical
-              service clusters at compass positions. Each dot is one
-              real service from data-2025.ts (24 total, 6 groups). */}
-          <div className="mb-20">
+          {/* HERO 1 — painted island anchor with categorical service
+              clusters at compass positions. Each dot is one real
+              service from data-2025.ts (24 total, 6 groups). */}
+          <div className="mb-24">
             <div className="mx-auto max-w-3xl text-center mb-10 px-6">
               <h3
                 className="font-caveat font-bold leading-tight mb-4"
@@ -248,12 +250,43 @@ export default async function AlmanacPage() {
             <ServicesAroundIsland services={reportData.services} />
           </div>
 
+          {/* HERO 2 — painted concentric rings as workforce anchor.
+              Center stat = 210, breakdown chips for Indigenous / local. */}
+          <div className="mb-20">
+            <div className="mx-auto max-w-3xl text-center mb-10 px-6">
+              <h3
+                className="font-caveat font-bold leading-tight mb-4"
+                style={{ color: C.ochre, fontSize: 'clamp(28px, 4vw, 42px)' }}
+              >
+                A workforce of the place, by the place.
+              </h3>
+              <p
+                className="leading-relaxed mx-auto"
+                style={{ color: C.driftwood, fontSize: 'clamp(14px, 1.5vw, 16px)', maxWidth: 600 }}
+              >
+                Year 17 finished with around two hundred and ten staff — three
+                in four Indigenous, seven in ten Palm Island residents. PICC's
+                workforce is its first community measure: jobs that stay on
+                Country, decisions made by people who walk the same shore.
+              </p>
+            </div>
+            <SaltwaterRings
+              eyebrow="Year 17 workforce"
+              stat="~210"
+              subtitle="Total staff"
+              breakdowns={[
+                { value: '75%', label: 'Indigenous', caption: 'Of the workforce, three in four', colour: C.ochre },
+                { value: '70%', label: 'Palm Island resident', caption: 'Seven in ten staff live on Country', colour: C.mangrove },
+              ]}
+            />
+          </div>
+
           {/* SUPPORTING stats grid — clean, no icon spam. The "Active
               Services" stat is now the hero above so we filter it out
               of the grid to avoid duplication. */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-12">
             {keyStats
-              .filter((s) => !/active services?/i.test(s.stat_label))
+              .filter((s) => !/active services?|total staff/i.test(s.stat_label))
               .map((stat, i) => {
                 const sectionColours = [C.ocean, C.mangrove, C.ochre, C.turtleRed, C.starGold, C.reef, C.coral, C.earth]
                 const colour = sectionColours[i % sectionColours.length]
@@ -626,28 +659,14 @@ export default async function AlmanacPage() {
             </div>
 
             {reportData.financials.breakdown && reportData.financials.breakdown.length > 0 && (
-              <div className="space-y-3">
-                <div className="uppercase font-bold mb-3" style={{ color: C.driftwood, fontSize: 9, letterSpacing: '0.2em' }}>
-                  Expenditure breakdown
+              <div className="mt-6">
+                <div className="text-center mb-4 uppercase font-bold" style={{ color: C.driftwood, fontSize: 10, letterSpacing: '0.25em' }}>
+                  Expenditure across the reef
                 </div>
-                {reportData.financials.breakdown.map((item) => (
-                  <div key={item.category} className="flex items-center gap-4">
-                    <div className="flex-1">
-                      <div className="flex justify-between mb-1">
-                        <span style={{ color: C.driftwood, fontSize: 13 }}>{item.category}</span>
-                        <span className="font-bold" style={{ color: C.ocean, fontSize: 13 }}>
-                          ${(item.amount / 1_000_000).toFixed(2)}M ({item.percentage.toFixed(1)}%)
-                        </span>
-                      </div>
-                      <div className="h-2 rounded-full" style={{ backgroundColor: C.shell }}>
-                        <div
-                          className="h-full rounded-full"
-                          style={{ backgroundColor: C.ocean, width: `${item.percentage}%`, opacity: 0.7 }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                <ReefLayers
+                  items={[...reportData.financials.breakdown]}
+                  caption="Each layer of the reef holds a different part of the work — Children & Families the deepest band, Education & Community the lightest. Together they make the year."
+                />
               </div>
             )}
           </div>
