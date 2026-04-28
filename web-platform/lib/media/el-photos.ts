@@ -63,3 +63,76 @@ export async function getPhotosBySlot(): Promise<Record<string, ELPhoto[]>> {
   const r = await call<{ bySlot: Record<string, ELPhoto[]> }>(`/api/photos?limit=200`);
   return r?.bySlot ?? {};
 }
+
+// ─────────────────────────────────────────────────────────────────────
+// Service photos — convention: tag with `picc:slot:service-<slug>` in
+// EL v2 admin (/admin/photos), then PICC fetches per service. First
+// photo becomes hero/cover, rest fill the gallery.
+// ─────────────────────────────────────────────────────────────────────
+
+export interface ServicePhotos {
+  /** Hero / cover — first photo tagged for this service. */
+  hero: ELPhoto | null;
+  /** Remaining photos for the gallery (cover excluded). */
+  gallery: ELPhoto[];
+  /** All photos including the cover. */
+  all: ELPhoto[];
+}
+
+/**
+ * Pull every photo tagged for a given PICC service slug. Convention:
+ *   tag = `picc:slot:service-<slug>` in EL v2 admin.
+ *
+ * Returns hero (first) + gallery (rest) split, plus `all` for callers
+ * that want the full strip.
+ */
+export async function getPhotosForService(slug: string, limit = 24): Promise<ServicePhotos> {
+  const all = await getPhotosForSlot(`service-${slug}`, limit);
+  return {
+    hero: all[0] ?? null,
+    gallery: all.slice(1),
+    all,
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Video overlays — EL v2 stores videos in media_assets too. Convention:
+// `picc:slot:video-<scene>` for transition / overlay videos. The same
+// /api/photos endpoint serves them (EL v2 doesn't differentiate by
+// media_type at the slot level).
+// ─────────────────────────────────────────────────────────────────────
+
+export interface VideoOverlay {
+  /** Direct CDN URL of the video file. */
+  url: string;
+  /** Optional poster / fallback still. */
+  poster_url: string | null;
+  /** Optional caption / overlay text. */
+  caption: string | null;
+  /** Aspect ratio hint (16:9, 1:1, 9:16). Defaults to 16:9 if absent. */
+  aspect_ratio: string | null;
+  /** Slot key it was tagged with. */
+  slot: string;
+}
+
+/**
+ * Pull a video overlay for a scene. Convention:
+ *   tag = `picc:slot:video-<scene>` in EL v2 admin.
+ *
+ * Returns null if no video is tagged for that scene yet — caller can
+ * fall back to a still or a coloured placeholder.
+ */
+export async function getVideoOverlay(scene: string): Promise<VideoOverlay | null> {
+  const slot = `video-${scene}`;
+  const photo = await getPhotoForSlot(slot);
+  if (!photo) return null;
+  return {
+    url: photo.url,
+    poster_url: photo.thumbnail_url,
+    caption: photo.caption,
+    // Aspect ratio isn't yet exposed on /api/photos; default to 16:9
+    // and let callers override per slot if needed.
+    aspect_ratio: '16:9',
+    slot,
+  };
+}
