@@ -799,7 +799,11 @@ interface AcknowledgementProps {
  * anchors the painted island band at the foot.
  */
 export function Acknowledgement({ body }: AcknowledgementProps) {
-  const heroUrl = assetUrl('/icons/picc/infographics/06-stat-hero-horizon.png')
+  // Use the PAINTED original (with cream paper texture baked in) so the
+  // sky / horizon / island composition is intact for the full-bleed hero.
+  // Transparent versions live at /icons/picc/infographics/<file>; the
+  // paper-textured originals are at /icons/picc/painted/infographics/.
+  const heroUrl = assetUrl('/icons/picc/painted/infographics/06-stat-hero-horizon.png')
 
   return (
     <section
