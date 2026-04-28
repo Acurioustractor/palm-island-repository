@@ -14,6 +14,7 @@ import {
   FolderKanban,
   FileText,
   Settings,
+  Palette,
 } from 'lucide-react'
 
 export const metadata = {
@@ -53,6 +54,7 @@ const PAGES = [
       { href: '/picc/services', icon: FolderOpen, label: 'Services', sub: '30 active services' },
       { href: '/picc/projects', icon: FolderKanban, label: 'Projects', sub: '9 projects' },
       { href: '/picc/reports/builder', icon: FileText, label: 'Report Builder', sub: 'Audience-targeted PDF' },
+      { href: '/picc/design-system', icon: Palette, label: 'Design System', sub: '103 elements · vote + curate' },
     ],
   },
 ]
