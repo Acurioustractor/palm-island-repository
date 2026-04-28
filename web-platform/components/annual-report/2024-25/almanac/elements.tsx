@@ -15,6 +15,7 @@
 
 import type { ReactNode } from 'react'
 import { C, SECTION_COLOURS, type SectionKey } from './tokens'
+import { BESPOKE, getSectionIcon } from '@/lib/design-system/icons'
 
 // Re-export for any consumers still importing from elements
 export { C, SECTION_COLOURS }
@@ -136,6 +137,9 @@ export function Cartouche({ section, numeral, title, subtitle, promise, iconUrl,
   const colour = SECTION_COLOURS[section]
   const wallTint = `${colour}14` // 8% alpha — softer wall
 
+  // Auto-pick the approved SECTION icon when caller didn't pass one.
+  const resolvedIcon = iconUrl ?? getSectionIcon(section)
+
   return (
     <AmbientSection section={section} id={`cartouche-${section}`} variant="paper">
       <div className="relative py-24 md:py-32" style={{ backgroundColor: wallTint }}>
@@ -159,10 +163,10 @@ export function Cartouche({ section, numeral, title, subtitle, promise, iconUrl,
                 <div className="absolute inset-0" style={{ backgroundColor: colour, opacity: 0.10 }} />
               </div>
             </div>
-          ) : iconUrl ? (
-            <div className="mb-10 mx-auto" style={{ width: 200, height: 200, opacity: 0.30 }}>
+          ) : resolvedIcon ? (
+            <div className="mb-10 mx-auto" style={{ width: 200, height: 200, opacity: 0.40 }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={iconUrl} alt="" className="w-full h-full object-contain" />
+              <img src={resolvedIcon} alt="" className="w-full h-full object-contain" />
             </div>
           ) : null}
 
@@ -325,8 +329,10 @@ export function Lantern({
       <DotCluster colour={C.turtleRed} className="absolute top-4 left-4" />
 
       <div className="relative">
-        <div className="font-caveat" style={{ color: C.turtleRed, opacity: 0.4, fontSize: 56, lineHeight: 0.6 }}>
-          “
+        {/* Approved bespoke quote icon — sacred Elder voice marker */}
+        <div className="mb-4" style={{ width: 44, height: 44, opacity: 0.85 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={BESPOKE.quote} alt="" className="w-full h-full object-contain" />
         </div>
 
         <p
@@ -404,8 +410,10 @@ export function Hearth({ section, quote, speaker, role, portraitUrl, date }: Hea
         )}
 
         <div className="flex-1">
-          <div className="font-caveat italic" style={{ color: colour, opacity: 0.5, fontSize: 32, lineHeight: 0.5 }}>
-            “
+          {/* Approved bespoke quote icon */}
+          <div className="mb-2" style={{ width: 24, height: 24, opacity: 0.7 }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={BESPOKE.quote} alt="" className="w-full h-full object-contain" />
           </div>
           <p className="font-caveat italic leading-snug" style={{ color: C.rock, fontSize: 16 }}>
             {quote}
