@@ -11,7 +11,6 @@
  */
 'use client'
 
-import { assetUrl } from '@/lib/media/asset-url'
 import { C } from './tokens'
 
 interface Breakdown {
@@ -28,22 +27,9 @@ interface SaltwaterRingsProps {
   breakdowns?: Breakdown[]
 }
 
-const PAINTED_BANNER = assetUrl('/icons/picc/infographics/01-saltwater-rings.png')
-
 export function SaltwaterRings({ stat, subtitle, eyebrow, breakdowns = [] }: SaltwaterRingsProps) {
   return (
     <section className="w-full" aria-label={`${stat} ${subtitle}`}>
-      {/* Decorative painted banner — small, separate from data */}
-      <div className="mx-auto mb-10 hidden md:block" style={{ maxWidth: 360 }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={PAINTED_BANNER}
-          alt=""
-          className="w-full h-auto"
-          style={{ mixBlendMode: 'multiply', opacity: 0.7 }}
-        />
-      </div>
-
       {/* DESKTOP — clean concentric SVG rings + center stat + flanking chips */}
       <div className="hidden md:flex items-center justify-center gap-12 mx-auto" style={{ maxWidth: 880 }}>
         {/* Left chip */}
@@ -67,17 +53,8 @@ export function SaltwaterRings({ stat, subtitle, eyebrow, breakdowns = [] }: Sal
         </div>
       )}
 
-      {/* MOBILE — painted banner + rings + breakdown cards stacked */}
+      {/* MOBILE — clean rings + breakdown cards stacked, no painted banner */}
       <div className="md:hidden">
-        <div className="mx-auto mb-6" style={{ maxWidth: 200 }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={PAINTED_BANNER}
-            alt=""
-            className="w-full h-auto"
-            style={{ mixBlendMode: 'multiply', opacity: 0.7 }}
-          />
-        </div>
         <div className="mx-auto" style={{ maxWidth: 280 }}>
           <CleanRings stat={stat} subtitle={subtitle} eyebrow={eyebrow} />
         </div>

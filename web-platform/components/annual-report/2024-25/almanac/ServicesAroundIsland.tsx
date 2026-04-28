@@ -14,7 +14,6 @@
  */
 'use client'
 
-import { assetUrl } from '@/lib/media/asset-url'
 import { C } from './tokens'
 
 interface Service {
@@ -45,8 +44,6 @@ const CATEGORIES: CategoryDef[] = [
   { matches: ['economic'],              label: 'Economic',              colour: C.starGold, arcCenter: 210, labelAnchor: 'bottomLeft' },
   { matches: ['community','education'], label: 'Education & Community', colour: C.ocean,    arcCenter: 270, labelAnchor: 'left'       },
 ]
-
-const PAINTED_BANNER = assetUrl('/icons/picc/infographics/08-services-around-island.png')
 
 export function ServicesAroundIsland({ services }: ServicesAroundIslandProps) {
   // Bucket services into the 6 categories
@@ -94,17 +91,6 @@ export function ServicesAroundIsland({ services }: ServicesAroundIslandProps) {
 
   return (
     <section className="w-full" aria-label="PICC services around Palm Island">
-      {/* Decorative painted banner — smaller, separate from the data viz */}
-      <div className="mx-auto mb-10 hidden md:block" style={{ maxWidth: 480 }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={PAINTED_BANNER}
-          alt=""
-          className="w-full h-auto"
-          style={{ mixBlendMode: 'multiply', opacity: 0.7 }}
-        />
-      </div>
-
       {/* DESKTOP — clean SVG composition with category labels */}
       <div className="relative mx-auto hidden md:block" style={{ maxWidth: 760, aspectRatio: '1 / 1' }}>
         <svg viewBox={`0 0 ${VB} ${VB}`} className="absolute inset-0 h-full w-full" role="img">
@@ -187,17 +173,8 @@ export function ServicesAroundIsland({ services }: ServicesAroundIslandProps) {
         })}
       </div>
 
-      {/* MOBILE — painted banner small + cluster cards stacked */}
+      {/* MOBILE — clean cluster cards stacked, no painted banner */}
       <div className="md:hidden">
-        <div className="mx-auto mb-6" style={{ maxWidth: 280 }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={PAINTED_BANNER}
-            alt=""
-            className="w-full h-auto"
-            style={{ mixBlendMode: 'multiply', opacity: 0.7 }}
-          />
-        </div>
         <div className="grid grid-cols-1 gap-3 px-4 sm:grid-cols-2">
           {buckets
             .filter((b) => b.services.length > 0)
