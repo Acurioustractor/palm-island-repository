@@ -33,6 +33,20 @@ const MIGRATED_PREFIXES: Record<string, string> = {
   '/service-icons/': 'platform-media',
   '/icons/bespoke-white/': 'platform-icons',
   '/icons/bespoke/': 'platform-icons',
+
+  // Phase 5: PICC bespoke iconography + infographics + motifs (~36MB PNG)
+  // Uploaded 2026-04-28. Contents:
+  //   /icons/picc/NN-name.png         — 10 SECTION room icons
+  //   /icons/picc/infographics/*.png  — 8 infographic concept renders
+  //   /icons/picc/motifs/*.png        — 5 ambient brand motifs
+  '/icons/picc/': 'platform-icons',
+
+  // Phase 5: PICC photo library (24MB JPG)
+  // Uploaded 2026-04-28 from public/icons/picc/photos/. Subdirs:
+  //   board/ · eoc/ (Elders on Country) · voices/ · feature-bwgcolman-healing/
+  //   feature-first-1000-days/ · feature-beai/
+  // Plus top-level cover candidates + leadership portraits.
+  '/picc-photos/': 'platform-media',
 };
 
 /**
