@@ -27,6 +27,8 @@ import {
 import { VideoBreak } from '@/components/annual-report/2024-25/almanac/VideoBreak'
 import { StatHeroHorizon } from '@/components/annual-report/2024-25/almanac/StatHeroHorizon'
 import { ServicesAroundIsland } from '@/components/annual-report/2024-25/almanac/ServicesAroundIsland'
+import { IslandServiceMap } from '@/components/annual-report/2024-25/almanac/IslandServiceMap'
+import { getServiceCoord } from '@/lib/maps/picc-service-coords'
 import { SaltwaterRings } from '@/components/annual-report/2024-25/almanac/SaltwaterRings'
 import { ReefLayers } from '@/components/annual-report/2024-25/almanac/ReefLayers'
 import { C, SECTION_COLOURS, type SectionKey } from '@/components/annual-report/2024-25/almanac/tokens'
@@ -247,7 +249,16 @@ export default async function AlmanacPage() {
                 entirely by Bwgcolman people. Hover any dot for the service name.
               </p>
             </div>
-            <ServicesAroundIsland services={reportData.services} />
+            {/* Geographically-real Palm Island silhouette (OSM coastline)
+                with services positioned by lib/maps/picc-service-coords. */}
+            <IslandServiceMap
+              services={reportData.services.map((s: any) => ({
+                id: s.id,
+                name: s.name,
+                service_category: s.service_category,
+                ...(getServiceCoord(s.id) ?? {}),
+              }))}
+            />
           </div>
 
           {/* HERO 2 — painted concentric rings as workforce anchor.
