@@ -61,7 +61,6 @@ export const PICC_SERVICE_COORDS: ServiceCoord[] = [
 
   // ── Added 2026-04-29 with Narelle alignment ──
   { id: 'svc-aged',            map_x: 0.30, map_y: 0.74 }, // health · SW
-  { id: 'svc-picc-connection', map_x: 0.48, map_y: 0.50 }, // community · central
   { id: 'svc-enterprises',     map_x: 0.78, map_y: 0.84 }, // economic · east
 ]
 
