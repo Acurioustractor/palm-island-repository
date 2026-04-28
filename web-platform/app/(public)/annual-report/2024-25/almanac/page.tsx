@@ -237,13 +237,13 @@ export default async function AlmanacPage() {
                 className="font-fraunces font-bold leading-tight mb-4"
                 style={{ color: C.ocean, fontSize: 'clamp(28px, 4vw, 42px)' }}
               >
-                24 services. 6 categories. Bwgcolman-led.
+                {reportData.services.length} services. 6 categories. Bwgcolman-led.
               </h3>
               <p
                 className="leading-relaxed mx-auto"
                 style={{ color: C.driftwood, fontSize: 'clamp(14px, 1.5vw, 16px)', maxWidth: 600 }}
               >
-                Year 17 closed with twenty-four active services across the island —
+                Year 17 closed with {reportData.services.length} active services across the island —
                 from kinship care and early childhood through to health, justice,
                 youth, economic, and community programs. Every service is led
                 entirely by Bwgcolman people. Hover any dot for the service name.

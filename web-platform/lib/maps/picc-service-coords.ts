@@ -58,6 +58,13 @@ export const PICC_SERVICE_COORDS: ServiceCoord[] = [
 
   // ── Education (1) ── BEAI · cultural training, on Country (N)
   { id: 'svc-beai',        map_x: 0.42, map_y: 0.42 },
+
+  // ── Added 2026-04-29 with Narelle alignment ──
+  { id: 'svc-cfc-centre',      map_x: 0.52, map_y: 0.78 }, // family · co-located hub
+  { id: 'svc-aged',            map_x: 0.30, map_y: 0.74 }, // health · SW
+  { id: 'svc-mens-group',      map_x: 0.34, map_y: 0.74 }, // health · with Ferdy's
+  { id: 'svc-picc-connection', map_x: 0.48, map_y: 0.50 }, // community · central
+  { id: 'svc-enterprises',     map_x: 0.78, map_y: 0.84 }, // economic · east
 ]
 
 const COORD_BY_ID = new Map(PICC_SERVICE_COORDS.map((c) => [c.id, c]))
