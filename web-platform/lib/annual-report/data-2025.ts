@@ -277,8 +277,8 @@ export const SERVICES_2025 = [
 
   // ── Added 2026-04-29 to align with Narelle's canonical 28-service list
   // (PICC-Narelle-Rachel-Workshop/PICC-Services-Projects-Review-for-Narelle.md).
-  // Descriptions for the 3 [DRAFT] entries below need Narelle's review.
-  { id: 'svc-cfc-centre', name: 'Children and Family Centre', description: '[DRAFT — Narelle review] Integrated centre co-locating early childhood care with family support, drawing CFC, First 1,000 Days, and Family Wellbeing into a single hub on Country.', service_category: 'family', staff_count: null, clients_served_annual: null },
+  // Descriptions for [DRAFT] entries below need Narelle's review.
+  // Note: Children and Family Centre is folded into svc-cfc (same service).
   { id: 'svc-aged', name: 'Aged Care Services', description: 'URGENT — flagged in EL ledger. Elders meeting 10 April 2026, council and mayor pushing for action. Needs a clear line in the annual report and possibly a 20-year celebration ask.', service_category: 'health', staff_count: null, clients_served_annual: null },
   { id: 'svc-picc-connection', name: 'Palm Island Community Connection', description: '[DRAFT — Narelle review, biggest question mark] Cross-service community engagement function — events, outreach, connection between PICC programs and the wider community.', service_category: 'community', staff_count: null, clients_served_annual: null },
   { id: 'svc-enterprises', name: 'Social Enterprises', description: '[DRAFT — Narelle review] Umbrella for income-generating community enterprises that fund PICC operations and create local employment pathways.', service_category: 'economic', staff_count: null, clients_served_annual: null },
