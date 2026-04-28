@@ -8,6 +8,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { getStaticReportData } from './data-2024';
+import { getStaticReportData2025 } from './data-2025';
 import { getFinancials, parseFiscalYear } from '@/lib/financials/get-financials';
 import { getPagePhotos, getSupabaseOverrides, type PagePhotoMap } from './page-photos';
 import { assignVoicesToPages, type VoiceAssignments } from './voice-assignments';
@@ -164,7 +165,18 @@ export interface ReportData {
  * Falls back to static data-2024.ts when the database is empty or unavailable.
  */
 export async function getReportData(fiscalYear?: string): Promise<ReportData> {
-  const staticData = getStaticReportData();
+  // Route static fallback by fiscal year. FY24-25 is verified content from
+  // Narelle's walkthrough and the brand book; older years use data-2024.
+  const staticData =
+    fiscalYear === '2024-25' ? getStaticReportData2025() : getStaticReportData();
+
+  // For now, FY24-25 always uses the verified static file (Supabase year=2025
+  // tables aren't populated yet). Skip the DB roundtrip when the audited data
+  // doesn't exist there.
+  if (fiscalYear === '2024-25') {
+    return staticData;
+  }
+
   const supabase = createServiceClient();
 
   if (!supabase) {
