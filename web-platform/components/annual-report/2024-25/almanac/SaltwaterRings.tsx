@@ -68,14 +68,14 @@ export function SaltwaterRings({ stat, subtitle, eyebrow, breakdowns = [] }: Sal
                   className="rounded-md border bg-white/40 p-3 text-center"
                   style={{ borderColor: `${colour}40` }}
                 >
-                  <div className="font-caveat font-bold leading-none" style={{ color: colour, fontSize: 36 }}>
+                  <div className="font-fraunces font-bold leading-none" style={{ color: colour, fontSize: 36 }}>
                     {bd.value}
                   </div>
                   <div className="mt-1 uppercase font-bold" style={{ color: C.driftwood, fontSize: 10, letterSpacing: '0.12em' }}>
                     {bd.label}
                   </div>
                   {bd.caption && (
-                    <div className="font-caveat mt-1" style={{ color: C.driftwood, fontSize: 13, lineHeight: 1.2 }}>
+                    <div className="font-fraunces mt-1" style={{ color: C.driftwood, fontSize: 13, lineHeight: 1.2 }}>
                       {bd.caption}
                     </div>
                   )}
@@ -128,7 +128,7 @@ function CleanRings({
           </div>
         )}
         <div
-          className="font-caveat font-bold leading-none"
+          className="font-fraunces font-bold leading-none"
           style={{ color: C.midnight, fontSize: 'clamp(56px, 8vw, 88px)' }}
         >
           {stat}
@@ -163,7 +163,7 @@ function BreakdownChip({
   return (
     <div className={`flex-shrink-0 ${textAlign}`} style={{ maxWidth: 200 }}>
       <div
-        className="font-caveat font-bold leading-none"
+        className="font-fraunces font-bold leading-none"
         style={{ color: colour, fontSize: 'clamp(40px, 5vw, 56px)' }}
       >
         {breakdown.value}
@@ -175,7 +175,7 @@ function BreakdownChip({
         {breakdown.label}
       </div>
       {breakdown.caption && (
-        <div className="font-caveat mt-2" style={{ color: C.driftwood, fontSize: 15, lineHeight: 1.2 }}>
+        <div className="font-fraunces mt-2" style={{ color: C.driftwood, fontSize: 15, lineHeight: 1.2 }}>
           {breakdown.caption}
         </div>
       )}

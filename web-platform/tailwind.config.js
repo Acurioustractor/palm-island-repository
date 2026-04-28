@@ -188,7 +188,9 @@ module.exports = {
         'subtle-gradient': 'linear-gradient(135deg, #FDF8F0 0%, #F9EDDC 50%, #F5E6D3 100%)',
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-inter)', 'Inter', 'system-ui', 'sans-serif'],
+        fraunces: ['var(--font-fraunces)', 'Fraunces', 'Georgia', 'serif'],
+        caveat: ['var(--font-caveat)', 'Caveat', 'cursive'],
       },
       transitionTimingFunction: {
         'elegant': 'cubic-bezier(0.22, 1, 0.36, 1)',

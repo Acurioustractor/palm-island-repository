@@ -163,7 +163,7 @@ export function ServicesAroundIsland({ services }: ServicesAroundIslandProps) {
                 {bucket.label}
               </div>
               <div
-                className="font-caveat"
+                className="font-fraunces"
                 style={{ color: C.driftwood, fontSize: 16, lineHeight: 1.0 }}
               >
                 {bucket.services.length} {bucket.services.length === 1 ? 'service' : 'services'}
@@ -207,7 +207,7 @@ export function ServicesAroundIsland({ services }: ServicesAroundIslandProps) {
                   {bucket.label}
                 </div>
                 <div
-                  className="font-caveat"
+                  className="font-fraunces"
                   style={{ color: C.driftwood, fontSize: 14, lineHeight: 1.1 }}
                 >
                   {bucket.services.length} {bucket.services.length === 1 ? 'service' : 'services'}

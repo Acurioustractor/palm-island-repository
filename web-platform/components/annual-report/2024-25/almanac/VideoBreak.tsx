@@ -81,7 +81,7 @@ export function VideoBreak({
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-center text-white px-8">
           {caption && (
             <h3
-              className="font-caveat font-bold leading-tight"
+              className="font-fraunces font-bold leading-tight"
               style={{ fontSize: 'clamp(36px, 6vw, 64px)' }}
             >
               {caption}

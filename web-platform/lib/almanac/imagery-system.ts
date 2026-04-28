@@ -324,5 +324,5 @@ export function allTags(): string[] {
   for (const slot of IMAGERY_SLOTS) {
     slot.tags?.forEach((t) => set.add(t))
   }
-  return [...set].sort()
+  return Array.from(set).sort()
 }

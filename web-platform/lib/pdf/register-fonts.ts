@@ -27,9 +27,13 @@ import os from 'os'
 
 const FONT_HOST = 'https://yvnuayzslukamizrlhwb.supabase.co/storage/v1/object/public/profile-images/picc-pdf-fonts'
 
-// PlayfairDisplay was previously registered but its bold variant fails to
-// embed reliably in React-PDF (Adobe font-extraction errors at open time).
-// Saltwater Almanac uses the brand's two-font rule: Caveat + Inter only.
+// Web display font is Fraunces (added 2026-04-29). PDF still uses Caveat
+// for display until Fraunces TTFs are uploaded to EL v2 storage. Once
+// uploaded, add Fraunces-Regular.ttf / Fraunces-Bold.ttf / Fraunces-Italic.ttf
+// to FONT_FILES + register family below, then update PDF templates from
+// fontFamily: 'Caveat' to fontFamily: 'Fraunces'.
+// Caveat retained as a tertiary "curator's hand" accent for handwritten
+// bylines (CEO byline, photo captions, MarginNote).
 const FONT_FILES = [
   'Inter-Regular.ttf',
   'Inter-SemiBold.ttf',

@@ -69,7 +69,7 @@ export function StatHeroHorizon({
           )}
 
           <div
-            className="font-caveat font-bold leading-none"
+            className="font-fraunces font-bold leading-none"
             style={{
               color: textColor,
               fontSize: 'clamp(96px, 16vw, 200px)',
@@ -81,7 +81,7 @@ export function StatHeroHorizon({
 
           {label && (
             <div
-              className="font-caveat italic mt-1"
+              className="font-fraunces italic mt-1"
               style={{
                 color: textColor,
                 opacity: 0.85,
@@ -97,7 +97,7 @@ export function StatHeroHorizon({
         {caption && (
           <div className="absolute inset-x-0 bottom-[6%] flex justify-center px-8">
             <p
-              className="font-caveat italic max-w-2xl text-center"
+              className="font-fraunces italic max-w-2xl text-center"
               style={{
                 color: textColor,
                 opacity: 0.9,

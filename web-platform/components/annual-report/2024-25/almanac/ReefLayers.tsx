@@ -117,7 +117,7 @@ export function ReefLayers({ items, caption, heroImageUrl }: ReefLayersProps) {
                 </div>
                 <div className="flex items-baseline gap-2">
                   <span
-                    className="font-caveat font-bold"
+                    className="font-fraunces font-bold"
                     style={{ color: colour, fontSize: 22 }}
                   >
                     {formatM(item.amount)}

@@ -140,7 +140,7 @@ export default async function AlmanacPage() {
                 <div className="uppercase font-bold mb-4" style={{ color: C.ocean, fontSize: 10, letterSpacing: '0.3em' }}>
                   {ceo.message_title}
                 </div>
-                <h2 className="font-caveat font-bold leading-tight mb-6" style={{ color: C.ocean, fontSize: 'clamp(40px, 5vw, 60px)' }}>
+                <h2 className="font-fraunces font-bold leading-tight mb-6" style={{ color: C.ocean, fontSize: 'clamp(40px, 5vw, 60px)' }}>
                   {ceo.message_excerpt}
                 </h2>
 
@@ -156,7 +156,7 @@ export default async function AlmanacPage() {
 
                 {ceo.featured_quote && (
                   <div className="mt-10 p-6 border-l-4 rounded-r-md" style={{ borderColor: C.ochre, backgroundColor: C.sand, maxWidth: 620 }}>
-                    <p className="font-caveat italic leading-snug" style={{ color: C.earth, fontSize: 'clamp(18px, 2vw, 22px)' }}>
+                    <p className="font-fraunces italic leading-snug" style={{ color: C.earth, fontSize: 'clamp(18px, 2vw, 22px)' }}>
                       “{ceo.featured_quote}”
                     </p>
                   </div>
@@ -187,7 +187,7 @@ export default async function AlmanacPage() {
                 <div className="uppercase font-bold mb-2" style={{ color: C.coral, fontSize: 10, letterSpacing: '0.3em' }}>
                   {chair.message_title}
                 </div>
-                <h2 className="font-caveat font-bold leading-tight" style={{ color: C.ocean, fontSize: 'clamp(36px, 5vw, 52px)' }}>
+                <h2 className="font-fraunces font-bold leading-tight" style={{ color: C.ocean, fontSize: 'clamp(36px, 5vw, 52px)' }}>
                   {chair.message_excerpt}
                 </h2>
               </div>
@@ -201,7 +201,7 @@ export default async function AlmanacPage() {
 
             {chair.featured_quote && (
               <div className="my-12 p-8 border-l-4 rounded-r-md" style={{ borderColor: C.coral, backgroundColor: '#FBF6E4' }}>
-                <p className="font-caveat italic leading-snug" style={{ color: C.coral, fontSize: 'clamp(20px, 2.4vw, 26px)' }}>
+                <p className="font-fraunces italic leading-snug" style={{ color: C.coral, fontSize: 'clamp(20px, 2.4vw, 26px)' }}>
                   “{chair.featured_quote}”
                 </p>
               </div>
@@ -221,7 +221,7 @@ export default async function AlmanacPage() {
             <div className="uppercase font-bold mb-3" style={{ color: C.ocean, fontSize: 10, letterSpacing: '0.3em' }}>
               The year in numbers
             </div>
-            <h2 className="font-caveat font-bold leading-tight" style={{ color: C.ocean, fontSize: 'clamp(40px, 6vw, 64px)' }}>
+            <h2 className="font-fraunces font-bold leading-tight" style={{ color: C.ocean, fontSize: 'clamp(40px, 6vw, 64px)' }}>
               Year 17.
             </h2>
           </div>
@@ -232,7 +232,7 @@ export default async function AlmanacPage() {
           <div className="mb-24">
             <div className="mx-auto max-w-3xl text-center mb-10 px-6">
               <h3
-                className="font-caveat font-bold leading-tight mb-4"
+                className="font-fraunces font-bold leading-tight mb-4"
                 style={{ color: C.ocean, fontSize: 'clamp(28px, 4vw, 42px)' }}
               >
                 24 services. 6 categories. Bwgcolman-led.
@@ -255,7 +255,7 @@ export default async function AlmanacPage() {
           <div className="mb-20">
             <div className="mx-auto max-w-3xl text-center mb-10 px-6">
               <h3
-                className="font-caveat font-bold leading-tight mb-4"
+                className="font-fraunces font-bold leading-tight mb-4"
                 style={{ color: C.ochre, fontSize: 'clamp(28px, 4vw, 42px)' }}
               >
                 A workforce of the place, by the place.
@@ -293,7 +293,7 @@ export default async function AlmanacPage() {
                 return (
                   <div key={stat.id} className="text-center">
                     <div
-                      className="font-caveat font-bold leading-none"
+                      className="font-fraunces font-bold leading-none"
                       style={{ color: colour, fontSize: 'clamp(40px, 5vw, 64px)' }}
                     >
                       {stat.stat_value}
@@ -329,7 +329,7 @@ export default async function AlmanacPage() {
             <div className="uppercase font-bold mb-3" style={{ color: C.ocean, fontSize: 10, letterSpacing: '0.3em' }}>
               What we did this year
             </div>
-            <h2 className="font-caveat font-bold leading-tight" style={{ color: C.ocean, fontSize: 'clamp(36px, 5vw, 56px)' }}>
+            <h2 className="font-fraunces font-bold leading-tight" style={{ color: C.ocean, fontSize: 'clamp(36px, 5vw, 56px)' }}>
               Six anchor stories.
             </h2>
           </div>
@@ -350,7 +350,7 @@ export default async function AlmanacPage() {
                 <div key={h.id} className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10 pb-12 border-b" style={{ borderColor: '#E8E6E3' }}>
                   <div className="md:col-span-1">
                     <div
-                      className="font-caveat font-bold"
+                      className="font-fraunces font-bold"
                       style={{ color: colour, fontSize: 48, lineHeight: 1 }}
                     >
                       {String(i + 1).padStart(2, '0')}
@@ -361,10 +361,10 @@ export default async function AlmanacPage() {
                     <div className="uppercase font-bold mb-2" style={{ color: colour, fontSize: 9, letterSpacing: '0.2em' }}>
                       {h.highlight_type.replace(/_/g, ' ')}
                     </div>
-                    <h3 className="font-caveat font-bold leading-tight" style={{ color: C.ocean, fontSize: 'clamp(24px, 3vw, 36px)' }}>
+                    <h3 className="font-fraunces font-bold leading-tight" style={{ color: C.ocean, fontSize: 'clamp(24px, 3vw, 36px)' }}>
                       {h.title}
                     </h3>
-                    <div className="font-caveat mt-1" style={{ color: C.earth, opacity: 0.8, fontSize: 18 }}>
+                    <div className="font-fraunces mt-1" style={{ color: C.earth, opacity: 0.8, fontSize: 18 }}>
                       {h.subtitle}
                     </div>
                     <p className="mt-4 leading-relaxed" style={{ color: C.driftwood, fontSize: 15, lineHeight: 1.7 }}>
@@ -388,7 +388,7 @@ export default async function AlmanacPage() {
                             <div className="uppercase" style={{ color: C.muted, fontSize: 9, letterSpacing: '0.15em' }}>
                               {key.replace(/_/g, ' ')}
                             </div>
-                            <div className="font-caveat font-bold" style={{ color: colour, fontSize: 22 }}>
+                            <div className="font-fraunces font-bold" style={{ color: colour, fontSize: 22 }}>
                               {String(value)}
                             </div>
                           </div>
@@ -410,7 +410,7 @@ export default async function AlmanacPage() {
             <div className="uppercase font-bold mb-3" style={{ color: C.ocean, fontSize: 10, letterSpacing: '0.3em' }}>
               {reportData.services.length} services
             </div>
-            <h2 className="font-caveat font-bold leading-tight" style={{ color: C.ocean, fontSize: 'clamp(36px, 5vw, 56px)' }}>
+            <h2 className="font-fraunces font-bold leading-tight" style={{ color: C.ocean, fontSize: 'clamp(36px, 5vw, 56px)' }}>
               Across the island.
             </h2>
           </div>
@@ -431,7 +431,7 @@ export default async function AlmanacPage() {
             return (
               <div key={category} className="mb-12">
                 <div className="flex items-baseline gap-4 mb-6 pb-3 border-b" style={{ borderColor: colour, opacity: 1 }}>
-                  <h3 className="font-caveat font-bold" style={{ color: colour, fontSize: 'clamp(24px, 3vw, 32px)' }}>
+                  <h3 className="font-fraunces font-bold" style={{ color: colour, fontSize: 'clamp(24px, 3vw, 32px)' }}>
                     {category.replace(/_/g, ' ')}
                   </h3>
                   <span style={{ color: C.muted, fontSize: 12 }}>{services.length} services</span>
@@ -440,7 +440,7 @@ export default async function AlmanacPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {services.map((service) => (
                     <div key={service.id} className="p-4 rounded-md" style={{ backgroundColor: 'rgba(255,255,255,0.6)' }}>
-                      <div className="font-caveat font-bold mb-1" style={{ color: C.ocean, fontSize: 18 }}>
+                      <div className="font-fraunces font-bold mb-1" style={{ color: C.ocean, fontSize: 18 }}>
                         {service.name}
                       </div>
                       {service.description && (
@@ -476,7 +476,7 @@ export default async function AlmanacPage() {
             <div className="uppercase font-bold mb-3" style={{ color: C.turtleRed, fontSize: 10, letterSpacing: '0.3em' }}>
               Governance
             </div>
-            <h2 className="font-caveat font-bold leading-tight" style={{ color: C.ocean, fontSize: 'clamp(36px, 5vw, 56px)' }}>
+            <h2 className="font-fraunces font-bold leading-tight" style={{ color: C.ocean, fontSize: 'clamp(36px, 5vw, 56px)' }}>
               Our Board.
             </h2>
             <p className="mt-4 mx-auto" style={{ color: C.driftwood, fontSize: 15, maxWidth: 560 }}>
@@ -504,7 +504,7 @@ export default async function AlmanacPage() {
                       className="w-32 h-32 mx-auto rounded-full mb-4 flex items-center justify-center"
                       style={{ backgroundColor: C.sand }}
                     >
-                      <span className="font-caveat" style={{ color: C.turtleRed, fontSize: 36 }}>
+                      <span className="font-fraunces" style={{ color: C.turtleRed, fontSize: 36 }}>
                         {member.full_name
                           .split(' ')
                           .map((n) => n[0])
@@ -513,7 +513,7 @@ export default async function AlmanacPage() {
                       </span>
                     </div>
                   )}
-                  <div className="font-caveat font-bold" style={{ color: C.ocean, fontSize: 18 }}>
+                  <div className="font-fraunces font-bold" style={{ color: C.ocean, fontSize: 18 }}>
                     {member.full_name}
                   </div>
                   <div className="uppercase mt-1" style={{ color: C.driftwood, fontSize: 10, letterSpacing: '0.1em' }}>
@@ -541,7 +541,7 @@ export default async function AlmanacPage() {
               <div className="uppercase font-bold mb-3" style={{ color: C.turtleRed, fontSize: 10, letterSpacing: '0.3em' }}>
                 Our Elders
               </div>
-              <h2 className="font-caveat font-bold leading-tight" style={{ color: C.turtleRed, fontSize: 'clamp(36px, 5vw, 56px)' }}>
+              <h2 className="font-fraunces font-bold leading-tight" style={{ color: C.turtleRed, fontSize: 'clamp(36px, 5vw, 56px)' }}>
                 The hush of the exhibition.
               </h2>
             </div>
@@ -571,7 +571,7 @@ export default async function AlmanacPage() {
               <div className="uppercase font-bold mb-3" style={{ color: C.ocean, fontSize: 10, letterSpacing: '0.3em' }}>
                 Voices behind the work
               </div>
-              <h2 className="font-caveat font-bold leading-tight" style={{ color: C.ocean, fontSize: 'clamp(32px, 4.5vw, 48px)' }}>
+              <h2 className="font-fraunces font-bold leading-tight" style={{ color: C.ocean, fontSize: 'clamp(32px, 4.5vw, 48px)' }}>
                 Where stories meet evidence.
               </h2>
             </div>
@@ -600,7 +600,7 @@ export default async function AlmanacPage() {
               <div className="uppercase font-bold mb-3" style={{ color: C.starGold, fontSize: 10, letterSpacing: '0.3em' }}>
                 Innovation
               </div>
-              <h2 className="font-caveat font-bold leading-tight" style={{ color: C.ocean, fontSize: 'clamp(32px, 4.5vw, 48px)' }}>
+              <h2 className="font-fraunces font-bold leading-tight" style={{ color: C.ocean, fontSize: 'clamp(32px, 4.5vw, 48px)' }}>
                 What we built alongside the work.
               </h2>
             </div>
@@ -617,7 +617,7 @@ export default async function AlmanacPage() {
                   <div className="uppercase font-bold mb-2" style={{ color: C.starGold, fontSize: 9, letterSpacing: '0.2em' }}>
                     {p.status}
                   </div>
-                  <h3 className="font-caveat font-bold" style={{ color: C.ocean, fontSize: 22 }}>
+                  <h3 className="font-fraunces font-bold" style={{ color: C.ocean, fontSize: 22 }}>
                     {p.title}
                   </h3>
                   <p className="mt-3 leading-relaxed" style={{ color: C.driftwood, fontSize: 14 }}>
@@ -643,7 +643,7 @@ export default async function AlmanacPage() {
               <div className="uppercase font-bold mb-3" style={{ color: C.mangrove, fontSize: 10, letterSpacing: '0.3em' }}>
                 Financials
               </div>
-              <h2 className="font-caveat font-bold leading-tight" style={{ color: C.ocean, fontSize: 'clamp(32px, 4.5vw, 48px)' }}>
+              <h2 className="font-fraunces font-bold leading-tight" style={{ color: C.ocean, fontSize: 'clamp(32px, 4.5vw, 48px)' }}>
                 Where the money goes.
               </h2>
             </div>
@@ -688,7 +688,7 @@ export default async function AlmanacPage() {
             <div className="uppercase font-bold mb-3" style={{ color: C.ocean, fontSize: 10, letterSpacing: '0.3em' }}>
               The next 20 years
             </div>
-            <h2 className="font-caveat font-bold leading-tight" style={{ color: C.ocean, fontSize: 'clamp(32px, 4.5vw, 48px)' }}>
+            <h2 className="font-fraunces font-bold leading-tight" style={{ color: C.ocean, fontSize: 'clamp(32px, 4.5vw, 48px)' }}>
               Three commitments. Three generations.
             </h2>
           </div>
@@ -719,7 +719,7 @@ function FinancialBox({ label, amount, colour }: { label: string; amount: number
     Math.abs(amount) >= 1_000_000 ? `$${(amount / 1_000_000).toFixed(1)}M` : `$${(amount / 1_000).toFixed(0)}K`
   return (
     <div className="text-center">
-      <div className="font-caveat font-bold" style={{ color: colour, fontSize: 'clamp(40px, 5vw, 56px)' }}>
+      <div className="font-fraunces font-bold" style={{ color: colour, fontSize: 'clamp(40px, 5vw, 56px)' }}>
         {amount < 0 ? `(${formatted.replace('-', '')})` : formatted}
       </div>
       <div className="uppercase mt-2" style={{ color: C.driftwood, fontSize: 10, letterSpacing: '0.15em' }}>
@@ -760,7 +760,7 @@ function BackCoverSection({ ceoQuote }: { ceoQuote?: string }) {
 
       <div className="relative z-10 text-center max-w-2xl">
         {ceoQuote && (
-          <p className="font-caveat italic leading-relaxed mb-12" style={{ fontSize: 'clamp(20px, 2.6vw, 28px)' }}>
+          <p className="font-fraunces italic leading-relaxed mb-12" style={{ fontSize: 'clamp(20px, 2.6vw, 28px)' }}>
             “{ceoQuote}”
           </p>
         )}

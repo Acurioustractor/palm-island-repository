@@ -1,10 +1,13 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Fraunces, Caveat } from 'next/font/google';
 import { AdminProvider } from '@/lib/admin/AdminContext';
 import './globals.css';
 import 'leaflet/dist/leaflet.css';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const fraunces = Fraunces({ subsets: ['latin'], variable: '--font-fraunces' });
+// Caveat retained as a tertiary "curator's hand" accent for MarginNote only.
+const caveat = Caveat({ subsets: ['latin'], variable: '--font-caveat' });
 
 export const metadata: Metadata = {
   title: 'Palm Island Community Repository',
@@ -17,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${inter.variable} ${fraunces.variable} ${caveat.variable}`}>
       <body className={inter.className}>
         <AdminProvider>
           {children}

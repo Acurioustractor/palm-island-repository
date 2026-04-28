@@ -173,7 +173,7 @@ export function Cartouche({ section, numeral, title, subtitle, promise, iconUrl,
 
           {/* Title */}
           <h2
-            className="font-caveat font-bold leading-tight"
+            className="font-fraunces font-bold leading-tight"
             style={{ color: colour, fontSize: 'clamp(48px, 8vw, 84px)' }}
           >
             {title}
@@ -188,7 +188,7 @@ export function Cartouche({ section, numeral, title, subtitle, promise, iconUrl,
 
           {/* Subtitle */}
           {subtitle && (
-            <p className="font-caveat" style={{ color: C.earth, opacity: 0.85, fontSize: 'clamp(20px, 2.4vw, 26px)' }}>
+            <p className="font-fraunces" style={{ color: C.earth, opacity: 0.85, fontSize: 'clamp(20px, 2.4vw, 26px)' }}>
               {subtitle}
             </p>
           )}
@@ -255,7 +255,7 @@ export function Reliquary({ section, numeral, unit, annotation, caption, substra
 
       <div className="relative text-center px-8">
         <div
-          className="font-caveat font-bold leading-none mx-auto"
+          className="font-fraunces font-bold leading-none mx-auto"
           style={{ color: colour, fontSize: 'clamp(120px, 20vw, 200px)', letterSpacing: '-0.02em' }}
         >
           {numeral}
@@ -337,7 +337,7 @@ export function Lantern({
         </div>
 
         <p
-          className="font-caveat italic leading-relaxed"
+          className="font-fraunces italic leading-relaxed"
           style={{ color: C.earth, fontSize: 'clamp(20px, 2.4vw, 28px)', maxWidth: 560 }}
         >
           {quote}
@@ -351,7 +351,7 @@ export function Lantern({
             </div>
           )}
           <div>
-            <div className="font-caveat" style={{ color: C.turtleRed, fontSize: 18, opacity: 0.85 }}>
+            <div className="font-fraunces" style={{ color: C.turtleRed, fontSize: 18, opacity: 0.85 }}>
               — {speaker}
             </div>
             <div style={{ color: C.driftwood, fontSize: 11, marginTop: 2 }}>
@@ -400,7 +400,7 @@ export function Hearth({ section, quote, speaker, role, portraitUrl, date }: Hea
             className="w-16 h-16 md:w-20 md:h-20 flex-shrink-0 flex items-center justify-center rounded-sm"
             style={{ backgroundColor: C.shell }}
           >
-            <span className="font-caveat" style={{ color: colour, opacity: 0.6, fontSize: 32 }}>
+            <span className="font-fraunces" style={{ color: colour, opacity: 0.6, fontSize: 32 }}>
               {speaker
                 .split(' ')
                 .map((n) => n[0])
@@ -416,7 +416,7 @@ export function Hearth({ section, quote, speaker, role, portraitUrl, date }: Hea
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={BESPOKE.quote} alt="" className="w-full h-full object-contain" />
           </div>
-          <p className="font-caveat italic leading-snug" style={{ color: C.rock, fontSize: 16 }}>
+          <p className="font-fraunces italic leading-snug" style={{ color: C.rock, fontSize: 16 }}>
             {quote}
           </p>
 
@@ -465,7 +465,7 @@ export function Horizon({ section, year, title, statement, detail }: HorizonProp
           <div className="uppercase font-bold" style={{ color: colour, fontSize: 9, letterSpacing: '0.2em' }}>
             Forward Commitment
           </div>
-          <h3 className="font-caveat font-bold leading-tight mt-1" style={{ color: C.ocean, fontSize: 24 }}>
+          <h3 className="font-fraunces font-bold leading-tight mt-1" style={{ color: C.ocean, fontSize: 24 }}>
             {title}
           </h3>
         </div>
@@ -473,7 +473,7 @@ export function Horizon({ section, year, title, statement, detail }: HorizonProp
           <div className="uppercase" style={{ color: C.muted, fontSize: 8, letterSpacing: '0.25em' }}>
             By
           </div>
-          <div className="font-caveat font-bold leading-none" style={{ color: colour, fontSize: 48 }}>
+          <div className="font-fraunces font-bold leading-none" style={{ color: colour, fontSize: 48 }}>
             {year}
           </div>
         </div>
@@ -481,7 +481,7 @@ export function Horizon({ section, year, title, statement, detail }: HorizonProp
 
       <div style={{ height: 1, backgroundColor: colour, opacity: 0.4, margin: '8px 0 16px' }} />
 
-      <p className="font-caveat leading-relaxed" style={{ color: C.earth, fontSize: 18, maxWidth: 480 }}>
+      <p className="font-fraunces leading-relaxed" style={{ color: C.earth, fontSize: 18, maxWidth: 480 }}>
         {statement}
       </p>
 
@@ -507,7 +507,7 @@ export function Vitrine({ section, value, label, caption }: VitrineProps) {
   const colour = SECTION_COLOURS[section]
   return (
     <div className="relative px-3 py-6 text-center">
-      <div className="font-caveat font-bold leading-none" style={{ color: colour, fontSize: 'clamp(28px, 4vw, 40px)' }}>
+      <div className="font-fraunces font-bold leading-none" style={{ color: colour, fontSize: 'clamp(28px, 4vw, 40px)' }}>
         {value}
       </div>
       <div
@@ -580,7 +580,7 @@ export function Fold({
 
       <div className="mt-3 flex justify-between items-start gap-3">
         <div className="flex-1">
-          <p className="font-caveat" style={{ color: C.earth, opacity: 0.85, fontSize: 16 }}>
+          <p className="font-fraunces" style={{ color: C.earth, opacity: 0.85, fontSize: 16 }}>
             {caption}
           </p>
           {name && shape !== 'country' && (
@@ -613,7 +613,7 @@ export function MarginNote({ text, ink = 'earth' }: { text: string; ink?: 'earth
         <span style={{ width: 3, height: 3, borderRadius: 1.5, backgroundColor: colour, opacity: 0.4 }} />
         <span style={{ width: 2, height: 2, borderRadius: 1, backgroundColor: colour, opacity: 0.25 }} />
       </div>
-      <p className="font-caveat leading-snug" style={{ color: colour, fontSize: 14, opacity: 0.85 }}>
+      <p className="font-fraunces leading-snug" style={{ color: colour, fontSize: 14, opacity: 0.85 }}>
         {text}
       </p>
     </div>
@@ -725,7 +725,7 @@ export function Cover({ title, subtitle, yearTag, photoUrl, videoUrl }: CoverPro
 
         {/* Title — constrained width keeps "Many tribes, one people." holding together */}
         <h1
-          className="font-caveat font-bold leading-none"
+          className="font-fraunces font-bold leading-none"
           style={{
             fontSize: 'clamp(56px, 9vw, 110px)',
             textShadow: '0 6px 40px rgba(0,0,0,0.6)',
@@ -859,7 +859,7 @@ export function Acknowledgement({ body }: AcknowledgementProps) {
       {/* Closing line — sits over the painted island band at the foot */}
       <div className="absolute inset-x-0 bottom-[8%] flex justify-center px-6 z-10">
         <div
-          className="font-caveat text-center"
+          className="font-fraunces text-center"
           style={{
             color: C.midnight,
             fontSize: 'clamp(28px, 4.5vw, 56px)',
