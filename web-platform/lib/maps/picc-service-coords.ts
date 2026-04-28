@@ -30,9 +30,12 @@ export const PICC_SERVICE_COORDS: ServiceCoord[] = [
   { id: 'svc-fwc',         map_x: 0.67, map_y: 0.85 },
   { id: 'svc-safe-house',  map_x: 0.73, map_y: 0.83 },
 
-  // ── Health & Wellbeing (2) ── BHS clinic + SEWB outreach (SW of town)
+  // ── Health & Wellbeing (5) ── BHS campus + SEWB / Ferdy's / WHS / Shelter
   { id: 'svc-bhs',         map_x: 0.42, map_y: 0.78 },
   { id: 'svc-sewb',        map_x: 0.46, map_y: 0.84 },
+  { id: 'svc-ferdys',      map_x: 0.38, map_y: 0.83 },
+  { id: 'svc-whs',         map_x: 0.34, map_y: 0.78 },
+  { id: 'svc-shelter',     map_x: 0.30, map_y: 0.83 },
 
   // ── Justice & Safety (3) ── community justice cluster (NW of town)
   { id: 'svc-cjg',         map_x: 0.55, map_y: 0.66 },
