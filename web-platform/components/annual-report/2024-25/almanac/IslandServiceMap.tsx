@@ -13,6 +13,7 @@
 'use client'
 
 import { PALM_ISLAND_VIEWBOX, PALM_ISLAND_PATHS } from '@/lib/maps/palm-island-paths'
+import { PALM_ISLAND_LANDMARKS } from '@/lib/maps/picc-service-coords'
 import { C } from './tokens'
 
 interface ServiceWithMapCoords {
@@ -77,6 +78,50 @@ export function IslandServiceMap({ services }: IslandServiceMapProps) {
             </path>
           ))}
 
+          {/* Landmarks — township + airport + point references for
+              orientation. Rendered UNDER service dots so dots stay
+              visible when they sit on top. */}
+          {PALM_ISLAND_LANDMARKS.map((lm) => {
+            const lx = lm.map_x * vbW
+            const ly = lm.map_y * vbH
+            if (lm.kind === 'township') {
+              return (
+                <g key={lm.label} pointerEvents="none">
+                  <title>{lm.label}</title>
+                  {/* concentric ring under township */}
+                  <circle cx={lx} cy={ly} r={32} fill={C.ocean} fillOpacity={0.05} />
+                  <circle cx={lx} cy={ly} r={20} fill="none" stroke={C.ocean} strokeOpacity={0.3} strokeWidth={1} strokeDasharray="3 2" />
+                  {/* tiny crosshair */}
+                  <line x1={lx - 6} y1={ly} x2={lx + 6} y2={ly} stroke={C.ocean} strokeWidth={1.5} strokeOpacity={0.6} />
+                  <line x1={lx} y1={ly - 6} x2={lx} y2={ly + 6} stroke={C.ocean} strokeWidth={1.5} strokeOpacity={0.6} />
+                  <text x={lx} y={ly + 38} textAnchor="middle" fontFamily="Inter" fontWeight="700" fontSize="11" letterSpacing="2" fill={C.ocean}>
+                    TOWNSHIP
+                  </text>
+                </g>
+              )
+            }
+            if (lm.kind === 'airport') {
+              return (
+                <g key={lm.label} pointerEvents="none">
+                  <title>{lm.label}</title>
+                  {/* small triangle marker */}
+                  <polygon points={`${lx},${ly - 5} ${lx + 5},${ly + 4} ${lx - 5},${ly + 4}`} fill={C.driftwood} fillOpacity={0.7} />
+                  <text x={lx + 10} y={ly + 4} fontFamily="Inter" fontSize="9" letterSpacing="1.5" fill={C.driftwood}>
+                    AIRPORT
+                  </text>
+                </g>
+              )
+            }
+            // point — tiny label
+            return (
+              <g key={lm.label} pointerEvents="none">
+                <text x={lx} y={ly} fontFamily="Inter" fontSize="9" letterSpacing="1.5" fill={C.driftwood} opacity={0.7}>
+                  {lm.label.toUpperCase()}
+                </text>
+              </g>
+            )
+          })}
+
           {/* Geo-positioned service dots */}
           {placed.map((svc) => {
             const colour = CATEGORY_COLOUR[svc.service_category ?? ''] ?? C.driftwood
@@ -85,21 +130,23 @@ export function IslandServiceMap({ services }: IslandServiceMapProps) {
             return (
               <g key={svc.id} className="cursor-help">
                 <title>{svc.name}</title>
-                <circle cx={cx} cy={cy} r={11} fill={colour} fillOpacity={0.18} />
-                <circle cx={cx} cy={cy} r={7} fill={colour} stroke="#FBF8EE" strokeWidth={1.5} />
+                <circle cx={cx} cy={cy} r={10} fill={colour} fillOpacity={0.16} />
+                <circle cx={cx} cy={cy} r={6} fill={colour} stroke="#FBF8EE" strokeWidth={1.5} />
               </g>
             )
           })}
 
-          {/* Unplaced services — small marker stack at top-right corner */}
+          {/* Any service without coords — small ring at the bottom-left,
+              tagged so editors know to assign a position. Should be
+              empty once picc-service-coords.ts has all IDs. */}
           {unplaced.map((svc, i) => {
             const colour = CATEGORY_COLOUR[svc.service_category ?? ''] ?? C.driftwood
-            const cx = vbW * 0.92
-            const cy = vbH * 0.08 + i * 14
+            const cx = vbW * 0.04 + (i % 4) * 14
+            const cy = vbH * 0.95 + Math.floor(i / 4) * 14
             return (
               <g key={svc.id} className="cursor-help">
-                <title>{svc.name} (no coords yet)</title>
-                <circle cx={cx} cy={cy} r={5} fill={colour} fillOpacity={0.5} stroke={colour} strokeWidth={1} strokeDasharray="2 1" />
+                <title>{svc.name} (no coords)</title>
+                <circle cx={cx} cy={cy} r={4} fill={colour} fillOpacity={0.5} stroke={colour} strokeWidth={1} strokeDasharray="2 1" />
               </g>
             )
           })}
