@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
+import type { PoolVoice } from '@/lib/services/el-coverage'
 
 export interface AlmanacVoice {
   id: string
@@ -52,13 +53,50 @@ interface Props {
   context: VoiceContext
   target: number
   services: { slug: string; name: string }[]
+  pool: PoolVoice[]
 }
 
-export default function VoicesClient({ voices: initial, context, target, services }: Props) {
+export default function VoicesClient({ voices: initial, context, target, services, pool }: Props) {
   const [voices, setVoices] = useState<AlmanacVoice[]>(initial)
   const [filter, setFilter] = useState<Filter>('active')
   const [showAdd, setShowAdd] = useState(false)
   const [editing, setEditing] = useState<string | null>(null)
+  const [showPool, setShowPool] = useState(false)
+  const [poolService, setPoolService] = useState<string>('')
+  const [poolSearch, setPoolSearch] = useState('')
+  const [importing, setImporting] = useState<string | null>(null)
+  const importedQuoteIds = useMemo(
+    () => new Set(voices.map((v) => v.notes?.match(/quote ([0-9a-f-]+)/i)?.[1]).filter(Boolean) as string[]),
+    [voices],
+  )
+
+  async function importFromPool(item: PoolVoice) {
+    setImporting(item.id)
+    try {
+      const res = await fetch('/api/almanac/voices/import', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          el_quote_id: item.id,
+          speaker_name: item.speaker_name,
+          speaker_role: item.speaker_role,
+          quote: item.quote,
+          service_slug: item.service_slugs[0] ?? null,
+          photo_url: item.photo_url,
+          storyteller_id: item.storyteller_id,
+        }),
+      })
+      if (res.ok) {
+        const { voice } = await res.json()
+        setVoices((prev) => [voice, ...prev])
+      } else {
+        const err = await res.json().catch(() => ({}))
+        alert(`Import failed: ${err.error ?? res.statusText}`)
+      }
+    } finally {
+      setImporting(null)
+    }
+  }
 
   // ── Mutations ──
   async function saveVoice(payload: Partial<AlmanacVoice>) {
@@ -199,13 +237,38 @@ export default function VoicesClient({ voices: initial, context, target, service
                 </button>
               ))}
             </div>
-            <button
-              onClick={() => setShowAdd(true)}
-              className="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700"
-            >
-              + Add voice
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowPool(!showPool)}
+                className={`px-4 py-2 rounded-lg text-sm font-semibold ${
+                  showPool ? 'bg-stone-800 text-white' : 'bg-white border border-stone-300 text-stone-700 hover:bg-stone-50'
+                }`}
+              >
+                {showPool ? '× Hide' : '↓ Pull from EL'} ({pool.length})
+              </button>
+              <button
+                onClick={() => setShowAdd(true)}
+                className="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700"
+              >
+                + Add voice
+              </button>
+            </div>
           </div>
+
+          {/* EL pool browser */}
+          {showPool && (
+            <PoolBrowser
+              pool={pool}
+              services={services}
+              importedIds={importedQuoteIds}
+              importing={importing}
+              poolService={poolService}
+              setPoolService={setPoolService}
+              poolSearch={poolSearch}
+              setPoolSearch={setPoolSearch}
+              onImport={importFromPool}
+            />
+          )}
 
           {/* Add form */}
           {showAdd && (
@@ -548,5 +611,115 @@ function Field({ label, required, children }: { label: string; required?: boolea
       </span>
       {children}
     </label>
+  )
+}
+
+interface PoolBrowserProps {
+  pool: PoolVoice[]
+  services: { slug: string; name: string }[]
+  importedIds: Set<string>
+  importing: string | null
+  poolService: string
+  setPoolService: (s: string) => void
+  poolSearch: string
+  setPoolSearch: (s: string) => void
+  onImport: (item: PoolVoice) => void
+}
+
+function PoolBrowser({
+  pool, services, importedIds, importing, poolService, setPoolService, poolSearch, setPoolSearch, onImport,
+}: PoolBrowserProps) {
+  const filtered = useMemo(() => {
+    const q = poolSearch.toLowerCase().trim()
+    return pool.filter((p) => {
+      if (poolService && !p.service_slugs.includes(poolService)) return false
+      if (!q) return true
+      return (
+        p.quote.toLowerCase().includes(q) ||
+        p.speaker_name.toLowerCase().includes(q) ||
+        (p.speaker_role ?? '').toLowerCase().includes(q)
+      )
+    })
+  }, [pool, poolSearch, poolService])
+
+  return (
+    <div className="rounded-lg border-2 border-stone-300 bg-white p-4 space-y-3">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div>
+          <div className="text-xs font-semibold tracking-[0.15em] uppercase text-stone-700">
+            Existing voices in EL v2
+          </div>
+          <p className="text-xs text-stone-500 mt-0.5">
+            One click brings a quote into the sprint as <em>review</em> with consent <em>verbal</em>.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <select
+            value={poolService}
+            onChange={(e) => setPoolService(e.target.value)}
+            className="px-2 py-1.5 rounded border border-stone-300 bg-white text-xs"
+          >
+            <option value="">All services</option>
+            {services.map((s) => (
+              <option key={s.slug} value={s.slug}>{s.name}</option>
+            ))}
+          </select>
+          <input
+            value={poolSearch}
+            onChange={(e) => setPoolSearch(e.target.value)}
+            placeholder="Search quote / speaker…"
+            className="px-2 py-1.5 rounded border border-stone-300 bg-white text-xs w-56"
+          />
+        </div>
+      </div>
+
+      {filtered.length === 0 ? (
+        <div className="text-center py-8 text-stone-500 text-sm">
+          {pool.length === 0 ? 'No EL v2 voices available — check API connection.' : 'Nothing matches.'}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[600px] overflow-y-auto pr-1">
+          {filtered.map((p) => {
+            const already = importedIds.has(p.id)
+            return (
+              <div key={p.id} className="rounded border border-stone-200 p-3 bg-stone-50/50">
+                <div className="flex items-start gap-3">
+                  {p.photo_url && (
+                    <img src={p.photo_url} alt="" className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="font-serif text-sm text-stone-800">{p.speaker_name}</div>
+                    {p.speaker_role && <div className="text-[11px] text-stone-500">{p.speaker_role}</div>}
+                  </div>
+                </div>
+                <blockquote className="text-sm text-stone-700 italic border-l-2 border-stone-300 pl-2 mt-2 line-clamp-4">
+                  &ldquo;{p.quote}&rdquo;
+                </blockquote>
+                <div className="flex items-center justify-between mt-2 gap-2">
+                  <div className="flex flex-wrap gap-1">
+                    {p.service_slugs.slice(0, 3).map((slug) => (
+                      <span key={slug} className="text-[10px] px-1.5 py-0.5 rounded-full bg-sky-100 text-sky-900">
+                        {services.find((s) => s.slug === slug)?.name ?? slug}
+                      </span>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => onImport(p)}
+                    disabled={already || importing === p.id}
+                    className={`text-xs px-2 py-1 rounded ${
+                      already
+                        ? 'bg-stone-200 text-stone-500'
+                        : 'bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50'
+                    }`}
+                  >
+                    {already ? '✓ imported' : importing === p.id ? '…' : '+ Import'}
+                  </button>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
   )
 }

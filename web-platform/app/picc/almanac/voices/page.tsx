@@ -9,6 +9,7 @@
  */
 import { createServerComponentClient } from '@/lib/supabase/server'
 import { getPiccServices } from '@/lib/services/el-services'
+import { getVoicesPool } from '@/lib/services/el-coverage'
 import VoicesClient, { type AlmanacVoice, type VoiceContext } from './VoicesClient'
 
 export const metadata = {
@@ -55,10 +56,11 @@ async function loadContext(): Promise<VoiceContext> {
 }
 
 export default async function AlmanacVoicesPage() {
-  const [voices, context, services] = await Promise.all([
+  const [voices, context, services, pool] = await Promise.all([
     loadVoices(),
     loadContext(),
     getPiccServices().catch(() => []),
+    getVoicesPool().catch(() => []),
   ])
   return (
     <VoicesClient
@@ -66,6 +68,7 @@ export default async function AlmanacVoicesPage() {
       context={context}
       target={TARGET}
       services={services.map((s) => ({ slug: s.slug, name: s.name }))}
+      pool={pool}
     />
   )
 }
