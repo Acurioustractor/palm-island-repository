@@ -56,6 +56,7 @@ const PAGES = [
       { href: '/picc/reports/builder', icon: FileText, label: 'Report Builder', sub: 'Audience-targeted PDF' },
       { href: '/picc/design-system', icon: Palette, label: 'Design System', sub: '103 elements · vote + curate' },
       { href: '/picc/almanac/photos', icon: FileText, label: 'Almanac Photos', sub: 'Every slot · live from EL v2 · swap' },
+      { href: '/picc/almanac/checklist', icon: FileText, label: 'Almanac Checklist', sub: 'Every blocker before publish · readiness %' },
     ],
   },
 ]
