@@ -33,6 +33,7 @@ import { getPiccServices } from '@/lib/services/el-services'
 import { SaltwaterRings } from '@/components/annual-report/2024-25/almanac/SaltwaterRings'
 import { ReefLayers } from '@/components/annual-report/2024-25/almanac/ReefLayers'
 import { C, SECTION_COLOURS, type SectionKey } from '@/components/annual-report/2024-25/almanac/tokens'
+import { StatHero } from '@/components/library/StatHero/web'
 import { FORWARD_COMMITMENTS } from '@/lib/annual-report/2024-25/content'
 import { VIDEO_TAGS_2025 } from '@/lib/annual-report/data-2025'
 
@@ -297,33 +298,24 @@ export default async function AlmanacPage() {
             />
           </div>
 
-          {/* SUPPORTING stats grid — clean, no icon spam. The "Active
-              Services" stat is now the hero above so we filter it out
-              of the grid to avoid duplication. */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-12">
+          {/* SUPPORTING stats grid — replaced with library <StatHero>.
+              Each cell uses the canonical big-number treatment from
+              picc-almanac-web.pen → StatHero (XhjFb). Tinted by section
+              room, fluid mode fills its grid cell. */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-md">
             {keyStats
               .filter((s) => !/active services?|total staff/i.test(s.stat_label))
               .map((stat, i) => {
-                const sectionColours = [C.ocean, C.mangrove, C.ochre, C.turtleRed, C.starGold, C.reef, C.coral, C.earth]
-                const colour = sectionColours[i % sectionColours.length]
+                const tints = ['health', 'family', 'youth', 'justice', 'economic', 'education', 'governance'] as const
                 return (
-                  <div key={stat.id} className="text-center">
-                    <div
-                      className="font-fraunces font-bold leading-none"
-                      style={{ color: colour, fontSize: 'clamp(40px, 5vw, 64px)' }}
-                    >
-                      {stat.stat_value}
-                    </div>
-                    <div className="mt-2 uppercase" style={{ color: C.driftwood, fontSize: 10, letterSpacing: '0.15em' }}>
-                      {stat.stat_label}
-                    </div>
-                    {stat.stat_description && (
-                      <div className="mt-2 font-caveat" style={{ color: C.earth, opacity: 0.7, fontSize: 13, lineHeight: 1.3 }}>
-                        {stat.stat_description}
-                      </div>
-                    )}
-                    <div className="mx-auto mt-3" style={{ width: '40%', height: 1, backgroundColor: colour, opacity: 0.5 }} />
-                  </div>
+                  <StatHero
+                    key={stat.id}
+                    value={stat.stat_value}
+                    label={stat.stat_label}
+                    caption={stat.stat_description ?? undefined}
+                    tint={tints[i % tints.length]}
+                    size="fluid"
+                  />
                 )
               })}
           </div>
