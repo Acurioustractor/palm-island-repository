@@ -13,6 +13,20 @@ import { LIBRARY, type ComponentMeta } from '@/components/library/registry'
 
 import StatHeroSample from '@/components/library/StatHero/sample'
 import { meta as StatHeroMeta } from '@/components/library/StatHero/meta'
+import SectionOpenerSample from '@/components/library/SectionOpener/sample'
+import { meta as SectionOpenerMeta } from '@/components/library/SectionOpener/meta'
+import MilestoneCalloutSample from '@/components/library/MilestoneCallout/sample'
+import { meta as MilestoneCalloutMeta } from '@/components/library/MilestoneCallout/meta'
+import QuoteCardElderSample from '@/components/library/QuoteCardElder/sample'
+import { meta as QuoteCardElderMeta } from '@/components/library/QuoteCardElder/meta'
+import PhotoBlockSample from '@/components/library/PhotoBlock/sample'
+import { meta as PhotoBlockMeta } from '@/components/library/PhotoBlock/meta'
+import WebHeroSample from '@/components/library/WebHero/sample'
+import { meta as WebHeroMeta } from '@/components/library/WebHero/meta'
+import FinancialBarsSample from '@/components/library/FinancialBars/sample'
+import { meta as FinancialBarsMeta } from '@/components/library/FinancialBars/meta'
+import FooterCTASample from '@/components/library/FooterCTA/sample'
+import { meta as FooterCTAMeta } from '@/components/library/FooterCTA/meta'
 
 export const metadata = {
   title: 'Components — PICC Design System',
@@ -26,6 +40,13 @@ interface Entry {
 
 const ENTRIES: Record<string, Entry> = {
   StatHero: { meta: StatHeroMeta, Sample: StatHeroSample },
+  SectionOpener: { meta: SectionOpenerMeta, Sample: SectionOpenerSample },
+  MilestoneCallout: { meta: MilestoneCalloutMeta, Sample: MilestoneCalloutSample },
+  QuoteCardElder: { meta: QuoteCardElderMeta, Sample: QuoteCardElderSample },
+  PhotoBlock: { meta: PhotoBlockMeta, Sample: PhotoBlockSample },
+  WebHero: { meta: WebHeroMeta, Sample: WebHeroSample },
+  FinancialBars: { meta: FinancialBarsMeta, Sample: FinancialBarsSample },
+  FooterCTA: { meta: FooterCTAMeta, Sample: FooterCTASample },
 }
 
 const CATEGORIES = ['almanac', 'annual-report', 'museum-element', 'primitive', 'form', 'nav'] as const

@@ -39,7 +39,14 @@ export interface ComponentMeta {
 }
 
 export const LIBRARY = [
+  'WebHero',
+  'SectionOpener',
   'StatHero',
+  'MilestoneCallout',
+  'QuoteCardElder',
+  'PhotoBlock',
+  'FinancialBars',
+  'FooterCTA',
 ] as const
 
 export type LibraryName = (typeof LIBRARY)[number]
