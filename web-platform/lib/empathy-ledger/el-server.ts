@@ -199,6 +199,56 @@ export async function getPalmStorytellers(): Promise<ELStoryteller[]> {
   return (data || []) as ELStoryteller[]
 }
 
+/**
+ * Stories attributed to a storyteller via storyteller_id. Empty when EL v2
+ * doesn't have a story for them yet (or when EL v2 isn't reachable).
+ */
+export async function getStoriesForStoryteller(
+  storytellerId: string,
+  opts?: { limit?: number; publishedOnly?: boolean },
+): Promise<ELStory[]> {
+  const supabase = getELClient()
+  if (!supabase) return []
+
+  let query = supabase
+    .from('stories')
+    .select('id, title, story_image_url, excerpt, summary, status, story_type, cultural_sensitivity_level, created_at')
+    .eq('organization_id', PICC_ORG_ID)
+    .eq('storyteller_id', storytellerId)
+    .order('created_at', { ascending: false })
+    .limit(opts?.limit ?? 12)
+
+  if (opts?.publishedOnly) {
+    query = query.eq('status', 'published')
+  }
+
+  const { data } = await query
+  return (data || []) as ELStory[]
+}
+
+/**
+ * Transcripts attributed to a storyteller. Renders on the profile as a
+ * "Conversations" section. Long-form context — transcripts are interview
+ * recordings, ai_summary fields are short narrative summaries.
+ */
+export async function getTranscriptsForStoryteller(
+  storytellerId: string,
+  opts?: { limit?: number },
+): Promise<ELTranscript[]> {
+  const supabase = getELClient()
+  if (!supabase) return []
+
+  const { data } = await supabase
+    .from('transcripts')
+    .select('id, title, ai_summary, ai_processing_status, themes, word_count, storyteller_id, project_id, key_quotes, ai_model_version')
+    .eq('organization_id', PICC_ORG_ID)
+    .eq('storyteller_id', storytellerId)
+    .order('word_count', { ascending: false })
+    .limit(opts?.limit ?? 6)
+
+  return (data || []) as ELTranscript[]
+}
+
 // ---------------------------------------------------------------------------
 // Stats (for dashboards)
 // ---------------------------------------------------------------------------

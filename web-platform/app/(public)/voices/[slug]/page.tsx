@@ -22,8 +22,12 @@ import {
   getPalmStorytellers,
   getELQuotes,
   findQuotesForPerson,
+  getStoriesForStoryteller,
+  getTranscriptsForStoryteller,
   type ELStoryteller,
   type ELQuote,
+  type ELStory,
+  type ELTranscript,
 } from '@/lib/empathy-ledger/el-server'
 import { getPhotosForStoryteller, type ELPhoto } from '@/lib/media/el-photos'
 import { C } from '@/components/annual-report/2024-25/almanac/tokens'
@@ -79,7 +83,11 @@ export default async function StorytellerProfilePage({ params }: PageProps) {
 
   const personQuotes = findQuotesForPerson(allQuotes, teller.display_name)
   const featured = pickFeaturedQuote(personQuotes)
-  const photos = await getPhotosForStoryteller(teller.id, 12)
+  const [photos, stories, transcripts] = await Promise.all([
+    getPhotosForStoryteller(teller.id, 12),
+    getStoriesForStoryteller(teller.id, { limit: 12, publishedOnly: true }),
+    getTranscriptsForStoryteller(teller.id, { limit: 6 }),
+  ])
 
   const portrait = photos[0] || null
   const galleryPhotos = photos.slice(1, 5)
@@ -118,6 +126,22 @@ export default async function StorytellerProfilePage({ params }: PageProps) {
       )}
 
       {/* 04 · Where she connects — only if we can derive (omitted when no data) */}
+
+      {/* Stories — published stories from EL v2 attributed via storyteller_id */}
+      {stories.length > 0 && (
+        <StoriesSection
+          firstName={teller.display_name.split(/\s+/)[0]}
+          stories={stories}
+        />
+      )}
+
+      {/* Conversations — transcripts attributed via storyteller_id */}
+      {transcripts.length > 0 && (
+        <ConversationsSection
+          firstName={teller.display_name.split(/\s+/)[0]}
+          transcripts={transcripts}
+        />
+      )}
 
       {/* 05 · BACK TO VOICES WALL */}
       <BackToVoicesWall />
@@ -274,6 +298,163 @@ function PhotoGallerySection({
           style={{ color: C.muted, fontSize: 18 }}
         >
           {totalCount} {totalCount === 1 ? 'photo' : 'photos'} linked to {firstName} in EL v2 · ordered most recent first · all consent-cleared
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function StoriesSection({
+  firstName,
+  stories,
+}: {
+  firstName: string
+  stories: ELStory[]
+}) {
+  return (
+    <section
+      className="px-6 md:px-12 py-20 md:py-28"
+      style={{ backgroundColor: C.shell }}
+    >
+      <div className="max-w-6xl mx-auto flex flex-col items-center gap-8">
+        <div
+          className="uppercase font-bold"
+          style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.3em' }}
+        >
+          Stories · published in Empathy Ledger
+        </div>
+        <h2
+          className="font-fraunces font-bold leading-tight text-center"
+          style={{ color: C.ocean, fontSize: 'clamp(32px, 4.5vw, 48px)' }}
+        >
+          What {firstName} has shared.
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+          {stories.map((story) => (
+            <article
+              key={story.id}
+              className="rounded-md overflow-hidden flex flex-col"
+              style={{ backgroundColor: '#FBF8EE' }}
+            >
+              {story.story_image_url && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={story.story_image_url}
+                  alt={story.title || ''}
+                  className="w-full h-[200px] object-cover"
+                  loading="lazy"
+                />
+              )}
+              <div className="p-5 flex flex-col gap-2 flex-grow">
+                {story.story_type && (
+                  <div
+                    className="uppercase font-bold"
+                    style={{ color: C.ochre, fontSize: 10, letterSpacing: '0.2em' }}
+                  >
+                    {story.story_type.replace(/_/g, ' ')}
+                  </div>
+                )}
+                <h3
+                  className="font-fraunces font-bold leading-tight"
+                  style={{ color: C.ocean, fontSize: 20 }}
+                >
+                  {story.title || 'Untitled story'}
+                </h3>
+                {(story.excerpt || story.summary) && (
+                  <p
+                    className="leading-relaxed"
+                    style={{ color: C.driftwood, fontSize: 14 }}
+                  >
+                    {story.excerpt || story.summary}
+                  </p>
+                )}
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function ConversationsSection({
+  firstName,
+  transcripts,
+}: {
+  firstName: string
+  transcripts: ELTranscript[]
+}) {
+  return (
+    <section
+      className="px-6 md:px-12 py-20 md:py-28"
+      style={{ backgroundColor: '#FBF8EE' }}
+    >
+      <div className="max-w-4xl mx-auto flex flex-col items-center gap-8">
+        <div
+          className="uppercase font-bold"
+          style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.3em' }}
+        >
+          Conversations · long-form interviews
+        </div>
+        <h2
+          className="font-fraunces font-bold leading-tight text-center"
+          style={{ color: C.ocean, fontSize: 'clamp(28px, 4vw, 42px)' }}
+        >
+          Sitting with {firstName}.
+        </h2>
+        <div className="flex flex-col gap-6 w-full">
+          {transcripts.map((t) => (
+            <article
+              key={t.id}
+              className="rounded-md p-6 flex flex-col gap-3"
+              style={{ backgroundColor: C.sand }}
+            >
+              <div className="flex items-baseline justify-between gap-4">
+                <h3
+                  className="font-fraunces font-bold leading-tight flex-1"
+                  style={{ color: C.ocean, fontSize: 22 }}
+                >
+                  {t.title || 'Untitled conversation'}
+                </h3>
+                {t.word_count != null && (
+                  <span
+                    className="uppercase whitespace-nowrap"
+                    style={{ color: C.muted, fontSize: 10, letterSpacing: '0.15em' }}
+                  >
+                    {t.word_count.toLocaleString()} words
+                  </span>
+                )}
+              </div>
+              {t.ai_summary && (
+                <p
+                  className="leading-relaxed"
+                  style={{ color: C.earth, fontSize: 14 }}
+                >
+                  {t.ai_summary}
+                </p>
+              )}
+              {t.themes && t.themes.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {t.themes.map((theme: string) => (
+                    <span
+                      key={theme}
+                      className="uppercase"
+                      style={{
+                        color: C.turtleRed,
+                        backgroundColor: 'rgba(139,26,26,0.08)',
+                        fontSize: 10,
+                        letterSpacing: '0.15em',
+                        padding: '4px 10px',
+                        borderRadius: 999,
+                      }}
+                    >
+                      {theme}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </article>
+          ))}
         </div>
       </div>
     </section>

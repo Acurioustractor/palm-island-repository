@@ -44,10 +44,17 @@ export default async function VoicesPage() {
             <BespokeIcon name="quote" size={40} />
             <h1 className="text-4xl font-bold font-serif">Community Voices</h1>
           </div>
-          <p className="text-lg text-white/80 max-w-2xl">
+          <p className="text-lg text-white/80 max-w-2xl mb-6">
             Words of wisdom, reflection, and pride from Palm Island community members
             and Elders — the voices that guide our journey.
           </p>
+          <Link
+            href="/voices/pulse"
+            className="inline-block text-sm font-bold uppercase tracking-widest hover:opacity-80"
+            style={{ color: '#F5A623' }}
+          >
+            View community pulse →
+          </Link>
         </div>
       </div>
 
