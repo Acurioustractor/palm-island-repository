@@ -32,6 +32,7 @@ import {
 } from '@/lib/empathy-ledger/el-server'
 import { getPhotosForStoryteller, type ELPhoto } from '@/lib/media/el-photos'
 import { getPiccServices } from '@/lib/services/el-services'
+import { createServerSupabase } from '@/lib/supabase/client'
 import { C } from '@/components/annual-report/2024-25/almanac/tokens'
 
 export const dynamic = 'force-dynamic'
@@ -85,13 +86,34 @@ export default async function StorytellerProfilePage({ params }: PageProps) {
 
   const personQuotes = findQuotesForPerson(allQuotes, teller.display_name)
   const featured = pickFeaturedQuote(personQuotes)
-  const [photos, stories, transcripts, serviceTags, piccServices] = await Promise.all([
+  const piccSupabase = createServerSupabase()
+  const [photos, stories, transcripts, serviceTags, piccServices, bespokeArtResult] = await Promise.all([
     getPhotosForStoryteller(teller.id, 12),
     getStoriesForStoryteller(teller.id, { limit: 12, publishedOnly: true }),
     getTranscriptsForStoryteller(teller.id, { limit: 6 }),
     getServicesForStoryteller(teller.id),
     getPiccServices(),
+    // Approved community art tagged related:<storyteller-slug>. Same
+    // pattern as /services/<slug> — pieces submitted via /share-art and
+    // approved at /picc/design-system/submissions surface here.
+    piccSupabase
+      .from('media_files')
+      .select('id, public_url, title, caption, attribution, metadata')
+      .eq('page_context', 'community-art')
+      .eq('is_public', true)
+      .is('deleted_at', null)
+      .contains('tags', [`related:${slug}`])
+      .order('created_at', { ascending: false })
+      .limit(12),
   ])
+  const bespokeArt = (bespokeArtResult.data || []) as Array<{
+    id: string
+    public_url: string
+    title: string | null
+    caption: string | null
+    attribution: string | null
+    metadata: Record<string, any> | null
+  }>
 
   // Map raw EL v2 service tags (snake_case editorial labels like
   // 'bwgcolman_healing') onto PICC's canonical service roster so each
@@ -170,6 +192,14 @@ export default async function StorytellerProfilePage({ params }: PageProps) {
         <ConversationsSection
           firstName={teller.display_name.split(/\s+/)[0]}
           transcripts={transcripts}
+        />
+      )}
+
+      {/* Bespoke art — approved community submissions tagged related:<slug> */}
+      {bespokeArt.length > 0 && (
+        <BespokeArtSection
+          firstName={teller.display_name.split(/\s+/)[0]}
+          art={bespokeArt}
         />
       )}
 
@@ -576,6 +606,94 @@ function ConversationsSection({
             </article>
           ))}
         </div>
+      </div>
+    </section>
+  )
+}
+
+function BespokeArtSection({
+  firstName,
+  art,
+}: {
+  firstName: string
+  art: Array<{
+    id: string
+    public_url: string
+    title: string | null
+    caption: string | null
+    attribution: string | null
+    metadata: Record<string, any> | null
+  }>
+}) {
+  return (
+    <section
+      className="px-6 md:px-12 py-20 md:py-28"
+      style={{ backgroundColor: C.shell }}
+    >
+      <div className="max-w-6xl mx-auto flex flex-col items-center gap-8">
+        <div
+          className="uppercase font-bold"
+          style={{ color: C.ochre, fontSize: 11, letterSpacing: '0.3em' }}
+        >
+          Community art · approved submissions
+        </div>
+        <h2
+          className="font-fraunces font-bold leading-tight text-center"
+          style={{ color: C.ocean, fontSize: 'clamp(28px, 4vw, 42px)' }}
+        >
+          Pieces about {firstName}.
+        </h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full">
+          {art.map((piece) => (
+            <figure
+              key={piece.id}
+              className="rounded-md overflow-hidden flex flex-col"
+              style={{ backgroundColor: '#FBF8EE' }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={piece.public_url}
+                alt={piece.title || 'community art'}
+                className="w-full h-48 object-cover"
+                loading="lazy"
+              />
+              <figcaption className="p-4 flex flex-col gap-1 flex-grow">
+                {piece.title && (
+                  <div
+                    className="font-fraunces font-bold leading-tight"
+                    style={{ color: C.ocean, fontSize: 16 }}
+                  >
+                    {piece.title}
+                  </div>
+                )}
+                {piece.caption && (
+                  <p
+                    className="leading-relaxed line-clamp-2"
+                    style={{ color: C.driftwood, fontSize: 12 }}
+                  >
+                    {piece.caption}
+                  </p>
+                )}
+                <div
+                  className="font-bold mt-auto pt-1"
+                  style={{ color: C.ochre, fontSize: 11 }}
+                >
+                  {piece.attribution || 'Anonymous'}
+                </div>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+        <p
+          className="italic text-center"
+          style={{ color: C.muted, fontSize: 13, maxWidth: 520 }}
+        >
+          Drawings, icons, and artwork made by community members. Want to add yours?{' '}
+          <Link href="/share-art" className="underline" style={{ color: C.ochre }}>
+            Submit a piece
+          </Link>
+          .
+        </p>
       </div>
     </section>
   )
