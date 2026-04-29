@@ -55,6 +55,7 @@ const PAGES = [
       { href: '/picc/projects', icon: FolderKanban, label: 'Projects', sub: '9 projects' },
       { href: '/picc/reports/builder', icon: FileText, label: 'Report Builder', sub: 'Audience-targeted PDF' },
       { href: '/picc/design-system', icon: Palette, label: 'Design System', sub: '103 elements · vote + curate' },
+      { href: '/picc/almanac/photos', icon: FileText, label: 'Almanac Photos', sub: 'Every slot · live from EL v2 · swap' },
     ],
   },
 ]
