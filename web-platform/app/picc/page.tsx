@@ -57,6 +57,8 @@ const PAGES = [
       { href: '/picc/design-system', icon: Palette, label: 'Design System', sub: '103 elements · vote + curate' },
       { href: '/picc/almanac/photos', icon: FileText, label: 'Almanac Photos', sub: 'Every slot · live from EL v2 · swap' },
       { href: '/picc/almanac/checklist', icon: FileText, label: 'Almanac Checklist', sub: 'Every blocker before publish · readiness %' },
+      { href: '/picc/almanac/voices', icon: Quote, label: 'Almanac Voices', sub: '20-voice sprint tracker + consent' },
+      { href: '/picc/almanac/preview', icon: FileText, label: 'Almanac Preview', sub: 'Full page · flag overlays · sticky chrome' },
     ],
   },
 ]
