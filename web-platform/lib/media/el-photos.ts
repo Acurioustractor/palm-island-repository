@@ -136,3 +136,65 @@ export async function getVideoOverlay(scene: string): Promise<VideoOverlay | nul
     slot,
   };
 }
+
+// ─────────────────────────────────────────────────────────────────────
+// Service-canonical photos — uses EL v2's service_galleries join (not
+// the slot-tag mechanism). Endpoint:
+//   GET /api/picc/services/<slug>/photos
+// Returns photos linked to the service via gallery_media_associations.
+// Cover photo is the gallery's is_cover_image=true row, or first.
+// ─────────────────────────────────────────────────────────────────────
+
+/**
+ * Pull every photo linked to a PICC service via EL v2's
+ * service_galleries → gallery_media_associations chain.
+ *
+ * This is the CANONICAL service-photo path (preferred over the
+ * slot-tag approach in getPhotosForService). Falls back to the
+ * slot-tag version if the service-galleries endpoint isn't deployed
+ * yet on EL v2.
+ */
+export async function getCanonicalPhotosForService(
+  slug: string,
+  limit = 24,
+): Promise<ServicePhotos> {
+  const r = await call<{ hero: ELPhoto | null; gallery: ELPhoto[]; all: ELPhoto[] }>(
+    `/api/picc/services/${encodeURIComponent(slug)}/photos?limit=${limit}`,
+  );
+  if (r) return { hero: r.hero, gallery: r.gallery, all: r.all };
+  // Fallback to the slot-tag mechanism
+  return getPhotosForService(slug, limit);
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Storyteller (people) photos — via media_storytellers join table.
+// Endpoint:
+//   GET /api/picc/storytellers/<id>/photos
+// Returns photos where the storyteller appears, consent-cleared.
+// ─────────────────────────────────────────────────────────────────────
+
+export async function getPhotosForStoryteller(
+  storytellerId: string,
+  limit = 12,
+): Promise<ELPhoto[]> {
+  const r = await call<{ photos: ELPhoto[] }>(
+    `/api/picc/storytellers/${encodeURIComponent(storytellerId)}/photos?limit=${limit}`,
+  );
+  return r?.photos ?? [];
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Priority photos — flagged is_featured=true on the EL v2 side.
+// Editors star the GO-TO photos in /admin/photos and PICC pulls those
+// when it needs a "best photo for this slot/service/person" pick.
+//   GET /api/photos?priority=true
+// ─────────────────────────────────────────────────────────────────────
+
+export async function getPriorityPhotos(opts: { slot?: string; limit?: number } = {}): Promise<ELPhoto[]> {
+  const params = new URLSearchParams();
+  params.set('priority', 'true');
+  if (opts.slot) params.set('slot', opts.slot);
+  params.set('limit', String(opts.limit ?? 24));
+  const r = await call<{ photos: ELPhoto[] }>(`/api/photos?${params.toString()}`);
+  return r?.photos ?? [];
+}
