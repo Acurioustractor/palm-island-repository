@@ -38,6 +38,8 @@ import { SectionOpener } from '@/components/library/SectionOpener/web'
 import { MilestoneCallout } from '@/components/library/MilestoneCallout/web'
 import { PhotoBlock } from '@/components/library/PhotoBlock/web'
 import { FinancialBars } from '@/components/library/FinancialBars/web'
+import { ServiceCompactTile } from '@/components/library/ServiceCompactTile/web'
+import { getPhotosBySlot } from '@/lib/media/el-photos'
 import { FORWARD_COMMITMENTS } from '@/lib/annual-report/2024-25/content'
 import { VIDEO_TAGS_2025 } from '@/lib/annual-report/data-2025'
 
@@ -55,12 +57,22 @@ export default async function AlmanacPage() {
   // Services are now sourced from EL v2 (canonical 26-service roster
   // at /api/picc/services). Falls back to data-2025.ts SERVICES_2025
   // if EL v2 is unreachable so the page always renders.
-  const [reportData, elderQuotes, communityVoices, piccServices] = await Promise.all([
+  const [reportData, elderQuotes, communityVoices, piccServices, photosBySlot] = await Promise.all([
     getReportData('2024-25'),
     getCuratedQuotes({ source_type: 'elder', limit: 6 }),
     getCuratedQuotes({ limit: 6 }),
     getPiccServices(),
+    getPhotosBySlot(),
   ])
+
+  // Cover photo for each service from EL v2's slot system
+  // (picc:slot:service-<slug>). Falls through to undefined when no photo
+  // is tagged yet — ServiceCompactTile renders a section-tint chip.
+  const serviceCoverBySlug: Record<string, string | undefined> = {}
+  for (const s of piccServices) {
+    const photos = photosBySlot[`service-${s.slug}`]
+    serviceCoverBySlug[s.slug] = photos?.[0]?.url
+  }
 
   // Resolve real CEO + Chair messages
   const ceo = reportData.leadershipMessages.find((m) => m.role === 'ceo')
@@ -468,30 +480,30 @@ export default async function AlmanacPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {services.map((service) => (
-                    <div key={service.id} className="p-4 rounded-md" style={{ backgroundColor: 'rgba(255,255,255,0.6)' }}>
-                      <div className="font-fraunces font-bold mb-1" style={{ color: C.ocean, fontSize: 18 }}>
-                        {service.name}
-                      </div>
-                      {service.description && (
-                        <p className="leading-relaxed mb-3" style={{ color: C.driftwood, fontSize: 13 }}>
-                          {service.description}
-                        </p>
-                      )}
-                      <div className="flex gap-3 text-xs" style={{ color: C.muted }}>
-                        {service.staff_count && (
-                          <span>
-                            <strong style={{ color: colour }}>{service.staff_count}</strong> staff
-                          </span>
-                        )}
-                        {service.clients_served_annual && (
-                          <span>
-                            <strong style={{ color: colour }}>{service.clients_served_annual.toLocaleString()}</strong> clients/year
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                  {services.map((service) => {
+                    const tileTint = (
+                      {
+                        health: 'health',
+                        family: 'family',
+                        justice: 'justice',
+                        youth: 'youth',
+                        economic: 'economic',
+                        education: 'education',
+                        community: 'education',
+                      } as const
+                    )[category] ?? 'family'
+                    return (
+                      <ServiceCompactTile
+                        key={service.id}
+                        name={service.name}
+                        description={service.description ?? undefined}
+                        imageUrl={serviceCoverBySlug[service.slug]}
+                        tint={tileTint as 'health' | 'family' | 'justice' | 'youth' | 'economic' | 'education'}
+                        staffCount={service.staff_count ?? undefined}
+                        clientsCount={service.clients_served_annual ?? undefined}
+                      />
+                    )
+                  })}
                 </div>
               </div>
             )

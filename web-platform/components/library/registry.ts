@@ -42,6 +42,8 @@ export const LIBRARY = [
   'WebHero',
   'SectionOpener',
   'StatHero',
+  'ServiceHeroCard',
+  'ServiceCompactTile',
   'MilestoneCallout',
   'QuoteCardElder',
   'PhotoBlock',
