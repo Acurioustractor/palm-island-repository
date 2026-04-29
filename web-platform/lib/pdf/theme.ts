@@ -1,39 +1,46 @@
 /**
  * PICC PDF Theme — "Saltwater & Earth" palette v2.0
- * Unified colour system across web and PDF.
- * Source of truth: PICC-BRAND-STYLE-GUIDE.md
+ *
+ * Source of truth: `picc-almanac-web.pen` variables → `tokens/picc.tokens.json`
+ * → Style Dictionary → `lib/design-tokens/pdf-tokens.ts`. Edit colours/spacing
+ * in Pencil, run `npm run tokens:build`. Legacy aliases below stay hardcoded
+ * (they're rename-only mappings, not net-new values).
  */
 import { StyleSheet } from '@react-pdf/renderer'
+import { tokens as DT } from '@/lib/design-tokens/pdf-tokens'
+
+const B = DT.color.brand
+const N = DT.color.neutral
 
 // ── Saltwater & Earth Palette ────────────────────────
 export const C = {
-  // Core Identity
-  ocean: '#0B4F6C',
-  ochre: '#C8963E',
-  earth: '#2D2319',
+  // Core Identity (from generated tokens)
+  ocean: B.ocean,
+  ochre: B.ochre,
+  earth: B.earth,
 
   // Supporting
-  reef: '#0EA5E9',
-  mangrove: '#15803D',
-  coral: '#E8600A',
-  starGold: '#F5A623',
+  reef: B.reef,
+  mangrove: B.mangrove,
+  coral: B.coral,
+  starGold: B.starGold,
 
   // Cultural
-  turtleRed: '#8B1A1A',
-  sand: '#FEF3C7',
+  turtleRed: B.turtleRed,
+  sand: B.sand,
 
   // Dark
-  midnight: '#1A1A2E',
+  midnight: B.midnight,
 
   // Neutrals
-  rock: '#292524',
-  driftwood: '#6B6560',
-  muted: '#A39E99',
-  shell: '#F7F6F4',
-  border: '#E8E6E3',
-  white: '#ffffff',
+  rock: B.rock,
+  driftwood: B.driftwood,
+  muted: B.muted,
+  shell: B.shell,
+  border: B.border,
+  white: B.white,
 
-  // Opacity helpers
+  // Opacity helpers — derived from tokens, kept here so consumers can use directly
   ocean10: 'rgba(11, 79, 108, 0.1)',
   ochre10: 'rgba(200, 150, 62, 0.1)',
 
@@ -92,15 +99,15 @@ export function fmtFullCurrency(n: number): string {
   return n < 0 ? `($${formatted})` : `$${formatted}`
 }
 
-// ── Spacing Scale ───────────────────────────────────
+// ── Spacing Scale (from generated tokens) ──────────
 export const SP = {
-  xs: 4,
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 24,
-  xxl: 32,
-  xxxl: 48,
+  xs: DT.spacing.xs,
+  sm: DT.spacing.sm,
+  md: DT.spacing.md,
+  lg: DT.spacing.lg,
+  xl: DT.spacing.xl,
+  xxl: DT.spacing.xxl,
+  xxxl: DT.spacing.xxxl,
 } as const
 
 // ── Saltwater Almanac — Section colour map ──────────

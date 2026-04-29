@@ -1,0 +1,51 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --color-brand-ocean: #0b4f6c;
+  --color-brand-ochre: #c8963e;
+  --color-brand-earth: #2d2319;
+  --color-brand-coral: #e8600a;
+  --color-brand-mangrove: #15803d;
+  --color-brand-reef: #0ea5e9;
+  --color-brand-star-gold: #f5a623;
+  --color-brand-turtle-red: #8b1a1a;
+  --color-brand-midnight: #1a1a2e;
+  --color-brand-rock: #292524;
+  --color-brand-driftwood: #6b6560;
+  --color-brand-muted: #a39e99;
+  --color-brand-sand: #fef3c7;
+  --color-brand-shell: #f7f6f4;
+  --color-brand-white: #ffffff;
+  --color-brand-border: #e8e6e3;
+  --color-neutral-page-bg: #fbf8ee;
+  --color-section-economic: #f5a623;
+  --color-section-education: #0b4f6c;
+  --color-section-family: #c8963e;
+  --color-section-governance: #8b1a1a;
+  --color-section-health: #15803d;
+  --color-section-justice: #e8600a;
+  --color-section-youth: #0ea5e9;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  --spacing-xxl: 32px;
+  --spacing-xxxl: 48px;
+  --spacing-hero: 96px;
+  --typography-font-size-tiny: 10px;
+  --typography-font-size-eyebrow: 11px;
+  --typography-font-size-caption: 13px;
+  --typography-font-size-body: 16px;
+  --typography-font-size-h3: 28px;
+  --typography-font-size-h2: 40px;
+  --typography-font-size-h1: 56px;
+  --typography-font-size-stat: 64px;
+  --typography-font-size-display: 72px;
+  --typography-font-size-hero: 120px;
+  --typography-font-family-body: Inter;
+  --typography-font-family-display: Fraunces;
+  --typography-font-family-hand: Caveat;
+}

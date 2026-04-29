@@ -1,0 +1,205 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "_meta": {
+    "source": "picc-almanac-web.pen",
+    "synced_via": "mcp__pencil__get_variables",
+    "synced_at": "2026-04-30",
+    "note": "Re-sync via `npm run tokens:sync-from-pencil` after editing variables in Pencil. Hand-edits to this file will be overwritten."
+  },
+  "color": {
+    "brand": {
+      "ocean": {
+        "$value": "#0B4F6C",
+        "$type": "color"
+      },
+      "ochre": {
+        "$value": "#C8963E",
+        "$type": "color"
+      },
+      "earth": {
+        "$value": "#2D2319",
+        "$type": "color"
+      },
+      "coral": {
+        "$value": "#E8600A",
+        "$type": "color"
+      },
+      "mangrove": {
+        "$value": "#15803D",
+        "$type": "color"
+      },
+      "reef": {
+        "$value": "#0EA5E9",
+        "$type": "color"
+      },
+      "starGold": {
+        "$value": "#F5A623",
+        "$type": "color"
+      },
+      "turtleRed": {
+        "$value": "#8B1A1A",
+        "$type": "color"
+      },
+      "midnight": {
+        "$value": "#1A1A2E",
+        "$type": "color"
+      },
+      "rock": {
+        "$value": "#292524",
+        "$type": "color"
+      },
+      "driftwood": {
+        "$value": "#6B6560",
+        "$type": "color"
+      },
+      "muted": {
+        "$value": "#A39E99",
+        "$type": "color"
+      },
+      "sand": {
+        "$value": "#FEF3C7",
+        "$type": "color"
+      },
+      "shell": {
+        "$value": "#F7F6F4",
+        "$type": "color"
+      },
+      "white": {
+        "$value": "#FFFFFF",
+        "$type": "color"
+      },
+      "border": {
+        "$value": "#E8E6E3",
+        "$type": "color"
+      }
+    },
+    "neutral": {
+      "page_bg": {
+        "$value": "#FBF8EE",
+        "$type": "color"
+      }
+    },
+    "section": {
+      "economic": {
+        "$value": "#F5A623",
+        "$type": "color"
+      },
+      "education": {
+        "$value": "#0B4F6C",
+        "$type": "color"
+      },
+      "family": {
+        "$value": "#C8963E",
+        "$type": "color"
+      },
+      "governance": {
+        "$value": "#8B1A1A",
+        "$type": "color"
+      },
+      "health": {
+        "$value": "#15803D",
+        "$type": "color"
+      },
+      "justice": {
+        "$value": "#E8600A",
+        "$type": "color"
+      },
+      "youth": {
+        "$value": "#0EA5E9",
+        "$type": "color"
+      }
+    }
+  },
+  "spacing": {
+    "xs": {
+      "$value": 4,
+      "$type": "dimension"
+    },
+    "sm": {
+      "$value": 8,
+      "$type": "dimension"
+    },
+    "md": {
+      "$value": 12,
+      "$type": "dimension"
+    },
+    "lg": {
+      "$value": 16,
+      "$type": "dimension"
+    },
+    "xl": {
+      "$value": 24,
+      "$type": "dimension"
+    },
+    "xxl": {
+      "$value": 32,
+      "$type": "dimension"
+    },
+    "xxxl": {
+      "$value": 48,
+      "$type": "dimension"
+    },
+    "hero": {
+      "$value": 96,
+      "$type": "dimension"
+    }
+  },
+  "typography": {
+    "fontSize": {
+      "tiny": {
+        "$value": 10,
+        "$type": "dimension"
+      },
+      "eyebrow": {
+        "$value": 11,
+        "$type": "dimension"
+      },
+      "caption": {
+        "$value": 13,
+        "$type": "dimension"
+      },
+      "body": {
+        "$value": 16,
+        "$type": "dimension"
+      },
+      "h3": {
+        "$value": 28,
+        "$type": "dimension"
+      },
+      "h2": {
+        "$value": 40,
+        "$type": "dimension"
+      },
+      "h1": {
+        "$value": 56,
+        "$type": "dimension"
+      },
+      "stat": {
+        "$value": 64,
+        "$type": "dimension"
+      },
+      "display": {
+        "$value": 72,
+        "$type": "dimension"
+      },
+      "hero": {
+        "$value": 120,
+        "$type": "dimension"
+      }
+    },
+    "fontFamily": {
+      "body": {
+        "$value": "Inter",
+        "$type": "fontFamily"
+      },
+      "display": {
+        "$value": "Fraunces",
+        "$type": "fontFamily"
+      },
+      "hand": {
+        "$value": "Caveat",
+        "$type": "fontFamily"
+      }
+    }
+  }
+}

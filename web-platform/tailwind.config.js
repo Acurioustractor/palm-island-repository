@@ -1,4 +1,15 @@
 /** @type {import('tailwindcss').Config} */
+//
+// Token bridge — `colors.brand`, `colors.section`, `spacing.*`, `fontSize.*`,
+// `fontFamily.*` come from `lib/design-tokens/tailwind-tokens.js` (generated
+// from Pencil variables via Style Dictionary). Edit colours/spacing in Pencil
+// and run `npm run tokens:build`.
+//
+// Legacy `picc-*`, `warm`, `sage`, `cream` ramps below stay hand-curated until
+// we either (a) generate ramps automatically from base tokens, or (b) migrate
+// callers to `bg-brand-ochre`/etc. Both are out of scope for this pass.
+const generated = require('./lib/design-tokens/tailwind-tokens')
+
 module.exports = {
   darkMode: ["class"],
   content: [
@@ -16,7 +27,14 @@ module.exports = {
       },
     },
     extend: {
+      // Spacing + font-size from generated tokens, merged with Tailwind defaults.
+      spacing: generated.spacing,
+      fontSize: generated.fontSize,
       colors: {
+        // Generated brand + section + neutral palettes (from Pencil).
+        brand: generated.colors.brand,
+        section: generated.colors.section,
+        'page-bg': generated.colors.neutral.pageBg,
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

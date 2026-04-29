@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Design tokens generated from picc-almanac-web.pen → tokens/picc.tokens.json.
+ * Do not edit by hand. Run `npm run tokens:build` after changing variables. */
+@import "./design-tokens.css";
+
 @layer base {
   :root {
     --background: 0 0% 100%;
