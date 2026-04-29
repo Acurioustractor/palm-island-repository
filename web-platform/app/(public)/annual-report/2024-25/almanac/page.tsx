@@ -29,6 +29,7 @@ import { StatHeroHorizon } from '@/components/annual-report/2024-25/almanac/Stat
 import { ServicesAroundIsland } from '@/components/annual-report/2024-25/almanac/ServicesAroundIsland'
 import { IslandServiceMap } from '@/components/annual-report/2024-25/almanac/IslandServiceMap'
 import { getServiceCoord } from '@/lib/maps/picc-service-coords'
+import { getPiccServices } from '@/lib/services/el-services'
 import { SaltwaterRings } from '@/components/annual-report/2024-25/almanac/SaltwaterRings'
 import { ReefLayers } from '@/components/annual-report/2024-25/almanac/ReefLayers'
 import { C, SECTION_COLOURS, type SectionKey } from '@/components/annual-report/2024-25/almanac/tokens'
@@ -46,10 +47,14 @@ export const metadata = {
 
 export default async function AlmanacPage() {
   // Pull EVERYTHING that already exists.
-  const [reportData, elderQuotes, communityVoices] = await Promise.all([
+  // Services are now sourced from EL v2 (canonical 26-service roster
+  // at /api/picc/services). Falls back to data-2025.ts SERVICES_2025
+  // if EL v2 is unreachable so the page always renders.
+  const [reportData, elderQuotes, communityVoices, piccServices] = await Promise.all([
     getReportData('2024-25'),
     getCuratedQuotes({ source_type: 'elder', limit: 6 }),
     getCuratedQuotes({ limit: 6 }),
+    getPiccServices(),
   ])
 
   // Resolve real CEO + Chair messages
@@ -72,7 +77,7 @@ export default async function AlmanacPage() {
   const enterpriseHighlight = reportData.highlights.find((h) => h.title.toLowerCase().includes('enterprise'))
 
   // Group services by category
-  const servicesByCategory = reportData.services.reduce<Record<string, typeof reportData.services>>(
+  const servicesByCategory = piccServices.reduce<Record<string, typeof piccServices>>(
     (acc, s) => {
       const cat = s.service_category || 'other'
       if (!acc[cat]) acc[cat] = []
@@ -237,13 +242,13 @@ export default async function AlmanacPage() {
                 className="font-fraunces font-bold leading-tight mb-4"
                 style={{ color: C.ocean, fontSize: 'clamp(28px, 4vw, 42px)' }}
               >
-                {reportData.services.length} services. 6 categories. Bwgcolman-led.
+                {piccServices.length} services. 6 categories. Bwgcolman-led.
               </h3>
               <p
                 className="leading-relaxed mx-auto"
                 style={{ color: C.driftwood, fontSize: 'clamp(14px, 1.5vw, 16px)', maxWidth: 600 }}
               >
-                Year 17 closed with {reportData.services.length} active services across the island —
+                Year 17 closed with {piccServices.length} active services across the island —
                 from kinship care and early childhood through to health, justice,
                 youth, economic, and community programs. Every service is led
                 entirely by Bwgcolman people. Hover any dot for the service name.
@@ -252,7 +257,7 @@ export default async function AlmanacPage() {
             {/* Geographically-real Palm Island silhouette (OSM coastline)
                 with services positioned by lib/maps/picc-service-coords. */}
             <IslandServiceMap
-              services={reportData.services.map((s: any) => ({
+              services={piccServices.map((s: any) => ({
                 id: s.id,
                 name: s.name,
                 service_category: s.service_category,
@@ -419,7 +424,7 @@ export default async function AlmanacPage() {
         <div className="px-6 md:px-12 py-20 md:py-28 max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <div className="uppercase font-bold mb-3" style={{ color: C.ocean, fontSize: 10, letterSpacing: '0.3em' }}>
-              {reportData.services.length} services
+              {piccServices.length} services
             </div>
             <h2 className="font-fraunces font-bold leading-tight" style={{ color: C.ocean, fontSize: 'clamp(36px, 5vw, 56px)' }}>
               Across the island.
