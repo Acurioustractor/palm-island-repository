@@ -24,12 +24,14 @@ import {
   findQuotesForPerson,
   getStoriesForStoryteller,
   getTranscriptsForStoryteller,
+  getServicesForStoryteller,
   type ELStoryteller,
   type ELQuote,
   type ELStory,
   type ELTranscript,
 } from '@/lib/empathy-ledger/el-server'
 import { getPhotosForStoryteller, type ELPhoto } from '@/lib/media/el-photos'
+import { getPiccServices } from '@/lib/services/el-services'
 import { C } from '@/components/annual-report/2024-25/almanac/tokens'
 
 export const dynamic = 'force-dynamic'
@@ -83,11 +85,31 @@ export default async function StorytellerProfilePage({ params }: PageProps) {
 
   const personQuotes = findQuotesForPerson(allQuotes, teller.display_name)
   const featured = pickFeaturedQuote(personQuotes)
-  const [photos, stories, transcripts] = await Promise.all([
+  const [photos, stories, transcripts, serviceTags, piccServices] = await Promise.all([
     getPhotosForStoryteller(teller.id, 12),
     getStoriesForStoryteller(teller.id, { limit: 12, publishedOnly: true }),
     getTranscriptsForStoryteller(teller.id, { limit: 6 }),
+    getServicesForStoryteller(teller.id),
+    getPiccServices(),
   ])
+
+  // Map raw EL v2 service tags (snake_case editorial labels like
+  // 'bwgcolman_healing') onto PICC's canonical service roster so each
+  // tile can link to /services/<slug>. Unmapped tags still render —
+  // they just don't get a link.
+  const connectedServices = serviceTags.map((tag) => {
+    const tagSlug = tag.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+    const match = piccServices.find((s) => {
+      const nameSlug = s.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+      return s.slug === tagSlug || nameSlug === tagSlug || nameSlug.includes(tagSlug) || tagSlug.includes(s.slug)
+    })
+    return {
+      tag,
+      label: match?.name ?? tag.replace(/_/g, ' '),
+      slug: match?.slug ?? null,
+      category: match?.service_category ?? null,
+    }
+  })
 
   const portrait = photos[0] || null
   const galleryPhotos = photos.slice(1, 5)
@@ -125,7 +147,15 @@ export default async function StorytellerProfilePage({ params }: PageProps) {
         />
       )}
 
-      {/* 04 · Where she connects — only if we can derive (omitted when no data) */}
+      {/* 04 · Where she connects — service tiles derived from
+          stories.related_service. Tiles link to /services/<slug>
+          when the EL v2 service name maps to a known PICC service. */}
+      {connectedServices.length > 0 && (
+        <WhereSheConnectsSection
+          firstName={teller.display_name.split(/\s+/)[0]}
+          services={connectedServices}
+        />
+      )}
 
       {/* Stories — published stories from EL v2 attributed via storyteller_id */}
       {stories.length > 0 && (
@@ -299,6 +329,96 @@ function PhotoGallerySection({
         >
           {totalCount} {totalCount === 1 ? 'photo' : 'photos'} linked to {firstName} in EL v2 · ordered most recent first · all consent-cleared
         </div>
+      </div>
+    </section>
+  )
+}
+
+function WhereSheConnectsSection({
+  firstName,
+  services,
+}: {
+  firstName: string
+  services: Array<{ tag: string; label: string; slug: string | null; category: string | null }>
+}) {
+  const categoryTints: Record<string, string> = {
+    health: C.mangrove,
+    family: C.ochre,
+    justice: C.coral,
+    youth: C.reef,
+    economic: C.starGold,
+    education: C.ocean,
+    community: C.ocean,
+  }
+
+  return (
+    <section
+      className="px-6 md:px-12 py-20 md:py-28"
+      style={{ backgroundColor: C.shell }}
+    >
+      <div className="max-w-6xl mx-auto flex flex-col items-center gap-8">
+        <div
+          className="uppercase font-bold"
+          style={{ color: C.ocean, fontSize: 11, letterSpacing: '0.3em' }}
+        >
+          Connected across PICC
+        </div>
+        <h2
+          className="font-fraunces font-bold leading-tight text-center"
+          style={{ color: C.ocean, fontSize: 'clamp(28px, 4vw, 42px)' }}
+        >
+          Where {firstName} walks.
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
+          {services.map((s) => {
+            const tint = (s.category && categoryTints[s.category]) || C.ocean
+            const card = (
+              <div
+                className="rounded-md p-5 flex flex-col gap-2 h-full hover:shadow-md transition-shadow"
+                style={{
+                  backgroundColor: '#FBF8EE',
+                  borderLeft: `3px solid ${tint}`,
+                }}
+              >
+                {s.category && (
+                  <div
+                    className="uppercase font-bold"
+                    style={{ color: tint, fontSize: 10, letterSpacing: '0.2em' }}
+                  >
+                    {s.category}
+                  </div>
+                )}
+                <div
+                  className="font-fraunces font-bold leading-tight capitalize"
+                  style={{ color: C.ocean, fontSize: 18 }}
+                >
+                  {s.label}
+                </div>
+                {s.slug && (
+                  <div
+                    className="mt-auto text-xs uppercase font-bold tracking-widest"
+                    style={{ color: tint }}
+                  >
+                    Visit service →
+                  </div>
+                )}
+              </div>
+            )
+            return s.slug ? (
+              <Link key={s.tag} href={`/services/${s.slug}`} className="block">
+                {card}
+              </Link>
+            ) : (
+              <div key={s.tag}>{card}</div>
+            )
+          })}
+        </div>
+        <p
+          className="italic text-center"
+          style={{ color: C.muted, fontSize: 13, maxWidth: 560 }}
+        >
+          From {firstName}&rsquo;s connections in Empathy Ledger — every service tagged on a story they&rsquo;ve shared.
+        </p>
       </div>
     </section>
   )

@@ -152,8 +152,12 @@ export interface ELStory {
   status: string | null
   story_type: string | null
   cultural_sensitivity_level: string | null
+  related_service: string | null
   created_at: string
 }
+
+const STORY_FIELDS =
+  'id, title, story_image_url, excerpt, summary, status, story_type, cultural_sensitivity_level, related_service, created_at'
 
 export async function getELStories(opts?: { limit?: number; publishedOnly?: boolean }): Promise<ELStory[]> {
   const supabase = getELClient()
@@ -161,7 +165,7 @@ export async function getELStories(opts?: { limit?: number; publishedOnly?: bool
 
   let query = supabase
     .from('stories')
-    .select('id, title, story_image_url, excerpt, summary, status, story_type, cultural_sensitivity_level, created_at')
+    .select(STORY_FIELDS)
     .eq('organization_id', PICC_ORG_ID)
     .order('created_at', { ascending: false })
     .limit(opts?.limit ?? 50)
@@ -212,7 +216,7 @@ export async function getStoriesForStoryteller(
 
   let query = supabase
     .from('stories')
-    .select('id, title, story_image_url, excerpt, summary, status, story_type, cultural_sensitivity_level, created_at')
+    .select(STORY_FIELDS)
     .eq('organization_id', PICC_ORG_ID)
     .eq('storyteller_id', storytellerId)
     .order('created_at', { ascending: false })
@@ -224,6 +228,41 @@ export async function getStoriesForStoryteller(
 
   const { data } = await query
   return (data || []) as ELStory[]
+}
+
+/**
+ * Service names a storyteller is connected to, derived from
+ * stories.related_service. EL v2 doesn't have a dedicated
+ * storyteller_services join table — instead, each published story has
+ * a related_service text field, and we collect distinct values across
+ * all of a storyteller's stories.
+ *
+ * Returns the raw service tags so callers can do their own PICC-slug
+ * mapping (the names are editorial — `bwgcolman_healing`,
+ * `family_wellbeing`, etc. — and may not match PICC's canonical
+ * service slug list 1:1).
+ */
+export async function getServicesForStoryteller(
+  storytellerId: string,
+): Promise<string[]> {
+  const supabase = getELClient()
+  if (!supabase) return []
+
+  const { data } = await supabase
+    .from('stories')
+    .select('related_service')
+    .eq('organization_id', PICC_ORG_ID)
+    .eq('storyteller_id', storytellerId)
+    .eq('status', 'published')
+    .not('related_service', 'is', null)
+    .limit(100)
+
+  const seen = new Set<string>()
+  for (const row of (data || []) as { related_service: string | null }[]) {
+    const v = (row.related_service || '').trim()
+    if (v) seen.add(v)
+  }
+  return Array.from(seen)
 }
 
 /**

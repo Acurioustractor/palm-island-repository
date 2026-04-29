@@ -298,11 +298,11 @@ Implementation sketch: server component pulling from `getPhotosBySlot` + `getCan
 - Links extracted_quotes.attribution to their display_name (string match)
 - Profile auto-populates
 
-**Next builds (in order):**
+**Implemented:** stories, conversations, and "Where she connects" sections all render from EL v2 helpers (`getStoriesForStoryteller`, `getTranscriptsForStoryteller`, `getServicesForStoryteller`).
 
-1. **Add stories section to `/voices/[slug]`.** Pull stories with `storyteller_id = storyteller.profile_id` from PICC's `stories` table. Render below the photo gallery as a 6-up grid of story cards.
-2. **Add `getServicesForStoryteller(id)` helper** in `lib/empathy-ledger/el-server.ts` — queries EL v2's `storyteller_services` join. Wires the empty "Where she connects" section.
-3. **Storyteller transcripts** — surface `getELTranscripts({ storyteller_id })` results as a "Conversations" section. Long-form context.
+**Note on the service connection:** EL v2 does NOT have a dedicated `storyteller_services` join table — the Pencil mockup was aspirational naming. The real path uses `stories.related_service` (text field) and aggregates distinct values across all of a storyteller's published stories. `getServicesForStoryteller(id)` does that aggregation; the profile page maps the raw EL v2 service tags onto PICC's canonical service slug list so each tile can link to `/services/<slug>`.
+
+**Next build:** symmetric storyteller-bespoke artwork linkage on `/voices/<slug>` — same pattern as `/services/<slug>` but querying `media_files` tagged `related:<storyteller-slug>`.
 
 ---
 
