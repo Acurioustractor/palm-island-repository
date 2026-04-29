@@ -261,7 +261,7 @@ export default async function AlmanacPage() {
                 id: s.id,
                 name: s.name,
                 service_category: s.service_category,
-                ...(getServiceCoord(s.id) ?? {}),
+                ...(getServiceCoord(s.slug) ?? {}),
               }))}
             />
           </div>
