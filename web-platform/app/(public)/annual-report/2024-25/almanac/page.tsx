@@ -34,6 +34,10 @@ import { SaltwaterRings } from '@/components/annual-report/2024-25/almanac/Saltw
 import { ReefLayers } from '@/components/annual-report/2024-25/almanac/ReefLayers'
 import { C, SECTION_COLOURS, type SectionKey } from '@/components/annual-report/2024-25/almanac/tokens'
 import { StatHero } from '@/components/library/StatHero/web'
+import { SectionOpener } from '@/components/library/SectionOpener/web'
+import { MilestoneCallout } from '@/components/library/MilestoneCallout/web'
+import { PhotoBlock } from '@/components/library/PhotoBlock/web'
+import { FinancialBars } from '@/components/library/FinancialBars/web'
 import { FORWARD_COMMITMENTS } from '@/lib/annual-report/2024-25/content'
 import { VIDEO_TAGS_2025 } from '@/lib/annual-report/data-2025'
 
@@ -225,13 +229,14 @@ export default async function AlmanacPage() {
       {/* YEAR IN NUMBERS — REAL stats */}
       <AmbientSection section="all" id="year-in-numbers">
         <div className="px-6 md:px-12 py-20 md:py-28 max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <div className="uppercase font-bold mb-3" style={{ color: C.ocean, fontSize: 10, letterSpacing: '0.3em' }}>
-              The year in numbers
-            </div>
-            <h2 className="font-fraunces font-bold leading-tight" style={{ color: C.ocean, fontSize: 'clamp(40px, 6vw, 64px)' }}>
-              Year 17.
-            </h2>
+          {/* Section opener via library component (jX21S). Education tint
+              matches the page's "all sections" ocean treatment. */}
+          <div className="mb-16">
+            <SectionOpener
+              eyebrow="The year in numbers"
+              title="Year 17."
+              section="education"
+            />
           </div>
 
           {/* HERO 1 — painted island anchor with categorical service
@@ -319,6 +324,23 @@ export default async function AlmanacPage() {
                 )
               })}
           </div>
+
+          {/* YEAR 17 FIRST — library MilestoneCallout (zgUWR) carries the
+              Bwgcolman Way / Delegated Authority milestone. Surfaces the
+              same fact rendered later in the Six Anchor Stories block but
+              in the canonical "1st" big-phrase treatment from the design
+              system. Copy mirrors the gallery sample, which was vetted
+              against the data-2025 highlight. */}
+          {bwgcolmanWayHighlight && (
+            <div className="mt-16">
+              <MilestoneCallout
+                value="1st"
+                description="in Queensland. PICC granted Delegated Authority for child protection — the first ATSICCO under Child Protection Act 1999, Part 2A."
+                background="ocean"
+                valueTint="starGold"
+              />
+            </div>
+          )}
         </div>
       </AmbientSection>
 
@@ -617,9 +639,17 @@ export default async function AlmanacPage() {
               {reportData.innovationProjects.map((p) => (
                 <div key={p.id} className="p-6 rounded-md" style={{ backgroundColor: '#FBF6E4' }}>
                   {p.hero_image_url && (
-                    <div className="aspect-[16/9] overflow-hidden rounded-md mb-4">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={p.hero_image_url} alt={p.title} className="w-full h-full object-cover" />
+                    <div className="mb-4">
+                      {/* Library PhotoBlock (d5aQmE). 240px keeps roughly the
+                          16/9 aspect that the inline div used, but uses the
+                          canonical photo + italic caption treatment from
+                          the design system. Caption stays empty here — the
+                          card's title/description follow below. */}
+                      <PhotoBlock
+                        src={p.hero_image_url}
+                        alt={p.title}
+                        height={240}
+                      />
                     </div>
                   )}
                   <div className="uppercase font-bold mb-2" style={{ color: C.starGold, fontSize: 9, letterSpacing: '0.2em' }}>
@@ -675,6 +705,40 @@ export default async function AlmanacPage() {
                   items={[...reportData.financials.breakdown]}
                   caption="Each layer of the reef holds a different part of the work — Children & Families the deepest band, Education & Community the lightest. Together they make the year."
                 />
+
+                {/* Library FinancialBars (jpeCB) — supporting bar chart of
+                    the same breakdown rows. ReefLayers stays as the
+                    artistic anchor; this gives readers a precise read of
+                    relative scale, with section tints matching each line
+                    of work. */}
+                <div className="mt-12">
+                  <FinancialBars
+                    header="Expenditure by line of work · FY24-25"
+                    rows={(() => {
+                      const breakdown = reportData.financials!.breakdown!
+                      const max = Math.max(...breakdown.map((b) => Math.abs(b.amount)))
+                      const tintFor = (label: string): 'family' | 'health' | 'justice' | 'youth' | 'economic' | 'education' => {
+                        const l = label.toLowerCase()
+                        if (l.includes('children') || l.includes('family')) return 'family'
+                        if (l.includes('health')) return 'health'
+                        if (l.includes('justice') || l.includes('safety')) return 'justice'
+                        if (l.includes('youth')) return 'youth'
+                        if (l.includes('economic') || l.includes('enterprise')) return 'economic'
+                        return 'education'
+                      }
+                      const formatAmount = (n: number) =>
+                        Math.abs(n) >= 1_000_000
+                          ? `$${(n / 1_000_000).toFixed(1)}M`
+                          : `$${(n / 1_000).toFixed(0)}K`
+                      return breakdown.map((b) => ({
+                        label: b.category,
+                        display: formatAmount(b.amount),
+                        ratio: max > 0 ? Math.abs(b.amount) / max : 0,
+                        tint: tintFor(b.category),
+                      }))
+                    })()}
+                  />
+                </div>
               </div>
             )}
           </div>
