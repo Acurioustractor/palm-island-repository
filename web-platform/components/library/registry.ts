@@ -44,6 +44,7 @@ export const LIBRARY = [
   'StatHero',
   'ServiceHeroCard',
   'ServiceCompactTile',
+  'VideoOverlayCard',
   'MilestoneCallout',
   'QuoteCardElder',
   'PhotoBlock',

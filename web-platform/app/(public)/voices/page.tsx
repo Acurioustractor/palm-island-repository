@@ -27,6 +27,14 @@ export default async function VoicesPage() {
   const storytellers = await getPalmStorytellers()
   const sorted = [...storytellers].sort((a, b) => a.display_name.localeCompare(b.display_name))
 
+  // Compact name → slug index for VoiceWall — drives the "→ See profile"
+  // link on individual quote cards when speaker_name resolves to a known
+  // EL v2 storyteller.
+  const wallIndex = sorted.map((s) => ({
+    name: s.display_name,
+    slug: slugify(s.display_name),
+  }))
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-warm-50 to-cream">
       {/* Hero */}
@@ -68,7 +76,7 @@ export default async function VoicesPage() {
 
       {/* Voice Wall */}
       <div className="max-w-6xl mx-auto px-6 sm:px-8 py-12">
-        <VoiceWall />
+        <VoiceWall storytellerIndex={wallIndex} />
       </div>
     </div>
   )

@@ -13,6 +13,8 @@ export interface VoiceQuote {
   profile_image_url?: string;
   story_id?: string;
   storyteller_id?: string;
+  /** Slug of the matched EL v2 storyteller, when speaker_name resolves to a known profile. Drives the "→ See profile" link. */
+  speaker_slug?: string;
   source: 'elder' | 'extracted';
 }
 
@@ -94,14 +96,24 @@ export default function VoiceQuoteCard({ quote, size = 'md', className = '' }: V
         {quote.theme && (
           <span className={`text-xs font-medium ${styles.accent} capitalize`}>{quote.theme}</span>
         )}
-        {quote.story_id && (
-          <Link
-            href={`/stories/${quote.story_id}`}
-            className="text-xs text-picc-ochre hover:underline opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            Read story →
-          </Link>
-        )}
+        <div className="flex items-center gap-3">
+          {quote.speaker_slug && (
+            <Link
+              href={`/voices/${quote.speaker_slug}`}
+              className="text-xs text-picc-ochre hover:underline opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              See profile →
+            </Link>
+          )}
+          {quote.story_id && (
+            <Link
+              href={`/stories/${quote.story_id}`}
+              className="text-xs text-picc-ochre hover:underline opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              Read story →
+            </Link>
+          )}
+        </div>
       </div>
     </div>
   );

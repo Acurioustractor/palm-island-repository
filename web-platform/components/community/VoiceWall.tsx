@@ -10,14 +10,45 @@ const THEMES = [
   'language', 'youth', 'services', 'achievement', 'resilience',
 ];
 
-interface VoiceWallProps {
-  className?: string;
+export interface StorytellerLookup {
+  /** Display name as it appears in EL v2. */
+  name: string;
+  /** Slug used by /voices/<slug> route. */
+  slug: string;
 }
 
-export default function VoiceWall({ className = '' }: VoiceWallProps) {
+interface VoiceWallProps {
+  className?: string;
+  /** Optional EL v2 storyteller index. When provided, quote speakers that
+      match by normalised display_name get a "→ See profile" link to the
+      per-person route at /voices/<slug>. */
+  storytellerIndex?: StorytellerLookup[];
+}
+
+function normaliseName(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9 ]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+export default function VoiceWall({ className = '', storytellerIndex = [] }: VoiceWallProps) {
   const [quotes, setQuotes] = useState<VoiceQuote[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeThemes, setActiveThemes] = useState<Set<string>>(new Set());
+
+  // Build the name → slug map once. Used to resolve speaker_slug on each
+  // quote so the "→ See profile" link can render.
+  const nameToSlug = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const s of storytellerIndex) {
+      map.set(normaliseName(s.name), s.slug);
+    }
+    return map;
+  }, [storytellerIndex]);
 
   useEffect(() => {
     async function loadQuotes() {
@@ -66,6 +97,14 @@ export default function VoiceWall({ className = '' }: VoiceWallProps) {
         });
       }
 
+      // Resolve speaker_slug per quote against the EL v2 storyteller
+      // index so the "→ See profile" link can render. Falls through to
+      // undefined for "Community Member" / unknown / unmatched speakers.
+      for (const q of allQuotes) {
+        const lookup = nameToSlug.get(normaliseName(q.speaker_name));
+        if (lookup) q.speaker_slug = lookup;
+      }
+
       // Shuffle for visual variety
       for (let i = allQuotes.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -77,7 +116,7 @@ export default function VoiceWall({ className = '' }: VoiceWallProps) {
     }
 
     loadQuotes();
-  }, []);
+  }, [nameToSlug]);
 
   const toggleTheme = (theme: string) => {
     setActiveThemes(prev => {

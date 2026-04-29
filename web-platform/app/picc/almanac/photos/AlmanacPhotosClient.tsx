@@ -138,6 +138,12 @@ export default function AlmanacPhotosClient({ items }: Props) {
             Every photo + video the almanac uses, where it lands, and how to swap.
             Flag anything that's wrong; click "Swap in EL v2 →" to open the EL v2 admin filtered to that slot.
           </p>
+          <a
+            href="/picc/almanac/photos/reference"
+            className="inline-block mt-3 text-xs font-semibold tracking-[0.15em] uppercase text-picc-ochre hover:underline"
+          >
+            View slot reference →
+          </a>
         </div>
 
         {/* Filter pills */}
