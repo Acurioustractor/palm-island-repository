@@ -132,6 +132,20 @@ export default function DesignSystemClient() {
           <p className="mt-2 text-stone-600">
             Every graphic element in the platform. Vote · promote · curate. The priority set becomes the palette for new pages.
           </p>
+          <div className="mt-3 flex flex-wrap gap-3 text-xs">
+            <a
+              href="/picc/design-system/components"
+              className="font-bold uppercase tracking-widest text-picc-ochre hover:underline"
+            >
+              Component gallery →
+            </a>
+            <a
+              href="/picc/design-system/submissions"
+              className="font-bold uppercase tracking-widest text-picc-ochre hover:underline"
+            >
+              Art submissions queue →
+            </a>
+          </div>
           {!loading && (
             <div className="mt-4 flex flex-wrap gap-2 text-sm">
               <SummaryPill label="🔥 priority" count={summary.priority} active={filterStatus === 'priority'} onClick={() => setFilterStatus(filterStatus === 'priority' ? 'all' : 'priority')} color="bg-orange-100 text-orange-800" />

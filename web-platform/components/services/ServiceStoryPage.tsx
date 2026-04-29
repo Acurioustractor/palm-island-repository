@@ -73,6 +73,15 @@ interface ELVoice {
   theme: string | null;
 }
 
+interface BespokeArtItem {
+  id: string;
+  public_url: string;
+  title: string | null;
+  caption: string | null;
+  attribution: string | null;
+  metadata: Record<string, any> | null;
+}
+
 interface Props {
   service: ServiceData;
   metrics: ServiceMetric[];
@@ -83,6 +92,8 @@ interface Props {
   videos: VideoItem[];
   videoUrl: string | null;
   elVoices?: ELVoice[];
+  /** Approved community-submitted artwork tagged related:<slug>. */
+  bespokeArt?: BespokeArtItem[];
 }
 
 export function ServiceStoryPage({
@@ -95,6 +106,7 @@ export function ServiceStoryPage({
   videos,
   videoUrl,
   elVoices = [],
+  bespokeArt = [],
 }: Props) {
   const latestMetrics = metrics[0] || null;
   const quote = stories.find((s) => s.quote_text)?.quote_text || null;
@@ -254,6 +266,58 @@ export function ServiceStoryPage({
                 </div>
               </>
             )}
+          </div>
+        </section>
+      )}
+
+      {/* Community art — approved submissions tagged related:<slug> */}
+      {bespokeArt.length > 0 && (
+        <section className="py-16">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-8">
+              <p className="text-xs font-bold uppercase tracking-[0.3em] text-picc-ochre mb-3">
+                Community art
+              </p>
+              <h2 className="text-3xl font-bold text-gray-900">
+                Bespoke pieces about this work
+              </h2>
+              <p className="mt-3 text-gray-600 max-w-2xl mx-auto leading-relaxed text-sm">
+                Drawings, icons, and artwork submitted by community members and approved
+                for use across PICC. Want to add your own?{' '}
+                <Link href="/share-art" className="text-picc-ochre hover:underline font-semibold">
+                  Submit a piece
+                </Link>
+                .
+              </p>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {bespokeArt.map((art) => (
+                <figure key={art.id} className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={art.public_url}
+                    alt={art.title || 'community art'}
+                    className="w-full h-48 object-cover"
+                    loading="lazy"
+                  />
+                  <figcaption className="p-4 flex flex-col gap-1">
+                    {art.title && (
+                      <div className="font-bold text-sm text-gray-900 leading-tight">
+                        {art.title}
+                      </div>
+                    )}
+                    {art.caption && (
+                      <p className="text-xs text-gray-600 leading-relaxed line-clamp-2">
+                        {art.caption}
+                      </p>
+                    )}
+                    <div className="text-xs text-picc-ochre font-semibold mt-1">
+                      {art.attribution || 'Anonymous'}
+                    </div>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
           </div>
         </section>
       )}

@@ -265,6 +265,19 @@ export default async function ServiceDetailPage({ params }: PageProps) {
   // Resolve EL voices
   const elVoices = await elVoicesPromise;
 
+  // Approved community-submitted artwork tagged related:<slug>. Lights up
+  // the new "Bespoke pieces about this work" section. Submissions arrive via
+  // /share-art and are approved at /picc/design-system/submissions.
+  const { data: bespokeArtRows } = await supabase
+    .from('media_files')
+    .select('id, public_url, title, caption, attribution, metadata')
+    .eq('page_context', 'community-art')
+    .eq('is_public', true)
+    .is('deleted_at', null)
+    .contains('tags', [`related:${slug}`])
+    .order('created_at', { ascending: false })
+    .limit(12);
+
   return (
     <ServiceStoryPage
       service={service}
@@ -274,6 +287,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
       heroImage={heroImage}
       heroVideo={heroVideo}
       videos={uniqueVideos}
+      bespokeArt={bespokeArtRows || []}
       videoUrl={primaryVideoUrl}
       elVoices={elVoices}
     />
