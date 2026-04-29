@@ -782,7 +782,44 @@ export default async function AlmanacPage() {
 
       {/* BACK COVER */}
       <BackCoverSection ceoQuote={ceo?.featured_quote} />
+
+      {/* SHARE YOUR VOICE — final closer per Pencil m47PD (BHpZP).
+          Ocean bg; "Share your voice." Fraunces starGold; consent body;
+          copyright line. Pencil places this AFTER the back cover as the
+          last gallery wall. */}
+      <ShareYourVoiceSection />
     </main>
+  )
+}
+
+function ShareYourVoiceSection() {
+  return (
+    <section
+      id="share-your-voice"
+      className="px-6 md:px-12 py-20 md:py-28 text-center"
+      style={{ backgroundColor: C.ocean }}
+    >
+      <div className="max-w-2xl mx-auto flex flex-col gap-4">
+        <h2
+          className="font-fraunces font-bold leading-none"
+          style={{ color: C.starGold, fontSize: 'clamp(48px, 7vw, 72px)' }}
+        >
+          Share your voice.
+        </h2>
+        <p
+          className="text-white/85 leading-relaxed mx-auto"
+          style={{ fontSize: 16, maxWidth: 560 }}
+        >
+          PICC&rsquo;s stories are gathered with consent. If you have a memory, a photograph, or a piece of country to share &mdash; we&rsquo;d be honoured.
+        </p>
+        <p
+          className="text-white/50 mt-6"
+          style={{ fontSize: 11, letterSpacing: '0.02em' }}
+        >
+          &copy; 2026 Palm Island Community Company &middot; Year 17 of 20 &middot; Made on Palm Island. Owned on Palm Island.
+        </p>
+      </div>
+    </section>
   )
 }
 
