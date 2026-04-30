@@ -75,7 +75,7 @@ const SENTIMENT_TINTS: Record<string, string> = {
 export default async function CommunityPulsePage() {
   const supabase = createServerSupabase()
 
-  const [{ data }, storytellers] = await Promise.all([
+  const [{ data }, storytellers, { data: featuredData }] = await Promise.all([
     supabase
       .from('extracted_quotes')
       .select('id, quote_text, attribution, theme, sentiment, impact_score, themes, created_at')
@@ -83,7 +83,20 @@ export default async function CommunityPulsePage() {
       .order('created_at', { ascending: false })
       .limit(2000),
     getPalmStorytellers(),
+    supabase
+      .from('featured_themes')
+      .select('theme, curator_note, fiscal_year, display_order')
+      .eq('is_active', true)
+      .order('display_order')
+      .limit(8),
   ])
+
+  const featuredThemes = (featuredData || []) as Array<{
+    theme: string
+    curator_note: string | null
+    fiscal_year: string | null
+    display_order: number
+  }>
 
   const quotes = (data || []) as QuoteRow[]
 
@@ -175,6 +188,62 @@ export default async function CommunityPulsePage() {
           </p>
         </div>
       </section>
+
+      {/* Featured themes — admin-curated. Only renders when there's at
+          least one active featured theme; otherwise the page goes
+          straight to the live aggregation below. */}
+      {featuredThemes.length > 0 && (
+        <section className="px-6 md:px-12 py-16 md:py-20" style={{ backgroundColor: C.sand }}>
+          <div className="max-w-5xl mx-auto">
+            <SectionEyebrow tint={C.turtleRed}>Featured this period</SectionEyebrow>
+            <SectionTitle>What we&rsquo;re holding to.</SectionTitle>
+            <p className="mt-3 italic" style={{ color: C.driftwood, fontSize: 14 }}>
+              Curated lift, not algorithmic — the wider live aggregation continues below.
+            </p>
+            <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-5">
+              {featuredThemes.map((f) => {
+                const count = themeCounts[f.theme.toLowerCase()] || 0
+                return (
+                  <Link
+                    key={f.theme}
+                    href={`/voices/themes/${encodeURIComponent(f.theme)}`}
+                    className="group rounded-md p-5 hover:opacity-95 transition-opacity"
+                    style={{ backgroundColor: '#FBF8EE', borderLeft: `3px solid ${C.ochre}` }}
+                  >
+                    <div className="flex items-baseline justify-between gap-3 mb-2">
+                      <h3
+                        className="font-fraunces font-bold leading-tight capitalize group-hover:underline"
+                        style={{ color: C.ocean, fontSize: 22 }}
+                      >
+                        {f.theme}
+                      </h3>
+                      <span
+                        className="text-xs font-mono whitespace-nowrap"
+                        style={{ color: C.muted }}
+                      >
+                        {count} {count === 1 ? 'voice' : 'voices'}
+                      </span>
+                    </div>
+                    {f.curator_note && (
+                      <p
+                        className="leading-relaxed italic"
+                        style={{ color: C.earth, fontSize: 14 }}
+                      >
+                        {f.curator_note}
+                      </p>
+                    )}
+                    {f.fiscal_year && (
+                      <div className="mt-3 uppercase font-bold" style={{ color: C.driftwood, fontSize: 10, letterSpacing: '0.2em' }}>
+                        FY {f.fiscal_year}
+                      </div>
+                    )}
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Top themes */}
       <section className="px-6 md:px-12 py-16 md:py-20">
