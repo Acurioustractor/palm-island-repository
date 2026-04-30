@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import {
   BookOpen,
   Search,
@@ -63,7 +64,7 @@ interface Story {
   storyteller_name?: string;
 }
 
-type StatusTab = 'all' | 'published' | 'draft' | 'pending' | 'archived';
+type StatusTab = 'all' | 'published' | 'draft' | 'submitted' | 'pending' | 'archived';
 type SortField = 'created_at' | 'updated_at' | 'title' | 'views';
 type SortOrder = 'asc' | 'desc';
 
@@ -77,7 +78,14 @@ const CATEGORIES = [
   { id: 'family', label: 'Family Services' },
 ];
 
+const VALID_STATUS_TABS: StatusTab[] = ['all', 'submitted', 'pending', 'draft', 'published', 'archived']
+
 export default function StoriesPage() {
+  const searchParams = useSearchParams()
+  const initialStatus = (() => {
+    const fromUrl = searchParams?.get('status') as StatusTab | null
+    return fromUrl && VALID_STATUS_TABS.includes(fromUrl) ? fromUrl : 'all'
+  })()
   // Data state
   const [stories, setStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
@@ -91,7 +99,7 @@ export default function StoriesPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   // Filter state
-  const [statusTab, setStatusTab] = useState<StatusTab>('all');
+  const [statusTab, setStatusTab] = useState<StatusTab>(initialStatus);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [tagFilter, setTagFilter] = useState<string[]>([]);
@@ -325,12 +333,13 @@ export default function StoriesPage() {
   };
 
   // Status counts
-  const statusCounts = useMemo(() => {
+  const statusCounts = useMemo<Record<StatusTab, number>>(() => {
     return {
       all: totalCount,
-      published: stories.filter((s) => s.status === 'published').length,
-      draft: stories.filter((s) => s.status === 'draft').length,
+      submitted: stories.filter((s) => s.status === 'submitted').length,
       pending: stories.filter((s) => s.status === 'pending').length,
+      draft: stories.filter((s) => s.status === 'draft').length,
+      published: stories.filter((s) => s.status === 'published').length,
       archived: stories.filter((s) => s.status === 'archived').length,
     };
   }, [stories, totalCount]);
@@ -412,7 +421,7 @@ export default function StoriesPage() {
 
       {/* Status Tabs */}
       <div className="flex items-center gap-1 mb-4 border-b border-gray-200">
-        {(['all', 'published', 'draft', 'pending', 'archived'] as StatusTab[]).map((tab) => (
+        {(['all', 'submitted', 'pending', 'draft', 'published', 'archived'] as StatusTab[]).map((tab) => (
           <button
             key={tab}
             onClick={() => setStatusTab(tab)}

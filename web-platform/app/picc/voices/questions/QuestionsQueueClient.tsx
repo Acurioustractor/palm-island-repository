@@ -79,6 +79,25 @@ export default function QuestionsQueueClient({ questions: initial, loadError }: 
       )
       setEditingId(null)
       setDraft('')
+
+      // Fire the GHL notification webhook (no-op if env var unset).
+      // Best-effort — admin flow shouldn't fail if GHL is down.
+      const wasOpen = target?.metadata?.question_status !== 'answered'
+      if (wasOpen) {
+        fetch('/api/notify/question-answered', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            question_id: id,
+            question_text: target?.content || '',
+            answer_text: draft.trim(),
+            topic: (target?.metadata?.topic as string | null) ?? null,
+            asker_name: (target?.metadata?.asker_name as string | null) ?? null,
+          }),
+        }).catch(() => {
+          // Silent — webhook failures don't block the admin flow.
+        })
+      }
     } catch (err: any) {
       setActionError(err?.message || 'Failed to publish answer.')
     } finally {

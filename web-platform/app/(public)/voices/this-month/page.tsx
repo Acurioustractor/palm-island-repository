@@ -196,6 +196,18 @@ export default async function ThisMonthPage({ searchParams }: PageProps) {
             the river.
           </p>
 
+          {/* Subscribe link */}
+          <div className="mt-6">
+            <a
+              href="/voices/this-month/feed.xml"
+              className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest hover:opacity-80"
+              style={{ color: C.starGold, letterSpacing: '0.2em' }}
+            >
+              <span aria-hidden>📡</span>
+              Subscribe via RSS / Atom →
+            </a>
+          </div>
+
           {/* Month nav */}
           <div className="mt-8 flex flex-wrap items-center gap-4 text-sm">
             <Link
