@@ -50,8 +50,14 @@ export default async function VoicesPage() {
             and Elders — the voices that guide our journey.
           </p>
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm font-bold uppercase tracking-widest">
+            <Link href="/voices/this-month" className="hover:opacity-80" style={{ color: '#F5A623' }}>
+              This month →
+            </Link>
             <Link href="/voices/pulse" className="hover:opacity-80" style={{ color: '#F5A623' }}>
               Community pulse →
+            </Link>
+            <Link href="/elders/leadership" className="hover:opacity-80" style={{ color: '#F5A623' }}>
+              What the Elders teach →
             </Link>
             <Link href="/voices/questions" className="hover:opacity-80" style={{ color: '#F5A623' }}>
               Questions answered →

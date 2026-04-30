@@ -40,6 +40,8 @@ import { PhotoBlock } from '@/components/library/PhotoBlock/web'
 import { FinancialBars } from '@/components/library/FinancialBars/web'
 import { ServiceCompactTile } from '@/components/library/ServiceCompactTile/web'
 import { getPhotosBySlot } from '@/lib/media/el-photos'
+import { createServerSupabase } from '@/lib/supabase/client'
+import Link from 'next/link'
 import { FORWARD_COMMITMENTS } from '@/lib/annual-report/2024-25/content'
 import { VIDEO_TAGS_2025 } from '@/lib/annual-report/data-2025'
 
@@ -57,13 +59,55 @@ export default async function AlmanacPage() {
   // Services are now sourced from EL v2 (canonical 26-service roster
   // at /api/picc/services). Falls back to data-2025.ts SERVICES_2025
   // if EL v2 is unreachable so the page always renders.
-  const [reportData, elderQuotes, communityVoices, piccServices, photosBySlot] = await Promise.all([
+  // Live activity counts for the current month — drives the "Year in
+  // progress" strip below the cover. Annual report is a slice; the
+  // live URL shows what's flowing in this month.
+  const monthStart = new Date()
+  monthStart.setDate(1)
+  monthStart.setHours(0, 0, 0, 0)
+  const monthStartIso = monthStart.toISOString()
+  const liveSupabase = createServerSupabase()
+
+  const [
+    reportData,
+    elderQuotes,
+    communityVoices,
+    piccServices,
+    photosBySlot,
+    liveVoicesCount,
+    liveArtCount,
+    liveQACount,
+  ] = await Promise.all([
     getReportData('2024-25'),
     getCuratedQuotes({ source_type: 'elder', limit: 6 }),
     getCuratedQuotes({ limit: 6 }),
     getPiccServices(),
     getPhotosBySlot(),
+    liveSupabase
+      .from('extracted_quotes')
+      .select('id', { count: 'exact', head: true })
+      .or('is_validated.eq.true,suggested_for_report.eq.true')
+      .gte('created_at', monthStartIso)
+      .then((r) => r.count || 0),
+    liveSupabase
+      .from('media_files')
+      .select('id', { count: 'exact', head: true })
+      .eq('page_context', 'community-art')
+      .eq('is_public', true)
+      .is('deleted_at', null)
+      .gte('created_at', monthStartIso)
+      .then((r) => r.count || 0),
+    liveSupabase
+      .from('stories')
+      .select('id', { count: 'exact', head: true })
+      .filter('metadata->>is_question', 'eq', 'true')
+      .filter('metadata->>question_status', 'eq', 'answered')
+      .eq('is_public', true)
+      .gte('updated_at', monthStartIso)
+      .then((r) => r.count || 0),
   ])
+
+  const liveTotal = liveVoicesCount + liveArtCount + liveQACount
 
   // Cover photo for each service from EL v2's slot system
   // (picc:slot:service-<slug>). Falls through to undefined when no photo
@@ -118,6 +162,46 @@ export default async function AlmanacPage() {
           '/report-assets/2024-25-pool/00-cover/kids-beach-palm.jpg'
         }
       />
+
+      {/* LIVE PROGRESS STRIP — annual report is a slice; the URL is alive.
+          Shows this-month contribution counts so visitors see the report
+          isn't frozen at publish. Hidden when the month is empty so a
+          quiet month doesn't read as "nothing's happening." */}
+      {liveTotal > 0 && (
+        <section
+          className="px-6 md:px-12 py-6"
+          style={{ backgroundColor: C.midnight, borderBottom: `1px solid rgba(245,166,35,0.15)` }}
+        >
+          <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-sm">
+            <span
+              className="uppercase font-bold"
+              style={{ color: C.starGold, fontSize: 11, letterSpacing: '0.3em' }}
+            >
+              FY25-26 in progress
+            </span>
+            <span className="text-white/85">
+              <strong className="font-fraunces" style={{ color: C.starGold, fontSize: 18 }}>{liveVoicesCount}</strong>{' '}
+              voices
+            </span>
+            <span className="text-white/85">
+              <strong className="font-fraunces" style={{ color: C.starGold, fontSize: 18 }}>{liveArtCount}</strong>{' '}
+              art pieces
+            </span>
+            <span className="text-white/85">
+              <strong className="font-fraunces" style={{ color: C.starGold, fontSize: 18 }}>{liveQACount}</strong>{' '}
+              questions answered
+            </span>
+            <span className="text-white/60">added this month</span>
+            <Link
+              href="/voices/this-month"
+              className="ml-auto text-xs font-bold uppercase tracking-widest hover:opacity-80"
+              style={{ color: C.starGold, letterSpacing: '0.2em' }}
+            >
+              See the river →
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* ACKNOWLEDGEMENT — uses real text from reportData.report.acknowledgments if available */}
       <Acknowledgement
