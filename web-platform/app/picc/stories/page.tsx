@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 import {
   BookOpen,
   Search,
@@ -81,11 +80,6 @@ const CATEGORIES = [
 const VALID_STATUS_TABS: StatusTab[] = ['all', 'submitted', 'pending', 'draft', 'published', 'archived']
 
 export default function StoriesPage() {
-  const searchParams = useSearchParams()
-  const initialStatus = (() => {
-    const fromUrl = searchParams?.get('status') as StatusTab | null
-    return fromUrl && VALID_STATUS_TABS.includes(fromUrl) ? fromUrl : 'all'
-  })()
   // Data state
   const [stories, setStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
@@ -99,7 +93,19 @@ export default function StoriesPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   // Filter state
-  const [statusTab, setStatusTab] = useState<StatusTab>(initialStatus);
+  const [statusTab, setStatusTab] = useState<StatusTab>('all');
+
+  // Read ?status=<tab> from URL on mount (window-based to avoid the
+  // useSearchParams Suspense requirement in Next 14 production builds).
+  // Lets /picc/inbox link `?status=submitted` actually filter.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const fromUrl = params.get('status') as StatusTab | null;
+    if (fromUrl && VALID_STATUS_TABS.includes(fromUrl)) {
+      setStatusTab(fromUrl);
+    }
+  }, []);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [tagFilter, setTagFilter] = useState<string[]>([]);
