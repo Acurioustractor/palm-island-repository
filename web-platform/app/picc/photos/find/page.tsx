@@ -124,8 +124,23 @@ export default async function PhotoFindPage({ searchParams }: PageProps) {
             </select>
           </label>
           <label className="md:col-span-7 flex flex-col gap-1">
-            <span className="text-xs font-semibold uppercase tracking-widest text-stone-500">Target</span>
+            <span className="text-xs font-semibold uppercase tracking-widest text-stone-500">
+              Target {mode === 'service' && '· pick a service'}
+              {mode === 'storyteller' && '· pick a storyteller'}
+              {mode === 'highlight' && '· anchor name'}
+              {mode === 'project' && '· project slug'}
+              {mode === 'slot' && '· slot key'}
+            </span>
             <input
+              list={
+                mode === 'service'
+                  ? 'photo-finder-services'
+                  : mode === 'storyteller'
+                    ? 'photo-finder-storytellers'
+                    : mode === 'highlight'
+                      ? 'photo-finder-highlights'
+                      : undefined
+              }
               name="q"
               defaultValue={q}
               placeholder="slug (e.g. bwgcolman-way), storyteller id, or anchor name"
@@ -141,6 +156,28 @@ export default async function PhotoFindPage({ searchParams }: PageProps) {
             </button>
           </div>
         </form>
+
+        {/* Autocomplete datalists — browser-native dropdown for the
+            target input. Active list switches with the selected mode. */}
+        <datalist id="photo-finder-services">
+          {services.map((s) => (
+            <option key={s.id} value={s.slug}>
+              {s.name}
+            </option>
+          ))}
+        </datalist>
+        <datalist id="photo-finder-storytellers">
+          {storytellers.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.display_name}
+            </option>
+          ))}
+        </datalist>
+        <datalist id="photo-finder-highlights">
+          <option value="bwgcolman-way">Bwgcolman Way</option>
+          <option value="1000d">First 1,000 Days</option>
+          <option value="ndis">NDIS · 3× growth</option>
+        </datalist>
 
         {/* Quick suggestion chips — services + storytellers */}
         {!mode && (
