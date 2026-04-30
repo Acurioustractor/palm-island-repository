@@ -7,6 +7,8 @@ import {
   FileText, Upload, Eye, EyeOff, Star, BookOpen, MapPin, Circle
 } from 'lucide-react';
 
+export const dynamic = 'force-dynamic'
+
 interface ProjectPageProps {
   params: {
     slug: string;

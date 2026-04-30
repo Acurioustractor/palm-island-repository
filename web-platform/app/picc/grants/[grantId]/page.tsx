@@ -2,6 +2,7 @@ import { createServerSupabase } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
+export const dynamic = 'force-dynamic'
 export default async function GrantDetailPage({
   params,
 }: {

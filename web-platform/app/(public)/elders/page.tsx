@@ -3,6 +3,7 @@ import { createServerSupabase } from '@/lib/supabase/client'
 import { cleanupQuoteText, isLikelyJunkQuote, pickBestQuotes } from '@/lib/transcripts/quotable'
 import { getELQuotes, findQuotesForPerson, type ELQuote } from '@/lib/empathy-ledger/el-server'
 
+export const dynamic = 'force-dynamic'
 type ElderProfileRow = {
   id: string
   full_name: string

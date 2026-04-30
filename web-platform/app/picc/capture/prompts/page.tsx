@@ -1,6 +1,7 @@
 import { createServerSupabase } from '@/lib/supabase/client'
 import Link from 'next/link'
 
+export const dynamic = 'force-dynamic'
 export default async function CapturePromptsPage() {
   const supabase = createServerSupabase()
 

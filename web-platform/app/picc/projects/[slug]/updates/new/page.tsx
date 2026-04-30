@@ -4,6 +4,7 @@ import { createServerSupabase } from '@/lib/supabase/client'
 import { ArrowLeft, FileText } from 'lucide-react'
 import ProjectUpdateEditor from './project-update-editor'
 
+export const dynamic = 'force-dynamic'
 interface NewUpdatePageProps {
   params: { slug: string }
 }

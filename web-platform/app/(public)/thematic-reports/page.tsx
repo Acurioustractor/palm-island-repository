@@ -4,6 +4,7 @@ import { ALL_THEMES } from '@/lib/themes/theme-definitions'
 import { fetchThemeContentCounts } from '@/lib/themes/theme-data-fetcher'
 import { ThemeGrid } from '@/components/thematic-reports/ThemeGrid'
 
+export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: 'Explore Our Story | PICC Thematic Reports',
   description: 'Explore Palm Island Community Company through themed stories — services, innovation, eras, and vision for the future.',

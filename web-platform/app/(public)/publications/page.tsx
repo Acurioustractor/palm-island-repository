@@ -4,6 +4,7 @@ import { createServerSupabase } from '@/lib/supabase/client';
 import { ArrowRight } from 'lucide-react';
 import PublicationsFilterableGrid from './PublicationsFilterableGrid';
 
+export const dynamic = 'force-dynamic'
 export const metadata = {
   title: 'Publications & Reports | Palm Island Community',
   description: 'Interactive reports, research, and documentation from the Palm Island Community Company.',

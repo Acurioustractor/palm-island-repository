@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { createServerSupabase } from '@/lib/supabase/client';
 import { Eye, ArrowRight, BookOpen } from 'lucide-react';
 
+export const dynamic = 'force-dynamic'
 export default async function PublishedStoriesPage() {
   const supabase = createServerSupabase();
 

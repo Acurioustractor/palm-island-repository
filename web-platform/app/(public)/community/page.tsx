@@ -6,6 +6,7 @@ import { getHeroImage, getHeroVideo, getPageMedia } from '@/lib/media/utils';
 import VideoHero from '@/components/video/VideoHero';
 import { assetUrl } from '@/lib/media/asset-url';
 
+export const dynamic = 'force-dynamic'
 export default async function CommunityPage() {
   const supabase = createServerSupabase();
 

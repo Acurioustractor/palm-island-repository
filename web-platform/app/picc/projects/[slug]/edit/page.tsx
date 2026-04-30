@@ -7,6 +7,8 @@ import {
   Calendar, Eye, EyeOff, Star, Lightbulb, Database, BookOpen, FileText
 } from 'lucide-react';
 
+export const dynamic = 'force-dynamic'
+
 interface EditProjectPageProps {
   params: {
     slug: string;

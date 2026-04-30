@@ -1,6 +1,7 @@
 import { createServerSupabase } from '@/lib/supabase/client'
 import EldersRoomClient from './EldersRoomClient'
 
+export const dynamic = 'force-dynamic'
 export const metadata = {
   title: 'Elders Room | PICC',
   description: 'Your space to curate stories, review youth messages, and manage your Elder profile.',

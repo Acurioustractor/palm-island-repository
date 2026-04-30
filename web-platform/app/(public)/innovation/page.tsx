@@ -15,6 +15,8 @@ import { getHeroImage, getMediaByTags } from '@/lib/media/utils';
 import { assetUrl } from '@/lib/media/asset-url';
 import { getELQuotes } from '@/lib/empathy-ledger/el-server';
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Innovation on Country | Palm Island Community Company',
   description:

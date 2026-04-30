@@ -10,6 +10,7 @@ import AboutCountdownSection from "@/components/about/AboutCountdownSection";
 import { createServerSupabase } from "@/lib/supabase/client";
 import { assetUrl } from "@/lib/media/asset-url";
 
+export const dynamic = 'force-dynamic'
 export const metadata = {
   title: 'About PICC — Palm Island Community Company',
   description: 'Bwgcolman — many tribes, one people. PICC is Palm Island\'s community-controlled anchor institution, built across 17 years from a hybrid public company into a member-controlled organisation.',

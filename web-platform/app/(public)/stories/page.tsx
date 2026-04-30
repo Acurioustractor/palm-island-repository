@@ -6,6 +6,7 @@ import { ArrowRight, Shield, Sparkles } from 'lucide-react';
 import { CommunityQuotesSection } from '@/components/quotes/CommunityQuotesSection';
 import { getELQuotes, groupQuotesByAuthor, getELStats } from '@/lib/empathy-ledger/el-server';
 
+export const dynamic = 'force-dynamic'
 export const revalidate = 300; // Revalidate every 5 minutes
 
 export default async function StoriesPage() {
