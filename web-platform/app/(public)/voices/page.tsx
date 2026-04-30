@@ -48,13 +48,17 @@ export default async function VoicesPage() {
             Words of wisdom, reflection, and pride from Palm Island community members
             and Elders — the voices that guide our journey.
           </p>
-          <Link
-            href="/voices/pulse"
-            className="inline-block text-sm font-bold uppercase tracking-widest hover:opacity-80"
-            style={{ color: '#F5A623' }}
-          >
-            View community pulse →
-          </Link>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm font-bold uppercase tracking-widest">
+            <Link href="/voices/pulse" className="hover:opacity-80" style={{ color: '#F5A623' }}>
+              Community pulse →
+            </Link>
+            <Link href="/voices/questions" className="hover:opacity-80" style={{ color: '#F5A623' }}>
+              Questions answered →
+            </Link>
+            <Link href="/voices/ask" className="hover:opacity-80" style={{ color: '#F5A623' }}>
+              Ask a question →
+            </Link>
+          </div>
         </div>
       </div>
 
