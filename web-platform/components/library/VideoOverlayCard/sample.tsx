@@ -18,6 +18,8 @@ export default function Sample() {
         surface="midnight"
         captionPosition="below"
         tint="governance"
+        nextSectionId="anchor-stories"
+        nextSectionLabel="Anchor stories"
       />
       <VideoOverlayCard
         eyebrow="Elder voice"

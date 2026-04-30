@@ -35,4 +35,9 @@ export interface VideoOverlayCardProps {
   tint?: SectionKey
   /** Aspect-ratio for the media block. Default '16:9'. */
   aspect?: '16:9' | '1:1' | '9:16' | '4:3'
+  /** Optional anchor id of the next section. When provided, renders a
+      "↓ Next: <label>" button that scrolls to #nextSectionId. */
+  nextSectionId?: string
+  /** Label shown next to the next-section arrow. Default 'Next'. */
+  nextSectionLabel?: string
 }
