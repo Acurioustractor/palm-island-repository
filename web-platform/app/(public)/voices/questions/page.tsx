@@ -33,20 +33,32 @@ interface QuestionRow {
   updated_at: string | null
 }
 
-export default async function QuestionsPage() {
+interface QuestionsPageProps {
+  searchParams: Promise<{ topic?: string }>
+}
+
+export default async function QuestionsPage({ searchParams }: QuestionsPageProps) {
+  const params = await searchParams
+  const activeTopic = (params.topic || '').toLowerCase().trim()
+
   const supabase = createServerSupabase()
 
   // Two queries — answered questions for the public view, plus a count of
   // open ones so we can show "23 questions in the queue, ask another →".
+  let answeredQuery = supabase
+    .from('stories')
+    .select('id, title, content, category, metadata, created_at, updated_at')
+    .eq('is_public', true)
+    .filter('metadata->>is_question', 'eq', 'true')
+    .filter('metadata->>question_status', 'eq', 'answered')
+    .order('updated_at', { ascending: false, nullsFirst: false })
+    .limit(60)
+  if (activeTopic) {
+    answeredQuery = answeredQuery.filter('metadata->>topic', 'eq', activeTopic)
+  }
+
   const [answeredResult, openCountResult] = await Promise.all([
-    supabase
-      .from('stories')
-      .select('id, title, content, category, metadata, created_at, updated_at')
-      .eq('is_public', true)
-      .filter('metadata->>is_question', 'eq', 'true')
-      .filter('metadata->>question_status', 'eq', 'answered')
-      .order('updated_at', { ascending: false, nullsFirst: false })
-      .limit(60),
+    answeredQuery,
     supabase
       .from('stories')
       .select('id', { count: 'exact', head: true })
@@ -56,6 +68,15 @@ export default async function QuestionsPage() {
 
   const answered = (answeredResult.data || []) as QuestionRow[]
   const openCount = openCountResult.count || 0
+
+  // Build distinct topic list from the answered questions for filter pills.
+  // Could fetch from a wider set, but answered is what's surfaced anyway.
+  const topicCounts: Record<string, number> = {}
+  for (const q of answered) {
+    const t = (q.metadata?.topic as string | undefined)?.toLowerCase()
+    if (t) topicCounts[t] = (topicCounts[t] || 0) + 1
+  }
+  const topics = Object.entries(topicCounts).sort((a, b) => b[1] - a[1])
 
   return (
     <main className="min-h-screen" style={{ backgroundColor: '#FBF8EE' }}>
@@ -114,6 +135,39 @@ export default async function QuestionsPage() {
           </div>
         </div>
       </section>
+
+      {/* Topic filter pills (when there are 2+ topics in the answered set) */}
+      {topics.length > 1 && (
+        <section className="px-6 md:px-12 pt-8" style={{ backgroundColor: C.shell }}>
+          <div className="max-w-4xl mx-auto py-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <Link
+                href="/voices/questions"
+                className={`px-3 py-1.5 rounded-full border text-sm capitalize transition-colors ${
+                  !activeTopic
+                    ? 'bg-picc-ochre text-white border-picc-ochre'
+                    : 'bg-white text-stone-600 border-stone-300 hover:border-picc-ochre'
+                }`}
+              >
+                All
+              </Link>
+              {topics.map(([topic, count]) => (
+                <Link
+                  key={topic}
+                  href={`/voices/questions?topic=${encodeURIComponent(topic)}`}
+                  className={`px-3 py-1.5 rounded-full border text-sm capitalize transition-colors ${
+                    activeTopic === topic
+                      ? 'bg-picc-ochre text-white border-picc-ochre'
+                      : 'bg-white text-stone-600 border-stone-300 hover:border-picc-ochre'
+                  }`}
+                >
+                  {topic} <span className="opacity-60">· {count}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* List */}
       <section className="px-6 md:px-12 py-12 md:py-16">
