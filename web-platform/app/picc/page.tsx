@@ -78,6 +78,7 @@ const PAGES = [
     group: 'Knowledge & Voices',
     items: [
       { href: '/picc/inbox', icon: Inbox, label: 'Inbox', sub: 'Pending art / questions / stories — unified triage' },
+      { href: '/picc/notes', icon: FileText, label: 'Notes', sub: 'Staff scratchpad — observations + field notes' },
       { href: '/picc/library', icon: Library, label: 'Library', sub: 'Publications + research + EL connections' },
       { href: '/picc/voices', icon: Quote, label: 'Voices', sub: '452 voices + capture sprint' },
       { href: '/picc/impact', icon: Activity, label: 'Impact', sub: 'Service-level metrics' },
