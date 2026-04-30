@@ -8,6 +8,7 @@
  */
 import Link from 'next/link'
 import VoiceWall from '@/components/community/VoiceWall'
+import StorytellerSearchStrip from '@/components/community/StorytellerSearchStrip'
 import { BespokeIcon } from '@/components/ui/BespokeIcon'
 import { getPalmStorytellers } from '@/lib/empathy-ledger/el-server'
 
@@ -62,27 +63,17 @@ export default async function VoicesPage() {
         </div>
       </div>
 
-      {/* Storyteller index — links into per-person profiles. Quietly absent
-          when EL v2 returns nothing so we don't render an empty strip. */}
+      {/* Storyteller index with search — links into per-person profiles.
+          Quietly absent when EL v2 returns nothing so we don't render an
+          empty strip. */}
       {sorted.length > 0 && (
-        <div className="border-b border-stone-200 bg-white/60">
-          <div className="max-w-6xl mx-auto px-6 sm:px-8 py-6">
-            <div className="text-xs uppercase font-bold text-stone-500 tracking-widest mb-3">
-              Browse storytellers
-            </div>
-            <div className="flex flex-wrap gap-x-4 gap-y-2">
-              {sorted.map((s) => (
-                <Link
-                  key={s.id}
-                  href={`/voices/${slugify(s.display_name)}`}
-                  className="text-sm text-picc-earth hover:text-picc-earth-700 hover:underline font-medium"
-                >
-                  {s.display_name}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
+        <StorytellerSearchStrip
+          storytellers={sorted.map((s) => ({
+            id: s.id,
+            name: s.display_name,
+            slug: slugify(s.display_name),
+          }))}
+        />
       )}
 
       {/* Voice Wall */}
