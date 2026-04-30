@@ -15,7 +15,27 @@
  */
 import Link from 'next/link'
 import { createServerSupabase } from '@/lib/supabase/client'
+import { getPalmStorytellers } from '@/lib/empathy-ledger/el-server'
 import { C } from '@/components/annual-report/2024-25/almanac/tokens'
+
+function slugifyName(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '')
+}
+
+function normaliseName(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9 ]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 1800
@@ -55,14 +75,24 @@ const SENTIMENT_TINTS: Record<string, string> = {
 export default async function CommunityPulsePage() {
   const supabase = createServerSupabase()
 
-  const { data } = await supabase
-    .from('extracted_quotes')
-    .select('id, quote_text, attribution, theme, sentiment, impact_score, themes, created_at')
-    .or('is_validated.eq.true,suggested_for_report.eq.true')
-    .order('created_at', { ascending: false })
-    .limit(2000)
+  const [{ data }, storytellers] = await Promise.all([
+    supabase
+      .from('extracted_quotes')
+      .select('id, quote_text, attribution, theme, sentiment, impact_score, themes, created_at')
+      .or('is_validated.eq.true,suggested_for_report.eq.true')
+      .order('created_at', { ascending: false })
+      .limit(2000),
+    getPalmStorytellers(),
+  ])
 
   const quotes = (data || []) as QuoteRow[]
+
+  // Build name → /voices/<slug> lookup so top-impact quote attributions
+  // can link to a real storyteller profile when one matches.
+  const nameToSlug: Record<string, string> = {}
+  for (const t of storytellers) {
+    nameToSlug[normaliseName(t.display_name)] = slugifyName(t.display_name)
+  }
 
   // Theme counts (theme + multi-tag themes[])
   const themeCounts: Record<string, number> = {}
@@ -286,12 +316,26 @@ export default async function CommunityPulsePage() {
                     &ldquo;{q.quote_text}&rdquo;
                   </blockquote>
                   <div className="mt-4 flex flex-wrap items-center gap-3">
-                    <span
-                      className="font-semibold"
-                      style={{ color: C.ocean, fontSize: 13 }}
-                    >
-                      {q.attribution || 'Community Member'}
-                    </span>
+                    {(() => {
+                      const name = q.attribution || 'Community Member'
+                      const slug = q.attribution ? nameToSlug[normaliseName(q.attribution)] : null
+                      return slug ? (
+                        <Link
+                          href={`/voices/${slug}`}
+                          className="font-semibold hover:underline"
+                          style={{ color: C.ocean, fontSize: 13 }}
+                        >
+                          {name}
+                        </Link>
+                      ) : (
+                        <span
+                          className="font-semibold"
+                          style={{ color: C.ocean, fontSize: 13 }}
+                        >
+                          {name}
+                        </span>
+                      )
+                    })()}
                     {q.theme && (
                       <span
                         className="capitalize"

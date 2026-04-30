@@ -17,10 +17,43 @@ import {
   Palette,
   Inbox,
 } from 'lucide-react'
+import { createServerSupabase } from '@/lib/supabase/client'
 
 export const metadata = {
   title: 'PICC Admin',
   description: 'Internal admin hub — all PICC admin surfaces in one place.',
+}
+
+export const dynamic = 'force-dynamic'
+
+async function getInboxCount(): Promise<number> {
+  try {
+    const supabase = createServerSupabase()
+    const [art, questions, stories] = await Promise.all([
+      supabase
+        .from('media_files')
+        .select('id', { count: 'exact', head: true })
+        .eq('page_context', 'community-art')
+        .eq('is_public', false)
+        .is('deleted_at', null),
+      supabase
+        .from('stories')
+        .select('id', { count: 'exact', head: true })
+        .filter('metadata->>is_question', 'eq', 'true')
+        .filter('metadata->>question_status', 'eq', 'open')
+        .is('deleted_at', null),
+      supabase
+        .from('stories')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'submitted')
+        .eq('is_public', false)
+        .or('metadata->>is_question.is.null,metadata->>is_question.eq.false')
+        .is('deleted_at', null),
+    ])
+    return (art.count || 0) + (questions.count || 0) + (stories.count || 0)
+  } catch {
+    return 0
+  }
 }
 
 const PAGES = [
@@ -67,7 +100,8 @@ const PAGES = [
   },
 ]
 
-export default function PICCIndexPage() {
+export default async function PICCIndexPage() {
+  const inboxCount = await getInboxCount()
   return (
     <div className="max-w-5xl mx-auto">
       <div className="mb-10">
@@ -102,8 +136,13 @@ export default function PICCIndexPage() {
                       <Icon className="w-4 h-4" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-stone-800 text-sm group-hover:text-picc-ochre transition-colors">
+                      <p className="font-semibold text-stone-800 text-sm group-hover:text-picc-ochre transition-colors flex items-center gap-2">
                         {item.label}
+                        {item.href === '/picc/inbox' && inboxCount > 0 && (
+                          <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-picc-ochre text-white text-[10px] font-bold">
+                            {inboxCount}
+                          </span>
+                        )}
                       </p>
                       <p className="text-xs text-stone-500 mt-0.5 leading-relaxed">
                         {item.sub}

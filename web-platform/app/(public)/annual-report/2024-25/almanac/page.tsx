@@ -134,6 +134,8 @@ export default async function AlmanacPage() {
         caption="Bwgcolman."
         subcaption="Many tribes, one people."
         height="65vh"
+        nextSectionId="ceo-message"
+        nextSectionLabel="CEO message"
       />
 
       {/* CEO MESSAGE — real text */}
@@ -362,6 +364,8 @@ export default async function AlmanacPage() {
         caption="What we did this year."
         subcaption="Six anchor stories from Year 17."
         height="55vh"
+        nextSectionId="highlights"
+        nextSectionLabel="Anchor stories"
       />
 
       {/* HIGHLIGHTS — REAL with descriptions and impact */}
@@ -573,6 +577,8 @@ export default async function AlmanacPage() {
         caption="Our Elders."
         subcaption="The hush of the exhibition."
         height="65vh"
+        nextSectionId="elder-lanterns"
+        nextSectionLabel="Elder voices"
       />
 
       {/* ELDER LANTERNS — real curated quotes */}
@@ -763,6 +769,8 @@ export default async function AlmanacPage() {
         caption="The next 20 years."
         subcaption="Three commitments. Three generations."
         height="65vh"
+        nextSectionId="forward"
+        nextSectionLabel="Commitments"
       />
 
       {/* THREE FORWARD COMMITMENTS */}

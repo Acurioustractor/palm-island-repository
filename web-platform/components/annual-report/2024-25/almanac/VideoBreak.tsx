@@ -21,6 +21,11 @@ interface VideoBreakProps {
   subcaption?: string
   /** Aspect ratio (height in vh). Default: 80vh. */
   height?: string
+  /** Optional anchor id of the next section. When provided, renders a
+      "↓ <label>" cue at the bottom of the break that scrolls to it. */
+  nextSectionId?: string
+  /** Label next to the down-arrow cue. Default 'Next'. */
+  nextSectionLabel?: string
 }
 
 export function VideoBreak({
@@ -29,6 +34,8 @@ export function VideoBreak({
   caption,
   subcaption,
   height = '80vh',
+  nextSectionId,
+  nextSectionLabel = 'Next',
 }: VideoBreakProps) {
   const ref = useRef<HTMLVideoElement>(null)
   const [inView, setInView] = useState(false)
@@ -96,6 +103,26 @@ export function VideoBreak({
             </p>
           )}
         </div>
+      )}
+
+      {nextSectionId && (
+        <a
+          href={`#${nextSectionId}`}
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 inline-flex items-center gap-2 rounded-full font-bold uppercase hover:opacity-80 transition-opacity"
+          style={{
+            backgroundColor: 'rgba(255,255,255,0.12)',
+            color: '#FFFFFF',
+            border: '1px solid rgba(255,255,255,0.25)',
+            fontSize: 11,
+            letterSpacing: '0.2em',
+            padding: '8px 16px',
+            backdropFilter: 'blur(8px)',
+          }}
+          aria-label={`Skip to ${nextSectionLabel}`}
+        >
+          <span aria-hidden style={{ fontSize: 14 }}>↓</span>
+          <span>{nextSectionLabel}</span>
+        </a>
       )}
     </section>
   )

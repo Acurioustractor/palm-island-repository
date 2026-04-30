@@ -7,6 +7,12 @@
 @import "./design-tokens.css";
 
 @layer base {
+  /* Smooth scroll for in-page anchor links (e.g. VideoOverlayCard's
+   * nextSectionId cue, the slot reference's section index, etc.) */
+  html {
+    scroll-behavior: smooth;
+  }
+
   :root {
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
