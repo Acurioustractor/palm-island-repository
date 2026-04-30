@@ -59,6 +59,9 @@ export default async function VoicesPage() {
             <Link href="/voices/ask" className="hover:opacity-80" style={{ color: '#F5A623' }}>
               Ask a question →
             </Link>
+            <Link href="/voices/notes" className="hover:opacity-80" style={{ color: '#F5A623' }}>
+              Notes →
+            </Link>
             <Link href="/share-note" className="hover:opacity-80" style={{ color: '#F5A623' }}>
               Leave a note →
             </Link>

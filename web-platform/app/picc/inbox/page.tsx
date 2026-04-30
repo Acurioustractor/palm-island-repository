@@ -11,7 +11,7 @@
  */
 import Link from 'next/link'
 import { createServerSupabase } from '@/lib/supabase/client'
-import { Image as ImageIcon, HelpCircle, BookOpen, Clock, ArrowRight } from 'lucide-react'
+import { Image as ImageIcon, HelpCircle, BookOpen, Clock, ArrowRight, StickyNote } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -49,7 +49,7 @@ interface StoryRow {
 export default async function InboxPage() {
   const supabase = createServerSupabase()
 
-  const [art, openQuestions, submittedStories, allCounts] = await Promise.all([
+  const [art, openQuestions, submittedStories, pendingNotes, allCounts] = await Promise.all([
     // Pending art (is_public = false, page_context = community-art, not deleted)
     supabase
       .from('media_files')
@@ -68,13 +68,23 @@ export default async function InboxPage() {
       .is('deleted_at', null)
       .order('created_at', { ascending: false })
       .limit(5),
-    // Submitted (non-question) stories awaiting review
+    // Submitted stories awaiting review — exclude questions AND notes
     supabase
       .from('stories')
       .select('id, title, content, category, storyteller_id, metadata, created_at')
       .eq('status', 'submitted')
       .eq('is_public', false)
       .or('metadata->>is_question.is.null,metadata->>is_question.eq.false')
+      .or('metadata->>is_note.is.null,metadata->>is_note.eq.false')
+      .is('deleted_at', null)
+      .order('created_at', { ascending: false })
+      .limit(5),
+    // Pending public notes — is_note=true AND not yet published
+    supabase
+      .from('stories')
+      .select('id, content, metadata, created_at')
+      .filter('metadata->>is_note', 'eq', 'true')
+      .eq('is_public', false)
       .is('deleted_at', null)
       .order('created_at', { ascending: false })
       .limit(5),
@@ -98,6 +108,13 @@ export default async function InboxPage() {
         .eq('status', 'submitted')
         .eq('is_public', false)
         .or('metadata->>is_question.is.null,metadata->>is_question.eq.false')
+        .or('metadata->>is_note.is.null,metadata->>is_note.eq.false')
+        .is('deleted_at', null),
+      supabase
+        .from('stories')
+        .select('id', { count: 'exact', head: true })
+        .filter('metadata->>is_note', 'eq', 'true')
+        .eq('is_public', false)
         .is('deleted_at', null),
     ]),
   ])
@@ -105,9 +122,15 @@ export default async function InboxPage() {
   const artRows = (art.data || []) as ArtRow[]
   const questionRows = (openQuestions.data || []) as QuestionRow[]
   const storyRows = (submittedStories.data || []) as StoryRow[]
-  const [artCount, questionsCount, storiesCount] = allCounts.map((r) => r.count || 0)
+  const noteRows = (pendingNotes.data || []) as Array<{
+    id: string
+    content: string | null
+    metadata: Record<string, any> | null
+    created_at: string
+  }>
+  const [artCount, questionsCount, storiesCount, notesCount] = allCounts.map((r) => r.count || 0)
 
-  const totalPending = artCount + questionsCount + storiesCount
+  const totalPending = artCount + questionsCount + storiesCount + notesCount
 
   return (
     <main className="min-h-screen bg-stone-50">
@@ -132,7 +155,7 @@ export default async function InboxPage() {
         </div>
 
         {/* Summary stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-10">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-10">
           <SummaryCard
             label="Total pending"
             count={totalPending}
@@ -142,6 +165,7 @@ export default async function InboxPage() {
           <SummaryCard label="Art" count={artCount} icon={ImageIcon} tint="text-picc-ochre" />
           <SummaryCard label="Questions" count={questionsCount} icon={HelpCircle} tint="text-picc-ochre" />
           <SummaryCard label="Stories" count={storiesCount} icon={BookOpen} tint="text-picc-ochre" />
+          <SummaryCard label="Notes" count={notesCount} icon={StickyNote} tint="text-picc-ochre" />
         </div>
 
         {/* Empty state */}
@@ -264,6 +288,42 @@ export default async function InboxPage() {
                           <span>{submissionType}</span>
                         </>
                       )}
+                      <span className="ml-auto inline-flex items-center gap-1 text-amber-600">
+                        <Clock className="w-3 h-3" />
+                        Awaiting review
+                      </span>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          </Section>
+        )}
+
+        {/* Notes section */}
+        {notesCount > 0 && (
+          <Section
+            icon={StickyNote}
+            title="Public notes"
+            count={notesCount}
+            queueHref="/picc/stories?category=note"
+          >
+            <div className="flex flex-col gap-2">
+              {noteRows.map((n) => {
+                const author = n.metadata?.anonymous
+                  ? 'Community member'
+                  : n.metadata?.asker_name || 'Community member'
+                return (
+                  <Link
+                    key={n.id}
+                    href={`/picc/stories/${n.id}/edit`}
+                    className="block rounded-md bg-white border border-stone-200 p-4 hover:border-picc-ochre/50"
+                  >
+                    <p className="text-sm text-stone-800 leading-snug line-clamp-3">
+                      {n.content}
+                    </p>
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-stone-500">
+                      <span>{author}</span>
                       <span className="ml-auto inline-flex items-center gap-1 text-amber-600">
                         <Clock className="w-3 h-3" />
                         Awaiting review
