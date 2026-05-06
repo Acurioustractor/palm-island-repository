@@ -235,6 +235,37 @@ export default async function EmpathyLedgerShowcase() {
         </div>
       </section>
 
+      {/* ─── LIVE LEDGER STATE — embedded from EL v2 ─── */}
+      <section className="px-6 py-20 bg-[#FAF8F5] border-t border-stone-200">
+        <div className="max-w-4xl mx-auto">
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-picc-ochre mb-3">
+            The ledger right now
+          </p>
+          <h2 className="font-serif text-3xl md:text-4xl text-stone-800 mb-3">
+            Live, never frozen
+          </h2>
+          <p className="text-stone-500 mb-8 max-w-2xl">
+            Counts below come straight from the Empathy Ledger over a secure
+            channel. They refresh on every page load. No caching, no spin.
+            When a new transcript clears the anti-fabrication grader, the
+            number ticks up.
+          </p>
+          <div className="bg-white border border-stone-200 rounded-md overflow-hidden shadow-sm">
+            <iframe
+              src="https://empathy-ledger-v2.vercel.app/embed/palm-island-community-company/counter?tone=cream"
+              width="100%"
+              height={210}
+              style={{ border: 0, display: 'block' }}
+              loading="lazy"
+              title="PICC live counts · Empathy Ledger"
+            />
+          </div>
+          <p className="text-xs text-stone-400 mt-4 italic">
+            Storytellers · voices that have passed an anti-fabrication grader · themes carried in their own words · total mentions across the corpus.
+          </p>
+        </div>
+      </section>
+
       {/* ─── HERO QUOTES — show what's been captured ─── */}
       {data.heroQuotes.length > 0 && (
         <section className="px-6 py-24 bg-gradient-to-br from-[#0B4F6C] via-[#0a3f57] to-[#082a3a] text-white">
