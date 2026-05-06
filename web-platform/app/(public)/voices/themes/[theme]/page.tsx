@@ -111,6 +111,44 @@ export default async function ThemeVoicesPage({ params }: PageProps) {
         </div>
       </section>
 
+      {/* Cross-org link — show how this theme plays beyond Palm */}
+      {quotes.length > 0 && (() => {
+        const elBase = process.env.NEXT_PUBLIC_EL_V2_URL?.replace(/\/$/, '') || 'https://empathy-ledger-v2.vercel.app'
+        const themeSlug = theme.replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+        return (
+          <section
+            className="px-6 md:px-12 py-10"
+            style={{ backgroundColor: C.shell, borderTop: '1px solid #E8DEC5', borderBottom: '1px solid #E8DEC5' }}
+          >
+            <div className="max-w-4xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <div
+                  className="uppercase font-bold mb-2"
+                  style={{ color: C.ochre, fontSize: 10, letterSpacing: '0.3em' }}
+                >
+                  Beyond Palm
+                </div>
+                <p
+                  className="font-fraunces leading-snug"
+                  style={{ color: C.ocean, fontSize: 'clamp(17px, 2vw, 22px)' }}
+                >
+                  This theme is named by storytellers across the Empathy Ledger, not just Palm. See how other communities carry it.
+                </p>
+              </div>
+              <a
+                href={`${elBase}/themes/${themeSlug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-5 py-3 rounded-md font-semibold whitespace-nowrap hover:opacity-90 transition self-start md:self-center"
+                style={{ backgroundColor: C.ocean, color: '#FBF8EE', fontSize: 13 }}
+              >
+                Cross-org view →
+              </a>
+            </div>
+          </section>
+        )
+      })()}
+
       <section className="px-6 md:px-12 py-12 md:py-16">
         <div className="max-w-4xl mx-auto flex flex-col gap-5">
           {quotes.length === 0 ? (
