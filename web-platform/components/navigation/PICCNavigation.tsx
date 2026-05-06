@@ -15,6 +15,11 @@ import {
 import { useSidebar } from './SidebarProvider';
 import { PICCLogo } from '@/components/ui/PICCLogo';
 
+// Single source of truth for the Empathy Ledger URL.
+// Once picc.empathyledger.com DNS lands, set NEXT_PUBLIC_EL_V2_URL on Vercel
+// and the nav swaps over without a code change.
+const EL_BASE = (process.env.NEXT_PUBLIC_EL_V2_URL?.replace(/\/$/, '') || 'https://empathy-ledger-v2.vercel.app');
+
 interface NavItem {
   label: string;
   href: string;
@@ -76,7 +81,7 @@ const staffNavigation: { [key: string]: NavSection } = {
       { label: 'Library', href: '/picc/library', icon: Library, description: 'Publications + research + EL connections' },
       { label: 'Voices', href: '/picc/voices', icon: Quote, description: '452 voices + capture sprint' },
       { label: 'Knowledge Vault', href: '/picc/vault', icon: Sparkles, description: 'Second brain · vault browser' },
-      { label: 'Open Empathy Ledger', href: 'https://empathy-ledger-v2.vercel.app', icon: ExternalLink, description: 'Stories, voices, transcripts' },
+      { label: 'Open Empathy Ledger', href: EL_BASE, icon: ExternalLink, description: 'Stories, voices, transcripts' },
       { label: 'Photo Picker', href: '/20-years/strategy/photos', icon: Image, description: 'Browse PICC photos in EL' },
     ],
   },
@@ -128,7 +133,7 @@ const advancedNavigation: { [key: string]: NavSection } = {
       { label: 'Library', href: '/picc/library', icon: Library, description: 'Publications + research + EL connections' },
       { label: 'Voices', href: '/picc/voices', icon: Quote, description: '452 voices + capture sprint' },
       { label: 'Knowledge Vault', href: '/picc/vault', icon: Sparkles, description: 'Second brain · vault browser' },
-      { label: 'Open Empathy Ledger', href: 'https://empathy-ledger-v2.vercel.app', icon: ExternalLink, description: 'Stories, voices, transcripts' },
+      { label: 'Open Empathy Ledger', href: EL_BASE, icon: ExternalLink, description: 'Stories, voices, transcripts' },
       { label: 'Photo Picker', href: '/20-years/strategy/photos', icon: Image, description: 'Browse PICC photos in EL' },
       { label: 'AI Chat', href: '/chat', icon: BookOpen, description: 'Ask about PICC' },
     ],

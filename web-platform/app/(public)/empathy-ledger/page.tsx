@@ -250,16 +250,21 @@ export default async function EmpathyLedgerShowcase() {
             When a new transcript clears the anti-fabrication grader, the
             number ticks up.
           </p>
-          <div className="bg-white border border-stone-200 rounded-md overflow-hidden shadow-sm">
-            <iframe
-              src="https://empathy-ledger-v2.vercel.app/embed/palm-island-community-company/counter?tone=cream"
-              width="100%"
-              height={210}
-              style={{ border: 0, display: 'block' }}
-              loading="lazy"
-              title="PICC live counts · Empathy Ledger"
-            />
-          </div>
+          {(() => {
+            const elBase = process.env.NEXT_PUBLIC_EL_V2_URL?.replace(/\/$/, '') || 'https://empathy-ledger-v2.vercel.app'
+            return (
+              <div className="bg-white border border-stone-200 rounded-md overflow-hidden shadow-sm">
+                <iframe
+                  src={`${elBase}/embed/palm-island-community-company/counter?tone=cream`}
+                  width="100%"
+                  height={210}
+                  style={{ border: 0, display: 'block' }}
+                  loading="lazy"
+                  title="PICC live counts · Empathy Ledger"
+                />
+              </div>
+            )
+          })()}
           <p className="text-xs text-stone-400 mt-4 italic">
             Storytellers · voices that have passed an anti-fabrication grader · themes carried in their own words · total mentions across the corpus.
           </p>
