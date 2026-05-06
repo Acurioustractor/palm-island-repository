@@ -30,7 +30,7 @@ import {
   type ELStory,
   type ELTranscript,
 } from '@/lib/empathy-ledger/el-server'
-import { getPhotosForStoryteller, type ELPhoto } from '@/lib/media/el-photos'
+import { getPhotosForStoryteller, getStorytellerConnections, type ELPhoto, type ELConnection } from '@/lib/media/el-photos'
 import { getPiccServices } from '@/lib/services/el-services'
 import { createServerSupabase } from '@/lib/supabase/client'
 import { C } from '@/components/annual-report/2024-25/almanac/tokens'
@@ -87,12 +87,13 @@ export default async function StorytellerProfilePage({ params }: PageProps) {
   const personQuotes = findQuotesForPerson(allQuotes, teller.display_name)
   const featured = pickFeaturedQuote(personQuotes)
   const piccSupabase = createServerSupabase()
-  const [photos, stories, transcripts, serviceTags, piccServices, bespokeArtResult] = await Promise.all([
+  const [photos, stories, transcripts, serviceTags, piccServices, connections, bespokeArtResult] = await Promise.all([
     getPhotosForStoryteller(teller.id, 12),
     getStoriesForStoryteller(teller.id, { limit: 12, publishedOnly: true }),
     getTranscriptsForStoryteller(teller.id, { limit: 6 }),
     getServicesForStoryteller(teller.id),
     getPiccServices(),
+    getStorytellerConnections(teller.id),
     // Approved community art tagged related:<storyteller-slug>. Same
     // pattern as /services/<slug> — pieces submitted via /share-art and
     // approved at /picc/design-system/submissions surface here.
@@ -192,6 +193,15 @@ export default async function StorytellerProfilePage({ params }: PageProps) {
         <ConversationsSection
           firstName={teller.display_name.split(/\s+/)[0]}
           transcripts={transcripts}
+        />
+      )}
+
+      {/* Faces in frame — confirmed face matches in shared photographs */}
+      {connections.length > 0 && (
+        <AppearsWithSection
+          firstName={teller.display_name.split(/\s+/)[0]}
+          connections={connections}
+          allStorytellers={allStorytellers}
         />
       )}
 
@@ -693,6 +703,96 @@ function BespokeArtSection({
             Submit a piece
           </Link>
           .
+        </p>
+      </div>
+    </section>
+  )
+}
+
+function AppearsWithSection({
+  firstName,
+  connections,
+  allStorytellers,
+}: {
+  firstName: string
+  connections: ELConnection[]
+  allStorytellers: ELStoryteller[]
+}) {
+  // Resolve EL ids to PICC voice slugs so each card links to its profile.
+  const slugById = new Map(allStorytellers.map((s) => [s.id, slugify(s.display_name)]))
+  return (
+    <section
+      className="px-6 md:px-12 py-20 md:py-28"
+      style={{ backgroundColor: C.shell }}
+    >
+      <div className="max-w-6xl mx-auto flex flex-col items-center gap-8">
+        <div
+          className="uppercase font-bold"
+          style={{ color: C.ochre, fontSize: 11, letterSpacing: '0.3em' }}
+        >
+          Faces in frame · confirmed by family
+        </div>
+        <h2
+          className="font-fraunces font-bold leading-tight text-center"
+          style={{ color: C.ocean, fontSize: 'clamp(28px, 4vw, 42px)' }}
+        >
+          {firstName} appears alongside.
+        </h2>
+        <p
+          className="text-center leading-relaxed"
+          style={{ color: C.driftwood, fontSize: 14, maxWidth: 560 }}
+        >
+          Storytellers named beside {firstName} in the same photographs. Pairs come from face matches confirmed by elders or family members. Click through to walk the line.
+        </p>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 w-full">
+          {connections.map((c) => {
+            const slug = slugById.get(c.storyteller_id)
+            const card = (
+              <div
+                className="flex items-center gap-3 p-3 rounded-md"
+                style={{ backgroundColor: '#FBF8EE', border: '1px solid #E8DEC5' }}
+              >
+                {c.public_avatar_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={c.public_avatar_url}
+                    alt={c.display_name ?? ''}
+                    className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                    style={{ border: '1px solid #E8DEC5' }}
+                  />
+                ) : (
+                  <div
+                    className="w-12 h-12 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: C.sand, border: '1px solid #E8DEC5' }}
+                  />
+                )}
+                <div className="flex-1 min-w-0">
+                  <div
+                    className="font-fraunces font-bold leading-tight truncate"
+                    style={{ color: C.ocean, fontSize: 14 }}
+                  >
+                    {c.display_name ?? '—'}
+                  </div>
+                  <div style={{ color: C.muted, fontSize: 11 }}>
+                    {c.shared_photos} photo{c.shared_photos === 1 ? '' : 's'} together
+                  </div>
+                </div>
+              </div>
+            )
+            return slug ? (
+              <Link key={c.storyteller_id} href={`/voices/${slug}`} className="block hover:opacity-80 transition">
+                {card}
+              </Link>
+            ) : (
+              <div key={c.storyteller_id}>{card}</div>
+            )
+          })}
+        </div>
+        <p
+          className="italic text-center"
+          style={{ color: C.muted, fontSize: 12, maxWidth: 520 }}
+        >
+          Source: Empathy Ledger v2 · image_depicted_people · only confirmed face matches surface here.
         </p>
       </div>
     </section>

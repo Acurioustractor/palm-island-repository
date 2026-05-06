@@ -198,3 +198,40 @@ export async function getPriorityPhotos(opts: { slot?: string; limit?: number } 
   const r = await call<{ photos: ELPhoto[] }>(`/api/photos?${params.toString()}`);
   return r?.photos ?? [];
 }
+
+// ─────────────────────────────────────────────────────────────────────
+// Storyteller connections — who has been named beside this person in
+// the same photographs. Source: EL v2's public connections endpoint
+// (no auth required, only public storytellers surface):
+//   GET /api/public/storytellers/<id>/connections
+// ─────────────────────────────────────────────────────────────────────
+
+export interface ELConnection {
+  storyteller_id: string
+  display_name: string | null
+  public_avatar_url: string | null
+  organization_id: string | null
+  shared_photos: number
+}
+
+export async function getStorytellerConnections(
+  storytellerId: string,
+): Promise<ELConnection[]> {
+  const b = base()
+  if (!b) return []
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), 15_000)
+  try {
+    const res = await fetch(`${b}/api/public/storytellers/${encodeURIComponent(storytellerId)}/connections`, {
+      cache: 'no-store',
+      signal: controller.signal,
+    })
+    if (!res.ok) return []
+    const data = (await res.json()) as { connections?: ELConnection[] }
+    return data.connections ?? []
+  } catch {
+    return []
+  } finally {
+    clearTimeout(timer)
+  }
+}
