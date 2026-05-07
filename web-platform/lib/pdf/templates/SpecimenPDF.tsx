@@ -132,7 +132,7 @@ export default function SpecimenPDF({ seed = 28 }: SpecimenPDFProps) {
           role="Bwgcolman Elder · Stolen Generations descendant"
           side="left"
           date="Nov 2024"
-          portraitUrl="/icons/picc/photos/voices/aunty-ethel-robertson.jpg"
+          portraitUrl="/picc-photos/voices/aunty-ethel-robertson.jpg"
           consent="Recorded with consent · Cultural review complete · Empathy Ledger"
         />
 

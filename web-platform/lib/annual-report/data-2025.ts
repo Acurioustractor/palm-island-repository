@@ -44,16 +44,16 @@ export const STATS_2025 = [
 // Board Members — historical roster + recent (will need post-Nov-2025 AGM confirmation)
 // ============================================================================
 
-const BOARD_PHOTO_BASE = '/icons/picc/photos/board/'
+const BOARD_PHOTO_BASE = '/picc-photos/board/'
 
 export const BOARD_MEMBERS_2025 = [
-  { id: 'bd-01', full_name: 'Luella Bligh', position: 'Chair · Member-elected · Bwgcolman', bio: 'Chair of the Board. Long-standing Bwgcolman leader.', photo_url: '/icons/picc/photos/luella-bligh.jpg', display_order: 1 },
+  { id: 'bd-01', full_name: 'Luella Bligh', position: 'Chair · Member-elected · Bwgcolman', bio: 'Chair of the Board. Long-standing Bwgcolman leader.', photo_url: '/picc-photos/luella-bligh.jpg', display_order: 1 },
   { id: 'bd-02', full_name: 'Rhonda Phillips', position: 'Director · Member-elected', bio: null, photo_url: BOARD_PHOTO_BASE + 'rhonda-phillips.jpg', display_order: 2 },
-  { id: 'bd-03', full_name: 'Allan Palm Island', position: 'Director · Traditional Owner-nominated · Manbarra', bio: 'Manbarra Traditional Owner.', photo_url: '/icons/picc/photos/voices/allan-palm-island.jpg', display_order: 3 },
+  { id: 'bd-03', full_name: 'Allan Palm Island', position: 'Director · Traditional Owner-nominated · Manbarra', bio: 'Manbarra Traditional Owner.', photo_url: '/picc-photos/voices/allan-palm-island.jpg', display_order: 3 },
   { id: 'bd-04', full_name: 'Matthew Lindsay', position: 'Director · Company Secretary', bio: null, photo_url: BOARD_PHOTO_BASE + 'matthew-lindsay.jpg', display_order: 4 },
   { id: 'bd-05', full_name: 'Harriet Hulthen', position: 'Director · Skills-appointed', bio: null, photo_url: BOARD_PHOTO_BASE + 'harriet-hulthen.jpg', display_order: 5 },
-  { id: 'bd-06', full_name: 'Raymond W. Palmer Snr', position: 'Director · Member-elected', bio: null, photo_url: '/icons/picc/photos/voices/raymond-w-palmer-snr.jpg', display_order: 6 },
-  { id: 'bd-07', full_name: 'Cassie Lang', position: 'Director · Member-elected', bio: null, photo_url: '/icons/picc/photos/voices/cassie-lang.jpg', display_order: 7 },
+  { id: 'bd-06', full_name: 'Raymond W. Palmer Snr', position: 'Director · Member-elected', bio: null, photo_url: '/picc-photos/voices/raymond-w-palmer-snr.jpg', display_order: 6 },
+  { id: 'bd-07', full_name: 'Cassie Lang', position: 'Director · Member-elected', bio: null, photo_url: '/picc-photos/voices/cassie-lang.jpg', display_order: 7 },
 ] as const
 
 // ============================================================================
@@ -88,7 +88,7 @@ In May we launch our own PIC Leadership Program — designed by our staff, for o
 In October 2027 PICC turns twenty. Our children are our future. They are our ancestors of tomorrow. We've gotta make it right for them.`,
     message_excerpt: "This year, for the first time in Queensland, decisions about Palm Island children sit with Palm Island people.",
     featured_quote: "Working with the community, not for the community.",
-    photo_url: '/icons/picc/photos/rachel-atkinson.jpg',
+    photo_url: '/picc-photos/rachel-atkinson.jpg',
     display_order: 1,
   },
   {
@@ -112,7 +112,7 @@ The positive changes we strive for are becoming evident — particularly among o
 In October 2027, PICC turns twenty. We will mark that milestone honestly. Twenty years of work. Twenty years of community control fought for and earned. And twenty more ahead.`,
     message_excerpt: "PICC belongs to the community.",
     featured_quote: "We do not move on these numbers. They are the point.",
-    photo_url: '/icons/picc/photos/luella-bligh.jpg',
+    photo_url: '/picc-photos/luella-bligh.jpg',
     display_order: 2,
   },
 ] as const
@@ -164,7 +164,7 @@ export const HIGHLIGHTS_2025 = [
     display_order: 3,
     display_style: 'card',
     section: 'healthWellbeing',
-    photo_url: '/icons/picc/photos/feature-first-1000-days/01.jpg',
+    photo_url: '/picc-photos/feature-first-1000-days/01.jpg',
   },
   {
     id: 'hl-bhs-rename',
@@ -178,7 +178,7 @@ export const HIGHLIGHTS_2025 = [
     display_order: 4,
     display_style: 'card',
     section: 'healthWellbeing',
-    photo_url: '/icons/picc/photos/feature-bwgcolman-healing/01.jpg',
+    photo_url: '/picc-photos/feature-bwgcolman-healing/01.jpg',
   },
   {
     id: 'hl-blue-card',
@@ -326,7 +326,7 @@ export const INNOVATION_PROJECTS_2025 = [
     description: 'September–November 2025 — Elders return to Hull River, near Mission Beach. For some, return to family stories told but never seen. For others, first time setting foot on land their ancestors had been forcibly removed from a hundred years before. Featured here as the natural epilogue to FY24-25, not a year-17 deliverable.',
     status: 'since the year ended',
     impact_summary: 'Elder-led, Elder-paced, Elder-recorded. Photos and language archived under restricted Elder access.',
-    hero_image_url: '/icons/picc/photos/eoc/01-480347ea.jpg',
+    hero_image_url: '/picc-photos/eoc/01-480347ea.jpg',
   },
 ] as const
 
