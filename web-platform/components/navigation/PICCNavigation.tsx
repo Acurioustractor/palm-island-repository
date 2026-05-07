@@ -15,10 +15,7 @@ import {
 import { useSidebar } from './SidebarProvider';
 import { PICCLogo } from '@/components/ui/PICCLogo';
 
-// Single source of truth for the Empathy Ledger URL.
-// Once picc.empathyledger.com DNS lands, set NEXT_PUBLIC_EL_V2_URL on Vercel
-// and the nav swaps over without a code change.
-const EL_BASE = (process.env.NEXT_PUBLIC_EL_V2_URL?.replace(/\/$/, '') || 'https://empathy-ledger-v2.vercel.app');
+const EL_BASE = (process.env.NEXT_PUBLIC_EL_V2_URL?.replace(/\/$/, '') || 'https://picc.empathyledger.com');
 
 interface NavItem {
   label: string;

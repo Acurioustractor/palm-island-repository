@@ -113,7 +113,7 @@ export default async function ThemeVoicesPage({ params }: PageProps) {
 
       {/* Cross-org link — show how this theme plays beyond Palm */}
       {quotes.length > 0 && (() => {
-        const elBase = process.env.NEXT_PUBLIC_EL_V2_URL?.replace(/\/$/, '') || 'https://empathy-ledger-v2.vercel.app'
+        const elBase = process.env.NEXT_PUBLIC_EL_V2_URL?.replace(/\/$/, '') || 'https://picc.empathyledger.com'
         const themeSlug = theme.replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
         return (
           <section

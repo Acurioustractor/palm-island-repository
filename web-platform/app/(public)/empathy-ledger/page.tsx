@@ -251,7 +251,7 @@ export default async function EmpathyLedgerShowcase() {
             number ticks up.
           </p>
           {(() => {
-            const elBase = process.env.NEXT_PUBLIC_EL_V2_URL?.replace(/\/$/, '') || 'https://empathy-ledger-v2.vercel.app'
+            const elBase = process.env.NEXT_PUBLIC_EL_V2_URL?.replace(/\/$/, '') || 'https://picc.empathyledger.com'
             return (
               <div className="bg-white border border-stone-200 rounded-md overflow-hidden shadow-sm">
                 <iframe
