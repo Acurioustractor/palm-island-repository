@@ -185,14 +185,16 @@ The mark is a sea turtle in Indigenous art style with concentric dot circles. **
 
 ## 10 · Icons
 
-| Set | Path | Use |
-|---|---|---|
-| **PICC bespoke** (44 services) | `web-platform/public/icons/bespoke/` | Service grids, navigation. PICC's own. |
-| **PICC bespoke white** | `web-platform/public/icons/bespoke-white/` | Dark backgrounds. |
-| **PICC sections** (10 + 8 infographics + 5 motifs) | `web-platform/public/icons/picc/` (Supabase) | Annual report sections, room icons, motifs. |
-| **lucide-react** | npm | UI chrome only — never for service identity. |
+All bespoke icons live in **Supabase Storage** (`platform-icons` bucket) and are gitignored in `public/`. Resolve via `assetUrl()` or use the canonical [`<BespokeIcon name=…>`](web-platform/components/ui/BespokeIcon.tsx) component — **never** hardcode `/icons/bespoke/<slug>.png` as a `<Image src>`, that path returns 404 in production.
 
-**Icon rule:** if it represents a PICC service or section, use the bespoke set. Lucide is for UI utility (search, close, chevron) only.
+| Set | Resolver path | Use |
+|---|---|---|
+| **PICC bespoke** (44 services) | `assetUrl('/icons/bespoke/<slug>.png')` | Service grids, navigation. PICC's own. |
+| **PICC bespoke white** | `assetUrl('/icons/bespoke-white/<slug>.png')` | Dark backgrounds. |
+| **PICC sections** (10 + 8 infographics + 5 motifs) | `assetUrl('/icons/picc/<…>')` | Annual report sections, room icons, motifs. |
+| **lucide-react** | `import { Icon } from 'lucide-react'` | UI utility only (search, close, chevron). |
+
+**Icon rule:** if it represents a PICC service or section, use the bespoke set via `<BespokeIcon>`. Lucide is for UI utility only — never for service identity.
 
 ---
 
