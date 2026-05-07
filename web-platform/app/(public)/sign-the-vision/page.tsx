@@ -10,10 +10,12 @@
  * Designed to be opened on a tablet / projected during the leader
  * meeting. URL is short and memorable.
  */
+import { headers } from 'next/headers'
 import { createServerSupabase } from '@/lib/supabase/client'
 import { C } from '@/components/annual-report/2024-25/almanac/tokens'
 import SignTheVisionClient from './SignTheVisionClient'
 import SigningTicker from '@/components/picc/SigningTicker'
+import QRPanel from '@/components/picc/QRPanel'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -90,6 +92,14 @@ export default async function SignTheVisionPage() {
   const approved: ApprovedVision[] = (data && data.length > 0 ? data : FALLBACK_VISIONS) as ApprovedVision[]
   const usingFallback = !data || data.length === 0
 
+  // Build the absolute URL we want the QR to point at — the page's own URL
+  // so scanning from the projected screen drops phones straight onto the
+  // signing form.
+  const h = await headers()
+  const host = h.get('host') ?? 'palmisland.org.au'
+  const proto = h.get('x-forwarded-proto') ?? (host.startsWith('localhost') ? 'http' : 'https')
+  const signUrl = `${proto}://${host}/sign-the-vision?from=qr`
+
   return (
     <main className="min-h-screen" style={{ backgroundColor: '#FBF8EE' }}>
       <section
@@ -121,8 +131,11 @@ export default async function SignTheVisionPage() {
             Every contribution is reviewed by Elders before it lights up the
             public next-20 canvas.
           </p>
-          <div className="max-w-3xl">
+          <div className="grid md:grid-cols-[1fr_auto] gap-6 items-start max-w-4xl">
             <SigningTicker />
+            <div className="hidden md:block">
+              <QRPanel url={signUrl} label="Scan to sign on your phone" size={200} />
+            </div>
           </div>
         </div>
       </section>
