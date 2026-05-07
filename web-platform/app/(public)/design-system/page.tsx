@@ -15,6 +15,7 @@ import Image from 'next/image'
 import { C, SECTION_COLOURS } from '@/components/annual-report/2024-25/almanac/tokens'
 import { createServerSupabase } from '@/lib/supabase/client'
 import { getPhotosForSlot } from '@/lib/media/el-photos'
+import { BespokeIcon, type BespokeIconName } from '@/components/ui/BespokeIcon'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 3600
@@ -107,7 +108,7 @@ const ANTI_PATTERNS = [
   'Cookie-cutter layouts that look like another startup',
 ]
 
-const SERVICE_ICONS = [
+const SERVICE_ICONS: BespokeIconName[] = [
   'aged-care',
   'children',
   'community',
@@ -464,13 +465,7 @@ export default async function DesignSystemPage() {
                 className="aspect-square rounded-md border p-3 flex flex-col items-center justify-center bg-white"
                 style={{ borderColor: C.border }}
               >
-                <Image
-                  src={`/icons/bespoke/${slug}.png`}
-                  alt={slug}
-                  width={64}
-                  height={64}
-                  style={{ objectFit: 'contain' }}
-                />
+                <BespokeIcon name={slug} size={64} />
                 <div className="mt-2 text-[10px] uppercase font-bold tracking-wider text-center" style={{ color: C.driftwood }}>
                   {slug.replace(/-/g, ' ')}
                 </div>
@@ -478,7 +473,7 @@ export default async function DesignSystemPage() {
             ))}
           </div>
           <p className="mt-6 text-xs" style={{ color: C.driftwood }}>
-            Full set lives at <code>web-platform/public/icons/bespoke/</code> · white variants at <code>bespoke-white/</code>
+            Served from Supabase Storage <code>platform-icons</code> bucket via <code>assetUrl()</code>. Full set: 44 service icons + white variants.
           </p>
         </div>
       </section>
