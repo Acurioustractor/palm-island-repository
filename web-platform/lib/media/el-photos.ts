@@ -64,6 +64,54 @@ export async function getPhotosBySlot(): Promise<Record<string, ELPhoto[]>> {
   return r?.bySlot ?? {};
 }
 
+/**
+ * Try a list of slot names in order and return the first one that has
+ * photos. Use when a page wants resilient fallback — e.g. "if voices-wall
+ * is empty try gallery, then elders-on-country, then any consented photo".
+ *
+ * Returns up to `limit` photos from the FIRST matching slot. Doesn't merge
+ * across slots — that's intentional, so the visual identity of each slot
+ * stays coherent.
+ */
+export async function getPhotosForSlots(slots: string[], limit = 20): Promise<ELPhoto[]> {
+  for (const slot of slots) {
+    const photos = await getPhotosForSlot(slot, limit);
+    if (photos.length > 0) return photos;
+  }
+  return [];
+}
+
+/**
+ * Singular variant — returns the first photo from the first slot in the
+ * priority list that has any.
+ */
+export async function getPhotoForSlots(slots: string[]): Promise<ELPhoto | null> {
+  const photos = await getPhotosForSlots(slots, 1);
+  return photos[0] ?? null;
+}
+
+/**
+ * Ultimate fallback — return the most-recent N photos from EL v2
+ * regardless of slot. Use when even the slot fallback chain is empty
+ * and the page must still render *something* visually consistent.
+ *
+ * Pulls everything (limit=200), flattens the bySlot map, takes the
+ * first `limit` photos. Order favours whichever slot the API returned
+ * first — typically the largest. All photos are still consent-cleared
+ * server-side; nothing here bypasses EL v2's review.
+ */
+export async function getAnyConsentedPhotos(limit = 12): Promise<ELPhoto[]> {
+  const bySlot = await getPhotosBySlot();
+  const flat: ELPhoto[] = [];
+  for (const arr of Object.values(bySlot)) {
+    for (const p of arr) {
+      flat.push(p);
+      if (flat.length >= limit) return flat;
+    }
+  }
+  return flat;
+}
+
 // ─────────────────────────────────────────────────────────────────────
 // Service photos — convention: tag with `picc:slot:service-<slug>` in
 // EL v2 admin (/admin/photos), then PICC fetches per service. First
