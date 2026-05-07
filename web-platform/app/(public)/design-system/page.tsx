@@ -145,33 +145,37 @@ const ANTI_PATTERNS = [
 export default async function DesignSystemPage() {
   const supabase = createServerSupabase()
 
-  const [{ data: quoteData }, heroPhoto, galleryPhotos, ancestorPhoto] = await Promise.all([
+  const [{ data: quoteData }, midPhoto, galleryPhotos, closerPhoto] = await Promise.all([
     supabase
       .from('extracted_quotes')
       .select('id, quote_text, attribution, theme')
       .or('is_validated.eq.true,suggested_for_report.eq.true')
       .order('impact_score', { ascending: false, nullsFirst: false })
       .limit(3),
-    // Cinematic hero — try cover, then big slots
-    getPhotoForSlots(['cover', 'gallery', 'voices-wall', 'elders-on-country']),
-    // Photo gallery section — pull a wide set
+    // §05 mid-page parallax photo — one strong storytelling shot
+    getPhotoForSlots(['voices-wall', 'gallery', 'elders-on-country']),
+    // §05 photo gallery — full set
     getPhotosForSlots(['voices-wall', 'gallery', 'elders-on-country'], 8),
-    // Smaller ancestor photo for the closer
-    getPhotoForSlots(['elders-on-country', 'voices-wall', 'cover']),
+    // §08 closer parallax — different shot from the mid-page one
+    getPhotoForSlots(['elders-on-country', 'gallery', 'voices-wall']),
   ])
 
   const galleryFinal =
     galleryPhotos.length > 0 ? galleryPhotos : await getAnyConsentedPhotos(8)
   const quotes = (quoteData || []) as QuoteRow[]
 
+  // Hero video — always a video overlay, never an EL photo. The cover slot
+  // returns a satellite weather image which is wrong for the hero. Use the
+  // most storytelling-rich clip we have.
+  const heroVideoUrl = assetUrl('/hero-assets/clips/elders-on-country.mp4')
+
   return (
     <StoryContainer>
-      {/* §00 — Cinematic hero */}
+      {/* §00 — Cinematic hero. Video always wins — no static image here. */}
       <HeroSection
         title="PICC has its own voice."
         subtitle="This is how it sounds, looks, and moves."
-        backgroundImage={heroPhoto?.url || undefined}
-        backgroundVideo={!heroPhoto?.url ? assetUrl('/hero-assets/clips/palm-island-sunset.mp4') : undefined}
+        backgroundVideo={heroVideoUrl}
         height="screen"
         overlay="gradient"
         textPosition="center"
@@ -413,11 +417,11 @@ export default async function DesignSystemPage() {
       </section>
 
       {/* §05 — The people. Photos, full bleed, named. */}
-      {heroPhoto?.url && (
+      {midPhoto?.url && (
         <FullBleedImage
-          imageUrl={heroPhoto.url}
-          alt={heroPhoto.alt_text || 'Palm Island'}
-          caption={heroPhoto.caption || heroPhoto.alt_text || undefined}
+          imageUrl={midPhoto.url}
+          alt={midPhoto.alt_text || 'Palm Island'}
+          caption={midPhoto.caption || midPhoto.alt_text || undefined}
           height="tall"
           parallax
         />
@@ -545,11 +549,11 @@ export default async function DesignSystemPage() {
         </div>
       </section>
 
-      {/* §08 — The closer. Sunset + 20-year line + sign-the-vision. */}
-      {ancestorPhoto?.url && (
+      {/* §08 — The closer. Full-bleed photo + 20-year line + sign-the-vision. */}
+      {closerPhoto?.url && (
         <FullBleedImage
-          imageUrl={ancestorPhoto.url}
-          alt={ancestorPhoto.alt_text || 'Palm Island'}
+          imageUrl={closerPhoto.url}
+          alt={closerPhoto.alt_text || 'Palm Island'}
           height="medium"
           parallax
         />
