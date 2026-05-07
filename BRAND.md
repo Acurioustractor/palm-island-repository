@@ -208,7 +208,21 @@ Heavy assets live in **Supabase Storage**, not in `public/`. The resolver is [`w
 | `platform-media` | `picc-photos/`, `hero-assets/`, `video/`, `annual-report-photos/`, `archive-photos/`, `report-assets/` | Photos, video |
 | `platform-icons` | `icons/bespoke`, `icons/picc` | Bespoke icon sets |
 
-**Photo source-of-truth: Empathy Ledger v2.** Pull live via [`lib/media/el-photos.ts`](web-platform/lib/media/el-photos.ts) — slot-tagged, consent-cleared, returns `ELPhoto[]`. Use `getCanonicalPhotosForService(slug)` for service galleries; `getPhotosForSlot(slug)` for everything else.
+**Photo source-of-truth: Empathy Ledger v2.** Pull live via [`lib/media/el-photos.ts`](web-platform/lib/media/el-photos.ts) — slot-tagged, consent-cleared, returns `ELPhoto[]`.
+
+**Use the right helper for the job:**
+
+| Need | Helper | Behaviour on empty |
+|---|---|---|
+| All photos for one specific service | `getCanonicalPhotosForService(slug)` | Falls back to slot-tag mechanism |
+| Photos in one specific slot | `getPhotosForSlot(slot, limit)` | Returns `[]` |
+| Photos across a priority list of slots | `getPhotosForSlots([s1, s2, s3], limit)` | Returns first non-empty slot's photos |
+| Hero / single photo with fallback | `getPhotoForSlots([s1, s2, s3])` | Returns first available |
+| Anything consented (last-resort showcase) | `getAnyConsentedPhotos(limit)` | Pulls from any non-empty slot |
+
+**Verify the slot exists before using it.** Run `npm run check-el` — it prints the live slot inventory with counts. Common slots that actually exist (as of FY24-25): `voices-wall` · `gallery` · `elders-on-country` · `feature-bwgcolman-healing` · `feature-beai` · `feature-first-1000-days` · `bwgcolman-way` · `cover` · `services` · `governance` · `journey` · `youthVoices` · `communityVoices`. Slot names are exact-match — `community-voice` is **not** the same as `communityVoices`.
+
+**Pages that show photos must never show an empty state.** Always end the fallback chain with `getAnyConsentedPhotos()` for showcases, or with a graceful tonal placeholder for service-specific pages where forcing unrelated photos would be misleading.
 
 **Photo rules**
 - Never commit binary assets to git. Upload → reference via `assetUrl()`.

@@ -98,6 +98,30 @@ if (EL_V2_URL && EL_V2_KEY) {
   for (const [label, p] of reads) {
     if (!(await check(label, `${EL_V2_URL}${p}`, { 'x-picc-api-key': EL_V2_KEY }))) failures++;
   }
+
+  // Slot inventory — surface what slot names actually exist + their counts
+  // so any code referencing a slot can be sanity-checked here.
+  try {
+    const res = await fetch(`${EL_V2_URL}/api/photos?limit=500`, {
+      headers: { 'x-picc-api-key': EL_V2_KEY },
+      cache: 'no-store',
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const slots = data?.bySlot ?? {};
+      const counts = Object.entries(slots).map(([k, v]) => [k, Array.isArray(v) ? v.length : 0]);
+      counts.sort((a, b) => b[1] - a[1]);
+      console.log(`  ${c.dim}slot inventory:${c.reset}`);
+      for (const [slot, n] of counts.slice(0, 12)) {
+        console.log(`    ${c.dim}${String(n).padStart(3)} ${c.reset}${slot}`);
+      }
+      if (counts.length > 12) {
+        console.log(`    ${c.dim}+ ${counts.length - 12} more slots${c.reset}`);
+      }
+    }
+  } catch {
+    /* slot inventory is decorative; failure here doesn't gate */
+  }
 } else {
   console.log(warn('skipped — set EL_V2_API_URL and EL_V2_API_KEY in .env.local'));
 }

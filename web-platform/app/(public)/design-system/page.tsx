@@ -14,7 +14,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { C, SECTION_COLOURS } from '@/components/annual-report/2024-25/almanac/tokens'
 import { createServerSupabase } from '@/lib/supabase/client'
-import { getPhotosForSlot } from '@/lib/media/el-photos'
+import { getPhotosForSlots, getPhotoForSlots, getAnyConsentedPhotos } from '@/lib/media/el-photos'
 import { BespokeIcon, type BespokeIconName } from '@/components/ui/BespokeIcon'
 
 export const dynamic = 'force-dynamic'
@@ -122,20 +122,25 @@ const SERVICE_ICONS: BespokeIconName[] = [
 export default async function DesignSystemPage() {
   const supabase = createServerSupabase()
 
-  const [{ data: quoteData }, heroPhotos, voicePhotos] = await Promise.all([
+  const [{ data: quoteData }, heroPhoto, voicePhotosPrimary] = await Promise.all([
     supabase
       .from('extracted_quotes')
       .select('id, quote_text, attribution, theme')
       .or('is_validated.eq.true,suggested_for_report.eq.true')
       .order('impact_score', { ascending: false, nullsFirst: false })
       .limit(3),
-    getPhotosForSlot('hero-island', 1),
-    getPhotosForSlot('community-voice', 6),
+    // Hero — try cover first (the canonical hero), then any large slot
+    getPhotoForSlots(['cover', 'gallery', 'voices-wall', 'elders-on-country']),
+    // Photo strip — try voices-wall (25), then gallery (15), then elders, then any
+    getPhotosForSlots(['voices-wall', 'gallery', 'elders-on-country'], 6),
   ])
 
+  // If even the slot fallback chain is empty, pull any consented photos so
+  // the page never shows an empty state. EL v2 already filtered for consent;
+  // there is no path that surfaces an unreviewed photo here.
+  const photoStrip =
+    voicePhotosPrimary.length > 0 ? voicePhotosPrimary : await getAnyConsentedPhotos(6)
   const quotes = (quoteData || []) as QuoteRow[]
-  const heroPhoto = heroPhotos[0] ?? null
-  const photoStrip = voicePhotos.slice(0, 6)
 
   return (
     <main className="min-h-screen" style={{ backgroundColor: '#FBF8EE' }}>
@@ -494,48 +499,42 @@ export default async function DesignSystemPage() {
             Real people. Real island. Consent at the source.
           </h2>
           <p className="mb-10 font-fraunces" style={{ color: C.driftwood, fontSize: 18 }}>
-            All photos are pulled live from Empathy Ledger v2 via{' '}
-            <code className="text-base">lib/media/el-photos.ts</code>. Slot-tagged, consent-cleared, named where named.
+            Live from Empathy Ledger v2 via{' '}
+            <code className="text-base">lib/media/el-photos.ts</code>. Slot-tagged, consent-cleared, named where named. The page tries{' '}
+            <code className="text-sm">voices-wall</code> →{' '}
+            <code className="text-sm">gallery</code> →{' '}
+            <code className="text-sm">elders-on-country</code> in order; if every slot is empty it still surfaces consented photos so the showcase never shows a blank.
           </p>
-          {photoStrip.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {photoStrip.map((p) => (
-                <div
-                  key={p.id}
-                  className="aspect-[4/5] rounded-md overflow-hidden border relative"
-                  style={{ borderColor: C.border }}
-                >
-                  {p.url && (
-                    <Image
-                      src={p.url}
-                      alt={p.alt_text || 'PICC community photograph'}
-                      fill
-                      sizes="(min-width: 768px) 33vw, 50vw"
-                      style={{ objectFit: 'cover' }}
-                    />
-                  )}
-                  {p.caption && (
-                    <div
-                      className="absolute bottom-0 left-0 right-0 p-3 text-[11px]"
-                      style={{
-                        background: 'linear-gradient(to top, rgba(0,0,0,0.85), transparent)',
-                        color: '#fff',
-                      }}
-                    >
-                      {p.caption}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div
-              className="p-6 rounded-md border text-sm"
-              style={{ borderColor: C.border, color: C.driftwood, backgroundColor: '#fff' }}
-            >
-              EL v2 returned no photos for the <code>community-voice</code> slot. Tag photos in EL v2 admin to surface them here.
-            </div>
-          )}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {photoStrip.map((p) => (
+              <div
+                key={p.id}
+                className="aspect-[4/5] rounded-md overflow-hidden border relative"
+                style={{ borderColor: C.border }}
+              >
+                {p.url && (
+                  <Image
+                    src={p.url}
+                    alt={p.alt_text || 'PICC community photograph'}
+                    fill
+                    sizes="(min-width: 768px) 33vw, 50vw"
+                    style={{ objectFit: 'cover' }}
+                  />
+                )}
+                {(p.caption || p.alt_text) && (
+                  <div
+                    className="absolute bottom-0 left-0 right-0 p-3 text-[11px]"
+                    style={{
+                      background: 'linear-gradient(to top, rgba(0,0,0,0.85), transparent)',
+                      color: '#fff',
+                    }}
+                  >
+                    {p.caption || p.alt_text}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
