@@ -31,7 +31,15 @@ next-env.d.ts
 /public/service-icons/
 /public/icons/bespoke/
 /public/icons/bespoke-white/
+/public/icons/picc/
+/public/icons/picc-flat/
 /public/cyclone-kirrily-temp/
+
+# Annual report PDF specimens — render artefacts, upload to Storage if archiving
+/annual-reports/**/specimens/*.pdf
+
+# One-off strategy/exploration HTMLs at web-platform root
+/picc-strategy-*.html
 
 # Debug
 npm-debug.log*
@@ -112,5 +120,6 @@ raw-intake/processed/
 /*.mp4
 /*.mov
 
-# Claude agent cache
+# Claude agent cache + skills (machine-generated, per-session)
 .claude/cache/
+.claude/skills/
