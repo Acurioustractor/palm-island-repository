@@ -112,11 +112,11 @@ const SERVICE_ICONS: BespokeIconName[] = [
   'aged-care',
   'children',
   'community',
-  'culture',
   'disability',
   'economic',
   'education',
   'family',
+  'health',
 ]
 
 export default async function DesignSystemPage() {
@@ -345,7 +345,7 @@ export default async function DesignSystemPage() {
                           className="text-xs font-mono mb-2"
                           style={{ color: C.driftwood }}
                         >
-                          {C[s.token]} · <code>{s.token}</code>
+                          {C[s.token]}
                         </div>
                         <div className="text-xs" style={{ color: C.driftwood, lineHeight: 1.5 }}>
                           {s.role}
@@ -478,7 +478,7 @@ export default async function DesignSystemPage() {
             ))}
           </div>
           <p className="mt-6 text-xs" style={{ color: C.driftwood }}>
-            Served from Supabase Storage <code>platform-icons</code> bucket via <code>assetUrl()</code>. Full set: 44 service icons + white variants.
+            44 service icons in the full set, plus white variants for dark backgrounds.
           </p>
         </div>
       </section>
@@ -499,11 +499,7 @@ export default async function DesignSystemPage() {
             Real people. Real island. Consent at the source.
           </h2>
           <p className="mb-10 font-fraunces" style={{ color: C.driftwood, fontSize: 18 }}>
-            Live from Empathy Ledger v2 via{' '}
-            <code className="text-base">lib/media/el-photos.ts</code>. Slot-tagged, consent-cleared, named where named. The page tries{' '}
-            <code className="text-sm">voices-wall</code> →{' '}
-            <code className="text-sm">gallery</code> →{' '}
-            <code className="text-sm">elders-on-country</code> in order; if every slot is empty it still surfaces consented photos so the showcase never shows a blank.
+            Live from the community-controlled archive. Every photo is consent-cleared at the source, named where named, reviewed before it surfaces.
           </p>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {photoStrip.map((p) => (
@@ -552,7 +548,7 @@ export default async function DesignSystemPage() {
               className="font-fraunces font-bold mb-10"
               style={{ color: C.ocean, fontSize: 'clamp(28px, 4vw, 40px)' }}
             >
-              Quotes pulled live from <code className="text-base">extracted_quotes</code>, validated for public lift.
+              Validated, attributed, ready for public lift.
             </h2>
             <div className="space-y-8">
               {quotes.map((q) => (
