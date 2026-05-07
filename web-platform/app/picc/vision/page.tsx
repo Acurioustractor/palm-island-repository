@@ -19,12 +19,14 @@ interface Goal {
 
 interface CommunityVision {
   id: string
-  content: string
+  vision_text: string
+  category: string
   author_name: string | null
-  status: string
+  is_anonymous: boolean
+  source: string | null
+  is_approved: boolean
+  approved_at: string | null
   created_at: string
-  reviewed_at: string | null
-  admin_notes: string | null
 }
 
 export default function VisionBoardPage() {
@@ -135,10 +137,14 @@ export default function VisionBoardPage() {
             <div className="space-y-3">
               {visions.map(vision => (
                 <div key={vision.id} className="bg-white rounded-lg border border-gray-200 p-4">
-                  <p className="text-gray-800 mb-2">&ldquo;{vision.content}&rdquo;</p>
+                  <p className="text-gray-800 mb-2">&ldquo;{vision.vision_text}&rdquo;</p>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-500">
-                      {vision.author_name || 'Anonymous'} &middot; {new Date(vision.created_at).toLocaleDateString('en-AU')}
+                      {vision.is_anonymous || !vision.author_name ? 'Anonymous' : vision.author_name}
+                      {' '}&middot;{' '}
+                      <span className="capitalize">{vision.category}</span>
+                      {' '}&middot;{' '}
+                      {new Date(vision.created_at).toLocaleDateString('en-AU')}
                     </span>
                     <div className="flex gap-2">
                       <button

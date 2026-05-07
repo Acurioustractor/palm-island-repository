@@ -18,19 +18,38 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const body = await request.json()
     const supabase = getServerClient()
 
-    const allowedFields = ['status', 'admin_notes', 'is_public']
     const updates: Record<string, any> = {}
-    for (const key of allowedFields) {
-      if (key in body) updates[key] = body[key]
+
+    // Approval flow — accept either { is_approved: bool } directly or
+    // a friendlier { status: 'approved' | 'rejected' | 'pending' } shape.
+    if (typeof body?.is_approved === 'boolean') {
+      updates.is_approved = body.is_approved
+    } else if (typeof body?.status === 'string') {
+      const s = body.status.toLowerCase()
+      if (s === 'approved') updates.is_approved = true
+      else if (s === 'rejected' || s === 'pending') updates.is_approved = false
+    }
+
+    // Stamp approval metadata when transitioning to approved.
+    if (updates.is_approved === true) {
+      updates.approved_at = new Date().toISOString()
+      if (typeof body?.approved_by === 'string') updates.approved_by = body.approved_by
+    } else if (updates.is_approved === false) {
+      updates.approved_at = null
+      updates.approved_by = null
+    }
+
+    if (Array.isArray(body?.related_themes)) {
+      updates.related_themes = body.related_themes
+        .filter((t: unknown) => typeof t === 'string')
+        .slice(0, 8)
+    }
+    if (typeof body?.category === 'string') {
+      updates.category = body.category.trim().toLowerCase()
     }
 
     if (Object.keys(updates).length === 0) {
       return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 })
-    }
-
-    // Add reviewed timestamp when approving/rejecting
-    if (updates.status === 'approved' || updates.status === 'rejected') {
-      updates.reviewed_at = new Date().toISOString()
     }
 
     const { data, error } = await supabase
