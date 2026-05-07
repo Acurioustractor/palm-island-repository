@@ -1,68 +1,88 @@
+---
+description: Load PICC brand DNA before any UI, design, copy, or content work. Saltwater & Earth v2.0 — community-controlled, not community-engaged.
+---
+
 # Brand Skill
 
-Load PICC brand constraints before any UI or design work.
+PICC's brand is **Saltwater & Earth v2.0**. Read BRAND.md, then apply.
 
-## When to Use
+## When to use
 
 - Before creating or modifying any UI component
-- When designing new pages or layouts
-- When working on annual report templates (web or PDF)
-- When choosing colors, typography, or spacing
+- Before writing copy that names a service, person, or number
+- Before designing new pages, layouts, or PDF templates
+- Before choosing colours, typography, spacing, or motion
+- When briefing an agent or building a new surface
 
-## Before Writing Any Code
+## Step 1 — Load the recipe
 
-1. Read `web-platform/PICC-BRAND-STYLE-GUIDE.md` for full reference
-2. Apply the constraints below
+Read [BRAND.md](BRAND.md) at the repo root. It is the single canonical reference. ~250 structured lines synthesising:
 
-## Color System
+- Identity, in one breath (the three anchor quotes)
+- The 5 personality traits (warm · grounded · bold · innovative · respectful)
+- Three voice registers (Rachel · Luella · Service)
+- Anti-patterns (the never-do list)
+- Saltwater & Earth palette (ocean · ochre · earth + supporting + cultural)
+- Typography (Fraunces displays · Inter speaks)
+- Section colour map
+- Logo · icons · photo system
+- The 14-point surface checklist
+- The 20-year story (why all of this exists)
 
-### Primary Palette
-- **PICC Blue**: `blue-600` (#2563eb) for primary actions, `blue-900` (#1e3a8a) for headlines
-- **PICC Purple**: `purple-600` (#9333ea) for gradients and highlights
-- **Primary gradient**: `from-blue-600 to-purple-600` for hero sections and CTAs
+For full system depth: [web-platform/PICC-BRAND-STYLE-GUIDE.md](web-platform/PICC-BRAND-STYLE-GUIDE.md).
+For voice / philosophy depth: [SOUL.md](SOUL.md).
 
-### Secondary Palette
-- **Success Green**: `green-600` (#16a34a) for health/services
-- **Warm Orange**: `orange-600` (#ea580c) for community/energy
-- **Impact Amber**: `amber-600` (#d97706) for heritage/history
+## Step 2 — Apply, don't reinvent
 
-### Neutrals
-- Body text: `gray-700` (#374151)
-- Headlines: `gray-900` (#111827)
-- Backgrounds: `white`, `gray-50`, `gray-100`
-- Borders: `gray-200` (#e5e7eb)
+**Token sources** (server-safe, importable):
+- `web-platform/components/annual-report/2024-25/almanac/tokens.ts` — `C` palette + `SECTION_COLOURS`
+- `web-platform/lib/pdf/theme.ts` — PDF mirror of the same palette
+- `web-platform/lib/design/tokens.ts` — full UI scale
 
-## Rules
+Never write hex literals outside these files.
 
-- NEVER introduce new colors without asking
-- NEVER use raw hex values — use Tailwind classes
-- ALWAYS maintain WCAG 2.1 AA contrast ratios (4.5:1 for text, 3:1 for large text)
-- Use the primary gradient sparingly — hero sections and primary CTAs only
-- Body text is always `gray-700`, never lighter
-- Black (#000000) is reserved for critical emphasis only
+**Photo source-of-truth:** Empathy Ledger v2 via `web-platform/lib/media/el-photos.ts`. Use `getPhotosForSlot()`, `getPhotosForService()`, `getCanonicalPhotosForService()`. Never hardcode bucket URLs — use `assetUrl()` from `web-platform/lib/media/asset-url.ts`.
 
-## Typography
+**Icons:** PICC services use `web-platform/public/icons/bespoke/`. Lucide is for UI utility only (search, close, chevron) — never for service identity.
 
-- Headlines: `font-bold` with appropriate size scale
-- Body: Base size, `leading-relaxed` for readability
-- Generous whitespace — breathing room creates focus
-- Mobile-first responsive design
+**Typography:** Fraunces for display, Inter for body. Captions are uppercase 11px Inter 700 letter-spaced 0.3em — that cadence is the brand.
 
-## Component Patterns
+## Critical anti-patterns (never do)
 
-Before creating new components, check existing ones in:
-- `components/story-scroll/` - Scroll-based storytelling
-- `components/annual-reports/` - Report-specific layouts
-- `components/report/` - Interactive report elements
-- `components/navigation/` - Nav patterns
+- **Never use purple gradients.** Generic SaaS tell. Banned.
+- **Never use cold blue-grey neutrals.** PICC neutrals are warm-toned.
+- **"We helped / provided / delivered."** PICC is the community delivering to itself. Reframe.
+- **Generic service descriptions** that fit any ATSICCO. They must fit *this* one.
+- **Cultural language used decoratively.** *Bwgcolman* is not a brand element.
+- **Photos that treat Elders as decoration.** Cultural authority is governance, not garnish.
+- **Numbers without provenance.** Every figure traces to a verified source.
+- **Cookie-cutter SaaS chrome.** Every PICC surface should *feel like Palm Island*.
 
-Reuse existing patterns. Don't reinvent.
+## Voice authenticity test
 
-## PDF-Specific Branding
+Before submitting copy that names a service or person, ask:
+> Would the lead person on this service read this aloud and recognise it?
 
-For WeasyPrint PDF templates:
-- Use CSS variables from `annual-reports/templates/styles/picc-brand.css`
-- A4 portrait, 15mm margins (12mm sides)
-- Full-bleed cover page (margin: 0 on first page)
-- Print-safe colors — no transparency
-- Optimized for 300dpi print
+If no, rewrite.
+
+## Public showcase
+
+The `/design-system` page demonstrates the system live with real data — open it when onboarding designers or sanity-checking that a new surface is on-brand.
+
+## Component patterns to reuse, not reinvent
+
+- `components/annual-report/2024-25/almanac/` — Saltwater Almanac grammar
+- `components/story-scroll/` — scroll-based storytelling
+- `components/annual-reports/` — report-specific layouts
+- `components/report/` — interactive report elements
+- `components/navigation/` — nav patterns
+
+## PDF-specific branding
+
+For React-PDF templates: use the palette from `web-platform/lib/pdf/theme.ts`. A4 portrait, 15mm margins (12mm sides). Full-bleed cover page. Print-safe colours, no transparency. Optimised for 300dpi print.
+
+## Why this skill exists
+
+The brand is in service of one story: the next 20 years are a design choice, not a forecast. Every surface braids three threads — twenty years of community control · Bwgcolman Way as proof · next 20 as canvas — and four voices (organisation · CEO · service · community-Elders).
+
+When in doubt: *does it sound like a Palm Islander reading it aloud, with photos that name the people, with numbers an Elder would sign off on?* That is the bar.

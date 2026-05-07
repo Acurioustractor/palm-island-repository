@@ -17,6 +17,7 @@
     "prebuild": "npm run tokens:build",
     "scaffold:component": "npx tsx scripts/scaffold-component.ts",
     "check-env": "node scripts/check-env.js",
+    "check-el": "node scripts/check-empathy-ledger.mjs",
     "review-db": "node scripts/review-database.js",
     "predev": "rm -rf .next && npm run check-env",
     "db:generate": "drizzle-kit generate:pg",

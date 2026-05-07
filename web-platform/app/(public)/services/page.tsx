@@ -9,6 +9,8 @@ import nextDynamic from 'next/dynamic';
 import AdminServiceCard from '@/components/admin/AdminServiceCard';
 import { assetUrl } from '@/lib/media/asset-url';
 import { getELQuotes, getELStats } from '@/lib/empathy-ledger/el-server';
+import { InnovationBadge } from '@/components/services/InnovationBadge';
+import { INNOVATION_SLUGS, isInnovation } from '@/lib/services/innovation-tier';
 
 const InteractiveServiceMap = nextDynamic(
   () => import('@/components/report/InteractiveServiceMap'),
@@ -250,6 +252,37 @@ export default async function ServicesIndexPage() {
       {/* Services Grid */}
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-6">
+          {(() => {
+            const innovationCount = allServices.filter((s: any) => isInnovation(s.slug)).length
+            if (innovationCount === 0) return null
+            return (
+              <Link
+                href="/innovation"
+                className="block mb-10 rounded-2xl border-2 p-6 md:p-8 transition hover:shadow-md"
+                style={{ borderColor: '#F5A623', backgroundColor: '#FFFBEB' }}
+              >
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div>
+                    <div className="text-[11px] font-bold uppercase tracking-[0.3em] mb-2" style={{ color: '#8B1A1A' }}>
+                      Next 20 years · Innovation programmes
+                    </div>
+                    <h3 className="text-2xl md:text-3xl font-bold mb-1" style={{ color: '#0B4F6C' }}>
+                      {innovationCount} programmes driving the next 20 years.
+                    </h3>
+                    <p className="text-sm md:text-base" style={{ color: '#6B6560' }}>
+                      Highlighted on the map and grid below. Click through to see the story behind each.
+                    </p>
+                  </div>
+                  <div
+                    className="text-sm font-bold uppercase tracking-widest whitespace-nowrap"
+                    style={{ color: '#0B4F6C' }}
+                  >
+                    Innovation map →
+                  </div>
+                </div>
+              </Link>
+            )
+          })()}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {allServices.map((service: any) => (
               <AdminServiceCard key={service.id} serviceSlug={service.slug}>
@@ -269,6 +302,7 @@ export default async function ServicesIndexPage() {
                           sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                        <InnovationBadge slug={service.slug} />
                         {/* Photo/video badges on cover */}
                         <div className="absolute bottom-3 right-3 flex gap-2">
                           {service.photo_count > 0 && (
@@ -286,6 +320,7 @@ export default async function ServicesIndexPage() {
                       </div>
                     ) : (
                       <div className="aspect-[16/9] relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center">
+                        <InnovationBadge slug={service.slug} />
                         <div
                           className="w-16 h-16 rounded-2xl flex items-center justify-center"
                           style={{ backgroundColor: service.service_color || '#C8922A' }}

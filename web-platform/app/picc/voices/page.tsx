@@ -27,6 +27,7 @@ import {
   CheckCircle2,
   ArrowRight,
 } from 'lucide-react'
+import { TwentyVoicesTracker } from '@/components/voices/TwentyVoicesTracker'
 
 export const metadata = {
   title: 'Voices — PICC Admin',
@@ -151,6 +152,11 @@ export default async function VoicesPage() {
             inventory that feeds the 20-voices-for-20-years capture sprint and the Narelle
             voice priority list.
           </p>
+        </div>
+
+        {/* ── 20 VOICES SPRINT TRACKER ── */}
+        <div className="mb-10">
+          <TwentyVoicesTracker ctaHref="/picc/voices/capture" ctaLabel="Capture queue" />
         </div>
 
         {/* ── HEADLINE COUNTS ── */}

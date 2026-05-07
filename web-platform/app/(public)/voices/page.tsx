@@ -11,6 +11,7 @@ import VoiceWall from '@/components/community/VoiceWall'
 import StorytellerSearchStrip from '@/components/community/StorytellerSearchStrip'
 import { BespokeIcon } from '@/components/ui/BespokeIcon'
 import { getPalmStorytellers } from '@/lib/empathy-ledger/el-server'
+import { TwentyVoicesTracker } from '@/components/voices/TwentyVoicesTracker'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 3600
@@ -73,6 +74,11 @@ export default async function VoicesPage() {
             </Link>
           </div>
         </div>
+      </div>
+
+      {/* 20 Voices for 20 Years — sprint progress */}
+      <div className="max-w-6xl mx-auto px-6 sm:px-8 -mt-8 relative z-10">
+        <TwentyVoicesTracker />
       </div>
 
       {/* Storyteller index with search — links into per-person profiles.
