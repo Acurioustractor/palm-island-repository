@@ -31,6 +31,8 @@ export async function GET(request: NextRequest) {
     const category = sp.get('category')
     const limit = Math.min(Math.max(Number(sp.get('limit') ?? 100), 1), 500)
 
+    const session = sp.get('session') // exact match on session_id
+
     let query = supabase
       .from('community_visions')
       .select('*')
@@ -43,6 +45,8 @@ export async function GET(request: NextRequest) {
     if (category && (ALLOWED_CATEGORIES as readonly string[]).includes(category)) {
       query = query.eq('category', category)
     }
+
+    if (session) query = query.eq('session_id', session)
 
     const { data, error } = await query
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })

@@ -14,6 +14,9 @@ interface ApprovedVision {
 interface Props {
   approved: ApprovedVision[]
   usingFallback: boolean
+  /** Session tag — submissions from this canvas inherit it so admin
+   *  can filter "this meeting only" on /picc/vision. */
+  session?: string
 }
 
 const CATEGORIES: Array<{ key: string; label: string; help: string }> = [
@@ -39,7 +42,7 @@ function categoryColour(category: string): string {
   return SECTION_COLOURS[map[category] ?? 'all']
 }
 
-export default function SignTheVisionClient({ approved, usingFallback }: Props) {
+export default function SignTheVisionClient({ approved, usingFallback, session }: Props) {
   const [text, setText] = useState('')
   const [name, setName] = useState('')
   const [anonymous, setAnonymous] = useState(false)
@@ -76,6 +79,7 @@ export default function SignTheVisionClient({ approved, usingFallback }: Props) 
         author_name: anonymous ? null : name.trim() || null,
         source: 'signing-canvas',
       }
+      if (session) payload.session_id = session
       if (endorseId && !endorseId.startsWith('fallback-')) {
         payload.related_themes = [`endorses:${endorseId}`]
       }
@@ -171,6 +175,14 @@ export default function SignTheVisionClient({ approved, usingFallback }: Props) 
 
       <section id="sign-form" className="px-6 md:px-12 py-12" style={{ backgroundColor: C.shell }}>
         <div className="max-w-3xl mx-auto">
+          {session && (
+            <div
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.3em] mb-4"
+              style={{ backgroundColor: '#fff', color: C.driftwood, border: `1px solid ${C.border}` }}
+            >
+              Session · <span className="font-mono normal-case tracking-tight" style={{ color: C.ocean }}>{session}</span>
+            </div>
+          )}
           <h2
             className="font-fraunces font-bold mb-2"
             style={{ color: C.ocean, fontSize: 32 }}

@@ -24,6 +24,7 @@ interface CommunityVision {
   author_name: string | null
   is_anonymous: boolean
   source: string | null
+  session_id: string | null
   is_approved: boolean
   approved_at: string | null
   created_at: string
@@ -35,13 +36,18 @@ export default function VisionBoardPage() {
   const [loading, setLoading] = useState(true)
   const [editingGoal, setEditingGoal] = useState<string | null>(null)
   const [editValues, setEditValues] = useState<Partial<Goal>>({})
+  const [sessionFilter, setSessionFilter] = useState<string>('all')
 
   const fetchData = useCallback(async () => {
     setLoading(true)
     try {
+      const visionsUrl =
+        sessionFilter === 'all'
+          ? '/api/community-visions?status=pending'
+          : `/api/community-visions?status=pending&session=${encodeURIComponent(sessionFilter)}`
       const [goalsRes, visionsRes] = await Promise.all([
         fetch('/api/goals'),
-        fetch('/api/community-visions?status=pending'),
+        fetch(visionsUrl),
       ])
       if (goalsRes.ok) setGoals(await goalsRes.json())
 
@@ -55,9 +61,15 @@ export default function VisionBoardPage() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [sessionFilter])
 
   useEffect(() => { fetchData() }, [fetchData])
+
+  // Distinct sessions surfaced from current visions list (so filter chips
+  // populate without a separate API call). "all" is always available.
+  const sessions = Array.from(
+    new Set(visions.map((v) => v.session_id).filter((s): s is string => !!s))
+  ).sort().reverse()
 
   const startEditing = (goal: Goal) => {
     setEditingGoal(goal.id)
@@ -120,14 +132,46 @@ export default function VisionBoardPage() {
 
         {/* Section 1: Community Visions */}
         <section className="mb-10">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            Community Visions
-            {visions.length > 0 && (
-              <span className="ml-2 text-sm bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
-                {visions.length} pending
-              </span>
+          <div className="flex items-center justify-between mb-4 gap-4 flex-wrap">
+            <h2 className="text-xl font-semibold text-gray-900">
+              Community Visions
+              {visions.length > 0 && (
+                <span className="ml-2 text-sm bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+                  {visions.length} pending
+                </span>
+              )}
+            </h2>
+            {(sessions.length > 0 || sessionFilter !== 'all') && (
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                <span className="font-bold uppercase tracking-widest text-gray-400">Session</span>
+                <button
+                  type="button"
+                  onClick={() => setSessionFilter('all')}
+                  className={`px-2.5 py-1 rounded-full border transition ${
+                    sessionFilter === 'all'
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  All
+                </button>
+                {sessions.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setSessionFilter(s)}
+                    className={`px-2.5 py-1 rounded-full border font-mono transition ${
+                      sessionFilter === s
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
             )}
-          </h2>
+          </div>
 
           {visions.length === 0 ? (
             <div className="bg-white rounded-lg border border-gray-200 p-6 text-center text-gray-500">
@@ -138,13 +182,26 @@ export default function VisionBoardPage() {
               {visions.map(vision => (
                 <div key={vision.id} className="bg-white rounded-lg border border-gray-200 p-4">
                   <p className="text-gray-800 mb-2">&ldquo;{vision.vision_text}&rdquo;</p>
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-4 flex-wrap">
                     <span className="text-sm text-gray-500">
                       {vision.is_anonymous || !vision.author_name ? 'Anonymous' : vision.author_name}
                       {' '}&middot;{' '}
                       <span className="capitalize">{vision.category}</span>
                       {' '}&middot;{' '}
                       {new Date(vision.created_at).toLocaleDateString('en-AU')}
+                      {vision.session_id && (
+                        <>
+                          {' '}&middot;{' '}
+                          <button
+                            type="button"
+                            onClick={() => setSessionFilter(vision.session_id!)}
+                            className="font-mono text-xs px-1.5 py-0.5 rounded bg-gray-100 hover:bg-blue-50 hover:text-blue-700 transition"
+                            title="Filter to this session"
+                          >
+                            {vision.session_id}
+                          </button>
+                        </>
+                      )}
                     </span>
                     <div className="flex gap-2">
                       <button

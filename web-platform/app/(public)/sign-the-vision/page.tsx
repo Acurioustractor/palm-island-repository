@@ -80,7 +80,11 @@ const FALLBACK_VISIONS: ApprovedVision[] = [
   },
 ]
 
-export default async function SignTheVisionPage() {
+interface PageProps {
+  searchParams: Promise<{ session?: string; from?: string }>
+}
+
+export default async function SignTheVisionPage({ searchParams }: PageProps) {
   const supabase = createServerSupabase()
   const { data } = await supabase
     .from('community_visions')
@@ -92,13 +96,20 @@ export default async function SignTheVisionPage() {
   const approved: ApprovedVision[] = (data && data.length > 0 ? data : FALLBACK_VISIONS) as ApprovedVision[]
   const usingFallback = !data || data.length === 0
 
+  // Session tag — when set via ?session=foo, every signature submitted
+  // from this page tags itself with that session_id, so /picc/vision can
+  // filter to "this meeting only". Falls back to today's date.
+  const sp = await searchParams
+  const session =
+    (sp.session && sp.session.replace(/[^a-z0-9-]/gi, '').slice(0, 60)) ||
+    `meeting-${new Date().toISOString().slice(0, 10)}`
+
   // Build the absolute URL we want the QR to point at — the page's own URL
-  // so scanning from the projected screen drops phones straight onto the
-  // signing form.
+  // (with the session preserved) so phones land on the same session group.
   const h = await headers()
   const host = h.get('host') ?? 'palmisland.org.au'
   const proto = h.get('x-forwarded-proto') ?? (host.startsWith('localhost') ? 'http' : 'https')
-  const signUrl = `${proto}://${host}/sign-the-vision?from=qr`
+  const signUrl = `${proto}://${host}/sign-the-vision?session=${encodeURIComponent(session)}&from=qr`
 
   return (
     <main className="min-h-screen" style={{ backgroundColor: '#FBF8EE' }}>
@@ -140,7 +151,7 @@ export default async function SignTheVisionPage() {
         </div>
       </section>
 
-      <SignTheVisionClient approved={approved} usingFallback={usingFallback} />
+      <SignTheVisionClient approved={approved} usingFallback={usingFallback} session={session} />
 
       <section className="px-6 md:px-12 py-12">
         <div className="max-w-3xl mx-auto text-xs" style={{ color: C.driftwood }}>

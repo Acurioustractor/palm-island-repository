@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Lightbulb, Mic } from 'lucide-react';
+import { ArrowRight, Lightbulb, Mic, Sparkles } from 'lucide-react';
 import {
   HeroSection,
   TextSection,
@@ -14,6 +14,7 @@ import { getCuratedQuotes } from '@/lib/quotes/get-curated-quotes';
 import { getHeroImage, getMediaByTags } from '@/lib/media/utils';
 import { assetUrl } from '@/lib/media/asset-url';
 import { getELQuotes } from '@/lib/empathy-ledger/el-server';
+import { INNOVATION_SLUGS, INNOVATION_BLURBS } from '@/lib/services/innovation-tier';
 
 export const dynamic = 'force-dynamic'
 
@@ -132,14 +133,34 @@ async function getInnovationProjects() {
 /*  Page                                              */
 /* ────────────────────────────────────────────────── */
 
+async function getInnovationServices() {
+  const supabase = await createServerComponentClient();
+  const slugs = Array.from(INNOVATION_SLUGS);
+  const { data } = await (supabase as any)
+    .from('organization_services')
+    .select('id, name, slug, description, service_category, service_color, icon_name')
+    .eq('is_active', true)
+    .in('slug', slugs);
+  return (data || []) as Array<{
+    id: string;
+    name: string;
+    slug: string;
+    description: string | null;
+    service_category: string | null;
+    service_color: string | null;
+    icon_name: string | null;
+  }>;
+}
+
 export default async function InnovationPage() {
   // Fetch all data in parallel
-  const [projects, quotes, heroImageUrl, heroTagMedia, elQuotes] = await Promise.all([
+  const [projects, quotes, heroImageUrl, heroTagMedia, elQuotes, innovationServices] = await Promise.all([
     getInnovationProjects(),
     getCuratedQuotes({ limit: 1, source_type: 'elder' }),
     getHeroImage('innovation'),
     getMediaByTags(['innovation', 'hero'], 1, 'image'),
     getELQuotes({ limit: 300, minImpact: 50 }).catch(() => []),
+    getInnovationServices(),
   ]);
 
   const heroImage = heroImageUrl || heroTagMedia[0]?.public_url || null;
@@ -224,6 +245,54 @@ export default async function InnovationPage() {
         backgroundColor="bg-white"
         maxWidth="medium"
       />
+
+      {/* Innovation Programmes — service-tier (canonical from INNOVATION_SLUGS) */}
+      {innovationServices.length > 0 && (
+        <section className="py-20 px-6" style={{ backgroundColor: '#FFFBEB' }}>
+          <div className="max-w-6xl mx-auto">
+            <ScrollReveal direction="up">
+              <div className="text-[11px] font-bold uppercase tracking-[0.3em] text-center mb-3" style={{ color: '#8B1A1A' }}>
+                Next 20 years · Programmes
+              </div>
+              <h2 className="text-4xl font-extrabold text-center mb-3" style={{ color: '#0B4F6C' }}>
+                {innovationServices.length} programmes driving the next 20 years
+              </h2>
+              <p className="text-lg text-center mb-12 max-w-3xl mx-auto" style={{ color: '#6B6560' }}>
+                Service-tier innovation — the programmes that define how PICC delivers self-determination at scale, sourced from the 20-year Launchpad plan.
+              </p>
+            </ScrollReveal>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {innovationServices.map((s) => {
+                const blurb = INNOVATION_BLURBS[s.slug] || s.description || ''
+                return (
+                  <Link
+                    key={s.id}
+                    href={`/services/${s.slug}`}
+                    className="group block rounded-2xl border-2 bg-white p-6 transition hover:shadow-md"
+                    style={{ borderColor: '#F5A623' }}
+                  >
+                    <div className="inline-flex items-center gap-1.5 mb-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.2em]" style={{ backgroundColor: '#F5A623', color: '#1A1A2E' }}>
+                      <Sparkles className="w-3 h-3" />
+                      Innovation
+                    </div>
+                    <h3 className="text-xl font-bold mb-2 group-hover:underline" style={{ color: '#0B4F6C' }}>
+                      {s.name}
+                    </h3>
+                    <p className="text-sm mb-4 leading-relaxed" style={{ color: '#6B6560' }}>
+                      {blurb}
+                    </p>
+                    <div className="inline-flex items-center gap-1 text-sm font-bold" style={{ color: '#8B1A1A' }}>
+                      Open service
+                      <ArrowRight className="w-4 h-4" />
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Themed Project Sections */}
       {hasProjects ? (

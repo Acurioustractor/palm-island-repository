@@ -107,12 +107,20 @@ const ACTS: Act[] = [
   },
 ]
 
-export default async function DemoRunOfShowPage() {
+interface PageProps {
+  searchParams: Promise<{ session?: string }>
+}
+
+export default async function DemoRunOfShowPage({ searchParams }: PageProps) {
   const h = await headers()
   const host = h.get('host') ?? 'palmisland.org.au'
   const proto = h.get('x-forwarded-proto') ?? (host.startsWith('localhost') ? 'http' : 'https')
   const origin = `${proto}://${host}`
-  const signUrl = `${origin}/sign-the-vision?from=qr`
+  const sp = await searchParams
+  const session =
+    (sp.session && sp.session.replace(/[^a-z0-9-]/gi, '').slice(0, 60)) ||
+    `meeting-${new Date().toISOString().slice(0, 10)}`
+  const signUrl = `${origin}/sign-the-vision?session=${encodeURIComponent(session)}&from=qr`
 
   const total = ACTS.reduce((acc, a) => {
     const m = parseInt(a.duration)
@@ -130,11 +138,20 @@ export default async function DemoRunOfShowPage() {
           <h1 className="font-serif text-4xl md:text-5xl italic mb-4 leading-tight" style={{ color: '#0B4F6C' }}>
             The leadership presentation, end to end.
           </h1>
-          <p className="text-lg max-w-3xl leading-relaxed" style={{ color: '#6B6560' }}>
+          <p className="text-lg max-w-3xl leading-relaxed mb-4" style={{ color: '#6B6560' }}>
             Six acts · ~{total} min + Q&amp;A. Every act anchored to a live URL.
             Open this page on a phone or second screen; project the URLs in the
             "Open" column. Use presenter mode where indicated to hide admin chrome.
           </p>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs" style={{ backgroundColor: '#fff', border: '1px solid #E8E6E3' }}>
+            <span className="font-bold uppercase tracking-[0.3em]" style={{ color: '#6B6560', fontSize: 10 }}>
+              Tagging session
+            </span>
+            <span className="font-mono" style={{ color: '#0B4F6C' }}>{session}</span>
+            <span style={{ color: '#A39E99', fontSize: 11 }}>
+              · override with <code>?session=name</code>
+            </span>
+          </div>
         </div>
 
         {/* Live signature loop callout */}
