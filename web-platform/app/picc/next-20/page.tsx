@@ -13,6 +13,7 @@
 
 import { createServerSupabase } from '@/lib/supabase/client'
 import { Sparkles, Compass, AlertCircle, Quote, ArrowRight, Landmark, Network } from 'lucide-react'
+import LiveVisionsColumn from '@/components/picc/LiveVisionsColumn'
 
 export const metadata = {
   title: 'Next 20 Years — Working Canvas | PICC',
@@ -89,8 +90,10 @@ interface CommunityVision {
   id: string
   vision_text: string
   author_name: string | null
-  author_role: string | null
+  is_anonymous: boolean
   category: string | null
+  approved_at: string | null
+  created_at: string
 }
 
 export default async function Next20CanvasPage() {
@@ -98,11 +101,11 @@ export default async function Next20CanvasPage() {
 
   const { data: visionsData } = await supabase
     .from('community_visions')
-    .select('id, vision_text, author_name, author_role, category')
+    .select('id, vision_text, author_name, is_anonymous, category, approved_at, created_at')
     .eq('is_approved', true)
-    .order('created_at', { ascending: true })
+    .order('approved_at', { ascending: false, nullsFirst: false })
 
-  const visions: CommunityVision[] = visionsData || []
+  const visions: CommunityVision[] = (visionsData || []) as CommunityVision[]
 
   return (
     <div className="min-h-screen bg-[#FAF8F5]">
@@ -184,38 +187,14 @@ export default async function Next20CanvasPage() {
         {/* ── THREE COLUMNS ── */}
         <div className="grid md:grid-cols-3 gap-6 mb-16">
 
-          {/* Column 1 — Community Visions (DB-sourced) */}
+          {/* Column 1 — Community Visions (live-polling, signs in real time) */}
           <Column
             icon={<Sparkles className="w-5 h-5" />}
             label="Community Visions"
             count={visions.length}
-            source={`Live from community_visions table · ${visions.length} approved`}
+            source="Live from community_visions · auto-refreshing"
           >
-            {visions.length === 0 ? (
-              <EmptyState message="No approved community visions in the database. Run a capture session to populate." />
-            ) : (
-              visions.map((v) => (
-                <div
-                  key={v.id}
-                  className="rounded-xl border border-stone-200 bg-white p-5"
-                >
-                  <p className="text-sm text-stone-700 leading-relaxed mb-3 italic">
-                    &ldquo;{v.vision_text}&rdquo;
-                  </p>
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-stone-500">
-                      — {v.author_name || 'Anonymous'}
-                      {v.author_role ? `, ${v.author_role}` : ''}
-                    </span>
-                    {v.category && (
-                      <span className="px-2 py-0.5 rounded-full bg-picc-ochre/10 text-picc-ochre font-medium capitalize">
-                        {v.category}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))
-            )}
+            <LiveVisionsColumn initial={visions} />
           </Column>
 
           {/* Column 2 — Forward Commitments (Launchpad-sourced) */}

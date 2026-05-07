@@ -13,6 +13,7 @@
 import { createServerSupabase } from '@/lib/supabase/client'
 import { C } from '@/components/annual-report/2024-25/almanac/tokens'
 import SignTheVisionClient from './SignTheVisionClient'
+import SigningTicker from '@/components/picc/SigningTicker'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -115,11 +116,14 @@ export default async function SignTheVisionPage() {
             PICC belongs to the community. The next twenty years are not a
             forecast — they are a design choice. Add your voice.
           </p>
-          <p className="text-sm max-w-2xl" style={{ color: C.driftwood }}>
+          <p className="text-sm max-w-2xl mb-8" style={{ color: C.driftwood }}>
             Read the visions already gathered, then write your own below.
             Every contribution is reviewed by Elders before it lights up the
             public next-20 canvas.
           </p>
+          <div className="max-w-3xl">
+            <SigningTicker />
+          </div>
         </div>
       </section>
 
