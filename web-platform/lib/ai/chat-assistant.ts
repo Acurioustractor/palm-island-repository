@@ -13,7 +13,15 @@ import { aiCache, CACHE_TTL } from './cache'
 import { getExpandedContext } from './context-builder'
 import { getTextModel, stripThinkTags } from './models'
 
-const model = getTextModel()
+// Lazy — initialise on first use so a missing AI key in build-time
+// env (e.g. Vercel preview) doesn't kill `next build`. Routes that
+// call generateChatResponse / streamChatResponse will throw at
+// request-time if keys are still missing then, which is correct.
+let _model: ReturnType<typeof getTextModel> | null = null
+function model() {
+  if (!_model) _model = getTextModel()
+  return _model
+}
 
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system'
@@ -162,7 +170,7 @@ export async function generateChatResponse(
 
   try {
     const response = await generateText({
-      model,
+      model: model(),
       maxOutputTokens: 4096,
       system: SYSTEM_PROMPT,
       messages
@@ -201,7 +209,7 @@ async function generateSuggestedQuestions(
 
   try {
     const response = await generateText({
-      model,
+      model: model(),
       maxOutputTokens: 200,
       messages: [{
         role: 'user',
@@ -285,7 +293,7 @@ export async function* streamChatResponse(
 
   // Stream response
   const result = aiStreamText({
-    model,
+    model: model(),
     maxOutputTokens: 2048,
     system: SYSTEM_PROMPT,
     messages
