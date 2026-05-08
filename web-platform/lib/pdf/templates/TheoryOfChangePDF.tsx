@@ -77,7 +77,7 @@ const s = StyleSheet.create({
     marginBottom: 6,
   },
   h1: {
-    fontFamily: 'PlayfairDisplay',
+    fontFamily: 'Caveat',
     fontSize: 32,
     fontWeight: 'bold',
     color: P.navy,
@@ -85,7 +85,7 @@ const s = StyleSheet.create({
     lineHeight: 1.15,
   },
   h2: {
-    fontFamily: 'PlayfairDisplay',
+    fontFamily: 'Caveat',
     fontSize: 20,
     fontWeight: 'bold',
     color: P.navy,
@@ -413,7 +413,7 @@ export default function TheoryOfChangePDF() {
           </Text>
           <Text
             style={{
-              fontFamily: 'PlayfairDisplay',
+              fontFamily: 'Caveat',
               fontSize: 38,
               fontWeight: 'bold',
               color: P.white,

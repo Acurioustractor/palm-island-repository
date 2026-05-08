@@ -89,7 +89,7 @@ const ls = StyleSheet.create({
     maxWidth: 420,
   },
   ackTitle: {
-    fontFamily: 'PlayfairDisplay',
+    fontFamily: 'Caveat',
     fontSize: 24,
     fontWeight: 'bold',
     color: C.ocean,
@@ -1520,7 +1520,7 @@ export default function AnnualReportPDF({
         {/* Income / Expenditure / Net — three cards */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 24 }}>
           <View wrap={false} style={{ width: '31%', padding: 14, backgroundColor: C.white, borderRadius: 10, borderTop: `4pt solid ${C.mangrove}` }}>
-            <Text style={{ fontFamily: 'PlayfairDisplay', fontSize: 26, fontWeight: 'bold', color: C.mangrove, lineHeight: 0.9 }}>{fmtCurrency(fin.total_income)}</Text>
+            <Text style={{ fontFamily: 'Caveat', fontSize: 26, fontWeight: 'bold', color: C.mangrove, lineHeight: 0.9 }}>{fmtCurrency(fin.total_income)}</Text>
             <Text style={{ fontSize: 9, color: C.driftwood, marginTop: 6 }}>Total Income</Text>
             {priorYear && (
               <Text style={{ fontSize: 7.5, color: C.muted, marginTop: 4 }}>
@@ -1529,7 +1529,7 @@ export default function AnnualReportPDF({
             )}
           </View>
           <View wrap={false} style={{ width: '31%', padding: 14, backgroundColor: C.white, borderRadius: 10, borderTop: `4pt solid ${C.starGold}` }}>
-            <Text style={{ fontFamily: 'PlayfairDisplay', fontSize: 26, fontWeight: 'bold', color: C.starGold, lineHeight: 0.9 }}>{fmtCurrency(fin.total_expenditure)}</Text>
+            <Text style={{ fontFamily: 'Caveat', fontSize: 26, fontWeight: 'bold', color: C.starGold, lineHeight: 0.9 }}>{fmtCurrency(fin.total_expenditure)}</Text>
             <Text style={{ fontSize: 9, color: C.driftwood, marginTop: 6 }}>Total Expenditure</Text>
             {priorYear && (
               <Text style={{ fontSize: 7.5, color: C.muted, marginTop: 4 }}>
@@ -1538,7 +1538,7 @@ export default function AnnualReportPDF({
             )}
           </View>
           <View wrap={false} style={{ width: '31%', padding: 14, backgroundColor: fin.net_result >= 0 ? C.white : C.shell, borderRadius: 10, borderTop: `4pt solid ${fin.net_result >= 0 ? C.mangrove : C.muted}` }}>
-            <Text style={{ fontFamily: 'PlayfairDisplay', fontSize: 26, fontWeight: 'bold', color: fin.net_result >= 0 ? C.mangrove : C.driftwood, lineHeight: 0.9 }}>{fmtFullCurrency(fin.net_result)}</Text>
+            <Text style={{ fontFamily: 'Caveat', fontSize: 26, fontWeight: 'bold', color: fin.net_result >= 0 ? C.mangrove : C.driftwood, lineHeight: 0.9 }}>{fmtFullCurrency(fin.net_result)}</Text>
             <Text style={{ fontSize: 9, color: C.driftwood, marginTop: 6 }}>Net Result</Text>
             {priorYear && (
               <Text style={{ fontSize: 7.5, color: C.muted, marginTop: 4 }}>

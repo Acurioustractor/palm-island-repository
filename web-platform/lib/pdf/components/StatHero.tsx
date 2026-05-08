@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     backgroundColor: C.white,
   },
   value: {
-    fontFamily: 'PlayfairDisplay',
+    fontFamily: 'Caveat',
     fontWeight: 'bold',
     lineHeight: 0.85,
   },

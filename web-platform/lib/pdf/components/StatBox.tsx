@@ -33,7 +33,7 @@ export const StatBox = ({
           borderTop: `4pt solid ${color}`,
         }}
       >
-        <Text style={{ fontFamily: 'PlayfairDisplay', fontSize: 40, fontWeight: 'bold', color, lineHeight: 0.9, marginBottom: 6 }}>
+        <Text style={{ fontFamily: 'Caveat', fontSize: 44, fontWeight: 'bold', color, lineHeight: 0.9, marginBottom: 6 }}>
           {value}
         </Text>
         <Text style={{ fontSize: 9.5, color: C.driftwood, lineHeight: 1.4 }}>{label}</Text>
