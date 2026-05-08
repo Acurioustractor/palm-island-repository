@@ -2,6 +2,7 @@ import EldersPageClient from '@/components/elders/EldersPageClient'
 import { createServerSupabase } from '@/lib/supabase/client'
 import { cleanupQuoteText, isLikelyJunkQuote, pickBestQuotes } from '@/lib/transcripts/quotable'
 import { getELQuotes, findQuotesForPerson, type ELQuote } from '@/lib/empathy-ledger/el-server'
+import { getPiccElders } from '@/lib/empathy-ledger/el-storytellers'
 
 export const dynamic = 'force-dynamic'
 type ElderProfileRow = {
@@ -147,6 +148,39 @@ export default async function EldersPage() {
     elders = elders.filter((e) => String(e.profile_visibility || '').toLowerCase() !== 'private')
   } catch {
     elders = []
+  }
+
+  // Merge in canonical EL elders so anyone the EL admin has flagged
+  // is_elder=true also surfaces here, even if PICC's profiles table
+  // hasn't been backfilled. Dedup by display_name (case-insensitive).
+  try {
+    const elElders = await getPiccElders()
+    const seen = new Set(
+      elders.map((e) => (e.full_name || e.preferred_name || '').trim().toLowerCase()).filter(Boolean),
+    )
+    for (const el of elElders) {
+      const key = (el.display_name || '').trim().toLowerCase()
+      if (!key || seen.has(key)) continue
+      seen.add(key)
+      elders.push({
+        id: el.id,
+        full_name: el.display_name,
+        preferred_name: null,
+        profile_image_url: el.photo_url,
+        bio: el.bio,
+        storyteller_type: el.is_elder ? 'elder' : null,
+        location: el.location,
+        community_role: 'Elder',
+        traditional_country: el.cultural_background,
+        language_group: null,
+        show_in_directory: true,
+        profile_visibility: 'public',
+        is_elder: true,
+      })
+    }
+    elders.sort((a, b) => (a.full_name || '').localeCompare(b.full_name || ''))
+  } catch {
+    /* canonical EL fetch is best-effort — keep PICC-only list */
   }
 
   // Optional hero background media for the Elders page
@@ -651,24 +685,84 @@ export default async function EldersPage() {
   const immersiveStoryHref = '/immersive-stories/elders-trips-story'
 
   return (
-    <EldersPageClient
-      elders={eldersView}
-      hero={heroMedia}
-      insights={insights}
-      trip={{
-        project: eldersTripProject ? { name: eldersTripProject.name, slug: eldersTripProject.slug } : null,
-        video: tripVideoView,
-        images: tripImagesView,
-        storyHref: tripStoryHref,
-        immersiveStoryHref,
-        stops: tripStops.map((s) => ({
-          id: s.id,
-          name: s.name,
-          description: s.description,
-          lat: s.lat,
-          lng: s.lng,
-        })),
-      }}
-    />
+    <>
+      <EldersPageClient
+        elders={eldersView}
+        hero={heroMedia}
+        insights={insights}
+        trip={{
+          project: eldersTripProject ? { name: eldersTripProject.name, slug: eldersTripProject.slug } : null,
+          video: tripVideoView,
+          images: tripImagesView,
+          storyHref: tripStoryHref,
+          immersiveStoryHref,
+          stops: tripStops.map((s) => ({
+            id: s.id,
+            name: s.name,
+            description: s.description,
+            lat: s.lat,
+            lng: s.lng,
+          })),
+        }}
+      />
+
+      {/* Upcoming trip + family tree (connections) — added in the
+          curation pass. Lives below the existing client render so we
+          don't bend the deep component. Saltwater Almanac grammar. */}
+      <section className="px-6 md:px-12 py-20" style={{ backgroundColor: '#0B4F6C', color: '#fff' }}>
+        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-8">
+          {/* Upcoming */}
+          <div>
+            <div
+              className="uppercase font-bold mb-3"
+              style={{ color: '#F5A623', fontSize: 11, letterSpacing: '0.3em' }}
+            >
+              Upcoming · Elders on Country
+            </div>
+            <h2
+              className="font-fraunces font-bold leading-tight mb-4"
+              style={{ fontSize: 'clamp(28px, 4.5vw, 42px)' }}
+            >
+              Atherton Tablelands · 2025–26
+            </h2>
+            <p
+              className="font-fraunces"
+              style={{ color: 'rgba(255,255,255,0.85)', fontSize: 18, lineHeight: 1.55 }}
+            >
+              The next Elders trip retraces the country lines from Palm Island to the Atherton Tablelands — Mamu, Warrongo, Gungandji and Djiru land. Photos, stops and voices captured along the way will land here as the trip unfolds, alongside the 2024 trip already documented above.
+            </p>
+          </div>
+
+          {/* Family tree / connections */}
+          <div>
+            <div
+              className="uppercase font-bold mb-3"
+              style={{ color: '#F5A623', fontSize: 11, letterSpacing: '0.3em' }}
+            >
+              Family tree · Connections
+            </div>
+            <h2
+              className="font-fraunces font-bold leading-tight mb-4"
+              style={{ fontSize: 'clamp(28px, 4.5vw, 42px)' }}
+            >
+              Threads between voices.
+            </h2>
+            <p
+              className="font-fraunces mb-6"
+              style={{ color: 'rgba(255,255,255,0.85)', fontSize: 18, lineHeight: 1.55 }}
+            >
+              Every Elder is woven through the archive — shared photos, shared themes, kinship lines being mapped with consent. The connection graph renders the threads.
+            </p>
+            <a
+              href="/voices/network"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-md font-bold uppercase text-xs"
+              style={{ backgroundColor: '#F5A623', color: '#1A1A2E', letterSpacing: '0.15em' }}
+            >
+              Open the connection map →
+            </a>
+          </div>
+        </div>
+      </section>
+    </>
   )
 }

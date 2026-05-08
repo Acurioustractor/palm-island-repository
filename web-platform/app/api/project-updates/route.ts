@@ -99,6 +99,12 @@ export async function POST(request: NextRequest) {
 
     const supabase = createServerSupabase() as any
 
+    // NOTE: this lookup intentionally still hits the legacy PICC `projects`
+    // table — `project_updates.project_id` is an FK against PICC `projects.id`,
+    // not the EL canonical UUID. Migrating this to EL would break the FK.
+    // Phase 1 of the canonical migration is read-only; the writes here
+    // (`project_updates` is a PICC-only operational table) stay until Phase 5
+    // resolves the FK story. See thoughts/shared/plans/2026-05-08-el-canonical-migration.md.
     const { data: project, error: projectError } = await supabase
       .from('projects')
       .select('id')

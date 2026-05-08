@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
-import { createServerSupabase } from '@/lib/supabase/client'
+import { getPiccProjects } from '@/lib/empathy-ledger/el-projects'
 
 export const runtime = 'nodejs'
 
@@ -55,24 +55,34 @@ export async function GET(request: NextRequest) {
     if (!ok) return NextResponse.json({ error: 'Authentication required' }, { status: 403 })
 
     const { searchParams } = new URL(request.url)
-    const q = (searchParams.get('q') || '').trim()
+    const q = (searchParams.get('q') || '').trim().toLowerCase()
     const limit = Math.max(1, Math.min(100, Number(searchParams.get('limit') || 50)))
 
-    const supabase = createServerSupabase() as any
-    let query = supabase
-      .from('projects')
-      .select('id, name, slug, status, project_type, is_public, featured, updated_at')
-      .order('updated_at', { ascending: false })
-      .limit(limit)
-
-    if (q) {
-      const like = `%${q}%`
-      query = query.or(`name.ilike.${like},slug.ilike.${like},tagline.ilike.${like}`)
-    }
-
-    const { data, error } = await query
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    return NextResponse.json({ projects: data || [] })
+    // Phase 1 canonical migration: projects come from Empathy Ledger v2.
+    // EL doesn't expose `is_public` / `featured` (PICC-only flags); callers
+    // that care about those used to filter out cancelled rows by hand —
+    // we surface `is_public: status !== 'cancelled'` as the equivalent and
+    // omit `featured` (drop on read; was advisory anyway).
+    const projects = await getPiccProjects({ status: 'all' })
+    const filtered = q
+      ? projects.filter(
+          (p) =>
+            p.name?.toLowerCase().includes(q) ||
+            p.slug.toLowerCase().includes(q) ||
+            p.tagline?.toLowerCase().includes(q),
+        )
+      : projects
+    const data = filtered.slice(0, limit).map((p) => ({
+      id: p.id,
+      name: p.name,
+      slug: p.slug,
+      status: p.status,
+      project_type: p.project_type,
+      is_public: p.status !== 'cancelled',
+      featured: false,
+      updated_at: p.updated_at,
+    }))
+    return NextResponse.json({ projects: data })
   } catch (error: any) {
     return NextResponse.json({ error: error?.message || 'Failed to load projects' }, { status: 500 })
   }

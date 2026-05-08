@@ -69,6 +69,12 @@ export interface PiccService {
   service_category: string | null
   staff_count: number | null
   clients_served_annual: number | null
+  /** Canonical cover photo URL from EL v2. Set for ~23 of 26 active
+   *  services. Use as the first source for service hero imagery,
+   *  falling back to slot-tagged photos if absent. Null for the
+   *  static fallback set (no EL link). */
+  image_url: string | null
+  gallery_id: string | null
 }
 
 function fromELService(s: ELService): PiccService {
@@ -80,6 +86,8 @@ function fromELService(s: ELService): PiccService {
     service_category: s.category,
     staff_count: null,
     clients_served_annual: null,
+    image_url: s.image_url,
+    gallery_id: s.gallery_id,
   }
 }
 
@@ -92,6 +100,8 @@ function fromStatic(): PiccService[] {
     service_category: s.service_category ?? null,
     staff_count: s.staff_count ?? null,
     clients_served_annual: s.clients_served_annual ?? null,
+    image_url: null,
+    gallery_id: null,
   }))
 }
 

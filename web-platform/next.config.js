@@ -12,6 +12,36 @@ const nextConfig = {
       { source: '/wiki/achievements', destination: '/wiki', permanent: true },
       { source: '/wiki/culture', destination: '/wiki', permanent: true },
       { source: '/wiki/services', destination: '/wiki', permanent: true },
+
+      // ── Curation 2026-05-08 — keep only the killer surfaces.
+      // Files stay in the worktree for now; routes redirect to canonical.
+      // Remove any of these to bring the page back, or git rm the folder
+      // when ready for a real cleanup.
+      { source: '/road-to-20-years',         destination: '/20-years',       permanent: true },
+      { source: '/timeline',                 destination: '/20-years',       permanent: true },
+      { source: '/history',                  destination: '/20-years',       permanent: true },
+      { source: '/community',                destination: '/voices',         permanent: true },
+      { source: '/storytellers',             destination: '/voices/who',     permanent: true },
+      { source: '/voices/notes',             destination: '/share-note',     permanent: true },
+      { source: '/voices/questions',         destination: '/voices/themes',  permanent: true },
+      { source: '/voices/ask',               destination: '/share-note',     permanent: true },
+      { source: '/voices/pulse',             destination: '/voices',         permanent: true },
+      { source: '/voices/this-month',        destination: '/voices',         permanent: true },
+      { source: '/share-art',                destination: '/share-note',     permanent: true },
+      { source: '/share-story',              destination: '/share-note',     permanent: true },
+      { source: '/share-voice',              destination: '/share-note',     permanent: true },
+      { source: '/empathy-ledger',           destination: '/voices/network', permanent: true },
+      { source: '/calendar',                 destination: '/',               permanent: true },
+      { source: '/about',                    destination: '/',               permanent: true },
+      { source: '/explore',                  destination: '/voices',         permanent: true },
+      { source: '/publications',             destination: '/voices',         permanent: true },
+      { source: '/stories',                  destination: '/voices',         permanent: true },
+      { source: '/thematic-reports',         destination: '/voices/themes',  permanent: true },
+      { source: '/elders/voices-on-country', destination: '/elders',         permanent: true },
+      { source: '/20-years/dashboard',       destination: '/20-years',       permanent: true },
+      { source: '/20-years/strategy',        destination: '/20-years',       permanent: true },
+      { source: '/annual-report/live',       destination: '/annual-reports', permanent: true },
+      { source: '/annual-report/print',      destination: '/annual-reports', permanent: true },
     ]
   },
   outputFileTracingExcludes: {

@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { createServerSupabase } from '@/lib/supabase/client';
 import { ServiceStoryPage } from '@/components/services/ServiceStoryPage';
 import { getELQuotes } from '@/lib/empathy-ledger/el-server';
+import { getPiccServices } from '@/lib/services/el-services';
 
 // Service slug → keywords for EL quote matching
 const SERVICE_KEYWORDS: Record<string, string[]> = {
@@ -240,9 +241,19 @@ export default async function ServiceDetailPage({ params }: PageProps) {
     storyteller: Array.isArray(s.storyteller) ? s.storyteller[0] || null : s.storyteller || null,
   }));
 
-  // Hero image with fallback: hero-tagged → first featured image → first any image
+  // Hero image fallback chain — EL canonical first, then PICC media_files.
+  // EL image_url is set on 23 of 26 active services (canonical cover); the
+  // legacy service-tagged hero in PICC media_files is the override when an
+  // editor has hand-picked a different shot. Order intent:
+  //   PICC service:<slug>+hero (editor pick)  ← if present, wins
+  //   → EL canonical image_url               ← default, broad coverage
+  //   → first featured image in gallery
+  //   → first any image
+  const elServices = await getPiccServices({ status: 'active' }).catch(() => []);
+  const elImageUrl = elServices.find((s) => s.slug === slug)?.image_url || null;
   const heroImage =
     heroImageResult.data?.[0]?.public_url ||
+    elImageUrl ||
     galleryResult.data?.find((m: any) => m.is_featured)?.public_url ||
     galleryResult.data?.[0]?.public_url ||
     null;
