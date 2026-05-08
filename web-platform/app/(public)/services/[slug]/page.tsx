@@ -95,6 +95,17 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
+  // EL canonical first (the index links use EL slugs like 'bwg-way',
+  // 'aged', '1000d'). Fall back to PICC organization_services for any
+  // legacy slug that's still on the older long-form names.
+  const elServices = await getPiccServices({ status: 'active' }).catch(() => []);
+  const elService = elServices.find((s) => s.slug === slug);
+  if (elService) {
+    return {
+      title: `${elService.name} — Palm Island Community Company`,
+      description: elService.description || `Learn about ${elService.name} at PICC.`,
+    };
+  }
   const supabase = createServerSupabase();
   const { data: services } = await supabase
     .from('organization_services')
@@ -102,10 +113,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     .eq('slug', slug)
     .eq('is_active', true)
     .limit(1);
-
   const service = services?.[0];
   if (!service) return { title: 'Service Not Found' };
-
   return {
     title: `${service.name} — Palm Island Community Company`,
     description: service.description || `Learn about ${service.name} at PICC.`,
@@ -116,18 +125,47 @@ export default async function ServiceDetailPage({ params }: PageProps) {
   const { slug } = await params;
   const supabase = createServerSupabase();
 
-  // Fetch service
-  const { data: serviceRows } = await supabase
-    .from('organization_services')
-    .select(`
-      id, name, slug, description, service_category,
-      service_color, icon_name, metadata
-    `)
-    .eq('slug', slug)
-    .eq('is_active', true)
-    .limit(1);
+  // EL canonical first — the /services index links use EL slugs.
+  const elServices = await getPiccServices({ status: 'active' }).catch(() => []);
+  const elService = elServices.find((s) => s.slug === slug);
 
-  const service = serviceRows?.[0];
+  // Fall back to PICC organization_services for any legacy long-form
+  // slug (e.g. 'bwgcolman-way' instead of 'bwg-way') so old links still work.
+  let service: {
+    id: string;
+    name: string;
+    slug: string;
+    description: string | null;
+    service_category: string | null;
+    service_color: string | null;
+    icon_name: string | null;
+    metadata: Record<string, unknown>;
+  } | undefined;
+
+  if (elService) {
+    service = {
+      id: elService.id,
+      name: elService.name,
+      slug: elService.slug,
+      description: elService.description,
+      service_category: elService.service_category,
+      service_color: null,
+      icon_name: null,
+      metadata: {},
+    };
+  } else {
+    const { data: serviceRows } = await supabase
+      .from('organization_services')
+      .select(`
+        id, name, slug, description, service_category,
+        service_color, icon_name, metadata
+      `)
+      .eq('slug', slug)
+      .eq('is_active', true)
+      .limit(1);
+    service = serviceRows?.[0] as typeof service;
+  }
+
   if (!service) {
     notFound();
   }
@@ -249,7 +287,6 @@ export default async function ServiceDetailPage({ params }: PageProps) {
   //   → EL canonical image_url               ← default, broad coverage
   //   → first featured image in gallery
   //   → first any image
-  const elServices = await getPiccServices({ status: 'active' }).catch(() => []);
   const elImageUrl = elServices.find((s) => s.slug === slug)?.image_url || null;
   const heroImage =
     heroImageResult.data?.[0]?.public_url ||
