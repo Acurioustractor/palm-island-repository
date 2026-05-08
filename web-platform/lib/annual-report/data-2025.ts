@@ -486,7 +486,18 @@ export function getStaticReportData2025(): ReportData {
     ],
     resilienceStories: null,
     pagePhotos: {} as any,
-    voiceAssignments: {} as any,
+    // Empty PageVoiceAssignment for every page so AnnualReportPDF.tsx
+    // can read `va.communityVoices.voices.length` without crashing when
+    // fetch-report-data falls back to static (no Supabase, broken EL,
+    // etc). Without this, the static fallback path 500s with
+    // "Cannot read properties of undefined (reading 'voices')".
+    voiceAssignments: {
+      communityVoices: { voices: [] },
+      youthVoices: { voices: [] },
+      resilience: { voices: [] },
+      floodStories: { voices: [] },
+      nextTwenty: { voices: [] },
+    } as any,
   }
 }
 
