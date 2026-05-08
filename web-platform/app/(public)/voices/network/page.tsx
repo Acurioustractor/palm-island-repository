@@ -21,15 +21,17 @@ import { getPalmStorytellers } from '@/lib/empathy-ledger/el-server'
 import { getStorytellerConnections, type ELConnection } from '@/lib/media/el-photos'
 import { C } from '@/components/annual-report/2024-25/almanac/tokens'
 import NetworkGraph, { type GraphNode, type GraphEdge } from './NetworkGraph'
+import { ogMeta } from '@/lib/seo/og'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 3600
 
-export const metadata = {
+export const metadata = ogMeta({
   title: 'Community Connections — Voices · PICC',
   description:
     'Every voice has a face — and a thread to others. The Palm Island storyteller archive, visualised as a force-directed graph of shared photos and themes.',
-}
+  path: '/voices/network',
+})
 
 function slugify(name: string): string {
   return name
