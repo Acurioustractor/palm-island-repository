@@ -223,7 +223,16 @@ const STOPS: Stop[] = [
   },
 ]
 
-export default function StageWalkPage() {
+interface PageProps {
+  searchParams: Promise<{ audience?: string }>
+}
+
+export default async function StageWalkPage({ searchParams }: PageProps) {
+  const sp = await searchParams
+  // ?audience=true → audience-safe view: hides the EL admin lens so the
+  // page can be screen-shared on stage without exposing internal URLs.
+  const audienceMode = sp.audience === 'true' || sp.audience === '1'
+
   return (
     <main className="min-h-screen" style={{ backgroundColor: C.shell }}>
       {/* Header */}
@@ -232,27 +241,53 @@ export default function StageWalkPage() {
         style={{ backgroundColor: C.midnight }}
       >
         <div className="max-w-6xl mx-auto">
-          <div
-            className="uppercase font-bold mb-3"
-            style={{ color: C.starGold, fontSize: 11, letterSpacing: '0.3em' }}
-          >
-            Stage walk · presenter map
+          <div className="flex items-start justify-between gap-6">
+            <div>
+              <div
+                className="uppercase font-bold mb-3"
+                style={{ color: C.starGold, fontSize: 11, letterSpacing: '0.3em' }}
+              >
+                {audienceMode ? 'Stage walk · audience view' : 'Stage walk · presenter map'}
+              </div>
+              <h1
+                className="font-fraunces font-bold leading-[1.05] mb-3"
+                style={{ color: '#FBF8EE', fontSize: 'clamp(40px, 6vw, 64px)' }}
+              >
+                {STOPS.length} stops. One platform. {audienceMode ? 'Two lenses.' : 'Three lenses.'}
+              </h1>
+              <p
+                className="font-fraunces max-w-3xl"
+                style={{ color: '#FBF8EE', opacity: 0.85, fontSize: 18, lineHeight: 1.55 }}
+              >
+                {audienceMode ? (
+                  <>
+                    Each stop links the live page on picc.studio with the
+                    Pencil file where it was designed. Project this on the
+                    TV. Walk through. Every surface is real, live, consented.
+                  </>
+                ) : (
+                  <>
+                    Each stop links the live page (what the audience sees), the
+                    Pencil file (where the design lives), and the EL admin (where
+                    the data lives). Project this on the TV. Click through. The
+                    audience sees the public side, you see the wiring.
+                  </>
+                )}
+              </p>
+            </div>
+            {/* Mode toggle */}
+            <Link
+              href={audienceMode ? '/picc/walk' : '/picc/walk?audience=true'}
+              className="hidden md:inline-block whitespace-nowrap text-[10px] uppercase font-bold tracking-widest px-3 py-2 rounded border hover:opacity-90 transition"
+              style={{
+                color: '#FBF8EE',
+                borderColor: '#FBF8EE55',
+                letterSpacing: '0.2em',
+              }}
+            >
+              {audienceMode ? '← Show admin lens' : 'Audience-safe view →'}
+            </Link>
           </div>
-          <h1
-            className="font-fraunces font-bold leading-[1.05] mb-3"
-            style={{ color: '#FBF8EE', fontSize: 'clamp(40px, 6vw, 64px)' }}
-          >
-            {STOPS.length} stops. One platform. Three lenses.
-          </h1>
-          <p
-            className="font-fraunces max-w-3xl"
-            style={{ color: '#FBF8EE', opacity: 0.85, fontSize: 18, lineHeight: 1.55 }}
-          >
-            Each stop links the live page (what the audience sees), the
-            Pencil file (where the design lives), and the EL admin (where
-            the data lives). Project this on the TV. Click through. The
-            audience sees the public side, you see the wiring.
-          </p>
 
           {/* Lens key */}
           <div className="mt-6 flex flex-wrap gap-3 text-xs">
@@ -262,9 +297,11 @@ export default function StageWalkPage() {
             <span className="px-3 py-1.5 rounded-full font-mono" style={{ backgroundColor: '#FBF8EE22', color: '#FBF8EE' }}>
               <strong style={{ color: C.ochre }}>DESIGN</strong> · picc-almanac-web.pen
             </span>
-            <span className="px-3 py-1.5 rounded-full font-mono" style={{ backgroundColor: '#FBF8EE22', color: '#FBF8EE' }}>
-              <strong style={{ color: '#7DD3FC' }}>DATA</strong> · empathy ledger admin
-            </span>
+            {!audienceMode && (
+              <span className="px-3 py-1.5 rounded-full font-mono" style={{ backgroundColor: '#FBF8EE22', color: '#FBF8EE' }}>
+                <strong style={{ color: '#7DD3FC' }}>DATA</strong> · empathy ledger admin
+              </span>
+            )}
           </div>
         </div>
       </section>
@@ -337,8 +374,8 @@ export default function StageWalkPage() {
                     &ldquo;{s.stageNote}&rdquo;
                   </blockquote>
 
-                  {/* Three-lens grid */}
-                  <div className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Lens grid — collapses to 2 columns in audience mode */}
+                  <div className={`mt-5 grid grid-cols-1 ${audienceMode ? 'md:grid-cols-2' : 'md:grid-cols-3'} gap-4`}>
                     {/* PUBLIC */}
                     <div className="p-4 rounded-md" style={{ backgroundColor: C.shell, border: `1px solid ${C.border}` }}>
                       <div
@@ -383,7 +420,8 @@ export default function StageWalkPage() {
                       )}
                     </div>
 
-                    {/* DATA */}
+                    {/* DATA — admin lens, hidden in audience mode */}
+                    {!audienceMode && (
                     <div className="p-4 rounded-md" style={{ backgroundColor: C.shell, border: `1px solid ${C.border}` }}>
                       <div
                         className="uppercase font-bold mb-2"
@@ -412,6 +450,7 @@ export default function StageWalkPage() {
                         </div>
                       )}
                     </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -429,32 +468,34 @@ export default function StageWalkPage() {
           >
             Reference
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-            <a
-              href={`${EL_ADMIN_BASE}/admin`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-4 py-3 rounded-md hover:opacity-90 transition"
-              style={{ backgroundColor: '#FBF8EE22', color: '#FBF8EE' }}
-            >
-              <div className="font-bold mb-1">EL v2 admin home</div>
-              <div className="font-mono text-xs opacity-70">{EL_ADMIN_BASE}/admin</div>
-            </a>
+          <div className={`grid grid-cols-1 ${audienceMode ? 'md:grid-cols-2' : 'md:grid-cols-3'} gap-4 text-sm`}>
+            {!audienceMode && (
+              <a
+                href={`${EL_ADMIN_BASE}/admin`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-3 rounded-md hover:opacity-90 transition"
+                style={{ backgroundColor: '#FBF8EE22', color: '#FBF8EE' }}
+              >
+                <div className="font-bold mb-1">EL v2 admin home</div>
+                <div className="font-mono text-xs opacity-70">{EL_ADMIN_BASE}/admin</div>
+              </a>
+            )}
             <Link
-              href="/picc"
+              href={audienceMode ? '/atlas' : '/picc'}
               className="px-4 py-3 rounded-md hover:opacity-90 transition"
               style={{ backgroundColor: '#FBF8EE22', color: '#FBF8EE' }}
             >
-              <div className="font-bold mb-1">Operator dashboard</div>
-              <div className="font-mono text-xs opacity-70">/picc</div>
+              <div className="font-bold mb-1">{audienceMode ? 'Public atlas' : 'Operator dashboard'}</div>
+              <div className="font-mono text-xs opacity-70">{audienceMode ? '/atlas' : '/picc'}</div>
             </Link>
             <Link
-              href="/atlas"
+              href={audienceMode ? '/get-involved' : '/atlas'}
               className="px-4 py-3 rounded-md hover:opacity-90 transition"
               style={{ backgroundColor: '#FBF8EE22', color: '#FBF8EE' }}
             >
-              <div className="font-bold mb-1">Public atlas</div>
-              <div className="font-mono text-xs opacity-70">/atlas</div>
+              <div className="font-bold mb-1">{audienceMode ? 'Get involved' : 'Public atlas'}</div>
+              <div className="font-mono text-xs opacity-70">{audienceMode ? '/get-involved' : '/atlas'}</div>
             </Link>
           </div>
           <p className="mt-8 italic font-fraunces" style={{ color: '#FBF8EE', opacity: 0.6, fontSize: 13 }}>
