@@ -34,60 +34,81 @@ export default async function ServicesIndexPage() {
     getHeroVideo('services'),
   ]);
 
-  // Fetch services
-  const { data: services } = await supabase
-    .from('organization_services')
-    .select(`
-      id, name, slug, description, service_category,
-      icon_name, service_color, metadata
-    `)
-    .eq('is_active', true)
-    .order('name');
+  // EL v2 is the canonical roster (Phase 1 of the migration). PICC
+  // `organization_services` is now ONLY consulted to resolve PICC's
+  // service_metrics rows by slug (since service_metrics still keys on
+  // PICC's organization_services.id). Drift between PICC's table and EL
+  // means out-of-sync service lists — we read EL as truth.
+  const elServices = await getPiccServices({ status: 'active' }).catch(() => []);
 
-  // Fetch metrics separately
-  const serviceIds = (services || []).map((s: any) => s.id);
-  const { data: metrics } = serviceIds.length > 0
+  // Resolve PICC organization_services.id by slug so service_metrics
+  // can be joined. Best-effort — no metric loss if a slug isn't in
+  // PICC's table; the service still surfaces from EL with its cover.
+  const { data: piccServiceRefs } = await supabase
+    .from('organization_services')
+    .select('id, slug');
+  const piccIdBySlug = new Map<string, string>();
+  for (const r of (piccServiceRefs || []) as Array<{ id: string; slug: string }>) {
+    piccIdBySlug.set(r.slug, r.id);
+  }
+
+  const piccIds = elServices
+    .map((s) => piccIdBySlug.get(s.slug))
+    .filter((id): id is string => !!id);
+  const { data: metrics } = piccIds.length > 0
     ? await supabase
         .from('service_metrics')
         .select('organization_service_id, fiscal_year, clients_served, staff_count, headline_stat_value, headline_stat_label')
-        .in('organization_service_id', serviceIds)
+        .in('organization_service_id', piccIds)
         .order('fiscal_year', { ascending: false })
     : { data: [] };
 
-  // Index metrics by service id (latest year first)
-  const metricsMap = new Map<string, any>();
+  // Index metrics by EL slug (latest year first) by reverse-resolving
+  // through the slug↔picc-id map.
+  const piccSlugById = new Map<string, string>();
+  for (const r of (piccServiceRefs || []) as Array<{ id: string; slug: string }>) {
+    piccSlugById.set(r.id, r.slug);
+  }
+  const metricsBySlug = new Map<string, any>();
   for (const m of (metrics || [])) {
-    if (!metricsMap.has(m.organization_service_id)) {
-      metricsMap.set(m.organization_service_id, m);
-    }
+    const slug = piccSlugById.get((m as any).organization_service_id);
+    if (slug && !metricsBySlug.has(slug)) metricsBySlug.set(slug, m);
   }
 
-  // Pull EL v2 services so we can use the canonical `image_url` as the
-  // cover-photo source-of-truth. EL has 23/26 covers set; the local
-  // media_files hero-tag mechanism only covers ~7. EL wins where both
-  // exist; PICC media_files takes over only as a fallback.
-  const elServices = await getPiccServices({ status: 'active' }).catch(() => []);
-  const elCoverBySlug = new Map<string, { url: string; alt: string | null }>();
+  // The list of services is the EL canonical roster. Drop the PICC
+  // organization_services fetch — it's not the source any more.
+  const services = elServices.map((e) => ({
+    id: e.id,
+    name: e.name,
+    slug: e.slug,
+    description: e.description,
+    service_category: e.service_category,
+    // EL doesn't carry these PICC-only display fields; fall back to
+    // sensible defaults so existing JSX doesn't break.
+    icon_name: null as string | null,
+    service_color: null as string | null,
+    metadata: {} as Record<string, unknown>,
+  }));
+
+  // Cover photo seed: EL `image_url` is canonical (set on 23/26
+  // services). PICC media_files `service:<slug> + hero` tagged photos
+  // can override below — they're editor-pinned hero shots.
+  const coverPhotoBySlug = new Map<string, { url: string; alt: string | null }>();
   for (const e of elServices) {
-    if (e.image_url) {
-      elCoverBySlug.set(e.slug, { url: e.image_url, alt: e.name });
-    }
+    if (e.image_url) coverPhotoBySlug.set(e.slug, { url: e.image_url, alt: e.name });
   }
 
-  // Fetch cover photos and photo counts per service via tags (PICC media_files).
-  // Seeded from EL `image_url` first; per-service tagged-hero query overrides
-  // when a more specifically-tagged photo exists in PICC's media library.
-  const coverPhotoMap = new Map<string, { public_url: string; alt_text: string | null }>();
-  Array.from(elCoverBySlug.entries()).forEach(([slug, c]) => {
-    coverPhotoMap.set(slug, { public_url: c.url, alt_text: c.alt });
-  });
+  // Cover photo + photo/video counts per service. Cover priority:
+  //   1. PICC media_files `service:<slug> + hero` (editor-pinned)
+  //   2. EL canonical image_url (already seeded into coverPhotoBySlug)
+  // Photo + video counts come from PICC media_files (still legacy media).
   const photoCountMap = new Map<string, number>();
   const videoCountMap = new Map<string, number>();
 
-  for (const s of (services || [])) {
-    const serviceTag = `service:${(s as any).slug}`;
+  for (const s of services) {
+    const serviceTag = `service:${s.slug}`;
 
-    // Cover photo: tagged with service:{slug} AND hero
+    // Editor-pinned PICC hero (overrides EL image_url when present)
     const { data: heroPhotos } = await supabase
       .from('media_files')
       .select('public_url, alt_text, title')
@@ -100,9 +121,9 @@ export default async function ServicesIndexPage() {
       .limit(1);
 
     if (heroPhotos && heroPhotos.length > 0) {
-      coverPhotoMap.set((s as any).slug, {
-        public_url: heroPhotos[0].public_url,
-        alt_text: heroPhotos[0].alt_text || heroPhotos[0].title || null,
+      coverPhotoBySlug.set(s.slug, {
+        url: heroPhotos[0].public_url,
+        alt: heroPhotos[0].alt_text || heroPhotos[0].title || null,
       });
     }
 
@@ -198,9 +219,10 @@ export default async function ServicesIndexPage() {
     return candidates[0] || null;
   }
 
-  const allServices = (services || []).map((s: any) => {
-    const m = metricsMap.get(s.id);
+  const allServices = services.map((s) => {
+    const m = metricsBySlug.get(s.slug);
     const elQuote = findQuoteForService(s.slug);
+    const cover = coverPhotoBySlug.get(s.slug);
     return {
       id: s.id,
       name: s.name,
@@ -212,7 +234,7 @@ export default async function ServicesIndexPage() {
       metadata: s.metadata,
       staff_count: m?.staff_count || null,
       clients_served: m?.clients_served || null,
-      cover_photo: coverPhotoMap.get(s.slug) || null,
+      cover_photo: cover ? { public_url: cover.url, alt_text: cover.alt } : null,
       photo_count: photoCountMap.get(s.slug) || 0,
       has_video: (videoCountMap.get(s.slug) || 0) > 0,
       el_quote: elQuote ? {
