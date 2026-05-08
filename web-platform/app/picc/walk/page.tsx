@@ -195,6 +195,22 @@ const STOPS: Stop[] = [
   },
   {
     num: '12',
+    title: 'The printed annual report',
+    blurb: 'PDF generation pipeline. React-PDF + Inter/Caveat fonts on /tmp. Audience-targeted: community · funder · supporter · board.',
+    stageNote: 'Same data, four lenses. Funders see the funder cut. Community sees the community cut. Print is print — the platform is the source.',
+    publicUrl: '/picc/reports/builder',
+    publicLabel: 'picc.studio/picc/reports/builder',
+    pencilFile: 'picc-annual-report.pen',
+    pencilFrame: '📄 Annual report cover · spreads',
+    elAdmin: [
+      { label: 'Annual report data composer', href: '/picc/annual-report-data' },
+      { label: 'Direct PDF (community)', href: '/api/pdf/generate?type=annual-report&year=2024-25&audience=community' },
+      { label: 'Direct PDF (funder)', href: '/api/pdf/generate?type=annual-report&year=2024-25&audience=funder' },
+    ],
+    colour: SECTION_COLOURS.economic,
+  },
+  {
+    num: '13',
     title: 'Operator command centres',
     blurb: 'Behind the scenes — six command centres in operator-day order: Vision · Canonical · Capture · Curate · Govern · Ship.',
     stageNote: 'Audience won\'t see this. Show only if a partner asks "how do you maintain it?"',
@@ -228,7 +244,7 @@ export default function StageWalkPage() {
             className="font-fraunces font-bold leading-[1.05] mb-3"
             style={{ color: '#FBF8EE', fontSize: 'clamp(40px, 6vw, 64px)' }}
           >
-            12 stops. One platform. Three lenses.
+            {STOPS.length} stops. One platform. Three lenses.
           </h1>
           <p
             className="font-fraunces max-w-3xl"

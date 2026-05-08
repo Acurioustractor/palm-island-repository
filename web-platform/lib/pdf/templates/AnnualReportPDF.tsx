@@ -526,12 +526,21 @@ export default function AnnualReportPDF({
   // Compliance data
   const comp = data.compliance
 
-  // Community voices — use pre-assigned voice distribution
+  // Community voices — use pre-assigned voice distribution. Guard
+  // against partial data: any of the five buckets can be missing if
+  // fetch-report-data fell back to a stale static shape.
   const allVoices = data.communityVoices || []
-  const va = data.voiceAssignments
+  const EMPTY_BUCKET = { voices: [] as typeof allVoices }
+  const va = {
+    communityVoices: data.voiceAssignments?.communityVoices ?? EMPTY_BUCKET,
+    youthVoices: data.voiceAssignments?.youthVoices ?? EMPTY_BUCKET,
+    resilience: data.voiceAssignments?.resilience ?? EMPTY_BUCKET,
+    floodStories: data.voiceAssignments?.floodStories ?? EMPTY_BUCKET,
+    nextTwenty: data.voiceAssignments?.nextTwenty ?? EMPTY_BUCKET,
+  }
 
   // Page photos — real community photos with AI fallbacks
-  const pp = data.pagePhotos
+  const pp = data.pagePhotos || ({} as typeof data.pagePhotos)
 
   // History eras
   const eras = data.historyEras || []
