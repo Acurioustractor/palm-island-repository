@@ -33,6 +33,7 @@ import {
 } from '@/lib/empathy-ledger/el-server'
 import { getPhotosForStoryteller, getStorytellerConnections, type ELPhoto, type ELConnection } from '@/lib/media/el-photos'
 import { getPiccServices } from '@/lib/services/el-services'
+import { getPiccProjects } from '@/lib/empathy-ledger/el-projects'
 import { createServerSupabase } from '@/lib/supabase/client'
 import { C } from '@/components/annual-report/2024-25/almanac/tokens'
 
@@ -112,12 +113,13 @@ export default async function StorytellerProfilePage({ params }: PageProps) {
   const personQuotes = findQuotesForPerson(allQuotes, teller.display_name)
   const featured = pickFeaturedQuote(personQuotes)
   const piccSupabase = createServerSupabase()
-  const [photos, stories, transcripts, serviceTags, piccServices, connections, bespokeArtResult] = await Promise.all([
+  const [photos, stories, transcripts, serviceTags, piccServices, allProjects, connections, bespokeArtResult] = await Promise.all([
     getPhotosForStoryteller(teller.id, 12),
     getStoriesForStoryteller(teller.id, { limit: 12, publishedOnly: true }),
     getTranscriptsForStoryteller(teller.id, { limit: 6 }),
     getServicesForStoryteller(teller.id),
     getPiccServices(),
+    getPiccProjects({ status: 'all' }).catch(() => []),
     getStorytellerConnections(teller.id),
     // Approved community art tagged related:<storyteller-slug>. Same
     // pattern as /services/<slug> — pieces submitted via /share-art and
@@ -145,7 +147,7 @@ export default async function StorytellerProfilePage({ params }: PageProps) {
   // 'bwgcolman_healing') onto PICC's canonical service roster so each
   // tile can link to /services/<slug>. Unmapped tags still render —
   // they just don't get a link.
-  const connectedServices = serviceTags.map((tag) => {
+  const tagDerivedServices = serviceTags.map((tag) => {
     const tagSlug = tag.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
     const match = piccServices.find((s) => {
       const nameSlug = s.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
@@ -158,6 +160,50 @@ export default async function StorytellerProfilePage({ params }: PageProps) {
       category: match?.service_category ?? null,
     }
   })
+
+  // Augment with canonical PICC service_slugs from the storyteller roster
+  // (storyteller_services join). This is the authoritative link between a
+  // storyteller and the services they deliver / use, set in EL admin.
+  const canonicalServiceSlugs = canonicalHit?.service_slugs ?? []
+  const seenSlugs = new Set(tagDerivedServices.map((s) => s.slug).filter((x): x is string => !!x))
+  const canonicalAdditions = canonicalServiceSlugs
+    .filter((sl) => !seenSlugs.has(sl))
+    .map((sl) => {
+      const match = piccServices.find((p) => p.slug === sl)
+      if (!match) return null
+      return {
+        tag: sl,
+        label: match.name,
+        slug: match.slug,
+        category: match.service_category ?? null,
+      }
+    })
+    .filter((x): x is { tag: string; label: string; slug: string; category: string | null } => !!x)
+  const connectedServices = [...tagDerivedServices, ...canonicalAdditions]
+
+  // Connected projects via canonical project_slugs (storyteller_projects
+  // join). Only renders if the storyteller is canonically linked.
+  type ConnectedProject = {
+    slug: string
+    name: string
+    cover_image_url: string | null
+    tagline: string | null
+    status: string
+  }
+  const canonicalProjectSlugs = canonicalHit?.project_slugs ?? []
+  const connectedProjects: ConnectedProject[] = canonicalProjectSlugs
+    .map((ps): ConnectedProject | null => {
+      const proj = allProjects.find((p) => p.slug === ps)
+      if (!proj) return null
+      return {
+        slug: proj.slug,
+        name: proj.name,
+        cover_image_url: proj.cover_image_url,
+        tagline: proj.tagline,
+        status: proj.status,
+      }
+    })
+    .filter((x): x is ConnectedProject => !!x)
 
   const portrait = photos[0] || null
   const galleryPhotos = photos.slice(1, 5)
@@ -202,6 +248,14 @@ export default async function StorytellerProfilePage({ params }: PageProps) {
         <WhereSheConnectsSection
           firstName={teller.display_name.split(/\s+/)[0]}
           services={connectedServices}
+        />
+      )}
+
+      {/* Connected projects — canonical project_slugs from EL roster */}
+      {connectedProjects.length > 0 && (
+        <ConnectedProjectsSection
+          firstName={teller.display_name.split(/\s+/)[0]}
+          projects={connectedProjects}
         />
       )}
 
@@ -819,6 +873,96 @@ function AppearsWithSection({
         >
           Source: Empathy Ledger v2 · image_depicted_people · only confirmed face matches surface here.
         </p>
+      </div>
+    </section>
+  )
+}
+
+function ConnectedProjectsSection({
+  firstName,
+  projects,
+}: {
+  firstName: string
+  projects: Array<{
+    slug: string
+    name: string
+    cover_image_url: string | null
+    tagline: string | null
+    status: string
+  }>
+}) {
+  return (
+    <section
+      className="px-6 md:px-12 py-20 md:py-28"
+      style={{ backgroundColor: '#FBF8EE' }}
+    >
+      <div className="max-w-6xl mx-auto flex flex-col items-center gap-8">
+        <div
+          className="uppercase font-bold"
+          style={{ color: C.ochre, fontSize: 11, letterSpacing: '0.3em' }}
+        >
+          Projects · canonical from Empathy Ledger
+        </div>
+        <h2
+          className="font-fraunces font-bold leading-tight text-center"
+          style={{ color: C.ocean, fontSize: 'clamp(28px, 4vw, 42px)' }}
+        >
+          Projects {firstName} is part of.
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
+          {projects.map((p) => (
+            <Link
+              key={p.slug}
+              href={`/projects/${p.slug}`}
+              className="group block rounded-2xl overflow-hidden border bg-white hover:shadow-md transition"
+              style={{ borderColor: C.border }}
+            >
+              {p.cover_image_url ? (
+                <div className="aspect-[16/10] relative" style={{ backgroundColor: C.shell }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={p.cover_image_url}
+                    alt={p.name}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                </div>
+              ) : (
+                <div
+                  className="aspect-[16/10] flex items-center justify-center p-4 text-center"
+                  style={{ backgroundColor: C.ocean + '15' }}
+                >
+                  <div
+                    className="font-fraunces font-bold leading-tight"
+                    style={{ color: C.ocean, fontSize: 18 }}
+                  >
+                    {p.name}
+                  </div>
+                </div>
+              )}
+              <div className="p-5">
+                {p.status && p.status !== 'active' && (
+                  <div
+                    className="text-[10px] uppercase font-bold mb-2"
+                    style={{ color: C.driftwood, letterSpacing: '0.2em' }}
+                  >
+                    {p.status.replace(/_/g, ' ')}
+                  </div>
+                )}
+                <h3
+                  className="font-fraunces font-bold leading-tight mb-2"
+                  style={{ color: C.ocean, fontSize: 18 }}
+                >
+                  {p.name}
+                </h3>
+                {p.tagline && (
+                  <p className="text-sm" style={{ color: C.driftwood, lineHeight: 1.5 }}>
+                    {p.tagline}
+                  </p>
+                )}
+              </div>
+            </Link>
+          ))}
+        </div>
       </div>
     </section>
   )

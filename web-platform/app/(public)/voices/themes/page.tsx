@@ -1,15 +1,16 @@
 /**
- * Themes index — landing for /voices/themes (no theme).
+ * Themes index — landing for /voices/themes.
  *
- * Two sections:
- *   1. Featured this year — editor-curated `featured_themes` table.
- *   2. All themes — top themes by quote count from `extracted_quotes`.
+ * Pulls from EL canonical (/api/picc/themes) — merges extracted_quotes
+ * and storyteller_quotes server-side. Featured themes are still PICC
+ * editor-curated (featured_themes table).
  *
  * Each tile links to /voices/themes/<theme>.
  */
 import Link from 'next/link'
 import { createServerSupabase } from '@/lib/supabase/client'
-import { C } from '@/components/annual-report/2024-25/almanac/tokens'
+import { getThemesIndex } from '@/lib/empathy-ledger/el-themes'
+import { C, SECTION_COLOURS } from '@/components/annual-report/2024-25/almanac/tokens'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 1800
@@ -27,53 +28,44 @@ interface FeaturedTheme {
   display_order: number
 }
 
-interface QuoteThemes {
-  theme: string | null
-  themes: string[] | null
+// Stable colour wheel for theme tiles (Saltwater & Earth families).
+const TILE_PALETTE = [
+  SECTION_COLOURS.healthWellbeing,
+  SECTION_COLOURS.educationCommunity,
+  SECTION_COLOURS.governance,
+  SECTION_COLOURS.justiceSafety,
+  SECTION_COLOURS.economic,
+]
+function colourFor(theme: string): string {
+  let hash = 0
+  for (let i = 0; i < theme.length; i++) hash = (hash * 31 + theme.charCodeAt(i)) & 0xfffffff
+  return TILE_PALETTE[hash % TILE_PALETTE.length]
 }
 
 export default async function ThemesIndexPage() {
   const supabase = createServerSupabase()
 
-  const [{ data: featured }, { data: quoteThemes }] = await Promise.all([
+  const [{ data: featured }, themesIndex] = await Promise.all([
     supabase
       .from('featured_themes')
       .select('theme, curator_note, fiscal_year, display_order')
       .eq('is_active', true)
       .order('display_order')
       .limit(12),
-    supabase
-      .from('extracted_quotes')
-      .select('theme, themes')
-      .or('is_validated.eq.true,suggested_for_report.eq.true')
-      .limit(2000),
+    getThemesIndex(),
   ])
 
   const featuredThemes = (featured || []) as FeaturedTheme[]
-
-  // Tally theme frequency across both the singular `theme` column and the
-  // multi-tag `themes` array, normalised to lowercase.
-  const counts = new Map<string, number>()
-  for (const row of (quoteThemes || []) as QuoteThemes[]) {
-    const tags = new Set<string>()
-    if (row.theme) tags.add(row.theme.toLowerCase().trim())
-    for (const t of row.themes || []) {
-      if (t) tags.add(t.toLowerCase().trim())
-    }
-    Array.from(tags).forEach((t) => {
-      if (!t) return
-      counts.set(t, (counts.get(t) || 0) + 1)
-    })
-  }
-
   const featuredKeys = new Set(featuredThemes.map((f) => f.theme.toLowerCase().trim()))
-  const ranked = Array.from(counts.entries())
-    .filter(([t]) => !featuredKeys.has(t))
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 36)
 
-  const totalCount = Array.from(counts.values()).reduce((a, b) => a + b, 0)
-  const totalThemes = counts.size
+  const ranked = themesIndex.themes.filter((t) => !featuredKeys.has(t.theme))
+
+  // Top tier (large tiles, count >= 8 OR top 6 by count)
+  const top = ranked.slice(0, 6)
+  const rest = ranked.slice(6, 60)
+
+  const totalCount = themesIndex.total_tagged
+  const totalThemes = themesIndex.total_themes
 
   return (
     <main className="min-h-screen" style={{ backgroundColor: '#FBF8EE' }}>
@@ -153,29 +145,71 @@ export default async function ThemesIndexPage() {
         </section>
       )}
 
-      {ranked.length > 0 && (
-        <section className="px-6 md:px-12 py-12">
-          <div className="max-w-5xl mx-auto">
+      {top.length > 0 && (
+        <section className="px-6 md:px-12 py-8">
+          <div className="max-w-6xl mx-auto">
             <h2
               className="font-fraunces font-bold mb-6"
               style={{ color: C.ocean, fontSize: 28 }}
             >
-              All themes
+              Strongest threads right now
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {top.map((t) => {
+                const c = colourFor(t.theme)
+                return (
+                  <Link
+                    key={t.theme}
+                    href={`/voices/themes/${encodeURIComponent(t.theme)}`}
+                    className="block p-6 rounded-2xl hover:shadow-md transition group"
+                    style={{ backgroundColor: c + '15', border: `1px solid ${c}33` }}
+                  >
+                    <div
+                      className="uppercase font-bold mb-3"
+                      style={{ color: c, fontSize: 10, letterSpacing: '0.3em' }}
+                    >
+                      {t.count} {t.count === 1 ? 'voice' : 'voices'}
+                    </div>
+                    <div
+                      className="font-fraunces font-bold capitalize leading-tight"
+                      style={{ color: C.ocean, fontSize: 26 }}
+                    >
+                      {t.theme}
+                    </div>
+                    <div
+                      className="mt-4 text-xs uppercase font-bold tracking-widest opacity-0 group-hover:opacity-100 transition"
+                      style={{ color: c, letterSpacing: '0.2em' }}
+                    >
+                      Read voices →
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {rest.length > 0 && (
+        <section className="px-6 md:px-12 py-12">
+          <div className="max-w-5xl mx-auto">
+            <h2
+              className="font-fraunces font-bold mb-6"
+              style={{ color: C.ocean, fontSize: 24 }}
+            >
+              Every other thread
             </h2>
             <div className="flex flex-wrap gap-2">
-              {ranked.map(([theme, count]) => (
+              {rest.map((t) => (
                 <Link
-                  key={theme}
-                  href={`/voices/themes/${encodeURIComponent(theme)}`}
+                  key={t.theme}
+                  href={`/voices/themes/${encodeURIComponent(t.theme)}`}
                   className="inline-flex items-center gap-2 px-3 py-2 rounded-full border text-sm hover:shadow-sm transition"
                   style={{ borderColor: C.driftwood, color: C.ocean, backgroundColor: '#fff' }}
                 >
-                  <span className="capitalize">{theme}</span>
-                  <span
-                    className="text-xs"
-                    style={{ color: C.driftwood }}
-                  >
-                    {count}
+                  <span className="capitalize">{t.theme}</span>
+                  <span className="text-xs" style={{ color: C.driftwood }}>
+                    {t.count}
                   </span>
                 </Link>
               ))}
@@ -186,8 +220,21 @@ export default async function ThemesIndexPage() {
 
       {ranked.length === 0 && featuredThemes.length === 0 && (
         <section className="px-6 md:px-12 py-12">
-          <div className="max-w-5xl mx-auto text-center" style={{ color: C.driftwood }}>
-            No themes tagged yet. Once voices are validated, themes will surface here.
+          <div className="max-w-3xl mx-auto text-center">
+            <p
+              className="font-fraunces"
+              style={{ color: C.driftwood, fontSize: 18, lineHeight: 1.6 }}
+            >
+              Themes will appear here once voices are validated and tagged
+              in the Empathy Ledger archive. Check back soon.
+            </p>
+            <Link
+              href="/voices"
+              className="inline-block mt-6 px-5 py-3 rounded-md font-semibold hover:opacity-90 transition"
+              style={{ backgroundColor: C.ocean, color: '#FBF8EE', fontSize: 13 }}
+            >
+              Read voices instead →
+            </Link>
           </div>
         </section>
       )}
