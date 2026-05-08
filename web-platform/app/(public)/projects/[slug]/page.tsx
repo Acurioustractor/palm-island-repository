@@ -22,6 +22,8 @@ import type { Metadata } from 'next'
 import { createServerSupabase } from '@/lib/supabase/client'
 import { getPhotosForSlot, type ELPhoto } from '@/lib/media/el-photos'
 import { getPiccProject } from '@/lib/empathy-ledger/el-projects'
+import { getPiccStorytellers } from '@/lib/empathy-ledger/el-storytellers'
+import { getPiccServices } from '@/lib/services/el-services'
 import { C } from '@/components/annual-report/2024-25/almanac/tokens'
 
 export const dynamic = 'force-dynamic'
@@ -45,7 +47,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
   const { slug } = await params
   const supabase = createServerSupabase()
 
-  const [project, slotPhotos, { data: bespokeRows }] = await Promise.all([
+  const [project, slotPhotos, { data: bespokeRows }, allStorytellers, elServices] = await Promise.all([
     getPiccProject(slug),
     getPhotosForSlot(`project-${slug}`, 24),
     supabase
@@ -57,6 +59,8 @@ export default async function ProjectDetailPage({ params }: PageProps) {
       .contains('tags', [`related:${slug}`])
       .order('created_at', { ascending: false })
       .limit(12),
+    getPiccStorytellers({ limit: 500 }).catch(() => []),
+    getPiccServices({ status: 'active' }).catch(() => []),
   ])
 
   if (!project || project.status === 'cancelled') notFound()
@@ -90,6 +94,35 @@ export default async function ProjectDetailPage({ params }: PageProps) {
 
   const heroPhoto = proj.hero_image_url || photos[0]?.url || null
   const galleryPhotos = proj.hero_image_url ? photos.slice(0, 8) : photos.slice(1, 9)
+
+  // Connected storytellers — those whose project_slugs include this slug.
+  const connectedStorytellers = allStorytellers.filter((s) =>
+    (s.project_slugs ?? []).includes(slug),
+  )
+
+  // Connected services — derived from shared storytellers' service_slugs.
+  // Surfaces the human bridge between programmes and the projects they
+  // make possible, without requiring a service↔project schema.
+  const serviceShareCount = new Map<string, number>()
+  for (const st of connectedStorytellers) {
+    for (const svcSlug of st.service_slugs ?? []) {
+      serviceShareCount.set(svcSlug, (serviceShareCount.get(svcSlug) || 0) + 1)
+    }
+  }
+  const connectedServices = Array.from(serviceShareCount.entries())
+    .map(([svcSlug, share]) => {
+      const meta = elServices.find((s) => s.slug === svcSlug)
+      if (!meta) return null
+      return {
+        slug: svcSlug,
+        name: meta.name,
+        share,
+        image_url: meta.image_url,
+      }
+    })
+    .filter((x): x is { slug: string; name: string; share: number; image_url: string | null } => !!x)
+    .sort((a, b) => b.share - a.share)
+    .slice(0, 6)
 
   const startYear = proj.start_date ? new Date(proj.start_date).getFullYear() : null
   const targetYear = proj.end_date
@@ -280,6 +313,139 @@ export default async function ProjectDetailPage({ params }: PageProps) {
               </Link>
               .
             </p>
+          </div>
+        </section>
+      )}
+
+      {/* Connected storytellers + services */}
+      {(connectedStorytellers.length > 0 || connectedServices.length > 0) && (
+        <section className="px-6 md:px-12 py-16" style={{ backgroundColor: C.shell }}>
+          <div className="max-w-6xl mx-auto">
+            <div
+              className="uppercase font-bold mb-3"
+              style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.3em' }}
+            >
+              Connected to {proj.name}
+            </div>
+            <h2
+              className="font-fraunces font-bold leading-tight mb-10"
+              style={{ color: C.ocean, fontSize: 'clamp(28px, 4vw, 44px)' }}
+            >
+              The people, and the services this work runs through.
+            </h2>
+
+            {connectedStorytellers.length > 0 && (
+              <div className="mb-12">
+                <div
+                  className="uppercase font-bold mb-4"
+                  style={{ color: C.driftwood, fontSize: 10, letterSpacing: '0.3em' }}
+                >
+                  {connectedStorytellers.length} {connectedStorytellers.length === 1 ? 'storyteller' : 'storytellers'}
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  {connectedStorytellers.slice(0, 12).map((s) => (
+                    <Link
+                      key={s.id}
+                      href={`/voices/${s.slug}`}
+                      className="flex items-center gap-3 px-3 py-2 rounded-full bg-white border hover:shadow-sm transition"
+                      style={{ borderColor: s.is_elder ? C.starGold : C.border }}
+                    >
+                      {s.photo_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={s.photo_url}
+                          alt={s.display_name}
+                          className="w-8 h-8 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div
+                          className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
+                          style={{ backgroundColor: C.ocean + '22', color: C.ocean }}
+                        >
+                          {s.display_name
+                            .split(' ')
+                            .map((p) => p[0])
+                            .filter(Boolean)
+                            .slice(0, 2)
+                            .join('')}
+                        </div>
+                      )}
+                      <div className="pr-1">
+                        <div className="font-semibold leading-tight" style={{ color: C.ocean, fontSize: 13 }}>
+                          {s.display_name}
+                        </div>
+                        {s.is_elder && (
+                          <div
+                            className="text-[10px] uppercase font-bold tracking-widest leading-none mt-0.5"
+                            style={{ color: C.ochre, letterSpacing: '0.15em' }}
+                          >
+                            Elder
+                          </div>
+                        )}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {connectedServices.length > 0 && (
+              <div>
+                <div
+                  className="uppercase font-bold mb-4"
+                  style={{ color: C.driftwood, fontSize: 10, letterSpacing: '0.3em' }}
+                >
+                  {connectedServices.length} connected {connectedServices.length === 1 ? 'service' : 'services'}
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {connectedServices.map((svc) => (
+                    <Link
+                      key={svc.slug}
+                      href={`/services/${svc.slug}`}
+                      className="group block rounded-2xl overflow-hidden border bg-white hover:shadow-md transition"
+                      style={{ borderColor: C.border }}
+                    >
+                      {svc.image_url ? (
+                        <div className="aspect-[16/10] relative" style={{ backgroundColor: C.shell }}>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={svc.image_url}
+                            alt={svc.name}
+                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          />
+                        </div>
+                      ) : (
+                        <div
+                          className="aspect-[16/10] flex items-center justify-center p-4 text-center"
+                          style={{ backgroundColor: C.ocean + '15' }}
+                        >
+                          <div
+                            className="font-fraunces font-bold leading-tight"
+                            style={{ color: C.ocean, fontSize: 18 }}
+                          >
+                            {svc.name}
+                          </div>
+                        </div>
+                      )}
+                      <div className="p-5">
+                        <div
+                          className="text-[10px] uppercase font-bold mb-2"
+                          style={{ color: C.ocean, letterSpacing: '0.2em' }}
+                        >
+                          {svc.share} shared {svc.share === 1 ? 'voice' : 'voices'}
+                        </div>
+                        <h3
+                          className="font-fraunces font-bold leading-tight"
+                          style={{ color: C.ocean, fontSize: 18 }}
+                        >
+                          {svc.name}
+                        </h3>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </section>
       )}

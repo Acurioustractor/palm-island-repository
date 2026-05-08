@@ -2,8 +2,11 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { createServerSupabase } from '@/lib/supabase/client';
 import { ServiceStoryPage } from '@/components/services/ServiceStoryPage';
+import { ServiceConnections, type ConnectedStoryteller, type ConnectedProject } from '@/components/services/ServiceConnections';
 import { getELQuotes } from '@/lib/empathy-ledger/el-server';
 import { getPiccServices } from '@/lib/services/el-services';
+import { getPiccStorytellers } from '@/lib/empathy-ledger/el-storytellers';
+import { getPiccProjects } from '@/lib/empathy-ledger/el-projects';
 
 // Service slug → keywords for EL quote matching
 const SERVICE_KEYWORDS: Record<string, string[]> = {
@@ -313,6 +316,56 @@ export default async function ServiceDetailPage({ params }: PageProps) {
   // Resolve EL voices
   const elVoices = await elVoicesPromise;
 
+  // Connected storytellers + projects via shared-storyteller bridge.
+  // Don't fail the page if EL is slow — empty arrays render nothing.
+  const [connectedStorytellers, allProjects] = await Promise.all([
+    getPiccStorytellers({ service: slug, limit: 200 }).catch(() => []),
+    getPiccProjects({ status: 'all' }).catch(() => []),
+  ]);
+
+  // Map storyteller-IDs in this service so we can score project overlap.
+  const storytellerIdSet = new Set(connectedStorytellers.map((s) => s.id));
+
+  // Pull every storyteller (so we can see project_slugs across roster
+  // and identify which projects share storytellers with this service).
+  const allStorytellers = await getPiccStorytellers({ limit: 500 }).catch(() => []);
+
+  const projectShare = new Map<string, number>();
+  for (const st of allStorytellers) {
+    if (!storytellerIdSet.has(st.id)) continue;
+    for (const ps of st.project_slugs ?? []) {
+      projectShare.set(ps, (projectShare.get(ps) || 0) + 1);
+    }
+  }
+
+  const connectedProjects: ConnectedProject[] = [];
+  for (const p of allProjects) {
+    const share = projectShare.get(p.slug) || 0;
+    if (share === 0) continue;
+    connectedProjects.push({
+      slug: p.slug,
+      name: p.name,
+      description: p.description,
+      cover_image_url: p.cover_image_url,
+      status: p.status,
+      shared_storyteller_count: share,
+    });
+  }
+  connectedProjects.sort((a, b) => b.shared_storyteller_count - a.shared_storyteller_count);
+
+  const renderableStorytellers: ConnectedStoryteller[] = connectedStorytellers
+    .filter((s) => !!s.photo_url || s.quote_count > 0)
+    .map((s) => ({
+      id: s.id,
+      slug: s.slug,
+      display_name: s.display_name,
+      role: s.role,
+      photo_url: s.photo_url,
+      is_elder: s.is_elder,
+      quote_count: s.quote_count,
+    }))
+    .sort((a, b) => Number(b.is_elder) - Number(a.is_elder) || b.quote_count - a.quote_count);
+
   // Approved community-submitted artwork tagged related:<slug>. Lights up
   // the new "Bespoke pieces about this work" section. Submissions arrive via
   // /share-art and are approved at /picc/design-system/submissions.
@@ -327,17 +380,26 @@ export default async function ServiceDetailPage({ params }: PageProps) {
     .limit(12);
 
   return (
-    <ServiceStoryPage
-      service={service}
-      metrics={metricsResult.data || []}
-      stories={normalizedStories}
-      media={galleryResult.data || []}
-      heroImage={heroImage}
-      heroVideo={heroVideo}
-      videos={uniqueVideos}
-      bespokeArt={bespokeArtRows || []}
-      videoUrl={primaryVideoUrl}
-      elVoices={elVoices}
-    />
+    <>
+      <ServiceStoryPage
+        service={service}
+        metrics={metricsResult.data || []}
+        stories={normalizedStories}
+        media={galleryResult.data || []}
+        heroImage={heroImage}
+        heroVideo={heroVideo}
+        videos={uniqueVideos}
+        bespokeArt={bespokeArtRows || []}
+        videoUrl={primaryVideoUrl}
+        elVoices={elVoices}
+      />
+      <ServiceConnections
+        serviceSlug={service.slug}
+        serviceName={service.name}
+        serviceColour={service.service_color || undefined}
+        storytellers={renderableStorytellers}
+        projects={connectedProjects}
+      />
+    </>
   );
 }

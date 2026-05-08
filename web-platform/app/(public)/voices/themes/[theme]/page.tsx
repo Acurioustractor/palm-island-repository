@@ -1,48 +1,21 @@
 /**
- * Per-theme voices view — renders every validated quote tagged with a
- * given theme. Linked from /voices/pulse and any future "filter by
- * theme" surface.
+ * Per-theme voices view — every quote tagged with the given theme,
+ * pulled from EL canonical (extracted_quotes + storyteller_quotes
+ * merged server-side at /api/picc/themes?theme=).
+ *
+ * Each quote can deep-link to the storyteller's profile when the
+ * attribution resolves to a known PICC storyteller.
  */
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { createServerSupabase } from '@/lib/supabase/client'
-import { getPalmStorytellers } from '@/lib/empathy-ledger/el-server'
+import { getTheme } from '@/lib/empathy-ledger/el-themes'
 import { C } from '@/components/annual-report/2024-25/almanac/tokens'
-
-function slugifyName(name: string): string {
-  return name
-    .toLowerCase()
-    .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '')
-}
-
-function normaliseName(name: string): string {
-  return name
-    .toLowerCase()
-    .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9 ]+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-}
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 1800
 
 interface PageProps {
   params: Promise<{ theme: string }>
-}
-
-interface QuoteRow {
-  id: string
-  quote_text: string
-  attribution: string | null
-  theme: string | null
-  sentiment: string | null
-  impact_score: number | null
-  created_at: string
 }
 
 export async function generateMetadata({ params }: PageProps) {
@@ -59,28 +32,8 @@ export default async function ThemeVoicesPage({ params }: PageProps) {
   const theme = decodeURIComponent(rawTheme).toLowerCase()
   if (!theme || theme.length > 60) notFound()
 
-  const supabase = createServerSupabase()
-
-  // Match in either the singular `theme` column or the multi-tag `themes` array.
-  const [{ data }, storytellers] = await Promise.all([
-    supabase
-      .from('extracted_quotes')
-      .select('id, quote_text, attribution, theme, sentiment, impact_score, themes, created_at')
-      .or('is_validated.eq.true,suggested_for_report.eq.true')
-      .or(`theme.ilike.${theme},themes.cs.{${theme}}`)
-      .order('impact_score', { ascending: false, nullsFirst: false })
-      .limit(200),
-    getPalmStorytellers(),
-  ])
-
-  const quotes = (data || []) as QuoteRow[]
-
-  // Name → /voices/<slug> lookup so quote attributions can deep-link to
-  // the storyteller's profile when matched.
-  const nameToSlug: Record<string, string> = {}
-  for (const t of storytellers) {
-    nameToSlug[normaliseName(t.display_name)] = slugifyName(t.display_name)
-  }
+  const detail = await getTheme(theme)
+  const quotes = detail.quotes
 
   return (
     <main className="min-h-screen" style={{ backgroundColor: '#FBF8EE' }}>
@@ -90,11 +43,11 @@ export default async function ThemeVoicesPage({ params }: PageProps) {
       >
         <div className="max-w-5xl mx-auto">
           <Link
-            href="/voices/pulse"
+            href="/voices/themes"
             className="text-xs uppercase font-bold tracking-widest hover:opacity-80"
             style={{ color: C.driftwood }}
           >
-            ← Community pulse
+            ← All themes
           </Link>
           <div
             className="uppercase font-bold mt-8 mb-3"
@@ -152,59 +105,85 @@ export default async function ThemeVoicesPage({ params }: PageProps) {
       <section className="px-6 md:px-12 py-12 md:py-16">
         <div className="max-w-4xl mx-auto flex flex-col gap-5">
           {quotes.length === 0 ? (
-            <p style={{ color: C.muted, fontSize: 16 }}>
-              No validated voices yet for the theme &ldquo;{theme}&rdquo;.
-            </p>
+            <div className="text-center py-12">
+              <p
+                className="font-fraunces"
+                style={{ color: C.driftwood, fontSize: 18, lineHeight: 1.6 }}
+              >
+                No voices yet for the theme &ldquo;{theme}&rdquo;. The
+                Empathy Ledger archive may not have tagged this theme on
+                Palm voices specifically — try a different theme, or read
+                voices unfiltered.
+              </p>
+              <Link
+                href="/voices"
+                className="inline-block mt-6 px-5 py-3 rounded-md font-semibold hover:opacity-90 transition"
+                style={{ backgroundColor: C.ocean, color: '#FBF8EE', fontSize: 13 }}
+              >
+                Read all voices →
+              </Link>
+            </div>
           ) : (
             quotes.map((q) => (
               <article
                 key={q.id}
-                className="rounded-md p-6"
+                className="rounded-md p-6 flex gap-5 items-start"
                 style={{ backgroundColor: C.sand }}
               >
-                <blockquote
-                  className="font-fraunces italic leading-snug"
-                  style={{ color: C.earth, fontSize: 'clamp(17px, 2vw, 22px)' }}
-                >
-                  &ldquo;{q.quote_text}&rdquo;
-                </blockquote>
-                <div className="mt-3 flex flex-wrap items-center gap-3">
-                  {(() => {
-                    const name = q.attribution || 'Community Member'
-                    const slug = q.attribution ? nameToSlug[normaliseName(q.attribution)] : null
-                    return slug ? (
+                {q.photo_url && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={q.photo_url}
+                    alt={q.attribution || ''}
+                    className="hidden sm:block w-16 h-16 rounded-full object-cover flex-shrink-0"
+                    style={{ border: `2px solid ${q.is_elder ? C.starGold : C.shell}` }}
+                  />
+                )}
+                <div className="flex-1 min-w-0">
+                  <blockquote
+                    className="font-fraunces italic leading-snug"
+                    style={{ color: C.earth, fontSize: 'clamp(17px, 2vw, 22px)' }}
+                  >
+                    &ldquo;{q.quote}&rdquo;
+                  </blockquote>
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                    {q.storyteller_slug ? (
                       <Link
-                        href={`/voices/${slug}`}
+                        href={`/voices/${q.storyteller_slug}`}
                         className="font-semibold hover:underline"
                         style={{ color: C.ocean, fontSize: 13 }}
                       >
-                        {name}
+                        {q.attribution || 'Storyteller'}
                       </Link>
                     ) : (
                       <span
                         className="font-semibold"
                         style={{ color: C.ocean, fontSize: 13 }}
                       >
-                        {name}
+                        {q.attribution || 'Community Member'}
                       </span>
-                    )
-                  })()}
-                  {q.sentiment && (
-                    <span
-                      className="capitalize"
-                      style={{ color: C.driftwood, fontSize: 12 }}
-                    >
-                      · {q.sentiment}
-                    </span>
-                  )}
-                  {q.impact_score != null && (
-                    <span
-                      className="ml-auto uppercase font-bold"
-                      style={{ color: C.ochre, fontSize: 10, letterSpacing: '0.2em' }}
-                    >
-                      Impact {q.impact_score}
-                    </span>
-                  )}
+                    )}
+                    {q.is_elder && (
+                      <span
+                        className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full"
+                        style={{
+                          backgroundColor: C.starGold,
+                          color: C.midnight,
+                          letterSpacing: '0.15em',
+                        }}
+                      >
+                        Elder
+                      </span>
+                    )}
+                    {q.source === 'curated' && (
+                      <span
+                        className="text-[10px] uppercase font-bold tracking-widest"
+                        style={{ color: C.ochre, letterSpacing: '0.2em' }}
+                      >
+                        · Editor pick
+                      </span>
+                    )}
+                  </div>
                 </div>
               </article>
             ))
