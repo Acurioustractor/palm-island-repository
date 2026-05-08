@@ -15,11 +15,14 @@ import { C, SECTION_COLOURS } from '@/components/annual-report/2024-25/almanac/t
 export const dynamic = 'force-dynamic'
 export const revalidate = 1800
 
-export const metadata = {
+import { ogMeta } from '@/lib/seo/og'
+
+export const metadata = ogMeta({
   title: 'Themes — Voices · PICC',
   description:
     'Themes the Palm Island community has been speaking to — featured and emerging.',
-}
+  path: '/voices/themes',
+})
 
 interface FeaturedTheme {
   theme: string
@@ -58,14 +61,24 @@ export default async function ThemesIndexPage() {
   const featuredThemes = (featured || []) as FeaturedTheme[]
   const featuredKeys = new Set(featuredThemes.map((f) => f.theme.toLowerCase().trim()))
 
-  const ranked = themesIndex.themes.filter((t) => !featuredKeys.has(t.theme))
+  // Quality filter — themes with only one tagged quote are mostly
+  // noise (typos, one-off quote tags). Surface only themes the
+  // community has named at least twice. The total count strip still
+  // reflects every theme in the archive (transparency); the
+  // browseable grid is the curated cut.
+  const MIN_COUNT = 2
+  const ranked = themesIndex.themes
+    .filter((t) => !featuredKeys.has(t.theme))
+    .filter((t) => t.count >= MIN_COUNT)
 
-  // Top tier (large tiles, count >= 8 OR top 6 by count)
+  // Top tier (large tiles, top 6 by count)
   const top = ranked.slice(0, 6)
   const rest = ranked.slice(6, 60)
 
   const totalCount = themesIndex.total_tagged
   const totalThemes = themesIndex.total_themes
+  const browseableCount = featuredThemes.length + ranked.length
+  const longTailCount = themesIndex.total_themes - browseableCount
 
   return (
     <main className="min-h-screen" style={{ backgroundColor: '#FBF8EE' }}>
@@ -86,6 +99,11 @@ export default async function ThemesIndexPage() {
             style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.3em' }}
           >
             {totalThemes.toLocaleString()} themes · {totalCount.toLocaleString()} tagged voices
+            {longTailCount > 0 && (
+              <span style={{ opacity: 0.6 }}>
+                {' '}· browsing {browseableCount} most-named
+              </span>
+            )}
           </div>
           <h1
             className="font-fraunces font-bold leading-tight"

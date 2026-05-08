@@ -20,15 +20,17 @@ import { getPiccStorytellers } from '@/lib/empathy-ledger/el-storytellers'
 import { getPiccServices } from '@/lib/services/el-services'
 import { getPhotosForSlots } from '@/lib/media/el-photos'
 import { C, SECTION_COLOURS } from '@/components/annual-report/2024-25/almanac/tokens'
+import { ogMeta } from '@/lib/seo/og'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 1800
 
-export const metadata = {
-  title: 'Community Voices — Palm Island Community Company',
+export const metadata = ogMeta({
+  title: 'Voices — Palm Island Community Company',
   description:
     'Every named voice in the Palm Island archive — faces, services, and the threads between them.',
-}
+  path: '/voices',
+})
 
 function slugify(name: string): string {
   return name
