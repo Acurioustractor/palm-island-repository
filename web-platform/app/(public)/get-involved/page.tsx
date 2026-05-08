@@ -17,11 +17,14 @@ import Link from 'next/link'
 import { createServerSupabase } from '@/lib/supabase/client'
 import { C, SECTION_COLOURS } from '@/components/annual-report/2024-25/almanac/tokens'
 
-export const metadata = {
+import { ogMeta } from '@/lib/seo/og'
+
+export const metadata = ogMeta({
   title: 'Get involved — Palm Island Community Company',
   description:
     'Five ways to add your voice, your photo, your story, or your partnership to the Palm Island archive.',
-}
+  path: '/get-involved',
+})
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 600

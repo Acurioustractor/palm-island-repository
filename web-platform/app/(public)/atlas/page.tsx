@@ -38,12 +38,14 @@ import { getPhotosForSlots } from '@/lib/media/el-photos'
 import AnimatedStat from '@/components/data/AnimatedStat'
 import { ScrollReveal } from '@/components/story-scroll'
 import AtlasPublicSearch from './AtlasPublicSearch'
+import { ogMeta } from '@/lib/seo/og'
 
-export const metadata = {
-  title: 'Atlas — every part of the platform | Palm Island Community Company',
+export const metadata = ogMeta({
+  title: 'Atlas — every part of the platform · PICC',
   description:
     'One page that connects every voice, every service, every project, every photograph in the Palm Island Community Company archive.',
-}
+  path: '/atlas',
+})
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0

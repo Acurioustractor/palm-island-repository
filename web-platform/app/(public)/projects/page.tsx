@@ -22,15 +22,17 @@ import { getHeroImage, getMediaByTags } from '@/lib/media/utils'
 import { C } from '@/components/annual-report/2024-25/almanac/tokens'
 import { ProjectsGrid, type ProjectCardRow } from './ProjectsGrid'
 import { getPiccProjects } from '@/lib/empathy-ledger/el-projects'
+import { ogMeta } from '@/lib/seo/og'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 300
 
-export const metadata: Metadata = {
-  title: 'Projects on Country | Palm Island Community Company',
+export const metadata: Metadata = ogMeta({
+  title: 'Projects on Country — Palm Island Community Company',
   description:
     'Every project PICC is building, planning, or has completed — community-led work across culture, technology, and enterprise.',
-}
+  path: '/projects',
+})
 
 async function getPublicProjects(): Promise<ProjectCardRow[]> {
   // Empathy Ledger v2 is the canonical PICC project roster (Phase 1 of the

@@ -18,11 +18,14 @@ import { getPalmStorytellers } from '@/lib/empathy-ledger/el-server'
 import { C, SECTION_COLOURS } from '@/components/annual-report/2024-25/almanac/tokens'
 import StoriesGrid, { type StoryCard, type TypeKey } from './StoriesGrid'
 
-export const metadata = {
+import { ogMeta } from '@/lib/seo/og'
+
+export const metadata = ogMeta({
   title: 'Stories — Palm Island Community Company',
   description:
     'Every public story from Palm Island — community conversations, resilience narratives, elder wisdom, and service-in-action stories.',
-}
+  path: '/stories',
+})
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 1800

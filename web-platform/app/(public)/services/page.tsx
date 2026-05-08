@@ -16,10 +16,13 @@ const InteractiveServiceMap = nextDynamic(
   { ssr: false }
 );
 
-export const metadata = {
-  title: 'Our Services — Palm Island Community Company',
-  description: 'Explore PICC\'s integrated services supporting the Palm Island community.',
-};
+import { ogMeta } from '@/lib/seo/og';
+
+export const metadata = ogMeta({
+  title: 'Services — Palm Island Community Company',
+  description: '26 active services across health, family, justice, youth, education, and economic life — community-controlled, on Country.',
+  path: '/services',
+});
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';

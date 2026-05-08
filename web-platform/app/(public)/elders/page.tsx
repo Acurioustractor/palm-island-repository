@@ -94,11 +94,14 @@ type EldersInsights = {
   }>
 }
 
-export const metadata = {
-  title: 'Our Elders | PICC',
+import { ogMeta } from '@/lib/seo/og'
+
+export const metadata = ogMeta({
+  title: 'Our Elders — Palm Island Community Company',
   description:
-    'Meet the Palm Island Community Company Elders group — voices of culture, history, and guidance.',
-}
+    'Meet the Palm Island Community Company Elders — voices of culture, history, and guidance.',
+  path: '/elders',
+})
 
 function displayName(p: { preferred_name?: string | null; full_name: string }) {
   return (p.preferred_name || p.full_name || '').trim()
