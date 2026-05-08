@@ -35,7 +35,9 @@ const nextConfig = {
       { source: '/about',                    destination: '/',               permanent: true },
       { source: '/explore',                  destination: '/voices',         permanent: true },
       { source: '/publications',             destination: '/voices',         permanent: true },
-      { source: '/stories',                  destination: '/voices',         permanent: true },
+      // /stories index reinstated — surfaces the 74 public stories
+      // (flood/challenge, service success, community, elder wisdom)
+      // that were previously locked behind /stories/[id] direct links.
       { source: '/thematic-reports',         destination: '/voices/themes',  permanent: true },
       { source: '/elders/voices-on-country', destination: '/elders',         permanent: true },
       { source: '/20-years/dashboard',       destination: '/20-years',       permanent: true },

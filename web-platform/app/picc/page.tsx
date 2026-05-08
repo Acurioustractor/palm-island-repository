@@ -1,30 +1,47 @@
+/**
+ * /picc — operator landing.
+ *
+ * Six priority command-centers, in the order an operator's day actually
+ * moves through them. Each centre is a domain — not a flat link grid.
+ * Live counts so progress shows up without having to click through.
+ *
+ * The mental model:
+ *   1. Vision        — the next 20 years (what defines the work)
+ *   2. Canonical     — services / projects / storytellers aligned with EL
+ *   3. Capture       — pending review, signing canvas, sprint
+ *   4. Curate        — themes, library, voice review
+ *   5. Govern        — finances, governance, risks, sector
+ *   6. Ship          — annual report, demo, public showcase
+ */
 import Link from 'next/link'
 import {
-  LayoutDashboard,
   Compass,
-  Target,
-  Landmark,
-  Network,
-  TrendingUp,
-  AlertTriangle,
-  Library,
-  Quote,
-  Activity,
-  FolderOpen,
-  FolderKanban,
-  FileText,
-  Settings,
-  Palette,
+  Database,
   Inbox,
+  Sparkles,
+  Landmark,
+  FileText,
+  ArrowRight,
+  ExternalLink,
+  CheckCircle2,
+  AlertTriangle,
 } from 'lucide-react'
 import { createServerSupabase } from '@/lib/supabase/client'
+import { getPiccServices } from '@/lib/services/el-services'
+import { getPiccProjects } from '@/lib/empathy-ledger/el-projects'
+import { getPiccStorytellers } from '@/lib/empathy-ledger/el-storytellers'
+import { getELStats } from '@/lib/empathy-ledger/el-server'
+import { C, SECTION_COLOURS } from '@/components/annual-report/2024-25/almanac/tokens'
 
 export const metadata = {
   title: 'PICC Admin',
-  description: 'Internal admin hub — all PICC admin surfaces in one place.',
+  description: 'Operator landing — the canonical archive, the next 20 years, the report.',
 }
 
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+const EL_ADMIN_BASE = process.env.NEXT_PUBLIC_EL_V2_URL || 'https://empathy-ledger-v2.vercel.app'
 
 async function getInboxCount(): Promise<number> {
   try {
@@ -63,134 +80,359 @@ async function getInboxCount(): Promise<number> {
   }
 }
 
-const PAGES = [
-  {
-    group: 'Strategy & Vision',
-    items: [
-      { href: '/picc/dashboard', icon: LayoutDashboard, label: 'Dashboard', sub: 'Content readiness + EL stats' },
-      { href: '/picc/launchpad', icon: Target, label: 'Launchpad', sub: '20-year strategic plan' },
-      { href: '/picc/next-20', icon: Compass, label: 'Next-20 Canvas', sub: '6 visions + commitments + asks' },
-    ],
-  },
-  {
-    group: 'Organisation',
-    items: [
-      { href: '/picc/governance', icon: Landmark, label: 'Governance', sub: 'Board design + guardrails' },
-      { href: '/picc/sector-map', icon: Network, label: 'Sector Map', sub: '3-layer ecosystem view' },
-      { href: '/picc/finances', icon: TrendingUp, label: 'Finances', sub: '16-year curve + breakdown' },
-      { href: '/picc/risks', icon: AlertTriangle, label: 'Risks', sub: '8 structural pressures' },
-    ],
-  },
-  {
-    group: 'Knowledge & Voices',
-    items: [
-      { href: '/picc/inbox', icon: Inbox, label: 'Inbox', sub: 'Pending art / questions / stories — unified triage' },
-      { href: '/picc/notes', icon: FileText, label: 'Notes', sub: 'Staff scratchpad — observations + field notes' },
-      { href: '/picc/themes', icon: Quote, label: 'Featured themes', sub: 'Curate which themes lift on /voices/pulse' },
-      { href: '/picc/library', icon: Library, label: 'Library', sub: 'Publications + research + EL connections' },
-      { href: '/picc/voices', icon: Quote, label: 'Voices', sub: '452 voices + capture sprint' },
-      { href: '/picc/impact', icon: Activity, label: 'Impact', sub: 'Service-level metrics' },
-    ],
-  },
-  {
-    group: 'Operational',
-    items: [
-      { href: '/picc/services', icon: FolderOpen, label: 'Services', sub: '30 active services' },
-      { href: '/picc/projects', icon: FolderKanban, label: 'Projects', sub: '9 projects' },
-      { href: '/picc/reports/builder', icon: FileText, label: 'Report Builder', sub: 'Audience-targeted PDF' },
-      { href: '/picc/design-system', icon: Palette, label: 'Design System', sub: '103 elements · vote + curate' },
-      { href: '/picc/design-system/components', icon: Palette, label: 'Component Library', sub: 'Live gallery · web + pdf + Pencil sources' },
-      { href: '/picc/almanac/photos', icon: FileText, label: 'Almanac Photos', sub: 'Every slot · live from EL v2 · swap' },
-      { href: '/picc/almanac/checklist', icon: FileText, label: 'Almanac Checklist', sub: 'Every blocker before publish · readiness %' },
-      { href: '/picc/almanac/voices', icon: Quote, label: 'Almanac Voices', sub: '20-voice sprint tracker + consent' },
-      { href: '/picc/almanac/preview', icon: FileText, label: 'Almanac Preview', sub: 'Full page · flag overlays · sticky chrome' },
-      { href: '/picc/almanac/services-coverage', icon: FolderOpen, label: 'Services Coverage', sub: 'Per-service photos · voices · copy traffic-light' },
-    ],
-  },
-]
+interface CommandCentre {
+  id: string
+  label: string
+  blurb: string
+  colour: string
+  icon: React.ReactNode
+  primary: { href: string; label: string; live?: string }
+  links: Array<{ href: string; label: string; sub?: string; external?: boolean; badge?: string | number }>
+}
 
 export default async function PICCIndexPage() {
-  const inboxCount = await getInboxCount()
-  return (
-    <div className="max-w-5xl mx-auto">
-      <div className="mb-10">
-        <p className="text-xs font-semibold tracking-[0.2em] uppercase text-picc-ochre mb-2">
-          Internal · Admin Hub
-        </p>
-        <h1 className="font-serif text-3xl md:text-4xl text-stone-800 italic mb-3">
-          PICC Admin
-        </h1>
-        <p className="text-stone-600 max-w-2xl leading-relaxed">
-          Every internal surface in one place. Strategy, governance, finances, risks,
-          knowledge, voices, services, projects, and the report builder.
-        </p>
-      </div>
+  const [
+    services,
+    projects,
+    storytellers,
+    elStats,
+    inboxCount,
+    pendingVisionsRes,
+    approvedVisionsRes,
+  ] = await Promise.all([
+    getPiccServices({ status: 'active' }).catch(() => []),
+    getPiccProjects({ status: 'all' }).catch(() => []),
+    getPiccStorytellers({ limit: 500 }).catch(() => []),
+    getELStats().catch(() => ({ quotes: 0, transcripts: 0, stories: 0, media: 0 })),
+    getInboxCount(),
+    createServerSupabase()
+      .from('community_visions')
+      .select('id', { count: 'exact', head: true })
+      .eq('is_approved', false),
+    createServerSupabase()
+      .from('community_visions')
+      .select('id', { count: 'exact', head: true })
+      .eq('is_approved', true),
+  ])
 
+  const totalServices = services.length
+  const servicesWithCover = services.filter((s) => s.image_url).length
+  const totalProjects = projects.filter((p) => p.status !== 'cancelled').length
+  const projectsWithCover = projects.filter((p) => p.cover_image_url && p.status !== 'cancelled').length
+  const totalStorytellers = storytellers.length
+  const storytellersWithPhoto = storytellers.filter((s) => s.photo_url).length
+  const totalElders = storytellers.filter((s) => s.is_elder).length
+  const totalQuotes = elStats.quotes
+  const totalApprovedVisions = approvedVisionsRes.count ?? 0
+  const totalPendingVisions = pendingVisionsRes.count ?? 0
+
+  const centres: CommandCentre[] = [
+    {
+      id: 'vision',
+      label: 'The next 20 years',
+      blurb:
+        'What defines the work — the strategic frame, the community canvas, and the visions still awaiting Elder review.',
+      colour: SECTION_COLOURS.all,
+      icon: <Compass className="w-5 h-5" />,
+      primary: {
+        href: '/picc/next-20',
+        label: 'Open the canvas',
+        live: `${totalApprovedVisions} signed · ${totalPendingVisions} pending`,
+      },
+      links: [
+        { href: '/picc/next-20', label: 'Next-20 working canvas', sub: '6 visions · forward commitments · urgent asks' },
+        { href: '/picc/vision', label: 'Approval queue', sub: 'Pending visions · Elder review', badge: totalPendingVisions || undefined },
+        { href: '/picc/launchpad', label: 'Launchpad', sub: '20-year strategic plan' },
+        { href: '/sign-the-vision', label: 'Public signing canvas', sub: 'What the community sees · QR ready' },
+      ],
+    },
+    {
+      id: 'canonical',
+      label: 'Canonical archive',
+      blurb:
+        'Services, projects, storytellers — all aligned to Empathy Ledger v2 as the single source of truth. This is where alignment lives or dies.',
+      colour: SECTION_COLOURS.educationCommunity,
+      icon: <Database className="w-5 h-5" />,
+      primary: {
+        href: '/picc/services/coverage',
+        label: 'Service alignment',
+        live: `${servicesWithCover}/${totalServices} services covered · ${projectsWithCover}/${totalProjects} projects covered`,
+      },
+      links: [
+        { href: '/picc/services/coverage', label: 'Service alignment', sub: `${totalServices} active · ${servicesWithCover} with cover` },
+        { href: '/picc/projects/coverage', label: 'Project alignment', sub: `${totalProjects} live · ${projectsWithCover} with cover` },
+        { href: '/picc/voices', label: 'Voices inventory', sub: `${totalStorytellers} storytellers · ${storytellersWithPhoto} with photo · ${totalElders} elders` },
+        { href: `${EL_ADMIN_BASE}/admin/picc-tagging`, label: 'EL photo tagger', sub: 'Tag photos to services + projects', external: true },
+        { href: `${EL_ADMIN_BASE}/admin/picc-clusters`, label: 'EL face tagger', sub: 'Cluster + name faces', external: true },
+        { href: `${EL_ADMIN_BASE}/admin/picc-bulk`, label: 'EL bulk operations', sub: 'Batch tagging + cleanup', external: true },
+      ],
+    },
+    {
+      id: 'capture',
+      label: 'Capture',
+      blurb:
+        'Pending art, questions, stories and notes from community — review queue. Plus the live capture surfaces.',
+      colour: SECTION_COLOURS.youth,
+      icon: <Inbox className="w-5 h-5" />,
+      primary: {
+        href: '/picc/inbox',
+        label: 'Open inbox',
+        live: inboxCount > 0 ? `${inboxCount} awaiting review` : 'Nothing waiting',
+      },
+      links: [
+        { href: '/picc/inbox', label: 'Inbox', sub: 'Art · questions · stories · notes — unified triage', badge: inboxCount || undefined },
+        { href: '/picc/notes', label: 'Notes', sub: 'Staff scratchpad · field notes' },
+        { href: '/share-note', label: 'Public · Leave a note', sub: 'Where the community submits' },
+      ],
+    },
+    {
+      id: 'curate',
+      label: 'Curate',
+      blurb:
+        'What lifts to the public. Themes-of-the-year, validated voices, library curation, voice sprint progress.',
+      colour: SECTION_COLOURS.justiceSafety,
+      icon: <Sparkles className="w-5 h-5" />,
+      primary: { href: '/picc/themes', label: 'Featured themes', live: `${totalQuotes.toLocaleString()} voices in archive` },
+      links: [
+        { href: '/picc/themes', label: 'Featured themes', sub: 'Curate which themes lift on /voices' },
+        { href: '/picc/voices', label: '20-Voices sprint', sub: 'Capture priority list · consent flow' },
+        { href: '/picc/library', label: 'Library', sub: 'Publications · research · EL connections' },
+        { href: '/voices/themes', label: 'Public · Themes index', sub: 'What surfaces today' },
+      ],
+    },
+    {
+      id: 'govern',
+      label: 'Govern',
+      blurb:
+        'Finances, board governance, sector map, risks register — the underwriting that makes everything else legitimate.',
+      colour: SECTION_COLOURS.governance,
+      icon: <Landmark className="w-5 h-5" />,
+      primary: { href: '/picc/finances', label: 'Finances dashboard' },
+      links: [
+        { href: '/picc/finances', label: 'Finances', sub: '17-year revenue + headcount curve' },
+        { href: '/picc/governance', label: 'Governance', sub: 'Board · directors · 2007→2021 transition' },
+        { href: '/picc/sector-map', label: 'Sector map', sub: 'PICC in context · 3-layer ecosystem' },
+        { href: '/picc/risks', label: 'Risks register', sub: '8 structural pressures · mitigations' },
+      ],
+    },
+    {
+      id: 'ship',
+      label: 'Ship',
+      blurb:
+        'The annual report, the leader-meeting demo, the public showcase. Where the work meets the world.',
+      colour: SECTION_COLOURS.economic,
+      icon: <FileText className="w-5 h-5" />,
+      primary: { href: '/picc/reports/builder', label: 'Annual report builder' },
+      links: [
+        { href: '/picc/reports/builder', label: 'Annual report builder', sub: 'Audience-targeted PDF · 4 cuts' },
+        { href: '/picc/almanac/preview', label: 'Almanac preview', sub: 'Full report walk · sticky chrome' },
+        { href: '/picc/almanac/checklist', label: 'Almanac checklist', sub: 'Every blocker · readiness %' },
+        { href: '/picc/demo', label: 'Demo run-of-show', sub: 'CEO walkthrough script · QR · presenter mode' },
+        { href: '/picc/atlas', label: 'Operator master surface', sub: 'Every link · live counters · session canvas' },
+        { href: '/showcase', label: 'Public showcase', sub: 'The cinematic public hero' },
+      ],
+    },
+  ]
+
+  return (
+    <div className="max-w-6xl mx-auto py-8 px-4">
+      {/* Hero */}
+      <header className="mb-10">
+        <p
+          className="text-[11px] font-bold uppercase tracking-[0.3em] mb-3"
+          style={{ color: C.turtleRed }}
+        >
+          Operator · The canonical archive · The next 20 years
+        </p>
+        <h1
+          className="font-fraunces font-bold leading-[1.05] mb-4"
+          style={{ color: C.ocean, fontSize: 'clamp(36px, 5.5vw, 56px)' }}
+        >
+          Six command centres. One operator&apos;s day.
+        </h1>
+        <p className="font-fraunces max-w-3xl" style={{ color: C.driftwood, fontSize: 18, lineHeight: 1.55 }}>
+          Vision · canonical archive · capture · curate · govern · ship — in the order they actually move through. Live counts pulled from Empathy Ledger v2 every load.
+        </p>
+
+        {/* Headline KPIs */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-8">
+          <Kpi label="Services" total={totalServices} covered={servicesWithCover} colour={C.ocean} />
+          <Kpi label="Projects" total={totalProjects} covered={projectsWithCover} colour={C.coral} />
+          <Kpi label="Storytellers" total={totalStorytellers} covered={storytellersWithPhoto} colour={C.ochre} sub={`${totalElders} elders`} />
+          <Kpi label="Voices" total={totalQuotes} colour={C.mangrove} />
+          <Kpi label="Visions" total={totalApprovedVisions} sub={`${totalPendingVisions} pending`} colour={C.turtleRed} />
+        </div>
+      </header>
+
+      {/* Six command centres */}
       <div className="space-y-8">
-        {PAGES.map((group) => (
-          <div key={group.group}>
-            <p className="text-xs font-semibold tracking-[0.15em] uppercase text-stone-400 mb-3">
-              {group.group}
-            </p>
-            <div className="grid md:grid-cols-3 gap-3">
-              {group.items.map((item) => {
-                const Icon = item.icon
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="group flex items-start gap-3 rounded-xl border border-stone-200 bg-white p-4 hover:border-picc-ochre/50 hover:shadow-sm transition-all"
+        {centres.map((c, idx) => (
+          <section
+            key={c.id}
+            className="rounded-2xl border bg-white p-6 md:p-7"
+            style={{ borderColor: C.border }}
+          >
+            <div className="flex items-start gap-4 flex-wrap md:flex-nowrap">
+              <div
+                className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ backgroundColor: c.colour + '15', color: c.colour }}
+              >
+                {c.icon}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-baseline gap-3 mb-1 flex-wrap">
+                  <span
+                    className="text-[11px] uppercase font-bold tracking-[0.2em]"
+                    style={{ color: C.driftwood, letterSpacing: '0.2em' }}
                   >
-                    <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-picc-ochre/10 flex items-center justify-center text-picc-ochre group-hover:bg-picc-ochre group-hover:text-white transition-colors">
-                      <Icon className="w-4 h-4" />
-                    </div>
+                    {String(idx + 1).padStart(2, '0')}
+                  </span>
+                  <h2
+                    className="font-fraunces font-bold"
+                    style={{ color: c.colour, fontSize: 28 }}
+                  >
+                    {c.label}
+                  </h2>
+                </div>
+                <p className="font-fraunces" style={{ color: C.driftwood, fontSize: 17, lineHeight: 1.55 }}>
+                  {c.blurb}
+                </p>
+                {c.primary.live && (
+                  <div className="mt-2 inline-flex items-center gap-2 text-[11px] font-mono" style={{ color: C.driftwood }}>
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: c.colour }} />
+                    {c.primary.live}
+                  </div>
+                )}
+              </div>
+              <Link
+                href={c.primary.href}
+                className="px-4 py-2.5 rounded-md font-bold uppercase text-xs whitespace-nowrap inline-flex items-center gap-2 flex-shrink-0"
+                style={{ backgroundColor: c.colour, color: '#fff', letterSpacing: '0.15em' }}
+              >
+                {c.primary.label}
+                <ArrowRight className="w-3 h-3" />
+              </Link>
+            </div>
+
+            {/* Sub-links */}
+            <div className="mt-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+              {c.links.map((l) => {
+                const isExternal = !!l.external
+                const Tag: any = isExternal ? 'a' : Link
+                const props: any = isExternal
+                  ? { href: l.href, target: '_blank', rel: 'noopener noreferrer' }
+                  : { href: l.href }
+                return (
+                  <Tag
+                    key={l.href + l.label}
+                    {...props}
+                    className="group flex items-start gap-2 rounded-lg border px-3 py-2.5 hover:shadow-sm transition"
+                    style={{ borderColor: C.border, backgroundColor: '#FBF8EE' }}
+                  >
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-stone-800 text-sm group-hover:text-picc-ochre transition-colors flex items-center gap-2">
-                        {item.label}
-                        {item.href === '/picc/inbox' && inboxCount > 0 && (
-                          <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-picc-ochre text-white text-[10px] font-bold">
-                            {inboxCount}
+                      <div className="flex items-baseline gap-2 flex-wrap">
+                        <span
+                          className="font-bold text-sm"
+                          style={{ color: C.ocean }}
+                        >
+                          {l.label}
+                        </span>
+                        {l.badge !== undefined && l.badge !== '' && Number(l.badge) > 0 && (
+                          <span
+                            className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold"
+                            style={{ backgroundColor: c.colour, color: '#fff' }}
+                          >
+                            {l.badge}
                           </span>
                         )}
-                      </p>
-                      <p className="text-xs text-stone-500 mt-0.5 leading-relaxed">
-                        {item.sub}
-                      </p>
+                        {isExternal && (
+                          <ExternalLink className="w-3 h-3 opacity-50" style={{ color: C.driftwood }} />
+                        )}
+                      </div>
+                      {l.sub && (
+                        <div className="text-[11px] mt-0.5" style={{ color: C.driftwood, lineHeight: 1.4 }}>
+                          {l.sub}
+                        </div>
+                      )}
                     </div>
-                  </Link>
+                  </Tag>
                 )
               })}
             </div>
-          </div>
+          </section>
         ))}
       </div>
 
-      <div className="mt-10 pt-6 border-t border-stone-100">
-        <p className="text-xs font-semibold tracking-[0.15em] uppercase text-stone-400 mb-3">
-          Public-facing pages
+      {/* Footer — public surfaces strip */}
+      <footer className="mt-10 pt-6 border-t" style={{ borderColor: C.border }}>
+        <p className="text-[10px] font-bold uppercase tracking-[0.3em] mb-3" style={{ color: C.driftwood }}>
+          Public-facing surfaces
         </p>
         <div className="flex flex-wrap gap-2">
           {[
             { href: '/', label: 'Home' },
-            { href: '/about', label: 'About' },
-            { href: '/bwgcolman', label: 'Bwgcolman Way' },
+            { href: '/atlas', label: 'Public atlas' },
+            { href: '/showcase', label: 'Showcase' },
+            { href: '/voices', label: 'Voices' },
+            { href: '/voices/network', label: 'Connection map' },
             { href: '/services', label: 'Services' },
-            { href: '/20-years', label: '20 Years' },
+            { href: '/projects', label: 'Projects' },
             { href: '/elders', label: 'Elders' },
-            { href: '/impact', label: 'Impact' },
-            { href: '/annual-report/live', label: 'Annual Report' },
-            { href: '/publications', label: 'Publications' },
+            { href: '/20-years', label: '20 years' },
+            { href: '/bwgcolman', label: 'Bwgcolman Way' },
+            { href: '/sign-the-vision', label: 'Sign the vision' },
+            { href: '/design-system', label: 'Design system' },
           ].map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="px-3 py-1.5 rounded-full bg-stone-100 text-stone-600 text-xs hover:bg-stone-200 transition-colors"
+              target="_blank"
+              className="px-3 py-1.5 rounded-full text-xs hover:shadow-sm transition"
+              style={{ backgroundColor: '#fff', border: `1px solid ${C.border}`, color: C.ocean }}
             >
               {link.label}
             </Link>
           ))}
         </div>
+      </footer>
+    </div>
+  )
+}
+
+function Kpi({
+  label,
+  total,
+  covered,
+  sub,
+  colour,
+}: {
+  label: string
+  total: number
+  covered?: number
+  sub?: string
+  colour: string
+}) {
+  const pct = covered !== undefined && total > 0 ? Math.round((covered / total) * 100) : null
+  const okState = pct !== null ? pct >= 80 : true
+  return (
+    <div className="rounded-xl border p-4" style={{ borderColor: C.border, backgroundColor: '#fff' }}>
+      <div className="text-[10px] font-bold uppercase tracking-[0.2em] mb-1" style={{ color: C.driftwood }}>
+        {label}
       </div>
+      <div className="font-fraunces font-bold leading-none mb-1" style={{ color: colour, fontSize: 30 }}>
+        {total.toLocaleString()}
+      </div>
+      {covered !== undefined && (
+        <div className="text-[11px] mt-1 font-mono flex items-center gap-1" style={{ color: okState ? C.mangrove : C.coral }}>
+          {okState ? <CheckCircle2 className="w-3 h-3" /> : <AlertTriangle className="w-3 h-3" />}
+          {covered}/{total} covered ({pct}%)
+        </div>
+      )}
+      {sub && (
+        <div className="text-[11px] mt-1" style={{ color: C.driftwood }}>
+          {sub}
+        </div>
+      )}
     </div>
   )
 }
