@@ -17,6 +17,7 @@ import { ExternalLink, AlertTriangle, CheckCircle2, Sparkles, Image as ImageIcon
 import { getPiccServices } from '@/lib/services/el-services'
 import { getServicesCoverage } from '@/lib/services/el-coverage'
 import { C, SECTION_COLOURS } from '@/components/annual-report/2024-25/almanac/tokens'
+import DraftDescriptionButton from '@/components/admin/DraftDescriptionButton'
 
 export const metadata = {
   title: 'Service alignment — PICC Admin',
@@ -242,6 +243,7 @@ export default async function ServicesCoverageAdminPage() {
 
                 {/* Actions */}
                 <div className="flex justify-end gap-1.5 flex-shrink-0">
+                  <DraftDescriptionButton type="service" slug={r.slug} name={r.name} />
                   <a
                     href={`${EL_ADMIN_BASE}/admin/picc-tagging?service=${encodeURIComponent(r.slug)}`}
                     target="_blank"
