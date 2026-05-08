@@ -10,6 +10,7 @@ import Image from 'next/image'
 import { ExternalLink, AlertTriangle, CheckCircle2, Sparkles, Image as ImageIcon, Tag } from 'lucide-react'
 import { getPiccProjects } from '@/lib/empathy-ledger/el-projects'
 import { C } from '@/components/annual-report/2024-25/almanac/tokens'
+import DraftDescriptionButton from '@/components/admin/DraftDescriptionButton'
 
 export const metadata = {
   title: 'Project alignment — PICC Admin',
@@ -189,6 +190,7 @@ export default async function ProjectsCoverageAdminPage() {
                 </div>
 
                 <div className="flex justify-end gap-1.5 flex-shrink-0">
+                  <DraftDescriptionButton type="project" slug={r.slug} name={r.name} />
                   <a
                     href={`${EL_ADMIN_BASE}/admin/picc-tagging?project=${encodeURIComponent(r.slug)}`}
                     target="_blank"
