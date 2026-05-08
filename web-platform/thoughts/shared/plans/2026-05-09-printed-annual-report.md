@@ -1,64 +1,59 @@
-# Plan — Printed Annual Report 2024-25 (PDF + Pencil)
+# Plan — Printed Annual Report 2024-25 (Pencil)
+
+## Decision
+
+**The annual report is designed in Pencil and exported to PDF for
+print. It does not render through the app.**
+
+Confirmed by Ben on 2026-05-09 after the runtime React-PDF endpoint
+was found to hang at production scale. This is the right call —
+Pencil is built for layout-heavy editorial work, the platform is
+the data source, and the two are aligned through shared tokens.
 
 ## Context
 
-Tuesday CEO walk-through has the platform polished. The printed annual
-report is the second deliverable: same data, presented as a PDF for
-funders, board, government, and community. Two surfaces work together:
+Two surfaces, clear roles:
 
-- **Pencil**: `picc-annual-report.pen` is the design source of truth.
-  Cover, spreads, photography, brand chrome live there.
-- **React-PDF**: `lib/pdf/templates/AnnualReportPDF.tsx` is the live
-  data renderer. Pulls from `getReportData(year)` and produces an
-  audience-targeted PDF at runtime via `/api/pdf/generate`.
+- **Pencil** (`picc-annual-report.pen`) — design source of truth for
+  the printed annual report. Cover, spreads, photography, typography,
+  brand chrome, finals. Exports the print-ready PDF.
+- **Platform** (picc.studio) — live data source. Services, projects,
+  storytellers, voices, themes. The book pulls from here visually,
+  but the layout is Pencil's job.
 
-Both are aligned through `tokens/picc.tokens.json` → Style Dictionary
-→ `lib/pdf/theme.ts`. Same palette in Pencil, same palette in print.
+Both share the Saltwater & Earth palette through Style Dictionary:
+`tokens/picc.tokens.json` → web (`lib/design-tokens/`) and Pencil
+imports the same JSON. Palette never drifts between digital and print.
 
-## What was broken
+## Pencil workflow
 
-Production endpoint was returning HTTP 500:
-```
-{"error":"Cannot read properties of undefined (reading 'voices')"}
-```
+1. Open `picc-almanac-web.pen`'s sibling: `picc-annual-report.pen`.
+2. Cover, spreads, and back pull from the Pencil variables already
+   bound to brand tokens (palette, type, spacing).
+3. Photography is selected from EL canonical (per-page slot tags) —
+   exported from picc.studio at print resolution and dropped into
+   the Pencil document.
+4. Data callouts (numbers, quotes, service descriptions) are read
+   from picc.studio surfaces (e.g. `/picc/annual-report-data`) and
+   typed into the Pencil layout — not auto-bound, by design, so an
+   editor can frame each number with the right context.
+5. Pencil exports a PDF. That PDF is the print master.
+6. Optional: upload the master to Supabase Storage and link from
+   `/annual-reports` for public download.
 
-Root cause: `lib/annual-report/data-2025.ts` static fallback set
-`voiceAssignments: {} as any`, but `AnnualReportPDF.tsx` reads
-`va.communityVoices.voices.length` — crashes when fetch-report-data
-falls back to static (any Supabase blip, EL outage, etc).
+## Why not runtime PDF for the annual report
 
-## What we fixed (this PR)
+React-PDF v4 + Vercel serverless can render small documents
+reliably (stories PDF, focus reports, services PDF — all working
+today, all under ~12KB). The full annual report at 50+ pages with
+dozens of SVG stat boxes and photo embeds exceeds the lambda
+budget — the endpoint opens TCP but never returns. This is a
+known-brittle scenario that doesn't need fixing because Pencil
+is the right tool for editorial print.
 
-1. **Static fallback** populates every voiceAssignment bucket with
-   `{ voices: [] }` so the template can read `.voices.length` safely.
-2. **Template guard** wraps `data.voiceAssignments` in optional-chain
-   reads with empty-bucket defaults — defence-in-depth for any future
-   shape drift.
-3. **Walk page** gets a Stop 12 dedicated to the printed report:
-   live builder URL · Pencil source file · direct audience-targeted
-   PDF download links.
-
-## Audience-targeted generation (already built, now reachable)
-
-```
-/api/pdf/generate?type=annual-report&year=2024-25&audience=community
-                                                          &audience=funder
-                                                          &audience=board
-                                                          &audience=supporter
-                                                          &audience=government
-```
-
-Each audience filters which pages appear (compliance, financials,
-community voices, etc) per `lib/annual-report/audience-config.ts`.
-
-## Tuesday-ready verification path
-
-1. `/picc/reports/builder` — pick year + audience, generate PDF in
-   browser. (already built, now linked from `/picc/walk`)
-2. `/api/pdf/generate?type=annual-report&year=2024-25` — direct
-   endpoint, returns PDF blob.
-3. Compare PDF chrome against `picc-annual-report.pen` — same colours,
-   same hero, same typography hierarchy.
+The React-PDF code stays in the repo as a draft tool for smaller
+publications and as the audience-config harness if a runtime path
+is ever needed for short bookmarks. It's not on the Tuesday path.
 
 ## What stays out of scope this week
 
@@ -121,46 +116,13 @@ Vercel runtime logs for the error message.
   palette (verify visually before the demo)
 - For the actual printed deliverable: **Pencil exports the final PDF**
 
-## Production-path findings (verified 2026-05-09)
+## What stays in the repo (and why)
 
-After PR #14 (voiceAssignments crash) and PR #15 (PlayfairDisplay →
-Caveat), the live `/api/pdf/generate?type=annual-report` endpoint
-**hangs without responding**. Verified behaviour:
-
-- `type=stories` — returns 200, 12KB PDF in 3 seconds (works)
-- `type=focus-report&focus=service&id=…` — returns valid error in 2s (works)
-- `type=annual-report&year=2024-25` — opens TCP connection, sends
-  no headers, no body, no error; client disconnects at 280s
-- Same hang on `audience=community` (smaller cut)
-- No response in `gh api .../check-runs` (403 on /v9 logs API)
-
-Likely root cause: 1876-line template with ~50 pages × dozens of
-SVG stat boxes × photo embeds × multi-pass layout calculations
-exhausts the lambda CPU/wall-clock budget before sending output.
-React-PDF in v4 + Vercel serverless is documented elsewhere as
-brittle for documents this large.
-
-**Tuesday print decision:** Pencil is the source for the printed
-report. React-PDF is for rapid drafts of small bookmarks (stories
-PDF, focus report PDF, services PDF). The walk page Stop 12 reflects
-this honestly.
-
-## Path forward (post-Tuesday)
-
-Three options ordered by effort:
-
-1. **Smallest:** Render annual-report PDF locally via the existing
-   builder UI on a dev server (no lambda time limit), upload the
-   resulting PDF to Supabase Storage, and ship a static-link Stop 12.
-   This is "build it once, link to the file." 30 minutes.
-2. **Medium:** Split the annual-report template into smaller per-page
-   PDFs (cover + 4-5 spreads each), render each in its own lambda
-   request, then concatenate via pdf-lib. Each chunk fits in budget.
-   ~2 days.
-3. **Largest:** Move the heavy renderer off Vercel — Cloud Run
-   container with longer timeout, or background job with webhook
-   notification when ready. Right architecture but week+ of work.
-
-**Recommendation:** Option 1 for Tuesday. Pencil for the actual
-print run. Option 2 or 3 only if a recurring runtime PDF need
-emerges (currently we have one annual report a year).
+- `lib/pdf/templates/AnnualReportPDF.tsx` — kept as a reference for
+  the data shape and audience-config harness. Not on the print path.
+  Don't try to fix the production hang; it's not the right tool.
+- `lib/pdf/templates/StoriesPDF.tsx`, `FocusReportPDF`, `ServicesPDF`
+  — small bookmarks that DO render reliably at runtime. Used for
+  one-off downloads from individual surfaces. Keep working.
+- `picc-annual-report.pen` — primary deliverable. Lives in the design
+  workspace, exports the print master.
