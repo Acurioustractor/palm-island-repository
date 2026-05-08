@@ -1,9 +1,12 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { getPiccProjects, getPiccProject } from '@/lib/empathy-ledger/el-projects';
 
 export const runtime = 'nodejs'
 
-// Server-side Supabase client with service role (bypasses RLS)
+// Server-side Supabase client with service role (bypasses RLS).
+// Still used by POST/PATCH/DELETE (writes to legacy PICC table — Phase 5
+// drops those after read migration is verified live).
 function getServerClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -23,54 +26,53 @@ function isDev(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  // Phase 1 canonical migration: read projects from Empathy Ledger v2
+  // (see thoughts/shared/plans/2026-05-08-el-canonical-migration.md).
+  // Response shape preserved as { data: [...] } so existing callers don't
+  // break. EL fields are mapped onto the legacy column names callers expect.
   try {
-    const supabase = getServerClient();
     const { searchParams } = new URL(request.url);
 
     const status = searchParams.get('status');
     const slug = searchParams.get('slug');
     const limit = parseInt(searchParams.get('limit') || '100');
 
-    // First try 'projects' table, then 'innovation_projects' if that fails
-    let query = supabase
-      .from('projects')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(limit);
-
+    let projects;
     if (slug) {
-      query = query.eq('slug', slug);
-    }
-    if (status) {
-      query = query.eq('status', status);
-    }
-
-    let { data, error } = await query;
-
-    // If projects table doesn't exist, try innovation_projects
-    if (error && (error.code === 'PGRST205' || error.message.includes('does not exist'))) {
-      let innovationQuery = supabase
-        .from('innovation_projects')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(limit);
-
-      if (slug) {
-        innovationQuery = innovationQuery.eq('slug', slug);
+      const single = await getPiccProject(slug);
+      projects = single ? [single] : [];
+    } else {
+      // Map ?status into EL's status filter (active|completed|all). Anything
+      // else falls back to 'all' so callers asking for 'planning' / 'on_hold'
+      // still get rows; we filter locally below.
+      const elStatus =
+        status === 'active' || status === 'completed' ? status : 'all';
+      projects = await getPiccProjects({ status: elStatus });
+      if (status && status !== elStatus) {
+        projects = projects.filter((p) => p.status === status);
       }
-      if (status) {
-        innovationQuery = innovationQuery.eq('status', status);
-      }
-
-      const innovationResult = await innovationQuery;
-      data = innovationResult.data;
-      error = innovationResult.error;
     }
 
-    if (error) {
-      console.error('Database error:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    const data = projects.slice(0, limit).map((p) => ({
+      id: p.id,
+      name: p.name,
+      slug: p.slug,
+      tagline: p.tagline,
+      description: p.description,
+      status: p.status,
+      project_type: p.project_type,
+      // EL collapses tags + impact_areas into themes[]; expose both for
+      // any caller that still differentiates.
+      tags: p.themes,
+      impact_areas: p.themes,
+      hero_image_url: p.cover_image_url,
+      location: p.location,
+      start_date: p.start_date,
+      end_date: p.end_date,
+      target_completion_date: p.end_date,
+      photo_count: p.photo_count,
+      updated_at: p.updated_at,
+    }));
 
     return NextResponse.json({ data });
   } catch (err: any) {

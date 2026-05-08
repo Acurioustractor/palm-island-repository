@@ -1,21 +1,27 @@
 /**
  * /projects/<slug> — public project detail page.
  *
- * Reads from PICC's projects table (admin lives at /picc/projects/<slug>;
- * this is the public-facing view). Surfaces:
+ * Reads canonical project data from Empathy Ledger v2 via getPiccProject
+ * (Phase 1 of the canonical migration — see
+ * thoughts/shared/plans/2026-05-08-el-canonical-migration.md). Bespoke
+ * community-art tagged `related:<slug>` is still PICC `media_files`
+ * (operational asset library — stays on PICC).
+ *
+ * Surfaces:
  *   - Hero with cover photo + tagline
  *   - Description
- *   - Status / dates / project lead
+ *   - Status / dates
  *   - Photo gallery via EL v2 picc:slot:project-<slug>
  *   - Bespoke community art tagged related:<slug>
  *
- * Only renders projects where is_public = true. Anything else 404s.
+ * 404s if EL has no matching project (or status='cancelled').
  */
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { createServerSupabase } from '@/lib/supabase/client'
 import { getPhotosForSlot, type ELPhoto } from '@/lib/media/el-photos'
+import { getPiccProject } from '@/lib/empathy-ledger/el-projects'
 import { C } from '@/components/annual-report/2024-25/almanac/tokens'
 
 export const dynamic = 'force-dynamic'
@@ -25,37 +31,13 @@ interface PageProps {
   params: Promise<{ slug: string }>
 }
 
-interface ProjectRow {
-  id: string
-  name: string | null
-  slug: string
-  tagline: string | null
-  description: string | null
-  status: string | null
-  project_type: string | null
-  start_date: string | null
-  target_completion_date: string | null
-  impact_areas: string[] | null
-  hero_image_url: string | null
-  logo_url: string | null
-  project_lead: string | null
-  is_public: boolean | null
-  featured: boolean | null
-}
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params
-  const supabase = createServerSupabase()
-  const { data } = await supabase
-    .from('projects')
-    .select('name, tagline, description')
-    .eq('slug', slug)
-    .eq('is_public', true)
-    .maybeSingle()
-  if (!data) return { title: 'Project — PICC' }
+  const project = await getPiccProject(slug)
+  if (!project || project.status === 'cancelled') return { title: 'Project — PICC' }
   return {
-    title: `${data.name ?? slug} — Projects · PICC`,
-    description: data.tagline || data.description?.slice(0, 160) || undefined,
+    title: `${project.name ?? slug} — Projects · PICC`,
+    description: project.tagline || project.description?.slice(0, 160) || undefined,
   }
 }
 
@@ -63,13 +45,8 @@ export default async function ProjectDetailPage({ params }: PageProps) {
   const { slug } = await params
   const supabase = createServerSupabase()
 
-  const [{ data: project }, slotPhotos, { data: bespokeRows }] = await Promise.all([
-    supabase
-      .from('projects')
-      .select('id, name, slug, tagline, description, status, project_type, start_date, target_completion_date, impact_areas, hero_image_url, logo_url, project_lead, is_public, featured')
-      .eq('slug', slug)
-      .eq('is_public', true)
-      .maybeSingle(),
+  const [project, slotPhotos, { data: bespokeRows }] = await Promise.all([
+    getPiccProject(slug),
     getPhotosForSlot(`project-${slug}`, 24),
     supabase
       .from('media_files')
@@ -82,8 +59,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
       .limit(12),
   ])
 
-  if (!project) notFound()
-  const proj = project as ProjectRow
+  if (!project || project.status === 'cancelled') notFound()
   const photos = slotPhotos as ELPhoto[]
   const bespokeArt = (bespokeRows || []) as Array<{
     id: string
@@ -93,12 +69,31 @@ export default async function ProjectDetailPage({ params }: PageProps) {
     attribution: string | null
   }>
 
+  // Map EL canonical fields onto the local view-model. EL `cover_image_url`
+  // is the canonical hero; EL `themes[]` doubles as both the legacy `tags`
+  // and `impact_areas` PICC arrays (the matcher in /innovation reads both).
+  // EL drops `project_lead` / `target_completion_date` / `logo_url` — those
+  // PICC-only fields just don't render on this page.
+  const proj = {
+    id: project.id,
+    name: project.name,
+    slug: project.slug,
+    tagline: project.tagline,
+    description: project.description,
+    status: project.status,
+    project_type: project.project_type,
+    start_date: project.start_date,
+    end_date: project.end_date,
+    impact_areas: project.themes,
+    hero_image_url: project.cover_image_url,
+  }
+
   const heroPhoto = proj.hero_image_url || photos[0]?.url || null
   const galleryPhotos = proj.hero_image_url ? photos.slice(0, 8) : photos.slice(1, 9)
 
   const startYear = proj.start_date ? new Date(proj.start_date).getFullYear() : null
-  const targetYear = proj.target_completion_date
-    ? new Date(proj.target_completion_date).getFullYear()
+  const targetYear = proj.end_date
+    ? new Date(proj.end_date).getFullYear()
     : null
 
   return (
@@ -167,9 +162,6 @@ export default async function ProjectDetailPage({ params }: PageProps) {
               }
               tint={C.ocean}
             />
-          )}
-          {proj.project_lead && (
-            <Stat label="Lead" value={proj.project_lead} tint={C.ochre} />
           )}
           {proj.impact_areas && proj.impact_areas.length > 0 && (
             <Stat

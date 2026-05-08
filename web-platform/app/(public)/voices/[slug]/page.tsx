@@ -18,6 +18,7 @@
  */
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { getPiccStorytellers, type ELStoryteller as PiccStoryteller } from '@/lib/empathy-ledger/el-storytellers'
 import {
   getPalmStorytellers,
   getELQuotes,
@@ -64,24 +65,48 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params
-  const all = await getPalmStorytellers()
-  const teller = all.find((t) => slugify(t.display_name) === slug)
-  if (!teller) return { title: 'Voice — Palm Island Community Company' }
+  // Canonical first, then fall back to the location-filtered list for any
+  // storytellers EL hasn't yet pinned to the PICC organisation.
+  const canonical = await getPiccStorytellers({ limit: 500 })
+  let name = canonical.find((t) => (t.slug || slugify(t.display_name)) === slug)?.display_name
+  if (!name) {
+    const fallback = await getPalmStorytellers()
+    name = fallback.find((t) => slugify(t.display_name) === slug)?.display_name
+  }
+  if (!name) return { title: 'Voice — Palm Island Community Company' }
   return {
-    title: `${teller.display_name} — Voices · PICC`,
-    description: `${teller.display_name}'s profile in the Palm Island voices archive.`,
+    title: `${name} — Voices · PICC`,
+    description: `${name}'s profile in the Palm Island voices archive.`,
   }
 }
 
 export default async function StorytellerProfilePage({ params }: PageProps) {
   const { slug } = await params
 
-  const [allStorytellers, allQuotes] = await Promise.all([
+  const [canonical, allStorytellers, allQuotes] = await Promise.all([
+    getPiccStorytellers({ limit: 500 }),
     getPalmStorytellers(),
     getELQuotes({ limit: 1000 }),
   ])
 
-  const teller = allStorytellers.find((t) => slugify(t.display_name) === slug)
+  // Canonical EL roster (58) → fall back to the older location-filtered
+  // list for any storytellers not yet pinned to the PICC organisation.
+  const canonicalHit = canonical.find((t) => (t.slug || slugify(t.display_name)) === slug)
+  let teller: ELStoryteller | undefined = allStorytellers.find(
+    (t) => slugify(t.display_name) === slug,
+  )
+  // If canonical found one and the legacy list didn't, synthesise an
+  // ELStoryteller-shaped record from the canonical row so the rest of
+  // the page works unchanged.
+  if (!teller && canonicalHit) {
+    teller = {
+      id: canonicalHit.id,
+      display_name: canonicalHit.display_name,
+      location: canonicalHit.location ?? '',
+      profile_id: '',
+      cultural_background: canonicalHit.cultural_background,
+    } as unknown as ELStoryteller
+  }
   if (!teller) notFound()
 
   const personQuotes = findQuotesForPerson(allQuotes, teller.display_name)
