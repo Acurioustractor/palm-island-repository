@@ -116,8 +116,51 @@ Vercel runtime logs for the error message.
 ## What "done" looks like for the CEO walk
 
 - `/picc/walk` Stop 12 ("The printed annual report") loads
-- Three direct-PDF links return PDFs (not 500s)
-- Builder UI at `/picc/reports/builder` lets the operator pick audience
-  and download in 30-60 seconds
+- Builder UI at `/picc/reports/builder` exists (web preview path)
 - Pencil file `picc-annual-report.pen` opens cleanly with current
   palette (verify visually before the demo)
+- For the actual printed deliverable: **Pencil exports the final PDF**
+
+## Production-path findings (verified 2026-05-09)
+
+After PR #14 (voiceAssignments crash) and PR #15 (PlayfairDisplay →
+Caveat), the live `/api/pdf/generate?type=annual-report` endpoint
+**hangs without responding**. Verified behaviour:
+
+- `type=stories` — returns 200, 12KB PDF in 3 seconds (works)
+- `type=focus-report&focus=service&id=…` — returns valid error in 2s (works)
+- `type=annual-report&year=2024-25` — opens TCP connection, sends
+  no headers, no body, no error; client disconnects at 280s
+- Same hang on `audience=community` (smaller cut)
+- No response in `gh api .../check-runs` (403 on /v9 logs API)
+
+Likely root cause: 1876-line template with ~50 pages × dozens of
+SVG stat boxes × photo embeds × multi-pass layout calculations
+exhausts the lambda CPU/wall-clock budget before sending output.
+React-PDF in v4 + Vercel serverless is documented elsewhere as
+brittle for documents this large.
+
+**Tuesday print decision:** Pencil is the source for the printed
+report. React-PDF is for rapid drafts of small bookmarks (stories
+PDF, focus report PDF, services PDF). The walk page Stop 12 reflects
+this honestly.
+
+## Path forward (post-Tuesday)
+
+Three options ordered by effort:
+
+1. **Smallest:** Render annual-report PDF locally via the existing
+   builder UI on a dev server (no lambda time limit), upload the
+   resulting PDF to Supabase Storage, and ship a static-link Stop 12.
+   This is "build it once, link to the file." 30 minutes.
+2. **Medium:** Split the annual-report template into smaller per-page
+   PDFs (cover + 4-5 spreads each), render each in its own lambda
+   request, then concatenate via pdf-lib. Each chunk fits in budget.
+   ~2 days.
+3. **Largest:** Move the heavy renderer off Vercel — Cloud Run
+   container with longer timeout, or background job with webhook
+   notification when ready. Right architecture but week+ of work.
+
+**Recommendation:** Option 1 for Tuesday. Pencil for the actual
+print run. Option 2 or 3 only if a recurring runtime PDF need
+emerges (currently we have one annual report a year).
