@@ -1,122 +1,102 @@
+/**
+ * /picc/dashboard — operator landing.
+ *
+ * Brand-aligned with Saltwater & Earth tokens. Same design language
+ * as /picc/canvas, /picc/walk, /picc/services/coverage so the
+ * operator experience is one continuous palette, not a generic
+ * Tailwind starter pasted into PICC chrome.
+ *
+ * Counts pull from EL canonical (storytellers · services · projects)
+ * and PICC Supabase (stories · media · grants · annual reports).
+ * Drift caught: storyteller count was reading PICC profiles (54);
+ * EL canonical roster has 58. Same for services (26 not 30).
+ */
 import Link from 'next/link'
-import { createClient } from '@supabase/supabase-js'
 import { createServerSupabase } from '@/lib/supabase/client'
+import { getPiccStorytellers } from '@/lib/empathy-ledger/el-storytellers'
+import { getPiccServices } from '@/lib/services/el-services'
+import { getPiccProjects } from '@/lib/empathy-ledger/el-projects'
 import { checkCompleteness, getCurrentFiscalYear } from '@/lib/content-readiness/check-completeness'
-
-const EL_URL = 'https://yvnuayzslukamizrlhwb.supabase.co'
-const PICC_ORG_ID = '084f851c-72e0-41fb-b5ba-f3088f44862d'
-
-export const dynamic = 'force-dynamic'
-export const revalidate = 60
+import { C, SECTION_COLOURS } from '@/components/annual-report/2024-25/almanac/tokens'
 import {
   ChevronRight,
   FileText,
   Users,
-  Image,
-  TrendingUp,
-  Award,
+  Image as ImageIcon,
   Calendar,
   AlertCircle,
-  CheckCircle,
+  CheckCircle2,
   DollarSign,
   BarChart3,
-  Layers
+  Layers,
+  Sparkles,
+  FolderKanban,
 } from 'lucide-react'
+
+export const dynamic = 'force-dynamic'
+export const revalidate = 60
 
 export default async function PICCDashboard() {
   const supabase = createServerSupabase()
 
-  // Get story counts (without is_active filter since column may not exist)
-  const [{ count: totalStories }, { count: publishedStories }, { count: submittedStories }, { count: draftStories }] = await Promise.all([
-    supabase.from('stories').select('id', { count: 'exact', head: true }),
-    supabase.from('stories').select('id', { count: 'exact', head: true }).eq('status', 'published'),
-    supabase.from('stories').select('id', { count: 'exact', head: true }).eq('status', 'submitted'),
-    supabase.from('stories').select('id', { count: 'exact', head: true }).eq('status', 'draft'),
+  // ── Counts in parallel from canonical sources ──────────────────────
+  const [
+    storytellers,
+    services,
+    projects,
+    storiesCounts,
+    mediaCounts,
+    grantsCounts,
+    reportsCounts,
+    recentSubmissions,
+    upcomingGrants,
+    recentStories,
+    latestReportRes,
+  ] = await Promise.all([
+    getPiccStorytellers({ limit: 500 }).catch(() => []),
+    getPiccServices({ status: 'active' }).catch(() => []),
+    getPiccProjects({ status: 'all' }).catch(() => []),
+    Promise.all([
+      supabase.from('stories').select('id', { count: 'exact', head: true }),
+      supabase.from('stories').select('id', { count: 'exact', head: true }).eq('status', 'published'),
+      supabase.from('stories').select('id', { count: 'exact', head: true }).eq('status', 'submitted'),
+    ]),
+    Promise.all([
+      supabase.from('media_files').select('id', { count: 'exact', head: true }).is('deleted_at', null),
+      supabase.from('extracted_quotes').select('id', { count: 'exact', head: true }),
+      supabase.from('elder_quotes').select('id', { count: 'exact', head: true }),
+    ]),
+    Promise.all([
+      supabase.from('grants').select('id', { count: 'exact', head: true }),
+      supabase.from('grants').select('id', { count: 'exact', head: true }).eq('status', 'active'),
+    ]),
+    Promise.all([
+      supabase.from('annual_reports').select('id', { count: 'exact', head: true }),
+      supabase.from('annual_reports').select('id', { count: 'exact', head: true }).eq('status', 'published'),
+    ]),
+    supabase.from('stories').select('id, title, created_at, status, category').eq('status', 'submitted').order('created_at', { ascending: false }).limit(5),
+    (() => {
+      const from = new Date().toISOString().slice(0, 10)
+      const to = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+      return supabase.from('grants').select('id, title, deadline, status').gte('deadline', from).lte('deadline', to).eq('status', 'active').order('deadline').limit(3)
+    })(),
+    supabase.from('stories').select('id, title, status, created_at, category').eq('is_public', true).order('created_at', { ascending: false }).limit(5),
+    supabase.from('annual_reports').select('id, title, report_year, status').order('report_year', { ascending: false }).limit(1).single(),
   ])
 
-  // Get media counts
-  const [{ count: mediaFiles }, { count: totalQuotes }] = await Promise.all([
-    supabase.from('media_files').select('id', { count: 'exact', head: true }),
-    supabase.from('extracted_quotes').select('id', { count: 'exact', head: true }),
-  ])
+  const [{ count: totalStories }, { count: publishedStories }, { count: submittedStories }] = storiesCounts
+  const [{ count: mediaFiles }, { count: extractedCount }, { count: elderCount }] = mediaCounts
+  const [{ count: totalGrants }, { count: activeGrants }] = grantsCounts
+  const [{ count: reportsCount }, { count: publishedReports }] = reportsCounts
+  const latestReport = latestReportRes.data
 
-  // Get services count (no is_active filter — table doesn't have it)
-  const { count: servicesCount } = await supabase
-    .from('organization_services')
-    .select('id', { count: 'exact', head: true })
+  const storytellerCount = storytellers.length
+  const eldersCount = storytellers.filter((s) => s.is_elder).length
+  const servicesCount = services.length
+  const projectsCount = projects.length
+  const totalQuotes = (extractedCount || 0) + (elderCount || 0)
 
-  // Get storyteller count from elders + profiles
-  const { count: storytellerCount } = await supabase
-    .from('profiles')
-    .select('id', { count: 'exact', head: true })
-    .eq('show_in_directory', true)
-
-  // Pull EL stats — sovereign data lives there
-  let elQuoteCount = 0
-  let elTranscriptCount = 0
-  try {
-    const elKey = process.env.EMPATHY_LEDGER_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY
-    if (elKey) {
-      const el = createClient(EL_URL, elKey)
-      const [qRes, tRes] = await Promise.all([
-        el.from('extracted_quotes').select('id', { count: 'exact', head: true }).eq('organization_id', PICC_ORG_ID),
-        el.from('transcripts').select('id', { count: 'exact', head: true }).eq('organization_id', PICC_ORG_ID),
-      ])
-      elQuoteCount = qRes.count || 0
-      elTranscriptCount = tRes.count || 0
-    }
-  } catch {}
-
-  // Get grants count
-  const [{ count: totalGrants }, { count: activeGrants }] = await Promise.all([
-    supabase.from('grants').select('*', { count: 'exact', head: true }),
-    supabase.from('grants').select('*', { count: 'exact', head: true }).eq('status', 'active'),
-  ])
-
-  // Get reports count
-  const [{ count: reportsCount }, { count: publishedReports }] = await Promise.all([
-    supabase.from('annual_reports').select('*', { count: 'exact', head: true }),
-    supabase.from('annual_reports').select('*', { count: 'exact', head: true }).eq('status', 'published'),
-  ])
-
-  // Get recent submissions
-  const { data: recentSubmissions } = await supabase
-    .from('stories')
-    .select('id, title, created_at, status, category')
-    .eq('status', 'submitted')
-    .order('created_at', { ascending: false })
-    .limit(5)
-
-  // Get upcoming grant deadlines (next 30 days)
-  const thirtyDaysFromNow = new Date()
-  thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30)
-  
-  const { data: upcomingGrants } = await supabase
-    .from('grants')
-    .select('id, title, deadline, status')
-    .gte('deadline', new Date().toISOString().split('T')[0])
-    .lte('deadline', thirtyDaysFromNow.toISOString().split('T')[0])
-    .eq('status', 'active')
-    .order('deadline')
-    .limit(3)
-
-  // Get recent stories
-  const { data: recentStories } = await supabase
-    .from('stories')
-    .select('id, title, status, created_at, category')
-    .eq('status', 'published')
-    .order('created_at', { ascending: false })
-    .limit(5)
-
-  // Get report readiness score
-  const { data: latestReport } = await supabase
-    .from('annual_reports')
-    .select('id, title, report_year, status')
-    .order('report_year', { ascending: false })
-    .limit(1)
-    .single()
-
-  // Calculate readiness from real data
+  // Readiness score — keep existing logic
   let readinessScore = 0
   let readinessStatus: 'green' | 'amber' | 'red' = 'red'
   try {
@@ -124,302 +104,331 @@ export default async function PICCDashboard() {
     readinessScore = completeness.overallScore
     readinessStatus = readinessScore >= 70 ? 'green' : readinessScore >= 40 ? 'amber' : 'red'
   } catch {
-    // Fallback if completeness check fails
     readinessScore = 0
     readinessStatus = 'red'
   }
+  const readinessTone = readinessStatus === 'green' ? '#16A34A' : readinessStatus === 'amber' ? C.ochre : C.turtleRed
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div className="space-y-8" style={{ backgroundColor: 'transparent' }}>
+      {/* HEADER */}
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">PICC Admin</p>
-          <h1 className="text-3xl font-bold text-gray-900 mt-1">Control Centre</h1>
-          <p className="text-sm text-gray-500 mt-1">Everything in one place</p>
+          <p
+            className="uppercase font-bold mb-2"
+            style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.3em' }}
+          >
+            PICC admin · control centre
+          </p>
+          <h1
+            className="font-fraunces font-bold leading-tight"
+            style={{ color: C.ocean, fontSize: 'clamp(32px, 5vw, 48px)' }}
+          >
+            Everything in one place.
+          </h1>
+          <p className="mt-2 text-sm" style={{ color: C.driftwood }}>
+            Live counts from EL canonical + PICC. For the big-picture
+            view with gaps + actions, see{' '}
+            <Link href="/picc/canvas" className="underline" style={{ color: C.ocean }}>
+              /picc/canvas
+            </Link>
+            .
+          </p>
         </div>
-        
-        {/* Quick Status */}
-        <div className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 ${
-          readinessStatus === 'green' ? 'bg-green-50 border-green-200' : 
-          readinessStatus === 'amber' ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200'
-        }`}>
+
+        {/* Readiness pill */}
+        <div
+          className="flex items-center gap-3 px-5 py-3 rounded-2xl"
+          style={{ backgroundColor: readinessTone + '15', border: `1px solid ${readinessTone}33` }}
+        >
           {readinessStatus === 'green' ? (
-            <CheckCircle className="w-5 h-5 text-green-600" />
-          ) : readinessStatus === 'amber' ? (
-            <AlertCircle className="w-5 h-5 text-amber-600" />
+            <CheckCircle2 className="w-5 h-5" style={{ color: readinessTone }} />
           ) : (
-            <AlertCircle className="w-5 h-5 text-red-600" />
+            <AlertCircle className="w-5 h-5" style={{ color: readinessTone }} />
           )}
           <div>
-            <p className={`text-lg font-bold ${
-              readinessStatus === 'green' ? 'text-green-800' : 
-              readinessStatus === 'amber' ? 'text-amber-800' : 'text-red-800'
-            }`}>
+            <p className="font-fraunces font-bold leading-none" style={{ color: readinessTone, fontSize: 22 }}>
               {readinessScore}%
             </p>
-            <p className="text-xs text-gray-600">Report Readiness</p>
+            <p className="text-[10px] uppercase font-bold tracking-widest mt-1" style={{ color: C.driftwood, letterSpacing: '0.2em' }}>
+              Report readiness
+            </p>
           </div>
-          <Link 
-            href="/picc/report-readiness" 
-            className={`ml-2 text-xs font-medium px-2 py-1 rounded ${
-              readinessStatus === 'green' ? 'bg-green-100 text-green-700' : 
-              readinessStatus === 'amber' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'
-            }`}
+          <Link
+            href="/picc/report-readiness"
+            className="ml-2 text-xs font-bold uppercase tracking-widest px-2.5 py-1.5 rounded-md"
+            style={{ backgroundColor: readinessTone, color: '#fff', letterSpacing: '0.15em' }}
           >
             View →
           </Link>
         </div>
       </div>
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        <StatCard 
-          icon={FileText} 
-          label="Stories" 
-          value={totalStories || 0} 
-          subValue={`${publishedStories || 0} published`}
+      {/* STATS GRID */}
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+        <StatCard
+          icon={FileText}
+          label="Stories"
+          value={totalStories || 0}
+          subValue={`${publishedStories || 0} public`}
           href="/picc/stories"
-          color="blue"
+          colour={SECTION_COLOURS.educationCommunity}
         />
         <StatCard
           icon={Users}
           label="Storytellers"
-          value={storytellerCount || 0}
-          subValue={`${elQuoteCount} voices in EL`}
-          href="/picc/storytellers"
-          color="indigo"
+          value={storytellerCount}
+          subValue={`${eldersCount} elders · EL canonical`}
+          href="/picc/voices"
+          colour={C.ocean}
         />
-        <StatCard 
-          icon={Image} 
-          label="Media" 
-          value={mediaFiles || 0} 
-          subValue="Photos & videos"
+        <StatCard
+          icon={ImageIcon}
+          label="Media"
+          value={mediaFiles || 0}
+          subValue="Photos + videos"
           href="/picc/media"
-          color="purple"
+          colour={C.driftwood}
         />
-        <StatCard 
-          icon={Layers} 
-          label="Services" 
-          value={servicesCount || 0} 
-          subValue="Active"
-          href="/picc/services"
-          color="emerald"
+        <StatCard
+          icon={Layers}
+          label="Services"
+          value={servicesCount}
+          subValue="EL canonical"
+          href="/picc/services/coverage"
+          colour={SECTION_COLOURS.healthWellbeing}
         />
-        <StatCard 
-          icon={DollarSign} 
-          label="Grants" 
-          value={totalGrants || 0} 
-          subValue={`${activeGrants || 0} active`}
-          href="/picc/grants"
-          color="amber"
+        <StatCard
+          icon={FolderKanban}
+          label="Projects"
+          value={projectsCount}
+          subValue="EL canonical"
+          href="/picc/projects/coverage"
+          colour={SECTION_COLOURS.economic}
         />
-        <StatCard 
-          icon={BarChart3} 
-          label="Reports" 
-          value={reportsCount || 0} 
+        <StatCard
+          icon={Sparkles}
+          label="Quotes"
+          value={totalQuotes}
+          subValue={`${elderCount || 0} elder · ${extractedCount || 0} extracted`}
+          href="/voices/themes"
+          colour={C.ochre}
+        />
+        <StatCard
+          icon={BarChart3}
+          label="Reports"
+          value={reportsCount || 0}
           subValue={`${publishedReports || 0} published`}
           href="/picc/annual-reports"
-          color="rose"
+          colour={SECTION_COLOURS.governance}
         />
       </div>
 
-      {/* Main Grid */}
+      {/* MAIN GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* Left Column - Content */}
+        {/* LEFT — content */}
         <div className="lg:col-span-2 space-y-6">
-          
-          {/* Pending Reviews */}
-          <SectionCard 
-            title="Pending Reviews" 
-            icon={AlertCircle}
-            href="/picc/stories?status=submitted"
-            actionText="View all"
-          >
-            {submittedStories && submittedStories > 0 && recentSubmissions ? (
-              <div className="space-y-3">
-                {recentSubmissions.map((story) => (
-                  <Link 
-                    key={story.id} 
+          <SectionCard title="Pending reviews" icon={AlertCircle} href="/picc/stories?status=submitted" actionText="View all">
+            {submittedStories && submittedStories > 0 && recentSubmissions.data && recentSubmissions.data.length > 0 ? (
+              <div className="flex flex-col gap-1">
+                {recentSubmissions.data.map((story) => (
+                  <Link
+                    key={story.id}
                     href={`/picc/stories/${story.id}`}
-                    className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex items-center justify-between p-3 rounded-lg hover:bg-stone-50 transition"
                   >
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">{story.title}</p>
-                      <p className="text-xs text-gray-500">{story.category || 'Uncategorized'}</p>
+                      <p className="font-medium truncate" style={{ color: C.ocean, fontSize: 14 }}>
+                        {story.title}
+                      </p>
+                      <p className="text-xs mt-0.5" style={{ color: C.driftwood }}>
+                        {story.category || 'Uncategorised'}
+                      </p>
                     </div>
-                    <span className="text-xs text-amber-600 font-medium bg-amber-50 px-2 py-1 rounded">
+                    <span
+                      className="text-[10px] uppercase font-bold tracking-widest px-2 py-1 rounded"
+                      style={{ backgroundColor: C.ochre + '22', color: C.ochre, letterSpacing: '0.15em' }}
+                    >
                       Pending
                     </span>
                   </Link>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-gray-500 text-center py-6">No pending reviews</p>
+              <p className="text-sm text-center py-6" style={{ color: C.driftwood }}>
+                No pending reviews.
+              </p>
             )}
           </SectionCard>
 
-          {/* Recent Stories */}
-          <SectionCard 
-            title="Recent Stories" 
-            icon={FileText}
-            href="/picc/stories"
-            actionText="View all"
-          >
-            {recentStories && recentStories.length > 0 ? (
-              <div className="space-y-3">
-                {recentStories.map((story) => (
-                  <Link 
-                    key={story.id} 
+          <SectionCard title="Recent stories" icon={FileText} href="/picc/stories" actionText="View all">
+            {recentStories.data && recentStories.data.length > 0 ? (
+              <div className="flex flex-col gap-1">
+                {recentStories.data.map((story) => (
+                  <Link
+                    key={story.id}
                     href={`/picc/stories/${story.id}`}
-                    className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex items-center justify-between p-3 rounded-lg hover:bg-stone-50 transition"
                   >
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">{story.title}</p>
-                      <p className="text-xs text-gray-500">
-                        {new Date(story.created_at).toLocaleDateString()} · {story.category || 'General'}
+                      <p className="font-medium truncate" style={{ color: C.ocean, fontSize: 14 }}>
+                        {story.title}
+                      </p>
+                      <p className="text-xs mt-0.5" style={{ color: C.driftwood }}>
+                        {new Date(story.created_at).toLocaleDateString('en-AU')} · {story.category || 'general'}
                       </p>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-gray-400" />
+                    <ChevronRight className="w-4 h-4" style={{ color: C.muted }} />
                   </Link>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-gray-500 text-center py-6">No published stories yet</p>
+              <p className="text-sm text-center py-6" style={{ color: C.driftwood }}>
+                No published stories yet.
+              </p>
             )}
           </SectionCard>
 
-          {/* Upcoming Grant Deadlines */}
-          <SectionCard 
-            title="Upcoming Deadlines" 
-            icon={Calendar}
-            href="/picc/grants"
-            actionText="View all grants"
-          >
-            {upcomingGrants && upcomingGrants.length > 0 ? (
-              <div className="space-y-3">
-                {upcomingGrants.map((grant) => (
-                  <Link 
-                    key={grant.id} 
-                    href={`/picc/grants/${grant.id}`}
-                    className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">{grant.title}</p>
-                      <p className="text-xs text-gray-500">
-                        Due: {new Date(grant.deadline).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <span className="text-xs text-red-600 font-medium bg-red-50 px-2 py-1 rounded">
-                      {Math.ceil((new Date(grant.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days
-                    </span>
-                  </Link>
-                ))}
+          <SectionCard title="Upcoming grant deadlines" icon={Calendar} href="/picc/grants" actionText="View all">
+            {upcomingGrants.data && upcomingGrants.data.length > 0 ? (
+              <div className="flex flex-col gap-1">
+                {upcomingGrants.data.map((grant) => {
+                  const days = Math.ceil((new Date(grant.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+                  const tone = days < 7 ? C.turtleRed : days < 14 ? C.ochre : C.driftwood
+                  return (
+                    <Link
+                      key={grant.id}
+                      href={`/picc/grants/${grant.id}`}
+                      className="flex items-center justify-between p-3 rounded-lg hover:bg-stone-50 transition"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate" style={{ color: C.ocean, fontSize: 14 }}>
+                          {grant.title}
+                        </p>
+                        <p className="text-xs mt-0.5" style={{ color: C.driftwood }}>
+                          Due {new Date(grant.deadline).toLocaleDateString('en-AU')}
+                        </p>
+                      </div>
+                      <span
+                        className="text-[10px] uppercase font-bold tracking-widest px-2 py-1 rounded whitespace-nowrap"
+                        style={{ backgroundColor: tone + '22', color: tone, letterSpacing: '0.15em' }}
+                      >
+                        {days} days
+                      </span>
+                    </Link>
+                  )
+                })}
               </div>
             ) : (
-              <p className="text-sm text-gray-500 text-center py-6">No upcoming deadlines</p>
+              <p className="text-sm text-center py-6" style={{ color: C.driftwood }}>
+                No deadlines in the next 30 days.
+              </p>
             )}
           </SectionCard>
         </div>
 
-        {/* Right Column - Quick Actions & Status */}
+        {/* RIGHT — actions + report + summary */}
         <div className="space-y-6">
-          
           {/* Quick Actions */}
-          <div className="bg-white border border-gray-200 rounded-xl p-5">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4">Quick Actions</h3>
-            <div className="space-y-2">
-              <QuickAction href="/picc/stories/new" label="Add New Story" />
-              <QuickAction href="/picc/media/upload" label="Upload Media" />
-              <QuickAction href="/picc/report-readiness" label="Check Report Readiness" />
-              <QuickAction href="/picc/grants/new" label="Add Grant Opportunity" />
-              <QuickAction href="/picc/annual-reports/new" label="Create Annual Report" />
+          <div className="rounded-2xl bg-white p-5" style={{ border: `1px solid ${C.border}` }}>
+            <h3
+              className="uppercase font-bold mb-4"
+              style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.3em' }}
+            >
+              Quick actions
+            </h3>
+            <div className="flex flex-col gap-2">
+              <QuickAction href="/picc/stories/new" label="Add new story" />
+              <QuickAction href="/picc/media/upload" label="Upload media" />
+              <QuickAction href="/picc/canvas" label="Open the canvas" emphasised />
+              <QuickAction href="/picc/walk" label="Open the stage walk" />
+              <QuickAction href="/picc/annual-reports/new" label="Create annual report" />
             </div>
           </div>
 
-          {/* Report Status */}
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-5">
-            <h3 className="text-sm font-semibold text-blue-900 mb-3">Annual Report</h3>
+          {/* Annual Report */}
+          <div
+            className="rounded-2xl p-5"
+            style={{ backgroundColor: C.shell, border: `1px solid ${C.starGold}33` }}
+          >
+            <h3
+              className="uppercase font-bold mb-3"
+              style={{ color: C.starGold, fontSize: 11, letterSpacing: '0.3em' }}
+            >
+              Annual report
+            </h3>
             {latestReport ? (
-              <div className="space-y-3">
+              <div className="flex flex-col gap-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-blue-800">Latest Report</span>
-                  <span className="text-sm font-medium text-blue-900">FY {latestReport.report_year}</span>
+                  <span className="text-sm" style={{ color: C.driftwood }}>Latest</span>
+                  <span className="font-fraunces font-bold" style={{ color: C.ocean, fontSize: 16 }}>
+                    FY {latestReport.report_year}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-blue-800">Status</span>
-                  <span className={`text-xs font-medium px-2 py-1 rounded ${
-                    latestReport.status === 'published' ? 'bg-green-100 text-green-700' : 
-                    latestReport.status === 'drafting' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-700'
-                  }`}>
+                  <span className="text-sm" style={{ color: C.driftwood }}>Status</span>
+                  <span
+                    className="text-[10px] uppercase font-bold tracking-widest px-2 py-1 rounded"
+                    style={{
+                      backgroundColor: latestReport.status === 'published' ? '#16A34A22' : C.ochre + '22',
+                      color: latestReport.status === 'published' ? '#16A34A' : C.ochre,
+                      letterSpacing: '0.15em',
+                    }}
+                  >
                     {latestReport.status}
                   </span>
                 </div>
-                <Link 
+                <Link
                   href={`/picc/annual-reports/${latestReport.id}`}
-                  className="block w-full text-center text-sm text-blue-700 bg-white border border-blue-200 rounded-lg py-2 mt-3 hover:bg-blue-50 transition-colors"
+                  className="block w-full text-center font-bold uppercase tracking-widest py-2.5 rounded-md transition hover:opacity-90 mt-2"
+                  style={{
+                    backgroundColor: C.starGold,
+                    color: C.midnight,
+                    fontSize: 11,
+                    letterSpacing: '0.2em',
+                  }}
                 >
-                  Manage Report →
+                  Manage report →
                 </Link>
               </div>
             ) : (
-              <p className="text-sm text-blue-700">No reports yet</p>
+              <p className="text-sm" style={{ color: C.driftwood }}>No reports yet</p>
             )}
           </div>
 
           {/* Content Summary */}
-          <div className="bg-white border border-gray-200 rounded-xl p-5">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4">Content Summary</h3>
-            <div className="space-y-4">
-              <div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-gray-600">Stories</span>
-                  <span className="font-medium">{publishedStories || 0} of {totalStories || 0} published</span>
-                </div>
-                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-blue-500 rounded-full"
-                    style={{ width: `${totalStories ? ((publishedStories || 0) / totalStories) * 100 : 0}%` }}
-                  />
-                </div>
-              </div>
-              <div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-gray-600">Media</span>
-                  <span className="font-medium">{mediaFiles || 0} files</span>
-                </div>
-                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-purple-500 rounded-full"
-                    style={{ width: `${Math.min(100, (mediaFiles || 0) / 10)}%` }}
-                  />
-                </div>
-              </div>
-              <div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-gray-600">Quotes (Empathy Ledger)</span>
-                  <span className="font-medium">{elQuoteCount} sovereign</span>
-                </div>
-                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-emerald-500 rounded-full"
-                    style={{ width: `${Math.min(100, elQuoteCount / 6)}%` }}
-                  />
-                </div>
-              </div>
-              <div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-gray-600">Transcripts (Empathy Ledger)</span>
-                  <span className="font-medium">{elTranscriptCount} captured</span>
-                </div>
-                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-amber-500 rounded-full"
-                    style={{ width: `${Math.min(100, elTranscriptCount * 0.8)}%` }}
-                  />
-                </div>
-              </div>
+          <div className="rounded-2xl bg-white p-5" style={{ border: `1px solid ${C.border}` }}>
+            <h3
+              className="uppercase font-bold mb-4"
+              style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.3em' }}
+            >
+              Content summary
+            </h3>
+            <div className="flex flex-col gap-4">
+              <SummaryBar
+                label="Stories"
+                value={`${publishedStories || 0} of ${totalStories || 0} public`}
+                pct={totalStories ? Math.round(((publishedStories || 0) / totalStories) * 100) : 0}
+                colour={C.ocean}
+              />
+              <SummaryBar
+                label="Media files"
+                value={`${(mediaFiles || 0).toLocaleString()} files`}
+                pct={Math.min(100, Math.round((mediaFiles || 0) / 30))}
+                colour={C.ochre}
+              />
+              <SummaryBar
+                label="Quotes"
+                value={`${totalQuotes.toLocaleString()} attributed`}
+                pct={Math.min(100, Math.round(totalQuotes / 12))}
+                colour={SECTION_COLOURS.healthWellbeing}
+              />
+              <SummaryBar
+                label="Storytellers"
+                value={`${storytellerCount} canonical · ${eldersCount} elders`}
+                pct={Math.min(100, Math.round((storytellerCount / 100) * 100))}
+                colour={SECTION_COLOURS.governance}
+              />
             </div>
           </div>
         </div>
@@ -428,66 +437,79 @@ export default async function PICCDashboard() {
   )
 }
 
-// Stat Card Component
-function StatCard({ 
-  icon: Icon, 
-  label, 
-  value, 
-  subValue, 
+// ─── COMPONENTS ───────────────────────────────────────────────────────
+
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+  subValue,
   href,
-  color 
-}: { 
-  icon: React.ElementType,
-  label: string,
-  value: number | string,
-  subValue: string,
-  href: string,
-  color: string
+  colour,
+}: {
+  icon: React.ElementType
+  label: string
+  value: number | string
+  subValue: string
+  href: string
+  colour: string
 }) {
-  const colors: Record<string, string> = {
-    blue: 'bg-blue-50 text-blue-600',
-    indigo: 'bg-indigo-50 text-indigo-600',
-    purple: 'bg-purple-50 text-purple-600',
-    emerald: 'bg-emerald-50 text-emerald-600',
-    amber: 'bg-amber-50 text-amber-600',
-    rose: 'bg-rose-50 text-rose-600',
-  }
-  
   return (
-    <Link href={href} className="bg-white border border-gray-200 rounded-xl p-4 hover:border-gray-300 transition-colors">
-      <div className={`w-10 h-10 rounded-lg ${colors[color]} flex items-center justify-center mb-3`}>
-        <Icon className="w-5 h-5" />
+    <Link
+      href={href}
+      className="block rounded-xl bg-white p-4 hover:shadow-sm transition group"
+      style={{ border: `1px solid ${C.border}`, borderTopWidth: 3, borderTopColor: colour }}
+    >
+      <div className="flex items-center gap-2 mb-2">
+        <Icon className="w-4 h-4" style={{ color: colour }} />
+        <span
+          className="uppercase font-bold"
+          style={{ color: colour, fontSize: 10, letterSpacing: '0.2em' }}
+        >
+          {label}
+        </span>
       </div>
-      <p className="text-2xl font-bold text-gray-900">{value}</p>
-      <p className="text-sm text-gray-500 mt-0.5">{label}</p>
-      <p className="text-xs text-gray-400 mt-1">{subValue}</p>
+      <p className="font-fraunces font-bold leading-none" style={{ color: C.ocean, fontSize: 28 }}>
+        {typeof value === 'number' ? value.toLocaleString() : value}
+      </p>
+      <p className="text-[11px] mt-2" style={{ color: C.driftwood }}>
+        {subValue}
+      </p>
     </Link>
   )
 }
 
-// Section Card Component
-function SectionCard({ 
-  title, 
-  icon: Icon, 
-  href, 
+function SectionCard({
+  title,
+  icon: Icon,
+  href,
   actionText,
-  children 
-}: { 
-  title: string,
-  icon: React.ElementType,
-  href?: string,
-  actionText?: string,
+  children,
+}: {
+  title: string
+  icon: React.ElementType
+  href?: string
+  actionText?: string
   children: React.ReactNode
 }) {
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-5">
+    <div className="rounded-2xl bg-white p-5" style={{ border: `1px solid ${C.border}` }}>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Icon className="w-4 h-4 text-gray-400" />
-          <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
+          <Icon className="w-4 h-4" style={{ color: C.driftwood }} />
+          <h3
+            className="uppercase font-bold"
+            style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.3em' }}
+          >
+            {title}
+          </h3>
         </div>
         {href && (
-          <Link href={href} className="text-xs text-gray-500 hover:text-gray-900 font-medium">
+          <Link
+            href={href}
+            className="text-xs hover:underline"
+            style={{ color: C.ocean }}
+          >
             {actionText} →
           </Link>
         )}
@@ -497,15 +519,34 @@ function SectionCard({
   )
 }
 
-// Quick Action Component
-function QuickAction({ href, label }: { href: string, label: string }) {
+function QuickAction({ href, label, emphasised }: { href: string; label: string; emphasised?: boolean }) {
   return (
-    <Link 
-      href={href} 
-      className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors"
+    <Link
+      href={href}
+      className="flex items-center justify-between p-3 rounded-lg transition"
+      style={{
+        border: `1px solid ${emphasised ? C.ocean : C.border}`,
+        backgroundColor: emphasised ? C.ocean + '08' : 'transparent',
+      }}
     >
-      <span className="text-sm text-gray-700">{label}</span>
-      <ChevronRight className="w-4 h-4 text-gray-400" />
+      <span className="text-sm font-medium" style={{ color: emphasised ? C.ocean : C.earth }}>
+        {label}
+      </span>
+      <ChevronRight className="w-4 h-4" style={{ color: emphasised ? C.ocean : C.muted }} />
     </Link>
+  )
+}
+
+function SummaryBar({ label, value, pct, colour }: { label: string; value: string; pct: number; colour: string }) {
+  return (
+    <div>
+      <div className="flex justify-between text-sm mb-1">
+        <span style={{ color: C.driftwood }}>{label}</span>
+        <span className="font-medium" style={{ color: C.ocean }}>{value}</span>
+      </div>
+      <div className="h-1.5 rounded-full" style={{ backgroundColor: C.border }}>
+        <div className="h-1.5 rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: colour }} />
+      </div>
+    </div>
   )
 }
