@@ -14,8 +14,11 @@ export default async function PublishedStoriesPage() {
   return (
     <div className="p-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Published Stories</h1>
-        <p className="text-gray-600">View all live stories on the public site</p>
+        <p className="uppercase font-bold mb-2" style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}>
+          PICC admin · published
+        </p>
+        <h1 className="font-fraunces font-bold leading-tight mb-2" style={{ color: '#0B4F6C', fontSize: 'clamp(28px, 4vw, 40px)' }}>Published stories.</h1>
+        <p className="text-sm" style={{ color: '#6B6560' }}>All live stories on the public site.</p>
       </div>
 
       <div className="bg-white p-6 rounded-xl shadow-md mb-6">
