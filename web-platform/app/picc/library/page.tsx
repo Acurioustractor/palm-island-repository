@@ -27,6 +27,7 @@ import {
   ExternalLink,
   CheckCircle2,
 } from 'lucide-react'
+import ResearchSourcesPanel from './ResearchSourcesPanel'
 
 export const metadata = {
   title: 'Library — PICC Admin',
@@ -266,32 +267,74 @@ export default async function LibraryPage() {
             </a>
           </div>
           <div className="rounded-2xl border border-stone-200 bg-white overflow-hidden">
-            {annualReports.length === 0 ? (
-              <EmptyState message="No annual reports captured." />
-            ) : (
-              <table className="w-full text-sm">
-                <thead className="bg-stone-50 border-b border-stone-200">
-                  <tr>
-                    <th className="text-left px-4 py-3 font-semibold text-stone-700">Fiscal year</th>
-                    <th className="text-left px-4 py-3 font-semibold text-stone-700">Title</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {annualReports.map((r, i) => (
-                    <tr key={r.id} className={i % 2 === 0 ? 'bg-white' : 'bg-stone-50/50'}>
-                      <td className="px-4 py-3 font-mono text-stone-600 text-xs">{r.fiscal_year || '—'}</td>
-                      <td className="px-4 py-3 text-stone-800">{r.title}</td>
+            <table className="w-full text-sm">
+              <thead className="bg-stone-50 border-b border-stone-200">
+                <tr>
+                  <th className="text-left px-4 py-3 font-semibold text-stone-700">Fiscal year</th>
+                  <th className="text-left px-4 py-3 font-semibold text-stone-700">Title</th>
+                  <th className="text-left px-4 py-3 font-semibold text-stone-700">Status</th>
+                  <th className="text-left px-4 py-3 font-semibold text-stone-700">Where</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(() => {
+                  // Build a row for every fiscal year from FY07-08 → FY25-26.
+                  // Mirror rows surface their PICC title; the rest fall back
+                  // to the EL v2 archive marker.
+                  const mirrorByYear = new Map<string, AnnualReportRow>()
+                  for (const r of annualReports) {
+                    if (r.fiscal_year) mirrorByYear.set(r.fiscal_year, r)
+                  }
+                  const rows: Array<{
+                    key: string
+                    fy: string
+                    title: string
+                    inMirror: boolean
+                    status: string
+                  }> = []
+                  // FY07-08 through FY25-26 — 19 fiscal years span PICC's lifetime
+                  for (let start = 2025; start >= 2007; start--) {
+                    const fy = `${start}-${String((start + 1) % 100).padStart(2, '0')}`
+                    const mirror = mirrorByYear.get(fy)
+                    rows.push({
+                      key: fy,
+                      fy,
+                      title: mirror?.title || `Annual Report ${fy}`,
+                      inMirror: !!mirror,
+                      status: mirror ? (mirror as any).status || 'in mirror' : 'in EL archive only',
+                    })
+                  }
+                  return rows.map((row, i) => (
+                    <tr key={row.key} className={i % 2 === 0 ? 'bg-white' : 'bg-stone-50/50'}>
+                      <td className="px-4 py-3 font-mono text-stone-600 text-xs">{row.fy}</td>
+                      <td className="px-4 py-3 text-stone-800">{row.title}</td>
+                      <td className="px-4 py-3 text-xs">
+                        {row.inMirror ? (
+                          <span className="px-2 py-0.5 rounded-full bg-green-50 text-green-700 inline-flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3" />
+                            in mirror
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-700">
+                            EL archive only
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-xs text-stone-500">
+                        {row.inMirror ? 'PICC + EL v2 storage' : 'EL v2 storage'}
+                      </td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+                  ))
+                })()}
+              </tbody>
+            </table>
           </div>
           <p className="text-[11px] text-stone-400 mt-3 leading-relaxed">
-            The PICC mirror has {annualReports.length} of the 17 annual reports the EL v2
-            archive holds (2007-08 through 2023-24). The /20-years scrolling history page
+            The PICC mirror has {annualReports.length} of the 19 annual reports the EL v2
+            archive holds (FY07-08 through FY25-26). The /20-years scrolling history page
             already pulls from the structured markdown extracts in EL v2 — bringing the
-            remaining reports into the PICC `annual_reports` table is a future capture task.
+            remaining reports into the PICC <code className="bg-stone-100 px-1 rounded">annual_reports</code> table is a
+            future capture task.
           </p>
         </section>
 
@@ -317,70 +360,11 @@ export default async function LibraryPage() {
               </div>
             </div>
           </div>
-          <div className="space-y-3">
-            {researchSources.length === 0 ? (
-              <EmptyState message="No research sources captured." />
-            ) : (
-              researchSources.map((r) => {
-                const subtype = r.extracted_data?.subtype || r.source_type
-                const impact = r.extracted_data?.impact
-                const provenance = r.extracted_data?.provenance
-                const captureStatus = r.extracted_data?.capture_status
-                return (
-                  <div key={r.id} className="rounded-xl border border-stone-200 bg-white p-5">
-                    <div className="flex items-start justify-between gap-4 mb-2">
-                      <h3 className="font-semibold text-stone-800 leading-snug flex-1">
-                        {r.title}
-                      </h3>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        {r.is_primary_source && (
-                          <span className="text-[10px] font-mono uppercase tracking-wide px-1.5 py-0.5 rounded bg-picc-ochre/10 text-picc-ochre">
-                            Primary
-                          </span>
-                        )}
-                        {r.is_verified ? (
-                          <span className="text-[10px] font-mono uppercase tracking-wide px-1.5 py-0.5 rounded bg-green-50 text-green-700 inline-flex items-center gap-1">
-                            <CheckCircle2 className="w-3 h-3" />
-                            Verified
-                          </span>
-                        ) : (
-                          <span className="text-[10px] font-mono uppercase tracking-wide px-1.5 py-0.5 rounded bg-stone-100 text-stone-500">
-                            Awaiting verify
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <p className="text-[11px] font-mono uppercase tracking-wide text-stone-400 mb-2">
-                      {subtype} · {r.author || 'Author unknown'}
-                      {r.publisher && r.publisher !== r.author ? ` · ${r.publisher}` : ''}
-                    </p>
-                    {r.description && (
-                      <p className="text-sm text-stone-600 leading-relaxed mb-2">
-                        {r.description}
-                      </p>
-                    )}
-                    <div className="flex flex-wrap items-center gap-3 text-[11px] mt-3 pt-3 border-t border-stone-100">
-                      {impact && (
-                        <span className="text-picc-ochre">
-                          <strong>Impact:</strong> {impact}
-                        </span>
-                      )}
-                      {captureStatus && (
-                        <span className="text-amber-600">
-                          <strong>Status:</strong> {captureStatus.replace(/_/g, ' ')}
-                        </span>
-                      )}
-                      {provenance && (
-                        <span className="text-stone-400 ml-auto">
-                          {provenance}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                )
-              })
-            )}
-          </div>
+          {researchSources.length === 0 ? (
+            <EmptyState message="No research sources captured." />
+          ) : (
+            <ResearchSourcesPanel sources={researchSources} />
+          )}
         </section>
 
         {/* ── HOW THIS LINKS ── */}
