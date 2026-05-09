@@ -193,26 +193,37 @@ export default function ImpactDashboardPage() {
     <div className="p-8 max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <Target className="w-8 h-8 text-green-600" />
-            <h1 className="text-3xl font-bold text-gray-900">Impact Dashboard</h1>
+        <p
+          className="uppercase font-bold mb-2"
+          style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}
+        >
+          PICC admin · impact
+        </p>
+        <div className="flex items-end justify-between gap-4 flex-wrap">
+          <div>
+            <div className="flex items-center gap-3">
+              <Target className="w-7 h-7" style={{ color: '#16A34A' }} />
+              <h1 className="font-fraunces font-bold leading-tight" style={{ color: '#0B4F6C', fontSize: 'clamp(28px, 4vw, 40px)' }}>
+                Impact dashboard.
+              </h1>
+            </div>
+            <p className="mt-2 text-sm" style={{ color: '#6B6560' }}>
+              Community engagement, story impact, and storyteller growth — tracked over time.
+            </p>
           </div>
 
           <select
             value={timeRange}
             onChange={(e) => setTimeRange(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            className="px-4 py-2 rounded-md text-sm focus:outline-none focus:ring-2"
+            style={{ border: '1px solid #E8E6E3', color: '#2D2319', backgroundColor: '#fff' }}
           >
-            <option value="all">All Time</option>
-            <option value="year">This Year</option>
-            <option value="quarter">This Quarter</option>
-            <option value="month">This Month</option>
+            <option value="all">All time</option>
+            <option value="year">This year</option>
+            <option value="quarter">This quarter</option>
+            <option value="month">This month</option>
           </select>
         </div>
-        <p className="text-gray-600">
-          Track community engagement, story impact, and storyteller growth
-        </p>
       </div>
 
       {/* Key Metrics */}
