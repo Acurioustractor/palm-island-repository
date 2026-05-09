@@ -111,8 +111,13 @@ export default async function ContentReadinessPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Content Readiness</h1>
-        <p className="text-sm text-gray-500 mb-4">
+        <p className="uppercase font-bold mb-2" style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}>
+          PICC admin · content readiness
+        </p>
+        <h1 className="font-fraunces font-bold leading-tight mb-2" style={{ color: '#0B4F6C', fontSize: 'clamp(28px, 4vw, 40px)' }}>
+          Content readiness.
+        </h1>
+        <p className="text-sm mb-4" style={{ color: '#6B6560' }}>
           Generated {formattedTime}
         </p>
         <OverallScoreBar score={report.overallScore} />

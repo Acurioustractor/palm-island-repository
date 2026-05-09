@@ -69,11 +69,16 @@ export default function NewsletterPage() {
             Back to Content Studio
           </Link>
 
+          <p className="uppercase font-bold mb-2" style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}>
+            PICC admin · newsletter
+          </p>
           <div className="flex items-center gap-3 mb-2">
-            <Mail className="h-8 w-8 text-picc-red" />
-            <h1 className="text-3xl font-bold text-gray-900">Newsletter Builder</h1>
+            <Mail className="h-7 w-7" style={{ color: '#C8963E' }} />
+            <h1 className="font-fraunces font-bold leading-tight" style={{ color: '#0B4F6C', fontSize: 'clamp(28px, 4vw, 40px)' }}>
+              Newsletter builder.
+            </h1>
           </div>
-          <p className="text-gray-600">Create community newsletters from published stories</p>
+          <p className="text-sm" style={{ color: '#6B6560' }}>Create community newsletters from published stories.</p>
         </div>
 
         {!preview ? (

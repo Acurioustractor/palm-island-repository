@@ -135,15 +135,20 @@ export default function PermissionsPage() {
     <div className="p-8 max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center gap-3 mb-4">
-          <Shield className="w-8 h-8 text-blue-600" />
-          <h1 className="text-3xl font-bold text-gray-900">Cultural Permissions & Privacy</h1>
+        <p className="uppercase font-bold mb-2" style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}>
+          PICC admin · cultural permissions
+        </p>
+        <div className="flex items-center gap-3 mb-2">
+          <Shield className="w-7 h-7" style={{ color: '#C8963E' }} />
+          <h1 className="font-fraunces font-bold leading-tight" style={{ color: '#0B4F6C', fontSize: 'clamp(28px, 4vw, 40px)' }}>
+            Cultural permissions & privacy.
+          </h1>
         </div>
-        <p className="text-gray-600 mb-4">
-          Manage cultural protocols, photo consent, and privacy settings for storytellers
+        <p className="mb-4 text-sm" style={{ color: '#6B6560' }}>
+          Manage cultural protocols, photo consent, and privacy settings for storytellers.
         </p>
 
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+        <div className="rounded-2xl p-4" style={{ backgroundColor: '#FEF3C7', border: '1px solid #C8963E33' }}>
           <div className="flex gap-3">
             <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
             <div>

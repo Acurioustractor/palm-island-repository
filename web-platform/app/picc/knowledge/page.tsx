@@ -94,12 +94,15 @@ export default function KnowledgeBasePage() {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-              <BookOpen className="h-8 w-8 text-picc-red" />
-              Knowledge Base
+            <p className="uppercase font-bold mb-2" style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}>
+              PICC admin · knowledge base
+            </p>
+            <h1 className="font-fraunces font-bold leading-tight flex items-center gap-3" style={{ color: '#0B4F6C', fontSize: 'clamp(28px, 4vw, 40px)' }}>
+              <BookOpen className="h-7 w-7" style={{ color: '#C8963E' }} />
+              Knowledge base.
             </h1>
-            <p className="mt-2 text-gray-600">
-              Search and manage PICC&apos;s comprehensive knowledge repository
+            <p className="mt-2 text-sm" style={{ color: '#6B6560' }}>
+              Search and manage PICC&apos;s comprehensive knowledge repository.
             </p>
           </div>
           <div className="flex gap-3">
