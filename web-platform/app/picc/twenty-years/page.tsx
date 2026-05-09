@@ -150,21 +150,46 @@ export default async function TwentyYearsPage() {
   return (
     <main className="min-h-screen" style={{ backgroundColor: '#FBF8EE' }}>
       {/* HERO */}
-      <section className="px-6 md:px-12 pt-16 pb-12" style={{ backgroundColor: C.midnight }}>
-        <div className="max-w-7xl mx-auto">
-          <p className="uppercase font-bold mb-4" style={{ color: C.starGold, fontSize: 11, letterSpacing: '0.3em' }}>
+      <section
+        className="px-6 md:px-12 pt-20 pb-16 relative overflow-hidden"
+        style={{ backgroundColor: C.midnight }}
+      >
+        {/* Subtle radial wash so the hero feels like a horizon, not a flat band */}
+        <div
+          aria-hidden
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: `radial-gradient(ellipse at 30% 20%, ${C.ocean}33 0%, transparent 55%)`,
+          }}
+        />
+        <div className="max-w-7xl mx-auto relative">
+          <p className="uppercase font-bold mb-5" style={{ color: C.starGold, fontSize: 11, letterSpacing: '0.3em' }}>
             Master showcase · operator narrative
           </p>
           <h1
-            className="font-fraunces font-bold leading-[1.02] mb-6"
-            style={{ color: '#FBF8EE', fontSize: 'clamp(48px, 8vw, 96px)' }}
+            className="font-fraunces font-bold leading-[0.98] mb-6"
+            style={{ color: '#FBF8EE', fontSize: 'clamp(56px, 9vw, 112px)' }}
           >
-            20 years. One story.
+            20 years.
+            <br />
+            One story.
           </h1>
-          <p className="font-fraunces max-w-3xl" style={{ color: '#FBF8EE', opacity: 0.85, fontSize: 22, lineHeight: 1.5 }}>
-            Founded 2007. Community-controlled 2021. Today: {services.length} services, {storytellers.length} storytellers,
-            {' '}{totalQuotes.toLocaleString()} quotes, {projects.length} projects, {themesIndex.total_themes} themes named.
-            By 2045: a community canvas the next generation owns.
+          <p
+            className="italic mb-6"
+            style={{
+              color: C.starGold,
+              opacity: 0.9,
+              fontFamily: 'Caveat, cursive',
+              fontSize: 'clamp(22px, 2.6vw, 30px)',
+            }}
+          >
+            from Palm Island, with provenance
+          </p>
+          <p className="font-fraunces max-w-3xl" style={{ color: '#FBF8EE', opacity: 0.85, fontSize: 20, lineHeight: 1.55 }}>
+            Founded 2007. Community-controlled 2021. Today: {services.length} services,
+            {' '}{storytellers.length} storytellers, {totalQuotes.toLocaleString()} quotes,
+            {' '}{projects.length} projects, {themesIndex.total_themes} themes named. By 2045:
+            a community canvas the next generation owns.
           </p>
 
           {/* Hero stats strip */}
@@ -179,7 +204,12 @@ export default async function TwentyYearsPage() {
       </section>
 
       {/* WHAT WAS — timeline */}
-      <Section eyebrow="01 · What was" title="From 2007 to here." colour={C.ocean}>
+      <Section
+        eyebrow="01 · What was"
+        title="From 2007 to here."
+        byline="eighteen years on Country"
+        colour={C.ocean}
+      >
         <p className="text-sm leading-relaxed max-w-2xl mb-8" style={{ color: C.driftwood }}>
           The 20-year arc, named year by year. Each marker is a real moment — not a slogan. The
           slope of the curve below is what community-controlled organisation looks like at
@@ -205,7 +235,13 @@ export default async function TwentyYearsPage() {
       </Section>
 
       {/* WHAT IS — operating picture */}
-      <Section eyebrow="02 · What is" title="Today's operating picture." colour={SECTION_COLOURS.healthWellbeing}>
+      <Section
+        eyebrow="02 · What is"
+        title="Today's operating picture."
+        byline="every number traces to a row"
+        colour={SECTION_COLOURS.healthWellbeing}
+        alt
+      >
         <p className="text-sm leading-relaxed max-w-2xl mb-8" style={{ color: C.driftwood }}>
           Live counts from the canonical EL roster + PICC archive. Every number traces to a row.
         </p>
@@ -251,7 +287,12 @@ export default async function TwentyYearsPage() {
       </Section>
 
       {/* WHAT CONNECTS — wiring */}
-      <Section eyebrow="03 · What connects" title="The wiring." colour={C.ochre}>
+      <Section
+        eyebrow="03 · What connects"
+        title="The wiring."
+        byline="storytellers are the bridge"
+        colour={C.ochre}
+      >
         <p className="text-sm leading-relaxed max-w-2xl mb-8" style={{ color: C.driftwood }}>
           Storytellers are the bridge. Every storyteller links to services they deliver or use,
           projects they&apos;re in, and the themes they&apos;re named in. The platform is a graph,
@@ -299,7 +340,13 @@ export default async function TwentyYearsPage() {
       </Section>
 
       {/* WHAT'S NEXT — the 20-year dream */}
-      <Section eyebrow="04 · What's next" title="The 20-year dream." colour={C.starGold}>
+      <Section
+        eyebrow="04 · What's next"
+        title="The 20-year dream."
+        byline="a design choice, not a forecast"
+        colour={C.starGold}
+        alt
+      >
         <p className="text-sm leading-relaxed max-w-2xl mb-8" style={{ color: C.driftwood }}>
           {goals.length} strategic targets named for 2029. {visions.length} community visions on
           the canvas. {innovations.length} innovation projects shipping. The next 20 years are a
@@ -398,16 +445,36 @@ export default async function TwentyYearsPage() {
 
 // ─── COMPONENTS ────────────────────────────────────────────────────────
 
-function Section({ eyebrow, title, colour, children }: { eyebrow: string; title: string; colour: string; children: React.ReactNode }) {
+function Section({ eyebrow, title, colour, byline, alt, children }: {
+  eyebrow: string
+  title: string
+  colour: string
+  byline?: string
+  alt?: boolean
+  children: React.ReactNode
+}) {
   return (
-    <section className="px-6 md:px-12 py-16">
+    <section
+      className="px-6 md:px-12 py-20 md:py-24"
+      style={{ backgroundColor: alt ? C.shell : '#FBF8EE' }}
+    >
       <div className="max-w-7xl mx-auto">
         <p className="uppercase font-bold mb-3" style={{ color: colour, fontSize: 11, letterSpacing: '0.3em' }}>
           {eyebrow}
         </p>
-        <h2 className="font-fraunces font-bold leading-tight mb-8" style={{ color: C.ocean, fontSize: 'clamp(32px, 5vw, 52px)' }}>
-          {title}
-        </h2>
+        <div className="flex items-baseline gap-4 flex-wrap mb-10">
+          <h2 className="font-fraunces font-bold leading-[1.05]" style={{ color: C.ocean, fontSize: 'clamp(36px, 6vw, 64px)' }}>
+            {title}
+          </h2>
+          {byline && (
+            <span
+              className="italic"
+              style={{ color: colour, fontFamily: 'Caveat, cursive', fontSize: 'clamp(20px, 2.5vw, 28px)' }}
+            >
+              {byline}
+            </span>
+          )}
+        </div>
         {children}
       </div>
     </section>
