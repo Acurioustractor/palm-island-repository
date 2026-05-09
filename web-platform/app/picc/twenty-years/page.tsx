@@ -653,46 +653,253 @@ function ConnectionsDiagram({ servicesCount, storytellersCount, projectsCount, t
   themesCount: number
   quotesCount: number
 }) {
-  const W = 1000
-  const H = 320
+  // Orbital diagram. Storytellers as the central bridge; four satellites
+  // at clean 45° clock positions (no edge crossings), connected by gentle
+  // Bezier curves with verb labels.
+  const W = 1100
+  const H = 560
   const cx = W / 2
   const cy = H / 2
+  const R = 200 // orbital radius from centre to satellite centres
+  const cosA = Math.cos(Math.PI / 4) // 45°
+  const sinA = Math.sin(Math.PI / 4)
 
-  const nodes = [
-    { x: cx, y: cy, r: 56, label: 'Storytellers', n: storytellersCount, colour: C.ocean, sub: 'the bridge' },
-    { x: cx - 320, y: cy - 80, r: 44, label: 'Services', n: servicesCount, colour: SECTION_COLOURS.healthWellbeing, sub: 'EL canonical' },
-    { x: cx + 320, y: cy - 80, r: 40, label: 'Projects', n: projectsCount, colour: SECTION_COLOURS.economic, sub: 'on Country' },
-    { x: cx - 220, y: cy + 100, r: 42, label: 'Themes', n: themesCount, colour: SECTION_COLOURS.governance, sub: 'named' },
-    { x: cx + 220, y: cy + 100, r: 46, label: 'Quotes', n: quotesCount, colour: C.turtleRed, sub: 'attributed' },
+  const centre = {
+    x: cx, y: cy, r: 78, label: 'Storytellers', n: storytellersCount,
+    colour: C.ocean, sub: 'the bridge',
+  }
+  const satellites = [
+    {
+      key: 'services',
+      x: cx - R * cosA, y: cy - R * sinA, r: 58,
+      label: 'Services', n: servicesCount,
+      colour: SECTION_COLOURS.healthWellbeing,
+      sub: 'EL canonical', verb: 'deliver',
+    },
+    {
+      key: 'projects',
+      x: cx + R * cosA, y: cy - R * sinA, r: 56,
+      label: 'Projects', n: projectsCount,
+      colour: SECTION_COLOURS.economic,
+      sub: 'on Country', verb: 'lead',
+    },
+    {
+      key: 'themes',
+      x: cx - R * cosA, y: cy + R * sinA, r: 56,
+      label: 'Themes', n: themesCount,
+      colour: SECTION_COLOURS.governance,
+      sub: 'named', verb: 'speak',
+    },
+    {
+      key: 'quotes',
+      x: cx + R * cosA, y: cy + R * sinA, r: 60,
+      label: 'Quotes', n: quotesCount,
+      colour: C.turtleRed,
+      sub: 'attributed', verb: 'attribute',
+    },
   ]
 
+  // Bezier control points sit between centre and satellite, slightly
+  // pulled toward each axis so the curves bow outward rather than running
+  // straight.
+  const edgePath = (sx: number, sy: number, ex: number, ey: number) => {
+    const mx = (sx + ex) / 2
+    const my = (sy + ey) / 2
+    // perpendicular offset for curve
+    const dx = ex - sx
+    const dy = ey - sy
+    const norm = Math.sqrt(dx * dx + dy * dy)
+    const nx = -dy / norm
+    const ny = dx / norm
+    const offset = 18
+    return `M ${sx} ${sy} Q ${mx + nx * offset} ${my + ny * offset} ${ex} ${ey}`
+  }
+
   return (
-    <div className="rounded-2xl bg-white p-6 overflow-x-auto" style={{ border: `1px solid ${C.border}` }}>
-      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" className="w-full h-auto">
-        {/* Edges */}
-        {nodes.slice(1).map((n) => (
-          <line key={n.label} x1={cx} y1={cy} x2={n.x} y2={n.y} stroke={n.colour} strokeWidth={2} opacity={0.4} />
-        ))}
+    <div
+      className="rounded-2xl p-6 md:p-10 relative overflow-hidden"
+      style={{
+        background: `radial-gradient(ellipse at center, ${C.shell} 0%, #FBF8EE 75%)`,
+        border: `1px solid ${C.border}`,
+      }}
+    >
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        preserveAspectRatio="xMidYMid meet"
+        className="w-full h-auto"
+        style={{ display: 'block' }}
+      >
+        <defs>
+          {/* radial gradient for centre node fill */}
+          <radialGradient id="centreFill" cx="50%" cy="40%" r="60%">
+            <stop offset="0%" stopColor={C.ocean} stopOpacity="0.18" />
+            <stop offset="100%" stopColor={C.ocean} stopOpacity="0.05" />
+          </radialGradient>
+          {satellites.map((s) => (
+            <radialGradient key={`grad-${s.key}`} id={`fill-${s.key}`} cx="50%" cy="40%" r="60%">
+              <stop offset="0%" stopColor={s.colour} stopOpacity="0.20" />
+              <stop offset="100%" stopColor={s.colour} stopOpacity="0.06" />
+            </radialGradient>
+          ))}
+        </defs>
 
-        {/* Centre node bigger ring */}
-        <circle cx={cx} cy={cy} r={70} fill={C.ocean + '08'} stroke={C.ocean + '33'} strokeWidth={1} strokeDasharray="3 3" />
+        {/* Outer orbit ring — tactile, not decorative */}
+        <circle
+          cx={cx}
+          cy={cy}
+          r={R}
+          fill="none"
+          stroke={C.border}
+          strokeWidth={1}
+          strokeDasharray="2 6"
+          opacity={0.7}
+        />
 
-        {/* Nodes */}
-        {nodes.map((n) => (
-          <g key={n.label}>
-            <circle cx={n.x} cy={n.y} r={n.r} fill={n.colour + '15'} stroke={n.colour} strokeWidth={2} />
-            <text x={n.x} y={n.y - 4} textAnchor="middle" fontSize={20} fontWeight="bold" fill={n.colour} fontFamily="Fraunces">
-              {n.n.toLocaleString()}
+        {/* Edges — Bezier curves with verb labels */}
+        {satellites.map((s) => {
+          // Trim edge endpoints to circle perimeters so lines don't disappear under nodes
+          const dx = s.x - cx
+          const dy = s.y - cy
+          const len = Math.sqrt(dx * dx + dy * dy)
+          const ux = dx / len
+          const uy = dy / len
+          const startX = cx + ux * centre.r
+          const startY = cy + uy * centre.r
+          const endX = s.x - ux * s.r
+          const endY = s.y - uy * s.r
+          // Mid-point for label
+          const lx = (startX + endX) / 2
+          const ly = (startY + endY) / 2
+          // Angle for label rotation (so it reads with the line)
+          const angleDeg = (Math.atan2(endY - startY, endX - startX) * 180) / Math.PI
+          // Flip readability if text would render upside down
+          const flip = angleDeg > 90 || angleDeg < -90
+          const rot = flip ? angleDeg + 180 : angleDeg
+          return (
+            <g key={`edge-${s.key}`}>
+              <path
+                d={edgePath(startX, startY, endX, endY)}
+                fill="none"
+                stroke={s.colour}
+                strokeWidth={2}
+                strokeLinecap="round"
+                opacity={0.45}
+              />
+              {/* Verb label */}
+              <g transform={`translate(${lx} ${ly}) rotate(${rot})`}>
+                <rect
+                  x={-22}
+                  y={-9}
+                  width={44}
+                  height={18}
+                  rx={9}
+                  fill="#FBF8EE"
+                  stroke={s.colour + '33'}
+                  strokeWidth={1}
+                />
+                <text
+                  textAnchor="middle"
+                  fontSize={9}
+                  fontWeight={700}
+                  fill={s.colour}
+                  letterSpacing="1.2"
+                  y={3}
+                >
+                  {s.verb.toUpperCase()}
+                </text>
+              </g>
+            </g>
+          )
+        })}
+
+        {/* Centre node — soft halo + circle */}
+        <circle cx={centre.x} cy={centre.y} r={centre.r + 18} fill={C.ocean} opacity={0.04} />
+        <circle cx={centre.x} cy={centre.y} r={centre.r + 8} fill="none" stroke={C.ocean} strokeOpacity={0.15} strokeWidth={1} strokeDasharray="3 4" />
+        <circle cx={centre.x} cy={centre.y} r={centre.r} fill="url(#centreFill)" stroke={C.ocean} strokeWidth={2.5} />
+        <text
+          x={centre.x} y={centre.y - 8}
+          textAnchor="middle"
+          fontSize={36}
+          fontWeight={700}
+          fill={C.ocean}
+          fontFamily="Fraunces, Georgia, serif"
+        >
+          {centre.n.toLocaleString()}
+        </text>
+        <text
+          x={centre.x} y={centre.y + 14}
+          textAnchor="middle"
+          fontSize={10}
+          fontWeight={700}
+          fill={C.ocean}
+          letterSpacing="3"
+        >
+          {centre.label.toUpperCase()}
+        </text>
+        <text
+          x={centre.x} y={centre.y + 32}
+          textAnchor="middle"
+          fontSize={11}
+          fill={C.ochre}
+          fontStyle="italic"
+          fontFamily="Caveat, cursive"
+        >
+          {centre.sub}
+        </text>
+
+        {/* Satellite nodes */}
+        {satellites.map((s) => (
+          <g key={s.key}>
+            {/* halo */}
+            <circle cx={s.x} cy={s.y} r={s.r + 6} fill={s.colour} opacity={0.05} />
+            <circle
+              cx={s.x} cy={s.y}
+              r={s.r}
+              fill={`url(#fill-${s.key})`}
+              stroke={s.colour}
+              strokeWidth={2}
+            />
+            <text
+              x={s.x} y={s.y - 4}
+              textAnchor="middle"
+              fontSize={26}
+              fontWeight={700}
+              fill={s.colour}
+              fontFamily="Fraunces, Georgia, serif"
+            >
+              {s.n.toLocaleString()}
             </text>
-            <text x={n.x} y={n.y + 14} textAnchor="middle" fontSize={10} fontWeight="bold" fill={C.ocean} letterSpacing="1.5">
-              {n.label.toUpperCase()}
+            <text
+              x={s.x} y={s.y + 14}
+              textAnchor="middle"
+              fontSize={9}
+              fontWeight={700}
+              fill={C.ocean}
+              letterSpacing="2.5"
+            >
+              {s.label.toUpperCase()}
             </text>
-            <text x={n.x} y={n.y + 28} textAnchor="middle" fontSize={9} fill={C.driftwood} fontStyle="italic">
-              {n.sub}
+            <text
+              x={s.x} y={s.y + 28}
+              textAnchor="middle"
+              fontSize={10}
+              fill={C.driftwood}
+              fontStyle="italic"
+              fontFamily="Caveat, cursive"
+            >
+              {s.sub}
             </text>
           </g>
         ))}
       </svg>
+
+      {/* Caption */}
+      <p
+        className="absolute bottom-4 right-6 italic text-[11px]"
+        style={{ color: C.driftwood, fontFamily: 'Caveat, cursive', fontSize: 14 }}
+      >
+        the platform is a graph, not a list
+      </p>
     </div>
   )
 }
