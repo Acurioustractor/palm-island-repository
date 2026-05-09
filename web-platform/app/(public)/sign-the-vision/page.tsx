@@ -26,6 +26,12 @@ export const metadata = {
     'Add your voice to the Palm Island Community Company vision for the next 20 years. Open during community gatherings, leader meetings, and Elder reviews.',
 }
 
+// Matches actual community_visions schema:
+//   id, vision_text, author_name, author_role, category, is_approved, created_at
+// Earlier read selected is_anonymous (no such column) — Postgrest 400'd silently
+// and the page fell through to FALLBACK_VISIONS, hiding the 6 real seeded
+// visions. The is_anonymous boolean is now derived: true when author_name is
+// null/blank.
 interface ApprovedVision {
   id: string
   vision_text: string
@@ -88,13 +94,24 @@ export default async function SignTheVisionPage({ searchParams }: PageProps) {
   const supabase = createServerSupabase()
   const { data } = await supabase
     .from('community_visions')
-    .select('id, vision_text, category, author_name, is_anonymous')
+    .select('id, vision_text, category, author_name')
     .eq('is_approved', true)
     .order('created_at', { ascending: true })
     .limit(24)
 
-  const approved: ApprovedVision[] = (data && data.length > 0 ? data : FALLBACK_VISIONS) as ApprovedVision[]
-  const usingFallback = !data || data.length === 0
+  // Derive is_anonymous from missing author_name so the client UI can
+  // still show "Anonymous" without changing its props shape.
+  const enriched: ApprovedVision[] | null = data
+    ? data.map((row: any) => ({
+        id: row.id,
+        vision_text: row.vision_text,
+        category: row.category,
+        author_name: row.author_name,
+        is_anonymous: !row.author_name || String(row.author_name).trim() === '',
+      }))
+    : null
+  const approved: ApprovedVision[] = (enriched && enriched.length > 0 ? enriched : FALLBACK_VISIONS) as ApprovedVision[]
+  const usingFallback = !enriched || enriched.length === 0
 
   // Session tag — when set via ?session=foo, every signature submitted
   // from this page tags itself with that session_id, so /picc/vision can
