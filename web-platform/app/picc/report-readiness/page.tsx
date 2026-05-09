@@ -50,46 +50,74 @@ export default async function ReportReadinessPage({
 
   return (
     <div className="max-w-7xl mx-auto space-y-8">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Report Readiness</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            {completeSections} of {report.reportSections.length} sections complete — {report.services.length} services tracked
+          <p
+            className="uppercase font-bold mb-2"
+            style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}
+          >
+            PICC admin · report readiness
+          </p>
+          <h1
+            className="font-fraunces font-bold leading-tight"
+            style={{ color: '#0B4F6C', fontSize: 'clamp(28px, 4vw, 40px)' }}
+          >
+            How ready are we?
+          </h1>
+          <p className="mt-2 text-sm" style={{ color: '#6B6560' }}>
+            {completeSections} of {report.reportSections.length} sections complete · {report.services.length} services tracked
           </p>
         </div>
-        
+
         {/* Fiscal Year Selector - Client Component */}
         <FiscalYearSelector currentYear={fiscalYear} options={fyOptions} />
       </div>
-      
+
       {/* Auto-link Section */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-5">
+      <div
+        className="rounded-2xl p-5"
+        style={{ backgroundColor: '#F7F6F4', border: '1px solid #C8963E33' }}
+      >
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h3 className="text-lg font-semibold text-blue-900">Auto-Link Stories</h3>
-            <p className="text-sm text-blue-700 mt-1">
-              Automatically select and link the best stories to your annual report based on quality, engagement, and category diversity.
+            <p
+              className="uppercase font-bold mb-2"
+              style={{ color: '#C8963E', fontSize: 11, letterSpacing: '0.3em' }}
+            >
+              Auto-link stories
+            </p>
+            <p className="text-sm leading-relaxed" style={{ color: '#2D2319' }}>
+              Automatically select and link the best stories to your annual report based on
+              quality, engagement, and category diversity.
             </p>
           </div>
           <AutoLinkButton reports={reports} />
         </div>
       </div>
-      
+
       {/* Recommendations */}
       {report.recommendations.length > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-          <h3 className="text-sm font-semibold text-amber-800 mb-2">Priority Actions</h3>
-          <ul className="space-y-1">
+        <div
+          className="rounded-2xl p-5"
+          style={{ backgroundColor: '#FEF3C7', border: '1px solid #C8963E33' }}
+        >
+          <p
+            className="uppercase font-bold mb-3"
+            style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}
+          >
+            Priority actions
+          </p>
+          <ul className="flex flex-col gap-2">
             {report.recommendations.map((rec, idx) => (
-              <li key={idx} className="text-sm text-amber-700 flex items-start gap-2">
-                <span className="mt-1 w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+              <li key={idx} className="text-sm flex items-start gap-2 leading-relaxed" style={{ color: '#2D2319' }}>
+                <span className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: '#C8963E' }} />
                 {rec}
               </li>
             ))}
           </ul>
         </div>
       )}
-      
+
       <ReportReadinessClient report={report} />
     </div>
   )
