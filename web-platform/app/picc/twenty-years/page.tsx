@@ -24,6 +24,7 @@ import { getPiccProjects } from '@/lib/empathy-ledger/el-projects'
 import { getThemesIndex } from '@/lib/empathy-ledger/el-themes'
 import { C, SECTION_COLOURS } from '@/components/annual-report/2024-25/almanac/tokens'
 import { ogMeta } from '@/lib/seo/og'
+import PalmIslandMap, { type PinService } from './PalmIslandMap'
 
 export const metadata = ogMeta({
   title: 'Twenty years — the showcase · PICC',
@@ -134,6 +135,18 @@ export default async function TwentyYearsPage() {
   const topThemes = themesIndex.themes.filter((t) => t.count >= 2).slice(0, 24)
   const maxThemeCount = topThemes[0]?.count || 1
 
+  // Services with GPS pins set in EL canonical (edited via /picc/services/map)
+  const pinnedServices: PinService[] = services
+    .filter((s) => s.latitude != null && s.longitude != null)
+    .map((s) => ({
+      id: s.id,
+      slug: s.slug,
+      name: s.name,
+      service_category: s.service_category,
+      latitude: s.latitude as number,
+      longitude: s.longitude as number,
+    }))
+
   return (
     <main className="min-h-screen" style={{ backgroundColor: '#FBF8EE' }}>
       {/* HERO */}
@@ -206,7 +219,25 @@ export default async function TwentyYearsPage() {
           <BigStat n={themesIndex.total_themes} label="Themes" colour={SECTION_COLOURS.governance} href="/voices/themes" />
         </div>
 
-        <div className="mt-10">
+        {/* Palm Island map — services with GPS pins */}
+        {pinnedServices.length > 0 && (
+          <div className="mt-12">
+            <h3 className="font-fraunces font-bold mb-3" style={{ color: C.ocean, fontSize: 22 }}>
+              Where the work happens · {pinnedServices.length} services on Country
+            </h3>
+            <p className="text-sm mb-6 max-w-3xl" style={{ color: C.driftwood }}>
+              Every pin is a real building, a real shopfront, a real spot on the island. Coordinates
+              are set in EL canonical and edited from{' '}
+              <Link href="/picc/services/map" className="underline" style={{ color: C.ocean }}>
+                /picc/services/map
+              </Link>
+              {' '}— drag any pin, save flows back to the source of truth.
+            </p>
+            <PalmIslandMap services={pinnedServices} />
+          </div>
+        )}
+
+        <div className="mt-12">
           <h3 className="font-fraunces font-bold mb-3" style={{ color: C.ocean, fontSize: 22 }}>
             What the community is speaking to · top {topThemes.length} themes
           </h3>

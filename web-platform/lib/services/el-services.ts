@@ -75,6 +75,11 @@ export interface PiccService {
    *  static fallback set (no EL link). */
   image_url: string | null
   gallery_id: string | null
+  /** Canonical location, set in EL via /api/picc/services/[slug]/location.
+   *  Persisted from /picc/services/map drag-to-position admin. */
+  latitude: number | null
+  longitude: number | null
+  address: string | null
 }
 
 function fromELService(s: ELService): PiccService {
@@ -88,6 +93,9 @@ function fromELService(s: ELService): PiccService {
     clients_served_annual: null,
     image_url: s.image_url,
     gallery_id: s.gallery_id,
+    latitude: s.latitude,
+    longitude: s.longitude,
+    address: s.address,
   }
 }
 
@@ -102,6 +110,9 @@ function fromStatic(): PiccService[] {
     clients_served_annual: s.clients_served_annual ?? null,
     image_url: null,
     gallery_id: null,
+    latitude: null,
+    longitude: null,
+    address: null,
   }))
 }
 
