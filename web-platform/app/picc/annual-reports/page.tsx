@@ -117,15 +117,27 @@ export default function AnnualReportsPage() {
     <div className="max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Reports</p>
-        <div className="flex items-center justify-between mt-1">
-          <h1 className="text-4xl font-bold text-gray-900">Annual Reports</h1>
+        <p className="text-xs font-semibold uppercase mb-2" style={{ color: '#8B1A1A', letterSpacing: '0.3em' }}>
+          PICC admin · reports
+        </p>
+        <div className="flex items-end justify-between mt-1 gap-4 flex-wrap">
+          <div>
+            <h1 className="font-fraunces font-bold leading-tight" style={{ color: '#0B4F6C', fontSize: 'clamp(32px, 5vw, 48px)' }}>
+              Annual reports.
+            </h1>
+            <p className="mt-2 text-sm" style={{ color: '#6B6560' }}>
+              Capture data → generate PDF drafts → Pencil for the print master.{' '}
+              <Link href="/picc/canvas" className="underline" style={{ color: '#0B4F6C' }}>See canvas</Link>{' '}
+              for the big picture.
+            </p>
+          </div>
           <Link
             href="/picc/report-generator"
-            className="flex items-center gap-2 px-5 py-2.5 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded-lg transition-colors"
+            className="flex items-center gap-2 px-5 py-2.5 text-sm font-bold uppercase tracking-widest rounded-md transition hover:opacity-90"
+            style={{ backgroundColor: '#0B4F6C', color: '#FBF8EE', letterSpacing: '0.15em' }}
           >
             <Plus className="w-4 h-4" />
-            Create Report
+            Create report
           </Link>
         </div>
       </div>
@@ -149,8 +161,10 @@ export default function AnnualReportsPage() {
 
       {/* Annual Report Workflow */}
       <div className="mb-10">
-        <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">Annual Report Workflow</p>
-        <div className="border border-gray-200 rounded-xl divide-y divide-gray-100">
+        <p className="text-xs font-semibold uppercase mb-3" style={{ color: '#8B1A1A', letterSpacing: '0.3em' }}>
+          Workflow · capture → generate → publish
+        </p>
+        <div className="rounded-2xl divide-y bg-white" style={{ border: '1px solid #E8E6E3', borderColor: '#E8E6E3' }}>
           <Link
             href="/picc/annual-report-data"
             className="flex items-center justify-between px-6 py-5 hover:bg-gray-50 transition-colors group"
@@ -225,24 +239,28 @@ export default function AnnualReportsPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
-        <div>
-          <p className="text-3xl font-bold text-gray-900">{reports.length}</p>
-          <p className="text-sm text-gray-500 mt-1">Total reports</p>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10">
+        <div className="rounded-xl bg-white p-4" style={{ border: '1px solid #E8E6E3', borderTopWidth: 3, borderTopColor: '#0B4F6C' }}>
+          <p className="text-[10px] uppercase font-bold" style={{ color: '#0B4F6C', letterSpacing: '0.2em' }}>Total reports</p>
+          <p className="font-fraunces font-bold mt-1 leading-none" style={{ color: '#0B4F6C', fontSize: 28 }}>{reports.length}</p>
+          <p className="text-[11px] mt-2" style={{ color: '#6B6560' }}>In PICC mirror · 19 in EL archive</p>
         </div>
-        <div>
-          <p className="text-3xl font-bold text-gray-900">
+        <div className="rounded-xl bg-white p-4" style={{ border: '1px solid #E8E6E3', borderTopWidth: 3, borderTopColor: '#16A34A' }}>
+          <p className="text-[10px] uppercase font-bold" style={{ color: '#16A34A', letterSpacing: '0.2em' }}>Published</p>
+          <p className="font-fraunces font-bold mt-1 leading-none" style={{ color: '#0B4F6C', fontSize: 28 }}>
             {reports.filter(r => r.status === 'published').length}
           </p>
-          <p className="text-sm text-gray-500 mt-1">Published</p>
+          <p className="text-[11px] mt-2" style={{ color: '#6B6560' }}>Public on /annual-reports</p>
         </div>
-        <div>
-          <p className="text-3xl font-bold text-gray-900">{readyStories.length}</p>
-          <p className="text-sm text-gray-500 mt-1">Stories available</p>
+        <div className="rounded-xl bg-white p-4" style={{ border: '1px solid #E8E6E3', borderTopWidth: 3, borderTopColor: '#C8963E' }}>
+          <p className="text-[10px] uppercase font-bold" style={{ color: '#C8963E', letterSpacing: '0.2em' }}>Stories available</p>
+          <p className="font-fraunces font-bold mt-1 leading-none" style={{ color: '#0B4F6C', fontSize: 28 }}>{readyStories.length}</p>
+          <p className="text-[11px] mt-2" style={{ color: '#6B6560' }}>Public, ready to slot in</p>
         </div>
-        <div>
-          <p className="text-3xl font-bold text-gray-900">{reportWorthyCount}</p>
-          <p className="text-sm text-gray-500 mt-1">Report-worthy</p>
+        <div className="rounded-xl bg-white p-4" style={{ border: '1px solid #E8E6E3', borderTopWidth: 3, borderTopColor: '#F5A623' }}>
+          <p className="text-[10px] uppercase font-bold" style={{ color: '#F5A623', letterSpacing: '0.2em' }}>Report-worthy</p>
+          <p className="font-fraunces font-bold mt-1 leading-none" style={{ color: '#0B4F6C', fontSize: 28 }}>{reportWorthyCount}</p>
+          <p className="text-[11px] mt-2" style={{ color: '#6B6560' }}>Editor-flagged</p>
         </div>
       </div>
 
