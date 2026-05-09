@@ -64,6 +64,7 @@ const staffNavigation: { [key: string]: NavSection } = {
     icon: Building2,
     items: [
       { label: 'Services', href: '/picc/services', icon: Building2, description: '26 active services · EL canonical' },
+      { label: 'Service map', href: '/picc/services/map', icon: Network, description: 'Drag-to-position GPS pins · EL canonical' },
       { label: 'Projects', href: '/picc/projects', icon: FolderKanban, description: '10 projects · EL canonical' },
       { label: 'Governance', href: '/picc/governance', icon: Landmark, description: 'Board design + guardrails' },
       { label: 'Sector Map', href: '/picc/sector-map', icon: Network, description: '3-layer ecosystem view' },
@@ -118,6 +119,7 @@ const advancedNavigation: { [key: string]: NavSection } = {
     icon: Building2,
     items: [
       { label: 'Services', href: '/picc/services', icon: Building2, description: '26 active services · EL canonical' },
+      { label: 'Service map', href: '/picc/services/map', icon: Network, description: 'Drag-to-position GPS pins · EL canonical' },
       { label: 'Projects', href: '/picc/projects', icon: FolderKanban, description: '10 projects · EL canonical' },
       { label: 'Governance', href: '/picc/governance', icon: Landmark, description: 'Board design + guardrails' },
       { label: 'Sector Map', href: '/picc/sector-map', icon: Network, description: '3-layer ecosystem view' },
