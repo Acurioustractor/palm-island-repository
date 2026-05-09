@@ -389,19 +389,25 @@ export default function StoriesPage() {
     <div className="p-6 lg:p-8 max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center justify-between">
+        <p className="uppercase font-bold mb-2" style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}>
+          PICC admin · stories
+        </p>
+        <div className="flex items-end justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Story Library</h1>
-            <p className="text-gray-600 mt-1">
-              Manage all community stories, edit content, and control publication
+            <h1 className="font-fraunces font-bold leading-tight" style={{ color: '#0B4F6C', fontSize: 'clamp(28px, 4vw, 40px)' }}>
+              Story library.
+            </h1>
+            <p className="mt-2 text-sm" style={{ color: '#6B6560' }}>
+              92 stories total · 74 public. Manage content, edit, and control publication.
             </p>
           </div>
           <Link
             href="/picc/stories/new"
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-bold uppercase tracking-widest rounded-md hover:opacity-90 transition"
+            style={{ backgroundColor: '#0B4F6C', color: '#FBF8EE', letterSpacing: '0.15em' }}
           >
             <Plus className="w-4 h-4" />
-            New Story
+            New story
           </Link>
         </div>
 
