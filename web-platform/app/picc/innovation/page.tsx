@@ -455,34 +455,53 @@ export default function InnovationAdminPage() {
     <div className="p-6 lg:p-8 max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-6">
-        <Link href="/picc/dashboard" className="inline-flex items-center gap-2 text-picc-red hover:text-picc-red/80 mb-4 text-sm">
-          <ArrowLeft className="w-4 h-4" />
+        <Link
+          href="/picc/dashboard"
+          className="inline-flex items-center gap-2 mb-4 text-xs uppercase font-bold tracking-widest hover:opacity-80"
+          style={{ color: '#6B6560', letterSpacing: '0.2em' }}
+        >
+          <ArrowLeft className="w-3 h-3" />
           Dashboard
         </Link>
 
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-end justify-between gap-4 flex-wrap">
           <div>
+            <p
+              className="uppercase font-bold mb-2"
+              style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}
+            >
+              PICC admin · innovation
+            </p>
             <div className="flex items-center gap-3">
-              <Lightbulb className="w-7 h-7 text-amber-500" />
-              <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Innovation Projects</h1>
+              <Lightbulb className="w-7 h-7" style={{ color: '#C8963E' }} />
+              <h1
+                className="font-fraunces font-bold leading-tight"
+                style={{ color: '#0B4F6C', fontSize: 'clamp(28px, 4vw, 40px)' }}
+              >
+                Innovation projects.
+              </h1>
             </div>
-            <p className="text-gray-600 mt-1">Manage innovation projects and their content.</p>
+            <p className="mt-2 text-sm" style={{ color: '#6B6560' }}>
+              5 active + planning. The pipeline of where the platform is heading.
+            </p>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={loadProjects}
               disabled={loading}
-              className="inline-flex items-center gap-2 px-3 py-2 text-sm text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md hover:opacity-90 transition disabled:opacity-50"
+              style={{ border: '1px solid #E8E6E3', color: '#6B6560' }}
             >
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
               Refresh
             </button>
             <button
               onClick={() => setShowCreateForm(!showCreateForm)}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-picc-red text-white rounded-lg hover:bg-picc-red/90 transition-colors text-sm font-medium"
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold uppercase tracking-widest rounded-md hover:opacity-90 transition"
+              style={{ backgroundColor: '#0B4F6C', color: '#FBF8EE', letterSpacing: '0.15em' }}
             >
               <Plus className="w-4 h-4" />
-              Add Project
+              Add project
             </button>
           </div>
         </div>

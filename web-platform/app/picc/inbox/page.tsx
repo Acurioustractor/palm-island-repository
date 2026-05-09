@@ -138,17 +138,24 @@ export default async function InboxPage() {
         <div className="mb-8">
           <Link
             href="/picc"
-            className="text-xs uppercase font-bold tracking-widest hover:opacity-80 text-stone-500"
+            className="text-xs uppercase font-bold tracking-widest hover:opacity-80"
+            style={{ color: '#6B6560', letterSpacing: '0.2em' }}
           >
             ← Admin
           </Link>
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-picc-ochre mt-6 mb-2">
-            Internal · Inbox
+          <p
+            className="uppercase font-bold mt-6 mb-2"
+            style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}
+          >
+            PICC admin · inbox
           </p>
-          <h1 className="font-fraunces text-3xl md:text-4xl text-stone-800 italic mb-3">
-            Pending submissions
+          <h1
+            className="font-fraunces font-bold leading-tight"
+            style={{ color: '#0B4F6C', fontSize: 'clamp(28px, 4vw, 40px)' }}
+          >
+            Pending submissions.
           </h1>
-          <p className="text-stone-600 max-w-2xl leading-relaxed">
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed" style={{ color: '#6B6560' }}>
             Everything waiting for review across the contribution flows. Action each
             type in its dedicated queue, or jump straight into a specific item below.
           </p>
@@ -170,9 +177,14 @@ export default async function InboxPage() {
 
         {/* Empty state */}
         {totalPending === 0 && (
-          <div className="rounded-md bg-emerald-50 border border-emerald-200 p-8 text-center">
-            <p className="font-fraunces text-2xl text-emerald-800 mb-2">Inbox zero.</p>
-            <p className="text-sm text-stone-700">
+          <div
+            className="rounded-2xl p-8 text-center"
+            style={{ backgroundColor: '#F0FDF4', border: '1px solid #16A34A33' }}
+          >
+            <p className="font-fraunces font-bold mb-2" style={{ color: '#16A34A', fontSize: 28 }}>
+              Inbox zero.
+            </p>
+            <p className="text-sm" style={{ color: '#2D2319' }}>
               No submissions waiting. Nice work.
             </p>
           </div>
