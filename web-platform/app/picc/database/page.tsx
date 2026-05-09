@@ -155,30 +155,47 @@ LIMIT 10;`,
     <div className="p-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
-          <Database className="w-8 h-8 text-blue-600" />
-          Database Tools
+        <p
+          className="uppercase font-bold mb-2"
+          style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}
+        >
+          PICC admin · database
+        </p>
+        <h1 className="font-fraunces font-bold leading-tight flex items-center gap-3" style={{ color: '#0B4F6C', fontSize: 'clamp(28px, 4vw, 40px)' }}>
+          <Database className="w-7 h-7" style={{ color: '#C8963E' }} />
+          Database tools.
         </h1>
-        <p className="text-gray-600">Manage data, run queries, and view table statistics</p>
+        <p className="mt-2 text-sm" style={{ color: '#6B6560' }}>
+          Manage data, run queries, and view table statistics.
+        </p>
       </div>
 
       {/* Quick Links */}
-      <div className="bg-gradient-to-r from-blue-50 to-picc-ochre-50 border border-blue-200 rounded-xl p-6 mb-8">
+      <div className="rounded-2xl p-6 mb-8" style={{ backgroundColor: '#F7F6F4', border: '1px solid #C8963E33' }}>
         <div className="flex items-start gap-4">
-          <div className="p-3 bg-blue-600 rounded-lg">
-            <ExternalLink className="w-6 h-6 text-white" />
+          <div className="p-3 rounded-lg" style={{ backgroundColor: '#0B4F6C' }}>
+            <ExternalLink className="w-6 h-6" style={{ color: '#FBF8EE' }} />
           </div>
           <div className="flex-1">
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Supabase SQL Editor</h3>
-            <p className="text-gray-700 mb-4">
+            <p
+              className="uppercase font-bold mb-2"
+              style={{ color: '#C8963E', fontSize: 11, letterSpacing: '0.3em' }}
+            >
+              Direct database access
+            </p>
+            <h3 className="font-fraunces font-bold leading-tight mb-2" style={{ color: '#0B4F6C', fontSize: 20 }}>
+              Supabase SQL Editor
+            </h3>
+            <p className="text-sm mb-4 leading-relaxed" style={{ color: '#2D2319' }}>
               For direct database access, use the Supabase SQL Editor. Run queries, view tables, and execute migrations.
             </p>
             <Link
               href="https://supabase.com/dashboard"
               target="_blank"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all"
+              className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold uppercase tracking-widest rounded-md hover:opacity-90 transition"
+              style={{ backgroundColor: '#0B4F6C', color: '#FBF8EE', letterSpacing: '0.15em' }}
             >
-              <span>Open Supabase Dashboard</span>
+              <span>Open Supabase dashboard</span>
               <ExternalLink className="w-4 h-4" />
             </Link>
           </div>
