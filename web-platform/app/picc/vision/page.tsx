@@ -17,6 +17,18 @@ interface Goal {
   notes: string | null
 }
 
+interface InnovationProject {
+  id: string
+  slug: string
+  name: string
+  category: string | null
+  status: string
+  people_impacted: number | null
+  jobs_created: number | null
+  hero_image_url: string | null
+  description: string | null
+}
+
 // Matches actual community_visions schema:
 //   id, vision_text, author_name, author_role, category, is_approved, created_at
 // (Earlier interface added is_anonymous/session_id/source — those columns
@@ -47,6 +59,7 @@ const CATEGORY_COLOURS: Record<string, string> = {
 export default function VisionBoardPage() {
   const [goals, setGoals] = useState<Goal[]>([])
   const [visions, setVisions] = useState<CommunityVision[]>([])
+  const [innovations, setInnovations] = useState<InnovationProject[]>([])
   const [loading, setLoading] = useState(true)
   const [editingGoal, setEditingGoal] = useState<string | null>(null)
   const [editValues, setEditValues] = useState<Partial<Goal>>({})
@@ -56,12 +69,17 @@ export default function VisionBoardPage() {
   const fetchData = useCallback(async () => {
     setLoading(true)
     try {
-      const [goalsRes, approvedRes, pendingRes] = await Promise.all([
+      const [goalsRes, approvedRes, pendingRes, innovationsRes] = await Promise.all([
         fetch('/api/goals'),
         fetch('/api/community-visions?status=approved'),
         fetch('/api/community-visions?status=pending'),
+        fetch('/api/innovation-projects'),
       ])
       if (goalsRes.ok) setGoals(await goalsRes.json())
+      if (innovationsRes.ok) {
+        const innovData = await innovationsRes.json()
+        setInnovations(Array.isArray(innovData) ? innovData : [])
+      }
 
       const parse = async (r: Response) => {
         if (!r.ok) return [] as CommunityVision[]
@@ -354,15 +372,102 @@ export default function VisionBoardPage() {
           )}
         </section>
 
-        {/* Section 3: Innovation Links placeholder */}
+        {/* Section 3: Innovation Project Links */}
         <section>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Innovation Project Links</h2>
-          <div className="bg-white rounded-lg border border-gray-200 p-6 text-center text-gray-500">
-            Connect innovation projects to goals from the{' '}
-            <Link href="/picc/innovation" className="text-blue-600 hover:underline">
-              Innovation admin
-            </Link>.
+          <div className="flex items-center justify-between mb-4 gap-4 flex-wrap">
+            <h2 className="text-xl font-semibold text-gray-900">
+              Innovation Project Links
+              <span className="ml-2 text-sm font-normal text-gray-500">
+                {innovations.length} {innovations.length === 1 ? 'project' : 'projects'} connected
+              </span>
+            </h2>
+            <Link href="/picc/innovation" className="text-sm text-blue-600 hover:underline">
+              Innovation admin →
+            </Link>
           </div>
+
+          {innovations.length === 0 ? (
+            <div className="bg-white rounded-lg border border-gray-200 p-6 text-center text-gray-500">
+              No innovation projects yet. Add via{' '}
+              <Link href="/picc/innovation" className="text-blue-600 hover:underline">
+                Innovation admin
+              </Link>.
+            </div>
+          ) : (
+            <div className="grid gap-3 md:grid-cols-2">
+              {innovations.map((p) => {
+                const statusColour =
+                  p.status === 'active' ? '#16A34A' :
+                  p.status === 'planning' ? '#F59E0B' :
+                  p.status === 'completed' ? '#0B4F6C' :
+                  '#6B7280'
+                return (
+                  <div
+                    key={p.id}
+                    className="bg-white rounded-lg border border-gray-200 overflow-hidden flex"
+                  >
+                    {p.hero_image_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={p.hero_image_url}
+                        alt={p.name}
+                        className="w-24 h-24 object-cover flex-shrink-0"
+                      />
+                    ) : (
+                      <div
+                        className="w-24 h-24 flex-shrink-0 flex items-center justify-center"
+                        style={{ backgroundColor: statusColour + '15' }}
+                      >
+                        <span
+                          className="text-2xl font-bold"
+                          style={{ color: statusColour }}
+                        >
+                          {p.name
+                            .split(/\s+/)
+                            .map((w) => w[0])
+                            .filter(Boolean)
+                            .slice(0, 2)
+                            .join('')}
+                        </span>
+                      </div>
+                    )}
+                    <div className="p-4 flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <span
+                          className="text-[9px] uppercase font-bold tracking-widest px-2 py-0.5 rounded"
+                          style={{ backgroundColor: statusColour + '22', color: statusColour, letterSpacing: '0.15em' }}
+                        >
+                          {p.status}
+                        </span>
+                        {p.category && (
+                          <span className="text-[10px] uppercase tracking-widest text-gray-400">
+                            {p.category}
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="font-semibold text-gray-900 leading-tight truncate" title={p.name}>
+                        {p.name}
+                      </h3>
+                      <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
+                        {p.people_impacted != null && p.people_impacted > 0 && (
+                          <span>👥 {p.people_impacted.toLocaleString()}</span>
+                        )}
+                        {p.jobs_created != null && p.jobs_created > 0 && (
+                          <span>💼 {p.jobs_created} jobs</span>
+                        )}
+                        <Link
+                          href={`/picc/innovation/${p.slug}`}
+                          className="text-blue-600 hover:underline ml-auto"
+                        >
+                          Edit →
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </section>
       </div>
     </div>
