@@ -166,29 +166,44 @@ export default function QuotesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Community Quotes</h1>
-          <p className="text-gray-600 mt-1">
-            Curated quotes from community stories, news, and content
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-picc-red text-white rounded-lg hover:bg-picc-red"
-          >
-            <Plus className="h-4 w-4" />
-            Add Quote
-          </button>
-          <button
-            onClick={triggerSync}
-            disabled={syncing}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50"
-          >
-            <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
-            {syncing ? 'Syncing...' : 'Sync Content'}
-          </button>
+      <div>
+        <p
+          className="uppercase font-bold mb-2"
+          style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}
+        >
+          PICC admin · quotes
+        </p>
+        <div className="flex items-end justify-between gap-4 flex-wrap">
+          <div>
+            <h1
+              className="font-fraunces font-bold leading-tight"
+              style={{ color: '#0B4F6C', fontSize: 'clamp(28px, 4vw, 40px)' }}
+            >
+              Community quotes.
+            </h1>
+            <p className="mt-2 text-sm" style={{ color: '#6B6560' }}>
+              Curated quotes from community stories, news, and content. 162 elder quotes · 290 extracted · 870+ attributed total.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-bold uppercase tracking-widest rounded-md hover:opacity-90 transition"
+              style={{ backgroundColor: '#0B4F6C', color: '#FBF8EE', letterSpacing: '0.15em' }}
+            >
+              <Plus className="h-4 w-4" />
+              Add quote
+            </button>
+            <button
+              onClick={triggerSync}
+              disabled={syncing}
+              className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md hover:opacity-90 transition disabled:opacity-50"
+              style={{ border: '1px solid #E8E6E3', color: '#6B6560' }}
+            >
+              <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
+              {syncing ? 'Syncing…' : 'Sync content'}
+            </button>
+          </div>
         </div>
       </div>
 

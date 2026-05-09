@@ -513,15 +513,34 @@ export default function ProjectsContentHubPage() {
     <div className="p-6 lg:p-8 max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-6">
-        <Link href="/picc/dashboard" className="inline-flex items-center gap-2 text-picc-red hover:text-picc-red/80 mb-4 text-sm">
-          <ArrowLeft className="w-4 h-4" />
+        <Link
+          href="/picc/dashboard"
+          className="inline-flex items-center gap-2 mb-4 text-xs uppercase font-bold tracking-widest hover:opacity-80"
+          style={{ color: '#6B6560', letterSpacing: '0.2em' }}
+        >
+          <ArrowLeft className="w-3 h-3" />
           Dashboard
         </Link>
 
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-end justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Project Content Hub</h1>
-            <p className="text-gray-600 mt-1">Manage content completeness across all PICC projects.</p>
+            <p
+              className="uppercase font-bold mb-2"
+              style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}
+            >
+              PICC admin · projects
+            </p>
+            <h1
+              className="font-fraunces font-bold leading-tight"
+              style={{ color: '#0B4F6C', fontSize: 'clamp(28px, 4vw, 40px)' }}
+            >
+              Project content hub.
+            </h1>
+            <p className="mt-2 text-sm" style={{ color: '#6B6560' }}>
+              Manage content completeness across all PICC projects. See{' '}
+              <Link href="/picc/projects/coverage" className="underline" style={{ color: '#0B4F6C' }}>coverage gaps</Link>{' '}
+              for the EL-canonical view.
+            </p>
           </div>
           <div className="flex items-center gap-2">
             <Link
