@@ -1,15 +1,10 @@
-import Link from 'next/link';
-import Image from 'next/image';
-import { Users, Activity, ArrowRight, Camera, Film, Quote } from 'lucide-react';
 import { createServerSupabase } from '@/lib/supabase/client';
 import { getHeroImage, getHeroVideo } from '@/lib/media/utils';
-import { BespokeIcon } from '@/components/ui/BespokeIcon';
-import { getServiceIcon } from '@/lib/services/service-icons';
 import nextDynamic from 'next/dynamic';
-import AdminServiceCard from '@/components/admin/AdminServiceCard';
 import { assetUrl } from '@/lib/media/asset-url';
 import { getELQuotes, getELStats } from '@/lib/empathy-ledger/el-server';
 import { getPiccServices } from '@/lib/services/el-services';
+import ServicesGrid from './ServicesGrid';
 
 const InteractiveServiceMap = nextDynamic(
   () => import('@/components/report/InteractiveServiceMap'),
@@ -257,34 +252,86 @@ export default async function ServicesIndexPage() {
     };
   });
 
+  // Headline numbers for the hero stat row
+  const totalStaff = allServices.reduce((acc: number, s: any) => acc + (s.staff_count || 0), 0);
+  const totalClients = allServices.reduce((acc: number, s: any) => acc + (s.clients_served || 0), 0);
+  const servicesWithCovers = allServices.filter((s: any) => !!s.cover_photo).length;
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* Hero */}
-      <section className="relative text-white py-20 overflow-hidden">
-        {/* Background video or image */}
+    <div className="min-h-screen" style={{ backgroundColor: '#FBF8EE' }}>
+      {/* Hero — Saltwater & Earth, video underlay, ochre on ocean */}
+      <section className="relative overflow-hidden" style={{ minHeight: '78vh' }}>
+        {/* Background video */}
         <video
           autoPlay muted loop playsInline
           className="absolute inset-0 w-full h-full object-cover"
           src={heroVideo?.public_url || assetUrl('/hero-assets/clips/daycare-celebration.mp4')}
         />
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-picc-earth-600/85 via-picc-earth-600/75 to-picc-earth/85" />
-        <div className="relative max-w-7xl mx-auto px-6 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full mb-6">
-            <BespokeIcon name="community" size={16} darkMode />
-            <span className="text-sm font-semibold uppercase tracking-wide">Our Services</span>
-          </div>
-          <h1 className="text-5xl md:text-6xl font-bold mb-4">
-            {allServices.length} Integrated Services
-          </h1>
-          <p className="text-xl md:text-2xl font-light max-w-3xl mx-auto opacity-90 mb-8">
-            Comprehensive, culturally-informed support across every aspect of community life on Palm Island
-          </p>
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur rounded-full text-sm">
-            <Quote className="w-4 h-4 text-picc-ochre" />
-            <span className="text-white/80">{elStats.quotes} community voices captured</span>
+        {/* Saltwater overlay — ocean wash, not earth mud */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(135deg, rgba(11,79,108,0.92) 0%, rgba(11,79,108,0.78) 55%, rgba(45,35,25,0.85) 100%)',
+          }}
+        />
+        {/* Subtle vignette */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse at center, rgba(0,0,0,0) 35%, rgba(0,0,0,0.35) 100%)' }}
+        />
+
+        <div className="relative max-w-7xl mx-auto px-6 py-20 md:py-28">
+          <div className="max-w-4xl">
+            <p
+              className="uppercase font-bold mb-5"
+              style={{ color: '#F5A623', fontSize: 11, letterSpacing: '0.35em' }}
+            >
+              EL canonical · Every active service
+            </p>
+            <h1
+              className="font-fraunces font-bold leading-[1.02] mb-5"
+              style={{ color: '#FBF8EE', fontSize: 'clamp(40px, 6.5vw, 84px)' }}
+            >
+              {allServices.length} services.
+              <br />
+              <span style={{ color: '#C8963E' }}>One Country.</span>
+            </h1>
+            <p
+              className="italic mb-7 max-w-2xl"
+              style={{
+                color: '#F5A623',
+                fontFamily: 'Caveat, cursive',
+                fontSize: 'clamp(20px, 2.6vw, 30px)',
+                lineHeight: 1.25,
+              }}
+            >
+              every door open, every program run by us, every cover photo from our own archive
+            </p>
+            <p
+              className="max-w-2xl mb-10 leading-relaxed"
+              style={{ color: '#FBF8EEDD', fontSize: 'clamp(16px, 1.5vw, 19px)' }}
+            >
+              Palm Island Community Company runs an integrated service system across health, family,
+              justice, youth, education, and economic life — all on Country, all community-controlled,
+              all wired into the Empathy Ledger so the data behind each service stays current and true.
+            </p>
+
+            {/* Hero stat row */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl">
+              <HeroStat label="Active services" value={allServices.length} />
+              <HeroStat label="With cover photos" value={servicesWithCovers} />
+              <HeroStat label="Staff across all programs" value={totalStaff || '—'} />
+              <HeroStat label="Community voices" value={elStats.quotes} />
+            </div>
           </div>
         </div>
+
+        {/* Soft fade to body */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none"
+          style={{ background: 'linear-gradient(180deg, rgba(251,248,238,0) 0%, rgba(251,248,238,1) 100%)' }}
+        />
       </section>
 
       {/* Interactive Map */}
@@ -322,118 +369,31 @@ export default async function ServicesIndexPage() {
         </div>
       </section>
 
-      {/* Services Grid — every PICC service, every cover from EL canonical */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {allServices.map((service: any) => (
-              <AdminServiceCard key={service.id} serviceSlug={service.slug}>
-                <Link
-                  href={`/services/${service.slug}`}
-                  className="group block"
-                >
-                  <div className="bg-white border-2 border-gray-100 rounded-2xl overflow-hidden hover:border-picc-ochre-300 hover:shadow-xl transition-all h-full">
-                    {/* Cover Photo */}
-                    {service.cover_photo ? (
-                      <div className="aspect-[16/9] relative overflow-hidden">
-                        <Image
-                          src={service.cover_photo.public_url}
-                          alt={service.cover_photo.alt_text || service.name}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-700"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                        {/* Photo/video badges on cover */}
-                        <div className="absolute bottom-3 right-3 flex gap-2">
-                          {service.photo_count > 0 && (
-                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-black/50 backdrop-blur-sm rounded-full text-white text-xs font-medium">
-                              <Camera className="w-3 h-3" />
-                              {service.photo_count}
-                            </span>
-                          )}
-                          {service.has_video && (
-                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-black/50 backdrop-blur-sm rounded-full text-white text-xs font-medium">
-                              <Film className="w-3 h-3" />
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="aspect-[16/9] relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center">
-                        <div
-                          className="w-16 h-16 rounded-2xl flex items-center justify-center"
-                          style={{ backgroundColor: service.service_color || '#C8922A' }}
-                        >
-                          <BespokeIcon name={getServiceIcon(service.slug)} size={32} darkMode />
-                        </div>
-                        {/* Photo/video badges on placeholder */}
-                        {(service.photo_count > 0 || service.has_video) && (
-                          <div className="absolute bottom-3 right-3 flex gap-2">
-                            {service.photo_count > 0 && (
-                              <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-200 rounded-full text-gray-600 text-xs font-medium">
-                                <Camera className="w-3 h-3" />
-                                {service.photo_count}
-                              </span>
-                            )}
-                            {service.has_video && (
-                              <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-200 rounded-full text-gray-600 text-xs font-medium">
-                                <Film className="w-3 h-3" />
-                              </span>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    )}
+      {/* Services Grid — interactive island with category filter + sort */}
+      <ServicesGrid services={allServices} />
+    </div>
+  );
+}
 
-                    <div className="p-6">
-                      <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-picc-ochre transition-colors flex items-center gap-2">
-                        <BespokeIcon name={getServiceIcon(service.slug)} size={24} />
-                        {service.name}
-                      </h3>
-
-                      <p className="text-gray-600 mb-4 line-clamp-3">
-                        {service.description || 'Supporting the Palm Island community.'}
-                      </p>
-
-                      {service.el_quote && (
-                        <div className="mb-4 pl-3 border-l-2 border-picc-ochre/40">
-                          <p className="text-xs italic text-gray-500 leading-relaxed line-clamp-3">
-                            &ldquo;{service.el_quote.text}&rdquo;
-                          </p>
-                          <p className="text-[11px] text-picc-ochre mt-1 font-medium">
-                            — {service.el_quote.author}
-                          </p>
-                        </div>
-                      )}
-
-                      <div className="flex items-center justify-between text-sm mb-4">
-                        {service.staff_count ? (
-                          <span className="flex items-center gap-1 text-picc-ochre font-semibold">
-                            <Users className="w-4 h-4" />
-                            {service.staff_count} staff
-                          </span>
-                        ) : <span />}
-                        {service.clients_served ? (
-                          <span className="flex items-center gap-1 text-gray-500">
-                            <Activity className="w-4 h-4" />
-                            {service.clients_served} served
-                          </span>
-                        ) : <span />}
-                      </div>
-
-                      <div className="flex items-center gap-1 text-picc-ochre font-semibold text-sm group-hover:gap-2 transition-all">
-                        View service
-                        <ArrowRight className="w-4 h-4" />
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              </AdminServiceCard>
-            ))}
-          </div>
-        </div>
-      </section>
+// ── Hero stat helper ────────────────────────────────────────────────
+function HeroStat({ label, value }: { label: string; value: number | string }) {
+  return (
+    <div
+      className="border-l-2 pl-4 py-1"
+      style={{ borderColor: 'rgba(245,166,35,0.55)' }}
+    >
+      <div
+        className="font-fraunces font-bold leading-none"
+        style={{ color: '#FBF8EE', fontSize: 'clamp(28px, 3.4vw, 40px)' }}
+      >
+        {typeof value === 'number' ? value.toLocaleString() : value}
+      </div>
+      <div
+        className="uppercase font-bold mt-1.5"
+        style={{ color: '#FBF8EE99', fontSize: 10, letterSpacing: '0.25em' }}
+      >
+        {label}
+      </div>
     </div>
   );
 }
