@@ -40,38 +40,52 @@ export default async function CaptureDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen p-6" style={{ backgroundColor: '#FBF8EE' }}>
       <div className="max-w-7xl mx-auto">
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6 flex items-end justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Story Capture</h1>
-            <p className="text-gray-600 mt-1">Collect, enrich, and approve community stories</p>
+            <p
+              className="uppercase font-bold mb-2"
+              style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}
+            >
+              PICC admin · capture
+            </p>
+            <h1
+              className="font-fraunces font-bold leading-tight"
+              style={{ color: '#0B4F6C', fontSize: 'clamp(28px, 4vw, 40px)' }}
+            >
+              Story capture.
+            </h1>
+            <p className="mt-2 text-sm" style={{ color: '#6B6560' }}>
+              Collect, enrich, and approve community stories.
+            </p>
           </div>
           <Link
             href="/picc/capture/prompts"
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"
+            className="px-5 py-2.5 text-sm font-bold uppercase tracking-widest rounded-md hover:opacity-90 transition"
+            style={{ backgroundColor: '#0B4F6C', color: '#FBF8EE', letterSpacing: '0.15em' }}
           >
-            Manage Prompts
+            Manage prompts
           </Link>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white rounded-lg border p-4">
-            <div className="text-sm text-gray-600">Total Captures</div>
-            <div className="text-2xl font-bold text-gray-900">{captures.length}</div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-8">
+          <div className="rounded-xl bg-white p-4" style={{ border: '1px solid #E8E6E3', borderTopWidth: 3, borderTopColor: '#0B4F6C' }}>
+            <div className="text-[10px] uppercase font-bold" style={{ color: '#0B4F6C', letterSpacing: '0.2em' }}>Total captures</div>
+            <div className="font-fraunces font-bold mt-1 leading-none" style={{ color: '#0B4F6C', fontSize: 28 }}>{captures.length}</div>
           </div>
-          <div className="bg-white rounded-lg border p-4">
-            <div className="text-sm text-gray-600">Awaiting Review</div>
-            <div className="text-2xl font-bold text-yellow-600">{pendingCount}</div>
+          <div className="rounded-xl bg-white p-4" style={{ border: '1px solid #E8E6E3', borderTopWidth: 3, borderTopColor: '#C8963E' }}>
+            <div className="text-[10px] uppercase font-bold" style={{ color: '#C8963E', letterSpacing: '0.2em' }}>Awaiting review</div>
+            <div className="font-fraunces font-bold mt-1 leading-none" style={{ color: '#C8963E', fontSize: 28 }}>{pendingCount}</div>
           </div>
-          <div className="bg-white rounded-lg border p-4">
-            <div className="text-sm text-gray-600">Approved</div>
-            <div className="text-2xl font-bold text-green-600">{approvedCount}</div>
+          <div className="rounded-xl bg-white p-4" style={{ border: '1px solid #E8E6E3', borderTopWidth: 3, borderTopColor: '#16A34A' }}>
+            <div className="text-[10px] uppercase font-bold" style={{ color: '#16A34A', letterSpacing: '0.2em' }}>Approved</div>
+            <div className="font-fraunces font-bold mt-1 leading-none" style={{ color: '#16A34A', fontSize: 28 }}>{approvedCount}</div>
           </div>
-          <div className="bg-white rounded-lg border p-4">
-            <div className="text-sm text-gray-600">Active Prompts</div>
-            <div className="text-2xl font-bold text-blue-600">{activePrompts}</div>
+          <div className="rounded-xl bg-white p-4" style={{ border: '1px solid #E8E6E3', borderTopWidth: 3, borderTopColor: '#F5A623' }}>
+            <div className="text-[10px] uppercase font-bold" style={{ color: '#F5A623', letterSpacing: '0.2em' }}>Active prompts</div>
+            <div className="font-fraunces font-bold mt-1 leading-none" style={{ color: '#F5A623', fontSize: 28 }}>{activePrompts}</div>
           </div>
         </div>
 
