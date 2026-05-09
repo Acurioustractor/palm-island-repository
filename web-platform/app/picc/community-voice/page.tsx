@@ -144,39 +144,50 @@ export default function CommunityVoicePage() {
     <div className="p-8 max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center gap-3 mb-4">
-          <Mic className="w-8 h-8 text-sage-600" />
-          <h1 className="text-3xl font-bold text-gray-900">Community Voice</h1>
+        <p
+          className="uppercase font-bold mb-2"
+          style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}
+        >
+          PICC admin · community voice
+        </p>
+        <div className="flex items-center gap-3 mb-2">
+          <Mic className="w-7 h-7" style={{ color: '#C8963E' }} />
+          <h1
+            className="font-fraunces font-bold leading-tight"
+            style={{ color: '#0B4F6C', fontSize: 'clamp(28px, 4vw, 40px)' }}
+          >
+            Community voice.
+          </h1>
         </div>
-        <p className="text-gray-600 mb-4">
-          Stories shared by community members - review and publish community submissions
+        <p className="text-sm mb-4" style={{ color: '#6B6560' }}>
+          Stories shared by community members — review and publish community submissions.
         </p>
 
-        <div className="bg-sage-50 border border-sage-200 rounded-lg p-4">
-          <p className="text-sm text-sage-800">
-            <strong>Note:</strong> Community Voice includes stories submitted anonymously or by community members.
+        <div className="rounded-2xl p-4" style={{ backgroundColor: '#F7F6F4', border: '1px solid #C8963E33' }}>
+          <p className="text-sm leading-relaxed" style={{ color: '#2D2319' }}>
+            <strong style={{ color: '#0B4F6C' }}>Note:</strong> Community Voice includes stories submitted anonymously or by community members.
             Review these stories and publish them to share community perspectives.
           </p>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
-          <div className="text-sm text-gray-600">Total Stories</div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+        <div className="rounded-xl bg-white p-4" style={{ border: '1px solid #E8E6E3', borderTopWidth: 3, borderTopColor: '#0B4F6C' }}>
+          <div className="text-[10px] uppercase font-bold" style={{ color: '#0B4F6C', letterSpacing: '0.2em' }}>Total stories</div>
+          <div className="font-fraunces font-bold mt-1 leading-none" style={{ color: '#0B4F6C', fontSize: 28 }}>{stats.total}</div>
         </div>
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="text-2xl font-bold text-yellow-600">{stats.pending}</div>
-          <div className="text-sm text-gray-600">Pending Review</div>
+        <div className="rounded-xl bg-white p-4" style={{ border: '1px solid #E8E6E3', borderTopWidth: 3, borderTopColor: '#C8963E' }}>
+          <div className="text-[10px] uppercase font-bold" style={{ color: '#C8963E', letterSpacing: '0.2em' }}>Pending review</div>
+          <div className="font-fraunces font-bold mt-1 leading-none" style={{ color: '#C8963E', fontSize: 28 }}>{stats.pending}</div>
         </div>
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="text-2xl font-bold text-green-600">{stats.published}</div>
-          <div className="text-sm text-gray-600">Published</div>
+        <div className="rounded-xl bg-white p-4" style={{ border: '1px solid #E8E6E3', borderTopWidth: 3, borderTopColor: '#16A34A' }}>
+          <div className="text-[10px] uppercase font-bold" style={{ color: '#16A34A', letterSpacing: '0.2em' }}>Published</div>
+          <div className="font-fraunces font-bold mt-1 leading-none" style={{ color: '#16A34A', fontSize: 28 }}>{stats.published}</div>
         </div>
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="text-2xl font-bold text-picc-ochre">{stats.anonymous}</div>
-          <div className="text-sm text-gray-600">Anonymous</div>
+        <div className="rounded-xl bg-white p-4" style={{ border: '1px solid #E8E6E3', borderTopWidth: 3, borderTopColor: '#8B1A1A' }}>
+          <div className="text-[10px] uppercase font-bold" style={{ color: '#8B1A1A', letterSpacing: '0.2em' }}>Anonymous</div>
+          <div className="font-fraunces font-bold mt-1 leading-none" style={{ color: '#8B1A1A', fontSize: 28 }}>{stats.anonymous}</div>
         </div>
       </div>
 
