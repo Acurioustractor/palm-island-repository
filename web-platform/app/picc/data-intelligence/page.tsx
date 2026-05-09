@@ -25,15 +25,20 @@ export default function DataIntelligencePage() {
   const { activeTab, setActiveTab } = useDataIntelligenceStore();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ backgroundColor: '#FBF8EE' }}>
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white" style={{ borderBottom: '1px solid #E8E6E3' }}>
         <div className="max-w-[1400px] mx-auto px-6 py-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Data Intelligence Hub</h1>
-              <p className="text-gray-600 mt-1">
-                Cross-domain analytics and organizational network visualization
+              <p className="uppercase font-bold mb-2" style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}>
+                PICC admin · data intelligence
+              </p>
+              <h1 className="font-fraunces font-bold leading-tight" style={{ color: '#0B4F6C', fontSize: 'clamp(28px, 4vw, 40px)' }}>
+                Data intelligence hub.
+              </h1>
+              <p className="mt-2 text-sm" style={{ color: '#6B6560' }}>
+                Cross-domain analytics and organisational network visualisation.
               </p>
             </div>
             <div className="flex items-center gap-2 text-xs text-gray-400">

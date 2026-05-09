@@ -166,11 +166,16 @@ export default function QuoteCardsPage() {
             Back to Content Studio
           </Link>
 
+          <p className="uppercase font-bold mb-2" style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}>
+            PICC admin · quote cards
+          </p>
           <div className="flex items-center gap-3 mb-2">
-            <ImageIcon className="h-8 w-8 text-picc-red" />
-            <h1 className="text-3xl font-bold text-gray-900">Quote Card Generator</h1>
+            <ImageIcon className="h-7 w-7" style={{ color: '#C8963E' }} />
+            <h1 className="font-fraunces font-bold leading-tight" style={{ color: '#0B4F6C', fontSize: 'clamp(28px, 4vw, 40px)' }}>
+              Quote card generator.
+            </h1>
           </div>
-          <p className="text-gray-600">Create shareable quote cards for social media</p>
+          <p className="text-sm" style={{ color: '#6B6560' }}>Create shareable quote cards for social media.</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

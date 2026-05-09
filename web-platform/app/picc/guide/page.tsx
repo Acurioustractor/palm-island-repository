@@ -538,14 +538,19 @@ export default function PlatformGuidePage() {
     <div className="max-w-4xl mx-auto">
       {/* Header */}
       <div className="mb-8">
+        <p className="uppercase font-bold mb-2" style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}>
+          PICC admin · platform guide
+        </p>
         <div className="flex items-center gap-3 mb-2">
-          <div className="p-2 rounded-lg bg-[#0B4F6C] text-white">
-            <BookOpen className="h-6 w-6" />
+          <div className="p-2 rounded-lg" style={{ backgroundColor: '#0B4F6C' }}>
+            <BookOpen className="h-6 w-6" style={{ color: '#FBF8EE' }} />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Platform Guide</h1>
-            <p className="text-sm text-gray-500">
-              Everything the PICC team needs to know about using this platform
+            <h1 className="font-fraunces font-bold leading-tight" style={{ color: '#0B4F6C', fontSize: 'clamp(28px, 4vw, 40px)' }}>
+              Platform guide.
+            </h1>
+            <p className="mt-1 text-sm" style={{ color: '#6B6560' }}>
+              Everything the PICC team needs to know about using this platform.
             </p>
           </div>
         </div>

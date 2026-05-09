@@ -196,9 +196,14 @@ export default function QuotesPage() {
     <div className="p-6 lg:p-8 max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Community Quotes</h1>
-        <p className="text-gray-600 mt-1">
-          Powerful voices from your community for annual reports and stories
+        <p className="uppercase font-bold mb-2" style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}>
+          PICC admin · scraper · quotes
+        </p>
+        <h1 className="font-fraunces font-bold leading-tight" style={{ color: '#0B4F6C', fontSize: 'clamp(28px, 4vw, 40px)' }}>
+          Community quotes.
+        </h1>
+        <p className="mt-2 text-sm" style={{ color: '#6B6560' }}>
+          Powerful voices from the community for annual reports and stories.
         </p>
       </div>
 

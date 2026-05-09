@@ -160,13 +160,18 @@ export default function ContentHubPage() {
     <div className="p-6 lg:p-8 max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-8">
+        <p className="uppercase font-bold mb-2" style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}>
+          PICC admin · content hub
+        </p>
         <div className="flex items-center gap-3 mb-2">
-          <div className="p-2 bg-gradient-to-br from-sage-500 to-sage-600 rounded-lg">
-            <Newspaper className="w-6 h-6 text-white" />
+          <div className="p-2 rounded-lg" style={{ backgroundColor: '#0B4F6C' }}>
+            <Newspaper className="w-6 h-6" style={{ color: '#FBF8EE' }} />
           </div>
           <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Content Hub</h1>
-            <p className="text-gray-600">Living Ledger - Continuous community narrative ecosystem</p>
+            <h1 className="font-fraunces font-bold leading-tight" style={{ color: '#0B4F6C', fontSize: 'clamp(28px, 4vw, 40px)' }}>
+              Content hub.
+            </h1>
+            <p className="text-sm" style={{ color: '#6B6560' }}>Living Ledger — continuous community narrative ecosystem.</p>
           </div>
         </div>
       </div>

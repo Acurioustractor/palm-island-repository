@@ -176,13 +176,18 @@ export default function ContentStudioPage() {
     <div className="p-8 max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <Sparkles className="w-8 h-8 text-picc-ochre" />
-          <h1 className="text-3xl font-bold text-gray-900">Content Studio</h1>
-          <span className="px-3 py-1 bg-picc-ochre/10 text-picc-ochre text-sm font-medium rounded-full">
-            AI-Powered
+        <p className="uppercase font-bold mb-2" style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}>
+          PICC admin · content studio
+        </p>
+        <div className="flex items-center gap-3 mb-2 flex-wrap">
+          <Sparkles className="w-7 h-7" style={{ color: '#C8963E' }} />
+          <h1 className="font-fraunces font-bold leading-tight" style={{ color: '#0B4F6C', fontSize: 'clamp(28px, 4vw, 40px)' }}>
+            Content studio.
+          </h1>
+          <span className="text-[10px] uppercase font-bold tracking-widest px-2 py-1 rounded" style={{ backgroundColor: '#C8963E22', color: '#C8963E', letterSpacing: '0.15em' }}>
+            AI-powered
           </span>
-          <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+          <span className="text-[10px] uppercase font-bold tracking-widest px-2 py-1 rounded" style={{ backgroundColor: '#0B4F6C22', color: '#0B4F6C', letterSpacing: '0.15em' }}>
             {aiProvider}
           </span>
         </div>
