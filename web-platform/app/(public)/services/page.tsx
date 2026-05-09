@@ -90,7 +90,15 @@ export default async function ServicesIndexPage() {
     // sensible defaults so existing JSX doesn't break.
     icon_name: null as string | null,
     service_color: null as string | null,
-    metadata: {} as Record<string, unknown>,
+    // EL canonical lat/lng surfaces here so InteractiveServiceMap
+    // renders pins set via /picc/services/map. Falls through to {}
+    // for services without coordinates yet.
+    metadata: {
+      ...(e.latitude != null && e.longitude != null
+        ? { latitude: e.latitude, longitude: e.longitude }
+        : {}),
+      ...(e.address ? { address: e.address } : {}),
+    } as Record<string, unknown>,
   }));
 
   // Cover photo seed: EL `image_url` is canonical (set on 23/26
@@ -280,11 +288,35 @@ export default async function ServicesIndexPage() {
       </section>
 
       {/* Interactive Map */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-20" style={{ backgroundColor: '#F7F6F4' }}>
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Service Map</h2>
-            <p className="text-gray-600">Click a pin to explore each service</p>
+          <div className="text-center mb-10">
+            <p
+              className="uppercase font-bold mb-3"
+              style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}
+            >
+              Where the work happens
+            </p>
+            <h2
+              className="font-fraunces font-bold leading-tight mb-3"
+              style={{ color: '#0B4F6C', fontSize: 'clamp(32px, 5vw, 48px)' }}
+            >
+              26 services on Country.
+            </h2>
+            <p
+              className="italic"
+              style={{
+                color: '#C8963E',
+                fontFamily: 'Caveat, cursive',
+                fontSize: 'clamp(18px, 2.2vw, 24px)',
+              }}
+            >
+              every pin a real shopfront, a real building, a real spot
+            </p>
+            <p className="mt-3 text-sm max-w-xl mx-auto" style={{ color: '#6B6560' }}>
+              Click any pin to open the service. Coordinates are set in EL canonical and
+              stay synced with the live archive.
+            </p>
           </div>
           <InteractiveServiceMap services={allServices} />
         </div>
