@@ -404,27 +404,40 @@ export default function StorytellersPage() {
     <div className="p-6 lg:p-8 max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center justify-between">
+        <p
+          className="uppercase font-bold mb-2"
+          style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}
+        >
+          PICC admin · storytellers
+        </p>
+        <div className="flex items-end justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Storyteller Management</h1>
-            <p className="text-gray-600 mt-1">
-              Manage community storytellers, their profiles, and content placement
+            <h1
+              className="font-fraunces font-bold leading-tight"
+              style={{ color: '#0B4F6C', fontSize: 'clamp(28px, 4vw, 40px)' }}
+            >
+              Storyteller management.
+            </h1>
+            <p className="mt-2 text-sm" style={{ color: '#6B6560' }}>
+              58 in the EL canonical roster. Manage profiles, photos, service links, and content placement.
             </p>
           </div>
           <div className="flex items-center gap-2">
             <Link
               href="/picc/media/upload"
-              className="hidden sm:flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              className="hidden sm:flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md hover:opacity-90 transition"
+              style={{ border: '1px solid #E8E6E3', color: '#6B6560' }}
             >
               <Upload className="w-4 h-4" />
-              Upload Media
+              Upload media
             </Link>
             <Link
               href="/picc/storytellers/new"
-              className="flex items-center gap-2 px-4 py-2 bg-picc-red text-white rounded-lg hover:bg-picc-red transition-colors"
+              className="flex items-center gap-2 px-4 py-2 text-sm font-bold uppercase tracking-widest rounded-md hover:opacity-90 transition"
+              style={{ backgroundColor: '#0B4F6C', color: '#FBF8EE', letterSpacing: '0.15em' }}
             >
               <Plus className="w-4 h-4" />
-              Add Storyteller
+              Add storyteller
             </Link>
           </div>
         </div>

@@ -107,25 +107,43 @@ export default function TeamPage() {
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <Link href="/picc/settings" className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-4">
-            <ArrowLeft className="h-4 w-4" />
-            Back to Settings
+          <Link
+            href="/picc/settings"
+            className="inline-flex items-center gap-2 mb-4 text-xs uppercase font-bold tracking-widest hover:opacity-80"
+            style={{ color: '#6B6560', letterSpacing: '0.2em' }}
+          >
+            <ArrowLeft className="h-3 w-3" />
+            Settings
           </Link>
 
-          <div className="flex items-center justify-between mb-2">
+          <p
+            className="uppercase font-bold mb-2"
+            style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}
+          >
+            PICC admin · team
+          </p>
+          <div className="flex items-end justify-between gap-4 flex-wrap mb-2">
             <div className="flex items-center gap-3">
-              <Users className="h-8 w-8 text-picc-red" />
-              <h1 className="text-3xl font-bold text-gray-900">Team Management</h1>
+              <Users className="h-7 w-7" style={{ color: '#C8963E' }} />
+              <h1
+                className="font-fraunces font-bold leading-tight"
+                style={{ color: '#0B4F6C', fontSize: 'clamp(28px, 4vw, 40px)' }}
+              >
+                Team management.
+              </h1>
             </div>
             <button
               onClick={() => setShowInviteForm(!showInviteForm)}
-              className="bg-picc-red text-white px-4 py-2 rounded-lg font-medium hover:bg-picc-red transition-all flex items-center gap-2"
+              className="px-4 py-2 text-sm font-bold uppercase tracking-widest rounded-md hover:opacity-90 transition flex items-center gap-2"
+              style={{ backgroundColor: '#0B4F6C', color: '#FBF8EE', letterSpacing: '0.15em' }}
             >
               <Plus className="h-4 w-4" />
-              Invite Member
+              Invite member
             </button>
           </div>
-          <p className="text-gray-600">Manage team members and their permissions</p>
+          <p className="text-sm" style={{ color: '#6B6560' }}>
+            Manage team members and their permissions.
+          </p>
         </div>
 
         {/* Invite Form */}

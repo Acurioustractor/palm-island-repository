@@ -134,21 +134,33 @@ export default function ConversationsPage() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-br from-warm-500 to-picc-ochre rounded-lg">
-              <MessageSquare className="w-6 h-6 text-white" />
+          <div>
+            <p
+              className="uppercase font-bold mb-2"
+              style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}
+            >
+              PICC admin · conversations
+            </p>
+            <div className="flex items-center gap-3">
+              <MessageSquare className="w-7 h-7" style={{ color: '#C8963E' }} />
+              <h1
+                className="font-fraunces font-bold leading-tight"
+                style={{ color: '#0B4F6C', fontSize: 'clamp(28px, 4vw, 40px)' }}
+              >
+                Community conversations.
+              </h1>
             </div>
-            <div>
-              <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Community Conversations</h1>
-              <p className="text-gray-600">Listening to and learning from our community</p>
-            </div>
+            <p className="mt-2 text-sm" style={{ color: '#6B6560' }}>
+              Listening to and learning from our community.
+            </p>
           </div>
           <Link
             href="/picc/conversations/new"
-            className="flex items-center gap-2 px-4 py-2 bg-picc-red text-white rounded-lg hover:bg-picc-red transition-colors"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-bold uppercase tracking-widest rounded-md hover:opacity-90 transition"
+            style={{ backgroundColor: '#0B4F6C', color: '#FBF8EE', letterSpacing: '0.15em' }}
           >
             <Plus className="w-4 h-4" />
-            New Conversation
+            New conversation
           </Link>
         </div>
       </div>

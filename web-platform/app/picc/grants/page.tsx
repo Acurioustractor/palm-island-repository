@@ -30,30 +30,43 @@ export default async function GrantsOverviewPage() {
   const upcomingDeadlines = deadlines.filter(d => d.status === 'upcoming' || d.status === 'due_soon').length
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen p-6" style={{ backgroundColor: '#FBF8EE' }}>
       <div className="max-w-7xl mx-auto">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Grants & Evidence</h1>
-          <p className="text-gray-600 mt-1">Track grant outcomes, evidence, and deadlines</p>
+          <p
+            className="uppercase font-bold mb-2"
+            style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}
+          >
+            PICC admin · grants
+          </p>
+          <h1
+            className="font-fraunces font-bold leading-tight"
+            style={{ color: '#0B4F6C', fontSize: 'clamp(28px, 4vw, 40px)' }}
+          >
+            Grants & evidence.
+          </h1>
+          <p className="mt-2 text-sm" style={{ color: '#6B6560' }}>
+            Track grant outcomes, evidence, and deadlines.
+          </p>
         </div>
 
         {/* Stats Row */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white rounded-lg border p-4">
-            <div className="text-sm text-gray-600">Active Grants</div>
-            <div className="text-2xl font-bold text-gray-900">{grants.length}</div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-8">
+          <div className="rounded-xl bg-white p-4" style={{ border: '1px solid #E8E6E3', borderTopWidth: 3, borderTopColor: '#0B4F6C' }}>
+            <div className="text-[10px] uppercase font-bold" style={{ color: '#0B4F6C', letterSpacing: '0.2em' }}>Active grants</div>
+            <div className="font-fraunces font-bold mt-1 leading-none" style={{ color: '#0B4F6C', fontSize: 28 }}>{grants.length}</div>
           </div>
-          <div className="bg-white rounded-lg border p-4">
-            <div className="text-sm text-gray-600">Total Outcomes</div>
-            <div className="text-2xl font-bold text-gray-900">{totalOutcomes}</div>
+          <div className="rounded-xl bg-white p-4" style={{ border: '1px solid #E8E6E3', borderTopWidth: 3, borderTopColor: '#C8963E' }}>
+            <div className="text-[10px] uppercase font-bold" style={{ color: '#C8963E', letterSpacing: '0.2em' }}>Total outcomes</div>
+            <div className="font-fraunces font-bold mt-1 leading-none" style={{ color: '#C8963E', fontSize: 28 }}>{totalOutcomes}</div>
           </div>
-          <div className="bg-white rounded-lg border p-4">
-            <div className="text-sm text-gray-600">Outcomes Met</div>
-            <div className="text-2xl font-bold text-green-600">{metOutcomes}</div>
+          <div className="rounded-xl bg-white p-4" style={{ border: '1px solid #E8E6E3', borderTopWidth: 3, borderTopColor: '#16A34A' }}>
+            <div className="text-[10px] uppercase font-bold" style={{ color: '#16A34A', letterSpacing: '0.2em' }}>Outcomes met</div>
+            <div className="font-fraunces font-bold mt-1 leading-none" style={{ color: '#16A34A', fontSize: 28 }}>{metOutcomes}</div>
           </div>
-          <div className="bg-white rounded-lg border p-4">
-            <div className="text-sm text-gray-600">Upcoming Deadlines</div>
-            <div className="text-2xl font-bold text-orange-600">{upcomingDeadlines}</div>
+          <div className="rounded-xl bg-white p-4" style={{ border: '1px solid #E8E6E3', borderTopWidth: 3, borderTopColor: '#F5A623' }}>
+            <div className="text-[10px] uppercase font-bold" style={{ color: '#F5A623', letterSpacing: '0.2em' }}>Upcoming deadlines</div>
+            <div className="font-fraunces font-bold mt-1 leading-none" style={{ color: '#F5A623', fontSize: 28 }}>{upcomingDeadlines}</div>
           </div>
         </div>
 
