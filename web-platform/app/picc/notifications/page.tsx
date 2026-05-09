@@ -109,13 +109,18 @@ export default function NotificationsPage() {
             Back to Dashboard
           </Link>
 
-          <div className="flex items-center justify-between mb-2">
+          <p className="uppercase font-bold mb-2" style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}>
+            PICC admin · notifications
+          </p>
+          <div className="flex items-end justify-between gap-4 flex-wrap mb-2">
             <div className="flex items-center gap-3">
-              <Bell className="h-8 w-8 text-orange-600" />
+              <Bell className="h-7 w-7" style={{ color: '#C8963E' }} />
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Notifications</h1>
+                <h1 className="font-fraunces font-bold leading-tight" style={{ color: '#0B4F6C', fontSize: 'clamp(28px, 4vw, 40px)' }}>
+                  Notifications.
+                </h1>
                 {unreadCount > 0 && (
-                  <p className="text-sm text-gray-600 mt-1">{unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}</p>
+                  <p className="mt-2 text-sm" style={{ color: '#6B6560' }}>{unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}</p>
                 )}
               </div>
             </div>

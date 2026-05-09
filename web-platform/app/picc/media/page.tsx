@@ -73,9 +73,16 @@ export default function MediaLibraryPage() {
 
         {/* Header */}
         <div className="mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">Media Library</h1>
-          <p className="text-lg text-gray-600 max-w-2xl">
-            Organize, browse, and manage your photo collection with collections and smart folders.
+          <p className="uppercase font-bold mb-2" style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}>
+            PICC admin · media
+          </p>
+          <h1 className="font-fraunces font-bold leading-tight mb-3" style={{ color: '#0B4F6C', fontSize: 'clamp(32px, 5vw, 48px)' }}>
+            Media library.
+          </h1>
+          <p className="max-w-2xl text-sm" style={{ color: '#6B6560' }}>
+            Organise, browse, and manage the photo collection with collections and smart folders.
+            For EL canonical photo coverage, see{' '}
+            <Link href="/picc/services/coverage" className="underline" style={{ color: '#0B4F6C' }}>service coverage</Link>.
           </p>
         </div>
 

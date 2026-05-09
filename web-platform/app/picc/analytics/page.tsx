@@ -193,8 +193,13 @@ export default function AnalyticsPage() {
     <div className="max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Insights</p>
-        <h1 className="text-4xl font-bold text-gray-900 mt-1">Community Analytics</h1>
+        <p className="uppercase font-bold mb-2" style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}>
+          PICC admin · analytics
+        </p>
+        <h1 className="font-fraunces font-bold leading-tight" style={{ color: '#0B4F6C', fontSize: 'clamp(28px, 4vw, 48px)' }}>
+          Community analytics.
+        </h1>
+        <p className="mt-2 text-sm" style={{ color: '#6B6560' }}>Patterns across stories, voices, services, and engagement.</p>
       </div>
 
       {/* Key Metrics */}

@@ -391,17 +391,22 @@ export default function BrandHubPage() {
   return (
     <div className="max-w-6xl mx-auto px-6 py-12">
       {/* ── Header ── */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-end justify-between gap-4 flex-wrap mb-8">
         <div>
+          <p className="uppercase font-bold mb-2" style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}>
+            PICC admin · brand
+          </p>
           <div className="flex items-center gap-3 mb-2">
-            <Palette className="w-8 h-8 text-gray-900" />
-            <h1 className="text-3xl font-bold text-gray-900">Brand Hub</h1>
+            <Palette className="w-7 h-7" style={{ color: '#C8963E' }} />
+            <h1 className="font-fraunces font-bold leading-tight" style={{ color: '#0B4F6C', fontSize: 'clamp(28px, 4vw, 40px)' }}>
+              Brand hub.
+            </h1>
           </div>
-          <p className="text-gray-500 text-lg">PICC brand system — web platform + PDF reports</p>
+          <p className="text-sm" style={{ color: '#6B6560' }}>Saltwater & Earth — web platform + PDF reports.</p>
         </div>
-        <button onClick={downloadBrandPdf} disabled={pdfLoading} className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 text-sm font-medium">
+        <button onClick={downloadBrandPdf} disabled={pdfLoading} className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold uppercase tracking-widest rounded-md hover:opacity-90 transition disabled:opacity-50" style={{ backgroundColor: '#0B4F6C', color: '#FBF8EE', letterSpacing: '0.15em' }}>
           {pdfLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-          Download Brand Guide PDF
+          Download brand guide PDF
         </button>
       </div>
 

@@ -13,15 +13,20 @@ export default function StorytellingGuidePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-gradient-to-r from-picc-ochre to-picc-red text-white py-12">
+      <div className="py-12" style={{ backgroundColor: '#1A1A2E' }}>
         <div className="max-w-4xl mx-auto px-6">
-          <Link href="/picc" className="inline-flex items-center gap-2 text-white/80 hover:text-white mb-4 text-sm">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Dashboard
+          <Link href="/picc" className="inline-flex items-center gap-2 mb-4 text-xs uppercase font-bold tracking-widest hover:opacity-80" style={{ color: '#F5A623', letterSpacing: '0.2em' }}>
+            <ArrowLeft className="w-3 h-3" />
+            Dashboard
           </Link>
-          <h1 className="text-3xl font-bold mb-2">Storytelling Guide</h1>
-          <p className="text-lg text-white/90">
-            Capture and share our community's stories with respect, quality, and impact.
+          <p className="uppercase font-bold mb-2" style={{ color: '#F5A623', fontSize: 11, letterSpacing: '0.3em' }}>
+            PICC admin · storytelling
+          </p>
+          <h1 className="font-fraunces font-bold leading-tight mb-2" style={{ color: '#FBF8EE', fontSize: 'clamp(32px, 5vw, 48px)' }}>
+            Storytelling guide.
+          </h1>
+          <p className="font-fraunces" style={{ color: '#FBF8EE', opacity: 0.85, fontSize: 18, lineHeight: 1.55 }}>
+            Capture and share community stories with respect, quality, and impact.
           </p>
         </div>
       </div>

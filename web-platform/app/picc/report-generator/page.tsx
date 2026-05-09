@@ -711,14 +711,20 @@ function ReportGeneratorPageContent() {
             Back to Annual Reports
           </Link>
 
+          <p className="uppercase font-bold mb-2" style={{ color: '#8B1A1A', fontSize: 11, letterSpacing: '0.3em' }}>
+            PICC admin · report generator
+          </p>
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-picc-ochre-100 rounded-xl">
-              <FileText className="h-7 w-7 text-picc-ochre-700" />
+            <div className="p-2 rounded-xl" style={{ backgroundColor: '#C8963E22' }}>
+              <FileText className="h-7 w-7" style={{ color: '#C8963E' }} />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900">Annual Report Generator</h1>
+            <h1 className="font-fraunces font-bold leading-tight" style={{ color: '#0B4F6C', fontSize: 'clamp(28px, 4vw, 40px)' }}>
+              Annual report generator.
+            </h1>
           </div>
-          <p className="text-gray-600">
+          <p className="text-sm" style={{ color: '#6B6560' }}>
             One-click generation using the best stories, photos, quotes, and innovation projects already on the site.
+            For print, design in <code style={{ backgroundColor: '#FBF8EE', padding: '2px 4px', borderRadius: 3 }}>picc-annual-report.pen</code> and export.
           </p>
         </div>
 
