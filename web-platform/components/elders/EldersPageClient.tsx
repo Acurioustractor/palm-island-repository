@@ -20,6 +20,7 @@ import {
 import type { TripStop } from '@/components/elders/EldersTripMap'
 import Modal from '@/components/ui/Modal'
 import { assetUrl } from '@/lib/media/asset-url'
+import { C } from '@/components/annual-report/2024-25/almanac/tokens'
 
 // Dynamically import the map component to avoid SSR issues with Leaflet
 const EldersTripMap = dynamic(() => import('@/components/elders/EldersTripMap'), {
@@ -480,40 +481,78 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
         <div className="relative min-h-[calc(100vh-4rem)] flex items-center">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 w-full">
             <div className="max-w-3xl mx-auto text-center">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/80 border border-stone-200 text-stone-800 text-sm font-semibold">
-                PICC Elders Group
-              </div>
-              <h1 className="mt-4 text-4xl md:text-6xl font-bold text-white leading-tight">
-                Connecting Generations Through Culture
-              </h1>
-              <p className="mt-4 text-lg md:text-xl text-white/90">
-                Our Elders carry the knowledge, stories, and cultural strength that connect Palm Island&apos;s past to its future. This page celebrates their voices and the pathways they&apos;re building for the next generation.
+              <p
+                className="font-bold uppercase mb-4"
+                style={{
+                  color: '#F5E9D0',
+                  fontSize: 11,
+                  letterSpacing: '0.3em',
+                  textShadow: '0 1px 2px rgba(0,0,0,0.4)',
+                }}
+              >
+                PICC · Elders Group
               </p>
-              <div className="mt-8 flex flex-wrap gap-3 justify-center">
+              <h1
+                className="font-fraunces font-bold leading-[1.05] mb-6"
+                style={{
+                  color: '#FFFFFF',
+                  fontSize: 'clamp(40px, 7vw, 72px)',
+                  textShadow: '0 2px 12px rgba(0,0,0,0.5)',
+                }}
+              >
+                Connecting generations through culture
+              </h1>
+              <p
+                className="font-fraunces mt-4 mx-auto"
+                style={{
+                  color: 'rgba(255,255,255,0.92)',
+                  fontSize: 'clamp(16px, 2vw, 20px)',
+                  lineHeight: 1.55,
+                  maxWidth: 640,
+                  textShadow: '0 1px 6px rgba(0,0,0,0.4)',
+                }}
+              >
+                Our Elders carry the knowledge, stories, and cultural strength that connect Palm Island&apos;s past
+                to its future. This page holds their voices and the pathways they&apos;re building for the next generation.
+              </p>
+              <div className="mt-10 flex flex-wrap gap-3 justify-center">
                 <a
                   href="#elders"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-gray-900 font-semibold hover:bg-stone-100 transition-colors focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black/50"
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-md font-bold uppercase text-xs hover:opacity-90 transition"
+                  style={{ backgroundColor: C.ocean, color: '#FBF8EE', letterSpacing: '0.15em' }}
                 >
-                  Meet the Elders <ArrowRight className="w-4 h-4" />
+                  Meet the Elders <ArrowRight className="w-3.5 h-3.5" />
                 </a>
                 <a
                   href="#video"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 border border-white/30 text-white font-semibold hover:bg-white/15 transition-colors focus:outline-none focus:ring-2 focus:ring-white"
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-md font-bold uppercase text-xs hover:bg-white/15 transition"
+                  style={{ backgroundColor: 'rgba(255,255,255,0.1)', color: '#FFFFFF', border: '1px solid rgba(255,255,255,0.4)', letterSpacing: '0.15em' }}
                 >
-                  Watch the Trip <PlayCircle className="w-4 h-4" />
+                  Watch the trip <PlayCircle className="w-3.5 h-3.5" />
                 </a>
               </div>
-              <div className="mt-6 text-sm text-white/80 italic">
-                Manbarra & Bwgcolman Country • Palm Island
-              </div>
+              <p
+                className="font-fraunces italic mt-8"
+                style={{ color: 'rgba(255,255,255,0.85)', fontSize: 14, textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}
+              >
+                Manbarra &amp; Bwgcolman Country · Palm Island
+              </p>
             </div>
           </div>
         </div>
       </header>
 
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="rounded-3xl border border-stone-200 bg-white/90 p-6 shadow-lg">
-          <div className="text-xs font-semibold text-picc-ochre mb-2">Elders Trip overview</div>
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div
+          className="rounded-2xl bg-white p-7 shadow-sm"
+          style={{ border: `1px solid ${C.border}`, borderTopWidth: 3, borderTopColor: C.ochre }}
+        >
+          <p
+            className="uppercase font-bold mb-3"
+            style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.3em' }}
+          >
+            Elders Trip · 2024
+          </p>
           <p className="text-gray-800 leading-relaxed">
             In 2024, members of the Palm Island Elders Advisory Group made a significant journey from Palm Island through Townsville
             and Ingham to Hull River in the Mission Beach region. The trip brought together Elders to walk country where their
