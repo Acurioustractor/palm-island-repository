@@ -16,6 +16,9 @@ export async function GET() {
         slug: e.slug,
         name: e.display_name,
         role: e.role,
+        photo_url: e.photo_url,
+        location: e.location,
+        quote_count: e.quote_count,
       }))
       .filter((e) => e.name)
       .sort((a, b) => a.name.localeCompare(b.name))

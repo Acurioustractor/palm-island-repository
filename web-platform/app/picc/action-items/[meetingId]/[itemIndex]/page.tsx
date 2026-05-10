@@ -10,6 +10,8 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
 import { ArrowLeft, Calendar, MapPin, Users, Lock, FileText, ListChecks } from 'lucide-react'
 import ActionItemRow, { type ItemStatus } from '../../ActionItemRow'
+import AttendeesPanel, { type Elder } from '../../../elders/meetings/AttendeesPanel'
+import { getPiccElders } from '@/lib/empathy-ledger/el-storytellers'
 
 export const dynamic = 'force-dynamic'
 
@@ -148,6 +150,18 @@ export default async function ActionItemDetailPage({
   const requiresElderApproval = Boolean((meeting.metadata as any)?.requires_elder_approval)
   const snippet = findTranscriptSnippet(meeting.transcript, itemText)
 
+  // Pre-fetch Elders for the AttendeesPanel (server-side, no client fetch needed)
+  const elderRecords = await getPiccElders().catch(() => [])
+  const eldersList: Elder[] = elderRecords.map((e) => ({
+    id: e.id,
+    slug: e.slug,
+    name: e.display_name,
+    role: e.role,
+    photo_url: e.photo_url,
+    location: e.location,
+    quote_count: e.quote_count,
+  }))
+
   return (
     <div className="p-6 lg:p-8 max-w-4xl mx-auto">
       <Link
@@ -223,18 +237,14 @@ export default async function ActionItemDetailPage({
           </div>
         )}
 
-        {meeting.attendees && meeting.attendees.length > 0 && (
-          <div>
-            <p className="text-xs font-semibold uppercase text-stone-500 tracking-wide mb-1">Attendees</p>
-            <div className="flex flex-wrap gap-1.5">
-              {meeting.attendees.map((name) => (
-                <span key={name} className="text-xs px-2 py-0.5 rounded-full bg-stone-100 text-stone-700">
-                  {name}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
+        <div>
+          <p className="text-xs font-semibold uppercase text-stone-500 tracking-wide mb-2">Attendees</p>
+          <AttendeesPanel
+            meetingId={meeting.id}
+            initialAttendees={meeting.attendees || []}
+            elders={eldersList}
+          />
+        </div>
       </section>
 
       {/* Transcript snippet */}

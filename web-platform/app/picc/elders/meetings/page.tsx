@@ -6,6 +6,7 @@ import {
   ArrowLeft, Calendar, MapPin, Users, Search, ChevronDown, ChevronUp,
   Tag, Loader2, FileText, CheckCircle, Plus,
 } from 'lucide-react';
+import AttendeesPanel from './AttendeesPanel';
 
 interface MeetingNote {
   id: string;
@@ -251,22 +252,14 @@ export default function EldersMeetingsPage() {
                           </div>
                         )}
 
-                        {/* Attendees */}
-                        {expandedMeeting.attendees.length > 0 && (
-                          <div>
-                            <h3 className="text-sm font-semibold text-gray-900 mb-2">Attendees</h3>
-                            <div className="flex flex-wrap gap-2">
-                              {expandedMeeting.attendees.map((name) => (
-                                <span
-                                  key={name}
-                                  className="px-2.5 py-1 bg-white border border-gray-200 rounded-full text-sm text-gray-700"
-                                >
-                                  {name}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
+                        {/* Attendees — rich Elder cards from EL + add picker */}
+                        <div>
+                          <h3 className="text-sm font-semibold text-gray-900 mb-2">Attendees</h3>
+                          <AttendeesPanel
+                            meetingId={expandedMeeting.id}
+                            initialAttendees={expandedMeeting.attendees || []}
+                          />
+                        </div>
 
                         {/* Transcript */}
                         {expandedMeeting.transcript && (
