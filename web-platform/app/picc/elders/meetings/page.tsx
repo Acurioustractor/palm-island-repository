@@ -226,6 +226,16 @@ export default function EldersMeetingsPage() {
                       </div>
                     ) : expandedMeeting ? (
                       <div className="space-y-6">
+                        {/* Full summary */}
+                        {expandedMeeting.summary && (
+                          <div>
+                            <h3 className="text-sm font-semibold text-gray-900 mb-2">Summary</h3>
+                            <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+                              {expandedMeeting.summary}
+                            </p>
+                          </div>
+                        )}
+
                         {/* Action items */}
                         {expandedMeeting.action_items.length > 0 && (
                           <div>
