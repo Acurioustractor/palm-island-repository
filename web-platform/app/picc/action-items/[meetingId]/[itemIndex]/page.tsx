@@ -11,7 +11,7 @@ import { createClient } from '@supabase/supabase-js'
 import { ArrowLeft, Calendar, MapPin, Users, Lock, FileText, ListChecks } from 'lucide-react'
 import ActionItemRow, { type ItemStatus } from '../../ActionItemRow'
 import AttendeesPanel, { type Elder } from '../../../elders/meetings/AttendeesPanel'
-import { getPiccElders } from '@/lib/empathy-ledger/el-storytellers'
+import { getPiccStorytellers } from '@/lib/empathy-ledger/el-storytellers'
 
 export const dynamic = 'force-dynamic'
 
@@ -150,17 +150,23 @@ export default async function ActionItemDetailPage({
   const requiresElderApproval = Boolean((meeting.metadata as any)?.requires_elder_approval)
   const snippet = findTranscriptSnippet(meeting.transcript, itemText)
 
-  // Pre-fetch Elders for the AttendeesPanel (server-side, no client fetch needed)
-  const elderRecords = await getPiccElders().catch(() => [])
-  const eldersList: Elder[] = elderRecords.map((e) => ({
-    id: e.id,
-    slug: e.slug,
-    name: e.display_name,
-    role: e.role,
-    photo_url: e.photo_url,
-    location: e.location,
-    quote_count: e.quote_count,
-  }))
+  // Pre-fetch full storyteller roster for the AttendeesPanel (Elders + staff + community)
+  const storytellerRecords = await getPiccStorytellers({ limit: 500 }).catch(() => [])
+  const eldersList: Elder[] = storytellerRecords
+    .map((e) => ({
+      id: e.id,
+      slug: e.slug,
+      name: e.display_name,
+      role: e.role,
+      photo_url: e.photo_url,
+      location: e.location,
+      quote_count: e.quote_count,
+      is_elder: e.is_elder,
+    }))
+    .sort((a, b) => {
+      if (a.is_elder !== b.is_elder) return a.is_elder ? -1 : 1
+      return a.name.localeCompare(b.name)
+    })
 
   return (
     <div className="p-6 lg:p-8 max-w-4xl mx-auto">

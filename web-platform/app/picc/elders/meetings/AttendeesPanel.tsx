@@ -13,6 +13,7 @@ export interface Elder {
   photo_url: string | null
   location: string | null
   quote_count: number
+  is_elder?: boolean
 }
 
 interface Props {
@@ -39,7 +40,7 @@ export default function AttendeesPanel({ meetingId, initialAttendees, elders: pr
   useEffect(() => {
     if (preFetched) return
     let cancelled = false
-    fetch('/api/picc/elders-list', { signal: AbortSignal.timeout(8000) })
+    fetch('/api/picc/storytellers-list', { signal: AbortSignal.timeout(8000) })
       .then((r) => (r.ok ? r.json() : { data: [] }))
       .then((j) => {
         if (cancelled) return
@@ -107,12 +108,21 @@ export default function AttendeesPanel({ meetingId, initialAttendees, elders: pr
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mb-3">
         {attendees.map((name) => {
           const elder = elderByName.get(normalize(name))
+          const isElder = elder?.is_elder
+          const cardCls = isElder
+            ? 'border-amber-200 bg-amber-50'
+            : elder
+            ? 'border-picc-ochre/40 bg-picc-ochre/10'
+            : 'border-stone-200 bg-stone-50'
+          const nameCls = isElder
+            ? 'text-amber-900'
+            : elder
+            ? 'text-stone-800'
+            : 'text-stone-700'
           return (
             <div
               key={name}
-              className={`flex items-center gap-3 rounded-lg border p-2.5 ${
-                elder ? 'border-amber-200 bg-amber-50' : 'border-stone-200 bg-stone-50'
-              }`}
+              className={`flex items-center gap-3 rounded-lg border p-2.5 ${cardCls}`}
             >
               {/* Photo / placeholder */}
               {elder?.photo_url ? (
@@ -138,7 +148,7 @@ export default function AttendeesPanel({ meetingId, initialAttendees, elders: pr
                 {elder ? (
                   <Link
                     href={`/voices/${elder.slug}`}
-                    className="text-sm font-semibold text-amber-900 hover:underline inline-flex items-center gap-1 truncate"
+                    className={`text-sm font-semibold hover:underline inline-flex items-center gap-1 truncate ${nameCls}`}
                   >
                     {name}
                     <ExternalLink className="w-3 h-3 shrink-0" />
@@ -147,7 +157,9 @@ export default function AttendeesPanel({ meetingId, initialAttendees, elders: pr
                   <p className="text-sm font-medium text-stone-700 truncate">{name}</p>
                 )}
                 <p className="text-[11px] text-stone-500 truncate">
-                  {elder ? (elder.role || `${elder.quote_count} quotes`) : 'Other attendee'}
+                  {elder
+                    ? `${isElder ? 'Elder' : 'Storyteller'} · ${elder.role || `${elder.quote_count} quotes`}`
+                    : 'Not in EL · plain attendee'}
                 </p>
               </div>
 
@@ -191,7 +203,7 @@ export default function AttendeesPanel({ meetingId, initialAttendees, elders: pr
         <div className="rounded-lg border border-stone-200 bg-white p-3 mt-2">
           <div className="flex items-center justify-between mb-2">
             <p className="text-xs font-semibold uppercase tracking-wide text-stone-500">
-              Add from Elders ({elders.length})
+              Add from Empathy Ledger ({elders.length} storytellers · {elders.filter((e) => e.is_elder).length} Elders)
             </p>
             <button
               type="button"
@@ -227,7 +239,11 @@ export default function AttendeesPanel({ meetingId, initialAttendees, elders: pr
                   type="button"
                   onClick={() => addAttendee(e.name)}
                   disabled={pending}
-                  className="flex items-center gap-2 rounded-lg border border-stone-200 hover:border-amber-300 hover:bg-amber-50 p-2 text-left transition-colors disabled:opacity-50"
+                  className={`flex items-center gap-2 rounded-lg border p-2 text-left transition-colors disabled:opacity-50 ${
+                    e.is_elder
+                      ? 'border-stone-200 hover:border-amber-300 hover:bg-amber-50'
+                      : 'border-stone-200 hover:border-picc-ochre/50 hover:bg-picc-ochre/10'
+                  }`}
                 >
                   {e.photo_url ? (
                     <div className="relative w-7 h-7 rounded-full overflow-hidden flex-shrink-0 bg-stone-200">
@@ -239,7 +255,14 @@ export default function AttendeesPanel({ meetingId, initialAttendees, elders: pr
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-stone-800 truncate">{e.name}</p>
+                    <p className="text-sm font-medium text-stone-800 truncate flex items-center gap-1.5">
+                      {e.name}
+                      {e.is_elder && (
+                        <span className="text-[9px] font-bold uppercase tracking-wide text-amber-700 bg-amber-100 px-1 py-0.5 rounded">
+                          Elder
+                        </span>
+                      )}
+                    </p>
                     {e.role && <p className="text-[10px] text-stone-500 truncate">{e.role}</p>}
                   </div>
                   <Plus className="w-3.5 h-3.5 text-stone-400 shrink-0" />
