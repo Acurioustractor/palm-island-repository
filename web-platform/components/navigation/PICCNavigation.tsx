@@ -10,7 +10,8 @@ import {
   ChevronRight, ChevronDown,
   ChevronsLeft, ChevronsRight, Wrench, Building2, Lightbulb, Palette, DollarSign,
   BarChart3, ClipboardCheck, Shield, ExternalLink, Target, Sparkles,
-  Compass, Landmark, Network, AlertTriangle, Library, Quote, FolderKanban, TrendingUp
+  Compass, Landmark, Network, AlertTriangle, Library, Quote, FolderKanban, TrendingUp,
+  Mic, ListChecks
 } from 'lucide-react';
 import { useSidebar } from './SidebarProvider';
 import { PICCLogo } from '@/components/ui/PICCLogo';
@@ -45,6 +46,17 @@ const staffNavigation: { [key: string]: NavSection } = {
       { label: 'Canvas', href: '/picc/canvas', icon: LayoutDashboard, description: 'Big picture · every signal · live' },
       { label: 'Stage walk', href: '/picc/walk', icon: Target, description: 'Presenter map · 13 stops' },
       { label: 'Search', href: '/picc/search', icon: Search, description: 'Search all content' },
+    ],
+  },
+  meetings: {
+    title: 'Field & Capture',
+    icon: Mic,
+    items: [
+      { label: 'Meetings hub', href: '/picc/meetings', icon: Mic, description: 'Bi-monthly cadence · record → browse → track' },
+      { label: 'Process recording', href: '/picc/meetings/process?group=Elders%20Group', icon: Upload, description: 'Audio → transcript → themes + action items' },
+      { label: 'Elders meetings', href: '/picc/elders/meetings', icon: BookOpen, description: 'Browse meeting notes · summaries · transcripts' },
+      { label: 'Action items', href: '/picc/action-items', icon: ListChecks, description: 'Cross-meeting accountability ledger' },
+      { label: 'Action board', href: '/picc/action-items/board', icon: ClipboardCheck, description: 'Kanban · drag to move tasks' },
     ],
   },
   reports: {
@@ -100,6 +112,17 @@ const advancedNavigation: { [key: string]: NavSection } = {
       { label: 'Canvas', href: '/picc/canvas', icon: LayoutDashboard, description: 'Big picture · every signal · live' },
       { label: 'Stage walk', href: '/picc/walk', icon: Target, description: 'Presenter map · 13 stops' },
       { label: 'Search', href: '/picc/search', icon: Search, description: 'Search all content' },
+    ],
+  },
+  meetings: {
+    title: 'Field & Capture',
+    icon: Mic,
+    items: [
+      { label: 'Meetings hub', href: '/picc/meetings', icon: Mic, description: 'Bi-monthly cadence · record → browse → track' },
+      { label: 'Process recording', href: '/picc/meetings/process?group=Elders%20Group', icon: Upload, description: 'Audio → transcript → themes + action items' },
+      { label: 'Elders meetings', href: '/picc/elders/meetings', icon: BookOpen, description: 'Browse meeting notes · summaries · transcripts' },
+      { label: 'Action items', href: '/picc/action-items', icon: ListChecks, description: 'Cross-meeting accountability ledger' },
+      { label: 'Action board', href: '/picc/action-items/board', icon: ClipboardCheck, description: 'Kanban · drag to move tasks' },
     ],
   },
   reports: {

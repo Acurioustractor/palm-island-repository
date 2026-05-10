@@ -24,6 +24,15 @@ interface Counts {
   withActions: number
   totalActions: number
   pendingApproval: number
+  phase2Enabled: boolean
+  doneCount: number
+  inProgressCount: number
+}
+
+function isMissingTableError(err: any): boolean {
+  const msg = String(err?.message || '')
+  const code = String(err?.code || '')
+  return code === '42P01' || /relation .* does not exist/i.test(msg)
 }
 
 async function getCounts(): Promise<Counts> {
@@ -53,15 +62,39 @@ async function getCounts(): Promise<Counts> {
       if ((m as any).metadata?.requires_elder_approval) pendingApproval += 1
     }
 
+    // Phase 2 detection — count done + in_progress when table exists
+    let phase2Enabled = true
+    let doneCount = 0
+    let inProgressCount = 0
+    try {
+      const statesRes = await supabase
+        .from('action_item_states')
+        .select('status')
+      if (statesRes.error) {
+        if (isMissingTableError(statesRes.error)) phase2Enabled = false
+        else throw statesRes.error
+      } else {
+        for (const s of statesRes.data || []) {
+          if (s.status === 'done') doneCount += 1
+          else if (s.status === 'in_progress') inProgressCount += 1
+        }
+      }
+    } catch (err) {
+      if (isMissingTableError(err)) phase2Enabled = false
+    }
+
     return {
       total: allRes.count || 0,
       elders: eldersRes.count || 0,
       withActions,
       totalActions,
       pendingApproval,
+      phase2Enabled,
+      doneCount,
+      inProgressCount,
     }
   } catch {
-    return { total: 0, elders: 0, withActions: 0, totalActions: 0, pendingApproval: 0 }
+    return { total: 0, elders: 0, withActions: 0, totalActions: 0, pendingApproval: 0, phase2Enabled: false, doneCount: 0, inProgressCount: 0 }
   }
 }
 
@@ -181,23 +214,40 @@ export default async function MeetingsHubPage() {
         ))}
       </div>
 
-      {/* Phase 2 status banner */}
-      <div className="mt-10 rounded-2xl border-2 border-dashed border-amber-300 bg-amber-50/50 p-6">
-        <div className="flex items-start gap-3">
-          <Lock className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-          <div className="flex-1">
-            <p className="font-semibold text-amber-900 mb-1">Phase 2 ready to enable</p>
-            <p className="text-sm text-amber-800 leading-relaxed mb-3">
-              Status tracking (open · in progress · done · cancelled), assignee, due date and completion notes
-              are coded and waiting on a Supabase migration: <code className="bg-white/80 px-1 py-0.5 rounded text-xs">supabase/migrations/20260511_action_item_states.sql</code>.
-              The UI degrades cleanly to read-only until the migration is applied — nothing breaks.
-            </p>
-            <p className="text-xs text-amber-700 font-mono">
-              Apply via: Supabase MCP <code>apply_migration</code> · or <code>npx supabase db push</code>
-            </p>
+      {/* Phase 2 status banner — only show until migration is applied */}
+      {!counts.phase2Enabled ? (
+        <div className="mt-10 rounded-2xl border-2 border-dashed border-amber-300 bg-amber-50/50 p-6">
+          <div className="flex items-start gap-3">
+            <Lock className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="font-semibold text-amber-900 mb-1">Phase 2 ready to enable</p>
+              <p className="text-sm text-amber-800 leading-relaxed mb-3">
+                Status tracking (open · in progress · done · cancelled), assignee, due date and completion notes
+                are coded and waiting on a Supabase migration: <code className="bg-white/80 px-1 py-0.5 rounded text-xs">supabase/migrations/20260511_action_item_states.sql</code>.
+                The UI degrades cleanly to read-only until the migration is applied — nothing breaks.
+              </p>
+              <p className="text-xs text-amber-700 font-mono">
+                Apply via: Supabase MCP <code>apply_migration</code> · or <code>npx supabase db push</code>
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="mt-10 rounded-2xl border border-green-200 bg-green-50/50 p-5">
+          <div className="flex items-start gap-3">
+            <span className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center shrink-0 mt-0.5">
+              <span className="block w-2 h-2 rounded-full bg-white" />
+            </span>
+            <div className="flex-1 text-sm">
+              <p className="font-semibold text-green-900 mb-1">Phase 2 active</p>
+              <p className="text-green-800 leading-relaxed">
+                Status tracking is live. {counts.doneCount} done · {counts.inProgressCount} in progress · {counts.totalActions - counts.doneCount - counts.inProgressCount} open or cancelled.
+                Edit any item from <Link href="/picc/action-items" className="underline">the ledger</Link> or drag cards on <Link href="/picc/action-items/board" className="underline">the board</Link>.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Cadence callout */}
       <div className="mt-6 rounded-2xl border border-stone-200 bg-white p-6">
