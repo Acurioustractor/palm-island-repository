@@ -92,6 +92,7 @@ const staffNavigation: { [key: string]: NavSection } = {
     items: [
       { label: 'Library', href: '/picc/library', icon: Library, description: 'Publications + research + EL connections' },
       { label: 'Voices', href: '/picc/voices', icon: Quote, description: '58 storytellers · 870+ quotes' },
+      { label: 'Kinship view', href: '/picc/kinship', icon: Network, description: 'Prototype · derived connections between storytellers' },
       { label: 'Knowledge Vault', href: '/picc/vault', icon: Sparkles, description: 'Second brain · vault browser' },
       { label: 'Open Empathy Ledger', href: EL_BASE, icon: ExternalLink, description: 'Stories, voices, transcripts' },
       { label: 'Photo Picker', href: '/20-years/strategy/photos', icon: Image, description: 'Browse PICC photos in EL' },
@@ -158,6 +159,7 @@ const advancedNavigation: { [key: string]: NavSection } = {
     items: [
       { label: 'Library', href: '/picc/library', icon: Library, description: 'Publications + research + EL connections' },
       { label: 'Voices', href: '/picc/voices', icon: Quote, description: '58 storytellers · 870+ quotes' },
+      { label: 'Kinship view', href: '/picc/kinship', icon: Network, description: 'Prototype · derived connections between storytellers' },
       { label: 'Knowledge Vault', href: '/picc/vault', icon: Sparkles, description: 'Second brain · vault browser' },
       { label: 'Open Empathy Ledger', href: EL_BASE, icon: ExternalLink, description: 'Stories, voices, transcripts' },
       { label: 'Photo Picker', href: '/20-years/strategy/photos', icon: Image, description: 'Browse PICC photos in EL' },
