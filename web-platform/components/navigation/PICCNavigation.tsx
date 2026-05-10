@@ -57,6 +57,8 @@ const staffNavigation: { [key: string]: NavSection } = {
       { label: 'Elders meetings', href: '/picc/elders/meetings', icon: BookOpen, description: 'Browse meeting notes · summaries · transcripts' },
       { label: 'Action items', href: '/picc/action-items', icon: ListChecks, description: 'Cross-meeting accountability ledger' },
       { label: 'Action board', href: '/picc/action-items/board', icon: ClipboardCheck, description: 'Kanban · drag to move tasks' },
+      { label: 'Trips', href: '/picc/trips', icon: Compass, description: 'Continuous trip planning with Elders' },
+      { label: 'Who', href: '/picc/who', icon: Users, description: 'Every person · cross-cutting index' },
     ],
   },
   reports: {
@@ -124,6 +126,8 @@ const advancedNavigation: { [key: string]: NavSection } = {
       { label: 'Elders meetings', href: '/picc/elders/meetings', icon: BookOpen, description: 'Browse meeting notes · summaries · transcripts' },
       { label: 'Action items', href: '/picc/action-items', icon: ListChecks, description: 'Cross-meeting accountability ledger' },
       { label: 'Action board', href: '/picc/action-items/board', icon: ClipboardCheck, description: 'Kanban · drag to move tasks' },
+      { label: 'Trips', href: '/picc/trips', icon: Compass, description: 'Continuous trip planning with Elders' },
+      { label: 'Who', href: '/picc/who', icon: Users, description: 'Every person · cross-cutting index' },
     ],
   },
   reports: {
