@@ -21,6 +21,7 @@ import { TimelineSection } from '@/components/story-scroll/TimelineSection'
 import AnimatedCounter from '@/components/history/AnimatedCounter'
 import GrowthChart from '@/components/history/GrowthChart'
 import YearCard from '@/components/history/YearCard'
+import { C } from '@/components/annual-report/2024-25/almanac/tokens'
 
 interface HistoryYear {
   fiscalYear: string
@@ -132,10 +133,10 @@ export default function TwentyYearsClient({ heroImage, heroVideo, voices = [], e
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: C.shell }}>
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-picc-ochre mx-auto mb-4" />
-          <p className="text-gray-500">Loading our story...</p>
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" style={{ color: C.ochre }} />
+          <p className="font-fraunces italic" style={{ color: C.driftwood }}>Loading our story…</p>
         </div>
       </div>
     )
@@ -143,8 +144,8 @@ export default function TwentyYearsClient({ heroImage, heroVideo, voices = [], e
 
   if (error || !data) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <p className="text-red-500">Failed to load history data.</p>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: C.shell }}>
+        <p style={{ color: C.turtleRed }}>Failed to load history data.</p>
       </div>
     )
   }
@@ -164,92 +165,53 @@ export default function TwentyYearsClient({ heroImage, heroVideo, voices = [], e
     .filter((m) => m.title)
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Progress Bar */}
-      <div className="fixed top-0 left-0 right-0 h-1 bg-gray-100 z-50">
+    <div className="min-h-screen" style={{ backgroundColor: C.shell }}>
+      {/* Progress Bar — ocean over warm rail */}
+      <div className="fixed top-0 left-0 right-0 h-1 z-50" style={{ backgroundColor: C.border }}>
         <motion.div
-          className="h-full bg-gradient-to-r from-picc-ochre via-picc-red to-picc-earth"
-          style={{ width: progressWidth }}
+          className="h-full"
+          style={{ width: progressWidth, background: `linear-gradient(90deg, ${C.ochre}, ${C.ocean}, ${C.turtleRed})` }}
         />
       </div>
 
       {/* HERO */}
       <HeroSection
-        title="Our Story: 17 Years of Community"
-        subtitle="From Hull River to community control — follow our journey of resilience, self-determination, and community-led innovation on Palm Island."
+        title="Our story · 17 years of community"
+        subtitle="From Hull River to community control — a journey of resilience, self-determination, and community-led innovation on Palm Island."
         backgroundImage={heroImage || undefined}
         backgroundVideo={heroVideo || undefined}
         height="screen"
         overlay="gradient"
       >
-        <div className="flex flex-wrap justify-center gap-8 mt-8">
+        <div className="flex flex-wrap justify-center gap-10 mt-10">
           {summary.totalYears > 0 && (
-            <div className="text-center">
-              <div className="text-4xl md:text-5xl font-bold text-white">
-                <AnimatedCounter value={summary.totalYears} />
-              </div>
-              <div className="text-warm-200 text-sm mt-1">Years</div>
-            </div>
+            <HeroStat value={summary.totalYears} label="Years" />
           )}
           {summary.latestStaff && (
-            <div className="text-center">
-              <div className="text-4xl md:text-5xl font-bold text-white">
-                <AnimatedCounter value={summary.latestStaff} />
-              </div>
-              <div className="text-warm-200 text-sm mt-1">Staff Today</div>
-            </div>
+            <HeroStat value={summary.latestStaff} label="Staff today" />
           )}
           {summary.latestServices && (
-            <div className="text-center">
-              <div className="text-4xl md:text-5xl font-bold text-white">
-                <AnimatedCounter value={summary.latestServices} />
-              </div>
-              <div className="text-warm-200 text-sm mt-1">Services</div>
-            </div>
+            <HeroStat value={summary.latestServices} label="Services" />
           )}
           {summary.latestBudget && (
-            <div className="text-center">
-              <div className="text-4xl md:text-5xl font-bold text-white">
-                <AnimatedCounter
-                  value={Math.round(summary.latestBudget / 1_000_000)}
-                  prefix="$"
-                  suffix="M"
-                />
-              </div>
-              <div className="text-warm-200 text-sm mt-1">Annual Budget</div>
-            </div>
+            <HeroStat
+              value={Math.round(summary.latestBudget / 1_000_000)}
+              prefix="$"
+              suffix="M"
+              label="Annual budget"
+            />
           )}
         </div>
       </HeroSection>
 
-      {/* ANIMATED STATS BAR */}
+      {/* STATS BAR — saltwater dark band, ochre/ocean Fraunces numbers */}
       <ScrollReveal>
-        <div className="bg-gradient-to-r from-gray-900 to-gray-800 py-8">
+        <div className="py-10" style={{ background: `linear-gradient(90deg, ${C.midnight}, ${C.earth})` }}>
           <div className="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            <div>
-              <div className="text-3xl font-bold text-white">
-                {summary.totalYears}
-              </div>
-              <div className="text-gray-400 text-sm">Years of Service</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-picc-ochre-300">
-                {summary.totalImages}
-              </div>
-              <div className="text-gray-400 text-sm">Photos Preserved</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-picc-ochre-300">
-                {eras.length}
-              </div>
-              <div className="text-gray-400 text-sm">Distinct Eras</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-picc-red-300">
-                {summary.latestIndigenous || '80%+'}
-              </div>
-              <div className="text-gray-400 text-sm">Indigenous Employment</div>
-            </div>
+            <StatCell value={summary.totalYears} label="Years of service" tone="white" />
+            <StatCell value={summary.totalImages} label="Photos preserved" tone="ochre" />
+            <StatCell value={eras.length} label="Distinct eras" tone="ochre" />
+            <StatCell value={summary.latestIndigenous || '80%+'} label="Indigenous employment" tone="starGold" />
           </div>
         </div>
       </ScrollReveal>
@@ -265,34 +227,56 @@ export default function TwentyYearsClient({ heroImage, heroVideo, voices = [], e
               speed={0.3}
             >
               <div className="text-center text-white px-6">
-                <span className="inline-block px-4 py-1 bg-white/20 rounded-full text-sm font-medium mb-3">
+                <p
+                  className="font-bold uppercase mb-4"
+                  style={{ color: '#F5E9D0', fontSize: 11, letterSpacing: '0.3em', textShadow: '0 1px 2px rgba(0,0,0,0.4)' }}
+                >
                   {era.years}
-                </span>
-                <h2 className="text-4xl md:text-6xl font-bold mb-2">
+                </p>
+                <h2
+                  className="font-fraunces font-bold mb-3"
+                  style={{ fontSize: 'clamp(36px, 6vw, 64px)', lineHeight: 1.1, textShadow: '0 2px 12px rgba(0,0,0,0.5)' }}
+                >
                   {era.name}
                 </h2>
-                <p className="text-xl text-white/80">{era.subtitle}</p>
+                <p
+                  className="font-fraunces italic"
+                  style={{ color: 'rgba(255,255,255,0.92)', fontSize: 'clamp(16px, 2vw, 22px)', textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}
+                >
+                  {era.subtitle}
+                </p>
               </div>
             </ParallaxSection>
           ) : (
             <div
               className={`bg-gradient-to-r ${era.gradient} py-20 text-center text-white`}
             >
-              <span className="inline-block px-4 py-1 bg-white/20 rounded-full text-sm font-medium mb-3">
+              <p
+                className="font-bold uppercase mb-4"
+                style={{ color: '#F5E9D0', fontSize: 11, letterSpacing: '0.3em' }}
+              >
                 {era.years}
-              </span>
-              <h2 className="text-4xl md:text-6xl font-bold mb-2">
+              </p>
+              <h2
+                className="font-fraunces font-bold mb-3"
+                style={{ fontSize: 'clamp(36px, 6vw, 64px)', lineHeight: 1.1 }}
+              >
                 {era.name}
               </h2>
-              <p className="text-xl text-white/80">{era.subtitle}</p>
+              <p
+                className="font-fraunces italic"
+                style={{ color: 'rgba(255,255,255,0.92)', fontSize: 'clamp(16px, 2vw, 22px)' }}
+              >
+                {era.subtitle}
+              </p>
             </div>
           )}
 
           {/* Era Narrative */}
           <TextSection
-            title={`The ${era.name} Era`}
+            title={`The ${era.name} era`}
             content={
-              <p className="text-gray-600 text-lg leading-relaxed">
+              <p className="font-fraunces leading-relaxed" style={{ color: C.driftwood, fontSize: 19 }}>
                 {era.description}
               </p>
             }
@@ -351,7 +335,7 @@ export default function TwentyYearsClient({ heroImage, heroVideo, voices = [], e
       ))}
 
       {/* GROWTH CHART */}
-      <section className="py-16 px-6 bg-gray-50">
+      <section className="py-16 px-6" style={{ backgroundColor: C.shell }}>
         <div className="max-w-5xl mx-auto">
           <ScrollReveal>
             <GrowthChart years={chartYears || years} />
@@ -370,34 +354,52 @@ export default function TwentyYearsClient({ heroImage, heroVideo, voices = [], e
 
       {/* RACHEL'S LEGACY QUOTE */}
       {rachelLegacy && (
-        <section className="py-24 px-6 bg-gradient-to-br from-[#0B4F6C] via-[#0a3f57] to-[#082a3a] text-white relative overflow-hidden">
-          <div className="absolute top-10 left-10 text-picc-ochre/10 text-[200px] font-serif leading-none select-none">&ldquo;</div>
+        <section
+          className="py-24 px-6 relative overflow-hidden text-white"
+          style={{ background: `linear-gradient(135deg, ${C.ocean}, #0a3f57 60%, ${C.midnight})` }}
+        >
+          <div className="absolute top-10 left-10 font-fraunces leading-none select-none" style={{ color: C.ochre, opacity: 0.12, fontSize: 240 }}>&ldquo;</div>
           <div className="relative max-w-3xl mx-auto text-center">
-            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-picc-ochre mb-8">
-              The Vision
+            <p
+              className="font-bold uppercase mb-8"
+              style={{ color: C.ochre, fontSize: 11, letterSpacing: '0.3em' }}
+            >
+              The vision
             </p>
-            <blockquote className="font-serif italic text-2xl md:text-4xl leading-relaxed mb-8">
+            <blockquote
+              className="font-fraunces italic mb-8"
+              style={{ fontSize: 'clamp(22px, 3.5vw, 40px)', lineHeight: 1.4 }}
+            >
               {rachelLegacy.text}
             </blockquote>
-            <p className="text-picc-ochre text-sm">— {rachelLegacy.author}</p>
+            <p className="font-fraunces" style={{ color: C.ochre, fontSize: 14 }}>— {rachelLegacy.author}</p>
           </div>
         </section>
       )}
 
       {/* COMMUNITY VOICES */}
       {voices.length > 0 && (
-        <section className="py-20 px-6 bg-white">
+        <section className="py-20 px-6" style={{ backgroundColor: '#FFFFFF' }}>
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-14">
-              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-picc-ochre mb-3">
-                Sovereign Voices
+              <p
+                className="font-bold uppercase mb-4"
+                style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.3em' }}
+              >
+                Sovereign voices
               </p>
-              <h2 className="text-3xl md:text-5xl font-bold text-gray-900 tracking-tight mb-4">
+              <h2
+                className="font-fraunces font-bold mb-4"
+                style={{ color: C.ocean, fontSize: 'clamp(32px, 5vw, 56px)', lineHeight: 1.1 }}
+              >
                 The voices behind the numbers
               </h2>
-              <p className="text-lg text-gray-500 max-w-2xl mx-auto">
+              <p
+                className="font-fraunces max-w-2xl mx-auto"
+                style={{ color: C.driftwood, fontSize: 'clamp(16px, 2vw, 19px)', lineHeight: 1.55 }}
+              >
                 {elQuoteCount} community voices captured in the Empathy Ledger.
-                {elTranscriptCount} interviews preserved for the next generation.
+                {' '}{elTranscriptCount} interviews preserved for the next generation.
               </p>
             </div>
 
@@ -405,15 +407,21 @@ export default function TwentyYearsClient({ heroImage, heroVideo, voices = [], e
               {voices.slice(0, 6).map((voice, i) => (
                 <div
                   key={i}
-                  className="bg-warm-50 border border-warm-100 rounded-2xl p-7 hover:border-picc-ochre/40 transition-colors"
+                  className="rounded-2xl p-7 transition-colors"
+                  style={{ backgroundColor: '#FBF8EE', border: `1px solid ${C.border}`, borderTopWidth: 3, borderTopColor: C.ochre }}
                 >
-                  <div className="text-picc-ochre text-5xl font-serif leading-none mb-2 opacity-30">&ldquo;</div>
-                  <p className="font-serif italic text-gray-700 leading-relaxed text-base mb-4 line-clamp-5 -mt-3">
+                  <div className="font-fraunces leading-none mb-2" style={{ color: C.ochre, fontSize: 56, opacity: 0.35 }}>&ldquo;</div>
+                  <p
+                    className="font-fraunces italic leading-relaxed line-clamp-5 -mt-3 mb-4"
+                    style={{ color: C.earth, fontSize: 16 }}
+                  >
                     {voice.text}
                   </p>
-                  <p className="text-sm font-semibold text-picc-ochre">{voice.author}</p>
+                  <p className="font-bold uppercase" style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.2em' }}>
+                    {voice.author}
+                  </p>
                   {voice.theme && (
-                    <p className="text-xs text-gray-400 mt-1 capitalize">
+                    <p className="capitalize mt-1" style={{ color: C.muted, fontSize: 11 }}>
                       {voice.theme.replace(/_/g, ' ')}
                     </p>
                   )}
@@ -424,9 +432,10 @@ export default function TwentyYearsClient({ heroImage, heroVideo, voices = [], e
             <div className="mt-12 text-center">
               <a
                 href="/20-years/strategy"
-                className="inline-flex items-center gap-3 px-8 py-4 bg-picc-ochre text-white rounded-full font-semibold hover:bg-picc-ochre/90 transition-all"
+                className="inline-flex items-center gap-3 px-6 py-3 rounded-md font-bold uppercase text-xs hover:opacity-90 transition"
+                style={{ backgroundColor: C.ocean, color: '#FBF8EE', letterSpacing: '0.15em' }}
               >
-                Read the Sovereignty of Care Strategy
+                Read the Sovereignty of Care strategy
                 <span aria-hidden>→</span>
               </a>
             </div>
@@ -436,21 +445,19 @@ export default function TwentyYearsClient({ heroImage, heroVideo, voices = [], e
 
       {/* LOOKING AHEAD */}
       <TextSection
-        title="Looking Ahead"
+        title="Looking ahead"
         content={
           <div className="space-y-4">
-            <p className="text-gray-600 text-lg leading-relaxed">
-              From our founding in 2009 to today, Palm Island Community Company
-              has grown from a small community organisation into the largest
-              employer on Palm Island — with a vision for the next decade that
-              includes reaching 300 staff, 50 services, and full economic
-              self-determination for our community.
+            <p className="font-fraunces leading-relaxed" style={{ color: C.driftwood, fontSize: 19 }}>
+              From our founding in 2009 to today, Palm Island Community Company has grown from a small
+              community organisation into the largest employer on Palm Island — with a vision for the
+              next decade that includes 300 staff, 50 services, and full economic self-determination
+              for our community.
             </p>
-            <p className="text-gray-600 text-lg leading-relaxed">
-              As we approach our 20-year anniversary in 2029, we continue to
-              innovate — pioneering AI-powered reporting, establishing on-Country
-              infrastructure, and ensuring that every service, every program, and
-              every dollar serves the people of Palm Island first.
+            <p className="font-fraunces leading-relaxed" style={{ color: C.driftwood, fontSize: 19 }}>
+              As we approach our 20-year anniversary in 2029, we continue to innovate — pioneering
+              AI-powered reporting, establishing on-Country infrastructure, and ensuring that every
+              service, every program, and every dollar serves the people of Palm Island first.
             </p>
           </div>
         }
@@ -458,6 +465,45 @@ export default function TwentyYearsClient({ heroImage, heroVideo, voices = [], e
         maxWidth="medium"
         textAlign="center"
       />
+    </div>
+  )
+}
+
+function HeroStat({ value, label, prefix, suffix }: { value: number; label: string; prefix?: string; suffix?: string }) {
+  return (
+    <div className="text-center">
+      <div
+        className="font-fraunces font-bold text-white"
+        style={{ fontSize: 'clamp(36px, 5vw, 56px)', lineHeight: 1, textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}
+      >
+        <AnimatedCounter value={value} prefix={prefix} suffix={suffix} />
+      </div>
+      <div
+        className="font-bold uppercase mt-3"
+        style={{ color: '#F5E9D0', fontSize: 10, letterSpacing: '0.3em', textShadow: '0 1px 2px rgba(0,0,0,0.4)' }}
+      >
+        {label}
+      </div>
+    </div>
+  )
+}
+
+function StatCell({ value, label, tone }: { value: number | string; label: string; tone: 'white' | 'ochre' | 'starGold' }) {
+  const numberColour = tone === 'white' ? '#FFFFFF' : tone === 'ochre' ? C.ochre : C.starGold
+  return (
+    <div>
+      <div
+        className="font-fraunces font-bold leading-none"
+        style={{ color: numberColour, fontSize: 36 }}
+      >
+        {value}
+      </div>
+      <div
+        className="font-bold uppercase mt-3"
+        style={{ color: 'rgba(255,255,255,0.7)', fontSize: 10, letterSpacing: '0.25em' }}
+      >
+        {label}
+      </div>
     </div>
   )
 }
