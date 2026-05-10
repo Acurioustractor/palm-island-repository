@@ -33,6 +33,7 @@ interface TranscriptAnalysis {
   key_themes: string[]
   extracted_quotes: ExtractedQuote[]
   recommendations: string[]
+  action_items: string[]
   total_quotes_found: number
 }
 
@@ -309,7 +310,8 @@ Please analyze and return JSON in this exact format:
       "evidence_segments": [0, 12] - array of 1-3 segment indices (from the transcript segments above) that support this quote
     }
   ],
-  "recommendations": ["Suggestions for follow-up questions or stories to explore based on this interview"]
+  "recommendations": ["Suggestions for follow-up questions or stories to explore based on this interview"],
+  "action_items": ["Concrete commitments, decisions, or follow-up tasks named in the meeting — e.g. 'Rachel to send draft CEO message by 20 May', 'Schedule cultural review with Elders Group', 'Confirm Bwgcolman case study language with Aunty X'. One per item, action-verb first, no preamble."]
 }
 
 Guidelines:
@@ -494,6 +496,7 @@ Return ONLY the JSON, no other text.`,
       success: true,
       analysis: {
         ...analysis,
+        action_items: Array.isArray(analysis.action_items) ? analysis.action_items : [],
         total_quotes_found: analysis.extracted_quotes.length
       },
       quotes_stored: quotesToInsert.length,

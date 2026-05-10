@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   ArrowLeft, Calendar, MapPin, Users, Search, ChevronDown, ChevronUp,
-  Tag, Loader2, FileText, CheckCircle,
+  Tag, Loader2, FileText, CheckCircle, Plus,
 } from 'lucide-react';
 
 interface MeetingNote {
@@ -105,10 +105,21 @@ export default function EldersMeetingsPage() {
           Back
         </Link>
 
-        <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Elders Group Meetings</h1>
-        <p className="text-gray-600 mt-1">
-          A dated collection of meeting reflections, discussions, and action items from the Elders Group.
-        </p>
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Elders Group Meetings</h1>
+            <p className="text-gray-600 mt-1">
+              A dated collection of meeting reflections, discussions, and action items from the Elders Group.
+            </p>
+          </div>
+          <Link
+            href="/picc/meetings/process?group=Elders%20Group"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-picc-ochre text-white text-sm font-medium hover:bg-picc-ochre/90"
+          >
+            <Plus className="w-4 h-4" />
+            New from recording
+          </Link>
+        </div>
       </div>
 
       {/* Search */}
