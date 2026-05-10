@@ -86,9 +86,23 @@ function FlyToStop({ stop }: { stop: TripStop | null }) {
 function FitBounds({ points }: { points: TripStop[] }) {
   const map = useMap()
   useEffect(() => {
-    if (!map || points.length === 0) return
-    const bounds = L.latLngBounds(points.map((p) => [p.lat, p.lng] as [number, number]))
-    map.fitBounds(bounds.pad(0.3), { animate: true, duration: 1 })
+    if (!map) return
+    // Filter to points with finite, in-range coordinates so latLngBounds
+    // never receives NaN / undefined and produces invalid bounds.
+    const valid = (points || []).filter(
+      (p) =>
+        typeof p?.lat === 'number' && typeof p?.lng === 'number' &&
+        Number.isFinite(p.lat) && Number.isFinite(p.lng) &&
+        Math.abs(p.lat) <= 90 && Math.abs(p.lng) <= 180,
+    )
+    if (valid.length === 0) return
+    const bounds = L.latLngBounds(valid.map((p) => [p.lat, p.lng] as [number, number]))
+    if (!bounds.isValid()) return
+    try {
+      map.fitBounds(bounds.pad(0.3), { animate: true, duration: 1 })
+    } catch {
+      // ignore — bounds may have become invalid after pad on edge cases
+    }
   }, [map, points])
   return null
 }
