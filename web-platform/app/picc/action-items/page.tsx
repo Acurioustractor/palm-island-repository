@@ -203,17 +203,28 @@ export default async function ActionItemsPage({
         Meetings hub
       </Link>
 
-      <div className="mb-6">
-        <p className="text-xs font-semibold tracking-[0.2em] uppercase text-picc-ochre mb-2">
-          Cross-meeting · accountability
-        </p>
-        <h1 className="font-serif text-3xl text-stone-800 italic mb-2">Action items</h1>
-        <p className="text-stone-600 max-w-3xl leading-relaxed">
-          Every commitment captured across every recorded meeting. Source-of-truth for what was said, who
-          said it, and when. {phase2Enabled
-            ? 'Click any status pill to update — assignee and due date editable inline.'
-            : 'Read-only until the action_item_states migration is applied.'}
-        </p>
+      <div className="mb-6 flex items-end justify-between gap-4 flex-wrap">
+        <div>
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-picc-ochre mb-2">
+            Cross-meeting · accountability
+          </p>
+          <h1 className="font-serif text-3xl text-stone-800 italic mb-2">Action items</h1>
+          <p className="text-stone-600 max-w-3xl leading-relaxed">
+            Every commitment captured across every recorded meeting. Click any item title to open
+            its detail page — full meeting context + transcript snippet.
+          </p>
+        </div>
+        <div className="flex items-center gap-2 text-xs">
+          <span className="px-3 py-1.5 rounded-full bg-picc-ochre text-white font-medium">
+            Grouped
+          </span>
+          <Link
+            href={`/picc/action-items/board${groupFilter ? `?group=${encodeURIComponent(groupFilter)}` : ''}`}
+            className="px-3 py-1.5 rounded-full bg-stone-100 text-stone-700 hover:bg-stone-200 font-medium"
+          >
+            Board
+          </Link>
+        </div>
       </div>
 
       {/* Phase 2 banner */}

@@ -98,6 +98,7 @@ export default async function MeetingsHubPage() {
       blurb: 'Cross-meeting accountability. Every commitment in one place — Phase 1 read-only ledger today, Phase 2 ships per-item status, assignee and due date once the action_item_states migration is applied.',
       primary: { href: '/picc/action-items', label: 'Action items ledger', live: `${counts.totalActions} commitments` },
       sub: [
+        { href: '/picc/action-items/board', label: 'Kanban board view' },
         { href: '/picc/action-items?group=Elders%20Group', label: 'Elders Group only' },
       ],
       colour: 'text-picc-ochre',

@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { CheckCircle2, Circle, Clock, X, Loader2, User, Calendar } from 'lucide-react'
+import Link from 'next/link'
+import { CheckCircle2, Circle, Clock, X, Loader2, User, Calendar, ExternalLink } from 'lucide-react'
 
 export type ItemStatus = 'open' | 'in_progress' | 'done' | 'cancelled'
 
@@ -88,9 +89,15 @@ export default function ActionItemRow({ meetingId, itemIndex, text, initialState
 
         {/* Item text */}
         <div className="flex-1 min-w-0">
-          <p className={`text-sm leading-relaxed ${isDone ? 'text-stone-500 line-through' : isCancelled ? 'text-stone-400 line-through' : 'text-stone-700'}`}>
-            {text}
-          </p>
+          <Link
+            href={`/picc/action-items/${meetingId}/${itemIndex}`}
+            className="group inline-flex items-start gap-1 hover:text-picc-ochre"
+          >
+            <p className={`text-sm leading-relaxed ${isDone ? 'text-stone-500 line-through' : isCancelled ? 'text-stone-400 line-through' : 'text-stone-700'}`}>
+              {text}
+            </p>
+            <ExternalLink className="w-3 h-3 text-stone-300 group-hover:text-picc-ochre shrink-0 mt-0.5" />
+          </Link>
 
           {/* Status pills */}
           {phase2Enabled && (
