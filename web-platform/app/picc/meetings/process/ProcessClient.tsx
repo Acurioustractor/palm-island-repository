@@ -262,11 +262,11 @@ export default function ProcessMeetingClient() {
   return (
     <div className="p-6 lg:p-8 max-w-4xl mx-auto">
       <Link
-        href="/picc/elders/meetings"
+        href="/picc/meetings"
         className="inline-flex items-center gap-2 text-picc-red hover:text-picc-red/80 mb-4 text-sm"
       >
         <ArrowLeft className="w-4 h-4" />
-        Back to Elders meetings
+        Meetings hub
       </Link>
 
       <div className="mb-6">

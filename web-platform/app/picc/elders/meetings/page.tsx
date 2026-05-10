@@ -98,11 +98,11 @@ export default function EldersMeetingsPage() {
       {/* Header */}
       <div className="mb-8">
         <Link
-          href="/picc/media"
-          className="inline-flex items-center gap-2 text-picc-red hover:text-picc-red/80 mb-4"
+          href="/picc/meetings"
+          className="inline-flex items-center gap-2 text-picc-red hover:text-picc-red/80 mb-4 text-sm"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back
+          Meetings hub
         </Link>
 
         <div className="flex items-start justify-between gap-4 flex-wrap">
