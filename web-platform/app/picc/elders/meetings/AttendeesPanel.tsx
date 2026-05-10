@@ -27,6 +27,22 @@ function normalize(name: string): string {
   return name.toLowerCase().trim()
 }
 
+// Light fuzzy match: an attendee like "Ben" matches a storyteller with
+// alias-style match of their name. Used when the exact normalized name
+// doesn't hit. Returns null if no confident match.
+function fuzzyFindByName(name: string, list: Elder[]): Elder | null {
+  const q = normalize(name)
+  if (!q) return null
+  // First-name match: 'ben' → 'Benjamin Knight' if there's exactly ONE
+  // storyteller whose first token starts with the query.
+  const candidates = list.filter((e) => {
+    const first = normalize(e.name).split(/\s+/)[0] || ''
+    return first.startsWith(q) || q.startsWith(first)
+  })
+  if (candidates.length === 1) return candidates[0]
+  return null
+}
+
 export default function AttendeesPanel({ meetingId, initialAttendees, elders: preFetched }: Props) {
   const [attendees, setAttendees] = useState<string[]>(initialAttendees)
   const [elders, setElders] = useState<Elder[]>(preFetched || [])
@@ -107,7 +123,7 @@ export default function AttendeesPanel({ meetingId, initialAttendees, elders: pr
       {/* Selected attendees as rich cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mb-3">
         {attendees.map((name) => {
-          const elder = elderByName.get(normalize(name))
+          const elder = elderByName.get(normalize(name)) || fuzzyFindByName(name, elders)
           const isElder = elder?.is_elder
           const cardCls = isElder
             ? 'border-amber-200 bg-amber-50'
