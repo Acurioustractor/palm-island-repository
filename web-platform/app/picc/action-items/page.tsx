@@ -1,21 +1,22 @@
 /**
  * /picc/action-items — every action item across every recorded meeting.
  *
- * Read-only dashboard. Aggregates `action_items[]` from `meeting_notes`
- * with source meeting context. No status mutation yet — Phase 2 ships
- * that on top of a new `action_item_states` table after the CEO meeting
- * approves the bi-monthly cadence.
+ * Phase 1: read-only ledger of every commitment ever captured.
+ * Phase 2: per-item status, assignee, due date — interactive when the
+ *          action_item_states table has been migrated. Until then the
+ *          UI degrades to read-only and shows the migration banner.
  */
 import Link from 'next/link'
 import { createClient } from '@supabase/supabase-js'
-import { ArrowLeft, CheckCircle2, Calendar, MapPin, Users, Lock, Filter } from 'lucide-react'
+import { ArrowLeft, Calendar, MapPin, Users, Lock, Filter, AlertTriangle } from 'lucide-react'
+import ActionItemRow, { type ItemStatus } from './ActionItemRow'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 export const metadata = {
   title: 'Action Items · PICC Admin',
-  description: 'Every commitment from every meeting · cross-meeting view',
+  description: 'Every commitment from every meeting · cross-meeting accountability view',
 }
 
 interface MeetingRow {
@@ -42,6 +43,16 @@ interface FlatItem {
   requires_elder_approval: boolean
 }
 
+interface StateRow {
+  meeting_id: string
+  item_index: number
+  status: ItemStatus
+  assignee: string | null
+  due_date: string | null
+  completion_notes: string | null
+  completed_at: string | null
+}
+
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -51,52 +62,73 @@ function getSupabase() {
   })
 }
 
-async function fetchAllItems({ group }: { group?: string } = {}): Promise<{
+function isMissingTableError(err: any): boolean {
+  const msg = String(err?.message || '')
+  const code = String(err?.code || '')
+  return code === '42P01' || /relation .* does not exist/i.test(msg)
+}
+
+async function fetchAll({ group }: { group?: string } = {}): Promise<{
   items: FlatItem[]
   meetingCount: number
+  states: Map<string, StateRow>
+  phase2Enabled: boolean
 }> {
-  try {
-    const supabase = getSupabase()
-    let query = supabase
-      .from('meeting_notes')
-      .select('id, title, meeting_date, location, group_name, action_items, attendees, is_sensitive, metadata')
-      .order('meeting_date', { ascending: false })
-      .limit(200)
+  const supabase = getSupabase()
 
-    if (group) query = query.eq('group_name', group)
+  // Meetings + items
+  let q = supabase
+    .from('meeting_notes')
+    .select('id, title, meeting_date, location, group_name, action_items, attendees, is_sensitive, metadata')
+    .order('meeting_date', { ascending: false })
+    .limit(200)
+  if (group) q = q.eq('group_name', group)
 
-    const { data, error } = await query
-    if (error) throw error
+  const meetingsRes = await q
+  if (meetingsRes.error) throw meetingsRes.error
+  const meetings: MeetingRow[] = meetingsRes.data || []
 
-    const meetings: MeetingRow[] = data || []
-    const items: FlatItem[] = []
-
-    for (const m of meetings) {
-      const actions = Array.isArray(m.action_items) ? m.action_items : []
-      const requiresElderApproval = Boolean(
-        (m.metadata as any)?.requires_elder_approval
-      )
-      actions.forEach((text, index) => {
-        if (typeof text !== 'string' || !text.trim()) return
-        items.push({
-          text: text.trim(),
-          index,
-          meeting_id: m.id,
-          meeting_title: m.title,
-          meeting_date: m.meeting_date,
-          group_name: m.group_name,
-          location: m.location,
-          is_sensitive: Boolean(m.is_sensitive),
-          requires_elder_approval: requiresElderApproval,
-        })
+  const items: FlatItem[] = []
+  for (const m of meetings) {
+    const actions = Array.isArray(m.action_items) ? m.action_items : []
+    const requiresElderApproval = Boolean((m.metadata as any)?.requires_elder_approval)
+    actions.forEach((text, index) => {
+      if (typeof text !== 'string' || !text.trim()) return
+      items.push({
+        text: text.trim(),
+        index,
+        meeting_id: m.id,
+        meeting_title: m.title,
+        meeting_date: m.meeting_date,
+        group_name: m.group_name,
+        location: m.location,
+        is_sensitive: Boolean(m.is_sensitive),
+        requires_elder_approval: requiresElderApproval,
       })
-    }
-
-    return { items, meetingCount: meetings.length }
-  } catch (err) {
-    console.error('Failed to load action items:', err)
-    return { items: [], meetingCount: 0 }
+    })
   }
+
+  // States — graceful fallback if table missing
+  let phase2Enabled = true
+  const states = new Map<string, StateRow>()
+  try {
+    const statesRes = await supabase
+      .from('action_item_states')
+      .select('meeting_id, item_index, status, assignee, due_date, completion_notes, completed_at')
+    if (statesRes.error) {
+      if (isMissingTableError(statesRes.error)) phase2Enabled = false
+      else throw statesRes.error
+    } else {
+      for (const s of statesRes.data || []) {
+        states.set(`${s.meeting_id}::${s.item_index}`, s as StateRow)
+      }
+    }
+  } catch (err) {
+    if (isMissingTableError(err)) phase2Enabled = false
+    else throw err
+  }
+
+  return { items, meetingCount: meetings.length, states, phase2Enabled }
 }
 
 function formatDate(dateStr: string) {
@@ -111,34 +143,64 @@ function formatDate(dateStr: string) {
   }
 }
 
+function statusCounts(items: FlatItem[], states: Map<string, StateRow>) {
+  const counts = { open: 0, in_progress: 0, done: 0, cancelled: 0 }
+  for (const it of items) {
+    const s = states.get(`${it.meeting_id}::${it.index}`)
+    counts[s?.status || 'open'] += 1
+  }
+  return counts
+}
+
 export default async function ActionItemsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ group?: string }>
+  searchParams: Promise<{ group?: string; status?: string }>
 }) {
   const params = await searchParams
   const groupFilter = params?.group?.trim() || undefined
-  const { items, meetingCount } = await fetchAllItems({ group: groupFilter })
+  const statusFilter = params?.status?.trim() || undefined
 
-  // Group by meeting for the secondary view
+  let payload
+  try {
+    payload = await fetchAll({ group: groupFilter })
+  } catch (err: any) {
+    return (
+      <div className="p-6 lg:p-8 max-w-3xl mx-auto">
+        <div className="rounded-xl border border-red-200 bg-red-50 p-5">
+          <p className="font-semibold text-red-900">Failed to load action items</p>
+          <p className="text-sm text-red-800 mt-1">{err?.message || 'Unknown error'}</p>
+        </div>
+      </div>
+    )
+  }
+
+  const { items, meetingCount, states, phase2Enabled } = payload
+
+  // Status filter applied AFTER state lookup
+  const filteredItems = statusFilter
+    ? items.filter((it) => (states.get(`${it.meeting_id}::${it.index}`)?.status || 'open') === statusFilter)
+    : items
+
+  // Group by meeting
   const byMeeting = new Map<string, FlatItem[]>()
-  for (const item of items) {
+  for (const item of filteredItems) {
     const list = byMeeting.get(item.meeting_id) || []
     list.push(item)
     byMeeting.set(item.meeting_id, list)
   }
 
-  // Distinct groups for filter chips
   const distinctGroups = Array.from(new Set(items.map((i) => i.group_name))).sort()
+  const counts = statusCounts(items, states)
 
   return (
     <div className="p-6 lg:p-8 max-w-5xl mx-auto">
       <Link
-        href="/picc"
+        href="/picc/meetings"
         className="inline-flex items-center gap-2 text-picc-red hover:text-picc-red/80 mb-4 text-sm"
       >
         <ArrowLeft className="w-4 h-4" />
-        Back to admin
+        Meetings hub
       </Link>
 
       <div className="mb-6">
@@ -146,19 +208,36 @@ export default async function ActionItemsPage({
           Cross-meeting · accountability
         </p>
         <h1 className="font-serif text-3xl text-stone-800 italic mb-2">Action items</h1>
-        <p className="text-stone-600 max-w-2xl leading-relaxed">
-          Every commitment captured across every recorded meeting. Source-of-truth for what was
-          said, who said it, and when. Status tracking ships in Phase 2 — for now this is the
-          read-only ledger so nothing slips between visits.
+        <p className="text-stone-600 max-w-3xl leading-relaxed">
+          Every commitment captured across every recorded meeting. Source-of-truth for what was said, who
+          said it, and when. {phase2Enabled
+            ? 'Click any status pill to update — assignee and due date editable inline.'
+            : 'Read-only until the action_item_states migration is applied.'}
         </p>
       </div>
 
+      {/* Phase 2 banner */}
+      {!phase2Enabled && (
+        <div className="mb-6 rounded-xl border-2 border-dashed border-amber-300 bg-amber-50/70 p-4 flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+          <div className="flex-1 text-sm">
+            <p className="font-semibold text-amber-900">Phase 2 ready — apply migration to enable status tracking</p>
+            <p className="text-amber-800 mt-1">
+              Per-item status (open · in progress · done · cancelled), assignee, due date, completion notes are
+              coded and waiting on the <code className="bg-white/80 px-1 rounded">action_item_states</code> table.
+              Migration: <code className="bg-white/80 px-1 rounded text-xs">supabase/migrations/20260511_action_item_states.sql</code>
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Stats strip */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-        <Stat label="Action items" value={items.length} />
-        <Stat label="Meetings" value={meetingCount} />
-        <Stat label="Groups" value={distinctGroups.length} />
-        <Stat label="Pending Elder approval" value={items.filter((i) => i.requires_elder_approval).length} />
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+        <Stat label="Total" value={items.length} />
+        <StatusStat label="Open" value={counts.open} colour="stone" filterValue="open" current={statusFilter} group={groupFilter} />
+        <StatusStat label="In progress" value={counts.in_progress} colour="sky" filterValue="in_progress" current={statusFilter} group={groupFilter} />
+        <StatusStat label="Done" value={counts.done} colour="green" filterValue="done" current={statusFilter} group={groupFilter} />
+        <StatusStat label="Cancelled" value={counts.cancelled} colour="stone" filterValue="cancelled" current={statusFilter} group={groupFilter} />
       </div>
 
       {/* Filter chips */}
@@ -166,37 +245,47 @@ export default async function ActionItemsPage({
         <div className="mb-6 flex items-center gap-2 flex-wrap">
           <span className="text-xs font-semibold text-stone-500 uppercase tracking-wide flex items-center gap-1">
             <Filter className="w-3.5 h-3.5" />
-            Filter
+            Group
           </span>
           <Link
-            href="/picc/action-items"
+            href={statusFilter ? `/picc/action-items?status=${statusFilter}` : '/picc/action-items'}
             className={`px-3 py-1 rounded-full text-xs font-medium ${
               !groupFilter ? 'bg-picc-ochre text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
             }`}
           >
             All
           </Link>
-          {distinctGroups.map((g) => (
-            <Link
-              key={g}
-              href={`/picc/action-items?group=${encodeURIComponent(g)}`}
-              className={`px-3 py-1 rounded-full text-xs font-medium ${
-                groupFilter === g ? 'bg-picc-ochre text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
-              }`}
-            >
-              {g}
-            </Link>
-          ))}
+          {distinctGroups.map((g) => {
+            const params = new URLSearchParams()
+            params.set('group', g)
+            if (statusFilter) params.set('status', statusFilter)
+            return (
+              <Link
+                key={g}
+                href={`/picc/action-items?${params}`}
+                className={`px-3 py-1 rounded-full text-xs font-medium ${
+                  groupFilter === g ? 'bg-picc-ochre text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+                }`}
+              >
+                {g}
+              </Link>
+            )
+          })}
         </div>
       )}
 
       {/* Items grouped by meeting */}
-      {items.length === 0 ? (
+      {filteredItems.length === 0 ? (
         <div className="text-center py-12 bg-stone-50 rounded-xl">
-          <CheckCircle2 className="w-12 h-12 mx-auto text-stone-300 mb-3" />
-          <p className="text-stone-700 font-medium mb-1">No action items yet</p>
+          <p className="text-stone-700 font-medium mb-1">
+            {items.length === 0 ? 'No action items yet' : 'No items match this filter'}
+          </p>
           <p className="text-stone-500 text-sm">
-            Process a meeting at <Link href="/picc/meetings/process" className="underline">/picc/meetings/process</Link> to start the ledger.
+            {items.length === 0 ? (
+              <>Process a meeting at <Link href="/picc/meetings/process" className="underline">/picc/meetings/process</Link> to start the ledger.</>
+            ) : (
+              <Link href="/picc/action-items" className="underline">Clear filters</Link>
+            )}
           </p>
         </div>
       ) : (
@@ -233,30 +322,23 @@ export default async function ActionItemsPage({
                     )}
                   </div>
                 </header>
-                <ul className="divide-y divide-stone-100">
+                <div className="divide-y divide-stone-100">
                   {meetingItems.map((item) => (
-                    <li key={`${item.meeting_id}-${item.index}`} className="flex items-start gap-3 px-5 py-3">
-                      <CheckCircle2 className="w-4 h-4 text-stone-300 shrink-0 mt-0.5" />
-                      <p className="text-sm text-stone-700 leading-relaxed">{item.text}</p>
-                    </li>
+                    <ActionItemRow
+                      key={`${item.meeting_id}-${item.index}`}
+                      meetingId={item.meeting_id}
+                      itemIndex={item.index}
+                      text={item.text}
+                      initialState={states.get(`${item.meeting_id}::${item.index}`) || null}
+                      phase2Enabled={phase2Enabled}
+                    />
                   ))}
-                </ul>
+                </div>
               </section>
             )
           })}
         </div>
       )}
-
-      {/* Phase 2 hint */}
-      <div className="mt-10 rounded-xl border border-dashed border-stone-300 bg-stone-50 p-5 text-sm text-stone-600">
-        <p className="font-semibold text-stone-800 mb-1">Coming next (Phase 2)</p>
-        <p className="leading-relaxed">
-          Per-item status (open · in progress · done · cancelled), assignee, due date, completion
-          notes. Backed by an <code>action_item_states</code> table keyed by meeting + item index, so
-          existing meeting records aren&apos;t mutated. Ship after the CEO meeting approves the
-          bi-monthly cadence.
-        </p>
-      </div>
     </div>
   )
 }
@@ -267,5 +349,32 @@ function Stat({ label, value }: { label: string; value: number }) {
       <p className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-1">{label}</p>
       <p className="font-serif text-3xl text-stone-800 italic">{value}</p>
     </div>
+  )
+}
+
+function StatusStat({
+  label, value, colour, filterValue, current, group,
+}: {
+  label: string; value: number; colour: 'stone' | 'sky' | 'green'; filterValue: string;
+  current?: string; group?: string
+}) {
+  const palette = {
+    stone: 'text-stone-700 border-stone-200 bg-white',
+    sky: 'text-sky-800 border-sky-200 bg-sky-50',
+    green: 'text-green-800 border-green-200 bg-green-50',
+  }[colour]
+  const active = current === filterValue
+  const params = new URLSearchParams()
+  if (group) params.set('group', group)
+  if (!active) params.set('status', filterValue)
+  const href = `/picc/action-items${params.toString() ? '?' + params : ''}`
+  return (
+    <Link
+      href={href}
+      className={`rounded-xl border p-4 hover:shadow-sm transition-shadow ${palette} ${active ? 'ring-2 ring-picc-ochre' : ''}`}
+    >
+      <p className="text-xs font-semibold uppercase tracking-wide mb-1 opacity-70">{label}</p>
+      <p className="font-serif text-3xl italic">{value}</p>
+    </Link>
   )
 }

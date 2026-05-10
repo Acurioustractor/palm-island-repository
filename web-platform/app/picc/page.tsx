@@ -181,9 +181,7 @@ export default async function PICCIndexPage() {
       },
       links: [
         { href: '/picc/inbox', label: 'Inbox', sub: 'Art · questions · stories · notes — unified triage', badge: inboxCount || undefined },
-        { href: '/picc/meetings/process', label: 'Process meeting', sub: 'Audio → transcript → themes + action items → save' },
-        { href: '/picc/elders/meetings', label: 'Elders meetings', sub: 'Browse meeting notes + action items' },
-        { href: '/picc/action-items', label: 'Action items ledger', sub: 'Every commitment across every meeting · accountability view' },
+        { href: '/picc/meetings', label: 'Meetings hub', sub: 'Record · browse · track — one entry point for the bi-monthly cadence' },
         { href: '/picc/notes', label: 'Notes', sub: 'Staff scratchpad · field notes' },
         { href: '/share-note', label: 'Public · Leave a note', sub: 'Where the community submits' },
       ],
