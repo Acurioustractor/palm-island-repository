@@ -46,6 +46,7 @@ export function PublicNavigation() {
     { label: 'Services', href: '/services' },
     { label: 'Bwgcolman Way', href: '/bwgcolman' },
     { label: 'Elders', href: '/elders' },
+    { label: 'Family', href: '/elders/family' },
     { label: 'Impact', href: '/impact' },
     { label: 'About', href: '/about' },
     {
