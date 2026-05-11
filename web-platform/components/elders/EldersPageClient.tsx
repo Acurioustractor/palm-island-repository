@@ -585,17 +585,32 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
           <div className="p-8 md:p-10">
             <div className="flex items-start justify-between gap-6 flex-wrap">
               <div className="max-w-2xl">
-                <h2 className="text-3xl font-bold text-gray-900">Elders Trip — Featured Video</h2>
-                <p className="mt-2 text-gray-700">
+                <p
+                  className="font-bold uppercase mb-2"
+                  style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.3em' }}
+                >
+                  Featured video
+                </p>
+                <h2
+                  className="font-fraunces font-bold"
+                  style={{ color: C.ocean, fontSize: 'clamp(28px, 4vw, 40px)', lineHeight: 1.15 }}
+                >
+                  Elders Trip — return journey
+                </h2>
+                <p
+                  className="font-fraunces mt-3"
+                  style={{ color: C.driftwood, fontSize: 'clamp(15px, 1.8vw, 18px)', lineHeight: 1.55 }}
+                >
                   A return journey that strengthens connection — captured in story and place.
                 </p>
               </div>
                 <div className="flex flex-wrap gap-2">
                   <Link
                     href={trip.immersiveStoryHref}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gray-900 text-white font-semibold hover:bg-gray-800 transition-colors"
+                    className="inline-flex items-center gap-2 px-5 py-3 rounded-md font-bold uppercase text-xs hover:opacity-90 transition"
+                    style={{ backgroundColor: C.ocean, color: '#FBF8EE', letterSpacing: '0.15em' }}
                   >
-                    Immersive Story <PlayCircle className="w-4 h-4" />
+                    Immersive story <PlayCircle className="w-3.5 h-3.5" />
                   </Link>
                 </div>
             </div>
@@ -644,9 +659,22 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
         <div className="rounded-3xl border border-stone-200 bg-gradient-to-br from-picc-ochre-50 via-white to-warm-100 shadow-sm p-8">
           <div className="flex items-start justify-between gap-6 flex-wrap">
             <div className="max-w-2xl">
-              <p className="text-xs uppercase tracking-wide font-semibold text-picc-ochre">Transcript insights</p>
-              <h2 className="text-3xl font-bold text-gray-900 mt-1">What Elders are speaking about</h2>
-              <p className="mt-2 text-gray-700">
+              <p
+                className="font-bold uppercase mb-2"
+                style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.3em' }}
+              >
+                Transcript insights
+              </p>
+              <h2
+                className="font-fraunces font-bold"
+                style={{ color: C.ocean, fontSize: 'clamp(28px, 4vw, 40px)', lineHeight: 1.15 }}
+              >
+                What Elders are speaking about
+              </h2>
+              <p
+                className="font-fraunces mt-3"
+                style={{ color: C.driftwood, fontSize: 'clamp(15px, 1.8vw, 18px)', lineHeight: 1.55 }}
+              >
                 Based on {insights.stats.totalQuotes || 0} quotes and {insights.stats.totalInterviews || 0} interviews logged so far.
               </p>
             </div>
@@ -778,7 +806,10 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
             <p className="text-xs font-semibold uppercase tracking-[0.15em] text-white/70 mb-3">
               Connection to Country
             </p>
-            <h2 className="text-3xl md:text-4xl font-bold text-white max-w-2xl mx-auto">
+            <h2
+              className="font-fraunces font-bold max-w-2xl mx-auto"
+              style={{ color: '#FFFFFF', fontSize: 'clamp(28px, 4vw, 44px)', lineHeight: 1.15, textShadow: '0 2px 12px rgba(0,0,0,0.4)' }}
+            >
               Where water meets memory, Elders walk with purpose
             </h2>
           </div>
@@ -789,8 +820,22 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
       <section id="elders" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
         <div className="flex items-end justify-between gap-6 flex-wrap">
           <div className="max-w-2xl">
-            <h2 className="text-3xl font-bold text-gray-900">Our Elders</h2>
-            <p className="mt-2 text-gray-700">
+            <p
+              className="font-bold uppercase mb-2"
+              style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.3em' }}
+            >
+              The group
+            </p>
+            <h2
+              className="font-fraunces font-bold"
+              style={{ color: C.ocean, fontSize: 'clamp(28px, 4vw, 40px)', lineHeight: 1.15 }}
+            >
+              Our Elders
+            </h2>
+            <p
+              className="font-fraunces mt-3"
+              style={{ color: C.driftwood, fontSize: 'clamp(15px, 1.8vw, 18px)', lineHeight: 1.55 }}
+            >
               Click a card to read more — including additional quotes and links to public stories across the PICC site.
             </p>
           </div>
