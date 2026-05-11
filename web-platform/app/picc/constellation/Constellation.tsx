@@ -35,7 +35,9 @@ import type {
   ProjectItem,
   ServiceItem,
   ThemeWell,
+  TranscriptRef,
 } from '@/lib/constellation/types'
+import { Mic, Video as VideoIcon } from 'lucide-react'
 
 interface Props {
   data: ConstellationPayload
@@ -569,9 +571,19 @@ export default function Constellation({
         .split(/\s+/)
         .pop() ?? ''
       const quotes = data.quotes_by_speaker[lastName] ?? []
+      // Storyteller faces carry the EL UUID in face.id as `storyteller:${uuid}` —
+      // peel it off to match transcripts by storyteller_id directly. For all
+      // other kinds (board / leadership / photo) fall back to last-name token.
+      const storytellerUuid =
+        activeFace.kind === 'storyteller' && activeFace.id.startsWith('storyteller:')
+          ? activeFace.id.slice('storyteller:'.length)
+          : null
+      const transcripts: TranscriptRef[] = storytellerUuid
+        ? data.transcripts_by_storyteller[storytellerUuid] ?? []
+        : data.transcripts_by_speaker[lastName] ?? []
       return (
         <ContextCard
-          label={`Voice${activeFace.is_elder ? ' · Elder' : ''}${quotes.length ? ` · ${quotes.length} quotes` : ''}`}
+          label={`Voice${activeFace.is_elder ? ' · Elder' : ''}${quotes.length ? ` · ${quotes.length} quotes` : ''}${transcripts.length ? ` · ${transcripts.length} transcripts` : ''}`}
         >
           <div className="font-serif text-base mb-1">
             {activeFace.name ?? activeFace.attribution ?? 'Storyteller'}
@@ -617,6 +629,47 @@ export default function Constellation({
                   +{quotes.length - 6} more in the archive
                 </div>
               )}
+            </div>
+          )}
+          {transcripts.length > 0 && (
+            <div className="mt-3 pt-3 border-t border-stone-100">
+              <div className="text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-1.5">
+                Oral history · {transcripts.length} transcript{transcripts.length === 1 ? '' : 's'}
+              </div>
+              <div className="space-y-1.5 max-h-[200px] overflow-y-auto pr-1">
+                {transcripts.slice(0, 6).map((t) => (
+                  <a
+                    key={t.id}
+                    href={`/living-atlas/transcripts/${t.id}`}
+                    className="block rounded-md border border-stone-200 bg-white p-2 hover:bg-stone-50"
+                  >
+                    <div className="flex items-center gap-1.5 text-[10px] text-stone-500 mb-0.5">
+                      {t.has_video ? <VideoIcon className="w-3 h-3" /> : t.has_audio ? <Mic className="w-3 h-3" /> : null}
+                      {t.duration_seconds && <span>{Math.round(t.duration_seconds / 60)}m</span>}
+                      {t.era_label && <span>· {t.era_label}</span>}
+                      {t.cultural_sensitivity === 'sensitive' && (
+                        <span className="ml-auto px-1 py-0.5 rounded text-[8px] font-semibold uppercase tracking-wider" style={{ backgroundColor: '#FCEEDF', color: '#8B6F47' }}>sensitive</span>
+                      )}
+                      {t.cultural_sensitivity === 'sacred' && (
+                        <span className="ml-auto px-1 py-0.5 rounded text-[8px] font-semibold uppercase tracking-wider" style={{ backgroundColor: '#FDE3E3', color: '#8B1A1A' }}>sacred</span>
+                      )}
+                    </div>
+                    <div className="font-serif text-[12.5px] text-charcoal leading-snug">
+                      {t.title ?? 'Untitled transcript'}
+                    </div>
+                    {t.ai_summary && (
+                      <div className="text-[10.5px] text-stone-600 mt-0.5 line-clamp-2">
+                        {t.ai_summary}
+                      </div>
+                    )}
+                  </a>
+                ))}
+                {transcripts.length > 6 && (
+                  <div className="text-[10px] text-stone-500 italic">
+                    +{transcripts.length - 6} more recordings
+                  </div>
+                )}
+              </div>
             </div>
           )}
           <div className="text-[11px] text-stone-500 mt-3">
@@ -991,6 +1044,8 @@ export default function Constellation({
     data.visions,
     data.years,
     data.quotes_by_speaker,
+    data.transcripts_by_storyteller,
+    data.transcripts_by_speaker,
   ])
 
   return (

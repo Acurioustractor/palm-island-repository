@@ -16,6 +16,7 @@ import {
 } from '@/lib/empathy-ledger/el-annual-reports'
 import { getPiccPublicStories } from '@/lib/empathy-ledger/el-stories'
 import { getPiccApprovedELQuotes } from '@/lib/empathy-ledger/el-quotes'
+import { getPiccTranscriptMetadata } from '@/lib/empathy-ledger/el-transcripts'
 import type {
   AnnualReportItem,
   AtlasELStory,
@@ -44,6 +45,7 @@ import type {
   ThemeWell,
   TimelineMarker,
   TopQuote,
+  TranscriptRef,
   YearDetail,
 } from './types'
 
@@ -148,6 +150,7 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     piccReportHighlightsRes,
     piccAnnualReportsRowsRes,
     elApprovedQuotes,
+    elTranscripts,
   ] = await Promise.all([
     // Canonical PICC people: 44 named storytellers in EL v2, each with
     // photo_url + bio + service_slugs + project_slugs + quote_count.
@@ -356,6 +359,10 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     // grows from ~157 to ~1,048. Folded into quotes_by_speaker so any face
     // surfaces the full corpus.
     getPiccApprovedELQuotes(1200),
+    // EL v2 transcripts metadata — 137 total. After the 2026-05-12 Elder
+    // release, all are privacy_level=public. Surfaced on face cards so
+    // clicking a storyteller reveals their oral-history recordings.
+    getPiccTranscriptMetadata(),
   ])
 
   // ── FACES ──────────────────────────────────────────────────────────────
@@ -844,6 +851,43 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     })
   }
 
+  // ── TRANSCRIPTS (by storyteller UUID + by last-name token) ─────────────
+  // Only public privacy_level rows are kept (per Elder release 2026-05-12).
+  // A storyteller-UUID → name lookup powers the fuzzy last-name fallback.
+  const storytellerNameById = new Map<string, string>()
+  for (const s of storytellers ?? []) {
+    storytellerNameById.set(s.id, s.display_name)
+  }
+  const transcriptsByStoryteller: Record<string, TranscriptRef[]> = {}
+  const transcriptsBySpeaker: Record<string, TranscriptRef[]> = {}
+  for (const t of elTranscripts ?? []) {
+    if (t.privacy_level !== 'public') continue
+    const ref: TranscriptRef = {
+      id: t.id,
+      title: t.title,
+      era_label: t.era_label,
+      duration_seconds: t.duration_seconds,
+      cultural_sensitivity: t.cultural_sensitivity,
+      has_audio: t.has_audio,
+      has_video: t.has_video,
+      ai_summary: t.ai_summary,
+    }
+    if (t.storyteller_id) {
+      const list = transcriptsByStoryteller[t.storyteller_id] ?? []
+      list.push(ref)
+      transcriptsByStoryteller[t.storyteller_id] = list
+      const name = storytellerNameById.get(t.storyteller_id)
+      if (name) {
+        const tok = lastToken(name)
+        if (tok) {
+          const list2 = transcriptsBySpeaker[tok] ?? []
+          list2.push(ref)
+          transcriptsBySpeaker[tok] = list2
+        }
+      }
+    }
+  }
+
   // ── STORIES (top by quality, published + public) ───────────────────────
   const top_stories: StoryItem[] = (topStoriesRes.data ?? []).map((s) => ({
     id: s.id as string,
@@ -1124,6 +1168,8 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     annual_reports,
     bwgcolman,
     quotes_by_speaker: quotesBySpeaker,
+    transcripts_by_storyteller: transcriptsByStoryteller,
+    transcripts_by_speaker: transcriptsBySpeaker,
     top_stories,
     el_stories,
     featured_knowledge,

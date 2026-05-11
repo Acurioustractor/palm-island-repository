@@ -384,6 +384,19 @@ export interface HullRiverVoice {
   theme: string | null
 }
 
+/** Lightweight transcript reference surfaced on face cards. The face → list
+ *  is built server-side from EL v2 transcripts (privacy_level=public only). */
+export interface TranscriptRef {
+  id: string
+  title: string | null
+  era_label: string | null
+  duration_seconds: number | null
+  cultural_sensitivity: string | null
+  has_audio: boolean
+  has_video: boolean
+  ai_summary: string | null
+}
+
 export interface ConstellationPayload {
   faces: FaceNode[]
   themes: ThemeWell[]
@@ -399,6 +412,13 @@ export interface ConstellationPayload {
   /** Quotes keyed by lowercase speaker last-name token. Lets any face on
    *  the canvas surface their quotes in the right rail without re-fetch. */
   quotes_by_speaker: Record<string, SpeakerQuote[]>
+  /** Public EL transcripts keyed by storyteller UUID — the face for kind
+   *  ='storyteller' carries this UUID in its slug, so the right rail can
+   *  look them up directly. */
+  transcripts_by_storyteller: Record<string, TranscriptRef[]>
+  /** Same transcripts keyed by lowercase last-name token, for faces (board
+   *  / leadership / photo) where we don't have a storyteller UUID. */
+  transcripts_by_speaker: Record<string, TranscriptRef[]>
   /** Top stories by quality_score — drives the Stories lens. */
   top_stories: StoryItem[]
   /** EL v2 PICC stories (76 public; richer than PICC mirror). */
