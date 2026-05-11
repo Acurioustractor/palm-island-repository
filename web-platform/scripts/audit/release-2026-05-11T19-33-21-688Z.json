@@ -1,0 +1,54 @@
+{
+  "timestamp": "2026-05-11T19:33:25.395Z",
+  "consent_record": {
+    "date_of_elder_meeting": "2026-05-12",
+    "chair": "Uncle Allan",
+    "elders_present": [
+      "All 42 named Elders in the PICC elder_quotes archive",
+      "Chaired by Uncle Allan (Allan Palm Island)"
+    ],
+    "authorising_picc_staff": [
+      "Ben Knight (project owner, recorded in chat session 2026-05-12)"
+    ],
+    "scope_authorised": [
+      "All pending EL extracted_quotes for PICC → approval_status=approved",
+      "All private EL transcripts for PICC → privacy_level=public",
+      "Includes rows tagged cultural_sensitivity=sensitive or sacred"
+    ],
+    "notes": "Bulk release authorised by Elder meeting chaired by Uncle Allan, 2026-05-12. Specific Elder names not transcribed into this audit file — full attendance recorded in PICC meeting minutes. To roll back, run rollback-elder-consent.mjs against the audit file written under scripts/audit/."
+  },
+  "scope_executed": {
+    "quotes_only": false,
+    "transcripts_only": false
+  },
+  "before": {
+    "quotes": {
+      "pending": 843,
+      "approved": 157
+    },
+    "transcripts_privacy": {
+      "private": 137
+    },
+    "transcripts_sensitivity": {
+      "standard": 127,
+      "sensitive": 9,
+      "sacred": 1
+    }
+  },
+  "after": {
+    "quotes": {
+      "approved": 1000
+    },
+    "transcripts_privacy": {
+      "public": 137
+    }
+  },
+  "rows_updated": {
+    "quotes": 891,
+    "transcripts": 137
+  },
+  "snapshot_files": {
+    "quotes": "el-quotes-approval-BEFORE-2026-05-11T19-33-21-688Z.json",
+    "transcripts": "el-transcripts-privacy-BEFORE-2026-05-11T19-33-21-688Z.json"
+  }
+}
