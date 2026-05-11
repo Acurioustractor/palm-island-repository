@@ -100,10 +100,9 @@ const TABS: ReadonlyArray<{ key: RailTab; label: string }> = [
 
 function ringColour(face: FaceNode): string {
   if (face.is_elder) return ELDER_RING
-  const slot = face.slot ?? ''
-  for (const key of Object.keys(VOICE_RINGS)) {
-    if (slot.startsWith(key)) return VOICE_RINGS[key]
-  }
+  if (face.kind === 'leadership') return VOICE_RINGS.organisation
+  if (face.kind === 'board') return VOICE_RINGS.governance
+  if (face.is_featured) return VOICE_RINGS.staff
   return VOICE_RINGS.community
 }
 
@@ -533,16 +532,34 @@ export default function Constellation({ data }: Props) {
           <div className="font-serif text-base mb-1">
             {activeFace.name ?? activeFace.attribution ?? 'Storyteller'}
           </div>
-          {activeFace.slot && (
+          {activeFace.role && (
+            <div className="text-xs text-stone-600">{activeFace.role}</div>
+          )}
+          {activeFace.cultural_background && (
             <div className="text-xs text-stone-600">
-              Slot: <span className="font-medium">{activeFace.slot}</span>
+              {activeFace.cultural_background}
             </div>
           )}
-          {activeFace.year && (
-            <div className="text-xs text-stone-600">Year: {activeFace.year}</div>
+          {activeFace.quote_count > 0 && (
+            <div className="text-xs text-stone-600 mt-1">
+              {activeFace.quote_count} validated quote
+              {activeFace.quote_count === 1 ? '' : 's'} on file
+            </div>
+          )}
+          {activeFace.service_slugs.length > 0 && (
+            <div className="text-[11px] text-stone-500 mt-2">
+              Linked services:{' '}
+              <span className="text-stone-700">
+                {activeFace.service_slugs.slice(0, 4).join(', ')}
+              </span>
+            </div>
           )}
           <div className="text-[11px] text-stone-500 mt-2">
-            Consented in Empathy Ledger v2.
+            {activeFace.kind === 'storyteller'
+              ? 'Consented in Empathy Ledger v2.'
+              : activeFace.kind === 'leadership'
+                ? 'PICC leadership · public role.'
+                : 'PICC board · public director.'}
           </div>
           <ClearButton onClick={() => setActiveFace(null)} />
         </ContextCard>
@@ -581,13 +598,22 @@ export default function Constellation({ data }: Props) {
     if (activeService)
       return (
         <ContextCard
-          label="Service"
-          right={activeService.start_year ? `since ${activeService.start_year}` : null}
+          label={`Service · ${activeService.category ?? 'PICC'}`}
+          right={activeService.status === 'active' ? 'active' : activeService.status}
         >
+          {activeService.image_url && (
+            <img
+              src={activeService.image_url}
+              alt=""
+              loading="lazy"
+              className="w-full rounded-md mb-2 object-cover"
+              style={{ maxHeight: 140 }}
+            />
+          )}
           <div className="font-serif text-base mb-1">{activeService.name}</div>
           <div className="text-[11px] text-stone-500 mb-2">
-            {activeService.photo_ids.length} face
-            {activeService.photo_ids.length === 1 ? '' : 's'} on the canvas
+            {activeService.photo_ids.length} linked storyteller
+            {activeService.photo_ids.length === 1 ? '' : 's'}
           </div>
           {activeService.description && (
             <div className="text-xs text-stone-700 leading-relaxed">
@@ -605,10 +631,26 @@ export default function Constellation({ data }: Props) {
           label={`Project · ${activeProject.status ?? 'live'}`}
           right={activeProject.start_year ? `from ${activeProject.start_year}` : null}
         >
+          {activeProject.image_url && (
+            <img
+              src={activeProject.image_url}
+              alt=""
+              loading="lazy"
+              className="w-full rounded-md mb-2 object-cover"
+              style={{ maxHeight: 140 }}
+            />
+          )}
           <div className="font-serif text-base mb-1">{activeProject.name}</div>
+          {activeProject.tagline && (
+            <div className="text-[11px] text-stone-500 italic mb-2">
+              {activeProject.tagline}
+            </div>
+          )}
           <div className="text-[11px] text-stone-500 mb-2">
-            {activeProject.photo_ids.length} face
-            {activeProject.photo_ids.length === 1 ? '' : 's'} on the canvas
+            {activeProject.photo_ids.length} linked storyteller
+            {activeProject.photo_ids.length === 1 ? '' : 's'} ·{' '}
+            {activeProject.photo_count} tagged photo
+            {activeProject.photo_count === 1 ? '' : 's'}
           </div>
           {activeProject.description && (
             <div className="text-xs text-stone-700 leading-relaxed">
@@ -962,17 +1004,18 @@ export default function Constellation({ data }: Props) {
                           setActiveElder(null)
                           setActiveReport(null)
                         }}
-                        className="flex w-full justify-between gap-2 text-[11.5px] px-2 py-1.5 rounded hover:bg-stone-100"
+                        className="flex w-full items-center gap-2 text-[11.5px] px-2 py-1.5 rounded hover:bg-stone-100"
                         style={
                           activeService?.id === s.id
                             ? { backgroundColor: '#E7EFE4', color: '#2D5F4F', fontWeight: 600 }
                             : {}
                         }
                       >
-                        <span className="truncate">{s.name}</span>
+                        <Thumb url={s.image_url} fallback="#F4E9DC" />
+                        <span className="flex-1 truncate text-left">{s.name}</span>
                         <span
                           className="text-stone-500 flex-shrink-0"
-                          title={`${s.photo_ids.length} matching face${s.photo_ids.length === 1 ? '' : 's'}`}
+                          title={`${s.photo_ids.length} linked storyteller${s.photo_ids.length === 1 ? '' : 's'}`}
                         >
                           {s.photo_ids.length}
                         </span>
@@ -997,17 +1040,20 @@ export default function Constellation({ data }: Props) {
                           setActiveElder(null)
                           setActiveReport(null)
                         }}
-                        className="flex w-full justify-between gap-2 text-[11.5px] px-2 py-1.5 rounded hover:bg-stone-100"
+                        className="flex w-full items-center gap-2 text-[11.5px] px-2 py-1.5 rounded hover:bg-stone-100"
                         style={
                           activeProject?.id === p.id
                             ? { backgroundColor: '#E7EFE4', color: '#2D5F4F', fontWeight: 600 }
                             : {}
                         }
                       >
-                        <span className="truncate">
+                        <Thumb url={p.image_url} fallback="#EDD6BA" />
+                        <span className="flex-1 truncate text-left">
                           {p.name}
                           {p.status && p.status !== 'active' && (
-                            <span className="ml-2 text-[10px] text-stone-500">· {p.status}</span>
+                            <span className="ml-2 text-[10px] text-stone-500">
+                              · {p.status}
+                            </span>
                           )}
                         </span>
                         <span className="text-stone-500 flex-shrink-0">
@@ -1329,5 +1375,35 @@ function ClearButton({ onClick }: { onClick: () => void }) {
     >
       clear
     </button>
+  )
+}
+
+/** Tiny thumbnail used in left-rail rows. Shows image when present,
+ *  coloured swatch as fallback. */
+function Thumb({
+  url,
+  fallback,
+  size = 28,
+}: {
+  url: string | null
+  fallback: string
+  size?: number
+}) {
+  return (
+    <span
+      className="inline-block rounded-md flex-shrink-0 overflow-hidden"
+      style={{ width: size, height: size, backgroundColor: fallback }}
+    >
+      {url && (
+        <img
+          src={url}
+          alt=""
+          loading="lazy"
+          width={size}
+          height={size}
+          className="w-full h-full object-cover"
+        />
+      )}
+    </span>
   )
 }

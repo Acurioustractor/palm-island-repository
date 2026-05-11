@@ -7,7 +7,9 @@
  */
 
 import { createServerSupabase } from '@/lib/supabase/client'
-import { getAnyConsentedPhotos } from '@/lib/media/el-photos'
+import { getPiccStorytellers } from '@/lib/empathy-ledger/el-storytellers'
+import { getPiccServices } from '@/lib/services/el-services'
+import { getPiccProjects } from '@/lib/empathy-ledger/el-projects'
 import type {
   AnnualReportItem,
   BwgcolmanNation,
@@ -27,9 +29,6 @@ import type {
 
 const PICC_ORG_ID = '3c2011b9-f80d-4289-b300-0cd383cff479'
 const QUOTES_PER_THEME = 3
-// Default face count is bounded for a snappy first paint. The viz can
-// request more on demand via a "show all" control.
-const FACE_LIMIT = 80
 
 // Forward commitments are sourced verbatim from
 // PICC-Narelle-Rachel-Workshop/PICC-20-Year-Launchpad-Plan.md so the workshop
@@ -89,7 +88,11 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
   const supabase = createServerSupabase()
 
   const [
-    photos,
+    storytellers,
+    elServices,
+    elProjects,
+    leadershipRes,
+    boardRes,
     themeRowsRes,
     topQuotesRes,
     annualReportsRes,
@@ -104,12 +107,26 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     governanceCountRes,
     boardCountRes,
     knowledgeCountRes,
-    servicesRes,
-    projectsRes,
     elderQuotesRes,
     annualReportsFullRes,
   ] = await Promise.all([
-    getAnyConsentedPhotos(FACE_LIMIT),
+    // Canonical PICC people: 44 named storytellers in EL v2, each with
+    // photo_url + bio + service_slugs + project_slugs + quote_count.
+    getPiccStorytellers({ limit: 200 }),
+    // Canonical PICC services from EL v2, each with image_url + slug.
+    getPiccServices({ status: 'all' }),
+    // Canonical PICC projects from EL v2, each with cover_image_url + slug.
+    getPiccProjects({ status: 'all' }),
+    // PICC's own leadership table — has photo_url.
+    supabase
+      .from('leadership')
+      .select('id, full_name, position, photo_url, is_active')
+      .eq('organization_id', PICC_ORG_ID),
+    // PICC's board_members — has photo_url and tenure.
+    supabase
+      .from('board_members')
+      .select('id, name, role, photo_url, start_date, end_date')
+      .eq('organization_id', PICC_ORG_ID),
     supabase.from('extracted_quotes').select('theme').not('theme', 'is', null),
     supabase
       .from('extracted_quotes')
@@ -172,15 +189,6 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
       .eq('organization_id', PICC_ORG_ID),
     supabase.from('knowledge_entries').select('id', { count: 'exact', head: true }),
     supabase
-      .from('organization_services')
-      .select('id, name, slug, description, start_date')
-      .eq('is_active', true)
-      .order('name', { ascending: true }),
-    supabase
-      .from('projects')
-      .select('id, name, slug, description, status, start_date')
-      .order('start_date', { ascending: false, nullsFirst: false }),
-    supabase
       .from('elder_quotes')
       .select('speaker_name, text')
       .eq('organization_id', PICC_ORG_ID)
@@ -195,21 +203,91 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
   ])
 
   // ── FACES ──────────────────────────────────────────────────────────────
-  const faces: FaceNode[] = photos
-    .filter((p) => Boolean(p.url))
-    .map((p) => ({
-      id: p.id,
-      name: p.alt_text ?? p.caption ?? p.attribution ?? null,
-      avatar_url: p.url,
-      // Prefer EL v2's pre-built thumbnail when present, else generate a
-      // Supabase Storage transform URL on the fly (80 × 80, quality 70) so
-      // the SVG paints small images instead of full-res ones.
-      thumb_url: p.thumbnail_url ?? thumbnailUrl(p.url),
-      attribution: p.attribution,
-      year: yearFromTimestamp(p.taken_at),
-      slot: p.slot,
-      is_elder: inferElder(p.slot, p.alt_text),
+  // Three sources, merged:
+  //   1. EL v2 storytellers (named, with photo_url + bio + service_slugs)
+  //   2. PICC leadership.photo_url
+  //   3. PICC board_members.photo_url
+  // Every face is tied to a real person — no anonymous "consented photo" entries.
+
+  const stFaces: FaceNode[] = (storytellers ?? [])
+    .filter((s) => Boolean(s.photo_url))
+    .map((s) => ({
+      id: `storyteller:${s.id}`,
+      name: s.display_name,
+      avatar_url: s.photo_url!,
+      thumb_url: thumbnailUrl(s.photo_url, 96),
+      attribution: s.role,
+      year: null,
+      kind: 'storyteller' as const,
+      slug: s.slug,
+      role: s.role,
+      cultural_background: s.cultural_background,
+      is_elder: Boolean(s.is_elder),
+      is_featured: Boolean(s.is_featured),
+      service_slugs: s.service_slugs ?? [],
+      project_slugs: s.project_slugs ?? [],
+      quote_count: s.quote_count ?? 0,
     }))
+
+  const leadFaces: FaceNode[] = (leadershipRes.data ?? [])
+    .filter((l) => Boolean(l.photo_url) && (l.is_active as boolean | null) !== false)
+    .map((l) => ({
+      id: `leadership:${l.id}`,
+      name: (l.full_name as string | null) ?? null,
+      avatar_url: l.photo_url as string,
+      thumb_url: thumbnailUrl(l.photo_url as string, 96),
+      attribution: (l.position as string | null) ?? 'Leadership',
+      year: null,
+      kind: 'leadership' as const,
+      slug: l.id as string,
+      role: (l.position as string | null) ?? null,
+      cultural_background: null,
+      is_elder: false,
+      is_featured: true,
+      service_slugs: [],
+      project_slugs: [],
+      quote_count: 0,
+    }))
+
+  const boardFaces: FaceNode[] = (boardRes.data ?? [])
+    .filter((b) => Boolean(b.photo_url))
+    .map((b) => {
+      const startD = b.start_date as string | null
+      const endD = b.end_date as string | null
+      const tenureYear = endD
+        ? new Date(endD).getUTCFullYear()
+        : startD
+          ? new Date(startD).getUTCFullYear()
+          : null
+      return {
+        id: `board:${b.id}`,
+        name: (b.name as string) ?? null,
+        avatar_url: b.photo_url as string,
+        thumb_url: thumbnailUrl(b.photo_url as string, 96),
+        attribution: (b.role as string | null) ?? 'Board',
+        year: tenureYear,
+        kind: 'board' as const,
+        slug: b.id as string,
+        role: (b.role as string | null) ?? null,
+        cultural_background: null,
+        is_elder: false,
+        is_featured: false,
+        service_slugs: [],
+        project_slugs: [],
+        quote_count: 0,
+      }
+    })
+
+  // Deduplicate by display name when a storyteller is also in leadership /
+  // board — the storyteller record wins (richer metadata).
+  const seenNames = new Set<string>(
+    stFaces.map((f) => (f.name ?? '').toLowerCase()).filter(Boolean),
+  )
+  const faces: FaceNode[] = [
+    ...stFaces,
+    ...leadFaces.filter((f) => !seenNames.has((f.name ?? '').toLowerCase())),
+    ...boardFaces.filter((f) => !seenNames.has((f.name ?? '').toLowerCase())),
+  ]
 
   // ── THEMES (count + top quotes) ────────────────────────────────────────
   const themeCounts = new Map<string, number>()
@@ -350,49 +428,42 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     category: (v.category as string | null) ?? null,
   }))
 
-  // Helper: which face ids match a given slug/name pattern. Builds a tiny
-  // index up front so each service / project / elder is an O(n) scan, not
-  // an O(services × faces) blowup.
-  function facesMatching(predicate: (face: FaceNode) => boolean): string[] {
-    const out: string[] = []
-    for (const f of faces) if (predicate(f)) out.push(f.id)
-    return out
-  }
+  // ── SERVICES (canonical from EL v2 with image_url) ─────────────────────
+  const services: ServiceItem[] = (elServices ?? []).map((s) => ({
+    id: s.id,
+    name: s.name,
+    slug: s.slug,
+    description: s.description,
+    image_url: s.image_url,
+    category: s.service_category,
+    service_type: null,
+    status: 'active',
+    // Storytellers linked to this service via service_slugs.
+    photo_ids: faces
+      .filter((f) => f.service_slugs.includes(s.slug))
+      .map((f) => f.id),
+  }))
 
-  // ── SERVICES ───────────────────────────────────────────────────────────
-  const services: ServiceItem[] = (servicesRes.data ?? []).map((s) => {
-    const sd = s.start_date as string | null
-    const slug = (s.slug as string | null) ?? null
+  // ── PROJECTS (canonical from EL v2 with cover_image_url) ───────────────
+  const projects: ProjectItem[] = (elProjects ?? []).map((p) => {
+    const sd = p.start_date
     return {
-      id: s.id as string,
-      name: (s.name as string) ?? '',
-      slug,
-      description: (s.description as string | null) ?? null,
+      id: p.id,
+      name: p.name,
+      slug: p.slug,
+      description: p.description,
+      status: p.status,
       start_year: sd ? new Date(sd).getUTCFullYear() : null,
-      photo_ids: slug
-        ? facesMatching((f) => Boolean(f.slot?.includes(slug)))
-        : [],
+      image_url: p.cover_image_url,
+      tagline: p.tagline,
+      photo_count: p.photo_count,
+      photo_ids: faces
+        .filter((f) => f.project_slugs.includes(p.slug))
+        .map((f) => f.id),
     }
   })
 
-  // ── PROJECTS ───────────────────────────────────────────────────────────
-  const projects: ProjectItem[] = (projectsRes.data ?? []).map((p) => {
-    const sd = p.start_date as string | null
-    const slug = (p.slug as string | null) ?? null
-    return {
-      id: p.id as string,
-      name: (p.name as string) ?? '',
-      slug,
-      description: (p.description as string | null) ?? null,
-      status: (p.status as string | null) ?? null,
-      start_year: sd ? new Date(sd).getUTCFullYear() : null,
-      photo_ids: slug
-        ? facesMatching((f) => Boolean(f.slot?.includes(slug)))
-        : [],
-    }
-  })
-
-  // ── NAMED ELDERS (top voices) ──────────────────────────────────────────
+  // ── NAMED ELDERS (PICC elder_quotes + matched to storyteller faces) ────
   const elderBuckets = new Map<string, string[]>()
   for (const row of elderQuotesRes.data ?? []) {
     const name = (row.speaker_name as string | null)?.trim()
@@ -405,10 +476,10 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
   const named_elders: NamedElder[] = Array.from(elderBuckets.entries())
     .map(([name, quotes]) => {
       const lname = name.toLowerCase()
-      const photo_ids = facesMatching((f) => {
-        const blob = `${f.name ?? ''} ${f.attribution ?? ''} ${f.slot ?? ''}`.toLowerCase()
-        return blob.includes(lname)
-      })
+      // Match elder name → storyteller face by display_name fuzzy contains.
+      const photo_ids = faces
+        .filter((f) => (f.name ?? '').toLowerCase().includes(lname.split(' ')[0]))
+        .map((f) => f.id)
       return {
         name,
         quote_count: quotes.length,

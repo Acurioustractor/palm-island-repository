@@ -18,14 +18,29 @@ export interface FaceNode {
   name: string | null
   /** Full-resolution photo URL — used only when a face card is open. */
   avatar_url: string
-  /** Smaller URL when available; what the SVG renders. Falls back to avatar_url. */
+  /** Smaller URL for the SVG nodes. */
   thumb_url: string
   attribution: string | null
+  /** Year the photo was taken, if known. */
   year: number | null
-  /** Slot tag from EL v2 (e.g. "hero", "elder", "service-childcare"). */
-  slot: string | null
-  /** Inferred Elder status from slot prefix or alt-text. */
+  /** Origin of this face: storyteller (named, profile), leadership, board, or photo (consented EL v2 only). */
+  kind: 'storyteller' | 'leadership' | 'board' | 'photo'
+  /** Slug for stable matching (storyteller.slug / leadership.id / board.id / photo.id). */
+  slug: string | null
+  /** Storyteller display role / leadership title. */
+  role: string | null
+  /** Cultural background label when known. */
+  cultural_background: string | null
+  /** Whether this person is Elder-tagged in EL v2 / PICC. */
   is_elder: boolean
+  /** Featured flag from EL v2 storytellers. */
+  is_featured: boolean
+  /** EL v2 service slugs this storyteller is linked to. */
+  service_slugs: string[]
+  /** EL v2 project slugs this storyteller is linked to. */
+  project_slugs: string[]
+  /** Number of validated quotes attributed to this person. */
+  quote_count: number
 }
 
 export interface TopQuote {
@@ -101,22 +116,31 @@ export interface ConstellationStats {
 export interface ServiceItem {
   id: string
   name: string
-  slug: string | null
+  slug: string
   description: string | null
-  start_year: number | null
-  /** Face ids whose EL v2 slot tags match this service. */
+  /** Canonical EL v2 service photo. */
+  image_url: string | null
+  category: string | null
+  service_type: string | null
+  status: string | null
+  /** Face ids of storytellers linked via service_slugs. */
   photo_ids: string[]
 }
 
 export interface ProjectItem {
   id: string
   name: string
-  slug: string | null
+  slug: string
   description: string | null
   status: string | null
   start_year: number | null
-  /** Face ids whose EL v2 slot tags match this project. */
+  /** Canonical EL v2 project cover photo. */
+  image_url: string | null
+  tagline: string | null
+  /** Face ids of storytellers linked via project_slugs. */
   photo_ids: string[]
+  /** EL v2 photo count tagged to this project. */
+  photo_count: number
 }
 
 export interface NamedElder {
