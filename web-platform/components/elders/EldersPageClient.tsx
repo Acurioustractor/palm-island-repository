@@ -748,7 +748,12 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
               <div className="bg-white rounded-2xl border border-stone-200 p-5 shadow-sm">
                 <div className="flex items-center gap-2">
                   <MessageSquareQuote className="w-4 h-4 text-picc-ochre" />
-                  <h3 className="text-lg font-bold text-gray-900">Highlighted quotes</h3>
+                  <h3
+                    className="font-fraunces font-bold"
+                    style={{ color: C.ocean, fontSize: 20, lineHeight: 1.2 }}
+                  >
+                    Highlighted quotes
+                  </h3>
                 </div>
                 <div className="mt-4 space-y-4">
                   {insights.highlightedQuotes.length === 0 ? (
@@ -961,7 +966,12 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
 
         {filteredElders.length === 0 && elders.length > 0 ? (
           <div className="mt-10 bg-white rounded-2xl border border-stone-200 p-8 text-center">
-            <h3 className="text-lg font-bold text-gray-900">No elders match your search</h3>
+            <h3
+              className="font-fraunces font-bold"
+              style={{ color: C.ocean, fontSize: 18 }}
+            >
+              No Elders match your search
+            </h3>
             <p className="text-gray-700 mt-2">
               Try adjusting your search terms or clearing filters.
             </p>
@@ -975,7 +985,12 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
           </div>
         ) : elders.length === 0 ? (
           <div className="mt-10 bg-white rounded-2xl border border-stone-200 p-8 text-center">
-            <h3 className="text-lg font-bold text-gray-900">No Elders found yet</h3>
+            <h3
+              className="font-fraunces font-bold"
+              style={{ color: C.ocean, fontSize: 18 }}
+            >
+              No Elders found yet
+            </h3>
             <p className="text-gray-700 mt-2">
               Mark profiles as Elders and enable "show in directory" to appear here.
             </p>
@@ -1018,7 +1033,12 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
                     <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/50 to-transparent" />
                     <div className="absolute left-5 right-5 bottom-4">
                       <div className="flex items-center justify-between gap-3">
-                        <h3 className="text-2xl font-bold text-white truncate">{e.name}</h3>
+                        <h3
+                          className="font-fraunces font-bold truncate"
+                          style={{ color: '#FFFFFF', fontSize: 24, lineHeight: 1.15, textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}
+                        >
+                          {e.name}
+                        </h3>
                         <ArrowRight className="w-5 h-5 text-white/80 group-hover:text-white transition-colors" />
                       </div>
                       <div className="mt-1 text-sm text-white/90 line-clamp-2">
@@ -1070,7 +1090,12 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
           <div className="p-8 md:p-10">
             <div className="flex items-start justify-between gap-6 flex-wrap">
               <div className="max-w-2xl">
-                <h2 className="text-3xl font-bold text-gray-900">The Elders Trip</h2>
+                <h2
+                  className="font-fraunces font-bold"
+                  style={{ color: C.ocean, fontSize: 'clamp(28px, 4vw, 40px)', lineHeight: 1.15 }}
+                >
+                  The Elders Trip
+                </h2>
                 <p className="mt-2 text-gray-700">
                   A return journey that strengthens connection — captured through video, photos, and place.
                 </p>
@@ -1103,7 +1128,12 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
             <div className="mt-10 bg-stone-50 rounded-2xl border border-stone-200 p-6">
               <div className="flex items-start justify-between gap-6 flex-wrap">
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900">Photo Gallery</h3>
+                  <h3
+                    className="font-fraunces font-bold"
+                    style={{ color: C.ocean, fontSize: 20 }}
+                  >
+                    Photo gallery
+                  </h3>
                   <p className="text-sm text-gray-700 mt-1">Selected images from the trip. Click to enlarge.</p>
                 </div>
                 {trip.images.length > 0 && (
@@ -1190,25 +1220,42 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
               )}
 
               <div className="min-w-0">
-                <div className="text-2xl font-bold text-gray-900 truncate">{activeElder.name}</div>
+                <div
+                  className="font-fraunces font-bold truncate"
+                  style={{ color: C.ocean, fontSize: 'clamp(22px, 3vw, 28px)', lineHeight: 1.15 }}
+                >
+                  {activeElder.name}
+                </div>
                 {formatIdentity(activeElder) ? (
-                  <div className="text-sm text-gray-700 mt-1">{formatIdentity(activeElder)}</div>
+                  <div
+                    className="font-bold uppercase mt-1"
+                    style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.2em' }}
+                  >
+                    {formatIdentity(activeElder)}
+                  </div>
                 ) : (
-                  <div className="text-sm text-gray-600 mt-1">Elder • Palm Island</div>
+                  <div
+                    className="font-bold uppercase mt-1"
+                    style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.2em' }}
+                  >
+                    Elder · Palm Island
+                  </div>
                 )}
-                <div className="mt-3 flex flex-wrap gap-2">
+                <div className="mt-4 flex flex-wrap gap-2">
                   <Link
                     href={activeElder.profileHref}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-900 text-white font-semibold hover:bg-gray-800 transition-colors"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md font-bold uppercase text-xs hover:opacity-90 transition"
+                    style={{ backgroundColor: C.ocean, color: '#FBF8EE', letterSpacing: '0.15em' }}
                   >
-                    View profile <ExternalLink className="w-4 h-4" />
+                    View profile <ExternalLink className="w-3.5 h-3.5" />
                   </Link>
                   {activeElder.stories.length > 0 && (
                     <a
                       href="#elder-stories"
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-stone-200 text-gray-900 font-semibold hover:bg-stone-50 transition-colors"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md font-bold uppercase text-xs hover:opacity-90 transition"
+                      style={{ backgroundColor: 'transparent', color: C.ocean, border: `2px solid ${C.ocean}`, letterSpacing: '0.15em' }}
                     >
-                      Stories <BookOpen className="w-4 h-4" />
+                      Stories <BookOpen className="w-3.5 h-3.5" />
                     </a>
                   )}
                 </div>
@@ -1221,11 +1268,21 @@ export default function EldersPageClient({ elders, hero, insights, trip }: Props
           <div className="p-6 md:p-8">
             {/* About Section */}
             <div className="mb-8">
-              <h4 className="text-lg font-bold text-gray-900 mb-2">About</h4>
+              <p
+                className="font-bold uppercase mb-3"
+                style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.3em' }}
+              >
+                About
+              </p>
               {activeElder.bio ? (
-                <p className="text-gray-700 whitespace-pre-line">{activeElder.bio}</p>
+                <p
+                  className="font-fraunces whitespace-pre-line"
+                  style={{ color: C.earth, fontSize: 16, lineHeight: 1.55 }}
+                >
+                  {activeElder.bio}
+                </p>
               ) : (
-                <p className="text-gray-600">
+                <p className="font-fraunces italic" style={{ color: C.driftwood, fontSize: 15 }}>
                   Bio coming soon. Add a short bio on the profile to help explain who this Elder is.
                 </p>
               )}
