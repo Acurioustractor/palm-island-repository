@@ -59,10 +59,18 @@ export default async function LivingAtlasPage() {
               Palm Island Living Atlas
             </h1>
           </div>
-          <div className="text-xs text-stone-600 max-w-md leading-relaxed">
-            One borderless surface — people, services, projects, places,
-            years, visions. Every face passed an explicit consent gate.
-            Every quote was validator-flagged.
+          <div className="flex items-end gap-3">
+            <div className="text-xs text-stone-600 max-w-sm leading-relaxed">
+              One borderless surface — people, services, projects, places,
+              years, visions. Every face passed an explicit consent gate.
+            </div>
+            <Link
+              href="/atlas/capture"
+              className="rounded-md px-3 py-2 font-semibold text-white text-sm whitespace-nowrap"
+              style={{ backgroundColor: '#2D5F4F' }}
+            >
+              Share a thought
+            </Link>
           </div>
         </header>
 
