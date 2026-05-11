@@ -67,6 +67,7 @@ const staffNavigation: { [key: string]: NavSection } = {
     items: [
       { label: 'The System', href: '/picc/system', icon: Network, description: 'Theory of change · 5 flows · 4 stakeholders · the loop' },
       { label: 'Annual Report Hub', href: '/picc/annual-report', icon: BookOpen, description: 'Always-on annual report · command center' },
+      { label: '✨ Auto-fill spreads', href: '/picc/almanac/auto-fill', icon: Sparkles, description: 'One click · best photo into every Pencil placeholder' },
       { label: 'Photo library', href: '/picc/almanac/photo-library', icon: Image, description: 'Browse every synced EL photo · big thumbs · click to copy Pencil path' },
       { label: 'Pencil photo bridge', href: '/picc/almanac/pencil-bridge', icon: Image, description: 'Slot-by-spread view · which photo goes where in Pencil' },
       { label: 'Community Books', href: '/picc/books', icon: BookOpen, description: 'Innovation track · kids make books · print on demand' },
@@ -141,6 +142,7 @@ const advancedNavigation: { [key: string]: NavSection } = {
     items: [
       { label: 'The System', href: '/picc/system', icon: Network, description: 'Theory of change · 5 flows · 4 stakeholders · the loop' },
       { label: 'Annual Report Hub', href: '/picc/annual-report', icon: BookOpen, description: 'Always-on annual report · command center' },
+      { label: '✨ Auto-fill spreads', href: '/picc/almanac/auto-fill', icon: Sparkles, description: 'One click · best photo into every Pencil placeholder' },
       { label: 'Photo library', href: '/picc/almanac/photo-library', icon: Image, description: 'Browse every synced EL photo · big thumbs · click to copy Pencil path' },
       { label: 'Pencil photo bridge', href: '/picc/almanac/pencil-bridge', icon: Image, description: 'Slot-by-spread view · which photo goes where in Pencil' },
       { label: 'Community Books', href: '/picc/books', icon: BookOpen, description: 'Innovation track · kids make books · print on demand' },

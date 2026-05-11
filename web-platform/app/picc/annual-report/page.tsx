@@ -427,6 +427,7 @@ export default async function AnnualReportHubPage() {
         </p>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 text-sm">
           {[
+            { label: '✨ Auto-fill spreads', href: '/picc/almanac/auto-fill' },
             { label: 'Almanac checklist', href: '/picc/almanac/checklist' },
             { label: 'Almanac photos', href: '/picc/almanac/photos' },
             { label: 'Photo library', href: '/picc/almanac/photo-library' },
