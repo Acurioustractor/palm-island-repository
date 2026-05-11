@@ -122,6 +122,7 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     featuredKnowledgeRes,
     hullRiverEqRes,
     hullRiverElqRes,
+    restrictedCountRes,
   ] = await Promise.all([
     // Canonical PICC people: 44 named storytellers in EL v2, each with
     // photo_url + bio + service_slugs + project_slugs + quote_count.
@@ -246,6 +247,15 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
       .select('text, speaker_name, theme')
       .eq('organization_id', PICC_ORG_ID)
       .or('text.ilike.%hull river%,text.ilike.%cyclone%,text.ilike.%mission beach%,text.ilike.%leonte%'),
+    // Count of items hidden from the public Atlas by community choice
+    // (cultural_sensitivity = restricted / sacred). Surfaced in the
+    // Permissions panel so sovereignty stays legible without exposing
+    // the content itself.
+    supabase
+      .from('elder_quotes')
+      .select('id', { count: 'exact', head: true })
+      .eq('organization_id', PICC_ORG_ID)
+      .in('cultural_sensitivity', ['restricted', 'sacred']),
   ])
 
   // ── FACES ──────────────────────────────────────────────────────────────
@@ -674,6 +684,7 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
       governance_achievements: governanceCountRes.count ?? 0,
       board_members: boardCountRes.count ?? 0,
       knowledge_entries: knowledgeCountRes.count ?? 0,
+      restricted_by_community: restrictedCountRes.count ?? 0,
     },
     meta: {
       elder_approvals_current_as_of: new Date().toISOString().slice(0, 10),

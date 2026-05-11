@@ -111,6 +111,12 @@ export interface ConstellationStats {
   governance_achievements: number
   board_members: number
   knowledge_entries: number
+  /**
+   * Items hidden from the public surface by community choice
+   * (cultural_sensitivity = 'restricted' / 'sacred'). Counted but not
+   * displayed — sovereignty made legible.
+   */
+  restricted_by_community: number
 }
 
 export interface ServiceItem {

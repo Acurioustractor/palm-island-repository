@@ -1509,6 +1509,17 @@ export default function Constellation({
               <Stat label="voices extracted" value={data.stats.voices_extracted} />
               <Stat label="stories captured" value={data.stats.stories} />
               <Stat label="board members tracked" value={data.stats.board_members} />
+              <div
+                className="flex justify-between items-baseline pt-1 mt-1 border-t"
+                style={{ borderColor: '#F4E9DC' }}
+              >
+                <span className="text-stone-600 italic">
+                  restricted by community choice
+                </span>
+                <span className="font-semibold" style={{ color: '#8B6F47' }}>
+                  {data.stats.restricted_by_community.toLocaleString()}
+                </span>
+              </div>
             </div>
             <div className="text-[10px] text-stone-500 mt-2">
               Elder approvals current as of {data.meta.elder_approvals_current_as_of}
