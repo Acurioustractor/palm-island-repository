@@ -167,24 +167,25 @@ export default async function LivingAtlasPage() {
               </p>
             </div>
 
-            <div
-              className="rounded-xl border border-dashed border-stone-300 bg-white/50 p-4 opacity-70"
+            <Link
+              href="/living-atlas/anniversary"
+              className="rounded-xl border border-stone-200 bg-white p-4 hover:shadow-md transition group"
               style={{ borderLeftWidth: 4, borderLeftColor: '#D97757' }}
             >
               <div
                 className="text-[10px] uppercase tracking-[0.2em] font-semibold mb-1"
                 style={{ color: '#D97757' }}
               >
-                Coming · Stage 7
+                2007 — 2027
               </div>
-              <div className="font-serif text-lg text-charcoal">
+              <div className="font-serif text-lg text-charcoal group-hover:underline">
                 The next 20 years
               </div>
               <p className="text-[11.5px] text-stone-600 mt-1 leading-snug">
-                The anniversary page. 2007 → 2027 timeline, 20 voices for 20
-                years, community vision for 2045.
+                The anniversary page. Year ribbon, 20 voices for 20 years,
+                forward commitments out to 2045.
               </p>
-            </div>
+            </Link>
           </div>
         </section>
 
