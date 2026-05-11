@@ -130,13 +130,29 @@ export default async function LivingAtlasPage() {
                 own surface with timeline, map, voices, and the archive.
               </p>
             </div>
-            <Link
-              href="/living-atlas/history"
-              className="text-[11px] underline font-semibold"
-              style={{ color: '#8B1A1A' }}
-            >
-              The long ground · history archive →
-            </Link>
+            <div className="flex flex-col items-end gap-1.5">
+              <Link
+                href="/living-atlas/history"
+                className="text-[11px] underline font-semibold"
+                style={{ color: '#8B1A1A' }}
+              >
+                The long ground · history archive →
+              </Link>
+              <Link
+                href="/living-atlas/gallery"
+                className="text-[11px] underline font-semibold"
+                style={{ color: '#2D5F4F' }}
+              >
+                Gallery · search every consented photo →
+              </Link>
+              <Link
+                href="/living-atlas/transcripts"
+                className="text-[11px] underline font-semibold"
+                style={{ color: '#8B6F47' }}
+              >
+                Transcripts · the held archive →
+              </Link>
+            </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <Link

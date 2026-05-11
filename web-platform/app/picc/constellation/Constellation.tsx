@@ -1929,6 +1929,111 @@ function ReportOverlay({
               </div>
             )}
 
+            {/* PICC-side keyed statistics (curated by PICC, not AI-extracted) */}
+            {report.picc_statistics.length > 0 && (
+              <div>
+                <div className="text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-2">
+                  Curated stats · {report.picc_statistics.length} on file
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {report.picc_statistics
+                    .filter((s) => s.stat_value && s.stat_label)
+                    .slice(0, 8)
+                    .map((s) => (
+                      <div
+                        key={s.id}
+                        className="rounded-md border border-stone-200 bg-white px-3 py-2"
+                      >
+                        <div
+                          className="font-serif text-lg leading-tight"
+                          style={{ color: '#2D5F4F' }}
+                        >
+                          {s.stat_value}
+                          {s.stat_unit && (
+                            <span className="text-sm text-stone-500 ml-1">
+                              {s.stat_unit}
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-[10px] uppercase tracking-wide text-stone-500 mt-0.5">
+                          {s.stat_label}
+                          {s.is_key_metric && (
+                            <span className="ml-1 text-ochre">★</span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
+
+            {/* PICC-side named highlights (curated case studies) */}
+            {report.picc_highlights.length > 0 && (
+              <div>
+                <div className="text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-2">
+                  Highlights · {report.picc_highlights.length} case studies
+                </div>
+                <div className="space-y-2.5">
+                  {report.picc_highlights.slice(0, 4).map((h) => (
+                    <article
+                      key={h.id}
+                      className="rounded-md border border-stone-200 bg-white p-3"
+                    >
+                      <div className="font-serif text-sm text-charcoal">
+                        {h.title}
+                        {h.is_featured && (
+                          <span className="ml-2 text-[8.5px] uppercase tracking-wider font-semibold text-ochre">
+                            featured
+                          </span>
+                        )}
+                      </div>
+                      {h.subtitle && (
+                        <div className="text-[11px] text-stone-500 italic mt-0.5">
+                          {h.subtitle}
+                        </div>
+                      )}
+                      {h.description && (
+                        <p className="text-[11.5px] text-stone-700 mt-1 leading-snug line-clamp-3">
+                          {h.description}
+                        </p>
+                      )}
+                    </article>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* PICC-side section walkthrough (curated, may overlap with AI sections) */}
+            {report.picc_sections.length > 0 && (
+              <div>
+                <div className="text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-2">
+                  Sections · {report.picc_sections.length} written
+                </div>
+                <ul className="space-y-2 text-sm text-stone-800">
+                  {report.picc_sections.slice(0, 6).map((s) => (
+                    <li key={s.id}>
+                      <div className="font-semibold text-charcoal">
+                        {s.section_title}
+                      </div>
+                      {s.section_content && (
+                        <div className="text-[12px] text-stone-700 leading-snug line-clamp-2">
+                          {s.section_content}
+                        </div>
+                      )}
+                      {s.featured_quote && (
+                        <blockquote className="text-[11px] italic text-stone-600 border-l-2 border-ochre/60 pl-2 mt-1">
+                          &ldquo;{s.featured_quote}&rdquo;
+                          {s.quote_author && (
+                            <span className="not-italic ml-1">— {s.quote_author}</span>
+                          )}
+                        </blockquote>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             {/* AI-extracted section walkthrough */}
             {report.sections.length > 0 && (
               <div>

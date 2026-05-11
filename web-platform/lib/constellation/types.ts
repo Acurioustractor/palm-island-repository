@@ -181,6 +181,43 @@ export interface AnnualReportSection {
   summary: string
 }
 
+/** PICC-side report section (from report_sections table). */
+export interface PiccReportSection {
+  id: string
+  section_type: string | null
+  section_title: string | null
+  section_content: string | null
+  featured_quote: string | null
+  quote_author: string | null
+  display_order: number | null
+}
+
+/** PICC-side report statistic (from report_statistics table). */
+export interface PiccReportStatistic {
+  id: string
+  category: string | null
+  stat_label: string | null
+  stat_value: string | null
+  stat_unit: string | null
+  stat_description: string | null
+  comparison_previous_year: string | null
+  is_key_metric: boolean
+  icon_name: string | null
+}
+
+/** PICC-side report highlight (from report_highlights table). */
+export interface PiccReportHighlight {
+  id: string
+  title: string | null
+  subtitle: string | null
+  description: string | null
+  challenge_faced: string | null
+  solution_approach: string | null
+  impact_achieved: string | null
+  featured_image_url: string | null
+  is_featured: boolean
+}
+
 export interface AnnualReportStats {
   ceo?: string | null
   chair?: string | null
@@ -211,6 +248,12 @@ export interface AnnualReportItem {
   key_achievements: string[]
   /** When the extraction was last run. */
   extracted_at: string | null
+  /** PICC-side report sections (from report_sections). */
+  picc_sections: PiccReportSection[]
+  /** PICC-side keyed statistics. */
+  picc_statistics: PiccReportStatistic[]
+  /** PICC-side named highlights. */
+  picc_highlights: PiccReportHighlight[]
 }
 
 export interface HistoricalArtifact {

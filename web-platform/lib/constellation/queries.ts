@@ -31,6 +31,9 @@ import type {
   NamedElder,
   PartnerOrg,
   PiccEra,
+  PiccReportHighlight,
+  PiccReportSection,
+  PiccReportStatistic,
   ProjectItem,
   ResearchSource,
   ServiceItem,
@@ -139,6 +142,10 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     researchSourcesRes,
     serviceMetricsRes,
     elStoriesRows,
+    piccReportSectionsRes,
+    piccReportStatisticsRes,
+    piccReportHighlightsRes,
+    piccAnnualReportsRowsRes,
   ] = await Promise.all([
     // Canonical PICC people: 44 named storytellers in EL v2, each with
     // photo_url + bio + service_slugs + project_slugs + quote_count.
@@ -320,6 +327,29 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     // EL v2 public stories — 76 stories with richer schema than the PICC
     // mirror (themes array, image_url, elder approval flags).
     getPiccPublicStories(80),
+    // PICC report decomp — sections per report
+    supabase
+      .from('report_sections')
+      .select('id, report_id, section_type, section_title, section_content, featured_quote, quote_author, display_order')
+      .order('display_order', { ascending: true, nullsFirst: false })
+      .limit(200),
+    // PICC report decomp — keyed statistics per report
+    supabase
+      .from('report_statistics')
+      .select('id, report_id, category, stat_label, stat_value, stat_unit, stat_description, comparison_previous_year, is_key_metric, icon_name, display_order')
+      .order('display_order', { ascending: true, nullsFirst: false })
+      .limit(200),
+    // PICC report decomp — named highlights per report
+    supabase
+      .from('report_highlights')
+      .select('id, report_id, title, subtitle, description, challenge_faced, solution_approach, impact_achieved, featured_image_url, is_featured, display_order')
+      .order('display_order', { ascending: true, nullsFirst: false })
+      .limit(100),
+    // PICC's own annual_reports table — for the FK fiscal_year mapping.
+    supabase
+      .from('annual_reports')
+      .select('id, fiscal_year')
+      .eq('organization_id', PICC_ORG_ID),
   ])
 
   // ── FACES ──────────────────────────────────────────────────────────────
@@ -840,32 +870,108 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     })),
   ].filter((v) => v.text.length > 0)
 
+  // ── PICC REPORT DECOMP (sections / statistics / highlights per year) ──
+  // Build a PICC report-id → fiscal-year-end map so we can group the
+  // decomp tables under the right year.
+  const piccReportIdToYear = new Map<string, number>()
+  for (const r of piccAnnualReportsRowsRes.data ?? []) {
+    const fy = fiscalYearEnd((r.fiscal_year as string | null) ?? null)
+    if (r.id && fy !== null) {
+      piccReportIdToYear.set(r.id as string, fy)
+    }
+  }
+  function yearForReportId(reportId: string | null | undefined): number | null {
+    if (!reportId) return null
+    return piccReportIdToYear.get(reportId) ?? null
+  }
+  const piccSectionsByYear = new Map<number, PiccReportSection[]>()
+  for (const row of piccReportSectionsRes.data ?? []) {
+    const y = yearForReportId(row.report_id as string | null)
+    if (y === null) continue
+    const list = piccSectionsByYear.get(y) ?? []
+    list.push({
+      id: row.id as string,
+      section_type: (row.section_type as string | null) ?? null,
+      section_title: (row.section_title as string | null) ?? null,
+      section_content: (row.section_content as string | null) ?? null,
+      featured_quote: (row.featured_quote as string | null) ?? null,
+      quote_author: (row.quote_author as string | null) ?? null,
+      display_order: (row.display_order as number | null) ?? null,
+    })
+    piccSectionsByYear.set(y, list)
+  }
+  const piccStatsByYear = new Map<number, PiccReportStatistic[]>()
+  for (const row of piccReportStatisticsRes.data ?? []) {
+    const y = yearForReportId(row.report_id as string | null)
+    if (y === null) continue
+    const list = piccStatsByYear.get(y) ?? []
+    list.push({
+      id: row.id as string,
+      category: (row.category as string | null) ?? null,
+      stat_label: (row.stat_label as string | null) ?? null,
+      stat_value: (row.stat_value as string | null) ?? null,
+      stat_unit: (row.stat_unit as string | null) ?? null,
+      stat_description: (row.stat_description as string | null) ?? null,
+      comparison_previous_year: (row.comparison_previous_year as string | null) ?? null,
+      is_key_metric: Boolean(row.is_key_metric),
+      icon_name: (row.icon_name as string | null) ?? null,
+    })
+    piccStatsByYear.set(y, list)
+  }
+  const piccHighlightsByYear = new Map<number, PiccReportHighlight[]>()
+  for (const row of piccReportHighlightsRes.data ?? []) {
+    const y = yearForReportId(row.report_id as string | null)
+    if (y === null) continue
+    const list = piccHighlightsByYear.get(y) ?? []
+    list.push({
+      id: row.id as string,
+      title: (row.title as string | null) ?? null,
+      subtitle: (row.subtitle as string | null) ?? null,
+      description: (row.description as string | null) ?? null,
+      challenge_faced: (row.challenge_faced as string | null) ?? null,
+      solution_approach: (row.solution_approach as string | null) ?? null,
+      impact_achieved: (row.impact_achieved as string | null) ?? null,
+      featured_image_url: (row.featured_image_url as string | null) ?? null,
+      is_featured: Boolean(row.is_featured),
+    })
+    piccHighlightsByYear.set(y, list)
+  }
+
   // ── ANNUAL REPORTS (canonical EL v2 historical archive) ────────────────
   // EL v2 carries 18 reports back to 2007-08, 15 with PDFs. We treat
   // EL v2 as truth; PICC's own annual_reports table (annualReportsFullRes)
   // is only used as a tie-breaker for in-flight planning rows.
   const elRows = elAnnualReports
-  const annual_reports: AnnualReportItem[] = elRows.map((r) => ({
-    fiscal_year: fiscalYearEnd(r.fiscal_year) ?? 0,
-    title: r.title,
-    subtitle: r.subtitle,
-    cover_photo_url: r.cover_image_url,
-    pdf_url: r.pdf_url,
-    published_date: r.published_date,
-    summary: r.extracted_summary,
-    stats: r.extracted_stats,
-    sections: Array.isArray(r.extracted_sections)
-      ? r.extracted_sections.map((s) => ({
-          title: s.title ?? '',
-          summary: s.summary ?? '',
-        }))
-      : [],
-    key_achievements:
-      Array.isArray(r.metadata?.key_achievements)
-        ? (r.metadata?.key_achievements as string[])
+  const annual_reports: AnnualReportItem[] = elRows.map((r) => {
+    const fy = fiscalYearEnd(r.fiscal_year) ?? 0
+    return {
+      fiscal_year: fy,
+      title: r.title,
+      subtitle: r.subtitle,
+      cover_photo_url: r.cover_image_url,
+      pdf_url: r.pdf_url,
+      published_date: r.published_date,
+      summary: r.extracted_summary,
+      stats: r.extracted_stats,
+      sections: Array.isArray(r.extracted_sections)
+        ? r.extracted_sections.map((s) => ({
+            title: s.title ?? '',
+            summary: s.summary ?? '',
+          }))
         : [],
-    extracted_at: r.metadata?.extracted_at ?? null,
-  }))
+      key_achievements:
+        Array.isArray(r.metadata?.key_achievements)
+          ? (r.metadata?.key_achievements as string[])
+          : [],
+      extracted_at: r.metadata?.extracted_at ?? null,
+      // PICC-side decomp from report_sections / report_statistics /
+      // report_highlights, keyed off the now-fixed fiscal_year on
+      // PICC.annual_reports.
+      picc_sections: piccSectionsByYear.get(fy) ?? [],
+      picc_statistics: piccStatsByYear.get(fy) ?? [],
+      picc_highlights: piccHighlightsByYear.get(fy) ?? [],
+    }
+  })
   void annualReportsFullRes // reserved for in-flight planning rows, not yet merged
 
   // ── EL v2 STORIES (76 public; richer than PICC mirror) ────────────────
