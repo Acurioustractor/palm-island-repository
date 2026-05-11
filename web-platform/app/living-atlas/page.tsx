@@ -1,20 +1,21 @@
 /**
  * /living-atlas — Palm Island Living Atlas (preview).
  *
- * Parallel surface to /picc/constellation. Same data feed, same stage —
- * but framed as the public-facing Atlas rather than the workshop hero.
+ * Parallel surface to /picc/constellation. Adds:
+ *   - the seven-lens rail (variant='atlas' on the shared component)
+ *   - PalmIslandMap section below the stage — services pinned on Country
+ *   - ChatWidget overlay (Ask PICC) — community can ask the atlas a
+ *     question and get a sourced answer
  *
  * Per plan (i-want-to-lock-zesty-mochi.md, "Decisions locked"):
- *   - /picc/constellation stays frozen for the 13 May workshop.
- *   - /living-atlas is the preview Rachel & Narelle see the direction of.
- *   - Both routes mount the same <Constellation> component.
- *
- * Stages 1+ progressively reshape this route into the seven-lens Atlas
- * (Now · Services · Projects · Elders · Stories · Reports · Futures).
+ *   /picc/constellation stays frozen for the 13 May workshop.
+ *   /living-atlas is the preview Rachel & Narelle see the direction of.
  */
 
 import Constellation from '../picc/constellation/Constellation'
 import { loadConstellation } from '@/lib/constellation/queries'
+import PalmIslandMap, { type PinService } from '../picc/twenty-years/PalmIslandMap'
+import ChatWidget from '@/components/chat/ChatWidget'
 
 export const metadata = {
   title: 'Palm Island Living Atlas',
@@ -32,6 +33,18 @@ function nf(n: number): string {
 export default async function LivingAtlasPage() {
   const data = await loadConstellation()
   const hasData = data.faces.length > 0
+
+  // Build map pins from services with lat/long.
+  const mapServices: PinService[] = data.services
+    .filter((s) => s.latitude != null && s.longitude != null)
+    .map((s) => ({
+      id: s.id,
+      slug: s.slug,
+      name: s.name,
+      service_category: s.category,
+      latitude: s.latitude as number,
+      longitude: s.longitude as number,
+    }))
 
   return (
     <div className="min-h-screen bg-cream">
@@ -73,16 +86,42 @@ export default async function LivingAtlasPage() {
           <Pill value={nf(data.projects.length)} label="projects" />
           <Pill value={nf(data.named_elders.length)} label="named elders" />
           <Pill value={nf(data.annual_reports.length)} label="annual reports" />
-          <Pill value={nf(data.stats.voices_validated_elder + data.stats.voices_extracted)} label="quotes" />
+          <Pill
+            value={nf(data.stats.voices_validated_elder + data.stats.voices_extracted)}
+            label="quotes"
+          />
           <Pill value={nf(data.bwgcolman.language_groups)} label="language groups" />
         </div>
+
+        {/* Map lens — services pinned on Country */}
+        {mapServices.length > 0 && (
+          <section className="mt-6">
+            <div className="mb-3 flex items-baseline justify-between">
+              <h2 className="font-serif text-xl text-charcoal">
+                Where the work happens
+              </h2>
+              <span className="text-[11px] text-stone-500">
+                {mapServices.length} of {data.services.length} services pinned on
+                Country
+              </span>
+            </div>
+            <PalmIslandMap services={mapServices} />
+          </section>
+        )}
 
         <p className="mt-6 text-xs text-stone-500 italic max-w-3xl">
           Preview surface. The workshop demo lives at /picc/constellation —
           this route is where the post-workshop seven-lens Atlas takes shape
           (Now · Services · Projects · Elders · Stories · Reports · Futures).
+          Tap the chat button (bottom-right) to ask PICC anything.
         </p>
       </div>
+
+      {/* Ask PICC chat overlay — bottom-right floating widget */}
+      <ChatWidget
+        position="bottom-right"
+        welcomeMessage="Welcome to the Palm Island Living Atlas. Ask me about any service, project, Elder, annual report year, or the Hull River journey. I'll cite the source so you can keep exploring."
+      />
     </div>
   )
 }

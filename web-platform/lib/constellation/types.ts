@@ -123,6 +123,9 @@ export interface ServiceItem {
   category: string | null
   service_type: string | null
   status: string | null
+  /** Geographic location set in /picc/services/map admin. */
+  latitude: number | null
+  longitude: number | null
   /** Face ids of storytellers linked via service_slugs. */
   photo_ids: string[]
 }

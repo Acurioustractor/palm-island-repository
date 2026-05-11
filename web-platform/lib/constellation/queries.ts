@@ -469,7 +469,7 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     category: (v.category as string | null) ?? null,
   }))
 
-  // ── SERVICES (canonical from EL v2 with image_url) ─────────────────────
+  // ── SERVICES (canonical from EL v2 with image_url + lat/long) ──────────
   const services: ServiceItem[] = (elServices ?? []).map((s) => ({
     id: s.id,
     name: s.name,
@@ -479,6 +479,8 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     category: s.service_category,
     service_type: null,
     status: 'active',
+    latitude: s.latitude,
+    longitude: s.longitude,
     // Storytellers linked to this service via service_slugs.
     photo_ids: faces
       .filter((f) => f.service_slugs.includes(s.slug))
