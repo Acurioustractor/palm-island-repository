@@ -11,6 +11,7 @@ import {
 import VideoHero from '@/components/video/VideoHero';
 import { assetUrl } from '@/lib/media/asset-url';
 import { FINANCIALS, MILESTONES } from '@/lib/stats/current-stats';
+import { C } from '@/components/annual-report/2024-25/almanac/tokens';
 import { BarChart, Bar, Legend } from 'recharts';
 import {
   AreaChart, Area,
@@ -119,11 +120,31 @@ function HeroStat({
   );
 }
 
-function SectionHeading({ title, subtitle }: { title: string; subtitle?: string }) {
+function SectionHeading({ title, subtitle, eyebrow }: { title: string; subtitle?: string; eyebrow?: string }) {
   return (
     <motion.div variants={fadeIn} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mb-6">
-      <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
-      {subtitle && <p className="text-gray-500 mt-1">{subtitle}</p>}
+      {eyebrow && (
+        <p
+          className="font-bold uppercase mb-2"
+          style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.3em' }}
+        >
+          {eyebrow}
+        </p>
+      )}
+      <h2
+        className="font-fraunces font-bold"
+        style={{ color: C.ocean, fontSize: 'clamp(24px, 3vw, 32px)', lineHeight: 1.15 }}
+      >
+        {title}
+      </h2>
+      {subtitle && (
+        <p
+          className="font-fraunces mt-2"
+          style={{ color: C.driftwood, fontSize: 16, lineHeight: 1.55 }}
+        >
+          {subtitle}
+        </p>
+      )}
     </motion.div>
   );
 }
@@ -160,7 +181,7 @@ export default function ImpactPageClient({
   const spanLabel = `${firstYear}–${lastYear}`;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ backgroundColor: C.shell }}>
       {/* ================================================================ */}
       {/* HERO                                                             */}
       {/* ================================================================ */}
@@ -172,25 +193,35 @@ export default function ImpactPageClient({
         aria-label="Impact journey — Palm Island Community Company"
       >
         <div className="text-center text-white max-w-4xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium mb-4">
-            <Activity className="w-4 h-4" />
-            {MILESTONES.yearsOperating} Years of Community Impact
-          </div>
+          <p
+            className="font-bold uppercase mb-4 inline-flex items-center gap-2"
+            style={{ color: '#F5E9D0', fontSize: 11, letterSpacing: '0.3em', textShadow: '0 1px 2px rgba(0,0,0,0.4)' }}
+          >
+            <Activity className="w-3.5 h-3.5" />
+            {MILESTONES.yearsOperating} years of community impact
+          </p>
 
-          <h1 className="text-4xl md:text-5xl font-bold mb-3">
-            Our Impact Journey
+          <h1
+            className="font-fraunces font-bold mb-4"
+            style={{ fontSize: 'clamp(36px, 6vw, 64px)', lineHeight: 1.05, textShadow: '0 2px 12px rgba(0,0,0,0.5)' }}
+          >
+            Our impact journey
           </h1>
 
-          <p className="text-lg text-warm-200 max-w-2xl mx-auto mb-8">
-            From humble beginnings to Palm Island&apos;s largest employer — tracking our growth across {spanLabel}
+          <p
+            className="font-fraunces max-w-2xl mx-auto mb-10"
+            style={{ color: 'rgba(255,255,255,0.92)', fontSize: 'clamp(16px, 2vw, 20px)', lineHeight: 1.55, textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}
+          >
+            From humble beginnings to Palm Island&apos;s largest employer — tracking our growth across {spanLabel}.
           </p>
 
           <Link
             href="/annual-report/live"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-white text-picc-earth rounded-full font-semibold hover:bg-warm-50 transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-md font-bold uppercase text-xs hover:opacity-90 transition"
+            style={{ backgroundColor: '#FFFFFF', color: C.ocean, letterSpacing: '0.15em' }}
           >
-            <Download className="w-5 h-5" />
-            View Annual Report
+            <Download className="w-3.5 h-3.5" />
+            View annual report
           </Link>
         </div>
       </VideoHero>
@@ -607,7 +638,10 @@ export default function ImpactPageClient({
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-picc-ochre mb-3">
               Year by year
             </p>
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+            <h2
+              className="font-fraunces font-bold mb-2"
+              style={{ color: C.ocean, fontSize: 'clamp(24px, 3.5vw, 36px)', lineHeight: 1.15 }}
+            >
               Every year of the journey
             </h2>
             <p className="text-sm text-gray-500">
@@ -712,7 +746,10 @@ export default function ImpactPageClient({
               <p className="text-xs font-semibold tracking-[0.2em] uppercase text-picc-ochre mb-3">
                 Voices behind the numbers
               </p>
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
+              <h2
+                className="font-fraunces font-bold"
+                style={{ color: C.ocean, fontSize: 'clamp(24px, 3.5vw, 36px)', lineHeight: 1.15 }}
+              >
                 What community impact sounds like
               </h2>
             </div>
