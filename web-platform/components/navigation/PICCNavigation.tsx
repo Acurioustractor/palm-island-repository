@@ -65,6 +65,7 @@ const staffNavigation: { [key: string]: NavSection } = {
     title: 'Reports & Impact',
     icon: FileText,
     items: [
+      { label: 'The System', href: '/picc/system', icon: Network, description: 'Theory of change · 5 flows · 4 stakeholders · the loop' },
       { label: 'Annual Report Hub', href: '/picc/annual-report', icon: BookOpen, description: 'Always-on annual report · command center' },
       { label: 'Community Books', href: '/picc/books', icon: BookOpen, description: 'Innovation track · kids make books · print on demand' },
       { label: 'Annual Reports', href: '/picc/annual-reports', icon: FileText, description: 'Reports hub & workflow' },
@@ -136,6 +137,7 @@ const advancedNavigation: { [key: string]: NavSection } = {
     title: 'Reports & Impact',
     icon: FileText,
     items: [
+      { label: 'The System', href: '/picc/system', icon: Network, description: 'Theory of change · 5 flows · 4 stakeholders · the loop' },
       { label: 'Annual Report Hub', href: '/picc/annual-report', icon: BookOpen, description: 'Always-on annual report · command center' },
       { label: 'Community Books', href: '/picc/books', icon: BookOpen, description: 'Innovation track · kids make books · print on demand' },
       { label: 'Annual Reports', href: '/picc/annual-reports', icon: FileText, description: 'Reports hub & workflow' },
