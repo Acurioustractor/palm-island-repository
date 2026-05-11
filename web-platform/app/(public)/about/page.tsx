@@ -9,6 +9,7 @@ import { CommunityQuotesSection } from "@/components/quotes/CommunityQuotesSecti
 import AboutCountdownSection from "@/components/about/AboutCountdownSection";
 import { createServerSupabase } from "@/lib/supabase/client";
 import { assetUrl } from "@/lib/media/asset-url";
+import { C } from "@/components/annual-report/2024-25/almanac/tokens";
 
 export const dynamic = 'force-dynamic'
 export const metadata = {
@@ -53,37 +54,74 @@ export default async function AboutPage() {
         aria-label="About Palm Island Community Company"
       >
         <div className="text-center text-white max-w-5xl mx-auto">
-          <p className="text-sm font-semibold tracking-widest uppercase text-white/70 mb-4">About PICC</p>
-          <h1 className="text-5xl md:text-7xl font-bold mb-6">
+          <p
+            className="font-bold uppercase mb-4"
+            style={{ color: '#F5E9D0', fontSize: 11, letterSpacing: '0.3em', textShadow: '0 1px 2px rgba(0,0,0,0.4)' }}
+          >
+            About PICC
+          </p>
+          <h1
+            className="font-fraunces font-bold mb-6"
+            style={{ fontSize: 'clamp(40px, 7vw, 84px)', lineHeight: 1.05, textShadow: '0 2px 14px rgba(0,0,0,0.5)' }}
+          >
             Palm Island Community Company
           </h1>
-          <p className="text-xl md:text-2xl mb-8 font-light">
+          <p
+            className="font-fraunces mb-10"
+            style={{ fontSize: 'clamp(18px, 2.4vw, 28px)', color: 'rgba(255,255,255,0.92)', textShadow: '0 1px 6px rgba(0,0,0,0.4)' }}
+          >
             Year {MILESTONES.currentYear} of a 20-year journey
           </p>
-          <div className="flex gap-4 justify-center flex-wrap">
-            <Link href="/20-years" className="group inline-flex items-center gap-3 px-8 py-4 bg-white text-gray-900 rounded-full font-semibold text-lg hover:scale-[0.97] active:scale-95 transition-all duration-300 ease-elegant shadow-2xl shadow-black/20">
-              Our Journey
+          <div className="flex gap-3 justify-center flex-wrap">
+            <Link
+              href="/20-years"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-md font-bold uppercase text-xs hover:opacity-90 transition"
+              style={{ backgroundColor: '#FFFFFF', color: C.ocean, letterSpacing: '0.15em' }}
+            >
+              Our journey
             </Link>
-            <Link href="/share-voice" className="inline-flex items-center gap-3 px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-full font-semibold text-lg hover:bg-white/20 transition-all duration-300 ease-elegant">
-              Share Your Story
+            <Link
+              href="/share-voice"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-md font-bold uppercase text-xs hover:bg-white/15 transition"
+              style={{ backgroundColor: 'rgba(255,255,255,0.1)', color: '#FFFFFF', border: '1px solid rgba(255,255,255,0.4)', letterSpacing: '0.15em' }}
+            >
+              Share your story
             </Link>
           </div>
         </div>
       </VideoHero>
 
       {/* 2. Who We Are (merged vision + principles) */}
-      <section className="editorial-section bg-warm-50">
+      <section className="editorial-section" style={{ backgroundColor: C.shell }}>
         <div className="max-w-6xl mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl md:text-4xl font-extrabold text-picc-earth tracking-[-0.02em] mb-6">
-                A Living Testament to Transformation
-              </h2>
-              <p className="text-xl text-gray-700 leading-relaxed mb-6">
-                In the heart of the Coral Sea lies an island that refuses to be defined by its colonial past. Palm Island Community Company stands as proof that when a community takes control of its own destiny, transformation isn&apos;t just possible&mdash;it&apos;s inevitable.
+              <p
+                className="font-bold uppercase mb-4"
+                style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.3em' }}
+              >
+                Who we are
               </p>
-              <p className="text-lg text-gray-600 leading-relaxed">
-                We see each challenge not as a barrier but as an invitation to innovate, each service not as charity but as sovereignty in action. This is PICC: Community control as revolutionary act.
+              <h2
+                className="font-fraunces font-bold mb-6"
+                style={{ color: C.ocean, fontSize: 'clamp(32px, 4.5vw, 48px)', lineHeight: 1.1 }}
+              >
+                A living testament to transformation
+              </h2>
+              <p
+                className="font-fraunces leading-relaxed mb-6"
+                style={{ color: C.earth, fontSize: 'clamp(18px, 2.2vw, 22px)' }}
+              >
+                In the heart of the Coral Sea lies an island that refuses to be defined by its colonial past.
+                Palm Island Community Company stands as proof that when a community takes control of its own
+                destiny, transformation isn&apos;t just possible — it&apos;s inevitable.
+              </p>
+              <p
+                className="font-fraunces leading-relaxed"
+                style={{ color: C.driftwood, fontSize: 'clamp(16px, 2vw, 19px)' }}
+              >
+                We see each challenge not as a barrier but as an invitation to innovate, each service not as
+                charity but as sovereignty in action. This is PICC: community control as revolutionary act.
               </p>
             </div>
             <div className="bg-white rounded-2xl border border-warm-200 overflow-hidden h-96">
@@ -97,55 +135,66 @@ export default async function AboutPage() {
 
           {/* Compact 3-pillar row */}
           <div className="grid md:grid-cols-3 gap-8 mt-16">
-            <div className="text-center">
-              <div className="bg-white w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center border border-warm-200">
-                <Star className="w-8 h-8 text-picc-ocean" />
+            {[
+              { icon: Star, title: 'Our philosophy', body: 'We operate from abundance, not deficit. Every Palm Islander carries strengths, knowledge, and potential.' },
+              { icon: Heart, title: 'Our method', body: 'Integrated services that wrap around families. No wrong door, no gaps — just seamless support.' },
+              { icon: Target, title: 'Our promise', body: 'Every decision emerges from and returns to community. Sovereignty in practice.' },
+            ].map(({ icon: Icon, title, body }) => (
+              <div key={title} className="text-center">
+                <div
+                  className="w-16 h-16 rounded-full mx-auto mb-5 flex items-center justify-center"
+                  style={{ backgroundColor: '#FFFFFF', border: `1px solid ${C.border}` }}
+                >
+                  <Icon className="w-7 h-7" style={{ color: C.ocean }} />
+                </div>
+                <p
+                  className="font-bold uppercase mb-2"
+                  style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.25em' }}
+                >
+                  {title}
+                </p>
+                <p className="font-fraunces" style={{ color: C.driftwood, fontSize: 15, lineHeight: 1.55 }}>
+                  {body}
+                </p>
               </div>
-              <h3 className="text-lg font-bold text-picc-earth mb-2">Our Philosophy</h3>
-              <p className="text-sm text-gray-600">We operate from abundance, not deficit. Every Palm Islander carries strengths, knowledge, and potential.</p>
-            </div>
-            <div className="text-center">
-              <div className="bg-white w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center border border-warm-200">
-                <Heart className="w-8 h-8 text-picc-ocean" />
-              </div>
-              <h3 className="text-lg font-bold text-picc-earth mb-2">Our Method</h3>
-              <p className="text-sm text-gray-600">Integrated services that wrap around families. No wrong door, no gaps&mdash;just seamless support.</p>
-            </div>
-            <div className="text-center">
-              <div className="bg-white w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center border border-warm-200">
-                <Target className="w-8 h-8 text-picc-ocean" />
-              </div>
-              <h3 className="text-lg font-bold text-picc-earth mb-2">Our Promise</h3>
-              <p className="text-sm text-gray-600">Every decision emerges from and returns to community. Sovereignty in practice.</p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* 2.5 Bwgcolman — Cultural foundation */}
-      <section className="editorial-section bg-[#FAF8F5]">
+      <section className="editorial-section" style={{ backgroundColor: '#FAF8F5' }}>
         <div className="max-w-5xl mx-auto px-4">
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-picc-ochre mb-3 text-center">
-            Cultural Foundation
+          <p
+            className="font-bold uppercase mb-4 text-center"
+            style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.3em' }}
+          >
+            Cultural foundation
           </p>
-          <h2 className="text-3xl md:text-5xl font-extrabold text-picc-earth tracking-[-0.02em] text-center mb-8 font-serif italic">
+          <h2
+            className="font-fraunces font-bold italic text-center mb-10"
+            style={{ color: C.ocean, fontSize: 'clamp(32px, 5vw, 56px)', lineHeight: 1.1 }}
+          >
             Bwgcolman — many tribes, one people
           </h2>
           <div className="grid md:grid-cols-2 gap-10 items-start">
             <div>
-              <p className="text-lg text-gray-700 leading-relaxed mb-5">
+              <p className="font-fraunces leading-relaxed mb-5" style={{ color: C.earth, fontSize: 19 }}>
                 Palm Island was gazetted as an Aboriginal reserve in 1914. In the decades that followed, Aboriginal and Torres Strait Islander people were forcibly removed here from <strong>more than 70 Nations</strong> across Queensland.
               </p>
-              <p className="text-lg text-gray-700 leading-relaxed">
+              <p className="font-fraunces leading-relaxed" style={{ color: C.earth, fontSize: 19 }}>
                 Out of that history, a single community formed. <strong>Bwgcolman</strong> is the name Palm Islanders use for themselves — commonly glossed as <em>&ldquo;many tribes, one people.&rdquo;</em> The <strong>Manbarra</strong> are the Traditional Owners of this country. PICC&apos;s constitution reserves a board seat for a Manbarra-nominated director, and membership is open to Manbarra and Bwgcolman people aged 18 and over.
               </p>
             </div>
-            <div className="bg-[#0B4F6C] text-white rounded-2xl p-8">
-              <Quote className="w-8 h-8 text-picc-ochre mb-4 opacity-80" />
-              <p className="font-serif italic text-xl md:text-2xl leading-relaxed mb-4">
+            <div className="rounded-2xl p-8 text-white" style={{ backgroundColor: C.ocean }}>
+              <Quote className="w-8 h-8 mb-4 opacity-80" style={{ color: C.ochre }} />
+              <p className="font-fraunces italic leading-relaxed mb-4" style={{ fontSize: 'clamp(20px, 2.5vw, 26px)' }}>
                 Community control on Palm is not just an administrative model. It is a self-determination response to a long history of imposed control.
               </p>
-              <p className="text-xs text-white/60 border-l-2 border-picc-ochre pl-3">
+              <p
+                className="pl-3"
+                style={{ borderLeft: `2px solid ${C.ochre}`, color: 'rgba(255,255,255,0.7)', fontSize: 11, letterSpacing: '0.05em' }}
+              >
                 From the PICC sector-context research, 10 April 2026
               </p>
             </div>
@@ -154,58 +203,102 @@ export default async function AboutPage() {
       </section>
 
       {/* 3. Impact Numbers */}
-      <section className="editorial-section bg-white">
+      <section className="editorial-section" style={{ backgroundColor: '#FFFFFF' }}>
         <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-picc-earth tracking-[-0.02em] text-center mb-4">The Numbers Tell Our Story</h2>
-          <p className="text-xl text-gray-600 text-center mb-12 max-w-3xl mx-auto">
-            Each number represents a life touched, a family strengthened, a future secured
+          <p
+            className="font-bold uppercase mb-4 text-center"
+            style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.3em' }}
+          >
+            The numbers
+          </p>
+          <h2
+            className="font-fraunces font-bold text-center mb-4"
+            style={{ color: C.ocean, fontSize: 'clamp(32px, 5vw, 48px)', lineHeight: 1.1 }}
+          >
+            The numbers tell our story
+          </h2>
+          <p
+            className="font-fraunces text-center mb-14 max-w-3xl mx-auto"
+            style={{ color: C.driftwood, fontSize: 'clamp(16px, 2vw, 20px)', lineHeight: 1.55 }}
+          >
+            Each number represents a life touched, a family strengthened, a future secured.
           </p>
 
           <div className="grid md:grid-cols-4 gap-6">
-            <div className="bg-warm-50 rounded-2xl p-8 text-center border border-warm-200">
-              <div className="text-5xl font-extrabold text-picc-ocean tracking-tight mb-2">{stats.staff.total}</div>
-              <div className="text-lg font-semibold text-gray-800 mb-1">Staff Employed</div>
-              <p className="text-sm text-gray-600">Each job represents a family lifted</p>
-            </div>
-
-            <div className="bg-warm-50 rounded-2xl p-8 text-center border border-warm-200">
-              <div className="text-5xl font-extrabold text-picc-ocean tracking-tight mb-2">{stats.staff.indigenousPct}%</div>
-              <div className="text-lg font-semibold text-gray-800 mb-1">Indigenous Workforce</div>
-              <p className="text-sm text-gray-600">Our people serving our people</p>
-            </div>
-
-            <div className="bg-warm-50 rounded-2xl p-8 text-center border border-warm-200">
-              <div className="text-5xl font-extrabold text-picc-ocean tracking-tight mb-2">{stats.financials.incomeDisplay}</div>
-              <div className="text-lg font-semibold text-gray-800 mb-1">Annual Income</div>
-              <p className="text-sm text-gray-600">Community-controlled investment</p>
-            </div>
-
-            <div className="bg-warm-50 rounded-2xl p-8 text-center border border-warm-200">
-              <div className="text-5xl font-extrabold text-picc-ocean tracking-tight mb-2">{stats.services.active}</div>
-              <div className="text-lg font-semibold text-gray-800 mb-1">Integrated Services</div>
-              <p className="text-sm text-gray-600">Holistic support ecosystem</p>
-            </div>
+            {[
+              { value: stats.staff.total, label: 'Staff employed', sub: 'Each job represents a family lifted', accent: C.ochre },
+              { value: `${stats.staff.indigenousPct}%`, label: 'Indigenous workforce', sub: 'Our people serving our people', accent: C.mangrove },
+              { value: stats.financials.incomeDisplay, label: 'Annual income', sub: 'Community-controlled investment', accent: C.ocean },
+              { value: stats.services.active, label: 'Integrated services', sub: 'Holistic support ecosystem', accent: C.turtleRed },
+            ].map((stat) => (
+              <div
+                key={stat.label}
+                className="rounded-2xl p-7 text-center"
+                style={{ backgroundColor: C.shell, border: `1px solid ${C.border}`, borderTopWidth: 3, borderTopColor: stat.accent }}
+              >
+                <div
+                  className="font-fraunces font-bold leading-none mb-3"
+                  style={{ color: C.ocean, fontSize: 'clamp(36px, 4vw, 52px)' }}
+                >
+                  {stat.value}
+                </div>
+                <p
+                  className="font-bold uppercase mb-2"
+                  style={{ color: stat.accent, fontSize: 11, letterSpacing: '0.2em' }}
+                >
+                  {stat.label}
+                </p>
+                <p className="font-fraunces" style={{ color: C.driftwood, fontSize: 13, lineHeight: 1.5 }}>
+                  {stat.sub}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* 4. CEO Quote Callout */}
-      <section className="py-20 md:py-24 px-4 bg-gradient-to-br from-picc-earth-700 via-picc-earth to-picc-red text-white">
+      <section
+        className="py-20 md:py-24 px-4 text-white"
+        style={{ background: `linear-gradient(135deg, ${C.earth}, ${C.midnight} 60%, ${C.turtleRed})` }}
+      >
         <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
-          <Quote className="w-12 h-12 mx-auto mb-4 opacity-50" />
-          <blockquote className="text-2xl md:text-3xl lg:text-4xl font-extrabold mb-6 tracking-[-0.02em] leading-tight">
-            &ldquo;Everything we do is for, with, and because of the people of this beautiful community&rdquo;
+          <Quote className="w-12 h-12 mx-auto mb-6 opacity-50" style={{ color: C.ochre }} />
+          <blockquote
+            className="font-fraunces italic mb-6"
+            style={{ fontSize: 'clamp(24px, 4vw, 44px)', lineHeight: 1.3 }}
+          >
+            &ldquo;Everything we do is for, with, and because of the people of this beautiful community.&rdquo;
           </blockquote>
-          <p className="text-lg text-white/70">Rachel Atkinson, CEO</p>
+          <p
+            className="font-bold uppercase"
+            style={{ color: C.ochre, fontSize: 11, letterSpacing: '0.3em' }}
+          >
+            Rachel Atkinson · CEO
+          </p>
         </div>
       </section>
 
       {/* 5. Our Story Timeline */}
-      <section className="editorial-section bg-warm-50">
+      <section className="editorial-section" style={{ backgroundColor: C.shell }}>
         <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-picc-earth tracking-[-0.02em] mb-4 text-center">From Colonial Control to Community Sovereignty</h2>
-          <p className="text-xl text-gray-600 text-center mb-12 max-w-3xl mx-auto">
-            The journey of Palm Island Community Company cannot be separated from the journey of Palm Island itself
+          <p
+            className="font-bold uppercase mb-4 text-center"
+            style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.3em' }}
+          >
+            Our journey
+          </p>
+          <h2
+            className="font-fraunces font-bold text-center mb-4"
+            style={{ color: C.ocean, fontSize: 'clamp(32px, 5vw, 48px)', lineHeight: 1.1 }}
+          >
+            From colonial control to community sovereignty
+          </h2>
+          <p
+            className="font-fraunces text-center mb-14 max-w-3xl mx-auto"
+            style={{ color: C.driftwood, fontSize: 'clamp(16px, 2vw, 20px)', lineHeight: 1.55 }}
+          >
+            The journey of Palm Island Community Company cannot be separated from the journey of Palm Island itself.
           </p>
 
           <div className="space-y-12">
