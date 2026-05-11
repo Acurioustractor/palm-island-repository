@@ -54,14 +54,17 @@ function AddCEOMessageContent() {
         if (error) throw error
       } else {
         // Create new report
-        const insertData = messageType === 'ceo'
-          ? { leadership_message: content, title }
-          : { acknowledgments: content, title }
-        
+        // Narrow the discriminated union to a single record-shape so
+        // Supabase's `insert()` overload resolution accepts it cleanly.
+        const insertData: Record<string, string> =
+          messageType === 'ceo'
+            ? { leadership_message: content, title }
+            : { acknowledgments: content, title }
+
         const { error } = await supabase
           .from('annual_reports')
           .insert(insertData)
-        
+
         if (error) throw error
       }
       
