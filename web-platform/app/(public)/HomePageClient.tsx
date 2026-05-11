@@ -17,6 +17,7 @@ import { assetUrl } from '@/lib/media/asset-url';
 import { CommunityQuotesSection } from '@/components/quotes/CommunityQuotesSection';
 import { MILESTONES } from '@/lib/stats/current-stats';
 import type { HomeServiceData, HomeStats, InnovationProject } from './page';
+import { C } from '@/components/annual-report/2024-25/almanac/tokens';
 
 // Animation variants
 const fadeInUp = {
@@ -383,7 +384,7 @@ export default function HomePageClient({ services, stats, innovationProjects, ga
       </VideoBackground>
 
       {/* IMPACT NUMBERS */}
-      <section className="bg-white border-b border-gray-100">
+      <section style={{ backgroundColor: '#FFFFFF', borderBottom: `1px solid ${C.border}` }}>
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16 md:py-20">
           <motion.div
             initial="hidden"
@@ -393,17 +394,25 @@ export default function HomePageClient({ services, stats, innovationProjects, ga
             className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12"
           >
             {[
-              { value: stats.totalStaff, label: 'Staff Members', icon: Users, color: 'text-picc-red' },
-              { value: stats.serviceCount, label: 'Services', icon: Building2, color: 'text-picc-ochre' },
-              { value: stats.totalPhotos, label: 'Photos Captured', icon: Camera, color: 'text-picc-red' },
-              { value: stats.storyCount, label: 'Community Stories', suffix: '+', icon: BookOpen, color: 'text-picc-ochre' },
+              { value: stats.totalStaff, label: 'Staff members', icon: Users, color: C.turtleRed },
+              { value: stats.serviceCount, label: 'Services', icon: Building2, color: C.ochre },
+              { value: stats.totalPhotos, label: 'Photos captured', icon: Camera, color: C.turtleRed },
+              { value: stats.storyCount, label: 'Community stories', suffix: '+', icon: BookOpen, color: C.ochre },
             ].map((stat) => (
               <motion.div key={stat.label} variants={fadeInUp} className="text-center">
-                <stat.icon className={`w-5 h-5 ${stat.color} mx-auto mb-3`} />
-                <div className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 tracking-tight">
+                <stat.icon className="w-5 h-5 mx-auto mb-3" style={{ color: stat.color }} />
+                <div
+                  className="font-fraunces font-bold leading-none"
+                  style={{ color: C.ocean, fontSize: 'clamp(36px, 5vw, 56px)' }}
+                >
                   <AnimatedCounter value={stat.value} suffix={stat.suffix || ''} />
                 </div>
-                <div className="text-sm text-gray-500 mt-2 font-medium">{stat.label}</div>
+                <div
+                  className="font-bold uppercase mt-3"
+                  style={{ color: C.driftwood, fontSize: 11, letterSpacing: '0.25em' }}
+                >
+                  {stat.label}
+                </div>
               </motion.div>
             ))}
           </motion.div>
@@ -411,7 +420,7 @@ export default function HomePageClient({ services, stats, innovationProjects, ga
       </section>
 
       {/* SERVICES SECTION */}
-      <section className="editorial-section bg-gray-50/50">
+      <section className="editorial-section" style={{ backgroundColor: C.shell }}>
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <motion.div
             initial="hidden"
@@ -420,13 +429,22 @@ export default function HomePageClient({ services, stats, innovationProjects, ga
             variants={fadeInUp}
             className="max-w-3xl mb-16"
           >
-            <p className="text-sm font-medium tracking-[0.15em] uppercase text-picc-red mb-4">
-              {stats.serviceCount} Integrated Services
+            <p
+              className="font-bold uppercase mb-4"
+              style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.3em' }}
+            >
+              {stats.serviceCount} integrated services
             </p>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 tracking-[-0.02em] leading-[1.1] mb-5">
-              How PICC Supports the Community
+            <h2
+              className="font-fraunces font-bold mb-5"
+              style={{ color: C.ocean, fontSize: 'clamp(32px, 5vw, 56px)', lineHeight: 1.1 }}
+            >
+              How PICC supports the community
             </h2>
-            <p className="text-lg text-gray-500 leading-relaxed">
+            <p
+              className="font-fraunces"
+              style={{ color: C.driftwood, fontSize: 'clamp(16px, 2vw, 19px)', lineHeight: 1.55 }}
+            >
               Comprehensive, culturally-informed support across every aspect of community life.
             </p>
           </motion.div>
@@ -448,10 +466,11 @@ export default function HomePageClient({ services, stats, innovationProjects, ga
           >
             <Link
               href="/services"
-              className="animated-underline inline-flex items-center gap-2 text-gray-900 font-semibold text-base hover:gap-3 transition-all duration-300 ease-elegant"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-md font-bold uppercase text-xs hover:opacity-90 transition"
+              style={{ backgroundColor: C.ocean, color: '#FBF8EE', letterSpacing: '0.15em' }}
             >
-              See All {stats.serviceCount} Services
-              <ArrowRight className="w-4 h-4" />
+              See all {stats.serviceCount} services
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </motion.div>
         </div>
@@ -459,7 +478,10 @@ export default function HomePageClient({ services, stats, innovationProjects, ga
 
       {/* COMMUNITY VOICES — Empathy Ledger */}
       {voices && voices.length > 0 && (
-        <section className="editorial-section bg-gradient-to-br from-[#0B4F6C] via-[#0a3f57] to-[#082a3a] text-white overflow-hidden">
+        <section
+          className="editorial-section text-white overflow-hidden"
+          style={{ background: `linear-gradient(135deg, ${C.ocean}, #0a3f57 60%, ${C.midnight})` }}
+        >
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <motion.div
               initial="hidden"
@@ -468,15 +490,24 @@ export default function HomePageClient({ services, stats, innovationProjects, ga
               variants={fadeInUp}
               className="text-center mb-16"
             >
-              <p className="text-sm font-semibold tracking-[0.2em] uppercase text-picc-ochre mb-3">
-                Empathy Ledger · Sovereign Voices
+              <p
+                className="font-bold uppercase mb-4"
+                style={{ color: C.ochre, fontSize: 11, letterSpacing: '0.3em' }}
+              >
+                Empathy Ledger · Sovereign voices
               </p>
-              <h2 className="text-3xl md:text-5xl font-bold tracking-[-0.02em] leading-tight mb-6">
+              <h2
+                className="font-fraunces font-bold mb-6"
+                style={{ fontSize: 'clamp(32px, 5vw, 56px)', lineHeight: 1.1 }}
+              >
                 Every voice belongs to its speaker
               </h2>
-              <p className="text-lg text-white/60 max-w-2xl mx-auto leading-relaxed">
-                {elStats?.quotes || 525} community voices captured, analyzed, and stored
-                in sovereign infrastructure. The community owns the narrative.
+              <p
+                className="font-fraunces max-w-2xl mx-auto"
+                style={{ color: 'rgba(255,255,255,0.75)', fontSize: 'clamp(16px, 2vw, 19px)', lineHeight: 1.6 }}
+              >
+                {elStats?.quotes || 525} community voices captured, analysed, and stored in
+                sovereign infrastructure. The community owns the narrative.
               </p>
             </motion.div>
 
@@ -521,16 +552,16 @@ export default function HomePageClient({ services, stats, innovationProjects, ga
             >
               <div className="grid grid-cols-3 gap-8 md:gap-12">
                 <div>
-                  <div className="text-3xl md:text-4xl font-serif text-picc-ochre">{elStats?.quotes || 525}</div>
-                  <div className="text-xs uppercase tracking-wider text-white/50 mt-1">Quotes</div>
+                  <div className="font-fraunces font-bold leading-none" style={{ color: C.ochre, fontSize: 'clamp(28px, 4vw, 40px)' }}>{elStats?.quotes || 525}</div>
+                  <div className="font-bold uppercase mt-3" style={{ color: 'rgba(255,255,255,0.6)', fontSize: 10, letterSpacing: '0.3em' }}>Quotes</div>
                 </div>
                 <div>
-                  <div className="text-3xl md:text-4xl font-serif text-picc-ochre">{elStats?.transcripts || 116}</div>
-                  <div className="text-xs uppercase tracking-wider text-white/50 mt-1">Transcripts</div>
+                  <div className="font-fraunces font-bold leading-none" style={{ color: C.ochre, fontSize: 'clamp(28px, 4vw, 40px)' }}>{elStats?.transcripts || 116}</div>
+                  <div className="font-bold uppercase mt-3" style={{ color: 'rgba(255,255,255,0.6)', fontSize: 10, letterSpacing: '0.3em' }}>Transcripts</div>
                 </div>
                 <div>
-                  <div className="text-3xl md:text-4xl font-serif text-picc-ochre">{elStats?.storytellers || 50}+</div>
-                  <div className="text-xs uppercase tracking-wider text-white/50 mt-1">Voices</div>
+                  <div className="font-fraunces font-bold leading-none" style={{ color: C.ochre, fontSize: 'clamp(28px, 4vw, 40px)' }}>{elStats?.storytellers || 50}+</div>
+                  <div className="font-bold uppercase mt-3" style={{ color: 'rgba(255,255,255,0.6)', fontSize: 10, letterSpacing: '0.3em' }}>Voices</div>
                 </div>
               </div>
             </motion.div>
@@ -538,10 +569,11 @@ export default function HomePageClient({ services, stats, innovationProjects, ga
             <div className="mt-10 text-center">
               <Link
                 href="/picc/pcap"
-                className="inline-flex items-center gap-3 px-7 py-3.5 bg-picc-ochre text-[#0B4F6C] text-sm font-semibold rounded-full hover:bg-picc-ochre/90 hover:scale-[0.97] active:scale-95 transition-all duration-300"
+                className="inline-flex items-center gap-3 px-6 py-3 rounded-md font-bold uppercase text-xs hover:opacity-90 transition"
+                style={{ backgroundColor: C.ochre, color: C.ocean, letterSpacing: '0.15em' }}
               >
-                Explore Data Sovereignty
-                <ArrowRight className="w-4 h-4" />
+                Explore data sovereignty
+                <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
           </div>
@@ -549,7 +581,7 @@ export default function HomePageClient({ services, stats, innovationProjects, ga
       )}
 
       {/* INNOVATION & SPECIAL PROJECTS */}
-      <section className="editorial-section bg-white">
+      <section className="editorial-section" style={{ backgroundColor: '#FFFFFF' }}>
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <motion.div
             initial="hidden"
@@ -558,13 +590,22 @@ export default function HomePageClient({ services, stats, innovationProjects, ga
             variants={fadeInUp}
             className="max-w-3xl mb-12"
           >
-            <p className="text-sm font-medium tracking-[0.15em] uppercase text-picc-ochre mb-4">
-              Innovation & Special Projects
+            <p
+              className="font-bold uppercase mb-4"
+              style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.3em' }}
+            >
+              Innovation &amp; special projects
             </p>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-[-0.02em] leading-[1.1] mb-5">
-              Community-Led Innovation
+            <h2
+              className="font-fraunces font-bold mb-5"
+              style={{ color: C.ocean, fontSize: 'clamp(32px, 4.5vw, 48px)', lineHeight: 1.1 }}
+            >
+              Community-led innovation
             </h2>
-            <p className="text-lg text-gray-500 leading-relaxed">
+            <p
+              className="font-fraunces"
+              style={{ color: C.driftwood, fontSize: 'clamp(16px, 2vw, 19px)', lineHeight: 1.55 }}
+            >
               Pioneering projects that create employment, preserve culture, and build community sovereignty.
             </p>
           </motion.div>
@@ -584,17 +625,18 @@ export default function HomePageClient({ services, stats, innovationProjects, ga
           >
             <Link
               href="/innovation"
-              className="animated-underline inline-flex items-center gap-2 text-gray-900 font-semibold text-base hover:gap-3 transition-all duration-300 ease-elegant"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-md font-bold uppercase text-xs hover:opacity-90 transition"
+              style={{ backgroundColor: C.ocean, color: '#FBF8EE', letterSpacing: '0.15em' }}
             >
-              Explore All Innovation Projects
-              <ArrowRight className="w-4 h-4" />
+              Explore all innovation projects
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </motion.div>
         </div>
       </section>
 
       {/* MEDIA GALLERY SECTION */}
-      <section className="editorial-section bg-gray-50/50">
+      <section className="editorial-section" style={{ backgroundColor: C.shell }}>
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <motion.div
             initial="hidden"
@@ -603,13 +645,22 @@ export default function HomePageClient({ services, stats, innovationProjects, ga
             variants={fadeInUp}
             className="max-w-3xl mb-16"
           >
-            <p className="text-sm font-medium tracking-[0.15em] uppercase text-picc-red mb-4">
-              Community Media
+            <p
+              className="font-bold uppercase mb-4"
+              style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.3em' }}
+            >
+              Community media
             </p>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 tracking-[-0.02em] leading-[1.1] mb-5">
-              {stats.totalPhotos > 0 ? `${stats.totalPhotos.toLocaleString()} Moments Captured` : 'Moments Captured'}
+            <h2
+              className="font-fraunces font-bold mb-5"
+              style={{ color: C.ocean, fontSize: 'clamp(32px, 5vw, 56px)', lineHeight: 1.1 }}
+            >
+              {stats.totalPhotos > 0 ? `${stats.totalPhotos.toLocaleString()} moments captured` : 'Moments captured'}
             </h2>
-            <p className="text-lg text-gray-500 leading-relaxed">
+            <p
+              className="font-fraunces"
+              style={{ color: C.driftwood, fontSize: 'clamp(16px, 2vw, 19px)', lineHeight: 1.55 }}
+            >
               Real programs, real people, real impact across our services.
             </p>
           </motion.div>
@@ -634,10 +685,11 @@ export default function HomePageClient({ services, stats, innovationProjects, ga
           >
             <Link
               href="/stories"
-              className="animated-underline inline-flex items-center gap-2 text-gray-900 font-semibold text-base hover:gap-3 transition-all duration-300 ease-elegant"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-md font-bold uppercase text-xs hover:opacity-90 transition"
+              style={{ backgroundColor: C.ocean, color: '#FBF8EE', letterSpacing: '0.15em' }}
             >
-              Browse Stories
-              <ArrowRight className="w-4 h-4" />
+              Browse stories
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </motion.div>
         </div>
@@ -653,13 +705,22 @@ export default function HomePageClient({ services, stats, innovationProjects, ga
             variants={fadeInUp}
             className="max-w-3xl mb-16"
           >
-            <p className="text-sm font-medium tracking-[0.15em] uppercase text-picc-ochre-300 mb-4">
-              Road to 20 Years
+            <p
+              className="font-bold uppercase mb-4"
+              style={{ color: C.ochre, fontSize: 11, letterSpacing: '0.3em' }}
+            >
+              Road to 20 years
             </p>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-[-0.02em] leading-[1.1] mb-5">
-              Our Journey to 2029
+            <h2
+              className="font-fraunces font-bold mb-5"
+              style={{ fontSize: 'clamp(32px, 5vw, 56px)', lineHeight: 1.1 }}
+            >
+              Our journey to 2029
             </h2>
-            <p className="text-lg text-picc-ochre-300/70 leading-relaxed">
+            <p
+              className="font-fraunces"
+              style={{ color: 'rgba(248, 233, 200, 0.75)', fontSize: 'clamp(16px, 2vw, 19px)', lineHeight: 1.55 }}
+            >
               From Hull River to community control — {MILESTONES.currentYear} years down, {MILESTONES.yearsRemaining} to go.
             </p>
           </motion.div>
@@ -703,10 +764,11 @@ export default function HomePageClient({ services, stats, innovationProjects, ga
           >
             <Link
               href="/20-years"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-white text-gray-900 rounded-full font-semibold hover:scale-[0.97] active:scale-95 transition-all duration-300 ease-elegant"
+              className="inline-flex items-center gap-3 px-6 py-3 rounded-md font-bold uppercase text-xs hover:opacity-90 transition"
+              style={{ backgroundColor: '#FFFFFF', color: C.ocean, letterSpacing: '0.15em' }}
             >
-              Explore Full Timeline
-              <ArrowRight className="w-4 h-4" />
+              Explore full timeline
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </motion.div>
         </div>
@@ -720,7 +782,7 @@ export default function HomePageClient({ services, stats, innovationProjects, ga
       />
 
       {/* FINAL CTA */}
-      <section className="editorial-section bg-white">
+      <section className="editorial-section" style={{ backgroundColor: '#FFFFFF' }}>
         <div className="max-w-5xl mx-auto px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
@@ -729,10 +791,22 @@ export default function HomePageClient({ services, stats, innovationProjects, ga
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 tracking-[-0.02em] leading-[1.1] mb-5">
-              Be Part of the Story
+            <p
+              className="font-bold uppercase mb-4"
+              style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.3em' }}
+            >
+              Add your voice
+            </p>
+            <h2
+              className="font-fraunces font-bold mb-5"
+              style={{ color: C.ocean, fontSize: 'clamp(32px, 5vw, 56px)', lineHeight: 1.1 }}
+            >
+              Be part of the story
             </h2>
-            <p className="text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed">
+            <p
+              className="font-fraunces max-w-2xl mx-auto"
+              style={{ color: C.driftwood, fontSize: 'clamp(16px, 2vw, 19px)', lineHeight: 1.55 }}
+            >
               Every Palm Islander has a voice. Share yours and help document our community&apos;s journey to 20 years.
             </p>
           </motion.div>
