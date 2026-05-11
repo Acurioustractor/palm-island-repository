@@ -23,6 +23,7 @@ import {
 } from '@/components/annual-report/live/EditorialComponents';
 import { createServerComponentClient } from '@/lib/supabase/server';
 import { assetUrl } from '@/lib/media/asset-url';
+import { C } from '@/components/annual-report/2024-25/almanac/tokens';
 
 import { fetchLiveReportData, getCurrentFiscalYear } from '@/lib/annual-report/fetch-live-report-data';
 import { parseAudience, shouldShowWebSection, type ReportAudience, AUDIENCE_CONFIGS } from '@/lib/annual-report/audience-config';
@@ -96,53 +97,67 @@ export default async function LiveAnnualReportPage({
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60" />
 
         <div className="relative z-10 max-w-4xl mx-auto px-6 text-center text-white">
-          <p className="text-[11px] uppercase tracking-[0.35em] text-white/50 font-medium mb-6">
+          <p
+            className="font-bold uppercase mb-6"
+            style={{ color: '#F5E9D0', fontSize: 11, letterSpacing: '0.35em', textShadow: '0 1px 2px rgba(0,0,0,0.4)' }}
+          >
             Annual Report {currentFiscalYear}
           </p>
 
           <h1
-            className="text-5xl md:text-7xl font-light mb-6 drop-shadow-2xl leading-[1.05]"
-            style={{ fontFamily: 'var(--font-display), Georgia, serif' }}
+            className="font-fraunces font-bold mb-6"
+            style={{ fontSize: 'clamp(40px, 7vw, 84px)', lineHeight: 1.05, textShadow: '0 2px 14px rgba(0,0,0,0.5)' }}
           >
-            Our Community, Our Future, Our Way
+            Our community, our future, our way
           </h1>
-          <p className="text-lg md:text-xl max-w-2xl mx-auto mb-10 text-white/70 font-light">
+          <p
+            className="font-fraunces max-w-2xl mx-auto mb-10"
+            style={{ color: 'rgba(255,255,255,0.92)', fontSize: 'clamp(16px, 2vw, 22px)', textShadow: '0 1px 6px rgba(0,0,0,0.4)' }}
+          >
             {reportingPeriod}
           </p>
 
-          <div className="flex flex-wrap gap-4 justify-center">
+          <div className="flex flex-wrap gap-3 justify-center">
             <Link
               href={`/annual-report/${reportYear}`}
-              className="px-8 py-4 bg-white text-gray-900 rounded-full font-semibold text-lg hover:bg-gray-100 transition-all shadow-2xl inline-flex items-center gap-2"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-md font-bold uppercase text-xs hover:opacity-90 transition"
+              style={{ backgroundColor: '#FFFFFF', color: C.ocean, letterSpacing: '0.15em' }}
             >
-              <Download className="w-5 h-5" />
+              <Download className="w-3.5 h-3.5" />
               Download PDF
             </Link>
             <Link
               href="/picc/report-generator"
-              className="px-8 py-4 border-2 border-white text-white rounded-full font-semibold text-lg hover:bg-white hover:text-gray-900 transition-all inline-flex items-center gap-2"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-md font-bold uppercase text-xs hover:bg-white/15 transition"
+              style={{ backgroundColor: 'rgba(255,255,255,0.1)', color: '#FFFFFF', border: '1px solid rgba(255,255,255,0.4)', letterSpacing: '0.15em' }}
             >
-              <Sparkles className="w-5 h-5" />
-              Generate Full Report
+              <Sparkles className="w-3.5 h-3.5" />
+              Generate full report
             </Link>
           </div>
         </div>
 
         <Link
           href="/"
-          className="absolute top-8 left-8 flex items-center gap-2 text-white/70 hover:text-white transition-colors print:hidden"
+          className="absolute top-8 left-8 flex items-center gap-2 hover:text-white transition-colors print:hidden"
+          style={{ color: 'rgba(255,255,255,0.7)' }}
         >
           <ArrowLeft className="w-4 h-4" />
-          <span className="text-xs tracking-[0.2em] uppercase font-medium">PICC</span>
+          <span
+            className="font-bold uppercase"
+            style={{ fontSize: 11, letterSpacing: '0.3em' }}
+          >
+            PICC
+          </span>
         </Link>
       </section>
 
       {/* ─── Print-only hero ─── */}
-      <div className="hidden print:block py-12 text-center border-b border-gray-200">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">
+      <div className="hidden print:block py-12 text-center" style={{ borderBottom: `1px solid ${C.border}` }}>
+        <h1 className="font-fraunces font-bold mb-2" style={{ color: C.ocean, fontSize: 36 }}>
           PICC Annual Report {currentFiscalYear}
         </h1>
-        <p className="text-lg text-gray-600">{reportingPeriod}</p>
+        <p className="font-fraunces" style={{ color: C.driftwood, fontSize: 16 }}>{reportingPeriod}</p>
       </div>
 
       {/* ─── 2. ACKNOWLEDGMENT OF COUNTRY ─── */}
