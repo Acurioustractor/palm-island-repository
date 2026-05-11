@@ -12,6 +12,8 @@ import { join } from 'node:path'
 import Link from 'next/link'
 import { ExternalLink } from 'lucide-react'
 import { C } from '@/components/annual-report/2024-25/almanac/tokens'
+import { IMAGE_TARGETS } from '@/lib/almanac/pencil-image-targets'
+import { PENCIL_FRAME_BY_ID } from '@/lib/almanac/pencil-frame-map'
 import PhotoLibraryClient, { type LibraryPhoto } from './PhotoLibraryClient'
 
 export const dynamic = 'force-dynamic'
@@ -220,7 +222,16 @@ export default async function PhotoLibraryPage() {
         </ol>
       </section>
 
-      <PhotoLibraryClient groups={groups} />
+      <PhotoLibraryClient
+        groups={groups}
+        targets={IMAGE_TARGETS.map((t) => ({
+          nodeId: t.nodeId,
+          spreadId: t.spreadId,
+          spreadLabel: PENCIL_FRAME_BY_ID[t.spreadId]?.label ?? t.spreadId,
+          label: t.label,
+          role: t.role,
+        }))}
+      />
     </div>
   )
 }

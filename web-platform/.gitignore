@@ -26,6 +26,10 @@ next-env.d.ts
 # Source of truth is EL v2; rebuild with: node scripts/sync-pencil-photos.mjs
 /pencil-photos/
 
+# Pencil push queue — runtime state file written by /api/pencil/queue
+# Processed by Claude Code agent via Pencil MCP. Don't commit.
+/.pencil-push-queue.json
+
 # Heavy static assets migrated to Supabase Storage
 /public/documents/
 /public/hero-assets/
