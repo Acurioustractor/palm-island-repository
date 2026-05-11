@@ -41,8 +41,8 @@ export const IMAGE_TARGETS: ImageTarget[] = [
   // Featured Service · Bwgcolman Healing (HRveX) — service slug
   { nodeId: '9Xl34', spreadId: 'HRveX', label: 'Bwgcolman Healing · hero photo', role: 'hero', serviceSlug: 'bhs', defaultSlot: 'service-bhs' },
 
-  // Featured Service · First 1,000 Days (ht6rD)
-  { nodeId: 'EmpDC', spreadId: 'ht6rD', label: 'First 1,000 Days · hero photo', role: 'hero', serviceSlug: 'first-1000-days' },
+  // Featured Service · First 1,000 Days (ht6rD) — EL slug is "1000d"
+  { nodeId: 'EmpDC', spreadId: 'ht6rD', label: 'First 1,000 Days · hero photo', role: 'hero', serviceSlug: '1000d' },
 
   // Featured Service · BEAI (CcAqN)
   { nodeId: 'HJt2F', spreadId: 'CcAqN', label: 'BEAI · apprentice in workshop', role: 'hero', serviceSlug: 'beai' },
