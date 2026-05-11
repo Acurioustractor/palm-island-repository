@@ -658,6 +658,15 @@ export default function Constellation({
               ))}
             </div>
           )}
+          <div className="mt-3 pt-3 border-t border-stone-100 flex items-center gap-3 text-xs">
+            <a
+              href={`/living-atlas/themes/${activeThemeWell.key}`}
+              className="underline font-semibold"
+              style={{ color: '#2D5F4F' }}
+            >
+              Explore {activeThemeWell.label} across the years →
+            </a>
+          </div>
           <ClearButton onClick={() => setActiveTheme(null)} />
         </ContextCard>
       )
@@ -1786,14 +1795,16 @@ function ReportOverlay({
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {themesWithQuotes.slice(0, 8).map((t) => (
-                    <span
+                    <a
                       key={t.key}
-                      className="inline-flex items-center gap-1 text-[11px] rounded-full px-2.5 py-0.5"
+                      href={`/living-atlas/themes/${t.key}`}
+                      className="inline-flex items-center gap-1 text-[11px] rounded-full px-2.5 py-0.5 hover:underline"
                       style={{ backgroundColor: '#F4E9DC', color: '#2C2C2C' }}
+                      title={`Explore "${t.label}" across the years`}
                     >
                       {t.label}
                       <span className="text-stone-500">·{t.count}</span>
-                    </span>
+                    </a>
                   ))}
                 </div>
               </div>
