@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { createServerComponentClient } from '@/lib/supabase/server';
+import { C } from '@/components/annual-report/2024-25/almanac/tokens';
 import {
   ArrowLeft, Download, Share2, Calendar, User, Tag,
   FileText, Heart, BookOpen, Users, TrendingUp, Clock, Eye
@@ -89,29 +90,44 @@ export default async function PublicationPage({ params }: { params: { slug: stri
     .map((s: any, idx: number) => ({ id: `section-${idx}`, title: s.title }));
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen" style={{ backgroundColor: C.shell }}>
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
+      <section
+        className="text-white"
+        style={{ background: `linear-gradient(135deg, ${C.midnight}, ${C.earth})` }}
+      >
         <div className="max-w-7xl mx-auto px-6 py-12">
           {/* Back Button */}
           <Link
             href="/publications"
-            className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-8"
+            className="inline-flex items-center gap-2 hover:text-white transition-colors mb-8"
+            style={{ color: 'rgba(255,255,255,0.6)' }}
           >
-            <ArrowLeft className="w-5 h-5" />
-            <span>Back to Publications</span>
+            <ArrowLeft className="w-4 h-4" />
+            <span
+              className="font-bold uppercase"
+              style={{ fontSize: 11, letterSpacing: '0.25em' }}
+            >
+              Publications
+            </span>
           </Link>
 
           <div className="max-w-4xl">
             {/* Category & Date */}
-            <div className="flex items-center gap-4 mb-6">
-              <span className={`inline-flex items-center gap-2 px-4 py-2 ${config.bgColor} ${config.color} rounded-full text-sm font-medium`}>
-                <CategoryIcon className="w-4 h-4" />
+            <div className="flex items-center gap-4 mb-6 flex-wrap">
+              <span
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md font-bold uppercase"
+                style={{ backgroundColor: C.ochre + '22', color: C.ochre, fontSize: 11, letterSpacing: '0.2em' }}
+              >
+                <CategoryIcon className="w-3.5 h-3.5" />
                 {config.label}
               </span>
               {publication.published_date && (
-                <span className="inline-flex items-center gap-2 text-gray-400 text-sm">
-                  <Calendar className="w-4 h-4" />
+                <span
+                  className="inline-flex items-center gap-2"
+                  style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13 }}
+                >
+                  <Calendar className="w-3.5 h-3.5" />
                   {new Date(publication.published_date).toLocaleDateString('en-AU', {
                     year: 'numeric',
                     month: 'long',
@@ -122,55 +138,68 @@ export default async function PublicationPage({ params }: { params: { slug: stri
             </div>
 
             {/* Title */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
+            <h1
+              className="font-fraunces font-bold mb-4"
+              style={{ fontSize: 'clamp(36px, 6vw, 72px)', lineHeight: 1.05, textShadow: '0 2px 12px rgba(0,0,0,0.4)' }}
+            >
               {publication.title}
             </h1>
 
             {/* Subtitle */}
             {publication.subtitle && (
-              <p className="text-2xl text-picc-ochre-300 font-medium mb-6">
+              <p
+                className="font-fraunces italic mb-6"
+                style={{ color: C.ochre, fontSize: 'clamp(18px, 2.4vw, 26px)', lineHeight: 1.3 }}
+              >
                 {publication.subtitle}
               </p>
             )}
 
             {/* Description */}
-            <p className="text-xl text-gray-300 leading-relaxed mb-8 max-w-3xl">
+            <p
+              className="font-fraunces leading-relaxed mb-8 max-w-3xl"
+              style={{ color: 'rgba(255,255,255,0.85)', fontSize: 'clamp(16px, 2vw, 20px)' }}
+            >
               {publication.description}
             </p>
 
             {/* Meta Info */}
-            <div className="flex flex-wrap items-center gap-6 text-sm text-gray-400">
+            <div className="flex flex-wrap items-center gap-6 mb-8" style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13 }}>
               {publication.author && (
                 <span className="inline-flex items-center gap-2">
-                  <User className="w-4 h-4" />
+                  <User className="w-3.5 h-3.5" />
                   {publication.author}
                 </span>
               )}
               {(publication.view_count ?? 0) > 0 && (
                 <span className="inline-flex items-center gap-2">
-                  <Eye className="w-4 h-4" />
+                  <Eye className="w-3.5 h-3.5" />
                   {publication.view_count ?? 0} views
                 </span>
               )}
               <span className="inline-flex items-center gap-2">
-                <Clock className="w-4 h-4" />
+                <Clock className="w-3.5 h-3.5" />
                 ~{Math.ceil(JSON.stringify(publication.content).length / 1500)} min read
               </span>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-wrap gap-4 mt-8">
+            <div className="flex flex-wrap gap-3">
               {publication.pdf_url && (
                 <a
                   href={publication.pdf_url}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-white text-gray-900 rounded-full font-semibold hover:bg-gray-100 transition-all"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-md font-bold uppercase text-xs hover:opacity-90 transition"
+                  style={{ backgroundColor: '#FFFFFF', color: C.ocean, letterSpacing: '0.15em' }}
                 >
-                  <Download className="w-5 h-5" />
+                  <Download className="w-3.5 h-3.5" />
                   Download PDF
                 </a>
               )}
-              <button className="inline-flex items-center gap-2 px-6 py-3 border-2 border-white/30 text-white rounded-full font-semibold hover:bg-white/10 transition-all">
-                <Share2 className="w-5 h-5" />
+              <button
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-md font-bold uppercase text-xs hover:bg-white/15 transition"
+                style={{ backgroundColor: 'rgba(255,255,255,0.1)', color: '#FFFFFF', border: '1px solid rgba(255,255,255,0.4)', letterSpacing: '0.15em' }}
+              >
+                <Share2 className="w-3.5 h-3.5" />
                 Share
               </button>
             </div>
@@ -296,7 +325,10 @@ function PublicationSection({ section, index }: { section: any; index: number })
     case 'stats':
       return (
         <div className="mb-12 py-8" id={`section-${index}`}>
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">{section.title}</h2>
+          <h2
+            className="font-fraunces font-bold mb-6"
+            style={{ color: C.ocean, fontSize: 'clamp(22px, 3vw, 32px)', lineHeight: 1.15 }}
+          >{section.title}</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {section.stats?.map((stat: any, idx: number) => (
               <div key={idx} className="bg-gradient-to-br from-warm-50 to-warm-100 rounded-2xl p-6 text-center">
@@ -312,7 +344,10 @@ function PublicationSection({ section, index }: { section: any; index: number })
     case 'section':
       return (
         <div className="mb-12" id={`section-${index}`}>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">{section.title}</h2>
+          <h2
+            className="font-fraunces font-bold mb-4"
+            style={{ color: C.ocean, fontSize: 'clamp(22px, 3vw, 32px)', lineHeight: 1.15 }}
+          >{section.title}</h2>
           <div className="prose prose-lg max-w-none">
             {section.content?.split('\n\n').map((para: string, idx: number) => {
               // Check for bullet points
@@ -353,7 +388,10 @@ function PublicationSection({ section, index }: { section: any; index: number })
     case 'timeline':
       return (
         <div className="mb-12" id={`section-${index}`}>
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">{section.title}</h2>
+          <h2
+            className="font-fraunces font-bold mb-6"
+            style={{ color: C.ocean, fontSize: 'clamp(22px, 3vw, 32px)', lineHeight: 1.15 }}
+          >{section.title}</h2>
           <div className="relative pl-8 border-l-2 border-warm-200 space-y-8">
             {section.events?.map((event: any, idx: number) => (
               <div key={idx} className="relative">
