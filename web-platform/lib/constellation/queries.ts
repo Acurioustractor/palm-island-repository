@@ -379,18 +379,32 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
   // re-uploads them. Verified 2026-05-12 via HEAD probe on every
   // storyteller thumbnail URL.
   const MISSING_PHOTO_SLUGS = new Set([
-    'dee-ann-sailor',
     'ida-richardson',
     'jeanie-sam',
     'patricia-doyle',
   ])
+  // Manual photo overrides — for storytellers whose EL v2 photo_url
+  // points to a missing file but a real photo exists elsewhere in
+  // storage. Source: media_assets table on EL v2. Override is applied
+  // ahead of the canonical photo_url and bypasses the missing-photo
+  // filter. Keys = storyteller slug.
+  const PHOTO_OVERRIDES: Record<string, string> = {
+    'dee-ann-sailor':
+      'https://uaxhjzqrdotoahjnxmbj.supabase.co/storage/v1/object/public/story-media/picc-website/service-photos/20240410-IMG_6281.jpg',
+  }
   const stFaces: FaceNode[] = (storytellers ?? [])
-    .filter((s) => Boolean(s.photo_url) && !MISSING_PHOTO_SLUGS.has(s.slug))
-    .map((s) => ({
+    .filter(
+      (s) =>
+        (Boolean(s.photo_url) || PHOTO_OVERRIDES[s.slug]) &&
+        !MISSING_PHOTO_SLUGS.has(s.slug),
+    )
+    .map((s) => {
+      const photo = PHOTO_OVERRIDES[s.slug] ?? s.photo_url!
+      return {
       id: `storyteller:${s.id}`,
       name: s.display_name,
-      avatar_url: s.photo_url!,
-      thumb_url: thumbnailUrl(s.photo_url, 96),
+      avatar_url: photo,
+      thumb_url: thumbnailUrl(photo, 96),
       attribution: s.role,
       year: null,
       kind: 'storyteller' as const,
@@ -402,7 +416,8 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
       service_slugs: s.service_slugs ?? [],
       project_slugs: s.project_slugs ?? [],
       quote_count: s.quote_count ?? 0,
-    }))
+      }
+    })
 
   const leadFaces: FaceNode[] = (leadershipRes.data ?? [])
     .filter((l) => Boolean(l.photo_url) && (l.is_active as boolean | null) !== false)
@@ -932,12 +947,14 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
   for (const s of storytellers ?? []) {
     const tok = lastToken(s.display_name)
     if (tok && !storytellerByLastToken.has(tok)) {
-      // Drop photo_url for the known-missing-file storytellers so the
-      // hero card falls back to initials rather than rendering a 400.
+      // Apply the same override + deny logic the face filter uses, so
+      // the hero quote card surfaces the right photo (or initials) for
+      // every storyteller.
       const hasFile = !MISSING_PHOTO_SLUGS.has(s.slug)
+      const photo = PHOTO_OVERRIDES[s.slug] ?? (hasFile ? s.photo_url : null)
       storytellerByLastToken.set(tok, {
         slug: s.slug,
-        photo_url: hasFile ? s.photo_url : null,
+        photo_url: photo,
         is_elder: s.is_elder,
       })
     }
