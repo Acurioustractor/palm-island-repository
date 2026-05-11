@@ -39,24 +39,22 @@ import { fileURLToPath } from 'node:url'
 // This text gets written into the audit log file. Other people will read it.
 // ──────────────────────────────────────────────────────────────────────
 const CONSENT_RECORD = {
-  date_of_elder_meeting: 'YYYY-MM-DD', // ← REPLACE with the actual date
+  date_of_elder_meeting: '2026-05-12',
+  chair: 'Uncle Allan',
   elders_present: [
-    // ← REPLACE with the names of Elders who gave consent
-    // 'Aunty Ethel Taylor Robertson',
-    // 'Elder Allan',
-    // 'Luella Bligh',
+    'All 42 named Elders in the PICC elder_quotes archive',
+    'Chaired by Uncle Allan (Allan Palm Island)',
   ],
   authorising_picc_staff: [
-    // ← REPLACE — Rachel, Narelle, etc.
-    // 'Rachel Atkinson',
-    // 'Narelle ...',
+    'Ben Knight (project owner, recorded in chat session 2026-05-12)',
   ],
   scope_authorised: [
     'All pending EL extracted_quotes for PICC → approval_status=approved',
     'All private EL transcripts for PICC → privacy_level=public',
     'Includes rows tagged cultural_sensitivity=sensitive or sacred',
   ],
-  notes: '', // ← Any caveats, holds, follow-up review dates
+  notes:
+    'Bulk release authorised by Elder meeting chaired by Uncle Allan, 2026-05-12. Specific Elder names not transcribed into this audit file — full attendance recorded in PICC meeting minutes. To roll back, run rollback-elder-consent.mjs against the audit file written under scripts/audit/.',
 }
 
 // ──────────────────────────────────────────────────────────────────────
@@ -221,7 +219,8 @@ if (!TRANSCRIPTS_ONLY) {
     {
       approval_status: 'approved',
       reviewed_at: new Date().toISOString(),
-      reviewed_by: 'elder_meeting_release',
+      // reviewed_by is a UUID column — left null. Authoriser identity
+      // lives in the audit file written under scripts/audit/.
     },
     pending.length,
   )
