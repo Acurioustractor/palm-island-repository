@@ -4,6 +4,8 @@ import { useState, useMemo, useEffect } from 'react'
 import { Copy, Check, Search, X, ExternalLink, Send, Zap, Trash2, RefreshCw } from 'lucide-react'
 import { C } from '@/components/annual-report/2024-25/almanac/tokens'
 
+export type PrintScore = 'fullbleed' | 'halfpage' | 'quarterpage' | 'thumbnail' | 'too-small' | 'unknown'
+
 export interface LibraryPhoto {
   slot: string
   index: number
@@ -15,6 +17,18 @@ export interface LibraryPhoto {
   service_name: string | null
   el_id: string
   bytes: number
+  width: number | null
+  height: number | null
+  print_score: PrintScore
+}
+
+const PRINT_BADGE: Record<PrintScore, { label: string; color: string; bg: string; usage: string }> = {
+  fullbleed: { label: 'PRINT · FULL BLEED', color: '#15803D', bg: '#15803D14', usage: 'Safe for full A4 hero spreads at 300dpi' },
+  halfpage: { label: 'PRINT · HALF PAGE', color: '#0EA5E9', bg: '#0EA5E914', usage: 'Safe for half-page hero or portrait spreads' },
+  quarterpage: { label: 'PRINT · 1/4 PAGE', color: '#C8963E', bg: '#C8963E14', usage: 'Quarter-page or large portrait only' },
+  thumbnail: { label: 'WEB · THUMB', color: '#A39E99', bg: '#A39E9914', usage: 'Thumbnails / badges only — pixelates at print' },
+  'too-small': { label: '⚠ TOO SMALL', color: '#8B1A1A', bg: '#8B1A1A14', usage: "Don't use for print" },
+  unknown: { label: 'UNKNOWN', color: '#6B6560', bg: '#6B656014', usage: 'Not measured (video?)' },
 }
 
 export interface LibraryGroup {
@@ -48,6 +62,7 @@ export default function PhotoLibraryClient({
 }) {
   const [query, setQuery] = useState('')
   const [activeSlot, setActiveSlot] = useState<string | null>(null)
+  const [printFilter, setPrintFilter] = useState<'all' | 'print-ready' | 'fullbleed-only'>('all')
   const [lightbox, setLightbox] = useState<LibraryPhoto | null>(null)
   const [copiedPath, setCopiedPath] = useState<string | null>(null)
   const [pushMode, setPushMode] = useState(false)
@@ -110,24 +125,32 @@ export default function PhotoLibraryClient({
   }
 
   const filteredGroups = useMemo(() => {
+    const printOK = (p: LibraryPhoto) => {
+      if (printFilter === 'all') return true
+      if (printFilter === 'fullbleed-only') return p.print_score === 'fullbleed'
+      // 'print-ready' = anything good enough for some print use (excludes thumbnail/too-small/unknown)
+      return p.print_score === 'fullbleed' || p.print_score === 'halfpage' || p.print_score === 'quarterpage'
+    }
     return groups
       .map((g) => {
         if (activeSlot && g.slot !== activeSlot) return null
-        if (!query) return g
         const q = query.toLowerCase()
-        const photos = g.photos.filter(
-          (p) =>
+        const photos = g.photos.filter((p) => {
+          if (!printOK(p)) return false
+          if (!query) return true
+          return (
             p.slot.toLowerCase().includes(q) ||
             p.file.toLowerCase().includes(q) ||
             (p.alt ?? '').toLowerCase().includes(q) ||
             (p.caption ?? '').toLowerCase().includes(q) ||
-            (p.service_name ?? '').toLowerCase().includes(q),
-        )
+            (p.service_name ?? '').toLowerCase().includes(q)
+          )
+        })
         if (photos.length === 0) return null
         return { ...g, photos }
       })
       .filter((g): g is LibraryGroup => g !== null)
-  }, [groups, query, activeSlot])
+  }, [groups, query, activeSlot, printFilter])
 
   const allSlots = groups.map((g) => g.slot)
   const totalShown = filteredGroups.reduce((s, g) => s + g.photos.length, 0)
@@ -347,6 +370,30 @@ export default function PhotoLibraryClient({
         <span className="text-xs font-bold uppercase" style={{ color: C.muted, letterSpacing: '0.2em' }}>
           {totalShown} shown
         </span>
+        <div className="flex items-center gap-1">
+          {(['all', 'print-ready', 'fullbleed-only'] as const).map((f) => (
+            <button
+              key={f}
+              onClick={() => setPrintFilter(f)}
+              className="px-2 py-1 rounded-md text-[10px] font-bold uppercase"
+              style={{
+                backgroundColor: printFilter === f ? C.mangrove : '#FFFFFF',
+                color: printFilter === f ? '#FFFFFF' : C.mangrove,
+                border: `1px solid ${printFilter === f ? C.mangrove : C.border}`,
+                letterSpacing: '0.1em',
+              }}
+              title={
+                f === 'all'
+                  ? 'Show every photo'
+                  : f === 'print-ready'
+                  ? 'Hide thumbnails + too-small (anything OK for some print use)'
+                  : 'Only photos safe for full A4 hero spreads'
+              }
+            >
+              {f === 'all' ? 'All' : f === 'print-ready' ? '🖨 Print-ready' : '🖨 Full bleed'}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Slot pills */}
@@ -501,13 +548,28 @@ function PhotoCard({
           #{photo.index + 1}
         </div>
         <div
-          className="absolute top-2 right-2 px-1.5 py-0.5 rounded text-[9px]"
-          style={{
-            backgroundColor: '#FFFFFFEE',
-            color: C.muted,
-          }}
+          className="absolute top-2 right-2 flex flex-col items-end gap-1"
         >
-          {(photo.bytes / 1024).toFixed(0)}KB
+          <div
+            className="px-1.5 py-0.5 rounded text-[9px] font-bold"
+            style={{
+              backgroundColor: PRINT_BADGE[photo.print_score].bg + 'EE',
+              color: PRINT_BADGE[photo.print_score].color,
+              border: `1px solid ${PRINT_BADGE[photo.print_score].color}66`,
+            }}
+            title={PRINT_BADGE[photo.print_score].usage}
+          >
+            {PRINT_BADGE[photo.print_score].label}
+          </div>
+          <div
+            className="px-1.5 py-0.5 rounded text-[9px]"
+            style={{
+              backgroundColor: '#FFFFFFEE',
+              color: C.muted,
+            }}
+          >
+            {photo.width && photo.height ? `${photo.width}×${photo.height}` : ''} · {(photo.bytes / 1024).toFixed(0)}KB
+          </div>
         </div>
         {canPush && (
           <div
@@ -643,6 +705,38 @@ function Lightbox({
           >
             {photo.file}
           </h3>
+          <div className="flex flex-wrap items-center gap-2 mb-3">
+            <span
+              className="px-2 py-1 rounded text-xs font-bold"
+              style={{
+                backgroundColor: PRINT_BADGE[photo.print_score].bg,
+                color: PRINT_BADGE[photo.print_score].color,
+                border: `1px solid ${PRINT_BADGE[photo.print_score].color}66`,
+              }}
+            >
+              {PRINT_BADGE[photo.print_score].label}
+            </span>
+            {photo.width && photo.height && (
+              <span
+                className="px-2 py-1 rounded text-xs"
+                style={{ backgroundColor: C.shell, color: C.earth, border: `1px solid ${C.border}` }}
+              >
+                {photo.width} × {photo.height} px
+              </span>
+            )}
+            <span
+              className="px-2 py-1 rounded text-xs"
+              style={{ backgroundColor: C.shell, color: C.muted, border: `1px solid ${C.border}` }}
+            >
+              {(photo.bytes / 1024).toFixed(0)}KB
+            </span>
+          </div>
+          <p
+            className="text-xs font-fraunces italic mb-3"
+            style={{ color: PRINT_BADGE[photo.print_score].color }}
+          >
+            🖨 {PRINT_BADGE[photo.print_score].usage}
+          </p>
           {photo.alt && (
             <p
               className="font-fraunces italic mb-3"

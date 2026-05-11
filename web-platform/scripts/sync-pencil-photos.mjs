@@ -19,11 +19,45 @@ import { existsSync } from 'node:fs'
 import { join, extname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { dirname } from 'node:path'
+import { execSync } from 'node:child_process'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 const ROOT = join(__dirname, '..')
 const OUT_DIR = join(ROOT, 'pencil-photos')
+
+/**
+ * Read JPEG/PNG pixel dimensions via macOS `sips`. Returns { width, height }
+ * or null if not measurable. We use this to flag print-readiness.
+ */
+function getDims(filePath) {
+  try {
+    const out = execSync(`sips -g pixelWidth -g pixelHeight "${filePath}" 2>/dev/null`, { encoding: 'utf8' })
+    const w = parseInt(out.match(/pixelWidth:\s*(\d+)/)?.[1] ?? '0', 10)
+    const h = parseInt(out.match(/pixelHeight:\s*(\d+)/)?.[1] ?? '0', 10)
+    if (w > 0 && h > 0) return { width: w, height: h }
+  } catch {}
+  return null
+}
+
+/**
+ * A4 at 300dpi = 2480 × 3508 px. We score photos against intended use.
+ *
+ *   "fullbleed"     — long edge ≥ 2400px (safe for full A4 hero)
+ *   "halfpage"      — long edge ≥ 1200px (safe for half-page hero)
+ *   "quarterpage"   — long edge ≥ 600px  (safe for quarter-page or portrait)
+ *   "thumbnail"     — long edge ≥ 300px  (small badges only)
+ *   "too-small"     — below that — won't print cleanly anywhere
+ */
+function printScore(dims) {
+  if (!dims) return 'unknown'
+  const long = Math.max(dims.width, dims.height)
+  if (long >= 2400) return 'fullbleed'
+  if (long >= 1200) return 'halfpage'
+  if (long >= 600) return 'quarterpage'
+  if (long >= 300) return 'thumbnail'
+  return 'too-small'
+}
 
 // Slots we care about — mirrors lib/almanac/imagery-system.ts EL slots
 // + service galleries. Edit pencil-frame-map.ts for full mapping.
@@ -128,6 +162,8 @@ async function main() {
         const r = await downloadOne(p.url, dest)
         if (r.skipped) totalSkip++
         else totalDl++
+        const dims = getDims(dest)
+        const score = printScore(dims)
         manifest.push({
           slot,
           index: i,
@@ -138,9 +174,13 @@ async function main() {
           caption: p.caption,
           el_id: p.id,
           bytes: r.size,
+          width: dims?.width ?? null,
+          height: dims?.height ?? null,
+          print_score: score,
         })
         const tag = r.skipped ? 'skip' : 'dl'
-        console.log(`  ${tag === 'dl' ? '↓' : '·'} ${slot.padEnd(28)} → ${name.padEnd(36)} (${tag}, ${(r.size / 1024).toFixed(0)}KB)`)
+        const dimStr = dims ? `${dims.width}×${dims.height}` : '?'
+        console.log(`  ${tag === 'dl' ? '↓' : '·'} ${slot.padEnd(28)} → ${name.padEnd(36)} (${tag}, ${(r.size / 1024).toFixed(0)}KB, ${dimStr}, ${score})`)
       } catch (err) {
         console.warn(`  ! ${slot} #${i + 1}: ${err.message}`)
       }
@@ -171,6 +211,8 @@ async function main() {
             const dlRes = await downloadOne(p.url, dest)
             if (dlRes.skipped) totalSkip++
             else totalDl++
+            const dims = getDims(dest)
+            const score = printScore(dims)
             manifest.push({
               slot: `service-${svc.slug}`,
               index: i,
@@ -183,9 +225,13 @@ async function main() {
               service_name: svc.name,
               el_id: p.id,
               bytes: dlRes.size,
+              width: dims?.width ?? null,
+              height: dims?.height ?? null,
+              print_score: score,
             })
             const tag = dlRes.skipped ? 'skip' : 'dl'
-            console.log(`  ${tag === 'dl' ? '↓' : '·'} service ${svc.slug.padEnd(36)} → ${name}`)
+            const dimStr = dims ? `${dims.width}×${dims.height}` : '?'
+            console.log(`  ${tag === 'dl' ? '↓' : '·'} service ${svc.slug.padEnd(36)} → ${name} (${dimStr}, ${score})`)
           } catch (err) {
             console.warn(`  ! service ${svc.slug} #${i + 1}: ${err.message}`)
           }
@@ -205,10 +251,23 @@ async function main() {
     ),
   )
 
+  // Print-readiness rollup
+  const tally = manifest.reduce((acc, p) => {
+    acc[p.print_score] = (acc[p.print_score] ?? 0) + 1
+    return acc
+  }, {})
+
   console.log()
   console.log(`✓ ${totalDl} downloaded · ${totalSkip} skipped (already cached) · ${manifest.length} entries in MANIFEST.json`)
   console.log(`  Pencil paste: ./pencil-photos/<file>`)
   console.log(`  Force re-download: --force`)
+  console.log()
+  console.log(`Print-readiness:`)
+  for (const score of ['fullbleed', 'halfpage', 'quarterpage', 'thumbnail', 'too-small', 'unknown']) {
+    if (tally[score]) {
+      console.log(`  ${score.padEnd(14)} ${tally[score]}`)
+    }
+  }
 }
 
 main().catch((err) => {

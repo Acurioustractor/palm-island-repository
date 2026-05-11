@@ -37,6 +37,9 @@ interface ManifestEntry {
   service_name?: string
   el_id: string
   bytes: number
+  width: number | null
+  height: number | null
+  print_score: 'fullbleed' | 'halfpage' | 'quarterpage' | 'thumbnail' | 'too-small' | 'unknown'
 }
 
 interface Manifest {
@@ -122,6 +125,9 @@ export default async function PhotoLibraryPage() {
       service_name: p.service_name ?? null,
       el_id: p.el_id,
       bytes: p.bytes,
+      width: p.width ?? null,
+      height: p.height ?? null,
+      print_score: p.print_score ?? 'unknown',
     })
     bySlot.set(p.slot, arr)
   }
@@ -132,6 +138,16 @@ export default async function PhotoLibraryPage() {
 
   const totalBytes = manifest.photos.reduce((sum, p) => sum + p.bytes, 0)
   const generated = new Date(manifest.generated_at)
+
+  // Print-readiness rollup for the header
+  const printTally = manifest.photos.reduce(
+    (acc, p) => {
+      const k = p.print_score ?? 'unknown'
+      acc[k] = (acc[k] ?? 0) + 1
+      return acc
+    },
+    {} as Record<string, number>,
+  )
 
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto">
@@ -162,6 +178,25 @@ export default async function PhotoLibraryPage() {
           >
             {manifest.count} photos · {(totalBytes / 1_000_000).toFixed(1)} MB
           </span>
+          {(['fullbleed', 'halfpage', 'quarterpage'] as const).map((s) => {
+            const count = printTally[s] ?? 0
+            if (count === 0) return null
+            const colors: Record<typeof s, { bg: string; fg: string; label: string }> = {
+              fullbleed: { bg: '#15803D14', fg: '#15803D', label: '🖨 Full bleed' },
+              halfpage: { bg: '#0EA5E914', fg: '#0EA5E9', label: '½ page' },
+              quarterpage: { bg: '#C8963E14', fg: '#C8963E', label: '¼ page' },
+            }
+            const c = colors[s]
+            return (
+              <span
+                key={s}
+                className="px-3 py-1.5 rounded-md text-xs font-bold"
+                style={{ backgroundColor: c.bg, color: c.fg, border: `1px solid ${c.fg}33` }}
+              >
+                {count} {c.label}
+              </span>
+            )
+          })}
           <span
             className="px-3 py-1.5 rounded-md text-xs"
             style={{ color: C.muted, border: `1px solid ${C.border}` }}
