@@ -163,6 +163,24 @@ export interface NamedElder {
   photo_ids: string[]
 }
 
+export interface AnnualReportSection {
+  title: string
+  summary: string
+}
+
+export interface AnnualReportStats {
+  ceo?: string | null
+  chair?: string | null
+  staff_count?: number | null
+  total_revenue?: number | null
+  total_expenses?: number | null
+  net_surplus?: number | null
+  programs_count?: number | null
+  clients_served?: number | null
+  trainees?: number | null
+  [key: string]: number | string | null | undefined
+}
+
 export interface AnnualReportItem {
   fiscal_year: number
   title: string | null
@@ -170,6 +188,16 @@ export interface AnnualReportItem {
   cover_photo_url: string | null
   pdf_url: string | null
   published_date: string | null
+  /** AI-extracted: 2-4 sentence summary of the year. */
+  summary: string | null
+  /** AI-extracted: structured numbers (CEO, chair, revenue, staff, clients…). */
+  stats: AnnualReportStats | null
+  /** AI-extracted: section titles + summaries from the PDF. */
+  sections: AnnualReportSection[]
+  /** AI-extracted: key achievements bullet list (from metadata). */
+  key_achievements: string[]
+  /** When the extraction was last run. */
+  extracted_at: string | null
 }
 
 export interface BwgcolmanNation {

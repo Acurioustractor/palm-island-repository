@@ -638,6 +638,19 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     cover_photo_url: r.cover_image_url,
     pdf_url: r.pdf_url,
     published_date: r.published_date,
+    summary: r.extracted_summary,
+    stats: r.extracted_stats,
+    sections: Array.isArray(r.extracted_sections)
+      ? r.extracted_sections.map((s) => ({
+          title: s.title ?? '',
+          summary: s.summary ?? '',
+        }))
+      : [],
+    key_achievements:
+      Array.isArray(r.metadata?.key_achievements)
+        ? (r.metadata?.key_achievements as string[])
+        : [],
+    extracted_at: r.metadata?.extracted_at ?? null,
   }))
   void annualReportsFullRes // reserved for in-flight planning rows, not yet merged
 

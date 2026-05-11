@@ -813,6 +813,28 @@ export default function Constellation({
           {activeReport.subtitle && (
             <div className="text-xs text-stone-600 mb-2">{activeReport.subtitle}</div>
           )}
+          {activeReport.summary && (
+            <p className="text-xs text-stone-800 italic font-serif leading-snug mt-2 mb-2">
+              {activeReport.summary.length > 240
+                ? activeReport.summary.slice(0, 240) + '…'
+                : activeReport.summary}
+            </p>
+          )}
+          {activeReport.key_achievements.length > 0 && (
+            <div className="mt-2">
+              <div className="text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-1">
+                Key achievements
+              </div>
+              <ul className="space-y-1 text-xs text-stone-700">
+                {activeReport.key_achievements.slice(0, 3).map((a, i) => (
+                  <li key={i} className="flex gap-2">
+                    <span className="text-sage-700 flex-shrink-0">✓</span>
+                    <span className="line-clamp-2">{a}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           {yearDetail && yearDetail.events.length > 0 && (
             <div className="mt-2">
               <div className="text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-1">
@@ -1774,29 +1796,98 @@ function ReportOverlay({
             )}
           </div>
 
-          {/* Year-at-a-glance + events + achievements */}
+          {/* Year-at-a-glance + extracted summary + events + achievements */}
           <div className="space-y-5">
+            {/* AI-extracted summary from the report itself */}
+            {report.summary && (
+              <div>
+                <div className="text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-2">
+                  From the report
+                </div>
+                <p className="font-serif italic text-stone-800 leading-relaxed text-[15px]">
+                  {report.summary}
+                </p>
+              </div>
+            )}
+
             <div>
               <div className="text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-2">
                 Year at a glance
               </div>
               <div className="grid grid-cols-2 gap-3 text-sm">
-                {revenue && (
+                {report.stats?.total_revenue ? (
+                  <Glance
+                    label="Total revenue"
+                    value={`$${(Number(report.stats.total_revenue) / 1_000_000).toFixed(1)}M`}
+                  />
+                ) : revenue ? (
                   <Glance label="Total income" value={revenue} />
+                ) : null}
+                {report.stats?.staff_count != null && (
+                  <Glance
+                    label="Staff"
+                    value={String(report.stats.staff_count)}
+                  />
                 )}
-                {yearDetail?.audited && (
+                {report.stats?.clients_served != null && (
+                  <Glance
+                    label="Clients served"
+                    value={Number(report.stats.clients_served).toLocaleString()}
+                  />
+                )}
+                {report.stats?.programs_count != null && (
+                  <Glance
+                    label="Programs"
+                    value={String(report.stats.programs_count)}
+                  />
+                )}
+                {report.stats?.ceo && (
+                  <Glance label="CEO" value={String(report.stats.ceo)} />
+                )}
+                {report.stats?.chair && (
+                  <Glance label="Chair" value={String(report.stats.chair)} />
+                )}
+                {!report.stats && yearDetail?.audited && (
                   <Glance label="Status" value="Audited" />
                 )}
-                <Glance
-                  label="Timeline events"
-                  value={String(yearDetail?.events.length ?? 0)}
-                />
-                <Glance
-                  label="Achievements"
-                  value={String(yearDetail?.achievements.length ?? 0)}
-                />
               </div>
             </div>
+
+            {/* AI-extracted key achievements (from PDF) */}
+            {report.key_achievements.length > 0 && (
+              <div>
+                <div className="text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-2">
+                  Key achievements (from the report)
+                </div>
+                <ul className="space-y-1.5 text-sm text-stone-800">
+                  {report.key_achievements.slice(0, 6).map((a, i) => (
+                    <li key={i} className="flex gap-2">
+                      <span className="text-sage-700 flex-shrink-0">✓</span>
+                      <span>{a}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* AI-extracted section walkthrough */}
+            {report.sections.length > 0 && (
+              <div>
+                <div className="text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-2">
+                  Inside the report ({report.sections.length} sections)
+                </div>
+                <ul className="space-y-2 text-sm text-stone-800">
+                  {report.sections.slice(0, 6).map((s, i) => (
+                    <li key={i}>
+                      <div className="font-semibold text-charcoal">{s.title}</div>
+                      <div className="text-[12px] text-stone-700 leading-snug">
+                        {s.summary}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {yearDetail && yearDetail.events.length > 0 && (
               <div>

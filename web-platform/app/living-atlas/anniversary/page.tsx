@@ -118,6 +118,73 @@ export default async function AnniversaryPage() {
           </p>
         </header>
 
+        {/* Yearly summaries — AI-extracted from each annual report PDF */}
+        <section className="mb-8">
+          <div className="text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-3">
+            Year by year, in the report&rsquo;s own words
+          </div>
+          <div className="space-y-4">
+            {data.annual_reports
+              .filter((r) => r.summary)
+              .slice(0, 12)
+              .map((r) => (
+                <article
+                  key={r.fiscal_year}
+                  className="rounded-xl border border-stone-200 bg-white p-5"
+                >
+                  <div className="flex items-baseline justify-between gap-2 mb-2 flex-wrap">
+                    <div className="flex items-baseline gap-3">
+                      <div
+                        className="font-serif font-bold text-2xl"
+                        style={{ color: '#2D5F4F' }}
+                      >
+                        FY {r.fiscal_year}
+                      </div>
+                      {r.stats?.total_revenue ? (
+                        <span className="text-sm text-stone-600">
+                          ${(Number(r.stats.total_revenue) / 1_000_000).toFixed(1)}M
+                        </span>
+                      ) : null}
+                      {r.stats?.staff_count != null && (
+                        <span className="text-sm text-stone-600">
+                          · {r.stats.staff_count} staff
+                        </span>
+                      )}
+                    </div>
+                    {r.pdf_url && (
+                      <a
+                        href={r.pdf_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs underline text-sage-700"
+                      >
+                        Open PDF →
+                      </a>
+                    )}
+                  </div>
+                  <p className="font-serif italic text-stone-800 leading-relaxed">
+                    {r.summary}
+                  </p>
+                  {r.key_achievements.length > 0 && (
+                    <ul className="mt-3 space-y-1 text-sm text-stone-700">
+                      {r.key_achievements.slice(0, 3).map((a, i) => (
+                        <li key={i} className="flex gap-2">
+                          <span className="text-sage-700 flex-shrink-0">✓</span>
+                          <span>{a}</span>
+                        </li>
+                      ))}
+                      {r.key_achievements.length > 3 && (
+                        <li className="text-[11px] text-stone-500 italic ml-5">
+                          +{r.key_achievements.length - 3} more in the report
+                        </li>
+                      )}
+                    </ul>
+                  )}
+                </article>
+              ))}
+          </div>
+        </section>
+
         {/* Year ribbon */}
         <section className="mb-8">
           <div className="text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-3">
