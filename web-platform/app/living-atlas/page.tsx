@@ -13,10 +13,11 @@
  */
 
 import Link from 'next/link'
-import Constellation from '../picc/constellation/Constellation'
 import { loadConstellation } from '@/lib/constellation/queries'
 import PalmIslandMap, { type PinService } from '../picc/twenty-years/PalmIslandMap'
 import ChatWidget from '@/components/chat/ChatWidget'
+import SavePath from './SavePath'
+import CanvasStage from './CanvasStage'
 
 export const metadata = {
   title: 'Palm Island Living Atlas',
@@ -64,6 +65,7 @@ export default async function LivingAtlasPage() {
               One borderless surface — people, services, projects, places,
               years, visions. Every face passed an explicit consent gate.
             </div>
+            <SavePath />
             <Link
               href="/atlas/capture"
               className="rounded-md px-3 py-2 font-semibold text-white text-sm whitespace-nowrap"
@@ -76,7 +78,7 @@ export default async function LivingAtlasPage() {
 
         {hasData ? (
           <div className="rounded-xl border border-stone-200 bg-white shadow-md overflow-hidden">
-            <Constellation data={data} variant="atlas" />
+            <CanvasStage data={data} />
           </div>
         ) : (
           <div className="rounded-xl border border-amber-200 bg-amber-50 p-8 text-amber-900">

@@ -42,12 +42,14 @@ export async function POST(request: Request) {
     kind?: string
     contributor_role?: string
     atlas_context?: unknown
+    media_url?: string | null
   }
 
   const text = (data.text ?? '').trim()
   const kind = (data.kind ?? 'text').trim()
   const name = (data.name ?? '').trim()
   const role = (data.contributor_role ?? '').trim()
+  const mediaUrl = (data.media_url ?? '').trim()
 
   if (text.length === 0) {
     return NextResponse.json(
@@ -71,6 +73,7 @@ export async function POST(request: Request) {
   const tags = ['atlas-capture', kind]
   if (role === 'youth') tags.push('youth-cosign-required')
   if (role === 'elder') tags.push('elder-priority')
+  if (mediaUrl) tags.push(`media:${mediaUrl}`)
 
   const supabase = createServerSupabase()
   const { data: inserted, error } = await supabase
