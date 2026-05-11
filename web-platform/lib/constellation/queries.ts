@@ -15,6 +15,7 @@ import {
   getPiccAnnualReports,
 } from '@/lib/empathy-ledger/el-annual-reports'
 import { getPiccPublicStories } from '@/lib/empathy-ledger/el-stories'
+import { getPiccApprovedELQuotes } from '@/lib/empathy-ledger/el-quotes'
 import type {
   AnnualReportItem,
   AtlasELStory,
@@ -146,6 +147,7 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     piccReportStatisticsRes,
     piccReportHighlightsRes,
     piccAnnualReportsRowsRes,
+    elApprovedQuotes,
   ] = await Promise.all([
     // Canonical PICC people: 44 named storytellers in EL v2, each with
     // photo_url + bio + service_slugs + project_slugs + quote_count.
@@ -350,6 +352,10 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
       .from('annual_reports')
       .select('id, fiscal_year')
       .eq('organization_id', PICC_ORG_ID),
+    // EL v2 approved extracted_quotes — once Elders release the bulk, this
+    // grows from ~157 to ~1,048. Folded into quotes_by_speaker so any face
+    // surfaces the full corpus.
+    getPiccApprovedELQuotes(1200),
   ])
 
   // ── FACES ──────────────────────────────────────────────────────────────
@@ -823,6 +829,18 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
       theme: null,
       suggested: false,
       source: 'elder_quotes',
+    })
+  }
+  // Fold the EL v2 approved extracted_quotes — same speaker-keyed map,
+  // first theme from the EL themes array surfaces, suggested-for-report
+  // proxied via the EL is_featured flag.
+  for (const row of elApprovedQuotes) {
+    if (!row.quote_text || !row.author_name) continue
+    pushQuote(lastToken(row.author_name), {
+      text: row.quote_text,
+      theme: row.themes[0] ?? null,
+      suggested: row.is_featured,
+      source: 'extracted_quotes',
     })
   }
 
