@@ -21,8 +21,10 @@ export interface ImageTarget {
   defaultSlot?: string
   /** EL storyteller slug — when set, prefer that person's photo */
   storytellerSlug?: string
-  /** EL service slug — when set, prefer photos from that service's gallery */
+  /** EL service slug — when set, prefer that service's image_url */
   serviceSlug?: string
+  /** EL project slug — when set, prefer that project's cover_image_url */
+  projectSlug?: string
 }
 
 export const IMAGE_TARGETS: ImageTarget[] = [
@@ -46,6 +48,11 @@ export const IMAGE_TARGETS: ImageTarget[] = [
 
   // Featured Service · BEAI (CcAqN)
   { nodeId: 'HJt2F', spreadId: 'CcAqN', label: 'BEAI · apprentice in workshop', role: 'hero', serviceSlug: 'beai' },
+
+  // PROJECTS — additional optional targets if user wires them later.
+  // Bwgcolman Way is a project in EL (slug: bwg-way) — can target spread 8 (kjUI7).
+  // Elders Trips → project picc-elders. Annual Report → project picc-annual-report.
+  // Add per-spread project mappings here as needed.
 
   // Elders On Country — photo essay (bpXvp)
   { nodeId: 'cjgKv', spreadId: 'bpXvp', label: 'Elders on Country · full-bleed hero', role: 'hero', defaultSlot: 'elders-on-country' },

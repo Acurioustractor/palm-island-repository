@@ -25,6 +25,8 @@ export interface AlignmentEntity {
   elAdminUrl: string
 }
 
+type Tab = 'storytellers' | 'services' | 'projects'
+
 const PRINT_COLOR: Record<string, string> = {
   fullbleed: '#15803D',
   halfpage: '#0EA5E9',
@@ -37,16 +39,19 @@ const PRINT_COLOR: Record<string, string> = {
 export default function AlignmentClient({
   storytellers,
   services,
+  projects = [],
 }: {
   storytellers: AlignmentEntity[]
   services: AlignmentEntity[]
+  projects?: AlignmentEntity[]
 }) {
-  const [tab, setTab] = useState<'storytellers' | 'services'>('storytellers')
+  const [tab, setTab] = useState<Tab>('storytellers')
   const [query, setQuery] = useState('')
   const [showOnlyGaps, setShowOnlyGaps] = useState(false)
   const [showOnlyElders, setShowOnlyElders] = useState(false)
 
-  const entities = tab === 'storytellers' ? storytellers : services
+  const entities =
+    tab === 'storytellers' ? storytellers : tab === 'services' ? services : projects
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase()
@@ -62,9 +67,11 @@ export default function AlignmentClient({
     <>
       {/* Tabs */}
       <div className="flex items-center gap-3 mb-6 flex-wrap">
-        {(['storytellers', 'services'] as const).map((t) => {
-          const count = t === 'storytellers' ? storytellers.length : services.length
-          const gap = (t === 'storytellers' ? storytellers : services).filter((e) => e.photos.length === 0).length
+        {(['storytellers', 'services', 'projects'] as const).map((t) => {
+          const arr = t === 'storytellers' ? storytellers : t === 'services' ? services : projects
+          const count = arr.length
+          const gap = arr.filter((e) => e.photos.length === 0).length
+          const label = t === 'storytellers' ? 'Storytellers' : t === 'services' ? 'Services' : 'Projects'
           return (
             <button
               key={t}
@@ -76,7 +83,7 @@ export default function AlignmentClient({
                 border: `1px solid ${tab === t ? C.ocean : C.border}`,
               }}
             >
-              {t === 'storytellers' ? 'Storytellers' : 'Services'} ({count})
+              {label} ({count})
               {gap > 0 && (
                 <span
                   className="px-1.5 py-0.5 rounded text-[10px] font-bold"
@@ -103,7 +110,7 @@ export default function AlignmentClient({
           <Search className="w-4 h-4 flex-shrink-0" style={{ color: C.muted }} />
           <input
             type="text"
-            placeholder={`Search ${tab}…`}
+            placeholder={`Search ${tab === 'storytellers' ? 'storytellers' : tab === 'services' ? 'services' : 'projects'}…`}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="flex-1 outline-none text-sm bg-transparent"
@@ -210,6 +217,14 @@ function EntityRow({ entity }: { entity: AlignmentEntity }) {
                   style={{ backgroundColor: C.mangrove + '14', color: C.mangrove, fontWeight: 700 }}
                 >
                   Service
+                </span>
+              )}
+              {entity.kind === 'project' && (
+                <span
+                  className="text-xs px-1.5 py-0.5 rounded"
+                  style={{ backgroundColor: C.reef + '14', color: C.reef, fontWeight: 700 }}
+                >
+                  Project
                 </span>
               )}
             </h3>

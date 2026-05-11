@@ -254,59 +254,112 @@ async function main() {
     console.warn(`  ! storytellers fetch failed: ${err.message}`)
   }
 
-  // Add service galleries (per-service)
+  // ─── SERVICES ────────────────────────────────────────────────
+  // Use the service's own `image_url` field (set by EL admin when a
+  // cover photo is uploaded). This is the canonical service photo —
+  // NOT gallery_media_associations which we used to query.
   console.log()
-  console.log(`→ service galleries`)
+  console.log(`→ services (image_url field)`)
   try {
-    const svcRes = await fetch(`${base}/api/picc/services`, { headers: { 'x-picc-api-key': key } })
+    const svcRes = await fetch(`${base}/api/picc/services?limit=200`, { headers: { 'x-picc-api-key': key } })
     if (svcRes.ok) {
       const svcData = await svcRes.json()
       const services = svcData.services ?? []
+      console.log(`  ${services.length} services in EL`)
       for (const svc of services) {
-        const r = await fetch(`${base}/api/picc/services/${encodeURIComponent(svc.slug)}/photos?limit=4`, {
-          headers: { 'x-picc-api-key': key },
-        })
-        if (!r.ok) continue
-        const j = await r.json()
-        const all = j.all ?? []
-        for (let i = 0; i < all.length; i++) {
-          const p = all[i]
-          const e = extFromUrl(p.url)
-          const name = i === 0 ? `service-${svc.slug}${e}` : `service-${svc.slug}-${i + 1}${e}`
-          const dest = join(OUT_DIR, name)
-          try {
-            const dlRes = await downloadOne(p.url, dest)
-            if (dlRes.skipped) totalSkip++
-            else totalDl++
-            const dims = getDims(dest)
-            const score = printScore(dims)
-            manifest.push({
-              slot: `service-${svc.slug}`,
-              index: i,
-              file: name,
-              pencilPath: `./pencil-photos/${name}`,
-              source_url: p.url,
-              alt: p.alt_text,
-              caption: p.caption,
-              service_slug: svc.slug,
-              service_name: svc.name,
-              el_id: p.id,
-              bytes: dlRes.size,
-              width: dims?.width ?? null,
-              height: dims?.height ?? null,
-              print_score: score,
-            })
-            const tag = dlRes.skipped ? 'skip' : 'dl'
-            const dimStr = dims ? `${dims.width}×${dims.height}` : '?'
-            console.log(`  ${tag === 'dl' ? '↓' : '·'} service ${svc.slug.padEnd(36)} → ${name} (${dimStr}, ${score})`)
-          } catch (err) {
-            console.warn(`  ! service ${svc.slug} #${i + 1}: ${err.message}`)
-          }
+        if (!svc.image_url) {
+          console.log(`  · ${svc.slug.padEnd(15)} no image_url`)
+          continue
+        }
+        const e = extFromUrl(svc.image_url)
+        const name = `service-${svc.slug}${e}`
+        const dest = join(OUT_DIR, name)
+        try {
+          const dlRes = await downloadOne(svc.image_url, dest)
+          if (dlRes.skipped) totalSkip++
+          else totalDl++
+          const dims = getDims(dest)
+          const score = printScore(dims)
+          manifest.push({
+            slot: `service-${svc.slug}`,
+            index: 0,
+            file: name,
+            pencilPath: `./pencil-photos/${name}`,
+            source_url: svc.image_url,
+            alt: null,
+            caption: svc.description ?? null,
+            service_slug: svc.slug,
+            service_name: svc.name,
+            service_category: svc.category ?? null,
+            el_id: svc.id,
+            bytes: dlRes.size,
+            width: dims?.width ?? null,
+            height: dims?.height ?? null,
+            print_score: score,
+          })
+          const tag = dlRes.skipped ? 'skip' : 'dl'
+          const dimStr = dims ? `${dims.width}×${dims.height}` : '?'
+          console.log(`  ${tag === 'dl' ? '↓' : '·'} service ${svc.slug.padEnd(15)} → ${name.padEnd(28)} (${dimStr}, ${score})`)
+        } catch (err) {
+          console.warn(`  ! service ${svc.slug}: ${err.message}`)
         }
       }
     }
   } catch (err) {
-    console.warn(`  ! service galleries failed: ${err.message}`)
+    console.warn(`  ! services failed: ${err.message}`)
+  }
+
+  // ─── PROJECTS ────────────────────────────────────────────────
+  // Projects have `cover_image_url` set by EL admin. Same pattern.
+  console.log()
+  console.log(`→ projects (cover_image_url field)`)
+  try {
+    const pRes = await fetch(`${base}/api/picc/projects?limit=200`, { headers: { 'x-picc-api-key': key } })
+    if (pRes.ok) {
+      const pData = await pRes.json()
+      const projects = pData.projects ?? []
+      console.log(`  ${projects.length} projects in EL`)
+      for (const prj of projects) {
+        if (!prj.cover_image_url) {
+          console.log(`  · ${prj.slug.padEnd(20)} no cover_image_url`)
+          continue
+        }
+        const e = extFromUrl(prj.cover_image_url)
+        const name = `project-${prj.slug}${e}`
+        const dest = join(OUT_DIR, name)
+        try {
+          const dlRes = await downloadOne(prj.cover_image_url, dest)
+          if (dlRes.skipped) totalSkip++
+          else totalDl++
+          const dims = getDims(dest)
+          const score = printScore(dims)
+          manifest.push({
+            slot: `project-${prj.slug}`,
+            index: 0,
+            file: name,
+            pencilPath: `./pencil-photos/${name}`,
+            source_url: prj.cover_image_url,
+            alt: null,
+            caption: prj.description ?? null,
+            project_slug: prj.slug,
+            project_name: prj.name,
+            project_status: prj.status ?? null,
+            el_id: prj.id,
+            bytes: dlRes.size,
+            width: dims?.width ?? null,
+            height: dims?.height ?? null,
+            print_score: score,
+          })
+          const tag = dlRes.skipped ? 'skip' : 'dl'
+          const dimStr = dims ? `${dims.width}×${dims.height}` : '?'
+          console.log(`  ${tag === 'dl' ? '↓' : '·'} project ${prj.slug.padEnd(20)} → ${name.padEnd(32)} (${dimStr}, ${score})`)
+        } catch (err) {
+          console.warn(`  ! project ${prj.slug}: ${err.message}`)
+        }
+      }
+    }
+  } catch (err) {
+    console.warn(`  ! projects failed: ${err.message}`)
   }
 
   await writeFile(

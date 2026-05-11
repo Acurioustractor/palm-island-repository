@@ -42,6 +42,10 @@ interface ManifestEntry {
   storyteller_is_elder?: boolean
   service_slug?: string
   service_name?: string
+  service_category?: string
+  project_slug?: string
+  project_name?: string
+  project_status?: string
   width: number | null
   height: number | null
   print_score: string
@@ -76,17 +80,23 @@ async function fetchEL<T>(path: string): Promise<T | null> {
 }
 
 export default async function AlmanacAlignmentPage() {
-  const [manifest, stData, svcData] = await Promise.all([
+  const [manifest, stData, svcData, prjData] = await Promise.all([
     loadManifest(),
     fetchEL<{ storytellers: Array<{ id: string; slug: string; display_name: string; is_elder: boolean; quote_count?: number }> }>(
       '/api/picc/storytellers?limit=200',
     ),
-    fetchEL<{ services: Array<{ slug: string; name: string }> }>('/api/picc/services?limit=200'),
+    fetchEL<{ services: Array<{ slug: string; name: string; image_url?: string; category?: string }> }>(
+      '/api/picc/services?limit=200',
+    ),
+    fetchEL<{ projects: Array<{ slug: string; name: string; cover_image_url?: string; status?: string }> }>(
+      '/api/picc/projects?limit=200',
+    ),
   ])
 
   // Build entity views
   const photosByStoryteller = new Map<string, ManifestEntry[]>()
   const photosByService = new Map<string, ManifestEntry[]>()
+  const photosByProject = new Map<string, ManifestEntry[]>()
   for (const p of manifest) {
     if (p.storyteller_slug) {
       const arr = photosByStoryteller.get(p.storyteller_slug) ?? []
@@ -97,6 +107,11 @@ export default async function AlmanacAlignmentPage() {
       const arr = photosByService.get(p.service_slug) ?? []
       arr.push(p)
       photosByService.set(p.service_slug, arr)
+    }
+    if (p.project_slug) {
+      const arr = photosByProject.get(p.project_slug) ?? []
+      arr.push(p)
+      photosByProject.set(p.project_slug, arr)
     }
   }
 
@@ -138,10 +153,30 @@ export default async function AlmanacAlignmentPage() {
       return a.name.localeCompare(b.name)
     })
 
+  const projects: AlignmentEntity[] = (prjData?.projects ?? [])
+    .map((p) => ({
+      kind: 'project' as const,
+      id: p.slug,
+      slug: p.slug,
+      name: p.name,
+      isElder: false,
+      quoteCount: null,
+      photos: (photosByProject.get(p.slug) ?? []).map(toPhoto),
+      elAdminUrl: `${EL_ADMIN}/admin/projects/${p.slug}`,
+    }))
+    .sort((a, b) => {
+      const aHas = a.photos.length > 0 ? 0 : 1
+      const bHas = b.photos.length > 0 ? 0 : 1
+      if (aHas !== bHas) return aHas - bHas
+      return a.name.localeCompare(b.name)
+    })
+
   const stWithPhotos = storytellers.filter((s) => s.photos.length > 0).length
   const stWithoutPhotos = storytellers.length - stWithPhotos
   const svcWithPhotos = services.filter((s) => s.photos.length > 0).length
   const svcWithoutPhotos = services.length - svcWithPhotos
+  const prjWithPhotos = projects.filter((p) => p.photos.length > 0).length
+  const prjWithoutPhotos = projects.length - prjWithPhotos
 
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto">
@@ -165,11 +200,13 @@ export default async function AlmanacAlignmentPage() {
           Before any Pencil work. Get the relationships right in EL first —
           the report builds itself once the data is clean.
         </p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           <Stat label="Storytellers" big={stWithPhotos} small={`/ ${storytellers.length}`} color={C.ocean} caption="with photos" />
-          <Stat label="Need photos" big={stWithoutPhotos} small="people" color={C.turtleRed} caption="upload to EL" />
+          <Stat label="People gaps" big={stWithoutPhotos} small="upload" color={C.turtleRed} caption="to EL" />
           <Stat label="Services" big={svcWithPhotos} small={`/ ${services.length}`} color={C.mangrove} caption="with photos" />
-          <Stat label="Need photos" big={svcWithoutPhotos} small="services" color={C.ochre} caption="upload to EL" />
+          <Stat label="Service gaps" big={svcWithoutPhotos} small="upload" color={C.ochre} caption="to EL" />
+          <Stat label="Projects" big={prjWithPhotos} small={`/ ${projects.length}`} color={C.reef} caption="with photos" />
+          <Stat label="Project gaps" big={prjWithoutPhotos} small="upload" color={C.starGold} caption="to EL" />
         </div>
         <div className="mt-6 flex flex-wrap gap-3 text-sm">
           <Link href="/picc/almanac/auto-fill" className="px-3 py-1.5 rounded-md hover:bg-stone-50" style={{ color: C.ocean, border: `1px solid ${C.border}` }}>
@@ -184,7 +221,7 @@ export default async function AlmanacAlignmentPage() {
         </div>
       </header>
 
-      <AlignmentClient storytellers={storytellers} services={services} />
+      <AlignmentClient storytellers={storytellers} services={services} projects={projects} />
     </div>
   )
 }

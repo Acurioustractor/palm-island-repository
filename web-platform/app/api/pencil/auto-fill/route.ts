@@ -45,6 +45,8 @@ interface ManifestPhoto {
   storyteller_name?: string
   service_slug?: string
   service_name?: string
+  project_slug?: string
+  project_name?: string
 }
 
 const SCORE_RANK: Record<string, number> = {
@@ -81,6 +83,22 @@ function bestPhotoForService(
 ): ManifestPhoto | null {
   const candidates = photos
     .filter((p) => p.service_slug === slug && !used.has(p.pencilPath) && isImage(p))
+    .sort((a, b) => {
+      const sa = SCORE_RANK[a.print_score] ?? 0
+      const sb = SCORE_RANK[b.print_score] ?? 0
+      if (sa !== sb) return sb - sa
+      return ((b.width ?? 0) * (b.height ?? 0)) - ((a.width ?? 0) * (a.height ?? 0))
+    })
+  return candidates[0] ?? null
+}
+
+function bestPhotoForProject(
+  photos: ManifestPhoto[],
+  slug: string,
+  used: Set<string>,
+): ManifestPhoto | null {
+  const candidates = photos
+    .filter((p) => p.project_slug === slug && !used.has(p.pencilPath) && isImage(p))
     .sort((a, b) => {
       const sa = SCORE_RANK[a.print_score] ?? 0
       const sb = SCORE_RANK[b.print_score] ?? 0
@@ -167,7 +185,7 @@ async function buildSuggestions(): Promise<Suggestion[]> {
     // 1) STORYTELLER MATCH — strongest signal. The named person's photo.
     //    Entity-specific matches IGNORE the "used" pool — if Rachel has one
     //    photo and appears in two targets, BOTH get her photo (it's HER).
-    const t = target as ImageTarget & { storytellerSlug?: string; serviceSlug?: string }
+    const t = target as ImageTarget & { storytellerSlug?: string; serviceSlug?: string; projectSlug?: string }
     const emptySet = new Set<string>()
     let entityMatch = false
     if (t.storytellerSlug) {
@@ -178,11 +196,20 @@ async function buildSuggestions(): Promise<Suggestion[]> {
       }
     }
 
-    // 2) SERVICE MATCH — for service hero spreads (also entity-specific)
+    // 2) SERVICE MATCH — uses the service's `image_url` set in EL admin
     if (!photo && t.serviceSlug) {
       photo = bestPhotoForService(photos, t.serviceSlug, emptySet)
       if (photo) {
         reason = `✓ Service match: ${photo.service_name ?? t.serviceSlug} (${photo.print_score})`
+        entityMatch = true
+      }
+    }
+
+    // 3) PROJECT MATCH — uses the project's `cover_image_url` set in EL admin
+    if (!photo && t.projectSlug) {
+      photo = bestPhotoForProject(photos, t.projectSlug, emptySet)
+      if (photo) {
+        reason = `✓ Project match: ${photo.project_name ?? t.projectSlug} (${photo.print_score})`
         entityMatch = true
       }
     }
