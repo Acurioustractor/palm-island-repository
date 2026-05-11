@@ -23,6 +23,7 @@ import type {
   BwgcolmanNation,
   CommunityVision,
   ConstellationPayload,
+  CuratedHeroQuote,
   ElderTripStop,
   FaceNode,
   FoundationEvent,
@@ -907,6 +908,66 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     quotesBySpeaker[k] = list.slice(0, QUOTES_PER_SPEAKER).map((x) => x.quote)
   })
 
+  // ── CURATED HERO QUOTES ────────────────────────────────────────────────
+  // Pick the absolute best EL quotes for the always-on annual report hero.
+  // Criteria: impact_score >= 8 (curator-flagged), prefer named individuals
+  // over team identities, prefer storytellers we have a photo for, span
+  // multiple themes + eras. Joined to storyteller photo + slug at the
+  // point of curation so the hero card renders without a second fetch.
+  const storytellerByLastToken = new Map<
+    string,
+    { slug: string; photo_url: string | null; is_elder: boolean }
+  >()
+  for (const s of storytellers ?? []) {
+    const tok = lastToken(s.display_name)
+    if (tok && !storytellerByLastToken.has(tok)) {
+      storytellerByLastToken.set(tok, {
+        slug: s.slug,
+        photo_url: s.photo_url,
+        is_elder: s.is_elder,
+      })
+    }
+  }
+  const teamPattern = /(team|group|service|conversation)$/i
+  const heroCandidates = elApprovedQuotes
+    .filter((q) => q.quote_text && q.author_name)
+    .filter((q) => (q.impact_score ?? 0) >= 8)
+    .filter((q) => q.quote_text.length >= 50 && q.quote_text.length <= 320)
+    .map((q) => {
+      const tok = lastToken(q.author_name ?? '')
+      const st = storytellerByLastToken.get(tok)
+      const isTeam = teamPattern.test(q.author_name ?? '')
+      return {
+        quote: {
+          text: q.quote_text,
+          speaker_name: q.author_name ?? '',
+          speaker_slug: st?.slug ?? null,
+          speaker_photo_url: st?.photo_url ?? null,
+          speaker_is_elder: Boolean(st?.is_elder),
+          theme: q.themes[0] ?? null,
+          era_label: q.era_label,
+          impact_score: q.impact_score ?? 0,
+        } satisfies CuratedHeroQuote,
+        rank:
+          (q.impact_score ?? 0) +
+          (st?.photo_url ? 20 : 0) +
+          (isTeam ? -15 : 0) +
+          (st?.is_elder ? 10 : 0),
+      }
+    })
+  heroCandidates.sort((a, b) => b.rank - a.rank)
+  // Dedupe by speaker so the hero wall spans multiple voices, not one
+  // person's greatest hits.
+  const seenSpeakers = new Set<string>()
+  const top_quotes_curated: CuratedHeroQuote[] = []
+  for (const cand of heroCandidates) {
+    const key = lastToken(cand.quote.speaker_name)
+    if (seenSpeakers.has(key)) continue
+    seenSpeakers.add(key)
+    top_quotes_curated.push(cand.quote)
+    if (top_quotes_curated.length >= 12) break
+  }
+
   // ── TRANSCRIPTS (by storyteller UUID + by last-name token) ─────────────
   // Gating: privacy_level=public (Elder release 2026-05-12) AND
   // cultural_sensitivity != 'sacred'. Sacred is held back from the public
@@ -1228,6 +1289,7 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     annual_reports,
     bwgcolman,
     quotes_by_speaker: quotesBySpeaker,
+    top_quotes_curated,
     transcripts_by_storyteller: transcriptsByStoryteller,
     transcripts_by_speaker: transcriptsBySpeaker,
     top_stories,
