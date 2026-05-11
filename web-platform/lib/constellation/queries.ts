@@ -10,6 +10,10 @@ import { createServerSupabase } from '@/lib/supabase/client'
 import { getPiccStorytellers } from '@/lib/empathy-ledger/el-storytellers'
 import { getPiccServices } from '@/lib/services/el-services'
 import { getPiccProjects } from '@/lib/empathy-ledger/el-projects'
+import {
+  fiscalYearEnd,
+  getPiccAnnualReports,
+} from '@/lib/empathy-ledger/el-annual-reports'
 import type {
   AnnualReportItem,
   BwgcolmanNation,
@@ -109,6 +113,7 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     knowledgeCountRes,
     elderQuotesRes,
     annualReportsFullRes,
+    elAnnualReports,
   ] = await Promise.all([
     // Canonical PICC people: 44 named storytellers in EL v2, each with
     // photo_url + bio + service_slugs + project_slugs + quote_count.
@@ -200,6 +205,9 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
       .select('fiscal_year, title, subtitle, cover_photo_url, pdf_url, published_date')
       .eq('organization_id', PICC_ORG_ID)
       .order('fiscal_year', { ascending: false }),
+    // EL v2 holds the canonical historical archive — 18 reports back to
+    // 2007-08, 15 with PDFs.
+    getPiccAnnualReports(),
   ])
 
   // ── FACES ──────────────────────────────────────────────────────────────
@@ -278,16 +286,11 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
       }
     })
 
-  // Deduplicate by display name when a storyteller is also in leadership /
-  // board — the storyteller record wins (richer metadata).
-  const seenNames = new Set<string>(
-    stFaces.map((f) => (f.name ?? '').toLowerCase()).filter(Boolean),
-  )
-  const faces: FaceNode[] = [
-    ...stFaces,
-    ...leadFaces.filter((f) => !seenNames.has((f.name ?? '').toLowerCase())),
-    ...boardFaces.filter((f) => !seenNames.has((f.name ?? '').toLowerCase())),
-  ]
+  // Merge — keep every storyteller, leader, and board member with a photo.
+  // No dedup. A person who appears as both a storyteller and a board director
+  // shows up twice on the canvas with the kind=board record carrying their
+  // formal headshot. That is intentional: governance face ≠ community face.
+  const faces: FaceNode[] = [...stFaces, ...leadFaces, ...boardFaces]
 
   // ── THEMES (count + top quotes) ────────────────────────────────────────
   const themeCounts = new Map<string, number>()
@@ -489,23 +492,20 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     })
     .sort((a, b) => b.quote_count - a.quote_count)
 
-  // ── ANNUAL REPORTS (full list) ─────────────────────────────────────────
-  const annual_reports: AnnualReportItem[] = (annualReportsFullRes.data ?? []).map(
-    (r) => {
-      const fy =
-        typeof r.fiscal_year === 'string'
-          ? parseInt(r.fiscal_year, 10)
-          : (r.fiscal_year as number | null)
-      return {
-        fiscal_year: fy ?? 0,
-        title: (r.title as string | null) ?? null,
-        subtitle: (r.subtitle as string | null) ?? null,
-        cover_photo_url: (r.cover_photo_url as string | null) ?? null,
-        pdf_url: (r.pdf_url as string | null) ?? null,
-        published_date: (r.published_date as string | null) ?? null,
-      }
-    },
-  )
+  // ── ANNUAL REPORTS (canonical EL v2 historical archive) ────────────────
+  // EL v2 carries 18 reports back to 2007-08, 15 with PDFs. We treat
+  // EL v2 as truth; PICC's own annual_reports table (annualReportsFullRes)
+  // is only used as a tie-breaker for in-flight planning rows.
+  const elRows = elAnnualReports
+  const annual_reports: AnnualReportItem[] = elRows.map((r) => ({
+    fiscal_year: fiscalYearEnd(r.fiscal_year) ?? 0,
+    title: r.title,
+    subtitle: r.subtitle,
+    cover_photo_url: r.cover_image_url,
+    pdf_url: r.pdf_url,
+    published_date: r.published_date,
+  }))
+  void annualReportsFullRes // reserved for in-flight planning rows, not yet merged
 
   // ── BWGCOLMAN — the composite name and the 42 language groups ──────────
   const bwgcolman: BwgcolmanNation = {
