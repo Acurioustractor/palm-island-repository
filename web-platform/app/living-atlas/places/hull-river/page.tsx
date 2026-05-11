@@ -66,6 +66,48 @@ export default async function HullRiverPage() {
         {/* Map */}
         <HullRiverMap />
 
+        {/* The 2024 Elders trip — the return journey */}
+        {data.elder_trip_stops.length > 0 && (
+          <section className="mt-6 rounded-xl border bg-white p-5"
+            style={{ borderColor: '#C7A87E', borderLeftWidth: 4 }}>
+            <div className="text-[10px] uppercase tracking-wide font-semibold mb-2"
+              style={{ color: '#8B6F47' }}>
+              The 2024 Elders trip · return journey
+            </div>
+            <p className="text-sm text-stone-700 mb-3 leading-relaxed">
+              In 2024 Elders made the journey back. Palm Island → Lucinda
+              → Ingham → Hull River and home. Country knows its people.
+            </p>
+            <ol className="space-y-2">
+              {data.elder_trip_stops.map((s, i) => (
+                <li key={i} className="flex gap-3 items-start">
+                  <span
+                    className="font-serif font-bold w-6 h-6 rounded-full flex items-center justify-center text-xs flex-shrink-0 mt-0.5"
+                    style={{ backgroundColor: '#F4E9DC', color: '#8B6F47' }}
+                  >
+                    {s.stop_order ?? i + 1}
+                  </span>
+                  <div className="flex-1">
+                    <div className="font-serif text-base text-charcoal">
+                      {s.name}
+                      {s.lat != null && s.lng != null && (
+                        <span className="ml-2 text-[10px] text-stone-500 font-mono">
+                          {s.lat.toFixed(3)}, {s.lng.toFixed(3)}
+                        </span>
+                      )}
+                    </div>
+                    {s.description && (
+                      <p className="text-[11.5px] text-stone-600 mt-0.5 leading-snug">
+                        {s.description}
+                      </p>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </section>
+        )}
+
         {/* Timeline + Voices side-by-side on desktop */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
           {/* Timeline */}

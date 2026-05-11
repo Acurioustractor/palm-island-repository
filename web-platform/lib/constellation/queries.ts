@@ -19,13 +19,18 @@ import type {
   BwgcolmanNation,
   CommunityVision,
   ConstellationPayload,
+  ElderTripStop,
   FaceNode,
   FoundationEvent,
   ForwardCommitment,
+  HistoricalArtifact,
   HullRiverVoice,
   KnowledgeEntry,
   NamedElder,
+  PartnerOrg,
+  PiccEra,
   ProjectItem,
+  ResearchSource,
   ServiceItem,
   SpeakerQuote,
   StoryItem,
@@ -123,6 +128,11 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     hullRiverEqRes,
     hullRiverElqRes,
     restrictedCountRes,
+    historicalArtifactsRes,
+    eraRes,
+    tripStopsRes,
+    partnersRes,
+    researchSourcesRes,
   ] = await Promise.all([
     // Canonical PICC people: 44 named storytellers in EL v2, each with
     // photo_url + bio + service_slugs + project_slugs + quote_count.
@@ -256,6 +266,35 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
       .select('id', { count: 'exact', head: true })
       .eq('organization_id', PICC_ORG_ID)
       .in('cultural_sensitivity', ['restricted', 'sacred']),
+    // Historical artifacts — 573 newspaper articles 1911-2014 + 11 other.
+    // We fetch verified ones only and cap at 120 for the payload size budget.
+    supabase
+      .from('historical_artifacts')
+      .select('id, title, artifact_type, source_name, source_url, date_original, content_summary, image_url, tags, chapter_ref, is_verified')
+      .eq('is_verified', true)
+      .order('date_original', { ascending: true, nullsFirst: false })
+      .limit(120),
+    // PICC eras — 4 named eras (Foundation / Growth / Transition / Community Controlled)
+    supabase
+      .from('organization_history')
+      .select('era_name, year_start, year_end, description, milestones')
+      .order('year_start', { ascending: true }),
+    // Elder trip stops — the 2024 Hull River pilgrimage route.
+    supabase
+      .from('elder_trip_stops')
+      .select('trip_name, stop_order, name, description, lat, lng')
+      .order('trip_name')
+      .order('stop_order'),
+    // Partnership network — 23 partners
+    supabase
+      .from('partners')
+      .select('id, name, short_name, partner_type, logo_url, website_url, partnership_start_date')
+      .order('display_order', { ascending: true, nullsFirst: false }),
+    // Research sources — citation graph for history claims
+    supabase
+      .from('research_sources')
+      .select('id, title, source_type, author, publisher, publication_date, url, citation_text, is_primary_source, is_verified')
+      .order('publication_date', { ascending: false, nullsFirst: false }),
   ])
 
   // ── FACES ──────────────────────────────────────────────────────────────
@@ -654,6 +693,74 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
   }))
   void annualReportsFullRes // reserved for in-flight planning rows, not yet merged
 
+  // ── HISTORICAL ARTIFACTS (573 newspapers 1911-2014 + 11 other) ─────────
+  const historical_artifacts: HistoricalArtifact[] = (
+    historicalArtifactsRes.data ?? []
+  ).map((r) => ({
+    id: r.id as string,
+    title: (r.title as string) ?? 'Untitled artifact',
+    artifact_type: (r.artifact_type as string) ?? 'document',
+    source_name: (r.source_name as string | null) ?? null,
+    source_url: (r.source_url as string | null) ?? null,
+    date_original: (r.date_original as string | null) ?? null,
+    content_summary: (r.content_summary as string | null) ?? null,
+    image_url: (r.image_url as string | null) ?? null,
+    tags: Array.isArray(r.tags) ? (r.tags as string[]) : [],
+    chapter_ref: (r.chapter_ref as string | null) ?? null,
+    is_verified: Boolean(r.is_verified),
+  }))
+
+  // ── PICC ERAS (Foundation / Growth / Transition / Community Controlled) ─
+  const picc_eras: PiccEra[] = (eraRes.data ?? []).map((r) => ({
+    name: (r.era_name as string) ?? '',
+    year_start: (r.year_start as number | null) ?? null,
+    year_end: (r.year_end as number | null) ?? null,
+    description: (r.description as string | null) ?? null,
+    milestones: Array.isArray(r.milestones) ? (r.milestones as string[]) : [],
+  }))
+
+  // ── ELDER TRIP STOPS (2024 Hull River pilgrimage route) ────────────────
+  const elder_trip_stops: ElderTripStop[] = (tripStopsRes.data ?? []).map(
+    (r) => ({
+      trip_name: (r.trip_name as string) ?? '',
+      stop_order: (r.stop_order as number | null) ?? null,
+      name: (r.name as string) ?? '',
+      description: (r.description as string | null) ?? null,
+      lat: (r.lat as number | null) ?? null,
+      lng: (r.lng as number | null) ?? null,
+    }),
+  )
+
+  // ── PARTNERS ───────────────────────────────────────────────────────────
+  const partners: PartnerOrg[] = (partnersRes.data ?? []).map((r) => {
+    const start = r.partnership_start_date as string | null
+    return {
+      id: r.id as string,
+      name: (r.name as string) ?? '',
+      short_name: (r.short_name as string | null) ?? null,
+      partner_type: (r.partner_type as string | null) ?? null,
+      logo_url: (r.logo_url as string | null) ?? null,
+      website_url: (r.website_url as string | null) ?? null,
+      start_year: start ? new Date(start).getUTCFullYear() : null,
+    }
+  })
+
+  // ── RESEARCH SOURCES ───────────────────────────────────────────────────
+  const research_sources: ResearchSource[] = (researchSourcesRes.data ?? []).map(
+    (r) => ({
+      id: r.id as string,
+      title: (r.title as string) ?? '',
+      source_type: (r.source_type as string) ?? 'document',
+      author: (r.author as string | null) ?? null,
+      publisher: (r.publisher as string | null) ?? null,
+      publication_date: (r.publication_date as string | null) ?? null,
+      url: (r.url as string | null) ?? null,
+      citation_text: (r.citation_text as string | null) ?? null,
+      is_primary_source: Boolean(r.is_primary_source),
+      is_verified: Boolean(r.is_verified),
+    }),
+  )
+
   // ── BWGCOLMAN — composite name, Manbarra Traditional Owners, 42 language groups ──
   // Number sources:
   //   - PICC annual report wording (canonical for this platform): 42 language groups
@@ -689,6 +796,11 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     top_stories,
     featured_knowledge,
     hull_river_voices,
+    historical_artifacts,
+    picc_eras,
+    elder_trip_stops,
+    partners,
+    research_sources,
     stats: {
       faces_consented: faces.length,
       voices_validated_elder: elderCountRes.count ?? 0,

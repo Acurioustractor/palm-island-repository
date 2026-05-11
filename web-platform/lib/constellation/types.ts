@@ -200,6 +200,60 @@ export interface AnnualReportItem {
   extracted_at: string | null
 }
 
+export interface HistoricalArtifact {
+  id: string
+  title: string
+  artifact_type: string
+  source_name: string | null
+  source_url: string | null
+  date_original: string | null
+  content_summary: string | null
+  image_url: string | null
+  tags: string[]
+  chapter_ref: string | null
+  is_verified: boolean
+}
+
+export interface PiccEra {
+  name: string
+  year_start: number | null
+  year_end: number | null
+  description: string | null
+  milestones: string[]
+}
+
+export interface ElderTripStop {
+  trip_name: string
+  stop_order: number | null
+  name: string
+  description: string | null
+  lat: number | null
+  lng: number | null
+}
+
+export interface PartnerOrg {
+  id: string
+  name: string
+  short_name: string | null
+  partner_type: string | null
+  logo_url: string | null
+  website_url: string | null
+  start_year: number | null
+}
+
+export interface ResearchSource {
+  id: string
+  title: string
+  source_type: string
+  author: string | null
+  publisher: string | null
+  publication_date: string | null
+  url: string | null
+  citation_text: string | null
+  is_primary_source: boolean
+  is_verified: boolean
+}
+
 export interface BwgcolmanNation {
   /** "Bwgcolman" — composite name meaning "many tribes, one people". */
   name: string
@@ -279,6 +333,16 @@ export interface ConstellationPayload {
   featured_knowledge: KnowledgeEntry[]
   /** Quotes / fragments referencing Hull River + the 1918 cyclone. */
   hull_river_voices: HullRiverVoice[]
+  /** Historical artifacts (573 newspapers 1911→2014, court records, photographs) */
+  historical_artifacts: HistoricalArtifact[]
+  /** PICC's own 4-era timeline (Foundation, Growth, Transition, Community Controlled) */
+  picc_eras: PiccEra[]
+  /** Stops on the 2024 Elders trip (Palm → Lucinda → Ingham → Hull River). */
+  elder_trip_stops: ElderTripStop[]
+  /** PICC partnership network. */
+  partners: PartnerOrg[]
+  /** Citation graph for history claims. */
+  research_sources: ResearchSource[]
   stats: ConstellationStats
   /** Always-visible cultural-protocol legibility snapshot. */
   meta: {

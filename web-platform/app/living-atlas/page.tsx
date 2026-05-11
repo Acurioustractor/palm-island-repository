@@ -122,12 +122,21 @@ export default async function LivingAtlasPage() {
 
         {/* Place pages — deep-dives anchored in geography */}
         <section className="mt-6">
-          <div className="mb-3">
-            <h2 className="font-serif text-xl text-charcoal">Places</h2>
-            <p className="text-[11px] text-stone-500">
-              Foundational locations in the Bwgcolman story — each opens its
-              own page with timeline, map, and Elder voices.
-            </p>
+          <div className="mb-3 flex items-baseline justify-between">
+            <div>
+              <h2 className="font-serif text-xl text-charcoal">Places & deep-dives</h2>
+              <p className="text-[11px] text-stone-500">
+                Foundational locations and long-form pages — each opens its
+                own surface with timeline, map, voices, and the archive.
+              </p>
+            </div>
+            <Link
+              href="/living-atlas/history"
+              className="text-[11px] underline font-semibold"
+              style={{ color: '#8B1A1A' }}
+            >
+              The long ground · history archive →
+            </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <Link
