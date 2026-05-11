@@ -120,11 +120,10 @@ function backdropFor(year: number): string {
   return 'linear-gradient(180deg, #F6F2EA 0%, #D8E2D6 100%)'
 }
 
-// Heuristic — match a face to a slot/service slug if its EL slot tag
-// references the service. Used when a service is selected.
-function matchesService(face: FaceNode, slug: string | null): boolean {
-  if (!slug || !face.slot) return false
-  return face.slot.includes(slug)
+// Photo-id sets are pre-computed in queries.ts. The viz uses them for
+// precise filtering — no string-matching guesses.
+function buildIdSet(ids: string[] | undefined): Set<string> {
+  return new Set(ids ?? [])
 }
 
 export default function Constellation({ data }: Props) {
@@ -469,18 +468,23 @@ export default function Constellation({ data }: Props) {
     const idToFace = new Map<string, FaceNode>()
     for (const s of simFaces) idToFace.set(s.id, s.face)
 
+    // Precise face filtering — uses photo_ids pre-computed server-side.
+    const serviceIds = buildIdSet(activeService?.photo_ids)
+    const projectIds = buildIdSet(activeProject?.photo_ids)
+    const elderIds = buildIdSet(activeElder?.photo_ids)
+
     svg
       .selectAll<SVGGElement, unknown>('.cstl-faces > g')
       .attr('opacity', function () {
         const id = this.getAttribute('data-id') ?? ''
         const face = idToFace.get(id)
         if (!face) return 1
+        if (activeService) return serviceIds.has(id) ? 1 : 0.1
+        if (activeProject) return projectIds.has(id) ? 1 : 0.1
+        if (activeElder) return elderIds.has(id) ? 1 : 0.1
         if (mode === 'timeline' && face.year !== null)
           return face.year <= deferredYear ? 1 : 0.18
         if (mode === 'voices') return face.is_elder ? 1 : 0.5
-        if (activeService) return matchesService(face, activeService.slug) ? 1 : 0.18
-        if (activeElder)
-          return (face.name ?? '').includes(activeElder.name) ? 1 : 0.18
         return 1
       })
   }, [
@@ -576,8 +580,15 @@ export default function Constellation({ data }: Props) {
       )
     if (activeService)
       return (
-        <ContextCard label="Service" right={activeService.start_year ? `since ${activeService.start_year}` : null}>
+        <ContextCard
+          label="Service"
+          right={activeService.start_year ? `since ${activeService.start_year}` : null}
+        >
           <div className="font-serif text-base mb-1">{activeService.name}</div>
+          <div className="text-[11px] text-stone-500 mb-2">
+            {activeService.photo_ids.length} face
+            {activeService.photo_ids.length === 1 ? '' : 's'} on the canvas
+          </div>
           {activeService.description && (
             <div className="text-xs text-stone-700 leading-relaxed">
               {activeService.description.length > 240
@@ -590,8 +601,15 @@ export default function Constellation({ data }: Props) {
       )
     if (activeProject)
       return (
-        <ContextCard label={`Project · ${activeProject.status ?? 'live'}`} right={activeProject.start_year ? `from ${activeProject.start_year}` : null}>
+        <ContextCard
+          label={`Project · ${activeProject.status ?? 'live'}`}
+          right={activeProject.start_year ? `from ${activeProject.start_year}` : null}
+        >
           <div className="font-serif text-base mb-1">{activeProject.name}</div>
+          <div className="text-[11px] text-stone-500 mb-2">
+            {activeProject.photo_ids.length} face
+            {activeProject.photo_ids.length === 1 ? '' : 's'} on the canvas
+          </div>
           {activeProject.description && (
             <div className="text-xs text-stone-700 leading-relaxed">
               {activeProject.description.length > 240
@@ -606,48 +624,98 @@ export default function Constellation({ data }: Props) {
       return (
         <ContextCard label={`Elder · ${activeElder.quote_count} voices`}>
           <div className="font-serif text-base mb-1">{activeElder.name}</div>
-          {activeElder.top_quote && (
-            <div className="border-l-2 border-ochre/60 pl-3 mt-2">
-              <div className="font-serif text-xs italic leading-snug">
-                “{activeElder.top_quote.length > 200
-                  ? activeElder.top_quote.slice(0, 200) + '…'
-                  : activeElder.top_quote}”
+          <div className="text-[11px] text-stone-500 mb-2">
+            {activeElder.photo_ids.length} photo
+            {activeElder.photo_ids.length === 1 ? '' : 's'} on the canvas
+          </div>
+          <div className="space-y-2">
+            {activeElder.quotes.slice(0, 3).map((q, i) => (
+              <div key={i} className="border-l-2 border-ochre/60 pl-3">
+                <div className="font-serif text-xs italic leading-snug">
+                  “{q.length > 180 ? q.slice(0, 180) + '…' : q}”
+                </div>
               </div>
-              <div className="text-[10px] text-stone-600 mt-1">— {activeElder.name}</div>
+            ))}
+          </div>
+          {activeElder.quotes.length > 3 && (
+            <div className="text-[10px] text-stone-500 mt-2 italic">
+              +{activeElder.quotes.length - 3} more in the archive
             </div>
           )}
           <ClearButton onClick={() => setActiveElder(null)} />
         </ContextCard>
       )
-    if (activeReport)
+    if (activeReport) {
+      const yearDetail =
+        data.years.find((y) => y.fiscal_year === activeReport.fiscal_year) ?? null
       return (
-        <ContextCard label={`Annual Report · FY ${activeReport.fiscal_year}`}>
+        <ContextCard
+          label={`Annual Report · FY ${activeReport.fiscal_year}`}
+          right={formatRevenue(yearDetail?.revenue ?? null)}
+        >
           {activeReport.cover_photo_url && (
             <img
               src={activeReport.cover_photo_url}
               alt=""
               className="w-full rounded-md mb-2"
+              loading="lazy"
             />
           )}
-          <div className="font-serif text-base mb-1">
+          <div className="font-serif text-sm mb-1">
             {activeReport.title ?? `Annual Report FY${activeReport.fiscal_year}`}
           </div>
           {activeReport.subtitle && (
-            <div className="text-xs text-stone-600">{activeReport.subtitle}</div>
+            <div className="text-xs text-stone-600 mb-2">{activeReport.subtitle}</div>
+          )}
+          {yearDetail && yearDetail.events.length > 0 && (
+            <div className="mt-2">
+              <div className="text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-1">
+                Interesting things, FY{activeReport.fiscal_year}
+              </div>
+              <ul className="space-y-1 text-xs text-stone-700">
+                {yearDetail.events.slice(0, 3).map((e, i) => (
+                  <li key={i} className="flex gap-2">
+                    <span className="text-ochre">·</span>
+                    <span>
+                      {e.title}
+                      {e.significance >= 8 && (
+                        <span className="ml-1 text-stone-500">★</span>
+                      )}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {yearDetail && yearDetail.achievements.length > 0 && (
+            <div className="mt-2">
+              <div className="text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-1">
+                Achievements that year
+              </div>
+              <ul className="space-y-1 text-xs text-stone-700">
+                {yearDetail.achievements.slice(0, 2).map((a, i) => (
+                  <li key={i} className="flex gap-2">
+                    <span className="text-sage-700">✓</span>
+                    <span className="line-clamp-2">{a}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
           {activeReport.pdf_url && (
             <a
               href={activeReport.pdf_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-2 inline-block text-xs underline text-sage-700"
+              className="mt-3 inline-block text-xs underline text-sage-700"
             >
-              Open PDF
+              Open PDF →
             </a>
           )}
           <ClearButton onClick={() => setActiveReport(null)} />
         </ContextCard>
       )
+    }
     if (mode === 'timeline' && activeYearDetail)
       return (
         <ContextCard
@@ -753,6 +821,7 @@ export default function Constellation({ data }: Props) {
     revenue,
     data.foundation,
     data.visions,
+    data.years,
   ])
 
   return (
@@ -881,7 +950,7 @@ export default function Constellation({ data }: Props) {
 
             {tab === 'services' && (
               <>
-                <RailHeading>{data.services.length} services</RailHeading>
+                <RailHeading>{data.services.length} services · click to filter</RailHeading>
                 <ul className="space-y-1">
                   {data.services.map((s) => (
                     <li key={s.id}>
@@ -891,15 +960,22 @@ export default function Constellation({ data }: Props) {
                           setActiveService(s)
                           setActiveProject(null)
                           setActiveElder(null)
+                          setActiveReport(null)
                         }}
-                        className="block w-full text-left text-[11.5px] px-2 py-1.5 rounded hover:bg-stone-100"
+                        className="flex w-full justify-between gap-2 text-[11.5px] px-2 py-1.5 rounded hover:bg-stone-100"
                         style={
                           activeService?.id === s.id
                             ? { backgroundColor: '#E7EFE4', color: '#2D5F4F', fontWeight: 600 }
                             : {}
                         }
                       >
-                        {s.name}
+                        <span className="truncate">{s.name}</span>
+                        <span
+                          className="text-stone-500 flex-shrink-0"
+                          title={`${s.photo_ids.length} matching face${s.photo_ids.length === 1 ? '' : 's'}`}
+                        >
+                          {s.photo_ids.length}
+                        </span>
                       </button>
                     </li>
                   ))}
@@ -909,7 +985,7 @@ export default function Constellation({ data }: Props) {
 
             {tab === 'projects' && (
               <>
-                <RailHeading>{data.projects.length} projects</RailHeading>
+                <RailHeading>{data.projects.length} projects · click to filter</RailHeading>
                 <ul className="space-y-1">
                   {data.projects.map((p) => (
                     <li key={p.id}>
@@ -919,18 +995,24 @@ export default function Constellation({ data }: Props) {
                           setActiveProject(p)
                           setActiveService(null)
                           setActiveElder(null)
+                          setActiveReport(null)
                         }}
-                        className="block w-full text-left text-[11.5px] px-2 py-1.5 rounded hover:bg-stone-100"
+                        className="flex w-full justify-between gap-2 text-[11.5px] px-2 py-1.5 rounded hover:bg-stone-100"
                         style={
                           activeProject?.id === p.id
                             ? { backgroundColor: '#E7EFE4', color: '#2D5F4F', fontWeight: 600 }
                             : {}
                         }
                       >
-                        {p.name}
-                        {p.status && p.status !== 'active' && (
-                          <span className="ml-2 text-[10px] text-stone-500">· {p.status}</span>
-                        )}
+                        <span className="truncate">
+                          {p.name}
+                          {p.status && p.status !== 'active' && (
+                            <span className="ml-2 text-[10px] text-stone-500">· {p.status}</span>
+                          )}
+                        </span>
+                        <span className="text-stone-500 flex-shrink-0">
+                          {p.photo_ids.length}
+                        </span>
                       </button>
                     </li>
                   ))}
@@ -940,7 +1022,7 @@ export default function Constellation({ data }: Props) {
 
             {tab === 'elders' && (
               <>
-                <RailHeading>{data.named_elders.length} named elders</RailHeading>
+                <RailHeading>{data.named_elders.length} named elders · click to filter</RailHeading>
                 <ul className="space-y-1">
                   {data.named_elders.slice(0, 30).map((e) => (
                     <li key={e.name}>
@@ -950,6 +1032,7 @@ export default function Constellation({ data }: Props) {
                           setActiveElder(e)
                           setActiveService(null)
                           setActiveProject(null)
+                          setActiveReport(null)
                         }}
                         className="flex w-full justify-between gap-2 text-[11.5px] px-2 py-1.5 rounded hover:bg-stone-100"
                         style={
@@ -959,7 +1042,12 @@ export default function Constellation({ data }: Props) {
                         }
                       >
                         <span className="truncate">{e.name}</span>
-                        <span className="text-stone-500">{e.quote_count}</span>
+                        <span className="text-stone-500 flex-shrink-0">
+                          {e.quote_count}q
+                          {e.photo_ids.length > 0 && (
+                            <span className="ml-1">· {e.photo_ids.length}p</span>
+                          )}
+                        </span>
                       </button>
                     </li>
                   ))}
@@ -969,13 +1057,22 @@ export default function Constellation({ data }: Props) {
 
             {tab === 'reports' && (
               <>
-                <RailHeading>{data.annual_reports.length} annual reports</RailHeading>
+                <RailHeading>
+                  {data.annual_reports.length} reports · click to time-travel
+                </RailHeading>
                 <ul className="space-y-2">
                   {data.annual_reports.map((r) => (
                     <li key={r.fiscal_year}>
                       <button
                         type="button"
-                        onClick={() => setActiveReport(r)}
+                        onClick={() => {
+                          setActiveReport(r)
+                          setActiveService(null)
+                          setActiveProject(null)
+                          setActiveElder(null)
+                          setActiveYear(r.fiscal_year)
+                          setMode('timeline')
+                        }}
                         className="block w-full text-left rounded-md hover:bg-stone-100 p-1.5"
                         style={
                           activeReport?.fiscal_year === r.fiscal_year
@@ -983,7 +1080,19 @@ export default function Constellation({ data }: Props) {
                             : {}
                         }
                       >
-                        <div className="font-semibold text-[11.5px]">FY {r.fiscal_year}</div>
+                        <div className="flex items-center justify-between">
+                          <div className="font-semibold text-[11.5px]">
+                            FY {r.fiscal_year}
+                          </div>
+                          {r.pdf_url && (
+                            <span
+                              className="text-[9px] text-stone-500 uppercase tracking-wide"
+                              title="PDF available"
+                            >
+                              PDF
+                            </span>
+                          )}
+                        </div>
                         <div className="text-[10.5px] text-stone-600 truncate">
                           {r.title ?? '—'}
                         </div>
@@ -1070,31 +1179,60 @@ export default function Constellation({ data }: Props) {
         </div>
       </div>
 
-      {/* Bottom — year scrubber */}
-      <div className="px-4 py-3 border-t border-stone-200 bg-white/70 backdrop-blur flex items-center gap-3">
-        <span className="text-[11px] text-stone-500 font-medium">
-          {yearBounds.min}
-        </span>
-        <input
-          type="range"
-          min={yearBounds.min}
-          max={yearBounds.max}
-          step={1}
-          value={activeYear}
-          onChange={(e) => {
-            setActiveYear(parseInt(e.target.value, 10))
-            if (mode !== 'timeline') setMode('timeline')
-          }}
-          className="flex-1"
-          style={{ accentColor: '#2D5F4F' }}
-          aria-label="Active fiscal year"
-        />
-        <span className="text-[11px] text-stone-500 font-medium">
-          {yearBounds.max}
-        </span>
-        <span className="text-sm font-serif text-charcoal min-w-[70px] text-right">
-          FY {activeYear}
-        </span>
+      {/* Bottom — year scrubber with report markers */}
+      <div className="px-4 py-3 border-t border-stone-200 bg-white/70 backdrop-blur">
+        <div className="flex items-center gap-3">
+          <span className="text-[11px] text-stone-500 font-medium">
+            {yearBounds.min}
+          </span>
+          <div className="flex-1 relative">
+            <input
+              type="range"
+              min={yearBounds.min}
+              max={yearBounds.max}
+              step={1}
+              value={activeYear}
+              onChange={(e) => {
+                setActiveYear(parseInt(e.target.value, 10))
+                if (mode !== 'timeline') setMode('timeline')
+              }}
+              className="w-full"
+              style={{ accentColor: '#2D5F4F' }}
+              aria-label="Active fiscal year"
+            />
+            {/* Report markers — small dots below the track at years with an annual report */}
+            <div className="absolute left-0 right-0 -bottom-1 pointer-events-none">
+              {data.annual_reports.map((r) => {
+                const span = yearBounds.max - yearBounds.min || 1
+                const pct = ((r.fiscal_year - yearBounds.min) / span) * 100
+                return (
+                  <span
+                    key={r.fiscal_year}
+                    className="absolute w-1.5 h-1.5 rounded-full"
+                    style={{
+                      left: `calc(${pct}% - 3px)`,
+                      backgroundColor: '#D97757',
+                    }}
+                    title={`FY ${r.fiscal_year} report`}
+                  />
+                )
+              })}
+            </div>
+          </div>
+          <span className="text-[11px] text-stone-500 font-medium">
+            {yearBounds.max}
+          </span>
+          <span className="text-sm font-serif text-charcoal min-w-[70px] text-right">
+            FY {activeYear}
+          </span>
+        </div>
+        <div className="text-[10px] text-stone-500 mt-1.5 flex items-center gap-1.5">
+          <span
+            className="inline-block w-1.5 h-1.5 rounded-full"
+            style={{ backgroundColor: '#D97757' }}
+          />
+          <span>Years with an annual report — click in the Reports rail to dive.</span>
+        </div>
       </div>
 
       <style jsx global>{`

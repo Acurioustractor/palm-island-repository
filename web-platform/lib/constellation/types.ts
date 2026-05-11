@@ -104,6 +104,8 @@ export interface ServiceItem {
   slug: string | null
   description: string | null
   start_year: number | null
+  /** Face ids whose EL v2 slot tags match this service. */
+  photo_ids: string[]
 }
 
 export interface ProjectItem {
@@ -113,6 +115,8 @@ export interface ProjectItem {
   description: string | null
   status: string | null
   start_year: number | null
+  /** Face ids whose EL v2 slot tags match this project. */
+  photo_ids: string[]
 }
 
 export interface NamedElder {
@@ -120,8 +124,10 @@ export interface NamedElder {
   name: string
   /** Number of validated quotes attributed to this elder. */
   quote_count: number
-  /** Most-recent or top quote attributed to this elder. */
-  top_quote: string | null
+  /** Up to 5 quotes from this elder, for the right rail. */
+  quotes: string[]
+  /** Face ids whose photo metadata mentions this elder. */
+  photo_ids: string[]
 }
 
 export interface AnnualReportItem {

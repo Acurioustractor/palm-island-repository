@@ -350,28 +350,45 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     category: (v.category as string | null) ?? null,
   }))
 
+  // Helper: which face ids match a given slug/name pattern. Builds a tiny
+  // index up front so each service / project / elder is an O(n) scan, not
+  // an O(services × faces) blowup.
+  function facesMatching(predicate: (face: FaceNode) => boolean): string[] {
+    const out: string[] = []
+    for (const f of faces) if (predicate(f)) out.push(f.id)
+    return out
+  }
+
   // ── SERVICES ───────────────────────────────────────────────────────────
   const services: ServiceItem[] = (servicesRes.data ?? []).map((s) => {
     const sd = s.start_date as string | null
+    const slug = (s.slug as string | null) ?? null
     return {
       id: s.id as string,
       name: (s.name as string) ?? '',
-      slug: (s.slug as string | null) ?? null,
+      slug,
       description: (s.description as string | null) ?? null,
       start_year: sd ? new Date(sd).getUTCFullYear() : null,
+      photo_ids: slug
+        ? facesMatching((f) => Boolean(f.slot?.includes(slug)))
+        : [],
     }
   })
 
   // ── PROJECTS ───────────────────────────────────────────────────────────
   const projects: ProjectItem[] = (projectsRes.data ?? []).map((p) => {
     const sd = p.start_date as string | null
+    const slug = (p.slug as string | null) ?? null
     return {
       id: p.id as string,
       name: (p.name as string) ?? '',
-      slug: (p.slug as string | null) ?? null,
+      slug,
       description: (p.description as string | null) ?? null,
       status: (p.status as string | null) ?? null,
       start_year: sd ? new Date(sd).getUTCFullYear() : null,
+      photo_ids: slug
+        ? facesMatching((f) => Boolean(f.slot?.includes(slug)))
+        : [],
     }
   })
 
@@ -386,11 +403,19 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     elderBuckets.set(name, list)
   }
   const named_elders: NamedElder[] = Array.from(elderBuckets.entries())
-    .map(([name, quotes]) => ({
-      name,
-      quote_count: quotes.length,
-      top_quote: quotes[0] ?? null,
-    }))
+    .map(([name, quotes]) => {
+      const lname = name.toLowerCase()
+      const photo_ids = facesMatching((f) => {
+        const blob = `${f.name ?? ''} ${f.attribution ?? ''} ${f.slot ?? ''}`.toLowerCase()
+        return blob.includes(lname)
+      })
+      return {
+        name,
+        quote_count: quotes.length,
+        quotes: quotes.slice(0, 5),
+        photo_ids,
+      }
+    })
     .sort((a, b) => b.quote_count - a.quote_count)
 
   // ── ANNUAL REPORTS (full list) ─────────────────────────────────────────
