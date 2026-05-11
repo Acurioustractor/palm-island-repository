@@ -18,7 +18,14 @@
  * Elders · Reports · Bwgcolman.
  */
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import * as d3 from 'd3'
 import type {
   AnnualReportItem,
@@ -150,10 +157,12 @@ export default function Constellation({ data }: Props) {
     return { min: Math.min(...all), max: Math.max(...all) }
   }, [data])
   const [activeYear, setActiveYear] = useState<number>(yearBounds.max)
+  // Defer the year value used in heavy effects so scrubbing stays buttery.
+  const deferredYear = useDeferredValue(activeYear)
 
   const activeYearDetail = useMemo(
-    () => data.years.find((y) => y.fiscal_year === activeYear) ?? null,
-    [data.years, activeYear],
+    () => data.years.find((y) => y.fiscal_year === deferredYear) ?? null,
+    [data.years, deferredYear],
   )
   const activeThemeWell = useMemo(
     () => data.themes.find((t) => t.key === activeTheme) ?? null,
@@ -322,6 +331,7 @@ export default function Constellation({ data }: Props) {
       .data(simFaces, (d) => d.id)
       .join('g')
       .attr('data-id', (d) => d.id)
+      .attr('class', 'cstl-face')
       .style('cursor', 'grab')
       .on('click', (event, d) => {
         event.stopPropagation()
@@ -347,18 +357,27 @@ export default function Constellation({ data }: Props) {
       .attr('preserveAspectRatio', 'xMidYMid slice')
       .attr('clip-path', 'url(#cstl-face-clip)')
 
+    // Finite simulation: run ~120 ticks to settle, then stop completely.
+    // Constant ticking was the source of click-lag. After settle, faces
+    // stay put; mode / theme / elder changes manipulate opacity only.
     const sim = d3
       .forceSimulation<SimFace>(simFaces)
       .force(
         'collision',
-        d3.forceCollide<SimFace>().radius(FACE_RADIUS + 5).strength(0.9),
+        d3.forceCollide<SimFace>().radius(FACE_RADIUS + 4).strength(0.9),
       )
-      .force('charge', d3.forceManyBody().strength(-22))
-      .force('centre', d3.forceCenter(cx, cy).strength(0.03))
+      .force('charge', d3.forceManyBody().strength(-14))
+      .force('centre', d3.forceCenter(cx, cy).strength(0.05))
       .alpha(1)
-      .alphaDecay(0.04)
+      .alphaDecay(0.05)
+      .alphaMin(0.08)
+      .velocityDecay(0.55)
       .on('tick', () => {
         facePoints.attr('transform', (d) => `translate(${d.x}, ${d.y})`)
+      })
+      .on('end', () => {
+        // Free the tick listener — DOM is in final state.
+        sim.on('tick', null)
       })
 
     simulationRef.current = sim
@@ -408,78 +427,35 @@ export default function Constellation({ data }: Props) {
     // Stable scene rebuild only depends on data + dimensions.
   }, [data.faces, data.themes, stageSize.width, stageSize.height])
 
-  // Lightweight update: re-bias force + node opacity when mode / theme /
-  // year / service / project / elder changes. Touches existing DOM only.
+  // Lightweight update: opacity + well state only. NEVER restarts the
+  // simulation — that's what made clicks feel slow.
   useEffect(() => {
     if (!svgRef.current) return
-    const sim = simulationRef.current
     const simFaces = simFacesRef.current
-    if (!sim || simFaces.length === 0) return
+    if (simFaces.length === 0) return
 
-    const cx = stageSize.width / 2
-    const cy = stageSize.height / 2
-
-    // Snapshot theme well positions from current DOM.
-    const themeWellMap = new Map<string, { x: number; y: number }>()
     const svg = d3.select(svgRef.current)
-    svg
-      .selectAll<SVGGElement, unknown>('.cstl-wells > g')
-      .each(function () {
-        const key = this.getAttribute('data-key') ?? ''
-        const t = this.getAttribute('transform') ?? ''
-        const m = /translate\(([-\d.]+),\s*([-\d.]+)\)/.exec(t)
-        if (m) themeWellMap.set(key, { x: parseFloat(m[1]), y: parseFloat(m[2]) })
-      })
 
-    // Reset force.
-    sim.force(
-      'theme',
-      ((alpha: number) => {
-        simFaces.forEach((node) => {
-          let target: { x: number; y: number } | null = null
-          if (mode === 'visions') target = { x: stageSize.width - 80, y: cy }
-          else if (activeTheme) target = themeWellMap.get(activeTheme) ?? null
-          else if (activeService) {
-            // Pull matching faces toward the centre top.
-            if (matchesService(node.face, activeService.slug)) {
-              target = { x: cx, y: cy - 120 }
-            }
-          } else if (activeElder) {
-            if ((node.face.name ?? '').includes(activeElder.name)) {
-              target = { x: cx, y: cy }
-            }
-          } else {
-            const wells = Array.from(themeWellMap.values())
-            target = wells[node.themeIndex % Math.max(1, wells.length)] ?? null
-          }
-          if (!target || node.x === undefined || node.y === undefined) return
-          const k =
-            mode === 'visions'
-              ? 0.06
-              : activeTheme
-                ? 0.18
-                : activeService || activeElder
-                  ? 0.14
-                  : 0.035
-          node.vx = (node.vx ?? 0) + (target.x - node.x) * k * alpha
-          node.vy = (node.vy ?? 0) + (target.y - node.y) * k * alpha
-        })
-      }) as unknown as d3.Force<SimFace, undefined>,
-    )
+    // Snapshot theme well positions once.
+    const themeWellMap = new Map<string, { x: number; y: number }>()
+    svg.selectAll<SVGGElement, unknown>('.cstl-wells > g').each(function () {
+      const key = this.getAttribute('data-key') ?? ''
+      const t = this.getAttribute('transform') ?? ''
+      const m = /translate\(([-\d.]+),\s*([-\d.]+)\)/.exec(t)
+      if (m) themeWellMap.set(key, { x: parseFloat(m[1]), y: parseFloat(m[2]) })
+    })
 
-    // Active well visual state.
-    svg
-      .selectAll<SVGGElement, unknown>('.cstl-wells > g')
-      .each(function () {
-        const key = this.getAttribute('data-key')
-        const bg = d3.select(this).select<SVGCircleElement>('circle.well-bg')
-        const lbl = d3.select(this).select<SVGTextElement>('text:first-of-type')
-        const isActive = key === activeTheme
-        bg.attr('fill', isActive ? '#2D5F4F' : '#F4E9DC')
-        lbl.attr('fill', isActive ? '#FBF6EE' : '#2C2C2C')
-      })
+    // Active well visual state (no transition — instant).
+    svg.selectAll<SVGGElement, unknown>('.cstl-wells > g').each(function () {
+      const key = this.getAttribute('data-key')
+      const bg = d3.select(this).select<SVGCircleElement>('circle.well-bg')
+      const lbl = d3.select(this).select<SVGTextElement>('text:first-of-type')
+      const isActive = key === activeTheme
+      bg.attr('fill', isActive ? '#2D5F4F' : '#F4E9DC')
+      lbl.attr('fill', isActive ? '#FBF6EE' : '#2C2C2C')
+    })
 
-    // Glow.
+    // Glow position / visibility.
     const glowSel = svg.select<SVGCircleElement>('.cstl-active-glow')
     if (activeTheme) {
       const pos = themeWellMap.get(activeTheme)
@@ -488,32 +464,32 @@ export default function Constellation({ data }: Props) {
       glowSel.attr('opacity', 0)
     }
 
-    // Face opacity.
+    // Face opacity — single pass keyed by data-id. CSS handles the fade
+    // (see opacity-transition class on each face g).
+    const idToFace = new Map<string, FaceNode>()
+    for (const s of simFaces) idToFace.set(s.id, s.face)
+
     svg
-      .selectAll<SVGGElement, SimFace>('.cstl-faces > g')
+      .selectAll<SVGGElement, unknown>('.cstl-faces > g')
       .attr('opacity', function () {
         const id = this.getAttribute('data-id') ?? ''
-        const face = simFaces.find((s) => s.id === id)?.face
+        const face = idToFace.get(id)
         if (!face) return 1
         if (mode === 'timeline' && face.year !== null)
-          return face.year <= activeYear ? 1 : 0.18
+          return face.year <= deferredYear ? 1 : 0.18
         if (mode === 'voices') return face.is_elder ? 1 : 0.5
         if (activeService) return matchesService(face, activeService.slug) ? 1 : 0.18
         if (activeElder)
           return (face.name ?? '').includes(activeElder.name) ? 1 : 0.18
         return 1
       })
-
-    sim.alpha(0.6).restart()
   }, [
     mode,
     activeTheme,
-    activeYear,
+    deferredYear,
     activeService,
     activeProject,
     activeElder,
-    stageSize.width,
-    stageSize.height,
   ])
 
   const revenue = formatRevenue(activeYearDetail?.revenue ?? null)
@@ -544,8 +520,9 @@ export default function Constellation({ data }: Props) {
     setActiveReport(null)
   }
 
-  // Decide what the right rail shows.
-  const rightCard = (() => {
+  // Decide what the right rail shows — memoised so a year-scrub or
+  // simulation tick doesn't re-render the card subtree.
+  const rightCard = useMemo(() => {
     if (activeFace)
       return (
         <ContextCard label={`Voice${activeFace.is_elder ? ' · Elder' : ''}`}>
@@ -764,7 +741,19 @@ export default function Constellation({ data }: Props) {
         </div>
       </ContextCard>
     )
-  })()
+  }, [
+    activeFace,
+    activeThemeWell,
+    activeService,
+    activeProject,
+    activeElder,
+    activeReport,
+    mode,
+    activeYearDetail,
+    revenue,
+    data.foundation,
+    data.visions,
+  ])
 
   return (
     <div
@@ -1046,7 +1035,7 @@ export default function Constellation({ data }: Props) {
           ref={stageRef}
           className="relative flex-1 min-w-0"
           style={{
-            background: backdropFor(activeYear),
+            background: backdropFor(deferredYear),
             transition: 'background 600ms ease',
           }}
         >
@@ -1108,7 +1097,7 @@ export default function Constellation({ data }: Props) {
         </span>
       </div>
 
-      <style jsx>{`
+      <style jsx global>{`
         @keyframes cstl-fade {
           from {
             opacity: 0;
@@ -1118,6 +1107,11 @@ export default function Constellation({ data }: Props) {
             opacity: 1;
             transform: translateY(0);
           }
+        }
+        /* GPU-accelerated opacity transition for face nodes — keeps
+           clicking + mode-switching feeling instant even with ~100 faces. */
+        .cstl-face {
+          transition: opacity 240ms ease;
         }
         :fullscreen {
           background: #fbf6ee;

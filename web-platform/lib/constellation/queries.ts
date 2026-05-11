@@ -27,7 +27,9 @@ import type {
 
 const PICC_ORG_ID = '3c2011b9-f80d-4289-b300-0cd383cff479'
 const QUOTES_PER_THEME = 3
-const FACE_LIMIT = 200
+// Default face count is bounded for a snappy first paint. The viz can
+// request more on demand via a "show all" control.
+const FACE_LIMIT = 80
 
 // Forward commitments are sourced verbatim from
 // PICC-Narelle-Rachel-Workshop/PICC-20-Year-Launchpad-Plan.md so the workshop
@@ -65,6 +67,22 @@ function yearFromTimestamp(ts: string | null | undefined): number | null {
 function inferElder(slot: string | null, alt: string | null): boolean {
   const text = `${slot ?? ''} ${alt ?? ''}`.toLowerCase()
   return /\belder|aunt(y|ie)|uncle\b/.test(text)
+}
+
+/**
+ * Build a small Supabase-Storage transform URL so the constellation pulls
+ * 80 × 64-px thumbnails instead of 80 full-res photos. Cuts initial face-
+ * paint cost by ~50× vs. full URLs. Non-Supabase URLs are returned as-is.
+ */
+function thumbnailUrl(url: string | null, size = 80): string {
+  if (!url) return ''
+  if (!url.includes('/storage/v1/object/')) return url
+  const transformed = url.replace(
+    '/storage/v1/object/',
+    '/storage/v1/render/image/',
+  )
+  const sep = transformed.includes('?') ? '&' : '?'
+  return `${transformed}${sep}width=${size}&height=${size}&resize=cover&quality=70`
 }
 
 export async function loadConstellation(): Promise<ConstellationPayload> {
@@ -183,9 +201,10 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
       id: p.id,
       name: p.alt_text ?? p.caption ?? p.attribution ?? null,
       avatar_url: p.url,
-      // EL v2 returns a thumbnail when available — use it for the SVG nodes
-      // so 100+ small faces don't pull 100+ full-res photos on first paint.
-      thumb_url: p.thumbnail_url ?? p.url,
+      // Prefer EL v2's pre-built thumbnail when present, else generate a
+      // Supabase Storage transform URL on the fly (80 × 80, quality 70) so
+      // the SVG paints small images instead of full-res ones.
+      thumb_url: p.thumbnail_url ?? thumbnailUrl(p.url),
       attribution: p.attribution,
       year: yearFromTimestamp(p.taken_at),
       slot: p.slot,
