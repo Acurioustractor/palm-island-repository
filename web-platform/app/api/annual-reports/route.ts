@@ -87,11 +87,11 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
-    // Get or create PICC organization
+    // Canonical PICC org has slug='picc' (a legacy seed row also has short_name='PICC' but slug=NULL)
     const { data: orgs } = await supabase
       .from('organizations')
       .select('id')
-      .eq('short_name', 'PICC')
+      .eq('slug', 'picc')
       .limit(1)
 
     let organizationId = orgs?.[0]?.id

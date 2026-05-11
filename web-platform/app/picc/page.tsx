@@ -264,6 +264,41 @@ export default async function PICCIndexPage() {
         </div>
       </header>
 
+      {/* Workshop hero — Bwgcolman Constellation */}
+      <Link
+        href="/picc/constellation"
+        className="block mb-8 rounded-2xl border bg-white overflow-hidden group hover:shadow-md transition"
+        style={{ borderColor: C.border }}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_220px] gap-0">
+          <div className="p-6 md:p-7">
+            <div
+              className="text-[11px] font-bold uppercase tracking-[0.3em] mb-2"
+              style={{ color: C.turtleRed }}
+            >
+              Workshop hero · 13 May 2026
+            </div>
+            <h2
+              className="font-fraunces font-bold leading-tight mb-2"
+              style={{ color: C.ocean, fontSize: 32 }}
+            >
+              Bwgcolman Constellation
+            </h2>
+            <p className="font-fraunces" style={{ color: C.driftwood, fontSize: 16, lineHeight: 1.55 }}>
+              A living map of Palm Island storytelling — faces drift, themes
+              hold, time moves. Every face consented at source. Every theme
+              named by community.
+            </p>
+          </div>
+          <div
+            className="hidden md:flex items-center justify-center"
+            style={{ background: `linear-gradient(135deg, ${C.ocean}10, ${C.ochre}20)` }}
+          >
+            <Sparkles className="w-12 h-12" style={{ color: C.ocean }} />
+          </div>
+        </div>
+      </Link>
+
       {/* Six command centres */}
       <div className="space-y-8">
         {centres.map((c, idx) => (

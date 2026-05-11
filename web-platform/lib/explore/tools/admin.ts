@@ -121,11 +121,11 @@ export const getJobOpportunities = defineTool({
     const { category, employmentType, location, includeTraining, status, limit } = input
     const supabase = getSupabase()
 
-    // Get PICC organization ID
+    // Canonical PICC org has slug='picc' (legacy seed row also has short_name='PICC' but slug=NULL)
     const { data: piccOrg } = await supabase
       .from('organizations')
       .select('id')
-      .eq('short_name', 'PICC')
+      .eq('slug', 'picc')
       .limit(1)
 
     if (!piccOrg || piccOrg.length === 0) {

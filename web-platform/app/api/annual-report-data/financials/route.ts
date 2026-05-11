@@ -41,11 +41,12 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'fiscal_year required' }, { status: 400 })
     }
 
-    // Get PICC org id
+    // Canonical PICC org has slug='picc'. A legacy seed row also has short_name='PICC'
+    // but slug=NULL and zero data references — disambiguate by slug.
     const { data: orgs } = await supabase
       .from('organizations')
       .select('id')
-      .eq('short_name', 'PICC')
+      .eq('slug', 'picc')
       .limit(1)
 
     const organizationId = orgs?.[0]?.id
