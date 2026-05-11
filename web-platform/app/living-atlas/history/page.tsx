@@ -55,7 +55,19 @@ export default async function HistoryPage() {
   const data = await loadConstellation()
 
   const eras = data.picc_eras
-  const artifacts = data.historical_artifacts
+  // Dedupe artifacts: the historical_artifacts table holds multiple rows
+  // for the same Trove newspaper with different searchTerm query params.
+  // Strip the querystring + lowercase to fold them into one entry.
+  const seenUrls = new Set<string>()
+  const artifacts = data.historical_artifacts.filter((a) => {
+    const baseUrl = (a.source_url ?? a.title)
+      .toString()
+      .split('?')[0]
+      .toLowerCase()
+    if (seenUrls.has(baseUrl)) return false
+    seenUrls.add(baseUrl)
+    return true
+  })
   const decades = groupByDecade(artifacts)
   const undatedCount = artifacts.length - decades.reduce((n, [, list]) => n + list.length, 0)
 

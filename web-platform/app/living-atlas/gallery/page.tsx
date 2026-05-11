@@ -195,7 +195,12 @@ export default async function GalleryPage({ searchParams }: PageProps) {
             {result?.available_years && result.available_years.length > 0 && (
               <div className="flex flex-wrap gap-1 text-[11px]">
                 <span className="text-stone-500 mr-1">Years:</span>
-                {result.available_years.map((y) => (
+                {result.available_years
+                  // Filter to valid PICC fiscal-year tokens (YYYY-YY where
+                  // year is 2007..current). Some media_assets rows carry
+                  // garbage values like "9368-03" — keep them out of the UI.
+                  .filter((y) => /^20\d{2}-\d{2}$/.test(y))
+                  .map((y) => (
                   <Link
                     key={y}
                     href={chipHref({ fy: y })}

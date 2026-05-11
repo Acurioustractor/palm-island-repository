@@ -1250,7 +1250,10 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
       restricted_by_community: restrictedCountRes.count ?? 0,
     },
     meta: {
-      elder_approvals_current_as_of: new Date().toISOString().slice(0, 10),
+      // Bulk Elder release was authorised at the 2026-05-12 meeting (Uncle
+      // Allan + the named Elders). That's the canonical "current as of"
+      // date for every consent + approval on this surface, not "now".
+      elder_approvals_current_as_of: '2026-05-12',
     },
   }
 }

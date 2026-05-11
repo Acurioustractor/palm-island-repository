@@ -130,7 +130,7 @@ export default async function TranscriptDetailPage({
                 <User className="w-4 h-4 text-stone-500" />
               )}
               <span>
-                by{' '}
+                <span>by </span>
                 <span className="font-semibold group-hover:underline">
                   {storyteller.display_name}
                 </span>

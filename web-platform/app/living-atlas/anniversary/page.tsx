@@ -112,7 +112,7 @@ export default async function AnniversaryPage() {
           </h1>
           <p className="text-stone-700 max-w-2xl leading-relaxed">
             PICC was launched in <strong>2007</strong>. The anniversary lands
-            in <strong>2027</strong> — <strong>{yearsToGo} years to go</strong>.
+            in <strong>2027</strong> — <strong>{yearsToGo} year{yearsToGo === 1 ? '' : 's'} to go</strong>.
             Below: the year-by-year ribbon, the 20-voices-for-20-years wall,
             and the forward commitments out to 2045.
           </p>

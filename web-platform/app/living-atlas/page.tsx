@@ -150,7 +150,7 @@ export default async function LivingAtlasPage() {
                 className="text-[11px] underline font-semibold"
                 style={{ color: '#8B6F47' }}
               >
-                Transcripts · the held archive →
+                Transcripts · 136 community voices →
               </Link>
             </div>
           </div>
