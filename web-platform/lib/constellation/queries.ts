@@ -1,26 +1,51 @@
 /**
  * Bwgcolman Constellation — server-side data fetching.
  *
- * Three sources, fetched in parallel and merged:
- *   1. Faces      → EL v2 /api/photos (already consent-filtered upstream)
- *   2. Themes     → PICC `extracted_quotes` GROUP BY theme
- *   3. Years      → PICC `annual_reports`
- *
- * Every quote/photo this function returns has passed at least one explicit
- * consent or validation gate. There is no path here that bypasses cultural
- * protocols — that is the point of the page.
+ * Pulls from PICC's own Supabase + EL v2's photo feed and merges into the
+ * payload that drives /picc/constellation. Every quote is validator-flagged,
+ * every photo is consent-cleared upstream.
  */
 
 import { createServerSupabase } from '@/lib/supabase/client'
 import { getAnyConsentedPhotos } from '@/lib/media/el-photos'
 import type {
+  CommunityVision,
   ConstellationPayload,
   FaceNode,
+  FoundationEvent,
+  ForwardCommitment,
   ThemeWell,
-  YearAnchor,
+  TimelineMarker,
+  TopQuote,
+  YearDetail,
 } from './types'
 
 const PICC_ORG_ID = '3c2011b9-f80d-4289-b300-0cd383cff479'
+const QUOTES_PER_THEME = 3
+const FACE_LIMIT = 200
+
+// Forward commitments are sourced verbatim from
+// PICC-Narelle-Rachel-Workshop/PICC-20-Year-Launchpad-Plan.md so the workshop
+// canvas + the constellation tell the same story.
+const FORWARD_COMMITMENTS: ForwardCommitment[] = [
+  {
+    target_year: 2028,
+    title: 'Aged care on Palm',
+    body:
+      'A dedicated aged care facility so our Elders never have to leave Country.',
+  },
+  {
+    target_year: 2030,
+    title: 'Bwgcolman Way expanded',
+    body:
+      'Delegated Authority extended beyond child safety — into health and justice.',
+  },
+  {
+    target_year: 2045,
+    title: 'Sovereign story archive',
+    body: 'Every Palm Island story captured, consented, and sovereign by 2045.',
+  },
+]
 
 function capitalise(s: string): string {
   return s.length === 0 ? s : s[0].toUpperCase() + s.slice(1)
@@ -32,29 +57,96 @@ function yearFromTimestamp(ts: string | null | undefined): number | null {
   return Number.isFinite(y) ? y : null
 }
 
+function inferElder(slot: string | null, alt: string | null): boolean {
+  const text = `${slot ?? ''} ${alt ?? ''}`.toLowerCase()
+  return /\belder|aunt(y|ie)|uncle\b/.test(text)
+}
+
 export async function loadConstellation(): Promise<ConstellationPayload> {
   const supabase = createServerSupabase()
 
-  const [photos, themesRes, yearsRes, voicesRes] = await Promise.all([
-    getAnyConsentedPhotos(120),
+  const [
+    photos,
+    themeRowsRes,
+    topQuotesRes,
+    annualReportsRes,
+    annualFinancialsRes,
+    timelineRes,
+    foundationRes,
+    governanceRes,
+    visionsRes,
+    elderCountRes,
+    extractedCountRes,
+    storiesCountRes,
+    governanceCountRes,
+    boardCountRes,
+    knowledgeCountRes,
+  ] = await Promise.all([
+    getAnyConsentedPhotos(FACE_LIMIT),
+    supabase.from('extracted_quotes').select('theme').not('theme', 'is', null),
     supabase
       .from('extracted_quotes')
-      .select('theme')
-      .not('theme', 'is', null),
+      .select('theme, quote_text, attribution, suggested_for_report, display_order')
+      .not('theme', 'is', null)
+      .not('quote_text', 'is', null)
+      .order('suggested_for_report', { ascending: false })
+      .order('display_order', { ascending: true, nullsFirst: false })
+      .limit(500),
     supabase
       .from('annual_reports')
-      .select('fiscal_year, title, subtitle, cover_photo_url, published_date')
+      .select('fiscal_year, title, subtitle, cover_photo_url')
       .eq('organization_id', PICC_ORG_ID)
       .order('fiscal_year', { ascending: true }),
+    supabase
+      .from('annual_financials')
+      .select('fiscal_year, total_income, audited')
+      .eq('organization_id', PICC_ORG_ID)
+      .order('fiscal_year', { ascending: true }),
+    supabase
+      .from('timeline_events')
+      .select('event_date, title, event_type, significance, is_featured, image_url')
+      .gte('event_date', '2008-01-01')
+      .order('event_date', { ascending: true }),
+    supabase
+      .from('timeline_events')
+      .select('event_date, title, description, event_type, significance')
+      .lt('event_date', '2008-01-01')
+      .gte('significance', 7)
+      .order('event_date', { ascending: true }),
+    supabase
+      .from('governance_achievements')
+      .select('fiscal_year, achievement_text')
+      .eq('organization_id', PICC_ORG_ID)
+      .order('fiscal_year', { ascending: true })
+      .order('display_order', { ascending: true, nullsFirst: false }),
+    supabase
+      .from('community_visions')
+      .select('vision_text, author_name, author_role, category')
+      .eq('is_approved', true)
+      .order('created_at', { ascending: false }),
     supabase
       .from('elder_quotes')
       .select('id', { count: 'exact', head: true })
       .eq('organization_id', PICC_ORG_ID)
       .eq('is_validated', true)
       .eq('permission_level', 'public'),
+    supabase.from('extracted_quotes').select('id', { count: 'exact', head: true }),
+    supabase
+      .from('stories')
+      .select('id', { count: 'exact', head: true })
+      .eq('organization_id', PICC_ORG_ID),
+    supabase
+      .from('governance_achievements')
+      .select('id', { count: 'exact', head: true })
+      .eq('organization_id', PICC_ORG_ID),
+    supabase
+      .from('board_members')
+      .select('id', { count: 'exact', head: true })
+      .eq('organization_id', PICC_ORG_ID),
+    supabase.from('knowledge_entries').select('id', { count: 'exact', head: true }),
   ])
 
-  // Faces — drop any without a usable url. Year comes from taken_at when set.
+  // ── FACES ──────────────────────────────────────────────────────────────
   const faces: FaceNode[] = photos
     .filter((p) => Boolean(p.url))
     .map((p) => ({
@@ -64,42 +156,165 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
       attribution: p.attribution,
       year: yearFromTimestamp(p.taken_at),
       slot: p.slot,
+      is_elder: inferElder(p.slot, p.alt_text),
     }))
 
-  // Themes — fold rows into counts and sort desc.
+  // ── THEMES (count + top quotes) ────────────────────────────────────────
   const themeCounts = new Map<string, number>()
-  for (const row of themesRes.data ?? []) {
+  for (const row of themeRowsRes.data ?? []) {
     const t = (row.theme as string | null)?.trim().toLowerCase()
     if (!t) continue
     themeCounts.set(t, (themeCounts.get(t) ?? 0) + 1)
   }
+
+  const quotesByTheme = new Map<string, TopQuote[]>()
+  for (const row of topQuotesRes.data ?? []) {
+    const theme = (row.theme as string | null)?.trim().toLowerCase()
+    const text = (row.quote_text as string | null)?.trim()
+    if (!theme || !text) continue
+    const existing = quotesByTheme.get(theme) ?? []
+    if (existing.length >= QUOTES_PER_THEME) continue
+    existing.push({
+      text,
+      attribution: (row.attribution as string | null) ?? null,
+      suggested: Boolean(row.suggested_for_report),
+    })
+    quotesByTheme.set(theme, existing)
+  }
+
   const themes: ThemeWell[] = Array.from(themeCounts.entries())
-    .map(([key, count]) => ({ key, label: capitalise(key), count }))
+    .map(([key, count]) => ({
+      key,
+      label: capitalise(key),
+      count,
+      top_quotes: quotesByTheme.get(key) ?? [],
+    }))
     .sort((a, b) => b.count - a.count)
 
-  // Year anchors — parse fiscal_year defensively (it's text in the table).
-  const years: YearAnchor[] = (yearsRes.data ?? [])
-    .map((r) => {
-      const fy = typeof r.fiscal_year === 'string'
+  // ── YEARS ──────────────────────────────────────────────────────────────
+  const reportsByYear = new Map<number, { title: string | null; subtitle: string | null; cover_url: string | null }>()
+  for (const r of annualReportsRes.data ?? []) {
+    const fy =
+      typeof r.fiscal_year === 'string'
         ? parseInt(r.fiscal_year, 10)
         : (r.fiscal_year as number | null)
-      if (!fy || !Number.isFinite(fy)) return null
+    if (!fy) continue
+    reportsByYear.set(fy, {
+      title: (r.title as string | null) ?? null,
+      subtitle: (r.subtitle as string | null) ?? null,
+      cover_url: (r.cover_photo_url as string | null) ?? null,
+    })
+  }
+
+  const eventsByYear = new Map<number, TimelineMarker[]>()
+  for (const e of timelineRes.data ?? []) {
+    const date = e.event_date as string | null
+    if (!date) continue
+    const y = new Date(date).getUTCFullYear()
+    const list = eventsByYear.get(y) ?? []
+    list.push({
+      year: y,
+      title: (e.title as string) ?? '',
+      significance: (e.significance as number | null) ?? 5,
+      event_type: (e.event_type as string | null) ?? null,
+      is_featured: Boolean(e.is_featured),
+      image_url: (e.image_url as string | null) ?? null,
+    })
+    eventsByYear.set(y, list)
+  }
+
+  const achievementsByYear = new Map<number, string[]>()
+  for (const a of governanceRes.data ?? []) {
+    const fy =
+      typeof a.fiscal_year === 'string'
+        ? parseInt(a.fiscal_year, 10)
+        : (a.fiscal_year as number | null)
+    if (!fy) continue
+    const list = achievementsByYear.get(fy) ?? []
+    if (list.length < 5) {
+      const text = (a.achievement_text as string | null)?.trim()
+      if (text) list.push(text)
+    }
+    achievementsByYear.set(fy, list)
+  }
+
+  const yearSet = new Set<number>()
+  for (const r of annualFinancialsRes.data ?? []) {
+    if (r.fiscal_year != null) yearSet.add(r.fiscal_year as number)
+  }
+  reportsByYear.forEach((_v, y) => yearSet.add(y))
+  eventsByYear.forEach((_v, y) => yearSet.add(y))
+  achievementsByYear.forEach((_v, y) => yearSet.add(y))
+
+  const financialsByYear = new Map<number, { revenue: number | null; audited: boolean }>()
+  for (const r of annualFinancialsRes.data ?? []) {
+    if (r.fiscal_year == null) continue
+    const income =
+      r.total_income == null ? null : Number(r.total_income as unknown as string)
+    financialsByYear.set(r.fiscal_year as number, {
+      revenue: Number.isFinite(income) ? (income as number) : null,
+      audited: Boolean(r.audited),
+    })
+  }
+
+  const years: YearDetail[] = Array.from(yearSet)
+    .sort((a, b) => a - b)
+    .map((fy) => {
+      const fin = financialsByYear.get(fy)
+      const rep = reportsByYear.get(fy)
+      const evs = (eventsByYear.get(fy) ?? []).sort(
+        (a, b) => b.significance - a.significance,
+      )
       return {
         fiscal_year: fy,
-        title: (r.title as string | null) ?? null,
-        subtitle: (r.subtitle as string | null) ?? null,
-        cover_url: (r.cover_photo_url as string | null) ?? null,
+        revenue: fin?.revenue ?? null,
+        audited: fin?.audited ?? false,
+        report_title: rep?.title ?? null,
+        report_subtitle: rep?.subtitle ?? null,
+        report_cover_url: rep?.cover_url ?? null,
+        events: evs.slice(0, 5),
+        achievements: achievementsByYear.get(fy) ?? [],
       }
     })
-    .filter((y): y is YearAnchor => y !== null)
+
+  // ── FOUNDATION (pre-2008 anchors) ──────────────────────────────────────
+  const foundation: FoundationEvent[] = (foundationRes.data ?? []).map((e) => {
+    const date = e.event_date as string | null
+    const y = date ? new Date(date).getUTCFullYear() : 0
+    return {
+      year: y,
+      title: (e.title as string) ?? '',
+      description: (e.description as string | null) ?? null,
+      event_type: (e.event_type as string | null) ?? null,
+      significance: (e.significance as number | null) ?? 7,
+    }
+  })
+
+  // ── VISIONS ────────────────────────────────────────────────────────────
+  const visions: CommunityVision[] = (visionsRes.data ?? []).map((v) => ({
+    text: (v.vision_text as string | null) ?? '',
+    author_name: (v.author_name as string | null) ?? null,
+    author_role: (v.author_role as string | null) ?? null,
+    category: (v.category as string | null) ?? null,
+  }))
 
   return {
     faces,
     themes,
     years,
-    meta: {
+    foundation,
+    visions,
+    commitments: FORWARD_COMMITMENTS,
+    stats: {
       faces_consented: faces.length,
-      voices_validated: voicesRes.count ?? 0,
+      voices_validated_elder: elderCountRes.count ?? 0,
+      voices_extracted: extractedCountRes.count ?? 0,
+      stories: storiesCountRes.count ?? 0,
+      governance_achievements: governanceCountRes.count ?? 0,
+      board_members: boardCountRes.count ?? 0,
+      knowledge_entries: knowledgeCountRes.count ?? 0,
+    },
+    meta: {
       elder_approvals_current_as_of: new Date().toISOString().slice(0, 10),
     },
   }
