@@ -14,6 +14,7 @@
 import Link from 'next/link'
 import { ArrowLeft, Mic, Video as VideoIcon, Search } from 'lucide-react'
 import { getPiccTranscriptMetadata } from '@/lib/empathy-ledger/el-transcripts'
+import { getPiccStorytellers } from '@/lib/empathy-ledger/el-storytellers'
 
 export const metadata = {
   title: 'Oral history transcripts — Palm Island Living Atlas',
@@ -44,15 +45,35 @@ export default async function TranscriptsPage({ searchParams }: PageProps) {
   const era = (sp.era ?? '').trim()
   const sensitivity = (sp.sensitivity ?? '').trim()
 
-  const all = await getPiccTranscriptMetadata()
+  const [all, storytellers] = await Promise.all([
+    getPiccTranscriptMetadata(),
+    getPiccStorytellers({ limit: 500 }),
+  ])
   const public_ = all.filter((t) => t.privacy_level === 'public')
 
-  // Filter
+  // Storyteller UUID → { name, slug } for per-card speaker attribution.
+  const speakerById = new Map<
+    string,
+    { name: string; slug: string; is_elder: boolean; photo_url: string | null }
+  >()
+  for (const s of storytellers) {
+    speakerById.set(s.id, {
+      name: s.display_name,
+      slug: s.slug,
+      is_elder: s.is_elder,
+      photo_url: s.photo_url,
+    })
+  }
+
+  // Filter — speaker name is part of the search blob now.
   let filtered = public_
   if (q) {
     filtered = filtered.filter((t) => {
+      const speakerName = t.storyteller_id
+        ? speakerById.get(t.storyteller_id)?.name ?? ''
+        : ''
       const blob =
-        `${t.title ?? ''} ${t.ai_summary ?? ''} ${t.era_label ?? ''} ${(t.themes ?? []).join(' ')}`.toLowerCase()
+        `${t.title ?? ''} ${t.ai_summary ?? ''} ${t.era_label ?? ''} ${speakerName} ${(t.themes ?? []).join(' ')}`.toLowerCase()
       return blob.includes(q)
     })
   }
@@ -145,7 +166,7 @@ export default async function TranscriptsPage({ searchParams }: PageProps) {
             <input
               name="q"
               defaultValue={q}
-              placeholder="Search titles, summaries, themes, eras…"
+              placeholder="Search by speaker, title, theme, era…"
               className="flex-1 outline-none text-sm bg-transparent"
             />
           </div>
@@ -232,7 +253,11 @@ export default async function TranscriptsPage({ searchParams }: PageProps) {
           </div>
         ) : (
           <ul className="space-y-3">
-            {filtered.map((t) => (
+            {filtered.map((t) => {
+              const speaker = t.storyteller_id
+                ? speakerById.get(t.storyteller_id) ?? null
+                : null
+              return (
               <li
                 key={t.id}
                 className="rounded-xl border border-stone-200 bg-white p-4"
@@ -243,6 +268,26 @@ export default async function TranscriptsPage({ searchParams }: PageProps) {
                 >
                   <div className="flex items-start justify-between gap-3 flex-wrap">
                     <div className="flex-1 min-w-0">
+                      {speaker && (
+                        <div className="flex items-center gap-1.5 text-[11px] text-stone-600 mb-1.5">
+                          {speaker.photo_url && (
+                            <img
+                              src={speaker.photo_url}
+                              alt=""
+                              className="w-5 h-5 rounded-full object-cover"
+                              style={{
+                                border: `1.5px solid ${speaker.is_elder ? '#B8860B' : '#FBF6EE'}`,
+                              }}
+                            />
+                          )}
+                          <span className="font-semibold">{speaker.name}</span>
+                          {speaker.is_elder && (
+                            <span className="text-[9px] uppercase tracking-wider font-bold text-ochre">
+                              Elder
+                            </span>
+                          )}
+                        </div>
+                      )}
                       <div className="flex items-baseline gap-2 flex-wrap mb-1">
                         <h2 className="font-serif text-lg text-charcoal">
                           {t.title ?? 'Untitled'}
@@ -313,7 +358,8 @@ export default async function TranscriptsPage({ searchParams }: PageProps) {
                   </div>
                 </Link>
               </li>
-            ))}
+              )
+            })}
           </ul>
         )}
 

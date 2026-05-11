@@ -13,7 +13,7 @@
  */
 
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Mic, Video as VideoIcon } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import { loadConstellation } from '@/lib/constellation/queries'
 import { getPhotosForStoryteller } from '@/lib/media/el-photos'
@@ -71,6 +71,9 @@ export default async function PersonDetailPage({
   const storytellerId = face.id.replace(/^storyteller:/, '')
   const gallery = await getPhotosForStoryteller(storytellerId, 12)
 
+  // Public oral-history transcripts attributed to this storyteller (UUID match).
+  const transcripts = data.transcripts_by_storyteller[storytellerId] ?? []
+
   return (
     <div className="min-h-screen bg-cream">
       <div className="max-w-4xl mx-auto px-4 py-6">
@@ -124,6 +127,12 @@ export default async function PersonDetailPage({
                 <span>
                   <strong>{gallery.length}</strong> photo
                   {gallery.length === 1 ? '' : 's'}
+                </span>
+              )}
+              {transcripts.length > 0 && (
+                <span>
+                  <strong>{transcripts.length}</strong> transcript
+                  {transcripts.length === 1 ? '' : 's'}
                 </span>
               )}
             </div>
@@ -245,6 +254,66 @@ export default async function PersonDetailPage({
           </section>
         )}
 
+        {/* Transcripts */}
+        {transcripts.length > 0 && (
+          <section className="mb-6">
+            <div className="text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-3">
+              Oral history recordings
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {transcripts.map((t) => (
+                <Link
+                  key={t.id}
+                  href={`/living-atlas/transcripts/${t.id}`}
+                  className="rounded-xl border border-stone-200 bg-white p-4 hover:shadow-md transition group block"
+                >
+                  <div className="flex items-center gap-2 text-[11px] text-stone-500 mb-1.5">
+                    {t.has_video ? (
+                      <VideoIcon className="w-3.5 h-3.5" />
+                    ) : t.has_audio ? (
+                      <Mic className="w-3.5 h-3.5" />
+                    ) : null}
+                    {t.duration_seconds && (
+                      <span>{Math.round(t.duration_seconds / 60)} min</span>
+                    )}
+                    {t.era_label && <span>· {t.era_label}</span>}
+                    {t.cultural_sensitivity === 'sensitive' && (
+                      <span
+                        className="ml-auto px-1.5 py-0.5 rounded text-[9px] font-semibold uppercase tracking-wider"
+                        style={{
+                          backgroundColor: '#FCEEDF',
+                          color: '#8B6F47',
+                        }}
+                      >
+                        sensitive
+                      </span>
+                    )}
+                    {t.cultural_sensitivity === 'sacred' && (
+                      <span
+                        className="ml-auto px-1.5 py-0.5 rounded text-[9px] font-semibold uppercase tracking-wider"
+                        style={{
+                          backgroundColor: '#FDE3E3',
+                          color: '#8B1A1A',
+                        }}
+                      >
+                        sacred
+                      </span>
+                    )}
+                  </div>
+                  <div className="font-serif text-base text-charcoal group-hover:underline leading-snug">
+                    {t.title ?? 'Untitled transcript'}
+                  </div>
+                  {t.ai_summary && (
+                    <div className="text-[11.5px] text-stone-600 mt-1 line-clamp-3 leading-snug">
+                      {t.ai_summary}
+                    </div>
+                  )}
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* Gallery */}
         {gallery.length > 0 && (
           <section className="mb-6">
@@ -269,7 +338,8 @@ export default async function PersonDetailPage({
         {quotes.length === 0 &&
           linkedServices.length === 0 &&
           linkedProjects.length === 0 &&
-          gallery.length === 0 && (
+          gallery.length === 0 &&
+          transcripts.length === 0 && (
             <section className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-amber-900">
               <div className="font-serif text-base mb-1">
                 Only the photo is on file

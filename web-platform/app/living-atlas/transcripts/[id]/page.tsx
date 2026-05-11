@@ -8,9 +8,10 @@
  */
 
 import Link from 'next/link'
-import { ArrowLeft, Mic, Video as VideoIcon, Clock } from 'lucide-react'
+import { ArrowLeft, Mic, Video as VideoIcon, Clock, User } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import { getPiccTranscriptById } from '@/lib/empathy-ledger/el-transcripts'
+import { getPiccStorytellers } from '@/lib/empathy-ledger/el-storytellers'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -64,6 +65,14 @@ export default async function TranscriptDetailPage({
   const t = await getPiccTranscriptById(id)
   if (!t) notFound()
 
+  // Resolve the storyteller_id to a name + slug so the detail page links
+  // back to the person's full profile.
+  const storyteller = t.storyteller_id
+    ? (await getPiccStorytellers({ limit: 500 })).find(
+        (s) => s.id === t.storyteller_id,
+      ) ?? null
+    : null
+
   const segments: SegmentLike[] = Array.isArray(t.segments) ? t.segments : []
   const keyQuotes: Array<{ text?: string; speaker?: string }> = Array.isArray(t.key_quotes)
     ? t.key_quotes
@@ -103,6 +112,36 @@ export default async function TranscriptDetailPage({
           <h1 className="font-serif text-3xl md:text-4xl text-charcoal mb-2">
             {t.title ?? 'Untitled transcript'}
           </h1>
+          {storyteller && (
+            <Link
+              href={`/living-atlas/people/${storyteller.slug}`}
+              className="inline-flex items-center gap-2 text-sm text-stone-700 hover:text-charcoal mb-2 group"
+            >
+              {storyteller.photo_url ? (
+                <img
+                  src={storyteller.photo_url}
+                  alt=""
+                  className="w-6 h-6 rounded-full object-cover"
+                  style={{
+                    border: `2px solid ${storyteller.is_elder ? '#B8860B' : '#FBF6EE'}`,
+                  }}
+                />
+              ) : (
+                <User className="w-4 h-4 text-stone-500" />
+              )}
+              <span>
+                by{' '}
+                <span className="font-semibold group-hover:underline">
+                  {storyteller.display_name}
+                </span>
+                {storyteller.is_elder && (
+                  <span className="ml-1.5 text-[9px] uppercase tracking-wider font-bold text-ochre">
+                    Elder
+                  </span>
+                )}
+              </span>
+            </Link>
+          )}
           <div className="flex items-center gap-3 text-[11px] text-stone-600 flex-wrap">
             {t.duration_seconds && (
               <span className="inline-flex items-center gap-1">
