@@ -134,6 +134,82 @@ export default async function ServiceDetailPage({
           </section>
         )}
 
+        {/* Per-year performance metrics */}
+        {service.metrics.length > 0 && (
+          <section className="mb-6">
+            <div className="text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-3">
+              Performance · year by year
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {service.metrics.map((m, i) => (
+                <article
+                  key={i}
+                  className="rounded-xl border border-stone-200 bg-white p-4"
+                >
+                  <div className="flex items-baseline justify-between mb-2">
+                    <div
+                      className="font-serif font-bold text-lg"
+                      style={{ color: '#2D5F4F' }}
+                    >
+                      FY {m.fiscal_year}
+                    </div>
+                    {m.headline_stat_value && (
+                      <div className="text-right">
+                        <div
+                          className="font-serif text-2xl leading-none"
+                          style={{ color: '#2D5F4F' }}
+                        >
+                          {m.headline_stat_value}
+                        </div>
+                        {m.headline_stat_label && (
+                          <div className="text-[9.5px] uppercase tracking-wide text-stone-500 mt-0.5">
+                            {m.headline_stat_label}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 text-[11px] text-stone-700 mb-2">
+                    {m.clients_served != null && (
+                      <div>
+                        <strong>{m.clients_served.toLocaleString()}</strong>
+                        <br />
+                        <span className="text-stone-500">clients</span>
+                      </div>
+                    )}
+                    {m.sessions_delivered != null && (
+                      <div>
+                        <strong>{m.sessions_delivered.toLocaleString()}</strong>
+                        <br />
+                        <span className="text-stone-500">sessions</span>
+                      </div>
+                    )}
+                    {m.events_held != null && (
+                      <div>
+                        <strong>{m.events_held}</strong>
+                        <br />
+                        <span className="text-stone-500">events</span>
+                      </div>
+                    )}
+                    {m.staff_count != null && (
+                      <div>
+                        <strong>{m.staff_count}</strong>
+                        <br />
+                        <span className="text-stone-500">staff</span>
+                      </div>
+                    )}
+                  </div>
+                  {m.key_achievement && (
+                    <div className="text-xs text-stone-700 italic leading-snug border-l-2 border-ochre/60 pl-2 mt-2">
+                      {m.key_achievement}
+                    </div>
+                  )}
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* Linked storytellers */}
         {linked.length > 0 && (
           <section className="mb-6">

@@ -32,6 +32,7 @@ import type {
   ProjectItem,
   ResearchSource,
   ServiceItem,
+  ServiceMetric,
   SpeakerQuote,
   StoryItem,
   ThemeWell,
@@ -103,6 +104,7 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
   const [
     storytellers,
     elServices,
+    piccServicesGeoRes,
     elProjects,
     leadershipRes,
     boardRes,
@@ -133,12 +135,22 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     tripStopsRes,
     partnersRes,
     researchSourcesRes,
+    serviceMetricsRes,
   ] = await Promise.all([
     // Canonical PICC people: 44 named storytellers in EL v2, each with
     // photo_url + bio + service_slugs + project_slugs + quote_count.
     getPiccStorytellers({ limit: 200 }),
     // Canonical PICC services from EL v2, each with image_url + slug.
     getPiccServices({ status: 'all' }),
+    // PICC's local organization_services has per-service GPS coords in
+    // metadata.latitude/longitude (set via /picc/services/map admin).
+    // These are usually fresher than EL canonical, so we merge them in
+    // below as the override. We pull name + slug so we can match either
+    // way — PICC slugs and EL slugs are not always identical.
+    supabase
+      .from('organization_services')
+      .select('id, name, slug, metadata')
+      .eq('is_active', true),
     // Canonical PICC projects from EL v2, each with cover_image_url + slug.
     getPiccProjects({ status: 'all' }),
     // PICC's own leadership table — has photo_url.
@@ -295,6 +307,13 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
       .from('research_sources')
       .select('id, title, source_type, author, publisher, publication_date, url, citation_text, is_primary_source, is_verified')
       .order('publication_date', { ascending: false, nullsFirst: false }),
+    // Service metrics — per-service per-year performance numbers.
+    // Joined to organization_services so we can resolve PICC service_id
+    // back to the EL slug it maps to.
+    supabase
+      .from('service_metrics')
+      .select('fiscal_year, clients_served, sessions_delivered, events_held, staff_count, headline_stat_value, headline_stat_label, key_achievement, organization_service_id')
+      .order('fiscal_year', { ascending: false }),
   ])
 
   // ── FACES ──────────────────────────────────────────────────────────────
@@ -519,22 +538,172 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
   }))
 
   // ── SERVICES (canonical from EL v2 with image_url + lat/long) ──────────
-  const services: ServiceItem[] = (elServices ?? []).map((s) => ({
-    id: s.id,
-    name: s.name,
-    slug: s.slug,
-    description: s.description,
-    image_url: s.image_url,
-    category: s.service_category,
-    service_type: null,
-    status: 'active',
-    latitude: s.latitude,
-    longitude: s.longitude,
-    // Storytellers linked to this service via service_slugs.
-    photo_ids: faces
-      .filter((f) => f.service_slugs.includes(s.slug))
-      .map((f) => f.id),
-  }))
+  // PICC organization_services.metadata.{latitude,longitude} is the
+  // freshest GPS source (set via /picc/services/map admin). EL canonical
+  // is sometimes stale or stuck at the default island centre, so prefer
+  // PICC metadata when it has real coords on Palm Island.
+  const PALM_LAT_RANGE = [-19.5, -18.0] as const
+  const PALM_LNG_RANGE = [146.0, 147.0] as const
+  function onPalmIsland(lat: number | null, lng: number | null): boolean {
+    if (lat == null || lng == null) return false
+    return (
+      lat >= PALM_LAT_RANGE[0] &&
+      lat <= PALM_LAT_RANGE[1] &&
+      lng >= PALM_LNG_RANGE[0] &&
+      lng <= PALM_LNG_RANGE[1]
+    )
+  }
+  // Some EL rows are stuck at the geographic centre — treat that as
+  // "unplaced" so the map doesn't pile everyone on one pin.
+  const DEFAULT_CENTRE: [number, number] = [-19.0667, 146.5833]
+  function isDefaultCentre(lat: number | null, lng: number | null): boolean {
+    if (lat == null || lng == null) return false
+    return (
+      Math.abs(lat - DEFAULT_CENTRE[0]) < 0.001 &&
+      Math.abs(lng - DEFAULT_CENTRE[1]) < 0.001
+    )
+  }
+
+  // Build PICC coord lookup keyed by lowercased name AND slug. PICC slugs
+  // and EL slugs diverge a lot ("aged-care-services" vs "aged"), so name
+  // matching is the most reliable bridge.
+  interface PiccCoord {
+    lat: number
+    lng: number
+    name: string
+    slug: string
+    picc_id: string
+  }
+  const piccCoords: PiccCoord[] = []
+  const piccByName = new Map<string, PiccCoord>()
+  const piccBySlug = new Map<string, PiccCoord>()
+  // We also need a PICC-id-to-name/slug index for service_metrics, since
+  // service_metrics.organization_service_id points at the PICC service row.
+  const piccIdToService = new Map<string, { name: string; slug: string }>()
+  for (const row of piccServicesGeoRes.data ?? []) {
+    const piccId = row.id as string | undefined
+    const name = ((row.name as string) ?? '').toLowerCase().trim()
+    const slug = ((row.slug as string) ?? '').toLowerCase().trim()
+    if (piccId) piccIdToService.set(piccId, { name, slug })
+    const meta = (row.metadata as Record<string, unknown> | null) ?? {}
+    const lat =
+      typeof meta.latitude === 'number'
+        ? meta.latitude
+        : typeof meta.latitude === 'string'
+          ? parseFloat(meta.latitude)
+          : null
+    const lng =
+      typeof meta.longitude === 'number'
+        ? meta.longitude
+        : typeof meta.longitude === 'string'
+          ? parseFloat(meta.longitude)
+          : null
+    if (lat == null || lng == null || !piccId) continue
+    const c: PiccCoord = { lat, lng, name, slug, picc_id: piccId }
+    piccCoords.push(c)
+    if (c.name) piccByName.set(c.name, c)
+    if (c.slug) piccBySlug.set(c.slug, c)
+  }
+
+  // Build metrics-by-PICC-service-id, then by name + slug for the EL→PICC bridge.
+  const metricsByPiccId = new Map<string, ServiceMetric[]>()
+  for (const row of serviceMetricsRes.data ?? []) {
+    const piccId = (row.organization_service_id as string | null) ?? ''
+    if (!piccId) continue
+    const list = metricsByPiccId.get(piccId) ?? []
+    list.push({
+      fiscal_year: (row.fiscal_year as number | null) ?? null,
+      clients_served: (row.clients_served as number | null) ?? null,
+      sessions_delivered: (row.sessions_delivered as number | null) ?? null,
+      events_held: (row.events_held as number | null) ?? null,
+      staff_count: (row.staff_count as number | null) ?? null,
+      headline_stat_value: (row.headline_stat_value as string | null) ?? null,
+      headline_stat_label: (row.headline_stat_label as string | null) ?? null,
+      key_achievement: (row.key_achievement as string | null) ?? null,
+    })
+    metricsByPiccId.set(piccId, list)
+  }
+  const metricsByName = new Map<string, ServiceMetric[]>()
+  const metricsBySlug = new Map<string, ServiceMetric[]>()
+  metricsByPiccId.forEach((list, piccId) => {
+    const svc = piccIdToService.get(piccId)
+    if (!svc) return
+    if (svc.name) metricsByName.set(svc.name, list)
+    if (svc.slug) metricsBySlug.set(svc.slug, list)
+  })
+
+  function findMetrics(elName: string, elSlug: string): ServiceMetric[] {
+    const lname = elName.toLowerCase().trim()
+    const lslug = elSlug.toLowerCase().trim()
+    if (metricsByName.has(lname)) return metricsByName.get(lname)!
+    if (metricsBySlug.has(lslug)) return metricsBySlug.get(lslug)!
+    // Substring match against PICC slugs (same logic as coord match).
+    let found: ServiceMetric[] = []
+    metricsBySlug.forEach((list, piccSlug) => {
+      if (found.length > 0) return
+      if (piccSlug.startsWith(lslug + '-') || piccSlug.startsWith(lslug + '_')) found = list
+      else if (lslug.startsWith(piccSlug + '-') || lslug.startsWith(piccSlug + '_')) found = list
+    })
+    return found
+  }
+
+  function findPiccCoord(elName: string, elSlug: string): PiccCoord | null {
+    const lname = elName.toLowerCase().trim()
+    const lslug = elSlug.toLowerCase().trim()
+    // 1) exact name match
+    if (piccByName.has(lname)) return piccByName.get(lname)!
+    // 2) exact slug match
+    if (piccBySlug.has(lslug)) return piccBySlug.get(lslug)!
+    // 3) substring match: EL slug contained in PICC slug or vice versa
+    for (const c of piccCoords) {
+      if (c.slug.startsWith(lslug + '-') || c.slug.startsWith(lslug + '_')) return c
+      if (lslug.startsWith(c.slug + '-') || lslug.startsWith(c.slug + '_')) return c
+    }
+    // 4) loose name token match — first word of EL name found anywhere in PICC name
+    const firstTok = lname.split(/\s+/)[0]
+    if (firstTok.length >= 4) {
+      for (const c of piccCoords) {
+        if (c.name.startsWith(firstTok)) return c
+      }
+    }
+    return null
+  }
+
+  const services: ServiceItem[] = (elServices ?? []).map((s) => {
+    const piccCoord = findPiccCoord(s.name ?? '', s.slug ?? '')
+    const piccOk = piccCoord && onPalmIsland(piccCoord.lat, piccCoord.lng)
+    const elOk = onPalmIsland(s.latitude, s.longitude) && !isDefaultCentre(s.latitude, s.longitude)
+    const lat = piccOk
+      ? piccCoord!.lat
+      : elOk
+        ? s.latitude
+        : isDefaultCentre(s.latitude, s.longitude)
+          ? null
+          : s.latitude
+    const lng = piccOk
+      ? piccCoord!.lng
+      : elOk
+        ? s.longitude
+        : isDefaultCentre(s.latitude, s.longitude)
+          ? null
+          : s.longitude
+    return {
+      id: s.id,
+      name: s.name,
+      slug: s.slug,
+      description: s.description,
+      image_url: s.image_url,
+      category: s.service_category,
+      service_type: null,
+      status: 'active',
+      latitude: lat,
+      longitude: lng,
+      photo_ids: faces
+        .filter((f) => f.service_slugs.includes(s.slug))
+        .map((f) => f.id),
+      metrics: findMetrics(s.name ?? '', s.slug ?? ''),
+    }
+  })
 
   // ── PROJECTS (canonical from EL v2 with cover_image_url) ───────────────
   const projects: ProjectItem[] = (elProjects ?? []).map((p) => {

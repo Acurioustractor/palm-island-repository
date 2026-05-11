@@ -119,6 +119,17 @@ export interface ConstellationStats {
   restricted_by_community: number
 }
 
+export interface ServiceMetric {
+  fiscal_year: number | null
+  clients_served: number | null
+  sessions_delivered: number | null
+  events_held: number | null
+  staff_count: number | null
+  headline_stat_value: string | null
+  headline_stat_label: string | null
+  key_achievement: string | null
+}
+
 export interface ServiceItem {
   id: string
   name: string
@@ -134,6 +145,8 @@ export interface ServiceItem {
   longitude: number | null
   /** Face ids of storytellers linked via service_slugs. */
   photo_ids: string[]
+  /** Per-fiscal-year performance from PICC service_metrics. */
+  metrics: ServiceMetric[]
 }
 
 export interface ProjectItem {
