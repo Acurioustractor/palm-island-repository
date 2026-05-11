@@ -62,20 +62,22 @@ export default async function LivingAtlasPage() {
     .sort((a, b) => b.quote_count - a.quote_count)
     .slice(0, 10)
 
-  // Services — image-bearing, sorted active first, capped at 6.
-  const featuredServices = data.services
-    .filter((s) => s.image_url)
-    .sort((a, b) => {
-      if (a.status === 'active' && b.status !== 'active') return -1
-      if (b.status === 'active' && a.status !== 'active') return 1
-      return 0
-    })
-    .slice(0, 6)
+  // Services — ALL 29, sorted: active first, then by linked-storyteller
+  // density (the staff/community signature). Each service surfaces its
+  // EL v2 photo, EL description, category, and the count of storytellers
+  // attached so the staff + community thread is visible at a glance.
+  const allServices = [...data.services].sort((a, b) => {
+    if (a.status === 'active' && b.status !== 'active') return -1
+    if (b.status === 'active' && a.status !== 'active') return 1
+    return b.photo_ids.length - a.photo_ids.length
+  })
 
-  // Projects — cover-bearing, capped at 6.
-  const featuredProjects = data.projects
-    .filter((p) => p.image_url)
-    .slice(0, 6)
+  // Projects — ALL 10, sorted by linked-storyteller density. These are
+  // the innovation projects — the ongoing connection thread between
+  // staff initiative + community voice + cultural sovereignty.
+  const allProjects = [...data.projects].sort(
+    (a, b) => b.photo_ids.length - a.photo_ids.length,
+  )
 
   // Map pins — every service with lat/long.
   const mapServices: PinService[] = data.services
@@ -264,83 +266,190 @@ export default async function LivingAtlasPage() {
         )}
 
         {/* ─── 5. SERVICES ─────────────────────────────────────────────── */}
-        {featuredServices.length > 0 && (
-          <section className="mb-8">
-            <SectionHeader
-              label="Services delivering on Country"
-              caption={`${servicesCount} services in the platform. Every one of them on Palm Island, every one of them with people behind it.`}
-            />
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {featuredServices.map((s) => (
+        {/* Narrative bridge: services aren't a catalogue, they're the
+            community-controlled response. Every one has staff behind it
+            and storytellers attached. This is the staff + community thread. */}
+        <section className="mb-8">
+          <SectionHeader
+            label={`All ${servicesCount} services on Country`}
+            caption="Community-controlled — every service designed with community, staffed by community, accountable to community. Each card carries its EL v2 photo, its category, and the count of storytellers whose voices are tagged to it. Click any service to open its profile."
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {allServices.map((s) => {
+              const linkedCount = s.photo_ids.length
+              return (
                 <Link
                   key={s.slug}
                   href={`/living-atlas/services/${s.slug}`}
                   className="rounded-xl overflow-hidden bg-white border border-stone-200 hover:shadow-lg transition group flex flex-col"
                 >
-                  {s.image_url && (
+                  {s.image_url ? (
                     <img
                       src={s.image_url}
                       alt=""
-                      className="w-full h-36 object-cover"
+                      className="w-full h-32 object-cover"
                     />
+                  ) : (
+                    <div
+                      className="w-full h-32 flex items-center justify-center"
+                      style={{ backgroundColor: '#F4E9DC' }}
+                    >
+                      <span className="text-[10px] uppercase tracking-wider text-stone-500">
+                        no photo yet
+                      </span>
+                    </div>
                   )}
-                  <div className="p-3 flex-1 flex flex-col">
-                    {s.category && (
-                      <div className="text-[10px] uppercase tracking-wider font-semibold text-ochre mb-1">
-                        {s.category}
-                      </div>
-                    )}
-                    <div className="font-serif text-base text-charcoal group-hover:underline leading-snug">
+                  <div className="p-3 flex-1 flex flex-col gap-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      {s.category && (
+                        <div className="text-[9.5px] uppercase tracking-wider font-semibold text-ochre">
+                          {s.category}
+                        </div>
+                      )}
+                      {s.status && s.status !== 'active' && (
+                        <span
+                          className="text-[8.5px] uppercase tracking-wider font-bold px-1 py-0.5 rounded"
+                          style={{
+                            backgroundColor: '#FBF6EE',
+                            color: '#8B6F47',
+                          }}
+                        >
+                          {s.status}
+                        </span>
+                      )}
+                    </div>
+                    <div className="font-serif text-sm text-charcoal group-hover:underline leading-snug">
                       {s.name}
                     </div>
                     {s.description && (
-                      <div className="text-[11.5px] text-stone-600 mt-1 line-clamp-2 leading-snug">
+                      <div className="text-[11px] text-stone-600 line-clamp-3 leading-snug">
                         {s.description}
                       </div>
                     )}
+                    <div className="mt-auto pt-2 flex items-center gap-2 text-[10px] text-stone-500">
+                      {linkedCount > 0 && (
+                        <span className="inline-flex items-center gap-1">
+                          <span className="font-bold text-charcoal">
+                            {linkedCount}
+                          </span>
+                          voice{linkedCount === 1 ? '' : 's'} on file
+                        </span>
+                      )}
+                      {s.latitude && s.longitude && (
+                        <span className="inline-flex items-center gap-1">
+                          <span style={{ color: '#2D5F4F' }}>●</span> on map
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </Link>
-              ))}
-            </div>
-          </section>
-        )}
+              )
+            })}
+          </div>
+        </section>
 
-        {/* ─── 6. PROJECTS ─────────────────────────────────────────────── */}
-        {featuredProjects.length > 0 && (
-          <section className="mb-8">
-            <SectionHeader
-              label="Projects in flight"
-              caption={`${projectsCount} live projects across Palm Island. Stories from the people building them.`}
-            />
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {featuredProjects.map((p) => (
+        {/* ─── 6. INNOVATION + ONGOING CONNECTION (bridge) ─────────────── */}
+        {/* This is where services (the ongoing work) become projects (the
+            innovation work). Same people, same Country, longer arc. */}
+        <section
+          className="mb-8 rounded-2xl p-6 md:p-8 border"
+          style={{ backgroundColor: '#FBF6EE', borderColor: '#E0CFB8' }}
+        >
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
+            <div className="md:col-span-1">
+              <div className="text-[11px] uppercase tracking-[0.3em] font-bold text-ochre mb-2">
+                The thread
+              </div>
+              <h2 className="font-serif text-2xl text-charcoal leading-snug">
+                From services, through staff, into innovation
+              </h2>
+            </div>
+            <div className="md:col-span-2 text-sm text-stone-700 leading-relaxed space-y-3">
+              <p>
+                Every service above started as a community conversation. A
+                gap. A loss. A vision. Staff carry it forward — Palm Island
+                staff, three-quarters of the {servicesCount}-service
+                workforce. Voices on every service card are the storytellers
+                whose lives are touched by it.
+              </p>
+              <p>
+                Then the innovation projects below pick up where ongoing
+                services stop. Elders Trips. The On-Country server. The
+                Annual Report itself as an act of community accountability.
+                Same people, same Country, longer arc. Every project ties
+                back to voices, services, and the 20-year arc.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ─── 7. PROJECTS ─────────────────────────────────────────────── */}
+        <section className="mb-8">
+          <SectionHeader
+            label={`All ${projectsCount} innovation projects`}
+            caption="Where staff + community + cultural sovereignty meet. Each project carries its EL v2 cover, the linked-voice count, and a description from the canonical record."
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+            {allProjects.map((p) => {
+              const linkedCount = p.photo_ids.length
+              return (
                 <Link
                   key={p.slug}
                   href={`/living-atlas/projects/${p.slug}`}
                   className="rounded-xl overflow-hidden bg-white border border-stone-200 hover:shadow-lg transition group flex flex-col"
                 >
-                  {p.image_url && (
+                  {p.image_url ? (
                     <img
                       src={p.image_url}
                       alt=""
-                      className="w-full h-36 object-cover"
+                      className="w-full h-28 object-cover"
                     />
+                  ) : (
+                    <div
+                      className="w-full h-28 flex items-center justify-center"
+                      style={{ backgroundColor: '#F4E9DC' }}
+                    >
+                      <span className="text-[10px] uppercase tracking-wider text-stone-500">
+                        no cover yet
+                      </span>
+                    </div>
                   )}
-                  <div className="p-3 flex-1 flex flex-col">
-                    <div className="font-serif text-base text-charcoal group-hover:underline leading-snug">
+                  <div className="p-3 flex-1 flex flex-col gap-1.5">
+                    <div className="font-serif text-sm text-charcoal group-hover:underline leading-snug">
                       {p.name}
                     </div>
                     {(p.tagline ?? p.description) && (
-                      <div className="text-[11.5px] text-stone-600 mt-1 line-clamp-2 italic leading-snug">
+                      <div className="text-[10.5px] text-stone-600 line-clamp-3 leading-snug">
                         {p.tagline ?? p.description}
                       </div>
                     )}
+                    <div className="mt-auto pt-1.5 flex items-center gap-2 text-[10px] text-stone-500">
+                      {linkedCount > 0 && (
+                        <span className="inline-flex items-center gap-1">
+                          <span className="font-bold text-charcoal">
+                            {linkedCount}
+                          </span>
+                          voice{linkedCount === 1 ? '' : 's'}
+                        </span>
+                      )}
+                      {p.photo_count > 0 && (
+                        <span className="inline-flex items-center gap-1">
+                          <span className="font-bold text-charcoal">
+                            {p.photo_count}
+                          </span>
+                          photo{p.photo_count === 1 ? '' : 's'}
+                        </span>
+                      )}
+                      {p.start_year && (
+                        <span>since {p.start_year}</span>
+                      )}
+                    </div>
                   </div>
                 </Link>
-              ))}
-            </div>
-          </section>
-        )}
+              )
+            })}
+          </div>
+        </section>
 
         {/* ─── 7. WHERE THE WORK HAPPENS (MAP) ─────────────────────────── */}
         {mapServices.length > 0 && (
