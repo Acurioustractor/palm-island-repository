@@ -626,6 +626,17 @@ export default function Constellation({
                 ? 'PICC leadership · public role.'
                 : 'PICC board · public director.'}
           </div>
+          {activeFace.kind === 'storyteller' && activeFace.slug && (
+            <div className="mt-3 pt-3 border-t border-stone-100 flex items-center gap-3 text-xs">
+              <a
+                href={`/living-atlas/people/${activeFace.slug}`}
+                className="underline font-semibold"
+                style={{ color: '#2D5F4F' }}
+              >
+                Open their full profile →
+              </a>
+            </div>
+          )}
           <ClearButton onClick={() => setActiveFace(null)} />
         </ContextCard>
       )
@@ -743,6 +754,15 @@ export default function Constellation({
                 : activeProject.description}
             </div>
           )}
+          <div className="mt-3 pt-3 border-t border-stone-100 flex items-center gap-3 text-xs">
+            <a
+              href={`/living-atlas/projects/${activeProject.slug}`}
+              className="underline font-semibold"
+              style={{ color: '#2D5F4F' }}
+            >
+              Open project profile →
+            </a>
+          </div>
           <ClearButton onClick={() => setActiveProject(null)} />
         </ContextCard>
       )
@@ -1133,10 +1153,12 @@ export default function Constellation({
 
             {tab === 'projects' && (
               <>
-                <RailHeading>{data.projects.length} projects · click to filter</RailHeading>
+                <RailHeading>
+                  {data.projects.length} projects · click to filter, → for detail
+                </RailHeading>
                 <ul className="space-y-1">
                   {data.projects.map((p) => (
-                    <li key={p.id}>
+                    <li key={p.id} className="flex items-center gap-1">
                       <button
                         type="button"
                         onClick={() => {
@@ -1145,7 +1167,7 @@ export default function Constellation({
                           setActiveElder(null)
                           setActiveReport(null)
                         }}
-                        className="flex w-full items-center gap-2 text-[11.5px] px-2 py-1.5 rounded hover:bg-stone-100"
+                        className="flex-1 flex items-center gap-2 text-[11.5px] px-2 py-1.5 rounded hover:bg-stone-100"
                         style={
                           activeProject?.id === p.id
                             ? { backgroundColor: '#E7EFE4', color: '#2D5F4F', fontWeight: 600 }
@@ -1165,6 +1187,13 @@ export default function Constellation({
                           {p.photo_ids.length}
                         </span>
                       </button>
+                      <a
+                        href={`/living-atlas/projects/${p.slug}`}
+                        title="Open project detail page"
+                        className="text-stone-400 hover:text-charcoal text-sm px-1.5"
+                      >
+                        →
+                      </a>
                     </li>
                   ))}
                 </ul>
