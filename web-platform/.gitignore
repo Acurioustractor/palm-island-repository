@@ -21,6 +21,11 @@ next-env.d.ts
 # Generated images (scratch/working files)
 /images/
 
+# Pencil photo bridge — synced from EL, lives beside picc-annual-report.pen
+# so Pencil image fills (which require relative paths) can use them.
+# Source of truth is EL v2; rebuild with: node scripts/sync-pencil-photos.mjs
+/pencil-photos/
+
 # Heavy static assets migrated to Supabase Storage
 /public/documents/
 /public/hero-assets/

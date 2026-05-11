@@ -67,6 +67,7 @@ const staffNavigation: { [key: string]: NavSection } = {
     items: [
       { label: 'The System', href: '/picc/system', icon: Network, description: 'Theory of change · 5 flows · 4 stakeholders · the loop' },
       { label: 'Annual Report Hub', href: '/picc/annual-report', icon: BookOpen, description: 'Always-on annual report · command center' },
+      { label: 'Pencil photo bridge', href: '/picc/almanac/pencil-bridge', icon: Image, description: 'Push EL photos into Pencil spreads · copy URL workflow' },
       { label: 'Community Books', href: '/picc/books', icon: BookOpen, description: 'Innovation track · kids make books · print on demand' },
       { label: 'Annual Reports', href: '/picc/annual-reports', icon: FileText, description: 'Reports hub & workflow' },
       { label: 'Report Builder', href: '/picc/reports/builder', icon: FileText, description: 'On-demand audience reports' },
@@ -139,6 +140,7 @@ const advancedNavigation: { [key: string]: NavSection } = {
     items: [
       { label: 'The System', href: '/picc/system', icon: Network, description: 'Theory of change · 5 flows · 4 stakeholders · the loop' },
       { label: 'Annual Report Hub', href: '/picc/annual-report', icon: BookOpen, description: 'Always-on annual report · command center' },
+      { label: 'Pencil photo bridge', href: '/picc/almanac/pencil-bridge', icon: Image, description: 'Push EL photos into Pencil spreads · copy URL workflow' },
       { label: 'Community Books', href: '/picc/books', icon: BookOpen, description: 'Innovation track · kids make books · print on demand' },
       { label: 'Annual Reports', href: '/picc/annual-reports', icon: FileText, description: 'Reports hub & workflow' },
       { label: 'Report Builder', href: '/picc/reports/builder', icon: FileText, description: 'On-demand audience reports' },

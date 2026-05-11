@@ -429,6 +429,7 @@ export default async function AnnualReportHubPage() {
           {[
             { label: 'Almanac checklist', href: '/picc/almanac/checklist' },
             { label: 'Almanac photos', href: '/picc/almanac/photos' },
+            { label: 'Pencil photo bridge', href: '/picc/almanac/pencil-bridge' },
             { label: 'Voices sprint', href: '/picc/almanac/voices' },
             { label: 'Services coverage', href: '/picc/almanac/services-coverage' },
             { label: 'Almanac videos', href: '/picc/almanac/videos' },
