@@ -18,13 +18,27 @@ export interface PencilFrame {
 /** Every v2 SPREAD frame in picc-annual-report.pen, in print order. */
 export const PENCIL_SPREADS: PencilFrame[] = [
   { nodeId: 'pQZZX', label: 'Cover', order: 1 },
-  { nodeId: 'WIyhs', label: 'Acknowledgement of Country', order: 2 },
-  { nodeId: '0eq4I', label: 'Year 17 in Numbers — Constellation', order: 3 },
-  { nodeId: 'kjUI7', label: 'Bwgcolman Way — Before/After', order: 4 },
-  { nodeId: '0WnsQ', label: 'Services at a Glance — 30 services', order: 5 },
-  { nodeId: 'JOvEu', label: 'Our Journey — River Timeline', order: 6 },
-  { nodeId: 'cGaCV', label: 'Financial Summary — Saltwater Rings', order: 7 },
-  { nodeId: 'fy7j6', label: 'Looking Forward — Reef Layers', order: 8 },
+  { nodeId: 'UNmRP', label: 'Contents', order: 2 },
+  { nodeId: 'WIyhs', label: 'Acknowledgement of Country', order: 3 },
+  { nodeId: 'PQPPx', label: 'CEO Message — Rachel Atkinson', order: 4 },
+  { nodeId: '1cNee', label: 'Chair Message — Luella Bligh', order: 5 },
+  { nodeId: '0eq4I', label: 'Year 17 in Numbers — Constellation', order: 6 },
+  { nodeId: 'JOvEu', label: 'Our Journey — River Timeline', order: 7 },
+  { nodeId: 'kjUI7', label: 'Bwgcolman Way — Before/After', order: 8 },
+  { nodeId: 'HRveX', label: 'Featured Service — Bwgcolman Healing', order: 9 },
+  { nodeId: 'ht6rD', label: 'Featured Service — First 1,000 Days', order: 10 },
+  { nodeId: 'CcAqN', label: 'Featured Service — BEAI', order: 11 },
+  { nodeId: 'zBumS', label: 'Community Voices — Double Page', order: 12 },
+  { nodeId: '0WnsQ', label: 'Services at a Glance — 30 services', order: 13 },
+  { nodeId: 'cGaCV', label: 'Financial Summary — Saltwater Rings', order: 14 },
+  { nodeId: 'oTtjL', label: 'Governance — Board', order: 15 },
+  { nodeId: 'bpXvp', label: 'Elders On Country — photo essay', order: 16 },
+  { nodeId: 'AO7ma', label: 'Elders On Country — RIGHT PAGE', order: 17 },
+  { nodeId: 'fy7j6', label: 'Looking Forward — Reef Layers', order: 18 },
+  { nodeId: 'EihyD', label: 'Risks', order: 19 },
+  { nodeId: 'QPEH6', label: 'Compliance & Accreditation', order: 20 },
+  { nodeId: 'IBRsF', label: 'Acknowledgements & Credits', order: 21 },
+  { nodeId: 'vZQsM', label: 'Back Cover', order: 22 },
 ]
 
 export const PENCIL_FRAME_BY_ID = Object.fromEntries(
@@ -32,8 +46,12 @@ export const PENCIL_FRAME_BY_ID = Object.fromEntries(
 ) as Record<string, PencilFrame>
 
 /**
- * Maps slot ID → Pencil frame ID. A slot can target one or more frames
+ * Maps slot ID → Pencil frame ID(s). A slot can target one or more frames
  * (e.g. acknowledgement-painted shows up on both cover bleed + ack page).
+ *
+ * UPDATED 2026-05-12: now covers all 22 v2 SPREAD frames including the
+ * three Featured Service spreads, both Elders On Country pages, the
+ * Community Voices double page, and Governance.
  */
 export const SLOT_TO_FRAMES: Record<string, string[]> = {
   // COVER
@@ -44,29 +62,29 @@ export const SLOT_TO_FRAMES: Record<string, string[]> = {
   'acknowledgement-painted': ['WIyhs'],
   'acknowledgement-video': ['WIyhs'],
 
-  // LEADERSHIP / MESSAGES — currently no dedicated v2 spread for portraits
-  // (the messages page was folded into the cover's verso in v2). Leave
-  // empty so the bridge UI shows them in the "unassigned" bucket.
-  'ceo-portrait': [],
-  'chair-portrait': [],
+  // LEADERSHIP / MESSAGES
+  'ceo-portrait': ['PQPPx'],
+  'chair-portrait': ['1cNee'],
 
   // YEAR IN NUMBERS
   'numbers-divider': ['0eq4I'],
 
   // FEATURED SERVICES
-  'feature-bwgcolman-1': ['kjUI7'],
-  'feature-1000-days-1': [], // No v2 spread yet — flag as future
+  'feature-bwgcolman-1': ['HRveX'], // Featured Service — Bwgcolman Healing
+  'feature-1000-days-1': ['ht6rD'], // Featured Service — First 1,000 Days
 
-  // VOICES
-  'voices-elders-on-country': ['JOvEu'], // Folded into journey timeline
-  'voices-wall': ['0WnsQ'], // Voices wall sits beside services
-  'voices-portraits': [],
+  // VOICES — Elders on Country has its own dedicated photo essay
+  // spread (left page hero) + a 4-grid right page. Voices wall sits
+  // beside services + community-voices double-page.
+  'voices-elders-on-country': ['bpXvp', 'AO7ma'],
+  'voices-wall': ['zBumS'],
+  'voices-portraits': ['zBumS', 'oTtjL'], // Both community voices + board
 
   // SERVICES
   'services-around-island': ['0WnsQ'],
 
   // BOARD
-  'board-portraits': [],
+  'board-portraits': ['oTtjL'],
 
   // FINANCIALS
   'reef-layers-decor': ['cGaCV'],
@@ -78,7 +96,7 @@ export const SLOT_TO_FRAMES: Record<string, string[]> = {
   'forward-video': ['fy7j6'],
 
   // BACK COVER
-  'back-cover-still': [],
+  'back-cover-still': ['vZQsM'],
 }
 
 export function framesForSlot(slotId: string): PencilFrame[] {
