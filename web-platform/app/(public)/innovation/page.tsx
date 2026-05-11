@@ -15,6 +15,7 @@ import { getHeroImage, getMediaByTags } from '@/lib/media/utils';
 import { assetUrl } from '@/lib/media/asset-url';
 import { getELQuotes } from '@/lib/empathy-ledger/el-server';
 import { getPiccProjects } from '@/lib/empathy-ledger/el-projects';
+import { C } from '@/components/annual-report/2024-25/almanac/tokens';
 
 export const dynamic = 'force-dynamic'
 
@@ -231,15 +232,26 @@ export default async function InnovationPage() {
 
       {/* Themed Project Sections */}
       {hasProjects ? (
-        <section className="py-20 px-6 bg-gray-50">
+        <section className="py-20 px-6" style={{ backgroundColor: C.shell }}>
           <div className="max-w-6xl mx-auto">
             <ScrollReveal direction="up">
-              <h2 className="text-4xl font-extrabold text-gray-900 text-center mb-4">
-                Our Innovation Projects
+              <p
+                className="font-bold uppercase mb-4 text-center"
+                style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.3em' }}
+              >
+                Innovation portfolio
+              </p>
+              <h2
+                className="font-fraunces font-bold text-center mb-4"
+                style={{ color: C.ocean, fontSize: 'clamp(32px, 5vw, 48px)', lineHeight: 1.1 }}
+              >
+                Our innovation projects
               </h2>
-              <p className="text-lg text-gray-500 text-center mb-16 max-w-2xl mx-auto">
-                Community-led projects driving change across culture, technology,
-                and enterprise.
+              <p
+                className="font-fraunces text-center mb-16 max-w-2xl mx-auto"
+                style={{ color: C.driftwood, fontSize: 'clamp(16px, 2vw, 19px)', lineHeight: 1.55 }}
+              >
+                Community-led projects driving change across culture, technology, and enterprise.
               </p>
             </ScrollReveal>
 
@@ -341,17 +353,19 @@ export default async function InnovationPage() {
         </section>
       ) : (
         /* Empty state — no innovation projects in database yet */
-        <section className="py-20 px-6 bg-gray-50">
+        <section className="py-20 px-6" style={{ backgroundColor: C.shell }}>
           <div className="max-w-3xl mx-auto text-center">
             <ScrollReveal direction="up">
-              <Lightbulb className="w-16 h-16 text-gray-300 mx-auto mb-6" />
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                Innovation Projects
+              <Lightbulb className="w-16 h-16 mx-auto mb-6" style={{ color: C.muted }} />
+              <h2
+                className="font-fraunces font-bold mb-4"
+                style={{ color: C.ocean, fontSize: 'clamp(28px, 4vw, 40px)', lineHeight: 1.15 }}
+              >
+                Innovation projects
               </h2>
-              <p className="text-lg text-gray-500">
-                Our innovation projects are being documented and will appear here soon.
-                Check back for updates on community-led initiatives driving change on
-                Palm Island.
+              <p className="font-fraunces" style={{ color: C.driftwood, fontSize: 18, lineHeight: 1.55 }}>
+                Our innovation projects are being documented and will appear here soon. Check back
+                for updates on community-led initiatives driving change on Palm Island.
               </p>
             </ScrollReveal>
           </div>
@@ -371,16 +385,25 @@ export default async function InnovationPage() {
 
       {/* Community voices on innovation — Empathy Ledger */}
       {innovationVoices.length > 0 && (
-        <section className="py-20 px-6 bg-warm-50">
+        <section className="py-20 px-6" style={{ backgroundColor: C.shell }}>
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-picc-ochre mb-3">
-                Empathy Ledger · Voices of Innovation
+              <p
+                className="font-bold uppercase mb-4"
+                style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.3em' }}
+              >
+                Empathy Ledger · Voices of innovation
               </p>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              <h2
+                className="font-fraunces font-bold mb-4"
+                style={{ color: C.ocean, fontSize: 'clamp(32px, 4.5vw, 44px)', lineHeight: 1.1 }}
+              >
                 What innovation sounds like
               </h2>
-              <p className="text-lg text-gray-500 max-w-2xl mx-auto">
+              <p
+                className="font-fraunces max-w-2xl mx-auto"
+                style={{ color: C.driftwood, fontSize: 'clamp(16px, 2vw, 19px)', lineHeight: 1.55 }}
+              >
                 Real community voices from our sovereign data archive — what change looks like
                 from inside the work.
               </p>
@@ -390,15 +413,19 @@ export default async function InnovationPage() {
               {innovationVoices.map((voice, i) => (
                 <div
                   key={i}
-                  className="bg-white border border-warm-100 rounded-2xl p-7 hover:border-picc-ochre/40 transition-colors"
+                  className="rounded-2xl p-7 transition-colors"
+                  style={{ backgroundColor: '#FFFFFF', border: `1px solid ${C.border}`, borderTopWidth: 3, borderTopColor: C.ochre }}
                 >
-                  <div className="text-picc-ochre text-5xl font-serif leading-none mb-2 opacity-30">&ldquo;</div>
-                  <p className="font-serif italic text-gray-700 leading-relaxed text-base mb-4 line-clamp-5 -mt-3">
+                  <div className="font-fraunces leading-none mb-2" style={{ color: C.ochre, fontSize: 56, opacity: 0.35 }}>&ldquo;</div>
+                  <p
+                    className="font-fraunces italic leading-relaxed line-clamp-5 -mt-3 mb-4"
+                    style={{ color: C.earth, fontSize: 16 }}
+                  >
                     {voice.text}
                   </p>
-                  <p className="text-sm font-semibold text-picc-ochre">{voice.author}</p>
+                  <p className="font-bold uppercase" style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.2em' }}>{voice.author}</p>
                   {voice.theme && (
-                    <p className="text-xs text-gray-400 mt-1 capitalize">
+                    <p className="capitalize mt-1" style={{ color: C.muted, fontSize: 11 }}>
                       {voice.theme.replace(/_/g, ' ')}
                     </p>
                   )}
@@ -409,10 +436,11 @@ export default async function InnovationPage() {
             <div className="mt-10 text-center">
               <Link
                 href="/picc/pcap"
-                className="inline-flex items-center gap-2 text-sm font-semibold text-picc-ochre hover:gap-3 transition-all"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-md font-bold uppercase text-xs hover:opacity-90 transition"
+                style={{ backgroundColor: C.ocean, color: '#FBF8EE', letterSpacing: '0.15em' }}
               >
                 Explore all 525 sovereign voices
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
           </div>
@@ -420,55 +448,88 @@ export default async function InnovationPage() {
       )}
 
       {/* Road to 20 Years Teaser */}
-      <section className="relative h-[60vh] overflow-hidden bg-gradient-to-br from-picc-earth-700 via-picc-earth to-picc-red flex items-center justify-center px-8">
+      <section
+        className="relative h-[60vh] overflow-hidden flex items-center justify-center px-8"
+        style={{ background: `linear-gradient(135deg, ${C.earth}, ${C.midnight} 60%, ${C.turtleRed})` }}
+      >
         <div className="text-center">
           <ScrollReveal direction="up">
-            <h2 className="text-5xl md:text-6xl font-bold text-white mb-4">
-              Road to 20 Years
+            <p
+              className="font-bold uppercase mb-4"
+              style={{ color: C.ochre, fontSize: 11, letterSpacing: '0.3em' }}
+            >
+              The horizon
+            </p>
+            <h2
+              className="font-fraunces font-bold mb-4"
+              style={{ color: '#FFFFFF', fontSize: 'clamp(40px, 6vw, 72px)', lineHeight: 1.05, textShadow: '0 2px 12px rgba(0,0,0,0.5)' }}
+            >
+              Road to 20 years
             </h2>
-            <p className="text-2xl text-white/90 mb-8">
-              From community control to generational change
+            <p
+              className="font-fraunces mb-8"
+              style={{ color: 'rgba(255,255,255,0.92)', fontSize: 'clamp(18px, 2.4vw, 26px)', textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}
+            >
+              From community control to generational change.
             </p>
             <Link
               href="/road-to-20-years"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-white hover:bg-gray-100 text-gray-900 font-bold text-lg rounded-full shadow-2xl transition-all"
+              className="inline-flex items-center gap-3 px-6 py-3 rounded-md font-bold uppercase text-xs hover:opacity-90 transition"
+              style={{ backgroundColor: '#FFFFFF', color: C.ocean, letterSpacing: '0.15em' }}
             >
-              Explore Our Vision
-              <ArrowRight className="w-5 h-5" />
+              Explore our vision
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </ScrollReveal>
         </div>
       </section>
 
       {/* Footer CTA */}
-      <section className="bg-gray-900 text-white py-20">
+      <section
+        className="text-white py-20"
+        style={{ background: `linear-gradient(135deg, ${C.midnight}, ${C.earth})` }}
+      >
         <div className="max-w-4xl mx-auto px-8 text-center">
           <ScrollReveal direction="up">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              Your Voice Matters
-            </h2>
-            <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
-              These projects exist because community members spoke up about what they
-              needed. Have an idea? Want to share your story?
+            <p
+              className="font-bold uppercase mb-4"
+              style={{ color: C.ochre, fontSize: 11, letterSpacing: '0.3em' }}
+            >
+              Add your voice
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <h2
+              className="font-fraunces font-bold mb-6"
+              style={{ fontSize: 'clamp(32px, 5vw, 48px)', lineHeight: 1.1 }}
+            >
+              Your voice matters
+            </h2>
+            <p
+              className="font-fraunces mb-10 max-w-2xl mx-auto"
+              style={{ color: 'rgba(255,255,255,0.78)', fontSize: 'clamp(18px, 2.2vw, 22px)', lineHeight: 1.6 }}
+            >
+              These projects exist because community members spoke up about what they needed. Have
+              an idea? Want to share your story?
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link
                 href="/share-voice"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-gray-900 font-bold text-lg rounded-full hover:bg-gray-100 transition-all"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-md font-bold uppercase text-xs hover:opacity-90 transition"
+                style={{ backgroundColor: '#FFFFFF', color: C.ocean, letterSpacing: '0.15em' }}
               >
-                <Mic className="w-5 h-5" />
-                Share Your Voice
+                <Mic className="w-3.5 h-3.5" />
+                Share your voice
               </Link>
               <Link
                 href="/stories"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 border-2 border-white/30 text-white font-bold text-lg rounded-full hover:bg-white/10 transition-all"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-md font-bold uppercase text-xs hover:bg-white/15 transition"
+                style={{ backgroundColor: 'rgba(255,255,255,0.1)', color: '#FFFFFF', border: '1px solid rgba(255,255,255,0.4)', letterSpacing: '0.15em' }}
               >
-                Read Community Stories
-                <ArrowRight className="w-5 h-5" />
+                Read community stories
+                <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
           </ScrollReveal>
-          <p className="text-gray-500 text-sm mt-12">
+          <p className="font-fraunces italic mt-12" style={{ color: 'rgba(255,255,255,0.55)', fontSize: 13 }}>
             All content shared with permission. Cultural protocols observed.
           </p>
         </div>
