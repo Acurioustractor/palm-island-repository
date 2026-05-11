@@ -65,6 +65,8 @@ const staffNavigation: { [key: string]: NavSection } = {
     title: 'Reports & Impact',
     icon: FileText,
     items: [
+      { label: 'Annual Report Hub', href: '/picc/annual-report', icon: BookOpen, description: 'Always-on annual report · command center' },
+      { label: 'Community Books', href: '/picc/books', icon: BookOpen, description: 'Innovation track · kids make books · print on demand' },
       { label: 'Annual Reports', href: '/picc/annual-reports', icon: FileText, description: 'Reports hub & workflow' },
       { label: 'Report Builder', href: '/picc/reports/builder', icon: FileText, description: 'On-demand audience reports' },
       { label: 'Report Readiness', href: '/picc/report-readiness', icon: ClipboardCheck, description: 'Annual report status' },
@@ -134,6 +136,8 @@ const advancedNavigation: { [key: string]: NavSection } = {
     title: 'Reports & Impact',
     icon: FileText,
     items: [
+      { label: 'Annual Report Hub', href: '/picc/annual-report', icon: BookOpen, description: 'Always-on annual report · command center' },
+      { label: 'Community Books', href: '/picc/books', icon: BookOpen, description: 'Innovation track · kids make books · print on demand' },
       { label: 'Annual Reports', href: '/picc/annual-reports', icon: FileText, description: 'Reports hub & workflow' },
       { label: 'Report Builder', href: '/picc/reports/builder', icon: FileText, description: 'On-demand audience reports' },
       { label: 'Report Readiness', href: '/picc/report-readiness', icon: ClipboardCheck, description: 'Annual report status' },
