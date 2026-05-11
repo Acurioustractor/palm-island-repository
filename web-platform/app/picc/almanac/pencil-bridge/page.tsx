@@ -228,6 +228,13 @@ export default async function PencilBridgePage() {
             {filledCount} / {totalCount} slots filled
           </span>
           <Link
+            href="/picc/almanac/photo-library"
+            className="px-3 py-1.5 rounded-md text-sm font-bold hover:bg-stone-50"
+            style={{ color: '#FFFFFF', backgroundColor: C.ocean, border: `1px solid ${C.ocean}` }}
+          >
+            📷 Browse all photos →
+          </Link>
+          <Link
             href="/picc/almanac/photos"
             className="px-3 py-1.5 rounded-md text-sm hover:bg-stone-50"
             style={{ color: C.ocean, border: `1px solid ${C.border}` }}
