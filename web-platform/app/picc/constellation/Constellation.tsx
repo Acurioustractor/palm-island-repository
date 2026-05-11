@@ -697,6 +697,15 @@ export default function Constellation({
                 : activeService.description}
             </div>
           )}
+          <div className="mt-3 pt-3 border-t border-stone-100 flex items-center gap-3 text-xs">
+            <a
+              href={`/living-atlas/services/${activeService.slug}`}
+              className="underline font-semibold"
+              style={{ color: '#2D5F4F' }}
+            >
+              Open service profile →
+            </a>
+          </div>
           <ClearButton onClick={() => setActiveService(null)} />
         </ContextCard>
       )
@@ -1079,10 +1088,12 @@ export default function Constellation({
 
             {tab === 'services' && (
               <>
-                <RailHeading>{data.services.length} services · click to filter</RailHeading>
+                <RailHeading>
+                  {data.services.length} services · click to filter, open arrow for detail
+                </RailHeading>
                 <ul className="space-y-1">
                   {data.services.map((s) => (
-                    <li key={s.id}>
+                    <li key={s.id} className="flex items-center gap-1">
                       <button
                         type="button"
                         onClick={() => {
@@ -1091,7 +1102,7 @@ export default function Constellation({
                           setActiveElder(null)
                           setActiveReport(null)
                         }}
-                        className="flex w-full items-center gap-2 text-[11.5px] px-2 py-1.5 rounded hover:bg-stone-100"
+                        className="flex-1 flex items-center gap-2 text-[11.5px] px-2 py-1.5 rounded hover:bg-stone-100"
                         style={
                           activeService?.id === s.id
                             ? { backgroundColor: '#E7EFE4', color: '#2D5F4F', fontWeight: 600 }
@@ -1107,6 +1118,13 @@ export default function Constellation({
                           {s.photo_ids.length}
                         </span>
                       </button>
+                      <a
+                        href={`/living-atlas/services/${s.slug}`}
+                        title="Open service detail page"
+                        className="text-stone-400 hover:text-charcoal text-sm px-1.5"
+                      >
+                        →
+                      </a>
                     </li>
                   ))}
                 </ul>
