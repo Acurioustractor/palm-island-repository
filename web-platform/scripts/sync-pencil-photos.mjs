@@ -188,10 +188,14 @@ async function main() {
   }
 
   // ─── STORYTELLERS ────────────────────────────────────────────
-  // Fetch every PICC storyteller + their photos. Saves files as
-  // pencil-photos/storyteller-<slug>.jpg + variants.
+  // Two photo sources per storyteller:
+  //   1. `photo_url` field on the storyteller object (canonical portrait
+  //      uploaded via EL admin) — matches services/projects pattern.
+  //   2. `/api/picc/storytellers/<id>/photos` — additional photos linked
+  //      via media_storytellers join (where the person appears).
+  // We pull both. The `photo_url` is index 0, additional photos are 2+.
   console.log()
-  console.log(`→ storytellers (people)`)
+  console.log(`→ storytellers (photo_url + media_storytellers)`)
   try {
     const sRes = await fetch(`${base}/api/picc/storytellers?limit=200`, {
       headers: { 'x-picc-api-key': key },
@@ -200,7 +204,50 @@ async function main() {
       const sData = await sRes.json()
       const storytellers = sData.storytellers ?? []
       console.log(`  ${storytellers.length} storytellers in EL`)
+
       for (const st of storytellers) {
+        let nextIndex = 0
+
+        // 1) Direct photo_url on the storyteller object
+        if (st.photo_url && /\.(jpe?g|png|webp|gif)$/i.test(st.photo_url)) {
+          const e = extFromUrl(st.photo_url)
+          const name = `storyteller-${st.slug}${e}`
+          const dest = join(OUT_DIR, name)
+          try {
+            const dlRes = await downloadOne(st.photo_url, dest)
+            if (dlRes.skipped) totalSkip++
+            else totalDl++
+            const dims = getDims(dest)
+            const score = printScore(dims)
+            manifest.push({
+              slot: `storyteller-${st.slug}`,
+              index: 0,
+              file: name,
+              pencilPath: `./pencil-photos/${name}`,
+              source_url: st.photo_url,
+              alt: st.display_name,
+              caption: st.bio?.slice(0, 200) ?? null,
+              storyteller_id: st.id,
+              storyteller_slug: st.slug,
+              storyteller_name: st.display_name,
+              storyteller_is_elder: st.is_elder,
+              el_id: st.id,
+              bytes: dlRes.size,
+              width: dims?.width ?? null,
+              height: dims?.height ?? null,
+              print_score: score,
+            })
+            nextIndex = 1
+            const tag = dlRes.skipped ? 'skip' : 'dl'
+            const dimStr = dims ? `${dims.width}×${dims.height}` : '?'
+            const elderTag = st.is_elder ? '✦' : ' '
+            console.log(`  ${tag === 'dl' ? '↓' : '·'} ${elderTag} ${(st.display_name ?? st.slug).padEnd(36)} → ${name} (${dimStr}, ${score})`)
+          } catch (err) {
+            console.warn(`  ! storyteller ${st.slug}: ${err.message}`)
+          }
+        }
+
+        // 2) Additional photos via media_storytellers (where the person appears)
         const pr = await fetch(
           `${base}/api/picc/storytellers/${encodeURIComponent(st.id)}/photos?limit=4`,
           { headers: { 'x-picc-api-key': key } },
@@ -210,11 +257,12 @@ async function main() {
         const photos = (pd.photos ?? []).filter((p) =>
           /\.(jpe?g|png|webp|gif)$/i.test(p.url ?? ''),
         )
-        if (photos.length === 0) continue
         for (let i = 0; i < photos.length; i++) {
           const p = photos[i]
+          // Don't re-download if it's the same URL as photo_url
+          if (p.url === st.photo_url) continue
           const e = extFromUrl(p.url)
-          const name = i === 0 ? `storyteller-${st.slug}${e}` : `storyteller-${st.slug}-${i + 1}${e}`
+          const name = `storyteller-${st.slug}-${nextIndex + 1}${e}`
           const dest = join(OUT_DIR, name)
           try {
             const dlRes = await downloadOne(p.url, dest)
@@ -224,7 +272,7 @@ async function main() {
             const score = printScore(dims)
             manifest.push({
               slot: `storyteller-${st.slug}`,
-              index: i,
+              index: nextIndex,
               file: name,
               pencilPath: `./pencil-photos/${name}`,
               source_url: p.url,
@@ -240,12 +288,9 @@ async function main() {
               height: dims?.height ?? null,
               print_score: score,
             })
-            const tag = dlRes.skipped ? 'skip' : 'dl'
-            const dimStr = dims ? `${dims.width}×${dims.height}` : '?'
-            const elderTag = st.is_elder ? '✦' : ' '
-            if (i === 0) console.log(`  ${tag === 'dl' ? '↓' : '·'} ${elderTag} ${(st.display_name ?? st.slug).padEnd(36)} → ${name} (${dimStr}, ${score})`)
+            nextIndex++
           } catch (err) {
-            console.warn(`  ! storyteller ${st.slug} #${i + 1}: ${err.message}`)
+            console.warn(`  ! storyteller ${st.slug} #${nextIndex}: ${err.message}`)
           }
         }
       }

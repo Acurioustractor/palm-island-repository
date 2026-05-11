@@ -85,7 +85,7 @@ export const IMAGE_TARGETS: ImageTarget[] = [
   { nodeId: 'te3c7', spreadId: 'zBumS', label: 'Voices · Aunty Iris May Whitey', role: 'portrait', storytellerSlug: 'aunty-iris-may-whitey' },
   { nodeId: 'ewUP5', spreadId: 'zBumS', label: 'Voices · Allan Palm Island', role: 'portrait', storytellerSlug: 'allan-palm-island' },
   // "Uncle Frank Daniel Landers" — not in EL list, falls back to role
-  { nodeId: '10kHH', spreadId: 'zBumS', label: 'Voices · Uncle Frank Daniel Landers', role: 'portrait', storytellerSlug: 'uncle-frank-daniel-landers' },
+  { nodeId: '10kHH', spreadId: 'zBumS', label: 'Voices · Uncle Frank Daniel Landers', role: 'portrait', storytellerSlug: 'uncle-frank-daniel-anderson' },
   { nodeId: 'Ua1vk', spreadId: 'zBumS', label: 'Voices · Rachel Atkinson', role: 'portrait', storytellerSlug: 'rachel-atkinson' },
   { nodeId: 'TlP9D', spreadId: 'zBumS', label: 'Voices · Luella Bligh', role: 'portrait', storytellerSlug: 'luella-bligh' },
   { nodeId: '3Ru9s', spreadId: 'zBumS', label: 'Voices · Henry Doyle', role: 'portrait', storytellerSlug: 'henry-doyle' },
