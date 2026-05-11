@@ -373,8 +373,19 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
   //   3. PICC board_members.photo_url
   // Every face is tied to a real person — no anonymous "consented photo" entries.
 
+  // Known-broken storyteller slugs — their photo_url is set in EL v2
+  // but the underlying file does not exist in Supabase Storage. Hard
+  // exclude from the canvas (and any "photo wall") until EL data fix
+  // re-uploads them. Verified 2026-05-12 via HEAD probe on every
+  // storyteller thumbnail URL.
+  const MISSING_PHOTO_SLUGS = new Set([
+    'dee-ann-sailor',
+    'ida-richardson',
+    'jeanie-sam',
+    'patricia-doyle',
+  ])
   const stFaces: FaceNode[] = (storytellers ?? [])
-    .filter((s) => Boolean(s.photo_url))
+    .filter((s) => Boolean(s.photo_url) && !MISSING_PHOTO_SLUGS.has(s.slug))
     .map((s) => ({
       id: `storyteller:${s.id}`,
       name: s.display_name,
@@ -921,9 +932,12 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
   for (const s of storytellers ?? []) {
     const tok = lastToken(s.display_name)
     if (tok && !storytellerByLastToken.has(tok)) {
+      // Drop photo_url for the known-missing-file storytellers so the
+      // hero card falls back to initials rather than rendering a 400.
+      const hasFile = !MISSING_PHOTO_SLUGS.has(s.slug)
       storytellerByLastToken.set(tok, {
         slug: s.slug,
-        photo_url: s.photo_url,
+        photo_url: hasFile ? s.photo_url : null,
         is_elder: s.is_elder,
       })
     }

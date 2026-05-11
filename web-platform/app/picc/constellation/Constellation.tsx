@@ -392,9 +392,15 @@ export default function Constellation({
       .attr('preserveAspectRatio', 'xMidYMid slice')
       .attr('clip-path', 'url(#cstl-face-clip)')
 
-    // Finite simulation: run ~120 ticks to settle, then stop completely.
-    // Constant ticking was the source of click-lag. After settle, faces
-    // stay put; mode / theme / elder changes manipulate opacity only.
+    // Finite simulation: run ~120 ticks to settle, then enter ambient
+    // mode — periodic low-amplitude nudges keep faces gently drifting
+    // (the "constellation feels alive" effect Rachel asked for).
+    // Constant ticking was the original click-lag source; the pulse-
+    // based approach reattaches the tick listener only for ~1.5s every
+    // 6s, so CPU stays low and clicks remain instant.
+    const tickHandler = () => {
+      facePoints.attr('transform', (d) => `translate(${d.x}, ${d.y})`)
+    }
     const sim = d3
       .forceSimulation<SimFace>(simFaces)
       .force(
@@ -407,15 +413,26 @@ export default function Constellation({
       .alphaDecay(0.05)
       .alphaMin(0.08)
       .velocityDecay(0.55)
-      .on('tick', () => {
-        facePoints.attr('transform', (d) => `translate(${d.x}, ${d.y})`)
-      })
+      .on('tick', tickHandler)
       .on('end', () => {
-        // Free the tick listener — DOM is in final state.
+        // Free the tick listener — DOM is in final state until the
+        // next ambient pulse re-attaches it.
         sim.on('tick', null)
       })
 
     simulationRef.current = sim
+
+    // Ambient float — every 6s give the field a tiny kick. Faces drift
+    // ~10-30px before re-settling. Drag overrides this completely (its
+    // alphaTarget=0.3 dominates the 0.015 ambient target).
+    const ambientPulse = () => {
+      sim.on('tick', tickHandler) // re-arm; .on('end') above may have cleared it
+      sim.alphaTarget(0.015).restart()
+      setTimeout(() => {
+        sim.alphaTarget(0)
+      }, 1500)
+    }
+    const ambientInterval = window.setInterval(ambientPulse, 6000)
 
     // Per-face drag.
     const drag = d3
@@ -457,6 +474,7 @@ export default function Constellation({
     })
 
     return () => {
+      window.clearInterval(ambientInterval)
       sim.stop()
     }
     // Stable scene rebuild only depends on data + dimensions.

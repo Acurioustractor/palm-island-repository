@@ -79,7 +79,8 @@ export default async function LivingAtlasPage() {
     (a, b) => b.photo_ids.length - a.photo_ids.length,
   )
 
-  // Map pins — every service with lat/long.
+  // Map pins — every service with lat/long. Description + image +
+  // linked-voice count flow into the on-click Popup card.
   const mapServices: PinService[] = data.services
     .filter((s) => s.latitude != null && s.longitude != null)
     .map((s) => ({
@@ -89,6 +90,9 @@ export default async function LivingAtlasPage() {
       service_category: s.category,
       latitude: s.latitude as number,
       longitude: s.longitude as number,
+      description: s.description,
+      image_url: s.image_url,
+      voice_count: s.photo_ids.length,
     }))
 
   // Themes — top 8 by voice count.

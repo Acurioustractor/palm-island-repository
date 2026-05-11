@@ -25,6 +25,10 @@ const Tooltip = dynamic(
   () => import('react-leaflet').then((m) => m.Tooltip),
   { ssr: false },
 )
+const Popup = dynamic(
+  () => import('react-leaflet').then((m) => m.Popup),
+  { ssr: false },
+)
 
 const PALM_ISLAND_CENTER: [number, number] = [-18.7285, 146.5808]
 
@@ -60,6 +64,12 @@ export interface PinService {
   service_category: string | null
   latitude: number
   longitude: number
+  /** Service description from EL canonical — shown in the popup. */
+  description?: string | null
+  /** Optional EL v2 image — shown as a thumbnail in the popup header. */
+  image_url?: string | null
+  /** Optional voice-count for the popup ("n voices on file"). */
+  voice_count?: number
 }
 
 export default function PalmIslandMap({ services }: { services: PinService[] }) {
@@ -109,8 +119,106 @@ export default function PalmIslandMap({ services }: { services: PinService[] }) 
                         {s.service_category}
                       </div>
                     )}
+                    <div style={{ color: '#6B6560', fontSize: 10, marginTop: 4, fontStyle: 'italic' }}>
+                      click for details
+                    </div>
                   </div>
                 </Tooltip>
+                <Popup maxWidth={320} minWidth={280} className="picc-service-popup">
+                  <div style={{ fontFamily: 'Inter, system-ui', minWidth: 260 }}>
+                    {s.image_url && (
+                      <img
+                        src={s.image_url}
+                        alt=""
+                        style={{
+                          width: '100%',
+                          height: 120,
+                          objectFit: 'cover',
+                          borderRadius: 8,
+                          marginBottom: 10,
+                          display: 'block',
+                        }}
+                      />
+                    )}
+                    {s.service_category && (
+                      <div
+                        style={{
+                          color: colour,
+                          fontSize: 10,
+                          textTransform: 'uppercase',
+                          letterSpacing: 1.5,
+                          fontWeight: 700,
+                          marginBottom: 4,
+                        }}
+                      >
+                        {s.service_category}
+                      </div>
+                    )}
+                    <div
+                      style={{
+                        fontFamily: 'Fraunces, Georgia, serif',
+                        fontSize: 18,
+                        color: '#2C2C2C',
+                        lineHeight: 1.2,
+                        marginBottom: 8,
+                      }}
+                    >
+                      {s.name}
+                    </div>
+                    {s.description && (
+                      <p
+                        style={{
+                          fontSize: 12,
+                          color: '#4A4A4A',
+                          lineHeight: 1.45,
+                          margin: '0 0 10px 0',
+                        }}
+                      >
+                        {s.description.length > 240
+                          ? s.description.slice(0, 237) + '…'
+                          : s.description}
+                      </p>
+                    )}
+                    <div
+                      style={{
+                        fontSize: 11,
+                        color: '#6B6560',
+                        marginBottom: 10,
+                        display: 'flex',
+                        gap: 12,
+                      }}
+                    >
+                      {s.voice_count != null && s.voice_count > 0 && (
+                        <span>
+                          <strong style={{ color: '#2C2C2C' }}>
+                            {s.voice_count}
+                          </strong>{' '}
+                          voice{s.voice_count === 1 ? '' : 's'} on file
+                        </span>
+                      )}
+                      <span>
+                        <strong style={{ color: '#2C2C2C' }}>
+                          {s.latitude.toFixed(3)}, {s.longitude.toFixed(3)}
+                        </strong>
+                      </span>
+                    </div>
+                    <a
+                      href={`/living-atlas/services/${s.slug}`}
+                      style={{
+                        display: 'inline-block',
+                        backgroundColor: '#2D5F4F',
+                        color: 'white',
+                        padding: '6px 12px',
+                        borderRadius: 6,
+                        fontSize: 12,
+                        fontWeight: 600,
+                        textDecoration: 'none',
+                      }}
+                    >
+                      Open service profile →
+                    </a>
+                  </div>
+                </Popup>
               </Marker>
             )
           })}

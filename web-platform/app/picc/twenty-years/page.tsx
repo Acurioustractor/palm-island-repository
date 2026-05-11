@@ -145,6 +145,8 @@ export default async function TwentyYearsPage() {
       service_category: s.service_category,
       latitude: s.latitude as number,
       longitude: s.longitude as number,
+      description: s.description ?? null,
+      image_url: s.image_url ?? null,
     }))
 
   return (
