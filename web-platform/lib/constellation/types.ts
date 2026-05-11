@@ -98,6 +98,49 @@ export interface ConstellationStats {
   knowledge_entries: number
 }
 
+export interface ServiceItem {
+  id: string
+  name: string
+  slug: string | null
+  description: string | null
+  start_year: number | null
+}
+
+export interface ProjectItem {
+  id: string
+  name: string
+  slug: string | null
+  description: string | null
+  status: string | null
+  start_year: number | null
+}
+
+export interface NamedElder {
+  /** Display name as it appears in elder_quotes.speaker_name. */
+  name: string
+  /** Number of validated quotes attributed to this elder. */
+  quote_count: number
+  /** Most-recent or top quote attributed to this elder. */
+  top_quote: string | null
+}
+
+export interface AnnualReportItem {
+  fiscal_year: number
+  title: string | null
+  subtitle: string | null
+  cover_photo_url: string | null
+  pdf_url: string | null
+  published_date: string | null
+}
+
+export interface BwgcolmanNation {
+  /** "Bwgcolman" — composite name meaning "many tribes". */
+  name: string
+  meaning: string
+  language_groups: number
+  founded_year: number
+}
+
 export interface ConstellationPayload {
   faces: FaceNode[]
   themes: ThemeWell[]
@@ -105,6 +148,11 @@ export interface ConstellationPayload {
   foundation: FoundationEvent[]
   visions: CommunityVision[]
   commitments: ForwardCommitment[]
+  services: ServiceItem[]
+  projects: ProjectItem[]
+  named_elders: NamedElder[]
+  annual_reports: AnnualReportItem[]
+  bwgcolman: BwgcolmanNation
   stats: ConstellationStats
   /** Always-visible cultural-protocol legibility snapshot. */
   meta: {

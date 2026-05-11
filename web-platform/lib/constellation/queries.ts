@@ -9,11 +9,16 @@
 import { createServerSupabase } from '@/lib/supabase/client'
 import { getAnyConsentedPhotos } from '@/lib/media/el-photos'
 import type {
+  AnnualReportItem,
+  BwgcolmanNation,
   CommunityVision,
   ConstellationPayload,
   FaceNode,
   FoundationEvent,
   ForwardCommitment,
+  NamedElder,
+  ProjectItem,
+  ServiceItem,
   ThemeWell,
   TimelineMarker,
   TopQuote,
@@ -81,6 +86,10 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     governanceCountRes,
     boardCountRes,
     knowledgeCountRes,
+    servicesRes,
+    projectsRes,
+    elderQuotesRes,
+    annualReportsFullRes,
   ] = await Promise.all([
     getAnyConsentedPhotos(FACE_LIMIT),
     supabase.from('extracted_quotes').select('theme').not('theme', 'is', null),
@@ -144,6 +153,27 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
       .select('id', { count: 'exact', head: true })
       .eq('organization_id', PICC_ORG_ID),
     supabase.from('knowledge_entries').select('id', { count: 'exact', head: true }),
+    supabase
+      .from('organization_services')
+      .select('id, name, slug, description, start_date')
+      .eq('is_active', true)
+      .order('name', { ascending: true }),
+    supabase
+      .from('projects')
+      .select('id, name, slug, description, status, start_date')
+      .order('start_date', { ascending: false, nullsFirst: false }),
+    supabase
+      .from('elder_quotes')
+      .select('speaker_name, text')
+      .eq('organization_id', PICC_ORG_ID)
+      .eq('is_validated', true)
+      .eq('permission_level', 'public')
+      .not('speaker_name', 'is', null),
+    supabase
+      .from('annual_reports')
+      .select('fiscal_year, title, subtitle, cover_photo_url, pdf_url, published_date')
+      .eq('organization_id', PICC_ORG_ID)
+      .order('fiscal_year', { ascending: false }),
   ])
 
   // ── FACES ──────────────────────────────────────────────────────────────
@@ -301,6 +331,75 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     category: (v.category as string | null) ?? null,
   }))
 
+  // ── SERVICES ───────────────────────────────────────────────────────────
+  const services: ServiceItem[] = (servicesRes.data ?? []).map((s) => {
+    const sd = s.start_date as string | null
+    return {
+      id: s.id as string,
+      name: (s.name as string) ?? '',
+      slug: (s.slug as string | null) ?? null,
+      description: (s.description as string | null) ?? null,
+      start_year: sd ? new Date(sd).getUTCFullYear() : null,
+    }
+  })
+
+  // ── PROJECTS ───────────────────────────────────────────────────────────
+  const projects: ProjectItem[] = (projectsRes.data ?? []).map((p) => {
+    const sd = p.start_date as string | null
+    return {
+      id: p.id as string,
+      name: (p.name as string) ?? '',
+      slug: (p.slug as string | null) ?? null,
+      description: (p.description as string | null) ?? null,
+      status: (p.status as string | null) ?? null,
+      start_year: sd ? new Date(sd).getUTCFullYear() : null,
+    }
+  })
+
+  // ── NAMED ELDERS (top voices) ──────────────────────────────────────────
+  const elderBuckets = new Map<string, string[]>()
+  for (const row of elderQuotesRes.data ?? []) {
+    const name = (row.speaker_name as string | null)?.trim()
+    const text = (row.text as string | null)?.trim()
+    if (!name || !text) continue
+    const list = elderBuckets.get(name) ?? []
+    list.push(text)
+    elderBuckets.set(name, list)
+  }
+  const named_elders: NamedElder[] = Array.from(elderBuckets.entries())
+    .map(([name, quotes]) => ({
+      name,
+      quote_count: quotes.length,
+      top_quote: quotes[0] ?? null,
+    }))
+    .sort((a, b) => b.quote_count - a.quote_count)
+
+  // ── ANNUAL REPORTS (full list) ─────────────────────────────────────────
+  const annual_reports: AnnualReportItem[] = (annualReportsFullRes.data ?? []).map(
+    (r) => {
+      const fy =
+        typeof r.fiscal_year === 'string'
+          ? parseInt(r.fiscal_year, 10)
+          : (r.fiscal_year as number | null)
+      return {
+        fiscal_year: fy ?? 0,
+        title: (r.title as string | null) ?? null,
+        subtitle: (r.subtitle as string | null) ?? null,
+        cover_photo_url: (r.cover_photo_url as string | null) ?? null,
+        pdf_url: (r.pdf_url as string | null) ?? null,
+        published_date: (r.published_date as string | null) ?? null,
+      }
+    },
+  )
+
+  // ── BWGCOLMAN — the composite name and the 42 language groups ──────────
+  const bwgcolman: BwgcolmanNation = {
+    name: 'Bwgcolman',
+    meaning: 'Many tribes — 42 language groups brought together',
+    language_groups: 42,
+    founded_year: 1918,
+  }
+
   return {
     faces,
     themes,
@@ -308,6 +407,11 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     foundation,
     visions,
     commitments: FORWARD_COMMITMENTS,
+    services,
+    projects,
+    named_elders,
+    annual_reports,
+    bwgcolman,
     stats: {
       faces_consented: faces.length,
       voices_validated_elder: elderCountRes.count ?? 0,

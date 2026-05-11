@@ -3,26 +3,30 @@
 /**
  * Bwgcolman Constellation — the living map of Palm Island storytelling.
  *
- * Layout: a single shell split into three columns:
- *   [ left rail · modes ]  [ stage ]  [ right rail · context ]
- * Bottom: year scrubber + fullscreen toggle + reset view.
+ * Three-column shell: [ left rail · browse ]  [ stage ]  [ right rail · context ]
+ * Bottom: year scrubber. Top: title + fullscreen + reset.
  *
- * The stage is a d3 force layout that supports:
- *   - mouse-wheel / pinch zoom
- *   - drag-pan on empty space
- *   - drag-reposition on individual face nodes
- *   - fullscreen presentation mode
+ * Performance contract:
+ *   - The SVG scene is built ONCE per data/dimensions change.
+ *   - Mode, theme, year, and Elder-focus changes only update force targets
+ *     and node opacity in place — no DOM rebuild.
+ *   - Faces load via thumbnail_url so 117 thumbnails ≪ 117 full photos.
  *
- * Every photo and quote on screen was consent-cleared or validator-flagged
- * at source. The Permissions panel and standing tagline are first-class
- * design elements, not metadata.
+ * Stage supports d3-zoom (wheel/pinch), drag-pan on empty space, and
+ * per-face drag-reposition. The right rail swaps content based on what is
+ * active. The left rail is a tab strip: View · Services · Projects ·
+ * Elders · Reports · Bwgcolman.
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import * as d3 from 'd3'
 import type {
+  AnnualReportItem,
   ConstellationPayload,
   FaceNode,
+  NamedElder,
+  ProjectItem,
+  ServiceItem,
   ThemeWell,
 } from '@/lib/constellation/types'
 
@@ -37,10 +41,16 @@ interface SimFace extends d3.SimulationNodeDatum {
 }
 
 type ViewMode = 'field' | 'voices' | 'timeline' | 'visions'
+type RailTab =
+  | 'view'
+  | 'services'
+  | 'projects'
+  | 'elders'
+  | 'reports'
+  | 'bwgcolman'
 
 const FACE_RADIUS = 22
 const STAGE_HEIGHT = 640
-const STAGE_HEIGHT_FS = 0 // computed at runtime when fullscreen
 
 const ELDER_RING = '#B8860B'
 const VOICE_RINGS: Record<string, string> = {
@@ -72,6 +82,15 @@ const MODES: ReadonlyArray<{
   { key: 'visions', label: 'Visions', hint: 'Faces drift to 2045.' },
 ]
 
+const TABS: ReadonlyArray<{ key: RailTab; label: string }> = [
+  { key: 'view', label: 'View' },
+  { key: 'services', label: 'Services' },
+  { key: 'projects', label: 'Projects' },
+  { key: 'elders', label: 'Elders' },
+  { key: 'reports', label: 'Reports' },
+  { key: 'bwgcolman', label: 'Bwgcolman' },
+]
+
 function ringColour(face: FaceNode): string {
   if (face.is_elder) return ELDER_RING
   const slot = face.slot ?? ''
@@ -94,19 +113,32 @@ function backdropFor(year: number): string {
   return 'linear-gradient(180deg, #F6F2EA 0%, #D8E2D6 100%)'
 }
 
+// Heuristic — match a face to a slot/service slug if its EL slot tag
+// references the service. Used when a service is selected.
+function matchesService(face: FaceNode, slug: string | null): boolean {
+  if (!slug || !face.slot) return false
+  return face.slot.includes(slug)
+}
+
 export default function Constellation({ data }: Props) {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
   const svgRef = useRef<SVGSVGElement>(null)
   const simulationRef = useRef<d3.Simulation<SimFace, undefined> | null>(null)
   const zoomBehaviorRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null)
+  const simFacesRef = useRef<SimFace[]>([])
 
   const [stageSize, setStageSize] = useState({ width: 900, height: STAGE_HEIGHT })
   const [mode, setMode] = useState<ViewMode>('field')
   const [activeTheme, setActiveTheme] = useState<string | null>(null)
   const [activeFace, setActiveFace] = useState<FaceNode | null>(null)
+  const [activeService, setActiveService] = useState<ServiceItem | null>(null)
+  const [activeProject, setActiveProject] = useState<ProjectItem | null>(null)
+  const [activeElder, setActiveElder] = useState<NamedElder | null>(null)
+  const [activeReport, setActiveReport] = useState<AnnualReportItem | null>(null)
   const [tagIdx, setTagIdx] = useState(0)
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const [tab, setTab] = useState<RailTab>('view')
 
   const yearBounds = useMemo(() => {
     const fyYears = data.years.map((y) => y.fiscal_year)
@@ -128,7 +160,7 @@ export default function Constellation({ data }: Props) {
     [data.themes, activeTheme],
   )
 
-  // Rotate tagline every 9s — present but unobtrusive.
+  // Rotate tagline every 9s.
   useEffect(() => {
     const id = window.setInterval(
       () => setTagIdx((i) => (i + 1) % TAGLINES.length),
@@ -137,14 +169,14 @@ export default function Constellation({ data }: Props) {
     return () => window.clearInterval(id)
   }, [])
 
-  // Track fullscreen state.
+  // Fullscreen state.
   useEffect(() => {
     const onChange = () => setIsFullscreen(Boolean(document.fullscreenElement))
     document.addEventListener('fullscreenchange', onChange)
     return () => document.removeEventListener('fullscreenchange', onChange)
   }, [])
 
-  // Stage sizing — fills available space, expands in fullscreen.
+  // Stage sizing.
   useEffect(() => {
     if (!stageRef.current) return
     const ro = new ResizeObserver((entries) => {
@@ -155,41 +187,10 @@ export default function Constellation({ data }: Props) {
     return () => ro.disconnect()
   }, [isFullscreen])
 
-  // Simulation data — initial positions on a wide ring so the entrance is
-  // visible (faces drift inward) rather than springing from centre.
-  const simFaces: SimFace[] = useMemo(() => {
-    return data.faces.map((f, i) => ({
-      id: f.id,
-      face: f,
-      themeIndex: data.themes.length === 0 ? 0 : i % data.themes.length,
-      x:
-        Math.cos((i / Math.max(1, data.faces.length)) * Math.PI * 2) * 400 +
-        stageSize.width / 2,
-      y:
-        Math.sin((i / Math.max(1, data.faces.length)) * Math.PI * 2) * 260 +
-        stageSize.height / 2,
-    }))
-  }, [data.faces, data.themes.length, stageSize.width, stageSize.height])
-
-  const themeWells = useMemo(() => {
-    if (data.themes.length === 0)
-      return [] as Array<ThemeWell & { x: number; y: number }>
-    const radius = Math.min(stageSize.width, stageSize.height) * 0.36
-    const cx = stageSize.width / 2
-    const cy = stageSize.height / 2
-    return data.themes.map((t, i) => {
-      const angle = (i / data.themes.length) * Math.PI * 2 - Math.PI / 2
-      return {
-        ...t,
-        x: cx + Math.cos(angle) * radius,
-        y: cy + Math.sin(angle) * radius,
-      }
-    })
-  }, [data.themes, stageSize.width, stageSize.height])
-
-  // Main render effect.
+  // Build the stable scene once when data/dimensions change. Mode / theme /
+  // year / service / project / elder updates land in lighter effects below.
   useEffect(() => {
-    if (!svgRef.current || simFaces.length === 0) return
+    if (!svgRef.current || data.faces.length === 0) return
 
     const svg = d3.select(svgRef.current)
     svg.selectAll('*').remove()
@@ -198,24 +199,21 @@ export default function Constellation({ data }: Props) {
     const cy = stageSize.height / 2
     const defs = svg.append('defs')
 
-    const clipId = 'cstl-face-clip'
     defs
       .append('clipPath')
-      .attr('id', clipId)
+      .attr('id', 'cstl-face-clip')
       .append('circle')
       .attr('r', FACE_RADIUS)
 
-    const glowId = 'cstl-glow'
     const glow = defs
       .append('radialGradient')
-      .attr('id', glowId)
+      .attr('id', 'cstl-glow')
       .attr('cx', '50%')
       .attr('cy', '50%')
       .attr('r', '50%')
     glow.append('stop').attr('offset', '0%').attr('stop-color', '#2D5F4F').attr('stop-opacity', 0.35)
     glow.append('stop').attr('offset', '100%').attr('stop-color', '#2D5F4F').attr('stop-opacity', 0)
 
-    // Root group — everything inside this is zoomable + pannable.
     const root = svg.append('g').attr('class', 'cstl-root')
 
     // Decorative rings.
@@ -229,7 +227,6 @@ export default function Constellation({ data }: Props) {
       .attr('stroke-width', 1)
       .attr('stroke-dasharray', '4 6')
       .attr('opacity', 0.55)
-
     root
       .append('circle')
       .attr('cx', cx)
@@ -240,26 +237,34 @@ export default function Constellation({ data }: Props) {
       .attr('stroke-width', 0.6)
       .attr('opacity', 0.4)
 
-    // Active theme glow.
-    if (activeTheme) {
-      const w = themeWells.find((t) => t.key === activeTheme)
-      if (w) {
-        root
-          .append('circle')
-          .attr('cx', w.x)
-          .attr('cy', w.y)
-          .attr('r', 130)
-          .attr('fill', `url(#${glowId})`)
-      }
-    }
+    // Glow placeholder — moved by the lightweight effect.
+    root
+      .append('circle')
+      .attr('class', 'cstl-active-glow')
+      .attr('cx', cx)
+      .attr('cy', cy)
+      .attr('r', 130)
+      .attr('fill', 'url(#cstl-glow)')
+      .attr('opacity', 0)
 
     // Theme wells.
-    const wellGroup = root.append('g').attr('class', 'wells')
+    const themeWells = data.themes.map((t, i) => {
+      const radius = Math.min(stageSize.width, stageSize.height) * 0.36
+      const angle = (i / data.themes.length) * Math.PI * 2 - Math.PI / 2
+      return {
+        ...t,
+        x: cx + Math.cos(angle) * radius,
+        y: cy + Math.sin(angle) * radius,
+      }
+    })
+
+    const wellGroup = root.append('g').attr('class', 'cstl-wells')
     const wells = wellGroup
       .selectAll<SVGGElement, (typeof themeWells)[number]>('g')
       .data(themeWells)
       .join('g')
       .attr('transform', (d) => `translate(${d.x}, ${d.y})`)
+      .attr('data-key', (d) => d.key)
       .style('cursor', 'pointer')
       .on('click', (event, d) => {
         event.stopPropagation()
@@ -269,8 +274,9 @@ export default function Constellation({ data }: Props) {
 
     wells
       .append('circle')
+      .attr('class', 'well-bg')
       .attr('r', (d) => 18 + Math.sqrt(d.count) * 2.2)
-      .attr('fill', (d) => (d.key === activeTheme ? '#2D5F4F' : '#F4E9DC'))
+      .attr('fill', '#F4E9DC')
       .attr('stroke', '#2D5F4F')
       .attr('stroke-width', 1.5)
       .attr('opacity', 0.92)
@@ -283,7 +289,7 @@ export default function Constellation({ data }: Props) {
       .attr('font-family', 'Georgia, serif')
       .attr('font-size', 12)
       .attr('font-weight', 700)
-      .attr('fill', (d) => (d.key === activeTheme ? '#FBF6EE' : '#2C2C2C'))
+      .attr('fill', '#2C2C2C')
       .attr('pointer-events', 'none')
 
     wells
@@ -296,12 +302,26 @@ export default function Constellation({ data }: Props) {
       .attr('fill', '#6B5D4F')
       .attr('pointer-events', 'none')
 
-    // Faces.
-    const faceGroup = root.append('g').attr('class', 'faces')
+    // Faces — initial positions on a wide ring (so the entrance is visible).
+    const simFaces: SimFace[] = data.faces.map((f, i) => ({
+      id: f.id,
+      face: f,
+      themeIndex: data.themes.length === 0 ? 0 : i % data.themes.length,
+      x:
+        Math.cos((i / Math.max(1, data.faces.length)) * Math.PI * 2) * 400 +
+        cx,
+      y:
+        Math.sin((i / Math.max(1, data.faces.length)) * Math.PI * 2) * 260 +
+        cy,
+    }))
+    simFacesRef.current = simFaces
+
+    const faceGroup = root.append('g').attr('class', 'cstl-faces')
     const facePoints = faceGroup
       .selectAll<SVGGElement, SimFace>('g')
       .data(simFaces, (d) => d.id)
       .join('g')
+      .attr('data-id', (d) => d.id)
       .style('cursor', 'grab')
       .on('click', (event, d) => {
         event.stopPropagation()
@@ -325,31 +345,7 @@ export default function Constellation({ data }: Props) {
       .attr('width', FACE_RADIUS * 2)
       .attr('height', FACE_RADIUS * 2)
       .attr('preserveAspectRatio', 'xMidYMid slice')
-      .attr('clip-path', `url(#${clipId})`)
-
-    facePoints.attr('opacity', (d) => {
-      if (mode === 'timeline' && d.face.year !== null) {
-        return d.face.year <= activeYear ? 1 : 0.18
-      }
-      if (mode === 'voices') return d.face.is_elder ? 1 : 0.5
-      return 1
-    })
-
-    // Theme/visions force bias.
-    function themeForce(alpha: number) {
-      simFaces.forEach((node) => {
-        let target: { x: number; y: number } | null = null
-        if (mode === 'visions') target = { x: stageSize.width - 80, y: cy }
-        else if (activeTheme) {
-          const w = themeWells.find((t) => t.key === activeTheme)
-          if (w) target = { x: w.x, y: w.y }
-        } else target = themeWells[node.themeIndex] ?? null
-        if (!target || node.x === undefined || node.y === undefined) return
-        const k = mode === 'visions' ? 0.06 : activeTheme ? 0.18 : 0.035
-        node.vx = (node.vx ?? 0) + (target.x - node.x) * k * alpha
-        node.vy = (node.vy ?? 0) + (target.y - node.y) * k * alpha
-      })
-    }
+      .attr('clip-path', 'url(#cstl-face-clip)')
 
     const sim = d3
       .forceSimulation<SimFace>(simFaces)
@@ -359,7 +355,6 @@ export default function Constellation({ data }: Props) {
       )
       .force('charge', d3.forceManyBody().strength(-22))
       .force('centre', d3.forceCenter(cx, cy).strength(0.03))
-      .force('theme', themeForce as unknown as d3.Force<SimFace, undefined>)
       .alpha(1)
       .alphaDecay(0.04)
       .on('tick', () => {
@@ -387,24 +382,21 @@ export default function Constellation({ data }: Props) {
       })
     facePoints.call(drag)
 
-    // Zoom + pan on the SVG.
+    // Zoom + pan.
     const zoom = d3
       .zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.4, 4])
       .filter((event) => {
-        // Allow wheel + touch + drag on non-interactive surfaces.
-        // Block drag-from-face so face-drag works.
         if (event.type === 'mousedown' || event.type === 'touchstart') {
           const target = event.target as Element
-          return !target.closest('.faces g, .wells g')
+          return !target.closest('.cstl-faces g, .cstl-wells g')
         }
         return true
       })
       .on('zoom', (event) => root.attr('transform', event.transform.toString()))
-
     zoomBehaviorRef.current = zoom
     svg.call(zoom)
-    // Click empty space to clear active state.
+
     svg.on('click', () => {
       setActiveFace(null)
       setActiveTheme(null)
@@ -413,20 +405,125 @@ export default function Constellation({ data }: Props) {
     return () => {
       sim.stop()
     }
-  }, [simFaces, themeWells, stageSize, mode, activeTheme, activeYear])
+    // Stable scene rebuild only depends on data + dimensions.
+  }, [data.faces, data.themes, stageSize.width, stageSize.height])
+
+  // Lightweight update: re-bias force + node opacity when mode / theme /
+  // year / service / project / elder changes. Touches existing DOM only.
+  useEffect(() => {
+    if (!svgRef.current) return
+    const sim = simulationRef.current
+    const simFaces = simFacesRef.current
+    if (!sim || simFaces.length === 0) return
+
+    const cx = stageSize.width / 2
+    const cy = stageSize.height / 2
+
+    // Snapshot theme well positions from current DOM.
+    const themeWellMap = new Map<string, { x: number; y: number }>()
+    const svg = d3.select(svgRef.current)
+    svg
+      .selectAll<SVGGElement, unknown>('.cstl-wells > g')
+      .each(function () {
+        const key = this.getAttribute('data-key') ?? ''
+        const t = this.getAttribute('transform') ?? ''
+        const m = /translate\(([-\d.]+),\s*([-\d.]+)\)/.exec(t)
+        if (m) themeWellMap.set(key, { x: parseFloat(m[1]), y: parseFloat(m[2]) })
+      })
+
+    // Reset force.
+    sim.force(
+      'theme',
+      ((alpha: number) => {
+        simFaces.forEach((node) => {
+          let target: { x: number; y: number } | null = null
+          if (mode === 'visions') target = { x: stageSize.width - 80, y: cy }
+          else if (activeTheme) target = themeWellMap.get(activeTheme) ?? null
+          else if (activeService) {
+            // Pull matching faces toward the centre top.
+            if (matchesService(node.face, activeService.slug)) {
+              target = { x: cx, y: cy - 120 }
+            }
+          } else if (activeElder) {
+            if ((node.face.name ?? '').includes(activeElder.name)) {
+              target = { x: cx, y: cy }
+            }
+          } else {
+            const wells = Array.from(themeWellMap.values())
+            target = wells[node.themeIndex % Math.max(1, wells.length)] ?? null
+          }
+          if (!target || node.x === undefined || node.y === undefined) return
+          const k =
+            mode === 'visions'
+              ? 0.06
+              : activeTheme
+                ? 0.18
+                : activeService || activeElder
+                  ? 0.14
+                  : 0.035
+          node.vx = (node.vx ?? 0) + (target.x - node.x) * k * alpha
+          node.vy = (node.vy ?? 0) + (target.y - node.y) * k * alpha
+        })
+      }) as unknown as d3.Force<SimFace, undefined>,
+    )
+
+    // Active well visual state.
+    svg
+      .selectAll<SVGGElement, unknown>('.cstl-wells > g')
+      .each(function () {
+        const key = this.getAttribute('data-key')
+        const bg = d3.select(this).select<SVGCircleElement>('circle.well-bg')
+        const lbl = d3.select(this).select<SVGTextElement>('text:first-of-type')
+        const isActive = key === activeTheme
+        bg.attr('fill', isActive ? '#2D5F4F' : '#F4E9DC')
+        lbl.attr('fill', isActive ? '#FBF6EE' : '#2C2C2C')
+      })
+
+    // Glow.
+    const glowSel = svg.select<SVGCircleElement>('.cstl-active-glow')
+    if (activeTheme) {
+      const pos = themeWellMap.get(activeTheme)
+      if (pos) glowSel.attr('cx', pos.x).attr('cy', pos.y).attr('opacity', 1)
+    } else {
+      glowSel.attr('opacity', 0)
+    }
+
+    // Face opacity.
+    svg
+      .selectAll<SVGGElement, SimFace>('.cstl-faces > g')
+      .attr('opacity', function () {
+        const id = this.getAttribute('data-id') ?? ''
+        const face = simFaces.find((s) => s.id === id)?.face
+        if (!face) return 1
+        if (mode === 'timeline' && face.year !== null)
+          return face.year <= activeYear ? 1 : 0.18
+        if (mode === 'voices') return face.is_elder ? 1 : 0.5
+        if (activeService) return matchesService(face, activeService.slug) ? 1 : 0.18
+        if (activeElder)
+          return (face.name ?? '').includes(activeElder.name) ? 1 : 0.18
+        return 1
+      })
+
+    sim.alpha(0.6).restart()
+  }, [
+    mode,
+    activeTheme,
+    activeYear,
+    activeService,
+    activeProject,
+    activeElder,
+    stageSize.width,
+    stageSize.height,
+  ])
 
   const revenue = formatRevenue(activeYearDetail?.revenue ?? null)
 
-  // Toggle fullscreen on the wrapper.
   async function toggleFullscreen() {
     try {
-      if (document.fullscreenElement) {
-        await document.exitFullscreen()
-      } else if (wrapperRef.current) {
-        await wrapperRef.current.requestFullscreen()
-      }
+      if (document.fullscreenElement) await document.exitFullscreen()
+      else if (wrapperRef.current) await wrapperRef.current.requestFullscreen()
     } catch {
-      // Browser denied — silent.
+      // ignore
     }
   }
 
@@ -438,15 +535,244 @@ export default function Constellation({ data }: Props) {
       .call(zoomBehaviorRef.current.transform, d3.zoomIdentity)
   }
 
+  function clearAllFocus() {
+    setActiveFace(null)
+    setActiveTheme(null)
+    setActiveService(null)
+    setActiveProject(null)
+    setActiveElder(null)
+    setActiveReport(null)
+  }
+
+  // Decide what the right rail shows.
+  const rightCard = (() => {
+    if (activeFace)
+      return (
+        <ContextCard label={`Voice${activeFace.is_elder ? ' · Elder' : ''}`}>
+          <div className="font-serif text-base mb-1">
+            {activeFace.name ?? activeFace.attribution ?? 'Storyteller'}
+          </div>
+          {activeFace.slot && (
+            <div className="text-xs text-stone-600">
+              Slot: <span className="font-medium">{activeFace.slot}</span>
+            </div>
+          )}
+          {activeFace.year && (
+            <div className="text-xs text-stone-600">Year: {activeFace.year}</div>
+          )}
+          <div className="text-[11px] text-stone-500 mt-2">
+            Consented in Empathy Ledger v2.
+          </div>
+          <ClearButton onClick={() => setActiveFace(null)} />
+        </ContextCard>
+      )
+    if (activeThemeWell)
+      return (
+        <ContextCard label={`Theme · ${activeThemeWell.count} voices`}>
+          <div className="font-serif text-base mb-2">{activeThemeWell.label}</div>
+          {activeThemeWell.top_quotes.length === 0 ? (
+            <div className="text-xs text-stone-500">
+              No quoted voices on file for this theme yet.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {activeThemeWell.top_quotes.map((q, i) => (
+                <div key={i} className="border-l-2 border-ochre/60 pl-3">
+                  <div className="font-serif text-xs leading-snug italic">“{q.text}”</div>
+                  <div className="text-[10px] text-stone-600 mt-1">
+                    — {q.attribution ?? 'Bwgcolman voice'}
+                    {q.suggested && (
+                      <span
+                        className="ml-2 inline-block px-1.5 py-0.5 rounded text-[8px] font-semibold uppercase tracking-wider"
+                        style={{ backgroundColor: '#E7EFE4', color: '#2D5F4F' }}
+                      >
+                        report-ready
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          <ClearButton onClick={() => setActiveTheme(null)} />
+        </ContextCard>
+      )
+    if (activeService)
+      return (
+        <ContextCard label="Service" right={activeService.start_year ? `since ${activeService.start_year}` : null}>
+          <div className="font-serif text-base mb-1">{activeService.name}</div>
+          {activeService.description && (
+            <div className="text-xs text-stone-700 leading-relaxed">
+              {activeService.description.length > 240
+                ? activeService.description.slice(0, 240) + '…'
+                : activeService.description}
+            </div>
+          )}
+          <ClearButton onClick={() => setActiveService(null)} />
+        </ContextCard>
+      )
+    if (activeProject)
+      return (
+        <ContextCard label={`Project · ${activeProject.status ?? 'live'}`} right={activeProject.start_year ? `from ${activeProject.start_year}` : null}>
+          <div className="font-serif text-base mb-1">{activeProject.name}</div>
+          {activeProject.description && (
+            <div className="text-xs text-stone-700 leading-relaxed">
+              {activeProject.description.length > 240
+                ? activeProject.description.slice(0, 240) + '…'
+                : activeProject.description}
+            </div>
+          )}
+          <ClearButton onClick={() => setActiveProject(null)} />
+        </ContextCard>
+      )
+    if (activeElder)
+      return (
+        <ContextCard label={`Elder · ${activeElder.quote_count} voices`}>
+          <div className="font-serif text-base mb-1">{activeElder.name}</div>
+          {activeElder.top_quote && (
+            <div className="border-l-2 border-ochre/60 pl-3 mt-2">
+              <div className="font-serif text-xs italic leading-snug">
+                “{activeElder.top_quote.length > 200
+                  ? activeElder.top_quote.slice(0, 200) + '…'
+                  : activeElder.top_quote}”
+              </div>
+              <div className="text-[10px] text-stone-600 mt-1">— {activeElder.name}</div>
+            </div>
+          )}
+          <ClearButton onClick={() => setActiveElder(null)} />
+        </ContextCard>
+      )
+    if (activeReport)
+      return (
+        <ContextCard label={`Annual Report · FY ${activeReport.fiscal_year}`}>
+          {activeReport.cover_photo_url && (
+            <img
+              src={activeReport.cover_photo_url}
+              alt=""
+              className="w-full rounded-md mb-2"
+            />
+          )}
+          <div className="font-serif text-base mb-1">
+            {activeReport.title ?? `Annual Report FY${activeReport.fiscal_year}`}
+          </div>
+          {activeReport.subtitle && (
+            <div className="text-xs text-stone-600">{activeReport.subtitle}</div>
+          )}
+          {activeReport.pdf_url && (
+            <a
+              href={activeReport.pdf_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 inline-block text-xs underline text-sage-700"
+            >
+              Open PDF
+            </a>
+          )}
+          <ClearButton onClick={() => setActiveReport(null)} />
+        </ContextCard>
+      )
+    if (mode === 'timeline' && activeYearDetail)
+      return (
+        <ContextCard
+          label={`FY ${activeYearDetail.fiscal_year}${activeYearDetail.audited ? ' · audited' : ''}`}
+          right={revenue}
+        >
+          {activeYearDetail.report_title && (
+            <div className="font-serif text-sm text-charcoal mb-2">
+              {activeYearDetail.report_title}
+              {activeYearDetail.report_subtitle && (
+                <span className="text-stone-500"> · {activeYearDetail.report_subtitle}</span>
+              )}
+            </div>
+          )}
+          {activeYearDetail.events.length > 0 && (
+            <div className="mb-2">
+              <div className="text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-1">
+                Timeline events
+              </div>
+              <ul className="space-y-1 text-xs text-stone-700">
+                {activeYearDetail.events.slice(0, 3).map((e, i) => (
+                  <li key={i} className="flex gap-2">
+                    <span className="text-ochre">·</span>
+                    <span>
+                      {e.title}
+                      {e.significance >= 8 && <span className="ml-1 text-stone-500">★</span>}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {activeYearDetail.achievements.length > 0 && (
+            <div>
+              <div className="text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-1">
+                Achievements
+              </div>
+              <ul className="space-y-1 text-xs text-stone-700">
+                {activeYearDetail.achievements.slice(0, 2).map((a, i) => (
+                  <li key={i} className="flex gap-2">
+                    <span className="text-sage-700">✓</span>
+                    <span className="line-clamp-2">{a}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </ContextCard>
+      )
+    if (mode === 'visions')
+      return (
+        <ContextCard label="Community visions · next 20">
+          <div className="space-y-3">
+            {data.visions.slice(0, 3).map((v, i) => (
+              <div
+                key={i}
+                className="border-l-2 pl-3"
+                style={{ borderColor: 'rgba(45, 95, 79, 0.6)' }}
+              >
+                <div className="font-serif text-xs italic leading-snug">
+                  “{v.text.length > 110 ? v.text.slice(0, 110) + '…' : v.text}”
+                </div>
+                <div className="text-[10px] text-stone-600 mt-1">
+                  — {v.author_name ?? 'Anonymous'}
+                  {v.category && (
+                    <span className="ml-2 text-stone-500">· {v.category}</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </ContextCard>
+      )
+    return (
+      <ContextCard label="Foundation · pre-2008 anchors">
+        <ul className="text-xs text-stone-700 space-y-1.5">
+          {data.foundation.slice(0, 5).map((f, i) => (
+            <li key={i} className="flex gap-2">
+              <span className="font-serif font-bold text-charcoal w-10 flex-shrink-0">
+                {f.year}
+              </span>
+              <span>
+                {f.title.length > 36 ? f.title.slice(0, 36) + '…' : f.title}
+                {f.significance >= 9 && <span className="ml-1 text-stone-500">★</span>}
+              </span>
+            </li>
+          ))}
+        </ul>
+        <div className="text-[10px] text-stone-500 italic mt-2">
+          Click any theme, scrub a year, or browse the rail to surface more.
+        </div>
+      </ContextCard>
+    )
+  })()
+
   return (
     <div
       ref={wrapperRef}
       className="bg-cream flex flex-col"
-      style={{
-        height: isFullscreen ? '100vh' : 'auto',
-      }}
+      style={{ height: isFullscreen ? '100vh' : 'auto' }}
     >
-      {/* Header strip — title + tagline + actions */}
+      {/* Header strip */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-stone-200 bg-white/70 backdrop-blur">
         <div className="flex items-baseline gap-3 min-w-0">
           <span className="text-[10px] uppercase tracking-[0.3em] text-ochre font-bold whitespace-nowrap">
@@ -461,6 +787,13 @@ export default function Constellation({ data }: Props) {
           </span>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
+          <button
+            type="button"
+            onClick={clearAllFocus}
+            className="text-xs px-2.5 py-1 rounded border border-stone-300 hover:bg-stone-50"
+          >
+            Clear focus
+          </button>
           <button
             type="button"
             onClick={resetView}
@@ -486,65 +819,229 @@ export default function Constellation({ data }: Props) {
           height: isFullscreen ? 'calc(100vh - 102px)' : `${STAGE_HEIGHT}px`,
         }}
       >
-        {/* LEFT RAIL — modes */}
-        <div className="w-[200px] border-r border-stone-200 bg-white/60 p-3 overflow-y-auto flex-shrink-0">
-          <div className="text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-2 px-1">
-            View
-          </div>
-          <div className="space-y-1">
-            {MODES.map((m) => {
-              const active = mode === m.key
-              return (
-                <button
-                  key={m.key}
-                  type="button"
-                  onClick={() => setMode(m.key)}
-                  className="block w-full text-left px-3 py-2 rounded-lg text-sm transition"
-                  style={
-                    active
-                      ? { backgroundColor: '#2D5F4F', color: '#FBF6EE' }
-                      : { color: '#2C2C2C' }
-                  }
-                >
-                  <div className="font-semibold">{m.label}</div>
-                  <div
-                    className="text-[11px] mt-0.5"
-                    style={{ color: active ? '#E7D7C4' : '#6B5D4F' }}
-                  >
-                    {m.hint}
-                  </div>
-                </button>
-              )
-            })}
+        {/* LEFT RAIL — tabbed browser */}
+        <div className="w-[220px] border-r border-stone-200 bg-white/60 flex-shrink-0 flex flex-col">
+          {/* Tab strip */}
+          <div className="flex flex-wrap gap-1 p-2 border-b border-stone-200">
+            {TABS.map((t) => (
+              <button
+                key={t.key}
+                type="button"
+                onClick={() => setTab(t.key)}
+                className="text-[11px] px-2 py-1 rounded font-semibold"
+                style={
+                  tab === t.key
+                    ? { backgroundColor: '#2D5F4F', color: '#FBF6EE' }
+                    : { color: '#2C2C2C', backgroundColor: 'transparent' }
+                }
+              >
+                {t.label}
+              </button>
+            ))}
           </div>
 
-          <div className="border-t border-stone-200 my-4" />
+          {/* Tab body */}
+          <div className="flex-1 overflow-y-auto p-3 text-sm">
+            {tab === 'view' && (
+              <>
+                <RailHeading>View modes</RailHeading>
+                <div className="space-y-1">
+                  {MODES.map((m) => (
+                    <button
+                      key={m.key}
+                      type="button"
+                      onClick={() => setMode(m.key)}
+                      className="block w-full text-left px-2.5 py-1.5 rounded-md transition"
+                      style={
+                        mode === m.key
+                          ? { backgroundColor: '#2D5F4F', color: '#FBF6EE' }
+                          : { color: '#2C2C2C' }
+                      }
+                    >
+                      <div className="font-semibold text-xs">{m.label}</div>
+                      <div
+                        className="text-[10px] mt-0.5"
+                        style={{ color: mode === m.key ? '#E7D7C4' : '#6B5D4F' }}
+                      >
+                        {m.hint}
+                      </div>
+                    </button>
+                  ))}
+                </div>
 
-          <div className="text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-2 px-1">
-            Voice rings
-          </div>
-          <div className="space-y-1 text-[11px] text-stone-700 px-1">
-            <LegendRow colour={ELDER_RING} label="Elder voice" />
-            <LegendRow colour={VOICE_RINGS.staff} label="Staff · service" />
-            <LegendRow colour={VOICE_RINGS.community} label="Community" />
-            <LegendRow colour={VOICE_RINGS.supporter} label="Supporter" />
-            <LegendRow colour={VOICE_RINGS.governance} label="Governance" />
-          </div>
+                <RailDivider />
+                <RailHeading>Voice rings</RailHeading>
+                <div className="space-y-1 text-[11px] text-stone-700">
+                  <LegendRow colour={ELDER_RING} label="Elder voice" />
+                  <LegendRow colour={VOICE_RINGS.staff} label="Staff · service" />
+                  <LegendRow colour={VOICE_RINGS.community} label="Community" />
+                  <LegendRow colour={VOICE_RINGS.supporter} label="Supporter" />
+                  <LegendRow colour={VOICE_RINGS.governance} label="Governance" />
+                </div>
 
-          <div className="border-t border-stone-200 my-4" />
+                <RailDivider />
+                <RailHeading>How to use</RailHeading>
+                <ul className="text-[11px] text-stone-700 space-y-1">
+                  <li>Drag any face to move it.</li>
+                  <li>Scroll / pinch to zoom.</li>
+                  <li>Click a theme to focus.</li>
+                  <li>Scrub a year to time-travel.</li>
+                </ul>
+              </>
+            )}
 
-          <div className="text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-2 px-1">
-            How to use
+            {tab === 'services' && (
+              <>
+                <RailHeading>{data.services.length} services</RailHeading>
+                <ul className="space-y-1">
+                  {data.services.map((s) => (
+                    <li key={s.id}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveService(s)
+                          setActiveProject(null)
+                          setActiveElder(null)
+                        }}
+                        className="block w-full text-left text-[11.5px] px-2 py-1.5 rounded hover:bg-stone-100"
+                        style={
+                          activeService?.id === s.id
+                            ? { backgroundColor: '#E7EFE4', color: '#2D5F4F', fontWeight: 600 }
+                            : {}
+                        }
+                      >
+                        {s.name}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+
+            {tab === 'projects' && (
+              <>
+                <RailHeading>{data.projects.length} projects</RailHeading>
+                <ul className="space-y-1">
+                  {data.projects.map((p) => (
+                    <li key={p.id}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveProject(p)
+                          setActiveService(null)
+                          setActiveElder(null)
+                        }}
+                        className="block w-full text-left text-[11.5px] px-2 py-1.5 rounded hover:bg-stone-100"
+                        style={
+                          activeProject?.id === p.id
+                            ? { backgroundColor: '#E7EFE4', color: '#2D5F4F', fontWeight: 600 }
+                            : {}
+                        }
+                      >
+                        {p.name}
+                        {p.status && p.status !== 'active' && (
+                          <span className="ml-2 text-[10px] text-stone-500">· {p.status}</span>
+                        )}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+
+            {tab === 'elders' && (
+              <>
+                <RailHeading>{data.named_elders.length} named elders</RailHeading>
+                <ul className="space-y-1">
+                  {data.named_elders.slice(0, 30).map((e) => (
+                    <li key={e.name}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveElder(e)
+                          setActiveService(null)
+                          setActiveProject(null)
+                        }}
+                        className="flex w-full justify-between gap-2 text-[11.5px] px-2 py-1.5 rounded hover:bg-stone-100"
+                        style={
+                          activeElder?.name === e.name
+                            ? { backgroundColor: '#FCEEDF', color: '#8B6F47', fontWeight: 600 }
+                            : {}
+                        }
+                      >
+                        <span className="truncate">{e.name}</span>
+                        <span className="text-stone-500">{e.quote_count}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+
+            {tab === 'reports' && (
+              <>
+                <RailHeading>{data.annual_reports.length} annual reports</RailHeading>
+                <ul className="space-y-2">
+                  {data.annual_reports.map((r) => (
+                    <li key={r.fiscal_year}>
+                      <button
+                        type="button"
+                        onClick={() => setActiveReport(r)}
+                        className="block w-full text-left rounded-md hover:bg-stone-100 p-1.5"
+                        style={
+                          activeReport?.fiscal_year === r.fiscal_year
+                            ? { backgroundColor: '#E7EFE4' }
+                            : {}
+                        }
+                      >
+                        <div className="font-semibold text-[11.5px]">FY {r.fiscal_year}</div>
+                        <div className="text-[10.5px] text-stone-600 truncate">
+                          {r.title ?? '—'}
+                        </div>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+
+            {tab === 'bwgcolman' && (
+              <>
+                <RailHeading>Bwgcolman</RailHeading>
+                <div className="text-xs text-stone-700 leading-relaxed">
+                  <p className="mb-2 font-serif italic">
+                    “{data.bwgcolman.name}” — {data.bwgcolman.meaning}.
+                  </p>
+                  <p className="mb-3">
+                    <strong>{data.bwgcolman.language_groups}</strong> language groups
+                    forcibly relocated to Palm Island from {data.bwgcolman.founded_year}.
+                    The composite name is the foundation of community identity here.
+                  </p>
+                </div>
+
+                <RailDivider />
+                <RailHeading>Foundational events</RailHeading>
+                <ul className="text-[11.5px] text-stone-700 space-y-1.5">
+                  {data.foundation.map((f, i) => (
+                    <li key={i} className="flex gap-2">
+                      <span className="font-serif font-bold w-10 flex-shrink-0">
+                        {f.year}
+                      </span>
+                      <span>
+                        {f.title}
+                        {f.significance >= 9 && (
+                          <span className="ml-1 text-stone-500">★</span>
+                        )}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
           </div>
-          <ul className="text-[11px] text-stone-700 space-y-1 px-1">
-            <li>Drag any face to move it.</li>
-            <li>Scroll / pinch to zoom.</li>
-            <li>Click a theme to focus.</li>
-            <li>Scrub a year to time-travel.</li>
-          </ul>
         </div>
 
-        {/* STAGE — the constellation */}
+        {/* STAGE */}
         <div
           ref={stageRef}
           className="relative flex-1 min-w-0"
@@ -562,194 +1059,25 @@ export default function Constellation({ data }: Props) {
           />
         </div>
 
-        {/* RIGHT RAIL — context */}
+        {/* RIGHT RAIL */}
         <div className="w-[280px] border-l border-stone-200 bg-white/60 p-3 overflow-y-auto flex-shrink-0">
-          {/* Permissions — always visible */}
           <div className="rounded-lg border border-stone-200 bg-white p-3 mb-3">
             <div className="text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-2">
               Permissions
             </div>
             <div className="text-xs text-charcoal space-y-1">
               <Stat label="faces consented" value={data.stats.faces_consented} />
-              <Stat
-                label="elder quotes validated"
-                value={data.stats.voices_validated_elder}
-              />
+              <Stat label="elder quotes validated" value={data.stats.voices_validated_elder} />
               <Stat label="voices extracted" value={data.stats.voices_extracted} />
               <Stat label="stories captured" value={data.stats.stories} />
-              <Stat
-                label="board members tracked"
-                value={data.stats.board_members}
-              />
+              <Stat label="board members tracked" value={data.stats.board_members} />
             </div>
             <div className="text-[10px] text-stone-500 mt-2">
               Elder approvals current as of {data.meta.elder_approvals_current_as_of}
             </div>
           </div>
 
-          {/* Now-showing block — swaps based on active state + mode */}
-          {activeFace ? (
-            <ContextCard label={`Voice${activeFace.is_elder ? ' · Elder' : ''}`}>
-              <div className="font-serif text-base mb-1">
-                {activeFace.name ?? activeFace.attribution ?? 'Storyteller'}
-              </div>
-              {activeFace.slot && (
-                <div className="text-xs text-stone-600">
-                  Slot: <span className="font-medium">{activeFace.slot}</span>
-                </div>
-              )}
-              {activeFace.year && (
-                <div className="text-xs text-stone-600">Year: {activeFace.year}</div>
-              )}
-              <div className="text-[11px] text-stone-500 mt-2">
-                Consented in Empathy Ledger v2 · displayed with attribution.
-              </div>
-              <button
-                type="button"
-                className="mt-2 text-xs text-sage-700 hover:underline"
-                onClick={() => setActiveFace(null)}
-              >
-                clear
-              </button>
-            </ContextCard>
-          ) : activeThemeWell ? (
-            <ContextCard
-              label={`Theme · ${activeThemeWell.count} voices`}
-            >
-              <div className="font-serif text-base mb-2">
-                {activeThemeWell.label}
-              </div>
-              {activeThemeWell.top_quotes.length === 0 ? (
-                <div className="text-xs text-stone-500">
-                  No quoted voices on file for this theme yet.
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {activeThemeWell.top_quotes.map((q, i) => (
-                    <div key={i} className="border-l-2 border-ochre/60 pl-3">
-                      <div className="font-serif text-xs leading-snug italic">
-                        “{q.text}”
-                      </div>
-                      <div className="text-[10px] text-stone-600 mt-1">
-                        — {q.attribution ?? 'Bwgcolman voice'}
-                        {q.suggested && (
-                          <span
-                            className="ml-2 inline-block px-1.5 py-0.5 rounded text-[8px] font-semibold uppercase tracking-wider"
-                            style={{ backgroundColor: '#E7EFE4', color: '#2D5F4F' }}
-                          >
-                            report-ready
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-              <button
-                type="button"
-                className="mt-3 text-xs text-sage-700 hover:underline"
-                onClick={() => setActiveTheme(null)}
-              >
-                clear theme
-              </button>
-            </ContextCard>
-          ) : mode === 'timeline' && activeYearDetail ? (
-            <ContextCard
-              label={`FY ${activeYearDetail.fiscal_year}${activeYearDetail.audited ? ' · audited' : ''}`}
-              right={revenue}
-            >
-              {activeYearDetail.report_title && (
-                <div className="font-serif text-sm text-charcoal mb-2">
-                  {activeYearDetail.report_title}
-                  {activeYearDetail.report_subtitle && (
-                    <span className="text-stone-500">
-                      {' '}
-                      · {activeYearDetail.report_subtitle}
-                    </span>
-                  )}
-                </div>
-              )}
-              {activeYearDetail.events.length > 0 && (
-                <div className="mb-2">
-                  <div className="text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-1">
-                    Timeline events
-                  </div>
-                  <ul className="space-y-1 text-xs text-stone-700">
-                    {activeYearDetail.events.slice(0, 3).map((e, i) => (
-                      <li key={i} className="flex gap-2">
-                        <span className="text-ochre">·</span>
-                        <span>
-                          {e.title}
-                          {e.significance >= 8 && (
-                            <span className="ml-1 text-stone-500">★</span>
-                          )}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {activeYearDetail.achievements.length > 0 && (
-                <div>
-                  <div className="text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-1">
-                    Achievements
-                  </div>
-                  <ul className="space-y-1 text-xs text-stone-700">
-                    {activeYearDetail.achievements.slice(0, 2).map((a, i) => (
-                      <li key={i} className="flex gap-2">
-                        <span className="text-sage-700">✓</span>
-                        <span className="line-clamp-2">{a}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </ContextCard>
-          ) : mode === 'visions' ? (
-            <ContextCard label="Community visions · next 20">
-              <div className="space-y-3">
-                {data.visions.slice(0, 3).map((v, i) => (
-                  <div
-                    key={i}
-                    className="border-l-2 pl-3"
-                    style={{ borderColor: 'rgba(45, 95, 79, 0.6)' }}
-                  >
-                    <div className="font-serif text-xs italic leading-snug">
-                      “{v.text.length > 110 ? v.text.slice(0, 110) + '…' : v.text}”
-                    </div>
-                    <div className="text-[10px] text-stone-600 mt-1">
-                      — {v.author_name ?? 'Anonymous'}
-                      {v.category && (
-                        <span className="ml-2 text-stone-500">· {v.category}</span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </ContextCard>
-          ) : (
-            <ContextCard label="Foundation · pre-2008 anchors">
-              <ul className="text-xs text-stone-700 space-y-1.5">
-                {data.foundation.slice(0, 5).map((f, i) => (
-                  <li key={i} className="flex gap-2">
-                    <span className="font-serif font-bold text-charcoal w-10 flex-shrink-0">
-                      {f.year}
-                    </span>
-                    <span>
-                      {f.title.length > 36 ? f.title.slice(0, 36) + '…' : f.title}
-                      {f.significance >= 9 && (
-                        <span className="ml-1 text-stone-500">★</span>
-                      )}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              <div className="text-[10px] text-stone-500 italic mt-2">
-                Click any theme well, scrub a year, or switch to Visions to surface
-                more.
-              </div>
-            </ContextCard>
-          )}
+          {rightCard}
         </div>
       </div>
 
@@ -822,6 +1150,18 @@ function LegendRow({ colour, label }: { colour: string; label: string }) {
   )
 }
 
+function RailHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-2 px-0.5">
+      {children}
+    </div>
+  )
+}
+
+function RailDivider() {
+  return <div className="border-t border-stone-200 my-3" />
+}
+
 function ContextCard({
   label,
   right,
@@ -833,7 +1173,7 @@ function ContextCard({
 }) {
   return (
     <div className="rounded-lg border border-stone-200 bg-white p-3 mb-3">
-      <div className="flex items-baseline justify-between mb-2">
+      <div className="flex items-baseline justify-between mb-2 gap-2">
         <div className="text-[10px] uppercase tracking-wide text-ochre font-semibold">
           {label}
         </div>
@@ -845,5 +1185,17 @@ function ContextCard({
       </div>
       {children}
     </div>
+  )
+}
+
+function ClearButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      className="mt-2 text-xs text-sage-700 hover:underline"
+      onClick={onClick}
+    >
+      clear
+    </button>
   )
 }
