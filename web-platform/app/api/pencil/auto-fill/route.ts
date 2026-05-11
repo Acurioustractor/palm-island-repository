@@ -22,7 +22,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { join, dirname } from 'node:path'
-import { IMAGE_TARGETS } from '@/lib/almanac/pencil-image-targets'
+import { IMAGE_TARGETS, type ImageTarget } from '@/lib/almanac/pencil-image-targets'
 import { PENCIL_FRAME_BY_ID } from '@/lib/almanac/pencil-frame-map'
 
 export const dynamic = 'force-dynamic'
@@ -41,6 +41,10 @@ interface ManifestPhoto {
   height: number | null
   bytes: number
   print_score: 'fullbleed' | 'halfpage' | 'quarterpage' | 'thumbnail' | 'too-small' | 'unknown'
+  storyteller_slug?: string
+  storyteller_name?: string
+  service_slug?: string
+  service_name?: string
 }
 
 const SCORE_RANK: Record<string, number> = {
@@ -53,6 +57,38 @@ const SCORE_RANK: Record<string, number> = {
 }
 
 const isImage = (p: ManifestPhoto) => /\.(jpe?g|png|webp|gif)$/i.test(p.file)
+
+function bestPhotoForStoryteller(
+  photos: ManifestPhoto[],
+  slug: string,
+  used: Set<string>,
+): ManifestPhoto | null {
+  const candidates = photos
+    .filter((p) => p.storyteller_slug === slug && !used.has(p.pencilPath) && isImage(p))
+    .sort((a, b) => {
+      const sa = SCORE_RANK[a.print_score] ?? 0
+      const sb = SCORE_RANK[b.print_score] ?? 0
+      if (sa !== sb) return sb - sa
+      return ((b.width ?? 0) * (b.height ?? 0)) - ((a.width ?? 0) * (a.height ?? 0))
+    })
+  return candidates[0] ?? null
+}
+
+function bestPhotoForService(
+  photos: ManifestPhoto[],
+  slug: string,
+  used: Set<string>,
+): ManifestPhoto | null {
+  const candidates = photos
+    .filter((p) => p.service_slug === slug && !used.has(p.pencilPath) && isImage(p))
+    .sort((a, b) => {
+      const sa = SCORE_RANK[a.print_score] ?? 0
+      const sb = SCORE_RANK[b.print_score] ?? 0
+      if (sa !== sb) return sb - sa
+      return ((b.width ?? 0) * (b.height ?? 0)) - ((a.width ?? 0) * (a.height ?? 0))
+    })
+  return candidates[0] ?? null
+}
 
 function bestPhotoForSlot(photos: ManifestPhoto[], slot: string, used: Set<string>): ManifestPhoto | null {
   const candidates = photos
@@ -128,15 +164,44 @@ async function buildSuggestions(): Promise<Suggestion[]> {
     let photo: ManifestPhoto | null = null
     let reason = ''
 
-    if (target.defaultSlot) {
-      photo = bestPhotoForSlot(photos, target.defaultSlot, used)
-      if (photo) reason = `Best ${photo.print_score} photo from slot "${target.defaultSlot}"`
+    // 1) STORYTELLER MATCH — strongest signal. The named person's photo.
+    //    Entity-specific matches IGNORE the "used" pool — if Rachel has one
+    //    photo and appears in two targets, BOTH get her photo (it's HER).
+    const t = target as ImageTarget & { storytellerSlug?: string; serviceSlug?: string }
+    const emptySet = new Set<string>()
+    let entityMatch = false
+    if (t.storytellerSlug) {
+      photo = bestPhotoForStoryteller(photos, t.storytellerSlug, emptySet)
+      if (photo) {
+        reason = `✓ Storyteller match: ${photo.storyteller_name ?? t.storytellerSlug} (${photo.print_score})`
+        entityMatch = true
+      }
     }
+
+    // 2) SERVICE MATCH — for service hero spreads (also entity-specific)
+    if (!photo && t.serviceSlug) {
+      photo = bestPhotoForService(photos, t.serviceSlug, emptySet)
+      if (photo) {
+        reason = `✓ Service match: ${photo.service_name ?? t.serviceSlug} (${photo.print_score})`
+        entityMatch = true
+      }
+    }
+
+    // 3) SLOT MATCH — generic tagged photos. Consumes from "used" pool to
+    //    avoid repeating the same scenic shot.
+    if (!photo && target.defaultSlot) {
+      photo = bestPhotoForSlot(photos, target.defaultSlot, used)
+      if (photo) reason = `Slot match: "${target.defaultSlot}" (${photo.print_score})`
+    }
+
+    // 4) ROLE FALLBACK — last resort
     if (!photo) {
       photo = bestPhotoByRole(photos, target.role, used)
       if (photo) reason = `Fallback: best ${photo.print_score} photo for role "${target.role}" (slot: ${photo.slot})`
     }
-    if (photo) used.add(photo.pencilPath)
+
+    // Only mark generic photos as "used" — entity-specific matches can repeat
+    if (photo && !entityMatch) used.add(photo.pencilPath)
 
     out.push({
       nodeId: target.nodeId,
@@ -146,7 +211,9 @@ async function buildSuggestions(): Promise<Suggestion[]> {
       pencilPath: photo?.pencilPath ?? null,
       file: photo?.file ?? null,
       print_score: photo?.print_score ?? null,
-      reason: reason || 'No matching photo synced — skip',
+      reason: reason || (t.storytellerSlug
+        ? `No photo synced for storyteller "${t.storytellerSlug}" — upload to EL and re-sync`
+        : 'No matching photo synced — skip'),
     })
   }
 
