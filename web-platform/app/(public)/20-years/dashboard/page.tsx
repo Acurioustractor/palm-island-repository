@@ -45,6 +45,7 @@ import {
   ComposedChart,
 } from 'recharts'
 import Link from 'next/link'
+import { C } from '@/components/annual-report/2024-25/almanac/tokens'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -238,13 +239,18 @@ function SectionHeader({ title, subtitle, icon: Icon }: { title: string; subtitl
     >
       <div className="flex items-center gap-3 mb-2">
         {Icon && (
-          <div className="p-2 bg-gradient-to-br from-picc-red to-picc-ochre rounded-lg">
-            <Icon className="w-5 h-5 text-white" />
+          <div className="p-2 rounded-lg" style={{ backgroundColor: C.ochre + '22' }}>
+            <Icon className="w-5 h-5" style={{ color: C.ochre }} />
           </div>
         )}
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900">{title}</h2>
+        <h2
+          className="font-fraunces font-bold"
+          style={{ color: C.ocean, fontSize: 'clamp(22px, 3vw, 32px)', lineHeight: 1.15 }}
+        >
+          {title}
+        </h2>
       </div>
-      {subtitle && <p className="text-gray-500 ml-12">{subtitle}</p>}
+      {subtitle && <p className="font-fraunces ml-12" style={{ color: C.driftwood, fontSize: 16 }}>{subtitle}</p>}
     </motion.div>
   )
 }
@@ -255,10 +261,11 @@ function ChartCard({ title, children, className = '' }: { title: string; childre
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className={`bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden ${className}`}
+      className={`rounded-2xl shadow-sm overflow-hidden ${className}`}
+      style={{ backgroundColor: '#FFFFFF', border: `1px solid ${C.border}`, borderTopWidth: 3, borderTopColor: C.ochre }}
     >
       <div className="px-6 pt-6 pb-2">
-        <h3 className="text-lg font-bold text-gray-900">{title}</h3>
+        <h3 className="font-fraunces font-bold" style={{ color: C.ocean, fontSize: 17 }}>{title}</h3>
       </div>
       <div className="px-4 pb-6">{children}</div>
     </motion.div>
@@ -584,34 +591,46 @@ export default function DashboardPage() {
   // ─── Render ──────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ backgroundColor: C.shell }}>
       {/* HERO HEADER */}
-      <div className="bg-gradient-to-br from-picc-red via-picc-ochre to-picc-ochre text-white">
+      <div
+        className="text-white"
+        style={{ background: `linear-gradient(135deg, ${C.ocean}, ${C.midnight} 60%, ${C.earth})` }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
             <div>
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 bg-white/20 rounded-lg">
-                  <BarChart3 className="w-6 h-6" />
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(255,255,255,0.15)' }}>
+                  <BarChart3 className="w-5 h-5" />
                 </div>
-                <span className="text-sm font-medium text-warm-200 uppercase tracking-wider">
-                  Data Dashboard
+                <span
+                  className="font-bold uppercase"
+                  style={{ color: C.ochre, fontSize: 11, letterSpacing: '0.3em' }}
+                >
+                  Data dashboard
                 </span>
               </div>
-              <h1 className="text-3xl md:text-5xl font-bold mb-2" style={{ letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-                17 Years of Impact
+              <h1
+                className="font-fraunces font-bold mb-3"
+                style={{ fontSize: 'clamp(32px, 5.5vw, 56px)', lineHeight: 1.1, textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}
+              >
+                17 years of impact
               </h1>
-              <p className="text-warm-200 text-lg max-w-2xl">
-                Every number tells a story of community growth, self-determination,
-                and resilience on Palm Island.
+              <p
+                className="font-fraunces max-w-2xl"
+                style={{ color: 'rgba(255,255,255,0.85)', fontSize: 'clamp(16px, 2vw, 19px)', lineHeight: 1.55 }}
+              >
+                Every number tells a story of community growth, self-determination, and resilience on Palm Island.
               </p>
             </div>
             <Link
               href="/20-years"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-white/20 hover:bg-white/30 rounded-lg font-medium transition-colors text-sm flex-shrink-0"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-md font-bold uppercase text-xs hover:opacity-90 transition flex-shrink-0"
+              style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: '#FFFFFF', border: '1px solid rgba(255,255,255,0.3)', letterSpacing: '0.15em' }}
             >
-              View Story
-              <ChevronRight className="w-4 h-4" />
+              View story
+              <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
         </div>
@@ -950,27 +969,44 @@ export default function DashboardPage() {
       </div>
 
       {/* FOOTER CTA */}
-      <div className="bg-gradient-to-br from-gray-900 to-gray-800 text-white py-16">
+      <div
+        className="text-white py-20"
+        style={{ background: `linear-gradient(135deg, ${C.midnight}, ${C.earth})` }}
+      >
         <div className="max-w-3xl mx-auto px-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            From 18 Staff to 197
-          </h2>
-          <p className="text-gray-400 text-lg mb-8">
-            Every number represents a real person, a real service, a real impact
-            on the Palm Island community. This is what self-determination looks like in data.
+          <p
+            className="font-bold uppercase mb-4"
+            style={{ color: C.ochre, fontSize: 11, letterSpacing: '0.3em' }}
+          >
+            The full picture
           </p>
-          <div className="flex flex-wrap justify-center gap-4">
+          <h2
+            className="font-fraunces font-bold mb-4"
+            style={{ fontSize: 'clamp(28px, 4.5vw, 44px)', lineHeight: 1.1 }}
+          >
+            From 18 staff to 197
+          </h2>
+          <p
+            className="font-fraunces mb-10"
+            style={{ color: 'rgba(255,255,255,0.78)', fontSize: 'clamp(16px, 2vw, 19px)', lineHeight: 1.6 }}
+          >
+            Every number represents a real person, a real service, a real impact on the Palm Island
+            community. This is what self-determination looks like in data.
+          </p>
+          <div className="flex flex-wrap justify-center gap-3">
             <Link
               href="/20-years"
-              className="px-8 py-4 bg-gradient-to-r from-picc-red to-picc-ochre rounded-lg font-semibold hover:from-picc-red hover:to-picc-ochre transition-all shadow-lg"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-md font-bold uppercase text-xs hover:opacity-90 transition"
+              style={{ backgroundColor: '#FFFFFF', color: C.ocean, letterSpacing: '0.15em' }}
             >
-              Read Our Story
+              Read our story
             </Link>
             <Link
               href="/publications"
-              className="px-8 py-4 bg-white/10 border border-white/20 rounded-lg font-semibold hover:bg-white/20 transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-md font-bold uppercase text-xs hover:bg-white/15 transition"
+              style={{ backgroundColor: 'rgba(255,255,255,0.1)', color: '#FFFFFF', border: '1px solid rgba(255,255,255,0.4)', letterSpacing: '0.15em' }}
             >
-              View Annual Reports
+              View annual reports
             </Link>
           </div>
         </div>
