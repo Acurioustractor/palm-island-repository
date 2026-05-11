@@ -14,8 +14,10 @@ import {
   fiscalYearEnd,
   getPiccAnnualReports,
 } from '@/lib/empathy-ledger/el-annual-reports'
+import { getPiccPublicStories } from '@/lib/empathy-ledger/el-stories'
 import type {
   AnnualReportItem,
+  AtlasELStory,
   BwgcolmanNation,
   CommunityVision,
   ConstellationPayload,
@@ -136,6 +138,7 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     partnersRes,
     researchSourcesRes,
     serviceMetricsRes,
+    elStoriesRows,
   ] = await Promise.all([
     // Canonical PICC people: 44 named storytellers in EL v2, each with
     // photo_url + bio + service_slugs + project_slugs + quote_count.
@@ -314,6 +317,9 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
       .from('service_metrics')
       .select('fiscal_year, clients_served, sessions_delivered, events_held, staff_count, headline_stat_value, headline_stat_label, key_achievement, organization_service_id')
       .order('fiscal_year', { ascending: false }),
+    // EL v2 public stories — 76 stories with richer schema than the PICC
+    // mirror (themes array, image_url, elder approval flags).
+    getPiccPublicStories(80),
   ])
 
   // ── FACES ──────────────────────────────────────────────────────────────
@@ -862,6 +868,38 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
   }))
   void annualReportsFullRes // reserved for in-flight planning rows, not yet merged
 
+  // ── EL v2 STORIES (76 public; richer than PICC mirror) ────────────────
+  // themes is array of {name: string} objects — flatten to string[] for
+  // simpler client rendering + theme-link routing.
+  function flattenThemes(input: unknown): string[] {
+    if (!Array.isArray(input)) return []
+    return input
+      .map((t) => {
+        if (typeof t === 'string') return t
+        if (t && typeof t === 'object' && 'name' in t) {
+          return String((t as { name: unknown }).name ?? '')
+        }
+        return ''
+      })
+      .filter((s): s is string => s.length > 0)
+  }
+  const el_stories: AtlasELStory[] = (elStoriesRows ?? []).map((s) => ({
+    id: s.id,
+    title: s.title,
+    summary: s.summary ?? s.ai_generated_summary ?? null,
+    ai_summary: s.ai_generated_summary,
+    story_type: s.story_type,
+    category: s.story_category,
+    themes: flattenThemes(s.themes),
+    image_url: s.story_image_url ?? s.media_url ?? null,
+    is_featured: s.is_featured,
+    is_elder_approved: Boolean(s.elder_approved_at),
+    cultural_sensitivity: s.cultural_sensitivity_level,
+    created_year: s.created_at
+      ? new Date(s.created_at).getUTCFullYear()
+      : null,
+  }))
+
   // ── HISTORICAL ARTIFACTS (573 newspapers 1911-2014 + 11 other) ─────────
   const historical_artifacts: HistoricalArtifact[] = (
     historicalArtifactsRes.data ?? []
@@ -963,6 +1001,7 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     bwgcolman,
     quotes_by_speaker: quotesBySpeaker,
     top_stories,
+    el_stories,
     featured_knowledge,
     hull_river_voices,
     historical_artifacts,

@@ -1358,6 +1358,65 @@ export default function Constellation({
 
             {tab === 'stories' && (
               <>
+                {data.el_stories.length > 0 && (
+                  <>
+                    <RailHeading>
+                      EL archive · {data.el_stories.length} published stories
+                    </RailHeading>
+                    <ul className="space-y-2 mb-3">
+                      {data.el_stories.slice(0, 12).map((s) => (
+                        <li
+                          key={s.id}
+                          className="rounded-md border border-stone-200 bg-white p-2"
+                        >
+                          <div className="flex items-baseline justify-between gap-2">
+                            <div className="font-semibold text-[11.5px] truncate">
+                              {s.title}
+                            </div>
+                            <div className="flex items-center gap-1 flex-shrink-0">
+                              {s.is_featured && (
+                                <span
+                                  className="text-[8.5px] uppercase tracking-wider font-semibold px-1.5 py-0.5 rounded"
+                                  style={{ backgroundColor: '#F4E9DC', color: '#8B6F47' }}
+                                >
+                                  featured
+                                </span>
+                              )}
+                              {s.is_elder_approved && (
+                                <span
+                                  className="text-[8.5px] uppercase tracking-wider font-semibold px-1.5 py-0.5 rounded"
+                                  style={{ backgroundColor: '#FCEEDF', color: '#8B6F47' }}
+                                  title="Elder approved"
+                                >
+                                  ★
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          {s.summary && (
+                            <div className="text-[10.5px] text-stone-600 mt-0.5 line-clamp-2">
+                              {s.summary}
+                            </div>
+                          )}
+                          <div className="text-[9.5px] text-stone-500 mt-1 flex gap-1.5 flex-wrap">
+                            {s.category && <span>{s.category}</span>}
+                            {s.themes.slice(0, 3).map((t) => (
+                              <a
+                                key={t}
+                                href={`/living-atlas/themes/${t}`}
+                                className="hover:underline"
+                              >
+                                #{t}
+                              </a>
+                            ))}
+                            {s.created_year && <span>· {s.created_year}</span>}
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                    <RailDivider />
+                  </>
+                )}
                 <RailHeading>
                   {data.top_stories.length} stories · top by quality
                 </RailHeading>

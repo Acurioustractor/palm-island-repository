@@ -305,6 +305,22 @@ export interface StoryItem {
   created_year: number | null
 }
 
+/** EL v2 PICC story — richer schema (themes, image, elder approval). */
+export interface AtlasELStory {
+  id: string
+  title: string
+  summary: string | null
+  ai_summary: string | null
+  story_type: string | null
+  category: string | null
+  themes: string[]
+  image_url: string | null
+  is_featured: boolean
+  is_elder_approved: boolean
+  cultural_sensitivity: string | null
+  created_year: number | null
+}
+
 export interface KnowledgeEntry {
   id: string
   title: string
@@ -342,6 +358,8 @@ export interface ConstellationPayload {
   quotes_by_speaker: Record<string, SpeakerQuote[]>
   /** Top stories by quality_score — drives the Stories lens. */
   top_stories: StoryItem[]
+  /** EL v2 PICC stories (76 public; richer than PICC mirror). */
+  el_stories: AtlasELStory[]
   /** Featured knowledge entries — programs, events, statistics, history. */
   featured_knowledge: KnowledgeEntry[]
   /** Quotes / fragments referencing Hull River + the 1918 cyclone. */
