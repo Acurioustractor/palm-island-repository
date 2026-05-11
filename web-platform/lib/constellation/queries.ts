@@ -153,6 +153,9 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
       id: p.id,
       name: p.alt_text ?? p.caption ?? p.attribution ?? null,
       avatar_url: p.url,
+      // EL v2 returns a thumbnail when available — use it for the SVG nodes
+      // so 100+ small faces don't pull 100+ full-res photos on first paint.
+      thumb_url: p.thumbnail_url ?? p.url,
       attribution: p.attribution,
       year: yearFromTimestamp(p.taken_at),
       slot: p.slot,

@@ -16,7 +16,10 @@
 export interface FaceNode {
   id: string
   name: string | null
+  /** Full-resolution photo URL — used only when a face card is open. */
   avatar_url: string
+  /** Smaller URL when available; what the SVG renders. Falls back to avatar_url. */
+  thumb_url: string
   attribution: string | null
   year: number | null
   /** Slot tag from EL v2 (e.g. "hero", "elder", "service-childcare"). */
