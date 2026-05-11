@@ -89,6 +89,13 @@ const MODES: ReadonlyArray<{
   { key: 'visions', label: 'Visions', hint: 'Faces drift to 2045.' },
 ]
 
+/**
+ * Seven lenses (per Atlas plan) + Bwgcolman + View. View is the active-mode
+ * indicator since the mode toggle now lives on the top strip; the rest
+ * follow the seven-lens framing from the research report:
+ *   Now · Services · Projects · Elders · Stories · Reports · Futures.
+ * Bwgcolman holds the place-of-origin context.
+ */
 const TABS: ReadonlyArray<{ key: RailTab; label: string }> = [
   { key: 'view', label: 'View' },
   { key: 'services', label: 'Services' },
@@ -141,6 +148,11 @@ export default function Constellation({ data }: Props) {
   const [activeProject, setActiveProject] = useState<ProjectItem | null>(null)
   const [activeElder, setActiveElder] = useState<NamedElder | null>(null)
   const [activeReport, setActiveReport] = useState<AnnualReportItem | null>(null)
+  /** Full-screen report summary overlay — separate from the rail card so
+   *  clicking a year opens a proper read view, not just a 280-pixel panel. */
+  const [overlayReport, setOverlayReport] = useState<AnnualReportItem | null>(
+    null,
+  )
   const [tagIdx, setTagIdx] = useState(0)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [tab, setTab] = useState<RailTab>('view')
@@ -526,9 +538,18 @@ export default function Constellation({ data }: Props) {
   // Decide what the right rail shows — memoised so a year-scrub or
   // simulation tick doesn't re-render the card subtree.
   const rightCard = useMemo(() => {
-    if (activeFace)
+    if (activeFace) {
+      // Look up every quote attributed to this person by last-name token.
+      const lastName = (activeFace.name ?? '')
+        .trim()
+        .toLowerCase()
+        .split(/\s+/)
+        .pop() ?? ''
+      const quotes = data.quotes_by_speaker[lastName] ?? []
       return (
-        <ContextCard label={`Voice${activeFace.is_elder ? ' · Elder' : ''}`}>
+        <ContextCard
+          label={`Voice${activeFace.is_elder ? ' · Elder' : ''}${quotes.length ? ` · ${quotes.length} quotes` : ''}`}
+        >
           <div className="font-serif text-base mb-1">
             {activeFace.name ?? activeFace.attribution ?? 'Storyteller'}
           </div>
@@ -540,12 +561,6 @@ export default function Constellation({ data }: Props) {
               {activeFace.cultural_background}
             </div>
           )}
-          {activeFace.quote_count > 0 && (
-            <div className="text-xs text-stone-600 mt-1">
-              {activeFace.quote_count} validated quote
-              {activeFace.quote_count === 1 ? '' : 's'} on file
-            </div>
-          )}
           {activeFace.service_slugs.length > 0 && (
             <div className="text-[11px] text-stone-500 mt-2">
               Linked services:{' '}
@@ -554,7 +569,34 @@ export default function Constellation({ data }: Props) {
               </span>
             </div>
           )}
-          <div className="text-[11px] text-stone-500 mt-2">
+          {quotes.length > 0 && (
+            <div className="mt-3 space-y-2 max-h-[280px] overflow-y-auto pr-1">
+              {quotes.slice(0, 6).map((q, i) => (
+                <div key={i} className="border-l-2 border-ochre/60 pl-3">
+                  <div className="font-serif text-xs italic leading-snug">
+                    “{q.text.length > 220 ? q.text.slice(0, 220) + '…' : q.text}”
+                  </div>
+                  <div className="text-[10px] text-stone-500 mt-1 flex gap-1 items-center">
+                    {q.theme && <span>theme: {q.theme}</span>}
+                    {q.suggested && (
+                      <span
+                        className="ml-1 px-1.5 py-0.5 rounded text-[8.5px] font-semibold uppercase tracking-wider"
+                        style={{ backgroundColor: '#E7EFE4', color: '#2D5F4F' }}
+                      >
+                        report-ready
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+              {quotes.length > 6 && (
+                <div className="text-[10px] text-stone-500 italic">
+                  +{quotes.length - 6} more in the archive
+                </div>
+              )}
+            </div>
+          )}
+          <div className="text-[11px] text-stone-500 mt-3">
             {activeFace.kind === 'storyteller'
               ? 'Consented in Empathy Ledger v2.'
               : activeFace.kind === 'leadership'
@@ -564,6 +606,7 @@ export default function Constellation({ data }: Props) {
           <ClearButton onClick={() => setActiveFace(null)} />
         </ContextCard>
       )
+    }
     if (activeThemeWell)
       return (
         <ContextCard label={`Theme · ${activeThemeWell.count} voices`}>
@@ -864,6 +907,7 @@ export default function Constellation({ data }: Props) {
     data.foundation,
     data.visions,
     data.years,
+    data.quotes_by_speaker,
   ])
 
   return (
@@ -872,20 +916,44 @@ export default function Constellation({ data }: Props) {
       className="bg-cream flex flex-col"
       style={{ height: isFullscreen ? '100vh' : 'auto' }}
     >
-      {/* Header strip */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-stone-200 bg-white/70 backdrop-blur">
+      {/* Header strip — title · tagline · mode-segmented · actions */}
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-stone-200 bg-white/80 backdrop-blur gap-3 flex-wrap">
         <div className="flex items-baseline gap-3 min-w-0">
           <span className="text-[10px] uppercase tracking-[0.3em] text-ochre font-bold whitespace-nowrap">
             Bwgcolman Constellation
           </span>
           <span
             key={tagIdx}
-            className="font-serif text-charcoal text-sm italic truncate"
+            className="font-serif text-charcoal text-sm italic truncate hidden md:inline"
             style={{ animation: 'cstl-fade 0.6s ease' }}
           >
             {TAGLINES[tagIdx]}
           </span>
         </div>
+
+        {/* Top-strip mode toggle — promoted from rail */}
+        <div className="inline-flex rounded-md border border-stone-300 overflow-hidden shadow-sm">
+          {MODES.map((m) => {
+            const active = mode === m.key
+            return (
+              <button
+                key={m.key}
+                type="button"
+                onClick={() => setMode(m.key)}
+                title={m.hint}
+                className="text-[11px] px-3 py-1.5 font-semibold border-r border-stone-300 last:border-r-0 transition"
+                style={
+                  active
+                    ? { backgroundColor: '#2D5F4F', color: '#FBF6EE' }
+                    : { backgroundColor: '#FFFFFF', color: '#2C2C2C' }
+                }
+              >
+                {m.label}
+              </button>
+            )
+          })}
+        </div>
+
         <div className="flex items-center gap-2 flex-shrink-0">
           <button
             type="button"
@@ -944,32 +1012,19 @@ export default function Constellation({ data }: Props) {
           <div className="flex-1 overflow-y-auto p-3 text-sm">
             {tab === 'view' && (
               <>
-                <RailHeading>View modes</RailHeading>
-                <div className="space-y-1">
-                  {MODES.map((m) => (
-                    <button
-                      key={m.key}
-                      type="button"
-                      onClick={() => setMode(m.key)}
-                      className="block w-full text-left px-2.5 py-1.5 rounded-md transition"
-                      style={
-                        mode === m.key
-                          ? { backgroundColor: '#2D5F4F', color: '#FBF6EE' }
-                          : { color: '#2C2C2C' }
-                      }
-                    >
-                      <div className="font-semibold text-xs">{m.label}</div>
-                      <div
-                        className="text-[10px] mt-0.5"
-                        style={{ color: mode === m.key ? '#E7D7C4' : '#6B5D4F' }}
-                      >
-                        {m.hint}
-                      </div>
-                    </button>
-                  ))}
+                <RailHeading>Active mode</RailHeading>
+                <div className="rounded-md border border-stone-200 bg-white p-3 mb-3">
+                  <div className="font-serif text-sm text-charcoal">
+                    {MODES.find((m) => m.key === mode)?.label}
+                  </div>
+                  <div className="text-[11px] text-stone-600 mt-0.5">
+                    {MODES.find((m) => m.key === mode)?.hint}
+                  </div>
+                  <div className="text-[10px] text-stone-500 mt-2 italic">
+                    Switch modes from the top strip.
+                  </div>
                 </div>
 
-                <RailDivider />
                 <RailHeading>Voice rings</RailHeading>
                 <div className="space-y-1 text-[11px] text-stone-700">
                   <LegendRow colour={ELDER_RING} label="Elder voice" />
@@ -1118,6 +1173,7 @@ export default function Constellation({ data }: Props) {
                           setActiveElder(null)
                           setActiveYear(r.fiscal_year)
                           setMode('timeline')
+                          setOverlayReport(r)
                         }}
                         className="block w-full text-left rounded-md hover:bg-stone-100 p-1.5"
                         style={
@@ -1156,11 +1212,24 @@ export default function Constellation({ data }: Props) {
                   <p className="mb-2 font-serif italic">
                     “{data.bwgcolman.name}” — {data.bwgcolman.meaning}.
                   </p>
+                  <p className="mb-2">
+                    Traditional Owners:{' '}
+                    <strong>{data.bwgcolman.traditional_owners}</strong>.
+                  </p>
                   <p className="mb-3">
                     <strong>{data.bwgcolman.language_groups}</strong> language groups
-                    forcibly relocated to Palm Island from {data.bwgcolman.founded_year}.
-                    The composite name is the foundation of community identity here.
+                    brought together on Palm Island from{' '}
+                    {data.bwgcolman.founded_year} — the foundation of Bwgcolman
+                    community identity.
                   </p>
+                  <details className="mb-3">
+                    <summary className="text-[10.5px] uppercase tracking-wide text-stone-500 font-semibold cursor-pointer">
+                      Sourcing
+                    </summary>
+                    <p className="text-[11px] text-stone-600 mt-1 leading-snug">
+                      {data.bwgcolman.sourcing_note}
+                    </p>
+                  </details>
                 </div>
 
                 <RailDivider />
@@ -1281,6 +1350,23 @@ export default function Constellation({ data }: Props) {
         </div>
       </div>
 
+      {/* Full-screen annual report summary overlay */}
+      {overlayReport && (
+        <ReportOverlay
+          report={overlayReport}
+          yearDetail={
+            data.years.find(
+              (y) => y.fiscal_year === overlayReport.fiscal_year,
+            ) ?? null
+          }
+          // Voices captured that year — collected from quotes_by_speaker via
+          // years.events isn't quote-aware, so we just use top-quotes from
+          // the active year's theme well summary for now.
+          themesWithQuotes={data.themes}
+          onClose={() => setOverlayReport(null)}
+        />
+      )}
+
       <style jsx global>{`
         @keyframes cstl-fade {
           from {
@@ -1301,6 +1387,204 @@ export default function Constellation({ data }: Props) {
           background: #fbf6ee;
         }
       `}</style>
+    </div>
+  )
+}
+
+/** Full-screen annual-report summary overlay. Opens when a year is clicked
+ *  from the Reports rail. Surfaces cover, year-at-a-glance, top events,
+ *  achievements, and a PDF link. Dismissed with Esc or the X button. */
+function ReportOverlay({
+  report,
+  yearDetail,
+  themesWithQuotes,
+  onClose,
+}: {
+  report: AnnualReportItem
+  yearDetail: ConstellationPayload['years'][number] | null
+  themesWithQuotes: ThemeWell[]
+  onClose: () => void
+}) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  const revenue = yearDetail?.revenue
+    ? `$${(yearDetail.revenue / 1_000_000).toFixed(1)}M`
+    : null
+
+  return (
+    <div
+      className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-start justify-center p-6 overflow-y-auto"
+      onClick={onClose}
+    >
+      <div
+        className="bg-cream rounded-2xl shadow-2xl max-w-4xl w-full overflow-hidden my-8"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-start justify-between px-6 py-4 border-b border-stone-200">
+          <div>
+            <div className="text-[10px] uppercase tracking-[0.3em] text-ochre font-bold">
+              Annual Report · FY {report.fiscal_year}
+            </div>
+            <h2 className="font-serif text-2xl text-charcoal mt-1">
+              {report.title ?? `Palm Island Community Company FY${report.fiscal_year}`}
+            </h2>
+            {report.subtitle && (
+              <p className="text-sm text-stone-600 mt-1">{report.subtitle}</p>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="text-stone-500 hover:text-stone-800 text-2xl leading-none px-2"
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-6 p-6">
+          {/* Cover image column */}
+          <div>
+            {report.cover_photo_url ? (
+              <img
+                src={report.cover_photo_url}
+                alt=""
+                loading="lazy"
+                className="w-full rounded-lg shadow-md"
+              />
+            ) : (
+              <div className="aspect-[3/4] rounded-lg bg-stone-100 flex items-center justify-center text-stone-400 text-sm italic">
+                no cover image
+              </div>
+            )}
+            {report.pdf_url && (
+              <a
+                href={report.pdf_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 block text-center px-4 py-2 rounded-md font-semibold text-white text-sm"
+                style={{ backgroundColor: '#2D5F4F' }}
+              >
+                Open full PDF →
+              </a>
+            )}
+            {report.published_date && (
+              <div className="text-[11px] text-stone-500 mt-2 text-center">
+                Published {report.published_date.slice(0, 10)}
+              </div>
+            )}
+          </div>
+
+          {/* Year-at-a-glance + events + achievements */}
+          <div className="space-y-5">
+            <div>
+              <div className="text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-2">
+                Year at a glance
+              </div>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                {revenue && (
+                  <Glance label="Total income" value={revenue} />
+                )}
+                {yearDetail?.audited && (
+                  <Glance label="Status" value="Audited" />
+                )}
+                <Glance
+                  label="Timeline events"
+                  value={String(yearDetail?.events.length ?? 0)}
+                />
+                <Glance
+                  label="Achievements"
+                  value={String(yearDetail?.achievements.length ?? 0)}
+                />
+              </div>
+            </div>
+
+            {yearDetail && yearDetail.events.length > 0 && (
+              <div>
+                <div className="text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-2">
+                  Interesting things that year
+                </div>
+                <ul className="space-y-1.5 text-sm text-stone-800">
+                  {yearDetail.events.slice(0, 6).map((e, i) => (
+                    <li key={i} className="flex gap-2">
+                      <span className="text-ochre flex-shrink-0">·</span>
+                      <span>
+                        {e.title}
+                        {e.significance >= 8 && (
+                          <span className="ml-1 text-stone-500">★</span>
+                        )}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {yearDetail && yearDetail.achievements.length > 0 && (
+              <div>
+                <div className="text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-2">
+                  Achievements
+                </div>
+                <ul className="space-y-1.5 text-sm text-stone-800">
+                  {yearDetail.achievements.slice(0, 5).map((a, i) => (
+                    <li key={i} className="flex gap-2">
+                      <span className="text-sage-700 flex-shrink-0">✓</span>
+                      <span>{a}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {themesWithQuotes.length > 0 && (
+              <div>
+                <div className="text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-2">
+                  Themes named in this corpus
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {themesWithQuotes.slice(0, 8).map((t) => (
+                    <span
+                      key={t.key}
+                      className="inline-flex items-center gap-1 text-[11px] rounded-full px-2.5 py-0.5"
+                      style={{ backgroundColor: '#F4E9DC', color: '#2C2C2C' }}
+                    >
+                      {t.label}
+                      <span className="text-stone-500">·{t.count}</span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="px-6 py-3 border-t border-stone-200 text-[11px] text-stone-500 flex items-center justify-between">
+          <span>Esc to close · click anywhere outside to dismiss</span>
+          <span className="italic">
+            Quote decomposition arrives in Stage 2 of the Atlas roadmap.
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function Glance({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-md border border-stone-200 bg-white px-3 py-2">
+      <div className="font-serif text-lg leading-tight" style={{ color: '#2D5F4F' }}>
+        {value}
+      </div>
+      <div className="text-[10px] uppercase tracking-wide text-stone-500 mt-0.5">
+        {label}
+      </div>
     </div>
   )
 }

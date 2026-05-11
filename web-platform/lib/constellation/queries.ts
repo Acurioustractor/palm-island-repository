@@ -25,6 +25,7 @@ import type {
   NamedElder,
   ProjectItem,
   ServiceItem,
+  SpeakerQuote,
   ThemeWell,
   TimelineMarker,
   TopQuote,
@@ -492,6 +493,46 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     })
     .sort((a, b) => b.quote_count - a.quote_count)
 
+  // ── SPEAKER QUOTES INDEX ───────────────────────────────────────────────
+  // Build a single map keyed by lowercase last-name token, so any face on
+  // the canvas can surface all quotes attributed to them — extracted_quotes
+  // (attribution column) AND elder_quotes (speaker_name column) folded
+  // together. The viz looks up by face.name's last token.
+  function lastToken(s: string | null | undefined): string {
+    if (!s) return ''
+    const parts = s.trim().toLowerCase().split(/\s+/)
+    return parts[parts.length - 1] ?? ''
+  }
+  const quotesBySpeaker: Record<string, SpeakerQuote[]> = {}
+  function pushQuote(key: string, q: SpeakerQuote) {
+    if (!key) return
+    const list = quotesBySpeaker[key] ?? []
+    if (list.length < 12) list.push(q)
+    quotesBySpeaker[key] = list
+  }
+  for (const row of topQuotesRes.data ?? []) {
+    const text = (row.quote_text as string | null)?.trim()
+    const attribution = (row.attribution as string | null) ?? ''
+    if (!text || !attribution) continue
+    pushQuote(lastToken(attribution), {
+      text,
+      theme: (row.theme as string | null) ?? null,
+      suggested: Boolean(row.suggested_for_report),
+      source: 'extracted_quotes',
+    })
+  }
+  for (const row of elderQuotesRes.data ?? []) {
+    const text = (row.text as string | null)?.trim()
+    const speaker = (row.speaker_name as string | null) ?? ''
+    if (!text || !speaker) continue
+    pushQuote(lastToken(speaker), {
+      text,
+      theme: null,
+      suggested: false,
+      source: 'elder_quotes',
+    })
+  }
+
   // ── ANNUAL REPORTS (canonical EL v2 historical archive) ────────────────
   // EL v2 carries 18 reports back to 2007-08, 15 with PDFs. We treat
   // EL v2 as truth; PICC's own annual_reports table (annualReportsFullRes)
@@ -507,12 +548,23 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
   }))
   void annualReportsFullRes // reserved for in-flight planning rows, not yet merged
 
-  // ── BWGCOLMAN — the composite name and the 42 language groups ──────────
+  // ── BWGCOLMAN — composite name, Manbarra Traditional Owners, 42 language groups ──
+  // Number sources:
+  //   - PICC annual report wording (canonical for this platform): 42 language groups
+  //   - Palm Island Council / ABC News: 40+ tribal groups
+  //   - Indigenous.gov.au: 50+ tribal groups
+  //   - AIATSIS: 70+ Nations
+  // PICC's own number is used as the primary count; the sourcing_note keeps
+  // the alternate-source range visible so the screen never hides the fact
+  // that different sources count differently.
   const bwgcolman: BwgcolmanNation = {
     name: 'Bwgcolman',
-    meaning: 'Many tribes — 42 language groups brought together',
+    meaning: 'Many tribes, one people',
     language_groups: 42,
     founded_year: 1918,
+    traditional_owners: 'Manbarra',
+    sourcing_note:
+      "PICC honours the 42 language groups whose descendants call this island home (per the annual report). Other public sources count 40+ tribal groups, 50+ tribal groups, or 70+ Nations — counts vary depending on whether the source measures language, tribe, Nation, or place of removal.",
   }
 
   return {
@@ -527,6 +579,7 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     named_elders,
     annual_reports,
     bwgcolman,
+    quotes_by_speaker: quotesBySpeaker,
     stats: {
       faces_consented: faces.length,
       voices_validated_elder: elderCountRes.count ?? 0,

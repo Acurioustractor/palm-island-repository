@@ -164,11 +164,30 @@ export interface AnnualReportItem {
 }
 
 export interface BwgcolmanNation {
-  /** "Bwgcolman" — composite name meaning "many tribes". */
+  /** "Bwgcolman" — composite name meaning "many tribes, one people". */
   name: string
+  /** Primary public framing — short. */
   meaning: string
+  /** PICC's canonical annual-report number. */
   language_groups: number
+  /** Year forced relocations began (Hull River 1918). */
   founded_year: number
+  /** Traditional Owners of Great Palm Island. */
+  traditional_owners: string
+  /** Plain-English sourcing note for the language-groups number — surfaced
+   *  in the Bwgcolman lens so the screen never hides the fact that
+   *  different sources count differently. */
+  sourcing_note: string
+}
+
+export interface SpeakerQuote {
+  text: string
+  /** Theme key when known. */
+  theme: string | null
+  /** True when validator flagged for an annual report. */
+  suggested: boolean
+  /** Source table tag (debug). */
+  source: 'elder_quotes' | 'extracted_quotes'
 }
 
 export interface ConstellationPayload {
@@ -183,6 +202,9 @@ export interface ConstellationPayload {
   named_elders: NamedElder[]
   annual_reports: AnnualReportItem[]
   bwgcolman: BwgcolmanNation
+  /** Quotes keyed by lowercase speaker last-name token. Lets any face on
+   *  the canvas surface their quotes in the right rail without re-fetch. */
+  quotes_by_speaker: Record<string, SpeakerQuote[]>
   stats: ConstellationStats
   /** Always-visible cultural-protocol legibility snapshot. */
   meta: {
