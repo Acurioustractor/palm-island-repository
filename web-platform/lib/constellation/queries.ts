@@ -22,10 +22,13 @@ import type {
   FaceNode,
   FoundationEvent,
   ForwardCommitment,
+  HullRiverVoice,
+  KnowledgeEntry,
   NamedElder,
   ProjectItem,
   ServiceItem,
   SpeakerQuote,
+  StoryItem,
   ThemeWell,
   TimelineMarker,
   TopQuote,
@@ -115,6 +118,10 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     elderQuotesRes,
     annualReportsFullRes,
     elAnnualReports,
+    topStoriesRes,
+    featuredKnowledgeRes,
+    hullRiverEqRes,
+    hullRiverElqRes,
   ] = await Promise.all([
     // Canonical PICC people: 44 named storytellers in EL v2, each with
     // photo_url + bio + service_slugs + project_slugs + quote_count.
@@ -209,6 +216,36 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     // EL v2 holds the canonical historical archive — 18 reports back to
     // 2007-08, 15 with PDFs.
     getPiccAnnualReports(),
+    // Top stories for the Stories lens — published, public, by quality.
+    supabase
+      .from('stories')
+      .select('id, title, summary, category, story_type, quality_score, is_featured, created_at')
+      .eq('organization_id', PICC_ORG_ID)
+      .eq('status', 'published')
+      .eq('is_public', true)
+      .order('is_featured', { ascending: false })
+      .order('quality_score', { ascending: false, nullsFirst: false })
+      .limit(30),
+    // Featured knowledge entries — 474 total in DB, all currently with NULL
+    // organization_id (pre-migration orphans). We show is_public=true rows
+    // ranked by is_featured then importance.
+    supabase
+      .from('knowledge_entries')
+      .select('id, title, subtitle, summary, entry_type, category, date_from, fiscal_year, importance, is_featured')
+      .eq('is_public', true)
+      .order('is_featured', { ascending: false })
+      .order('importance', { ascending: false, nullsFirst: false })
+      .limit(40),
+    // Hull River voices — quotes naming the foundational journey.
+    supabase
+      .from('extracted_quotes')
+      .select('quote_text, attribution, theme')
+      .or('quote_text.ilike.%hull river%,quote_text.ilike.%cyclone%,quote_text.ilike.%mission beach%,quote_text.ilike.%leonte%'),
+    supabase
+      .from('elder_quotes')
+      .select('text, speaker_name, theme')
+      .eq('organization_id', PICC_ORG_ID)
+      .or('text.ilike.%hull river%,text.ilike.%cyclone%,text.ilike.%mission beach%,text.ilike.%leonte%'),
   ])
 
   // ── FACES ──────────────────────────────────────────────────────────────
@@ -533,6 +570,50 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     })
   }
 
+  // ── STORIES (top by quality, published + public) ───────────────────────
+  const top_stories: StoryItem[] = (topStoriesRes.data ?? []).map((s) => ({
+    id: s.id as string,
+    title: (s.title as string) ?? '',
+    summary: (s.summary as string | null) ?? null,
+    category: (s.category as string | null) ?? null,
+    story_type: (s.story_type as string | null) ?? null,
+    quality_score: (s.quality_score as number | null) ?? null,
+    is_featured: Boolean(s.is_featured),
+    created_year: s.created_at
+      ? new Date(s.created_at as string).getUTCFullYear()
+      : null,
+  }))
+
+  // ── KNOWLEDGE ENTRIES (featured) ───────────────────────────────────────
+  const featured_knowledge: KnowledgeEntry[] = (
+    featuredKnowledgeRes.data ?? []
+  ).map((k) => ({
+    id: k.id as string,
+    title: (k.title as string) ?? '',
+    subtitle: (k.subtitle as string | null) ?? null,
+    summary: (k.summary as string | null) ?? null,
+    entry_type: (k.entry_type as string) ?? 'fact',
+    category: (k.category as string | null) ?? null,
+    date_from: (k.date_from as string | null) ?? null,
+    fiscal_year: (k.fiscal_year as string | null) ?? null,
+    importance: (k.importance as number | null) ?? null,
+    is_featured: Boolean(k.is_featured),
+  }))
+
+  // ── HULL RIVER VOICES (merged) ─────────────────────────────────────────
+  const hull_river_voices: HullRiverVoice[] = [
+    ...(hullRiverEqRes.data ?? []).map((q) => ({
+      text: ((q.quote_text as string | null) ?? '').trim(),
+      speaker: (q.attribution as string | null) ?? null,
+      theme: (q.theme as string | null) ?? null,
+    })),
+    ...(hullRiverElqRes.data ?? []).map((q) => ({
+      text: ((q.text as string | null) ?? '').trim(),
+      speaker: (q.speaker_name as string | null) ?? null,
+      theme: (q.theme as string | null) ?? null,
+    })),
+  ].filter((v) => v.text.length > 0)
+
   // ── ANNUAL REPORTS (canonical EL v2 historical archive) ────────────────
   // EL v2 carries 18 reports back to 2007-08, 15 with PDFs. We treat
   // EL v2 as truth; PICC's own annual_reports table (annualReportsFullRes)
@@ -580,6 +661,9 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     annual_reports,
     bwgcolman,
     quotes_by_speaker: quotesBySpeaker,
+    top_stories,
+    featured_knowledge,
+    hull_river_voices,
     stats: {
       faces_consented: faces.length,
       voices_validated_elder: elderCountRes.count ?? 0,

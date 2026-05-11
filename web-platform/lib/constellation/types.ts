@@ -190,6 +190,37 @@ export interface SpeakerQuote {
   source: 'elder_quotes' | 'extracted_quotes'
 }
 
+export interface StoryItem {
+  id: string
+  title: string
+  summary: string | null
+  category: string | null
+  story_type: string | null
+  quality_score: number | null
+  is_featured: boolean
+  created_year: number | null
+}
+
+export interface KnowledgeEntry {
+  id: string
+  title: string
+  subtitle: string | null
+  summary: string | null
+  entry_type: string
+  category: string | null
+  date_from: string | null
+  fiscal_year: string | null
+  importance: number | null
+  is_featured: boolean
+}
+
+export interface HullRiverVoice {
+  /** Quote text mentioning Hull River, cyclone, transfer, etc. */
+  text: string
+  speaker: string | null
+  theme: string | null
+}
+
 export interface ConstellationPayload {
   faces: FaceNode[]
   themes: ThemeWell[]
@@ -205,6 +236,12 @@ export interface ConstellationPayload {
   /** Quotes keyed by lowercase speaker last-name token. Lets any face on
    *  the canvas surface their quotes in the right rail without re-fetch. */
   quotes_by_speaker: Record<string, SpeakerQuote[]>
+  /** Top stories by quality_score — drives the Stories lens. */
+  top_stories: StoryItem[]
+  /** Featured knowledge entries — programs, events, statistics, history. */
+  featured_knowledge: KnowledgeEntry[]
+  /** Quotes / fragments referencing Hull River + the 1918 cyclone. */
+  hull_river_voices: HullRiverVoice[]
   stats: ConstellationStats
   /** Always-visible cultural-protocol legibility snapshot. */
   meta: {

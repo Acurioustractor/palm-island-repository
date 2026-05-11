@@ -54,7 +54,7 @@ export default async function LivingAtlasPage() {
 
         {hasData ? (
           <div className="rounded-xl border border-stone-200 bg-white shadow-md overflow-hidden">
-            <Constellation data={data} />
+            <Constellation data={data} variant="atlas" />
           </div>
         ) : (
           <div className="rounded-xl border border-amber-200 bg-amber-50 p-8 text-amber-900">

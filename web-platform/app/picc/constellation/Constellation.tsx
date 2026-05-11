@@ -39,6 +39,9 @@ import type {
 
 interface Props {
   data: ConstellationPayload
+  /** workshop = frozen surface for the 13 May demo. atlas = adds the new
+   *  Stories and Futures lenses on top. Default = workshop. */
+  variant?: 'workshop' | 'atlas'
 }
 
 interface SimFace extends d3.SimulationNodeDatum {
@@ -53,7 +56,9 @@ type RailTab =
   | 'services'
   | 'projects'
   | 'elders'
+  | 'stories'
   | 'reports'
+  | 'futures'
   | 'bwgcolman'
 
 const FACE_RADIUS = 22
@@ -90,18 +95,32 @@ const MODES: ReadonlyArray<{
 ]
 
 /**
- * Seven lenses (per Atlas plan) + Bwgcolman + View. View is the active-mode
- * indicator since the mode toggle now lives on the top strip; the rest
- * follow the seven-lens framing from the research report:
- *   Now · Services · Projects · Elders · Stories · Reports · Futures.
- * Bwgcolman holds the place-of-origin context.
+ * Workshop variant — the rail strip Rachel & Narelle see on 13 May.
+ * Frozen per the locked plan.
  */
-const TABS: ReadonlyArray<{ key: RailTab; label: string }> = [
+const WORKSHOP_TABS: ReadonlyArray<{ key: RailTab; label: string }> = [
   { key: 'view', label: 'View' },
   { key: 'services', label: 'Services' },
   { key: 'projects', label: 'Projects' },
   { key: 'elders', label: 'Elders' },
   { key: 'reports', label: 'Reports' },
+  { key: 'bwgcolman', label: 'Bwgcolman' },
+]
+
+/**
+ * Atlas variant — adds the missing seven-lens entries on top of the
+ * workshop strip. Per the Atlas roadmap, eventually replaces the workshop
+ * strip wholesale; for now both surfaces exist so /picc/constellation can
+ * stay frozen.
+ */
+const ATLAS_TABS: ReadonlyArray<{ key: RailTab; label: string }> = [
+  { key: 'view', label: 'View' },
+  { key: 'services', label: 'Services' },
+  { key: 'projects', label: 'Projects' },
+  { key: 'elders', label: 'Elders' },
+  { key: 'stories', label: 'Stories' },
+  { key: 'reports', label: 'Reports' },
+  { key: 'futures', label: 'Futures' },
   { key: 'bwgcolman', label: 'Bwgcolman' },
 ]
 
@@ -132,7 +151,11 @@ function buildIdSet(ids: string[] | undefined): Set<string> {
   return new Set(ids ?? [])
 }
 
-export default function Constellation({ data }: Props) {
+export default function Constellation({
+  data,
+  variant = 'workshop',
+}: Props) {
+  const TABS = variant === 'atlas' ? ATLAS_TABS : WORKSHOP_TABS
   const wrapperRef = useRef<HTMLDivElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
   const svgRef = useRef<SVGSVGElement>(null)
@@ -1205,6 +1228,128 @@ export default function Constellation({ data }: Props) {
               </>
             )}
 
+            {tab === 'stories' && (
+              <>
+                <RailHeading>
+                  {data.top_stories.length} stories · top by quality
+                </RailHeading>
+                {data.top_stories.length === 0 ? (
+                  <div className="text-[11px] text-stone-500 italic">
+                    No published stories on file yet — once stories pass review they surface here.
+                  </div>
+                ) : (
+                  <ul className="space-y-2">
+                    {data.top_stories.slice(0, 20).map((s) => (
+                      <li key={s.id} className="rounded-md border border-stone-200 bg-white p-2">
+                        <div className="flex items-baseline justify-between gap-2">
+                          <div className="font-semibold text-[11.5px] truncate">
+                            {s.title}
+                          </div>
+                          {s.is_featured && (
+                            <span
+                              className="text-[8.5px] uppercase tracking-wider font-semibold px-1.5 py-0.5 rounded flex-shrink-0"
+                              style={{ backgroundColor: '#F4E9DC', color: '#8B6F47' }}
+                            >
+                              featured
+                            </span>
+                          )}
+                        </div>
+                        {s.summary && (
+                          <div className="text-[10.5px] text-stone-600 mt-0.5 line-clamp-2">
+                            {s.summary}
+                          </div>
+                        )}
+                        <div className="text-[9.5px] text-stone-500 mt-1 flex gap-1.5">
+                          {s.category && <span>{s.category}</span>}
+                          {s.created_year && <span>· {s.created_year}</span>}
+                          {s.quality_score != null && (
+                            <span>· q{s.quality_score}</span>
+                          )}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                <RailDivider />
+                <RailHeading>
+                  {data.featured_knowledge.length} featured knowledge entries
+                </RailHeading>
+                <ul className="space-y-1 text-[11px]">
+                  {data.featured_knowledge.slice(0, 12).map((k) => (
+                    <li
+                      key={k.id}
+                      className="flex gap-2 text-stone-700"
+                    >
+                      <span
+                        className="font-semibold flex-shrink-0 uppercase text-[9px] tracking-wide"
+                        style={{ color: '#8B6F47' }}
+                      >
+                        {k.entry_type}
+                      </span>
+                      <span className="truncate">{k.title}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="text-[10px] text-stone-500 italic mt-2">
+                  Pulled from 474 PICC knowledge entries. Stage 2 of the Atlas
+                  roadmap surfaces full content + cross-year cuts.
+                </div>
+              </>
+            )}
+
+            {tab === 'futures' && (
+              <>
+                <RailHeading>The next 20 years</RailHeading>
+                <div className="text-xs text-stone-700 mb-3">
+                  <p className="mb-2">
+                    <strong>{2027 - new Date().getFullYear()}</strong> years until
+                    the PICC 20-year anniversary (2027). The Atlas IS the
+                    celebration.
+                  </p>
+                </div>
+
+                <RailDivider />
+                <RailHeading>Community visions ({data.visions.length})</RailHeading>
+                <ul className="space-y-2">
+                  {data.visions.map((v, i) => (
+                    <li key={i} className="border-l-2 border-ochre/60 pl-2.5">
+                      <div className="font-serif text-[11.5px] italic leading-snug">
+                        “{v.text.length > 120 ? v.text.slice(0, 120) + '…' : v.text}”
+                      </div>
+                      <div className="text-[10px] text-stone-500 mt-1">
+                        — {v.author_name ?? 'Anonymous'}
+                        {v.category && (
+                          <span className="ml-1 text-stone-400">· {v.category}</span>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+
+                <RailDivider />
+                <RailHeading>Forward commitments</RailHeading>
+                <ul className="space-y-2 text-[11.5px] text-stone-700">
+                  {data.commitments.map((c, i) => (
+                    <li key={i} className="flex gap-2">
+                      <span
+                        className="font-serif font-bold w-12 flex-shrink-0"
+                        style={{ color: '#2D5F4F' }}
+                      >
+                        {c.target_year}
+                      </span>
+                      <span>
+                        <span className="font-semibold">{c.title}</span>
+                        <span className="block text-[10.5px] text-stone-600 mt-0.5">
+                          {c.body}
+                        </span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+
             {tab === 'bwgcolman' && (
               <>
                 <RailHeading>Bwgcolman</RailHeading>
@@ -1249,6 +1394,36 @@ export default function Constellation({ data }: Props) {
                     </li>
                   ))}
                 </ul>
+
+                {data.hull_river_voices.length > 0 && (
+                  <>
+                    <RailDivider />
+                    <RailHeading>
+                      Hull River voices ({data.hull_river_voices.length})
+                    </RailHeading>
+                    <div className="text-[10px] text-stone-500 italic mb-2">
+                      Quotes naming Hull River, the 1918 cyclone (Leonte),
+                      Mission Beach, or the transfer.
+                    </div>
+                    <ul className="space-y-2">
+                      {data.hull_river_voices.slice(0, 5).map((v, i) => (
+                        <li
+                          key={i}
+                          className="border-l-2 border-ochre/60 pl-2.5"
+                        >
+                          <div className="font-serif text-[11px] italic leading-snug">
+                            “{v.text.length > 140 ? v.text.slice(0, 140) + '…' : v.text}”
+                          </div>
+                          {v.speaker && (
+                            <div className="text-[9.5px] text-stone-600 mt-0.5">
+                              — {v.speaker}
+                            </div>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
               </>
             )}
           </div>
