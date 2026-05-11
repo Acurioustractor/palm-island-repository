@@ -12,6 +12,7 @@
  *   /living-atlas is the preview Rachel & Narelle see the direction of.
  */
 
+import Link from 'next/link'
 import Constellation from '../picc/constellation/Constellation'
 import { loadConstellation } from '@/lib/constellation/queries'
 import PalmIslandMap, { type PinService } from '../picc/twenty-years/PalmIslandMap'
@@ -108,6 +109,74 @@ export default async function LivingAtlasPage() {
             <PalmIslandMap services={mapServices} />
           </section>
         )}
+
+        {/* Place pages — deep-dives anchored in geography */}
+        <section className="mt-6">
+          <div className="mb-3">
+            <h2 className="font-serif text-xl text-charcoal">Places</h2>
+            <p className="text-[11px] text-stone-500">
+              Foundational locations in the Bwgcolman story — each opens its
+              own page with timeline, map, and Elder voices.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <Link
+              href="/living-atlas/places/hull-river"
+              className="rounded-xl border border-stone-200 bg-white p-4 hover:shadow-md transition group"
+              style={{ borderLeftWidth: 4, borderLeftColor: '#8B1A1A' }}
+            >
+              <div className="text-[10px] uppercase tracking-[0.2em] font-semibold mb-1"
+                style={{ color: '#8B1A1A' }}>
+                1914 — 1919
+              </div>
+              <div className="font-serif text-lg text-charcoal group-hover:underline">
+                Hull River
+              </div>
+              <p className="text-[11.5px] text-stone-600 mt-1 leading-snug">
+                The foundational journey — settlement at Tully Heads, the
+                1918 cyclone Leonte, the transfer to Great Palm Island.
+              </p>
+            </Link>
+
+            <div
+              className="rounded-xl border border-dashed border-stone-300 bg-white/50 p-4 opacity-70"
+              style={{ borderLeftWidth: 4, borderLeftColor: '#5B8A72' }}
+            >
+              <div
+                className="text-[10px] uppercase tracking-[0.2em] font-semibold mb-1"
+                style={{ color: '#5B8A72' }}
+              >
+                Coming · Stage 4
+              </div>
+              <div className="font-serif text-lg text-charcoal">
+                Bwgcolman Way
+              </div>
+              <p className="text-[11.5px] text-stone-600 mt-1 leading-snug">
+                Delegated authority — the journey from 2018 to 2024 and the
+                community-controlled child protection model that followed.
+              </p>
+            </div>
+
+            <div
+              className="rounded-xl border border-dashed border-stone-300 bg-white/50 p-4 opacity-70"
+              style={{ borderLeftWidth: 4, borderLeftColor: '#D97757' }}
+            >
+              <div
+                className="text-[10px] uppercase tracking-[0.2em] font-semibold mb-1"
+                style={{ color: '#D97757' }}
+              >
+                Coming · Stage 7
+              </div>
+              <div className="font-serif text-lg text-charcoal">
+                The next 20 years
+              </div>
+              <p className="text-[11.5px] text-stone-600 mt-1 leading-snug">
+                The anniversary page. 2007 → 2027 timeline, 20 voices for 20
+                years, community vision for 2045.
+              </p>
+            </div>
+          </div>
+        </section>
 
         <p className="mt-6 text-xs text-stone-500 italic max-w-3xl">
           Preview surface. The workshop demo lives at /picc/constellation —

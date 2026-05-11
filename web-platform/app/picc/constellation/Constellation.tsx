@@ -1185,46 +1185,96 @@ export default function Constellation({
                   {data.annual_reports.length} reports · click to time-travel
                 </RailHeading>
                 <ul className="space-y-2">
-                  {data.annual_reports.map((r) => (
-                    <li key={r.fiscal_year}>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setActiveReport(r)
-                          setActiveService(null)
-                          setActiveProject(null)
-                          setActiveElder(null)
-                          setActiveYear(r.fiscal_year)
-                          setMode('timeline')
-                          setOverlayReport(r)
-                        }}
-                        className="block w-full text-left rounded-md hover:bg-stone-100 p-1.5"
-                        style={
-                          activeReport?.fiscal_year === r.fiscal_year
-                            ? { backgroundColor: '#E7EFE4' }
-                            : {}
-                        }
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="font-semibold text-[11.5px]">
-                            FY {r.fiscal_year}
+                  {data.annual_reports.map((r) => {
+                    const yd = data.years.find(
+                      (y) => y.fiscal_year === r.fiscal_year,
+                    )
+                    return (
+                      <li key={r.fiscal_year}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveReport(r)
+                            setActiveService(null)
+                            setActiveProject(null)
+                            setActiveElder(null)
+                            setActiveYear(r.fiscal_year)
+                            setMode('timeline')
+                            setOverlayReport(r)
+                          }}
+                          className="block w-full text-left rounded-md hover:bg-stone-100 p-1.5"
+                          style={
+                            activeReport?.fiscal_year === r.fiscal_year
+                              ? { backgroundColor: '#E7EFE4' }
+                              : {}
+                          }
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="font-semibold text-[11.5px]">
+                              FY {r.fiscal_year}
+                            </div>
+                            <div className="flex items-center gap-1">
+                              {yd?.revenue && (
+                                <span
+                                  className="text-[9px] text-stone-500"
+                                  title="Total income"
+                                >
+                                  ${(yd.revenue / 1_000_000).toFixed(1)}M
+                                </span>
+                              )}
+                              {r.pdf_url && (
+                                <span
+                                  className="text-[9px] text-stone-500 uppercase tracking-wide"
+                                  title="PDF available"
+                                >
+                                  PDF
+                                </span>
+                              )}
+                            </div>
                           </div>
-                          {r.pdf_url && (
-                            <span
-                              className="text-[9px] text-stone-500 uppercase tracking-wide"
-                              title="PDF available"
-                            >
-                              PDF
-                            </span>
+                          <div className="text-[10.5px] text-stone-600 truncate">
+                            {r.title ?? '—'}
+                          </div>
+                          {yd && (yd.events.length > 0 || yd.achievements.length > 0) && (
+                            <div className="text-[9.5px] text-stone-500 mt-0.5">
+                              {yd.events.length}e · {yd.achievements.length}a
+                            </div>
                           )}
-                        </div>
-                        <div className="text-[10.5px] text-stone-600 truncate">
-                          {r.title ?? '—'}
-                        </div>
-                      </button>
-                    </li>
-                  ))}
+                        </button>
+                      </li>
+                    )
+                  })}
                 </ul>
+
+                {/* Cross-cut: revenue arc across years */}
+                <RailDivider />
+                <RailHeading>Revenue arc</RailHeading>
+                <div className="space-y-1">
+                  {(() => {
+                    const yearsWithRev = data.years
+                      .filter((y) => y.revenue != null)
+                      .sort((a, b) => a.fiscal_year - b.fiscal_year)
+                    if (yearsWithRev.length === 0) return null
+                    const max = Math.max(...yearsWithRev.map((y) => y.revenue!))
+                    return yearsWithRev.map((y) => {
+                      const pct = (y.revenue! / max) * 100
+                      return (
+                        <div key={y.fiscal_year} className="flex items-center gap-2 text-[10px]">
+                          <span className="text-stone-500 w-9">FY{String(y.fiscal_year).slice(-2)}</span>
+                          <div className="flex-1 bg-stone-100 rounded-sm h-2 overflow-hidden">
+                            <div
+                              className="h-full"
+                              style={{ width: `${pct}%`, backgroundColor: '#2D5F4F' }}
+                            />
+                          </div>
+                          <span className="text-stone-600 w-12 text-right">
+                            ${(y.revenue! / 1_000_000).toFixed(1)}M
+                          </span>
+                        </div>
+                      )
+                    })
+                  })()}
+                </div>
               </>
             )}
 
