@@ -39,6 +39,7 @@ import type { ReportSectionData, SectionContext } from '@/components/report';
 
 // WYSIWYG Editor components
 import { InlineReportEditor, EditableSection } from '@/components/report/editors';
+import { C } from '@/components/annual-report/2024-25/almanac/tokens';
 
 interface AnnualReport {
   id: string;
@@ -538,11 +539,14 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#fefdfb]">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: C.shell }}>
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-[#1e3a5f] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Loading Annual Report...</p>
-          <p className="text-sm text-gray-400 mt-2">Preparing something special</p>
+          <div
+            className="w-12 h-12 rounded-full animate-spin mx-auto mb-4"
+            style={{ border: `4px solid ${C.ocean}`, borderTopColor: 'transparent' }}
+          />
+          <p className="font-fraunces" style={{ color: C.driftwood, fontSize: 16 }}>Loading annual report…</p>
+          <p className="font-fraunces italic mt-2" style={{ color: C.muted, fontSize: 13 }}>Preparing something special</p>
         </div>
       </div>
     );
@@ -550,17 +554,23 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
 
   if (error && !report) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#fefdfb]">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: C.shell }}>
         <div className="text-center max-w-md">
-          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Failed to Load Report</h2>
-          <p className="text-gray-600 mb-6">{error}</p>
+          <AlertCircle className="w-12 h-12 mx-auto mb-4" style={{ color: C.turtleRed }} />
+          <h2
+            className="font-fraunces font-bold mb-2"
+            style={{ color: C.ocean, fontSize: 22 }}
+          >
+            Failed to load report
+          </h2>
+          <p className="font-fraunces mb-6" style={{ color: C.driftwood, fontSize: 15 }}>{error}</p>
           <button
             onClick={loadAllData}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-[#1e3a5f] text-white rounded-lg hover:bg-[#2d4a6f] transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-md font-bold uppercase text-xs hover:opacity-90 transition"
+            style={{ backgroundColor: C.ocean, color: '#FBF8EE', letterSpacing: '0.15em' }}
           >
-            <RefreshCw className="w-4 h-4" />
-            Try Again
+            <RefreshCw className="w-3.5 h-3.5" />
+            Try again
           </button>
         </div>
       </div>
@@ -569,16 +579,24 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
 
   if (!report) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#fefdfb]">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: C.shell }}>
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Report Not Found</h1>
-          <p className="text-gray-600 mb-8">The annual report for {year} is not available.</p>
+          <h1
+            className="font-fraunces font-bold mb-4"
+            style={{ color: C.ocean, fontSize: 28 }}
+          >
+            Report not found
+          </h1>
+          <p className="font-fraunces mb-8" style={{ color: C.driftwood, fontSize: 16 }}>
+            The annual report for {year} is not available.
+          </p>
           <Link
             href="/"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-[#1e3a5f] text-white rounded-lg hover:bg-[#2d4a6f] transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-md font-bold uppercase text-xs hover:opacity-90 transition"
+            style={{ backgroundColor: C.ocean, color: '#FBF8EE', letterSpacing: '0.15em' }}
           >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Home
+            <ArrowLeft className="w-3.5 h-3.5" />
+            Back to home
           </Link>
         </div>
       </div>
@@ -1206,21 +1224,41 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
         </div>
 
         <ScrollReveal animation="fadeUp" delay={300}>
-          <div className="mt-12 bg-white rounded-2xl p-8 border border-gray-100">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Financial Highlights</h3>
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="text-center p-4 bg-sage-50 rounded-xl">
-                <div className="text-3xl font-bold text-sage-600 mb-1">60%</div>
-                <div className="text-sm text-gray-600">Spent on local wages</div>
-              </div>
-              <div className="text-center p-4 bg-warm-50 rounded-xl">
-                <div className="text-3xl font-bold text-picc-red mb-1">90%</div>
-                <div className="text-sm text-gray-600">Local employment rate</div>
-              </div>
-              <div className="text-center p-4 bg-warm-100 rounded-xl">
-                <div className="text-3xl font-bold text-picc-ochre mb-1">30%</div>
-                <div className="text-sm text-gray-600">Staff growth this year</div>
-              </div>
+          <div
+            className="mt-12 rounded-2xl p-8"
+            style={{ backgroundColor: '#FFFFFF', border: `1px solid ${C.border}`, borderTopWidth: 3, borderTopColor: C.ochre }}
+          >
+            <p
+              className="font-bold uppercase mb-5"
+              style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.3em' }}
+            >
+              Financial highlights
+            </p>
+            <div className="grid md:grid-cols-3 gap-4">
+              {[
+                { value: '60%', label: 'Spent on local wages', accent: C.mangrove },
+                { value: '90%', label: 'Local employment rate', accent: C.ocean },
+                { value: '30%', label: 'Staff growth this year', accent: C.ochre },
+              ].map((stat) => (
+                <div
+                  key={stat.label}
+                  className="text-center p-5 rounded-xl"
+                  style={{ backgroundColor: C.shell, border: `1px solid ${C.border}`, borderTopWidth: 3, borderTopColor: stat.accent }}
+                >
+                  <div
+                    className="font-fraunces font-bold leading-none mb-2"
+                    style={{ color: C.ocean, fontSize: 36 }}
+                  >
+                    {stat.value}
+                  </div>
+                  <p
+                    className="font-bold uppercase"
+                    style={{ color: stat.accent, fontSize: 11, letterSpacing: '0.2em' }}
+                  >
+                    {stat.label}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
         </ScrollReveal>
@@ -1236,9 +1274,22 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 max-w-4xl mx-auto">
             {Object.entries(stats.stories_by_category).map(([category, count], index) => (
               <ScrollReveal key={category} animation="scale" delay={index * 100}>
-                <div className="text-center p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
-                  <div className="text-3xl font-bold text-[#1e3a5f] mb-2">{count as number}</div>
-                  <div className="text-sm text-gray-600 capitalize">{category}</div>
+                <div
+                  className="text-center p-5 rounded-xl shadow-sm hover:shadow-md transition-shadow"
+                  style={{ backgroundColor: '#FFFFFF', border: `1px solid ${C.border}`, borderTopWidth: 2, borderTopColor: C.ochre }}
+                >
+                  <div
+                    className="font-fraunces font-bold leading-none mb-2"
+                    style={{ color: C.ocean, fontSize: 32 }}
+                  >
+                    {count as number}
+                  </div>
+                  <p
+                    className="font-bold uppercase capitalize"
+                    style={{ color: C.turtleRed, fontSize: 10, letterSpacing: '0.2em' }}
+                  >
+                    {category}
+                  </p>
                 </div>
               </ScrollReveal>
             ))}
@@ -1283,8 +1334,22 @@ As we look to the future, we do so with confidence and optimism. Palm Island Com
         <Section background="dark" padding="xl">
           <div className="text-center max-w-3xl mx-auto">
             <ScrollReveal animation="fadeUp">
-              <h2 className="text-3xl font-bold text-white mb-6">Acknowledgments</h2>
-              <div className="text-gray-300 text-lg leading-relaxed mb-8 whitespace-pre-wrap">
+              <p
+                className="font-bold uppercase mb-4"
+                style={{ color: C.ochre, fontSize: 11, letterSpacing: '0.3em' }}
+              >
+                In gratitude
+              </p>
+              <h2
+                className="font-fraunces font-bold mb-8"
+                style={{ color: '#FFFFFF', fontSize: 'clamp(28px, 4vw, 40px)', lineHeight: 1.1 }}
+              >
+                Acknowledgments
+              </h2>
+              <div
+                className="font-fraunces leading-relaxed mb-8 whitespace-pre-wrap"
+                style={{ color: 'rgba(255,255,255,0.85)', fontSize: 18 }}
+              >
                 {reportSections.find(s => s.section_type === 'acknowledgments')?.section_content || report.acknowledgments}
               </div>
               {report.metadata?.funder_name && (
