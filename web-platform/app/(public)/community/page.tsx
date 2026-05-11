@@ -5,6 +5,7 @@ import { FALLBACKS } from '@/lib/stats/current-stats';
 import { getHeroImage, getHeroVideo, getPageMedia } from '@/lib/media/utils';
 import VideoHero from '@/components/video/VideoHero';
 import { assetUrl } from '@/lib/media/asset-url';
+import { C } from '@/components/annual-report/2024-25/almanac/tokens';
 
 export const dynamic = 'force-dynamic'
 export default async function CommunityPage() {
@@ -67,33 +68,47 @@ export default async function CommunityPage() {
           aria-label="Palm Island Community"
         >
           <div className="text-center text-white max-w-5xl mx-auto">
-            <span className="text-xs font-semibold uppercase tracking-[0.15em] text-white/70">
+            <p
+              className="font-bold uppercase mb-4"
+              style={{ color: '#F5E9D0', fontSize: 11, letterSpacing: '0.3em', textShadow: '0 1px 2px rgba(0,0,0,0.4)' }}
+            >
               Community
-            </span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-[-0.02em] leading-[1.1] mt-4 mb-6">
-              This Is YOUR Community
-            </h1>
-            <p className="text-xl md:text-2xl mb-4 text-white/80">
-              YOUR Stories, YOUR Voice, YOUR Future
             </p>
-            <p className="text-lg max-w-3xl mx-auto text-white/70 mb-12 leading-relaxed">
-              Every Palm Islander has a story worth sharing. Read stories from your neighbors,
+            <h1
+              className="font-fraunces font-bold mb-6"
+              style={{ fontSize: 'clamp(40px, 6.5vw, 76px)', lineHeight: 1.05, textShadow: '0 2px 14px rgba(0,0,0,0.5)' }}
+            >
+              This is your community
+            </h1>
+            <p
+              className="font-fraunces italic mb-4"
+              style={{ color: 'rgba(255,255,255,0.92)', fontSize: 'clamp(18px, 2.5vw, 28px)', textShadow: '0 1px 6px rgba(0,0,0,0.4)' }}
+            >
+              Your stories. Your voice. Your future.
+            </p>
+            <p
+              className="font-fraunces max-w-3xl mx-auto mb-12 leading-relaxed"
+              style={{ color: 'rgba(255,255,255,0.78)', fontSize: 'clamp(16px, 2vw, 19px)', textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}
+            >
+              Every Palm Islander has a story worth sharing. Read stories from your neighbours,
               friends, and family. Add your own voice to strengthen our community.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
               <Link
                 href="/share-voice"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-white text-gray-900 hover:bg-gray-100 font-semibold rounded-full transition-all focus:outline-none focus:ring-4 focus:ring-white/20"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-md font-bold uppercase text-xs hover:opacity-90 transition"
+                style={{ backgroundColor: '#FFFFFF', color: C.ocean, letterSpacing: '0.15em' }}
               >
-                <Mic className="w-5 h-5" />
-                <span>Share Your Voice</span>
+                <Mic className="w-3.5 h-3.5" />
+                Share your voice
               </Link>
               <Link
                 href="/stories"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white font-semibold rounded-full hover:bg-white/20 transition-all"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-md font-bold uppercase text-xs hover:bg-white/15 transition"
+                style={{ backgroundColor: 'rgba(255,255,255,0.1)', color: '#FFFFFF', border: '1px solid rgba(255,255,255,0.4)', letterSpacing: '0.15em' }}
               >
-                <BookOpen className="w-5 h-5" />
-                <span>Read Stories</span>
+                <BookOpen className="w-3.5 h-3.5" />
+                Read stories
               </Link>
             </div>
           </div>
@@ -146,84 +161,130 @@ export default async function CommunityPage() {
       )}
 
       {/* Impact Stats */}
-      <section className="editorial-section bg-white">
+      <section className="editorial-section" style={{ backgroundColor: C.shell }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Our Community Voice
+            <p
+              className="font-bold uppercase mb-3"
+              style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.3em' }}
+            >
+              The collective archive
+            </p>
+            <h2
+              className="font-fraunces font-bold mb-3"
+              style={{ color: C.ocean, fontSize: 'clamp(28px, 4vw, 40px)', lineHeight: 1.1 }}
+            >
+              Our community voice
             </h2>
-            <p className="text-gray-600">Together, we're building a powerful collection of stories</p>
+            <p className="font-fraunces" style={{ color: C.driftwood, fontSize: 17, lineHeight: 1.55 }}>
+              Together, we&apos;re building a powerful collection of stories.
+            </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-8 bg-white border border-gray-100 rounded-2xl">
-              <div className="text-5xl font-bold text-gray-900 mb-2">{storyCount || FALLBACKS.storyCount}+</div>
-              <div className="text-sm text-gray-500 uppercase tracking-wide font-semibold">Stories Shared</div>
-              <div className="text-xs text-gray-400 mt-1">And growing every day</div>
-            </div>
-            <div className="text-center p-8 bg-white border border-gray-100 rounded-2xl">
-              <div className="text-5xl font-bold text-gray-900 mb-2">{storytellerCount || 28}+</div>
-              <div className="text-sm text-gray-500 uppercase tracking-wide font-semibold">Community Voices</div>
-              <div className="text-xs text-gray-400 mt-1">Real stories, real people</div>
-            </div>
-            <div className="text-center p-8 bg-white border border-gray-100 rounded-2xl">
-              <div className="text-5xl font-bold text-gray-900 mb-2">100%</div>
-              <div className="text-sm text-gray-500 uppercase tracking-wide font-semibold">Community Owned</div>
-              <div className="text-xs text-gray-400 mt-1">Your data, your control</div>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { value: `${storyCount || FALLBACKS.storyCount}+`, label: 'Stories shared', sub: 'And growing every day', accent: C.ochre },
+              { value: `${storytellerCount || 28}+`, label: 'Community voices', sub: 'Real stories, real people', accent: C.ocean },
+              { value: '100%', label: 'Community owned', sub: 'Your data, your control', accent: C.turtleRed },
+            ].map((stat) => (
+              <div
+                key={stat.label}
+                className="text-center p-7 rounded-2xl"
+                style={{ backgroundColor: '#FFFFFF', border: `1px solid ${C.border}`, borderTopWidth: 3, borderTopColor: stat.accent }}
+              >
+                <div
+                  className="font-fraunces font-bold leading-none mb-3"
+                  style={{ color: C.ocean, fontSize: 'clamp(36px, 4vw, 56px)' }}
+                >
+                  {stat.value}
+                </div>
+                <p
+                  className="font-bold uppercase mb-2"
+                  style={{ color: stat.accent, fontSize: 11, letterSpacing: '0.25em' }}
+                >
+                  {stat.label}
+                </p>
+                <p className="font-fraunces" style={{ color: C.driftwood, fontSize: 13, lineHeight: 1.5 }}>
+                  {stat.sub}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Latest Stories */}
-      <section className="editorial-section bg-white border-t border-gray-100">
+      <section className="editorial-section" style={{ backgroundColor: '#FFFFFF', borderTop: `1px solid ${C.border}` }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Latest Community Stories
+            <p
+              className="font-bold uppercase mb-4"
+              style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.3em' }}
+            >
+              Recent voices
+            </p>
+            <h2
+              className="font-fraunces font-bold mb-3"
+              style={{ color: C.ocean, fontSize: 'clamp(32px, 4.5vw, 44px)', lineHeight: 1.1 }}
+            >
+              Latest community stories
             </h2>
-            <p className="text-lg text-gray-600">
-              Fresh voices from Palm Island
+            <p className="font-fraunces" style={{ color: C.driftwood, fontSize: 18, lineHeight: 1.55 }}>
+              Fresh voices from Palm Island.
             </p>
           </div>
 
           {recentStories && recentStories.length > 0 ? (
-            <div className="grid md:grid-cols-3 gap-8 mb-12">
+            <div className="grid md:grid-cols-3 gap-6 mb-12">
               {recentStories.map((story: any) => (
                 <Link
                   key={story.id}
                   href={`/stories/${story.id}`}
-                  className="group bg-white p-6 rounded-2xl border border-gray-200 hover:border-gray-900 transition-all"
+                  className="group p-6 rounded-2xl transition-all"
+                  style={{ backgroundColor: '#FFFFFF', border: `1px solid ${C.border}`, borderTopWidth: 3, borderTopColor: C.ochre }}
                 >
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-2 h-2 bg-gray-900 rounded-full"></div>
-                    <span className="text-xs font-semibold text-gray-900 uppercase tracking-wide">
-                      {story.category || 'Community Story'}
-                    </span>
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">
+                  <p
+                    className="font-bold uppercase mb-3 inline-flex items-center gap-2"
+                    style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.2em' }}
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: C.ochre }} />
+                    {story.category || 'Community story'}
+                  </p>
+                  <h3
+                    className="font-fraunces font-bold mb-3"
+                    style={{ color: C.ocean, fontSize: 21, lineHeight: 1.2 }}
+                  >
                     {story.title}
                   </h3>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Users className="w-4 h-4" />
+                  <div className="flex items-center gap-2 mb-4" style={{ color: C.driftwood, fontSize: 13 }}>
+                    <Users className="w-3.5 h-3.5" />
                     <span>{story.profiles?.preferred_name || story.profiles?.full_name || 'Community Voice'}</span>
                   </div>
-                  <div className="mt-4 text-gray-900 font-semibold flex items-center gap-2 group-hover:gap-3 transition-all">
-                    <span>Read Story</span>
-                    <ArrowRight className="w-4 h-4" />
+                  <div
+                    className="font-bold uppercase flex items-center gap-1.5"
+                    style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.15em' }}
+                  >
+                    Read story
+                    <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </Link>
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 bg-gray-50 rounded-2xl">
-              <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600 mb-4">No stories yet. Be the first to share!</p>
+            <div
+              className="text-center py-12 rounded-2xl"
+              style={{ backgroundColor: C.shell, border: `1px solid ${C.border}` }}
+            >
+              <BookOpen className="w-16 h-16 mx-auto mb-4" style={{ color: C.muted }} />
+              <p className="font-fraunces mb-6" style={{ color: C.driftwood, fontSize: 16 }}>
+                No stories yet. Be the first to share!
+              </p>
               <Link
                 href="/share-voice"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 hover:bg-gray-800 text-white font-semibold rounded-full transition-all focus:outline-none focus:ring-4 focus:ring-gray-900/20"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-md font-bold uppercase text-xs hover:opacity-90 transition"
+                style={{ backgroundColor: C.ocean, color: '#FBF8EE', letterSpacing: '0.15em' }}
               >
-                <Mic className="w-4 h-4" />
-                <span>Share Your Story</span>
+                <Mic className="w-3.5 h-3.5" />
+                Share your story
               </Link>
             </div>
           )}
@@ -231,24 +292,34 @@ export default async function CommunityPage() {
           <div className="text-center">
             <Link
               href="/stories"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-white border border-gray-200 hover:border-gray-900 text-gray-900 font-semibold rounded-full transition-all"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-md font-bold uppercase text-xs hover:opacity-90 transition"
+              style={{ backgroundColor: C.ocean, color: '#FBF8EE', letterSpacing: '0.15em' }}
             >
-              <span>View All Stories</span>
-              <ArrowRight className="w-5 h-5" />
+              View all stories
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
         </div>
       </section>
 
       {/* How to Share Your Voice */}
-      <section className="editorial-section bg-white border-t border-gray-100">
+      <section className="editorial-section" style={{ backgroundColor: C.shell, borderTop: `1px solid ${C.border}` }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Three Ways to Share Your Voice
+            <p
+              className="font-bold uppercase mb-4"
+              style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.3em' }}
+            >
+              Add your voice
+            </p>
+            <h2
+              className="font-fraunces font-bold mb-3"
+              style={{ color: C.ocean, fontSize: 'clamp(32px, 4.5vw, 44px)', lineHeight: 1.1 }}
+            >
+              Three ways to share your voice
             </h2>
-            <p className="text-lg text-gray-600">
-              Choose the way that works best for you
+            <p className="font-fraunces" style={{ color: C.driftwood, fontSize: 18, lineHeight: 1.55 }}>
+              Choose the way that works best for you.
             </p>
           </div>
 
@@ -338,35 +409,43 @@ export default async function CommunityPage() {
             </div>
           </div>
 
-          <div className="bg-white border border-gray-100 p-8 rounded-2xl max-w-2xl mx-auto">
-            <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">
-              Your Story, Your Choice
+          <div
+            className="p-8 rounded-2xl max-w-2xl mx-auto"
+            style={{ backgroundColor: '#FFFFFF', border: `1px solid ${C.border}`, borderTopWidth: 3, borderTopColor: C.turtleRed }}
+          >
+            <p
+              className="font-bold uppercase mb-2 text-center"
+              style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.3em' }}
+            >
+              Your control · cultural protocol
+            </p>
+            <h3
+              className="font-fraunces font-bold mb-6 text-center"
+              style={{ color: C.ocean, fontSize: 24, lineHeight: 1.2 }}
+            >
+              Your story, your choice
             </h3>
-            <ul className="space-y-3 text-gray-600 mb-6">
-              <li className="flex items-start gap-3">
-                <Heart className="w-5 h-5 text-gray-900 mt-0.5 flex-shrink-0" />
-                <span>Share anonymously or with your name - it's up to you</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Heart className="w-5 h-5 text-gray-900 mt-0.5 flex-shrink-0" />
-                <span>Your story will be reviewed before being published</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Heart className="w-5 h-5 text-gray-900 mt-0.5 flex-shrink-0" />
-                <span>You keep control of your story and can request changes anytime</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Heart className="w-5 h-5 text-gray-900 mt-0.5 flex-shrink-0" />
-                <span>All submissions follow cultural protocols and community guidelines</span>
-              </li>
+            <ul className="space-y-3 mb-8" style={{ color: C.driftwood, fontSize: 15, lineHeight: 1.55 }}>
+              {[
+                "Share anonymously or with your name — it's up to you",
+                'Your story will be reviewed before being published',
+                'You keep control of your story and can request changes anytime',
+                'All submissions follow cultural protocols and community guidelines',
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-3 font-fraunces">
+                  <Heart className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: C.ochre }} />
+                  <span>{item}</span>
+                </li>
+              ))}
             </ul>
             <div className="text-center">
               <Link
                 href="/share-voice"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-gray-900 text-white hover:bg-gray-800 font-semibold rounded-full transition-all focus:outline-none focus:ring-4 focus:ring-gray-900/20"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-md font-bold uppercase text-xs hover:opacity-90 transition"
+                style={{ backgroundColor: C.ocean, color: '#FBF8EE', letterSpacing: '0.15em' }}
               >
-                <Mic className="w-5 h-5" />
-                <span>Share Your Voice Now</span>
+                <Mic className="w-3.5 h-3.5" />
+                Share your voice now
               </Link>
             </div>
           </div>
