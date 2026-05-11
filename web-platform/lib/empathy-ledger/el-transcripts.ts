@@ -49,9 +49,12 @@ export interface ELTranscriptDetail extends ELTranscriptMeta {
   video_url: string | null
 }
 
-/** Fetch one transcript by id, with content. Returns null when not found
- *  or when privacy_level is anything other than 'public' (we never load
- *  the content of a held transcript even with the service key). */
+/** Fetch one transcript by id, with content. Returns null when not found,
+ *  when privacy_level is anything other than 'public' (we never load the
+ *  content of a held transcript even with the service key), OR when
+ *  cultural_sensitivity is 'sacred' — sacred content is gated from the
+ *  public surface as a second axis on top of privacy_level. The community
+ *  can release a row's privacy without releasing its cultural protocol. */
 export async function getPiccTranscriptById(
   id: string,
 ): Promise<ELTranscriptDetail | null> {
@@ -64,6 +67,7 @@ export async function getPiccTranscriptById(
       `${EL_REST}/transcripts?id=eq.${id}` +
       `&organization_id=eq.${PICC_ORG_ID_EL}` +
       `&privacy_level=eq.public` +
+      `&cultural_sensitivity=not.eq.sacred` +
       `&select=id,title,storyteller_id,recording_date,duration_seconds,word_count,` +
       `cultural_sensitivity,privacy_level,status,audio_url,video_url,era_label,` +
       `event_year_min,event_year_max,ai_summary,themes,requires_elder_review,` +

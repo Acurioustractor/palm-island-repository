@@ -809,51 +809,110 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     const parts = s.trim().toLowerCase().split(/\s+/)
     return parts[parts.length - 1] ?? ''
   }
-  const quotesBySpeaker: Record<string, SpeakerQuote[]> = {}
-  function pushQuote(key: string, q: SpeakerQuote) {
-    if (!key) return
-    const list = quotesBySpeaker[key] ?? []
-    if (list.length < 12) list.push(q)
-    quotesBySpeaker[key] = list
+  // Quote curation — three sources, three quality signals, one bucket per
+  // speaker. We score every candidate, dedupe by text, then keep the top
+  // QUOTES_PER_SPEAKER per person. The face card surfaces the best of the
+  // best, not whatever was first in the iteration order.
+  const QUOTES_PER_SPEAKER = 8
+  const MIN_QUOTE_LENGTH = 40 // chars — anything shorter is usually a fragment
+  interface ScoredQuote {
+    quote: SpeakerQuote
+    score: number
+    /** Lowercased + trimmed text, for dedupe across sources. */
+    dedupeKey: string
   }
+  const scoredBySpeaker = new Map<string, ScoredQuote[]>()
+  function pushScored(key: string, sq: ScoredQuote) {
+    if (!key) return
+    if (sq.quote.text.length < MIN_QUOTE_LENGTH) return
+    const list = scoredBySpeaker.get(key) ?? []
+    // Dedupe — same quote text from two sources, keep the higher-scoring one.
+    const existingIdx = list.findIndex((x) => x.dedupeKey === sq.dedupeKey)
+    if (existingIdx >= 0) {
+      if (sq.score > list[existingIdx].score) list[existingIdx] = sq
+    } else {
+      list.push(sq)
+    }
+    scoredBySpeaker.set(key, list)
+  }
+  function lengthBonus(len: number): number {
+    return Math.min(25, Math.floor(len / 10))
+  }
+  function dedupeKey(text: string): string {
+    return text.trim().toLowerCase().slice(0, 80)
+  }
+
+  // PICC extracted_quotes — suggested_for_report is the curator flag, the
+  // strongest quality signal we have on this surface.
   for (const row of topQuotesRes.data ?? []) {
     const text = (row.quote_text as string | null)?.trim()
     const attribution = (row.attribution as string | null) ?? ''
     if (!text || !attribution) continue
-    pushQuote(lastToken(attribution), {
-      text,
-      theme: (row.theme as string | null) ?? null,
-      suggested: Boolean(row.suggested_for_report),
-      source: 'extracted_quotes',
+    const suggested = Boolean(row.suggested_for_report)
+    const score = (suggested ? 100 : 0) + lengthBonus(text.length)
+    pushScored(lastToken(attribution), {
+      quote: {
+        text,
+        theme: (row.theme as string | null) ?? null,
+        suggested,
+        source: 'extracted_quotes',
+      },
+      score,
+      dedupeKey: dedupeKey(text),
     })
   }
+
+  // PICC elder_quotes — validated upstream, so they get a +30 baseline.
   for (const row of elderQuotesRes.data ?? []) {
     const text = (row.text as string | null)?.trim()
     const speaker = (row.speaker_name as string | null) ?? ''
     if (!text || !speaker) continue
-    pushQuote(lastToken(speaker), {
-      text,
-      theme: null,
-      suggested: false,
-      source: 'elder_quotes',
-    })
-  }
-  // Fold the EL v2 approved extracted_quotes — same speaker-keyed map,
-  // first theme from the EL themes array surfaces, suggested-for-report
-  // proxied via the EL is_featured flag.
-  for (const row of elApprovedQuotes) {
-    if (!row.quote_text || !row.author_name) continue
-    pushQuote(lastToken(row.author_name), {
-      text: row.quote_text,
-      theme: row.themes[0] ?? null,
-      suggested: row.is_featured,
-      source: 'extracted_quotes',
+    pushScored(lastToken(speaker), {
+      quote: {
+        text,
+        theme: null,
+        suggested: false,
+        source: 'elder_quotes',
+      },
+      score: 30 + lengthBonus(text.length),
+      dedupeKey: dedupeKey(text),
     })
   }
 
+  // EL v2 approved extracted_quotes — is_featured ≈ suggested, plus the
+  // explicit impact_score (0–10) lets us rank within unfeatured quotes.
+  for (const row of elApprovedQuotes) {
+    if (!row.quote_text || !row.author_name) continue
+    const impact = Math.max(0, Math.min(10, row.impact_score ?? 0))
+    const score =
+      (row.is_featured ? 80 : 0) +
+      impact * 5 +
+      lengthBonus(row.quote_text.length)
+    pushScored(lastToken(row.author_name), {
+      quote: {
+        text: row.quote_text,
+        theme: row.themes[0] ?? null,
+        suggested: row.is_featured,
+        source: 'extracted_quotes',
+      },
+      score,
+      dedupeKey: dedupeKey(row.quote_text),
+    })
+  }
+
+  // Finalize — sort each speaker's bucket by score desc, keep top N.
+  const quotesBySpeaker: Record<string, SpeakerQuote[]> = {}
+  scoredBySpeaker.forEach((list: ScoredQuote[], k: string) => {
+    list.sort((a, b) => b.score - a.score)
+    quotesBySpeaker[k] = list.slice(0, QUOTES_PER_SPEAKER).map((x) => x.quote)
+  })
+
   // ── TRANSCRIPTS (by storyteller UUID + by last-name token) ─────────────
-  // Only public privacy_level rows are kept (per Elder release 2026-05-12).
-  // A storyteller-UUID → name lookup powers the fuzzy last-name fallback.
+  // Gating: privacy_level=public (Elder release 2026-05-12) AND
+  // cultural_sensitivity != 'sacred'. Sacred is held back from the public
+  // Atlas surface even after privacy is released — the two axes are
+  // independent. See lib/empathy-ledger/el-transcripts.ts for the
+  // matching server-side gate on the detail page.
   const storytellerNameById = new Map<string, string>()
   for (const s of storytellers ?? []) {
     storytellerNameById.set(s.id, s.display_name)
@@ -862,6 +921,7 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
   const transcriptsBySpeaker: Record<string, TranscriptRef[]> = {}
   for (const t of elTranscripts ?? []) {
     if (t.privacy_level !== 'public') continue
+    if (t.cultural_sensitivity === 'sacred') continue
     const ref: TranscriptRef = {
       id: t.id,
       title: t.title,

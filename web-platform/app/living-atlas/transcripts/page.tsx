@@ -49,7 +49,15 @@ export default async function TranscriptsPage({ searchParams }: PageProps) {
     getPiccTranscriptMetadata(),
     getPiccStorytellers({ limit: 500 }),
   ])
-  const public_ = all.filter((t) => t.privacy_level === 'public')
+  // After the 2026-05-12 Elder release, all 137 transcripts are
+  // privacy_level=public. But cultural_sensitivity is a SECOND axis —
+  // sacred-tagged rows stay held from the public surface even when
+  // privacy is released. The community can release one without the other.
+  const publicAll = all.filter((t) => t.privacy_level === 'public')
+  const sacredHeld = publicAll.filter(
+    (t) => t.cultural_sensitivity === 'sacred',
+  )
+  const public_ = publicAll.filter((t) => t.cultural_sensitivity !== 'sacred')
 
   // Storyteller UUID → { name, slug } for per-card speaker attribution.
   const speakerById = new Map<
@@ -154,6 +162,39 @@ export default async function TranscriptsPage({ searchParams }: PageProps) {
             icon={<VideoIcon className="w-3.5 h-3.5" />}
           />
         </section>
+
+        {/* Sovereignty banner — sacred-tagged rows held back from the
+            public surface (still in the archive, never on this wall). */}
+        {sacredHeld.length > 0 && (
+          <section
+            className="mb-4 rounded-xl border p-3.5 text-sm"
+            style={{ borderColor: '#E0CFB8', backgroundColor: '#FBF6EE' }}
+          >
+            <div className="flex items-start gap-3">
+              <div
+                className="text-[9px] uppercase tracking-wider font-semibold px-1.5 py-0.5 rounded flex-shrink-0 mt-0.5"
+                style={{ backgroundColor: '#FDE3E3', color: '#8B1A1A' }}
+              >
+                sacred
+              </div>
+              <div>
+                <div className="font-serif text-charcoal mb-0.5">
+                  {sacredHeld.length} transcript
+                  {sacredHeld.length === 1 ? ' is' : 's are'} held by community
+                  choice
+                </div>
+                <p className="text-[12px] text-stone-700 leading-relaxed">
+                  Privacy was released by the Elder meeting on 12 May 2026, but
+                  the cultural protocol on{' '}
+                  {sacredHeld.length === 1 ? 'this row' : 'these rows'} keeps
+                  the content gated from the public Atlas. The archive still
+                  holds {sacredHeld.length === 1 ? 'it' : 'them'}; access is by
+                  request to PICC.
+                </p>
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Search */}
         <form
