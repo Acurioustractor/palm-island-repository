@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { User, BookOpen, MapPin, Search, UserPlus, ArrowRight } from 'lucide-react';
 import VideoHero from '@/components/video/VideoHero';
 import { assetUrl } from '@/lib/media/asset-url';
+import { C } from '@/components/annual-report/2024-25/almanac/tokens';
 
 interface Storyteller {
   id: string;
@@ -91,17 +92,17 @@ export default function StorytellerGalleryPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: C.shell }}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900 mx-auto mb-4"></div>
-          <p className="text-lg text-gray-500">Loading storytellers...</p>
+          <div className="animate-spin rounded-full h-12 w-12 mx-auto mb-4" style={{ borderBottom: `2px solid ${C.ocean}` }}></div>
+          <p className="font-fraunces italic" style={{ color: C.driftwood }}>Loading storytellers…</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen" style={{ backgroundColor: C.shell }}>
       {/* Video Hero */}
       <VideoHero
         videoSrc={assetUrl("/hero-assets/clips/kids-beach.mp4")}
@@ -111,68 +112,80 @@ export default function StorytellerGalleryPage() {
         aria-label="Community Storytellers"
       >
         <div className="text-center text-white max-w-5xl mx-auto">
-          <span className="text-xs font-semibold uppercase tracking-[0.15em] text-white/70">
+          <p
+            className="font-bold uppercase mb-4"
+            style={{ color: '#F5E9D0', fontSize: 11, letterSpacing: '0.3em', textShadow: '0 1px 2px rgba(0,0,0,0.4)' }}
+          >
             Voices of Palm Island
-          </span>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-[-0.02em] leading-[1.1] mt-4 mb-6">
-            Community Storytellers
+          </p>
+          <h1
+            className="font-fraunces font-bold mb-6"
+            style={{ fontSize: 'clamp(36px, 6vw, 72px)', lineHeight: 1.05, textShadow: '0 2px 12px rgba(0,0,0,0.5)' }}
+          >
+            Community storytellers
           </h1>
-          <p className="text-lg text-white/80 max-w-2xl mx-auto leading-relaxed mb-2">
+          <p
+            className="font-fraunces max-w-2xl mx-auto mb-2"
+            style={{ color: 'rgba(255,255,255,0.92)', fontSize: 'clamp(16px, 2vw, 20px)', lineHeight: 1.55, textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}
+          >
             The voices of Palm Island — sharing knowledge, experience, and vision.
           </p>
-          <p className="text-sm text-white/60 italic">
+          <p className="font-fraunces italic" style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13, textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}>
             Manbarra &amp; Bwgcolman Country
           </p>
         </div>
       </VideoHero>
 
       {/* Stats Bar */}
-      <section className="border-b border-gray-100 py-8">
+      <section className="py-10" style={{ backgroundColor: '#FFFFFF', borderBottom: `1px solid ${C.border}` }}>
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div>
-              <div className="text-3xl font-extrabold text-gray-900 tracking-[-0.02em]">{storytellers.length}</div>
-              <div className="text-xs text-gray-400 uppercase tracking-[0.1em] font-medium mt-1">Active Storytellers</div>
-            </div>
-            <div>
-              <div className="text-3xl font-extrabold text-gray-900 tracking-[-0.02em]">
-                {storytellers.reduce((sum, s) => sum + (s.story_count || 0), 0)}
+            {[
+              { value: storytellers.length, label: 'Active storytellers', accent: C.ochre },
+              { value: storytellers.reduce((sum, s) => sum + (s.story_count || 0), 0), label: 'Total stories', accent: C.ocean },
+              { value: storytellers.filter(s => s.profile_image_url).length, label: 'With photos', accent: C.mangrove },
+              { value: '100%', label: 'Community owned', accent: C.turtleRed },
+            ].map((stat) => (
+              <div key={stat.label} className="text-center">
+                <div
+                  className="font-fraunces font-bold leading-none"
+                  style={{ color: C.ocean, fontSize: 'clamp(28px, 3.5vw, 40px)' }}
+                >
+                  {stat.value}
+                </div>
+                <div
+                  className="font-bold uppercase mt-3"
+                  style={{ color: stat.accent, fontSize: 11, letterSpacing: '0.25em' }}
+                >
+                  {stat.label}
+                </div>
               </div>
-              <div className="text-xs text-gray-400 uppercase tracking-[0.1em] font-medium mt-1">Total Stories</div>
-            </div>
-            <div>
-              <div className="text-3xl font-extrabold text-gray-900 tracking-[-0.02em]">
-                {storytellers.filter(s => s.profile_image_url).length}
-              </div>
-              <div className="text-xs text-gray-400 uppercase tracking-[0.1em] font-medium mt-1">With Photos</div>
-            </div>
-            <div>
-              <div className="text-3xl font-extrabold text-gray-900 tracking-[-0.02em]">100%</div>
-              <div className="text-xs text-gray-400 uppercase tracking-[0.1em] font-medium mt-1">Community Owned</div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Search */}
       <section className="max-w-7xl mx-auto px-6 lg:px-8 py-10">
-        <div className="flex flex-col md:flex-row gap-4">
+        <div className="flex flex-col md:flex-row gap-3">
           <div className="flex-1 relative">
-            <Search className="absolute left-4 top-3.5 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-4 top-3.5 h-4 w-4" style={{ color: C.muted }} />
             <input
               type="text"
-              placeholder="Search storytellers by name or location..."
+              placeholder="Search storytellers by name or location…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition-all duration-300 ease-elegant"
+              className="w-full pl-11 pr-4 py-3 rounded-lg text-sm focus:outline-none focus:ring-2 transition-all"
+              style={{ border: `1px solid ${C.border}`, backgroundColor: '#FFFFFF', color: C.earth }}
             />
           </div>
           <Link
             href="/share-voice"
-            className="flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 ease-elegant hover:scale-[0.98] active:scale-95"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-md font-bold uppercase text-xs hover:opacity-90 transition"
+            style={{ backgroundColor: C.ocean, color: '#FBF8EE', letterSpacing: '0.15em' }}
           >
-            <UserPlus className="w-4 h-4" />
-            Share Your Voice
+            <UserPlus className="w-3.5 h-3.5" />
+            Share your voice
           </Link>
         </div>
       </section>
@@ -180,8 +193,8 @@ export default function StorytellerGalleryPage() {
       {/* Storytellers Grid */}
       <section className="max-w-7xl mx-auto px-6 lg:px-8 pb-20">
         {filteredStorytellers.length === 0 ? (
-          <div className="text-center py-16 bg-gray-50 rounded-2xl">
-            <p className="text-gray-500">No storytellers found. Try adjusting your search.</p>
+          <div className="text-center py-16 rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: `1px solid ${C.border}` }}>
+            <p className="font-fraunces italic" style={{ color: C.driftwood }}>No storytellers found. Try adjusting your search.</p>
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -189,19 +202,23 @@ export default function StorytellerGalleryPage() {
               <Link
                 key={storyteller.id}
                 href={`/stories?storyteller=${storyteller.id}`}
-                className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:border-gray-300 hover:shadow-lg transition-all duration-500 ease-elegant"
+                className="group rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-500"
+                style={{ backgroundColor: '#FFFFFF', border: `1px solid ${C.border}`, borderTopWidth: 3, borderTopColor: C.ochre }}
               >
                 {/* Profile Photo or Avatar */}
-                <div className="h-64 relative overflow-hidden bg-gray-50">
+                <div className="h-64 relative overflow-hidden" style={{ backgroundColor: C.shell }}>
                   {storyteller.profile_image_url ? (
                     <img
                       src={storyteller.profile_image_url}
                       alt={storyteller.preferred_name || storyteller.full_name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-elegant"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
                   ) : (
                     <div className="h-full flex items-center justify-center">
-                      <div className="h-28 w-28 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-extrabold text-4xl">
+                      <div
+                        className="h-28 w-28 rounded-full flex items-center justify-center font-fraunces font-bold text-4xl"
+                        style={{ backgroundColor: C.ochre + '22', color: C.ochre }}
+                      >
                         {(storyteller.preferred_name || storyteller.full_name)
                           .split(' ')
                           .map(n => n[0])
@@ -214,38 +231,47 @@ export default function StorytellerGalleryPage() {
                 </div>
 
                 <div className="p-6">
-                  <h3 className="text-xl font-extrabold text-gray-900 tracking-[-0.02em] mb-1 group-hover:text-gray-700 transition-colors duration-300">
+                  <h3
+                    className="font-fraunces font-bold mb-1 transition-colors"
+                    style={{ color: C.ocean, fontSize: 22, lineHeight: 1.2 }}
+                  >
                     {storyteller.preferred_name || storyteller.full_name}
                   </h3>
 
                   {storyteller.preferred_name && storyteller.preferred_name !== storyteller.full_name && (
-                    <p className="text-sm text-gray-400 mb-3">{storyteller.full_name}</p>
+                    <p className="mb-3" style={{ color: C.muted, fontSize: 13 }}>{storyteller.full_name}</p>
                   )}
 
                   {storyteller.location && (
-                    <div className="flex items-center text-sm text-gray-500 mb-2">
+                    <div className="flex items-center mb-2" style={{ color: C.driftwood, fontSize: 13 }}>
                       <MapPin className="h-3.5 w-3.5 mr-1.5" />
                       <span>{storyteller.location}</span>
                     </div>
                   )}
 
                   {storyteller.bio && (
-                    <p className="text-gray-500 text-sm mb-4 line-clamp-3 leading-relaxed">
+                    <p
+                      className="font-fraunces line-clamp-3 leading-relaxed mb-4"
+                      style={{ color: C.driftwood, fontSize: 14 }}
+                    >
                       {storyteller.bio}
                     </p>
                   )}
 
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                    <div className="flex items-center text-gray-900">
+                  <div className="flex items-center justify-between pt-4" style={{ borderTop: `1px solid ${C.border}` }}>
+                    <div className="flex items-center" style={{ color: C.ocean }}>
                       <BookOpen className="h-4 w-4 mr-2" />
-                      <span className="font-bold">{storyteller.story_count}</span>
-                      <span className="text-sm ml-1 text-gray-500">
+                      <span className="font-fraunces font-bold" style={{ fontSize: 17 }}>{storyteller.story_count}</span>
+                      <span className="ml-1.5" style={{ color: C.driftwood, fontSize: 12 }}>
                         {storyteller.story_count === 1 ? 'story' : 'stories'}
                       </span>
                     </div>
-                    <span className="animated-underline text-sm font-medium text-gray-900 flex items-center gap-1">
+                    <span
+                      className="font-bold uppercase flex items-center gap-1"
+                      style={{ color: C.turtleRed, fontSize: 11, letterSpacing: '0.15em' }}
+                    >
                       View
-                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform duration-300 ease-elegant" />
+                      <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                     </span>
                   </div>
                 </div>
@@ -256,24 +282,37 @@ export default function StorytellerGalleryPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="editorial-section bg-gray-900 text-white">
+      <section
+        className="editorial-section text-white"
+        style={{ background: `linear-gradient(135deg, ${C.midnight}, ${C.earth})` }}
+      >
         <div className="max-w-3xl mx-auto px-6 lg:px-8 text-center">
-          <span className="text-xs font-semibold uppercase tracking-[0.15em] text-white/50">
-            Join Us
-          </span>
-          <h2 className="text-3xl md:text-4xl font-extrabold tracking-[-0.02em] leading-[1.1] mt-4 mb-6">
-            Become a Storyteller
+          <p
+            className="font-bold uppercase mb-4"
+            style={{ color: C.ochre, fontSize: 11, letterSpacing: '0.3em' }}
+          >
+            Join us
+          </p>
+          <h2
+            className="font-fraunces font-bold mb-6"
+            style={{ fontSize: 'clamp(32px, 5vw, 48px)', lineHeight: 1.1 }}
+          >
+            Become a storyteller
           </h2>
-          <p className="text-lg text-white/60 mb-8 leading-relaxed">
-            Every Palm Islander has a story worth sharing. Join our community of storytellers
-            and help preserve our collective knowledge and experience.
+          <p
+            className="font-fraunces mb-10 max-w-2xl mx-auto"
+            style={{ color: 'rgba(255,255,255,0.75)', fontSize: 'clamp(16px, 2vw, 19px)', lineHeight: 1.6 }}
+          >
+            Every Palm Islander has a story worth sharing. Join our community of storytellers and
+            help preserve our collective knowledge and experience.
           </p>
           <Link
             href="/stories/submit"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-white text-gray-900 rounded-full font-semibold hover:bg-gray-100 hover:scale-[0.98] active:scale-95 transition-all duration-300 ease-elegant"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-md font-bold uppercase text-xs hover:opacity-90 transition"
+            style={{ backgroundColor: '#FFFFFF', color: C.ocean, letterSpacing: '0.15em' }}
           >
-            Share Your Story Now
-            <ArrowRight className="w-4 h-4" />
+            Share your story now
+            <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
       </section>
