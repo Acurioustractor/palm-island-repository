@@ -36,6 +36,80 @@ export interface ELTranscriptMeta {
   elder_reviewed_at: string | null
 }
 
+export interface ELTranscriptDetail extends ELTranscriptMeta {
+  /** Full transcript text. Only populated when privacy_level=public. */
+  transcript_content: string | null
+  /** Optional structured segments JSON. */
+  segments: unknown | null
+  /** Optional key quotes pulled by AI. */
+  key_quotes: unknown | null
+  /** Audio URL when present. */
+  audio_url: string | null
+  /** Video URL when present. */
+  video_url: string | null
+}
+
+/** Fetch one transcript by id, with content. Returns null when not found
+ *  or when privacy_level is anything other than 'public' (we never load
+ *  the content of a held transcript even with the service key). */
+export async function getPiccTranscriptById(
+  id: string,
+): Promise<ELTranscriptDetail | null> {
+  const key = process.env.EMPATHY_LEDGER_SERVICE_KEY
+  if (!key) return null
+  const ctrl = new AbortController()
+  const timer = setTimeout(() => ctrl.abort(), 15_000)
+  try {
+    const url =
+      `${EL_REST}/transcripts?id=eq.${id}` +
+      `&organization_id=eq.${PICC_ORG_ID_EL}` +
+      `&privacy_level=eq.public` +
+      `&select=id,title,storyteller_id,recording_date,duration_seconds,word_count,` +
+      `cultural_sensitivity,privacy_level,status,audio_url,video_url,era_label,` +
+      `event_year_min,event_year_max,ai_summary,themes,requires_elder_review,` +
+      `elder_reviewed_at,transcript_content,segments,key_quotes` +
+      `&limit=1`
+    const res = await fetch(url, {
+      headers: { apikey: key, Authorization: `Bearer ${key}` },
+      cache: 'no-store',
+      signal: ctrl.signal,
+    })
+    if (!res.ok) return null
+    const arr = (await res.json()) as Array<Record<string, unknown>>
+    const r = arr[0]
+    if (!r) return null
+    return {
+      id: r.id as string,
+      title: (r.title as string | null) ?? null,
+      storyteller_id: (r.storyteller_id as string | null) ?? null,
+      recording_date: (r.recording_date as string | null) ?? null,
+      duration_seconds: (r.duration_seconds as number | null) ?? null,
+      word_count: (r.word_count as number | null) ?? null,
+      cultural_sensitivity: (r.cultural_sensitivity as string | null) ?? null,
+      privacy_level: (r.privacy_level as string | null) ?? null,
+      status: (r.status as string | null) ?? null,
+      has_audio: Boolean(r.audio_url),
+      has_video: Boolean(r.video_url),
+      era_label: (r.era_label as string | null) ?? null,
+      event_year_min: (r.event_year_min as number | null) ?? null,
+      event_year_max: (r.event_year_max as number | null) ?? null,
+      ai_summary: (r.ai_summary as string | null) ?? null,
+      themes: Array.isArray(r.themes) ? (r.themes as string[]) : null,
+      requires_elder_review: Boolean(r.requires_elder_review),
+      elder_reviewed_at: (r.elder_reviewed_at as string | null) ?? null,
+      transcript_content: (r.transcript_content as string | null) ?? null,
+      segments: (r.segments as unknown) ?? null,
+      key_quotes: (r.key_quotes as unknown) ?? null,
+      audio_url: (r.audio_url as string | null) ?? null,
+      video_url: (r.video_url as string | null) ?? null,
+    }
+  } catch {
+    return null
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 export async function getPiccTranscriptMetadata(): Promise<ELTranscriptMeta[]> {
   const key = process.env.EMPATHY_LEDGER_SERVICE_KEY
   if (!key) return []
