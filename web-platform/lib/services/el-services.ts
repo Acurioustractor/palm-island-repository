@@ -80,6 +80,9 @@ export interface PiccService {
   latitude: number | null
   longitude: number | null
   address: string | null
+  /** EL v2 status — drives the "active services" filter on every
+   *  surface. Null on the static fallback set. */
+  status: 'active' | 'inactive' | 'archived' | null
 }
 
 function fromELService(s: ELService): PiccService {
@@ -96,6 +99,7 @@ function fromELService(s: ELService): PiccService {
     latitude: s.latitude,
     longitude: s.longitude,
     address: s.address,
+    status: s.status,
   }
 }
 
@@ -113,6 +117,7 @@ function fromStatic(): PiccService[] {
     latitude: null,
     longitude: null,
     address: null,
+    status: 'active' as const,
   }))
 }
 

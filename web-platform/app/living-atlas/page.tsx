@@ -62,15 +62,14 @@ export default async function LivingAtlasPage() {
     .sort((a, b) => b.quote_count - a.quote_count)
     .slice(0, 10)
 
-  // Services — ALL 29, sorted: active first, then by linked-storyteller
-  // density (the staff/community signature). Each service surfaces its
-  // EL v2 photo, EL description, category, and the count of storytellers
-  // attached so the staff + community thread is visible at a glance.
-  const allServices = [...data.services].sort((a, b) => {
-    if (a.status === 'active' && b.status !== 'active') return -1
-    if (b.status === 'active' && a.status !== 'active') return 1
-    return b.photo_ids.length - a.photo_ids.length
-  })
+  // Services — only the active ones (3 archived rows drop out: ECLC,
+  // Men's Group, Palm Island Community Connection). Sorted by linked-
+  // storyteller density so the most community-anchored services lead.
+  // Each card carries its EL v2 photo, EL description, category, and
+  // the count of storytellers attached.
+  const allServices = data.services
+    .filter((s) => s.status === 'active')
+    .sort((a, b) => b.photo_ids.length - a.photo_ids.length)
 
   // Projects — ALL 10, sorted by linked-storyteller density. These are
   // the innovation projects — the ongoing connection thread between

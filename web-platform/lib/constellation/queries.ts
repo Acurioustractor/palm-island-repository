@@ -17,6 +17,71 @@ import {
 import { getPiccPublicStories } from '@/lib/empathy-ledger/el-stories'
 import { getPiccApprovedELQuotes } from '@/lib/empathy-ledger/el-quotes'
 import { getPiccTranscriptMetadata } from '@/lib/empathy-ledger/el-transcripts'
+
+/**
+ * Resolve EL-canonical service cover photos from the galleries table.
+ *
+ * In EL admin the user uploads curated cover photos via the gallery
+ * surface. Those covers live as media_assets rows pointed to by
+ * `galleries.cover_image_id`. The `services.image_url` column is
+ * often older / placeholder. Joining gallery → cover_image_id →
+ * media_assets gets the right photo.
+ *
+ * Returns a map: gallery_id → storage_url of the cover photo.
+ */
+async function getGalleryCoverPhotos(): Promise<Record<string, string>> {
+  const key = process.env.EMPATHY_LEDGER_SERVICE_KEY
+  if (!key) return {}
+  const EL = 'https://yvnuayzslukamizrlhwb.supabase.co/rest/v1'
+  const PICC_EL = '084f851c-72e0-41fb-b5ba-f3088f44862d'
+  try {
+    const gRes = await fetch(
+      `${EL}/galleries?organization_id=eq.${PICC_EL}` +
+        `&cover_image_id=not.is.null` +
+        `&select=id,cover_image_id`,
+      {
+        headers: { apikey: key, Authorization: `Bearer ${key}` },
+        cache: 'no-store',
+      },
+    )
+    if (!gRes.ok) return {}
+    const gals = (await gRes.json()) as Array<{
+      id: string
+      cover_image_id: string
+    }>
+    if (gals.length === 0) return {}
+    const coverIds = gals.map((g) => g.cover_image_id)
+    const mRes = await fetch(
+      `${EL}/media_assets?id=in.(${coverIds.join(',')})` +
+        `&select=id,url,medium_url,large_url`,
+      {
+        headers: { apikey: key, Authorization: `Bearer ${key}` },
+        cache: 'no-store',
+      },
+    )
+    if (!mRes.ok) return {}
+    const media = (await mRes.json()) as Array<{
+      id: string
+      url: string | null
+      medium_url: string | null
+      large_url: string | null
+    }>
+    const urlByMediaId = new Map<string, string>()
+    for (const m of media) {
+      // Prefer medium_url for performance, fall back to url then large.
+      const u = m.medium_url || m.url || m.large_url
+      if (u) urlByMediaId.set(m.id, u)
+    }
+    const out: Record<string, string> = {}
+    for (const g of gals) {
+      const u = urlByMediaId.get(g.cover_image_id)
+      if (u) out[g.id] = u
+    }
+    return out
+  } catch {
+    return {}
+  }
+}
 import type {
   AnnualReportItem,
   AtlasELStory,
@@ -152,6 +217,7 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     piccAnnualReportsRowsRes,
     elApprovedQuotes,
     elTranscripts,
+    galleryCoverPhotos,
   ] = await Promise.all([
     // Canonical PICC people: 44 named storytellers in EL v2, each with
     // photo_url + bio + service_slugs + project_slugs + quote_count.
@@ -364,6 +430,10 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     // release, all are privacy_level=public. Surfaced on face cards so
     // clicking a storyteller reveals their oral-history recordings.
     getPiccTranscriptMetadata(),
+    // EL v2 gallery covers — the curated photo set per service. Lets us
+    // override services.image_url (often a placeholder or stale annual-
+    // report shot) with the canonical cover the user actually uploaded.
+    getGalleryCoverPhotos(),
   ])
 
   // ── FACES ──────────────────────────────────────────────────────────────
@@ -763,15 +833,21 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
         : isDefaultCentre(s.latitude, s.longitude)
           ? null
           : s.longitude
+    // EL gallery cover override — prefer the curated cover the user
+    // set in the EL gallery over the (often older / placeholder)
+    // services.image_url column.
+    const galleryCover = s.gallery_id
+      ? galleryCoverPhotos[s.gallery_id]
+      : null
     return {
       id: s.id,
       name: s.name,
       slug: s.slug,
       description: s.description,
-      image_url: s.image_url,
+      image_url: galleryCover ?? s.image_url,
       category: s.service_category,
       service_type: null,
-      status: 'active',
+      status: s.status ?? 'active',
       latitude: lat,
       longitude: lng,
       photo_ids: faces
