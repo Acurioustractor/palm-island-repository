@@ -1387,8 +1387,10 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     // FY 2010 — photo-000 is a title-page graphic with white centre /
     // dark outline. photo-001 is the first real hero image.
     2010: `${PICC_STORAGE}/storage/v1/object/public/platform-media/annual-report-photos/2009-10/photo-001.jpg`,
-    // FY 2022 — same issue, photo-000 is a graphic plate not a photo.
-    2022: `${PICC_STORAGE}/storage/v1/object/public/platform-media/annual-report-photos/2021-22/photo-001.jpg`,
+    // FY 2022 — extracted photo-000/001 are both graphic plates. Use
+    // the canonical community-meeting hero from the story-media bucket
+    // ("Large group photo of Palm Island community members and staff").
+    2022: `${PICC_STORAGE}/storage/v1/object/public/story-media/annual-reports/2021-22/annual-report-2021-22-img-028.jpg`,
   }
   function extractedCoverFor(
     rangeStr: string | null,
