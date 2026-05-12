@@ -384,6 +384,19 @@ export interface HullRiverVoice {
   theme: string | null
 }
 
+/** A quote anchored to a fiscal year via EL event_year_min/max. Surfaces
+ *  on the Timeline "voices that year" facet when the active year falls
+ *  inside the quote's event-year window. */
+export interface YearAnchoredQuote {
+  text: string
+  speaker_name: string
+  speaker_slug: string | null
+  speaker_photo_url: string | null
+  speaker_is_elder: boolean
+  event_year_min: number
+  event_year_max: number
+}
+
 /** A single curated hero quote — quote text + speaker + photo + theme,
  *  joined server-side from the highest-quality EL approved quotes. The
  *  always-on annual report hero shows ~12 of these. */
@@ -429,6 +442,10 @@ export interface ConstellationPayload {
   /** Top ~12 curated quotes for the always-on hero — already joined to
    *  storyteller photo and slug, sorted by impact_score desc. */
   top_quotes_curated: CuratedHeroQuote[]
+  /** EL quotes anchored to specific years (via event_year_min/max).
+   *  The Timeline glance card filters this by activeYear to surface
+   *  "voices that year". Capped at the strongest ~120. */
+  year_anchored_quotes: YearAnchoredQuote[]
   /** Public EL transcripts keyed by storyteller UUID — the face for kind
    *  ='storyteller' carries this UUID in its slug, so the right rail can
    *  look them up directly. */

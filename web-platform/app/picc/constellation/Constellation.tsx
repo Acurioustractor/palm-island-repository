@@ -2153,18 +2153,48 @@ export default function Constellation({
         {/* STAGE */}
         <div
           ref={stageRef}
-          className="relative flex-1 min-w-0"
+          className="relative flex-1 min-w-0 overflow-hidden"
           style={{
             background: backdropFor(deferredYear),
             transition: 'background 600ms ease',
           }}
         >
+          {/* Cover backdrop — in Timeline mode the active year's report
+              cover photo fades in behind the constellation at very low
+              opacity. Creates a sense of "this is what 2014 looked like."
+              Keyed on fiscal_year so changing the year cross-fades to
+              the next cover. */}
+          {mode === 'timeline' && activeYearReport?.cover_photo_url && (
+            <div
+              key={activeYearReport.fiscal_year}
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                backgroundImage: `url(${activeYearReport.cover_photo_url})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                opacity: 0.18,
+                filter: 'saturate(0.7)',
+                animation: 'cstl-cover-in 800ms ease',
+              }}
+            />
+          )}
+          {/* Cream wash over the cover so faces stay legible. */}
+          {mode === 'timeline' && activeYearReport?.cover_photo_url && (
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background:
+                  'radial-gradient(ellipse at center, rgba(251,246,238,0.5) 0%, rgba(251,246,238,0.75) 70%, rgba(251,246,238,0.85) 100%)',
+              }}
+            />
+          )}
           <svg
             ref={svgRef}
             width="100%"
             height="100%"
             viewBox={`0 0 ${stageSize.width} ${stageSize.height}`}
             preserveAspectRatio="xMidYMid meet"
+            className="relative z-[1]"
           />
 
           {/* Year glance card — floats over the canvas in Timeline mode.
@@ -2177,6 +2207,11 @@ export default function Constellation({
               key={activeYearReport.fiscal_year}
               report={activeYearReport}
               yearDetail={activeYearDetail}
+              voicesThatYear={data.year_anchored_quotes.filter(
+                (q) =>
+                  q.event_year_min <= deferredYear &&
+                  q.event_year_max >= deferredYear,
+              )}
               autoCycle={autoPlay}
               onOpenFull={() => {
                 setOverlayReport(activeYearReport)
@@ -2423,6 +2458,14 @@ export default function Constellation({
           to {
             opacity: 1;
             transform: translateX(0);
+          }
+        }
+        @keyframes cstl-cover-in {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 0.18;
           }
         }
         /* GPU-accelerated opacity transition for face nodes — keeps
@@ -2964,15 +3007,23 @@ function Thumb({
 function YearGlanceCard({
   report,
   yearDetail,
+  voicesThatYear,
   autoCycle,
   onOpenFull,
 }: {
   report: AnnualReportItem
   yearDetail: ConstellationPayload['years'][number] | null
+  voicesThatYear: ConstellationPayload['year_anchored_quotes']
   autoCycle: boolean
   onOpenFull: () => void
 }) {
-  type Facet = 'summary' | 'numbers' | 'achievements' | 'highlights' | 'sections'
+  type Facet =
+    | 'summary'
+    | 'numbers'
+    | 'achievements'
+    | 'voices'
+    | 'highlights'
+    | 'sections'
   // Build the active facet list — only include ones that have content.
   const facets = useMemo<Facet[]>(() => {
     const out: Facet[] = []
@@ -2985,11 +3036,12 @@ function YearGlanceCard({
       report.stats?.programs_count
     ) out.push('numbers')
     if (report.key_achievements.length > 0) out.push('achievements')
+    if (voicesThatYear.length > 0) out.push('voices')
     if (report.picc_highlights.length > 0) out.push('highlights')
     if (report.sections.length > 0 || report.picc_sections.length > 0)
       out.push('sections')
     return out.length > 0 ? out : ['summary']
-  }, [report, yearDetail])
+  }, [report, yearDetail, voicesThatYear])
 
   const [idx, setIdx] = useState(0)
   const safeIdx = idx % facets.length
@@ -3054,6 +3106,7 @@ function YearGlanceCard({
           {facet === 'summary' && 'From the report'}
           {facet === 'numbers' && 'The numbers'}
           {facet === 'achievements' && 'Key achievements'}
+          {facet === 'voices' && `Voices that year · ${voicesThatYear.length}`}
           {facet === 'highlights' && 'Case study'}
           {facet === 'sections' && 'Inside this report'}
         </div>
@@ -3148,6 +3201,54 @@ function YearGlanceCard({
               </li>
             ))}
           </ul>
+        )}
+
+        {facet === 'voices' && voicesThatYear.length > 0 && (
+          <div className="space-y-2">
+            {voicesThatYear.slice(0, 2).map((v, i) => (
+              <div key={i} className="flex gap-2.5">
+                {v.speaker_photo_url ? (
+                  <img
+                    src={v.speaker_photo_url}
+                    alt=""
+                    className="w-9 h-9 rounded-full object-cover flex-shrink-0"
+                    style={{
+                      border: `2px solid ${v.speaker_is_elder ? '#B8860B' : '#FBF6EE'}`,
+                    }}
+                  />
+                ) : (
+                  <div
+                    className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 font-serif text-[10px]"
+                    style={{ backgroundColor: '#F4E9DC', color: '#8B6F47' }}
+                  >
+                    {v.speaker_name
+                      .split(/\s+/)
+                      .map((n) => n[0])
+                      .slice(0, 2)
+                      .join('')}
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <blockquote className="font-serif italic text-[11.5px] text-stone-700 leading-snug line-clamp-2">
+                    &ldquo;
+                    {v.text.length > 110 ? v.text.slice(0, 107) + '…' : v.text}
+                    &rdquo;
+                  </blockquote>
+                  <div className="text-[10px] text-stone-500 mt-0.5 truncate">
+                    {v.speaker_name}
+                    {v.speaker_is_elder && (
+                      <span
+                        className="ml-1 text-[8.5px] uppercase tracking-wider font-bold"
+                        style={{ color: '#B8860B' }}
+                      >
+                        Elder
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         )}
 
         {facet === 'highlights' && report.picc_highlights[0] && (

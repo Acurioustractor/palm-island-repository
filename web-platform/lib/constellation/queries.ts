@@ -152,6 +152,7 @@ import type {
   CommunityVision,
   ConstellationPayload,
   CuratedHeroQuote,
+  YearAnchoredQuote,
   ElderTripStop,
   FaceNode,
   FoundationEvent,
@@ -1172,6 +1173,35 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     if (top_quotes_curated.length >= 12) break
   }
 
+  // ── YEAR-ANCHORED QUOTES ─────────────────────────────────────────────
+  // EL quotes carrying event_year_min/max are anchored to a specific
+  // window in PICC history. The Timeline glance card filters this by
+  // activeYear to surface "voices that year." Capped at the strongest
+  // ~120 (impact score desc) so the payload doesn't bloat.
+  const year_anchored_quotes: YearAnchoredQuote[] = []
+  const yearAnchoredCandidates = elApprovedQuotes
+    .filter(
+      (q) =>
+        q.quote_text &&
+        q.author_name &&
+        q.event_year_min != null &&
+        q.event_year_max != null,
+    )
+    .sort((a, b) => (b.impact_score ?? 0) - (a.impact_score ?? 0))
+  for (const q of yearAnchoredCandidates.slice(0, 120)) {
+    const tok = lastToken(q.author_name ?? '')
+    const st = storytellerByLastToken.get(tok)
+    year_anchored_quotes.push({
+      text: q.quote_text,
+      speaker_name: q.author_name ?? '',
+      speaker_slug: st?.slug ?? null,
+      speaker_photo_url: st?.photo_url ?? null,
+      speaker_is_elder: Boolean(st?.is_elder),
+      event_year_min: q.event_year_min ?? 0,
+      event_year_max: q.event_year_max ?? 0,
+    })
+  }
+
   // ── TRANSCRIPTS (by storyteller UUID + by last-name token) ─────────────
   // Gating: privacy_level=public (Elder release 2026-05-12) AND
   // cultural_sensitivity != 'sacred'. Sacred is held back from the public
@@ -1494,6 +1524,7 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     bwgcolman,
     quotes_by_speaker: quotesBySpeaker,
     top_quotes_curated,
+    year_anchored_quotes,
     transcripts_by_storyteller: transcriptsByStoryteller,
     transcripts_by_speaker: transcriptsBySpeaker,
     top_stories,
