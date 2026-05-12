@@ -2102,13 +2102,22 @@ export default function Constellation({
         </div>
       </div>
 
-      {/* Bottom — year scrubber with report markers */}
-      <div className="px-4 py-3 border-t border-stone-200 bg-white/70 backdrop-blur">
+      {/* ─── Bottom — year scrubber with report markers ────────────── */}
+      <div className="px-6 py-4 border-t border-stone-200 bg-white/80 backdrop-blur">
+        <div className="flex items-center gap-2 mb-2 justify-between">
+          <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-ochre">
+            Year scrubber · {data.annual_reports.length} annual reports
+          </span>
+          <div className="font-serif text-charcoal flex items-baseline gap-1">
+            <span className="text-[10px] uppercase tracking-wider text-stone-500">FY</span>
+            <span className="text-xl">{activeYear}</span>
+          </div>
+        </div>
         <div className="flex items-center gap-3">
-          <span className="text-[11px] text-stone-500 font-medium">
+          <span className="text-[10px] text-stone-500 font-semibold tabular-nums">
             {yearBounds.min}
           </span>
-          <div className="flex-1 relative">
+          <div className="flex-1 relative" style={{ height: 30 }}>
             <input
               type="range"
               min={yearBounds.min}
@@ -2119,13 +2128,16 @@ export default function Constellation({
                 setActiveYear(parseInt(e.target.value, 10))
                 if (mode !== 'timeline') setMode('timeline')
               }}
-              className="w-full"
-              style={{ accentColor: '#2D5F4F' }}
+              className="w-full absolute inset-x-0"
+              style={{
+                accentColor: '#2D5F4F',
+                top: 4,
+                height: 18,
+              }}
               aria-label="Active fiscal year"
             />
-            {/* Report markers — clickable dots below the track at years
-                with an annual report. Click opens the rich overlay. */}
-            <div className="absolute left-0 right-0 -bottom-2 h-5">
+            {/* Report markers — clickable dots below the track. */}
+            <div className="absolute left-0 right-0 bottom-0 h-3 pointer-events-none">
               {data.annual_reports.map((r) => {
                 const span = yearBounds.max - yearBounds.min || 1
                 const pct = ((r.fiscal_year - yearBounds.min) / span) * 100
@@ -2143,7 +2155,7 @@ export default function Constellation({
                     }}
                     title={`FY ${r.fiscal_year} · ${r.title ?? 'Open report'}`}
                     aria-label={`Open FY ${r.fiscal_year} annual report`}
-                    className="absolute hover:scale-150 transition-transform"
+                    className="absolute hover:scale-150 transition-transform pointer-events-auto"
                     style={{
                       left: `calc(${pct}% - 6px)`,
                       top: 0,
@@ -2162,19 +2174,18 @@ export default function Constellation({
               })}
             </div>
           </div>
-          <span className="text-[11px] text-stone-500 font-medium">
+          <span className="text-[10px] text-stone-500 font-semibold tabular-nums">
             {yearBounds.max}
           </span>
-          <span className="text-sm font-serif text-charcoal min-w-[70px] text-right">
-            FY {activeYear}
-          </span>
         </div>
-        <div className="text-[10px] text-stone-500 mt-1.5 flex items-center gap-1.5">
+        <div className="text-[10px] text-stone-500 mt-2 flex items-center gap-1.5">
           <span
-            className="inline-block w-1.5 h-1.5 rounded-full"
+            className="inline-block w-2 h-2 rounded-full"
             style={{ backgroundColor: '#D97757' }}
           />
-          <span>Years with an annual report — click in the Reports rail to dive.</span>
+          <span>
+            Each dot is an annual report — click to open the year in full.
+          </span>
         </div>
       </div>
 
