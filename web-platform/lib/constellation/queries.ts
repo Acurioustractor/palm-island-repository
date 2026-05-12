@@ -17,6 +17,18 @@ import {
 import { getPiccPublicStories } from '@/lib/empathy-ledger/el-stories'
 import { getPiccApprovedELQuotes } from '@/lib/empathy-ledger/el-quotes'
 import { getPiccTranscriptMetadata } from '@/lib/empathy-ledger/el-transcripts'
+import {
+  FEATURED_ELDER_SLUGS,
+  FEATURED_ELDER_SLUG_SET,
+  FEATURED_PROJECT_SLUGS,
+  FEATURED_PROJECT_SLUG_SET,
+  FEATURED_SERVICE_SLUGS,
+  FEATURED_SERVICE_SLUG_SET,
+  HIDDEN_STORYTELLER_SLUGS,
+  MISSING_PHOTO_SLUGS,
+  STORYTELLER_PHOTO_OVERRIDES,
+  whitelistOrder,
+} from '@/lib/atlas/whitelist'
 
 /**
  * Resolve EL-canonical service cover photos from the galleries table.
@@ -494,32 +506,13 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
   //   3. PICC board_members.photo_url
   // Every face is tied to a real person — no anonymous "consented photo" entries.
 
-  // Known-broken storyteller slugs — their photo_url is set in EL v2
-  // but the underlying file does not exist in Supabase Storage. Hard
-  // exclude from the canvas (and any "photo wall") until EL data fix
-  // re-uploads them. Verified 2026-05-12 via HEAD probe on every
-  // storyteller thumbnail URL.
-  const MISSING_PHOTO_SLUGS = new Set([
-    'ida-richardson',
-    'jeanie-sam',
-    'patricia-doyle',
-  ])
-  // Storytellers in EL who are NOT PICC people and shouldn't appear on
-  // the Atlas. EL data hasn't been pruned yet — handle in code so the
-  // workshop doesn't surface unfamiliar names. Remove from the EL data
-  // store and you can drop these entries.
-  const NOT_A_PICC_STORYTELLER = new Set([
-    'freddy-wai',
-  ])
-  // Manual photo overrides — for storytellers whose EL v2 photo_url
-  // points to a missing file but a real photo exists elsewhere in
-  // storage. Source: media_assets table on EL v2. Override is applied
-  // ahead of the canonical photo_url and bypasses the missing-photo
-  // filter. Keys = storyteller slug.
-  const PHOTO_OVERRIDES: Record<string, string> = {
-    'dee-ann-sailor':
-      'https://uaxhjzqrdotoahjnxmbj.supabase.co/storage/v1/object/public/story-media/picc-website/service-photos/20240410-IMG_6281.jpg',
-  }
+  // Filtering rules — all imported from lib/atlas/whitelist.ts so
+  // there's one place to edit when adding/removing featured entities.
+  //   MISSING_PHOTO_SLUGS       — broken photo URL in EL Storage
+  //   HIDDEN_STORYTELLER_SLUGS  — not a PICC storyteller (Freddy Wai)
+  //   STORYTELLER_PHOTO_OVERRIDES — manual URL when EL is wrong
+  const PHOTO_OVERRIDES = STORYTELLER_PHOTO_OVERRIDES
+  const NOT_A_PICC_STORYTELLER = HIDDEN_STORYTELLER_SLUGS
   const stFaces: FaceNode[] = (storytellers ?? [])
     .filter(
       (s) =>
@@ -874,7 +867,17 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     return null
   }
 
-  const services: ServiceItem[] = (elServices ?? []).map((s) => {
+  const services: ServiceItem[] = (elServices ?? [])
+    // Whitelist filter — only featured slugs surface. Edit
+    // lib/atlas/whitelist.ts to add/remove. Order in whitelist drives
+    // display order in the grid.
+    .filter((s) => FEATURED_SERVICE_SLUG_SET.has(s.slug ?? ''))
+    .sort(
+      (a, b) =>
+        whitelistOrder(a.slug ?? '', FEATURED_SERVICE_SLUGS) -
+        whitelistOrder(b.slug ?? '', FEATURED_SERVICE_SLUGS),
+    )
+    .map((s) => {
     const piccCoord = findPiccCoord(s.name ?? '', s.slug ?? '')
     const piccOk = piccCoord && onPalmIsland(piccCoord.lat, piccCoord.lng)
     const elOk = onPalmIsland(s.latitude, s.longitude) && !isDefaultCentre(s.latitude, s.longitude)
@@ -920,7 +923,14 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
   })
 
   // ── PROJECTS (canonical from EL v2 with cover_image_url) ───────────────
-  const projects: ProjectItem[] = (elProjects ?? []).map((p) => {
+  const projects: ProjectItem[] = (elProjects ?? [])
+    .filter((p) => FEATURED_PROJECT_SLUG_SET.has(p.slug ?? ''))
+    .sort(
+      (a, b) =>
+        whitelistOrder(a.slug ?? '', FEATURED_PROJECT_SLUGS) -
+        whitelistOrder(b.slug ?? '', FEATURED_PROJECT_SLUGS),
+    )
+    .map((p) => {
     const sd = p.start_date
     return {
       id: p.id,
@@ -946,7 +956,23 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
   // quotes are joined by last-name token across both elder_quotes
   // (PICC) AND extracted_quotes (PICC + EL), exactly matching the
   // canvas right-rail behaviour.
-  const elderFaces = faces.filter((f) => f.is_elder && f.thumb_url)
+  // Featured Elders — whitelist-driven. Only the 10 slugs listed in
+  // lib/atlas/whitelist.ts surface in the rail. Order matches the
+  // whitelist order; falls back to quote_count desc within ties.
+  const elderFaces = faces
+    .filter(
+      (f) =>
+        f.is_elder &&
+        f.thumb_url &&
+        f.slug != null &&
+        FEATURED_ELDER_SLUG_SET.has(f.slug),
+    )
+    .sort((a, b) => {
+      const oa = whitelistOrder(a.slug ?? '', FEATURED_ELDER_SLUGS)
+      const ob = whitelistOrder(b.slug ?? '', FEATURED_ELDER_SLUGS)
+      if (oa !== ob) return oa - ob
+      return b.quote_count - a.quote_count
+    })
   // Lookup elder_quotes text by last-name token so each elder picks up
   // their oral-record contributions where the attribution matched.
   const elderQuotesByLastToken = new Map<string, string[]>()
