@@ -26,6 +26,7 @@ import { ArrowRight } from 'lucide-react'
 import { loadConstellation } from '@/lib/constellation/queries'
 import PalmIslandMap, { type PinService } from '../picc/twenty-years/PalmIslandMap'
 import ChatWidget from '@/components/chat/ChatWidget'
+import IntroOverlay from './IntroOverlay'
 import SavePath from './SavePath'
 import CanvasStage from './CanvasStage'
 
@@ -107,43 +108,87 @@ export default async function LivingAtlasPage() {
   const reportsCount = data.annual_reports.length
 
   return (
-    <div className="min-h-screen bg-cream">
-      <div className="max-w-[1500px] mx-auto px-4 py-6">
-        {/* ─── 1. HERO ─────────────────────────────────────────────────── */}
-        <header className="mb-6 flex items-end justify-between gap-4 flex-wrap">
-          <div className="flex-1 min-w-[300px]">
-            <div className="text-[11px] uppercase tracking-[0.3em] text-ochre font-bold mb-2">
+    <div className="bg-cream">
+      {/* ─── HERO · CONSTELLATION FULL-BLEED ─────────────────────────────── */}
+      {/* The constellation IS the hero. 100vh, no border, no chrome above.
+          Intro overlay fades after 4s revealing the live canvas. Top-right
+          floating CTAs stay always-visible. */}
+      {hasData && (
+        <section
+          className="relative w-full overflow-hidden"
+          style={{ height: '100vh' }}
+        >
+          <CanvasStage data={data} immersive />
+
+          {/* Top-left presentation eyebrow — always visible. */}
+          <div
+            className="absolute top-4 left-6 z-20 pointer-events-none"
+            style={{
+              textShadow: '0 1px 2px rgba(251, 246, 238, 0.8)',
+            }}
+          >
+            <div className="text-[10px] uppercase tracking-[0.4em] font-bold text-ochre">
               Palm Island Community Company
             </div>
-            <h1 className="font-serif text-4xl md:text-5xl text-charcoal leading-[1.05]">
+            <div className="font-serif text-charcoal text-base mt-0.5">
               The Living Atlas
-            </h1>
+            </div>
           </div>
-          <div className="flex items-end gap-3 flex-wrap">
+
+          {/* Top-right floating CTA. */}
+          <div className="absolute top-3 right-4 z-20 flex items-center gap-2">
             <SavePath />
             <Link
               href="/atlas/capture"
-              className="rounded-md px-4 py-2 font-semibold text-white text-sm whitespace-nowrap shadow-sm"
+              className="rounded-md px-4 py-2 font-semibold text-white text-sm whitespace-nowrap shadow-md"
               style={{ backgroundColor: '#2D5F4F' }}
             >
               Share a thought
             </Link>
           </div>
-        </header>
 
-        {/* Hero stats + featured voice card */}
-        <section className="mb-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-1 grid grid-cols-2 gap-3 content-start">
+          {/* Intro overlay — fades after 4s. */}
+          <IntroOverlay
+            eyebrow="The 20-year story · live"
+            title="One Atlas. Every Voice."
+            tagline="A living surface for Palm Island — people, services, projects, places, years, visions. Drag a face. Scrub a year. Click anything to enter the story."
+          />
+
+          {/* Subtle scroll-hint indicator. */}
+          <div
+            className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 pointer-events-none"
+            style={{ animation: 'cstl-scrollhint 2.4s ease-in-out infinite' }}
+          >
+            <div className="text-[10px] uppercase tracking-[0.4em] text-stone-500 mb-1">
+              scroll for more
+            </div>
+            <div className="w-px h-6 bg-stone-400 mx-auto" />
+          </div>
+        </section>
+      )}
+
+      {/* ─── SUPPORTING ARCHIVE ──────────────────────────────────────────── */}
+      <main className="max-w-[1500px] mx-auto px-4 py-12">
+        {/* Numbers strip — what the platform holds today */}
+        <section className="mb-12">
+          <div className="text-[11px] uppercase tracking-[0.3em] text-ochre font-bold mb-4">
+            What the Atlas holds
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             <BigStat value={nf(facesCount)} label="people" tint="green" />
             <BigStat value={nf(totalQuotes)} label="voices on record" tint="ochre" />
-            <BigStat value={nf(elderQuotesCount)} label="Elder quotes validated" tint="gold" />
-            <BigStat value={nf(servicesCount)} label="services on Country" tint="green" />
-            <BigStat value={nf(projectsCount)} label="projects delivering" tint="terracotta" />
-            <BigStat value={nf(reportsCount)} label="annual reports archived" tint="charcoal" />
+            <BigStat value={nf(elderQuotesCount)} label="Elder quotes" tint="gold" />
+            <BigStat value={nf(servicesCount)} label="services" tint="green" />
+            <BigStat value={nf(projectsCount)} label="projects" tint="terracotta" />
+            <BigStat value={nf(reportsCount)} label="annual reports" tint="charcoal" />
           </div>
-          {featuredVoice && (
+        </section>
+
+        {/* Featured voice — single quote moment */}
+        {featuredVoice && (
+          <section className="mb-12">
             <article
-              className="lg:col-span-2 rounded-2xl border bg-white p-6 md:p-8 shadow-sm flex flex-col gap-4"
+              className="rounded-2xl border bg-white p-8 md:p-12 shadow-sm flex flex-col gap-5 max-w-4xl mx-auto"
               style={{ borderColor: '#E0CFB8' }}
             >
               <div className="text-[10px] uppercase tracking-[0.3em] font-semibold text-ochre">
@@ -154,10 +199,10 @@ export default async function LivingAtlasPage() {
                   </span>
                 )}
               </div>
-              <blockquote className="font-serif italic text-2xl md:text-3xl text-charcoal leading-snug">
+              <blockquote className="font-serif italic text-3xl md:text-4xl text-charcoal leading-[1.2]">
                 &ldquo;{featuredVoice.text}&rdquo;
               </blockquote>
-              <div className="flex items-center gap-3 mt-auto">
+              <div className="flex items-center gap-3 mt-2">
                 {featuredVoice.speaker_photo_url && (
                   <img
                     src={featuredVoice.speaker_photo_url}
@@ -189,19 +234,6 @@ export default async function LivingAtlasPage() {
                 )}
               </div>
             </article>
-          )}
-        </section>
-
-        {/* ─── 2. CONSTELLATION ────────────────────────────────────────── */}
-        {hasData && (
-          <section className="mb-8">
-            <SectionHeader
-              label="The constellation"
-              caption="Drag any face. Scrub a year. Click a theme."
-            />
-            <div className="rounded-xl border border-stone-200 bg-white shadow-md overflow-hidden">
-              <CanvasStage data={data} />
-            </div>
           </section>
         )}
 
@@ -579,13 +611,21 @@ export default async function LivingAtlasPage() {
             Share a thought →
           </Link>
         </section>
-      </div>
+      </main>
 
       {/* Ask PICC chat overlay */}
       <ChatWidget
         position="bottom-right"
         welcomeMessage="Welcome to the Palm Island Living Atlas. Ask me about any service, project, Elder, annual report year, or the Hull River journey. I'll cite the source so you can keep exploring."
       />
+
+      {/* Scroll-hint keyframe */}
+      <style>{`
+        @keyframes cstl-scrollhint {
+          0%, 100% { opacity: 0.5; transform: translate(-50%, 0); }
+          50% { opacity: 1; transform: translate(-50%, 4px); }
+        }
+      `}</style>
     </div>
   )
 }

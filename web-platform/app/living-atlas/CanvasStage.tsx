@@ -19,14 +19,20 @@ import type {
   ThemeWell,
 } from '@/lib/constellation/types'
 
-export default function CanvasStage({ data }: { data: ConstellationPayload }) {
+export default function CanvasStage({
+  data,
+  immersive = false,
+}: {
+  data: ConstellationPayload
+  immersive?: boolean
+}) {
   const params = useSearchParams()
   const renderer = params.get('renderer')
   const [activeFace, setActiveFace] = useState<FaceNode | null>(null)
   const [activeTheme, setActiveTheme] = useState<string | null>(null)
 
   if (renderer !== 'canvas') {
-    return <Constellation data={data} variant="atlas" />
+    return <Constellation data={data} variant="atlas" immersive={immersive} />
   }
 
   // Canvas variant — minimal chrome on top of CanvasField. Future stages

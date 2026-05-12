@@ -44,6 +44,11 @@ interface Props {
   /** workshop = frozen surface for the 13 May demo. atlas = adds the new
    *  Stories and Futures lenses on top. Default = workshop. */
   variant?: 'workshop' | 'atlas'
+  /** immersive = always-fullscreen layout, no rounded border, fills parent.
+   *  Used by /living-atlas to make the constellation the above-the-fold
+   *  experience. Parent container is responsible for sizing (typically
+   *  100vh wrapper). */
+  immersive?: boolean
 }
 
 interface SimFace extends d3.SimulationNodeDatum {
@@ -193,6 +198,7 @@ function buildIdSet(ids: string[] | undefined): Set<string> {
 export default function Constellation({
   data,
   variant = 'workshop',
+  immersive = false,
 }: Props) {
   const TABS = variant === 'atlas' ? ATLAS_TABS : WORKSHOP_TABS
   const wrapperRef = useRef<HTMLDivElement>(null)
@@ -1349,7 +1355,7 @@ export default function Constellation({
     <div
       ref={wrapperRef}
       className="bg-cream flex flex-col"
-      style={{ height: isFullscreen ? '100vh' : 'auto' }}
+      style={{ height: isFullscreen || immersive ? '100vh' : 'auto' }}
     >
       {/* Header strip — title · tagline · mode-segmented · actions */}
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-stone-200 bg-white/80 backdrop-blur gap-3 flex-wrap">
@@ -1468,7 +1474,10 @@ export default function Constellation({
       <div
         className="flex flex-1 min-h-0"
         style={{
-          height: isFullscreen ? 'calc(100vh - 102px)' : `${STAGE_HEIGHT}px`,
+          height:
+            isFullscreen || immersive
+              ? 'calc(100vh - 102px)'
+              : `${STAGE_HEIGHT}px`,
         }}
       >
         {/* LEFT RAIL — tabbed browser */}
