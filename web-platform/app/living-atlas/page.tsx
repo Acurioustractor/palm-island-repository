@@ -147,10 +147,12 @@ export default async function LivingAtlasPage() {
         </div>
 
         {/* Numbers strip — what the platform holds today */}
-        <section className="mb-12">
-          <div className="text-[11px] uppercase tracking-[0.3em] text-ochre font-bold mb-4">
-            What the Atlas holds
-          </div>
+        <section className="mb-16">
+          <SectionHeader
+            eyebrow="00 · The platform"
+            label="What the Atlas holds"
+            caption="Every number below is live from Empathy Ledger v2 and PICC Supabase — refreshed every page load, never fabricated."
+          />
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             <BigStat value={nf(facesCount)} label="people" tint="green" />
             <BigStat value={nf(totalQuotes)} label="voices on record" tint="ochre" />
@@ -216,9 +218,11 @@ export default async function LivingAtlasPage() {
 
         {/* ─── 3. VOICE WALL ───────────────────────────────────────────── */}
         {voiceWall.length > 0 && (
-          <section className="mb-8">
+          <section className="mb-16">
             <SectionHeader
-              label="Voices"
+              eyebrow="01 · The voices"
+              label="What community is saying"
+              caption="Top quotes from the EL v2 archive. Click any card to open that storyteller's full profile."
               rightHref="/living-atlas/transcripts"
               rightLabel={`All ${nf(136)} transcripts →`}
             />
@@ -232,14 +236,18 @@ export default async function LivingAtlasPage() {
 
         {/* ─── 4. ELDERS COUNCIL ───────────────────────────────────────── */}
         {elders.length > 0 && (
-          <section className="mb-8">
+          <section className="mb-16">
             <SectionHeader
+              eyebrow="02 · The Elders"
               label="Elders Council"
-              caption={`${elders.length} named Elders. Gold ring marks Elder status.`}
+              caption={`${elders.length} named Elders carrying the long story. Gold ring marks Elder status. Click any portrait to open their full profile.`}
               rightHref="/living-atlas"
               rightLabel="See all →"
             />
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+            {/* Portrait gallery — magazine-style. Larger photos, name
+                below in serif, quote count subtle. Hover reveals a gentle
+                lift + ring glow. */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-x-4 gap-y-6">
               {elders.map((e) => (
                 <Link
                   key={e.id}
@@ -248,20 +256,32 @@ export default async function LivingAtlasPage() {
                       ? `/living-atlas/people/${e.slug}`
                       : '/living-atlas'
                   }
-                  className="rounded-xl bg-white border border-stone-200 p-3 hover:shadow-md transition group flex flex-col items-center text-center"
+                  className="group flex flex-col items-center text-center"
                 >
-                  <img
-                    src={e.thumb_url}
-                    alt={e.name ?? ''}
-                    className="w-20 h-20 rounded-full object-cover mb-2"
-                    style={{ border: '3px solid #B8860B' }}
-                  />
-                  <div className="font-serif text-sm text-charcoal group-hover:underline leading-tight">
+                  <div
+                    className="relative mb-3 transition-transform group-hover:-translate-y-1"
+                    style={{ width: 140, height: 140 }}
+                  >
+                    <img
+                      src={e.thumb_url}
+                      alt={e.name ?? ''}
+                      className="w-full h-full rounded-full object-cover shadow-md"
+                      style={{ border: '4px solid #B8860B' }}
+                    />
+                    {/* Hover ring */}
+                    <div
+                      className="absolute -inset-1.5 rounded-full opacity-0 group-hover:opacity-100 transition"
+                      style={{
+                        boxShadow: '0 0 0 3px rgba(184, 134, 11, 0.25)',
+                      }}
+                    />
+                  </div>
+                  <div className="font-serif text-base text-charcoal group-hover:underline leading-tight">
                     {e.name ?? 'Elder'}
                   </div>
                   {e.quote_count > 0 && (
-                    <div className="text-[10px] text-stone-500 mt-0.5">
-                      {e.quote_count} {e.quote_count === 1 ? 'quote' : 'quotes'}
+                    <div className="text-[10px] uppercase tracking-wider text-stone-500 mt-1 font-semibold">
+                      {e.quote_count} {e.quote_count === 1 ? 'voice' : 'voices'}
                     </div>
                   )}
                 </Link>
@@ -274,10 +294,11 @@ export default async function LivingAtlasPage() {
         {/* Narrative bridge: services aren't a catalogue, they're the
             community-controlled response. Every one has staff behind it
             and storytellers attached. This is the staff + community thread. */}
-        <section className="mb-8">
+        <section className="mb-16">
           <SectionHeader
-            label="Services"
-            caption={`${allServices.length} active programs delivering on Palm Island.`}
+            eyebrow="03 · The work"
+            label="Services on Country"
+            caption={`${allServices.length} active programs — designed, staffed, and accountable to community. Each card carries the EL canonical cover and the count of storytellers whose voices are tagged to it.`}
           />
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {allServices.map((s) => {
@@ -367,10 +388,11 @@ export default async function LivingAtlasPage() {
         </section>
 
         {/* ─── 7. PROJECTS ─────────────────────────────────────────────── */}
-        <section className="mb-8">
+        <section className="mb-16">
           <SectionHeader
-            label="Projects"
-            caption={`${allProjects.length} live innovation projects.`}
+            eyebrow="04 · The innovation"
+            label="Projects in flight"
+            caption={`${allProjects.length} live initiatives picking up where ongoing services stop. Same people, same Country, longer arc.`}
           />
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
             {allProjects.map((p) => {
@@ -436,10 +458,11 @@ export default async function LivingAtlasPage() {
 
         {/* ─── 7. WHERE THE WORK HAPPENS (MAP) ─────────────────────────── */}
         {mapServices.length > 0 && (
-          <section className="mb-8">
+          <section className="mb-16">
             <SectionHeader
+              eyebrow="05 · The place"
               label="On Country"
-              caption={`${mapServices.length} services pinned. Click any.`}
+              caption={`${mapServices.length} of ${data.services.length} services pinned to their real address on Palm Island. Click any pin for the service profile.`}
               rightHref="/picc/services/map"
               rightLabel="Edit positions →"
             />
@@ -494,8 +517,12 @@ export default async function LivingAtlasPage() {
 
         {/* ─── 9. THEMES ───────────────────────────────────────────────── */}
         {themes.length > 0 && (
-          <section className="mb-8">
-            <SectionHeader label="Themes" />
+          <section className="mb-16">
+            <SectionHeader
+              eyebrow="07 · The patterns"
+              label="Themes named by community"
+              caption="Not a taxonomy we built — patterns the voices themselves surfaced. Click any theme to see every quote that names it."
+            />
             <div className="flex flex-wrap gap-2">
               {themes.map((t) => (
                 <Link
@@ -513,9 +540,10 @@ export default async function LivingAtlasPage() {
         )}
 
         {/* ─── 10. PLACES & DEEP DIVES ─────────────────────────────────── */}
-        <section className="mb-8">
+        <section className="mb-16">
           <SectionHeader
-            label="Places & deep-dives"
+            eyebrow="08 · The long ground"
+            label="Places & archive"
             caption="Foundational locations and long-form pages — each with timeline, map, voices, and the archive."
           />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -614,29 +642,43 @@ function SectionHeader({
   caption,
   rightHref,
   rightLabel,
+  eyebrow,
 }: {
   label: string
   caption?: string
   rightHref?: string
   rightLabel?: string
+  /** Optional small uppercase pre-title (e.g. "01 · voices"). */
+  eyebrow?: string
 }) {
   return (
-    <div className="mb-3 flex items-baseline justify-between flex-wrap gap-2">
-      <div>
-        <h2 className="font-serif text-xl text-charcoal">{label}</h2>
-        {caption && (
-          <p className="text-[11px] text-stone-500 mt-0.5">{caption}</p>
+    <div className="mb-6">
+      <div className="flex items-end justify-between flex-wrap gap-3 pb-3 border-b border-stone-300">
+        <div>
+          {eyebrow && (
+            <div className="text-[10px] uppercase tracking-[0.3em] font-bold text-ochre mb-1.5">
+              {eyebrow}
+            </div>
+          )}
+          <h2 className="font-serif text-3xl md:text-4xl text-charcoal leading-[1.05]">
+            {label}
+          </h2>
+          {caption && (
+            <p className="text-sm text-stone-600 mt-2 max-w-xl leading-relaxed">
+              {caption}
+            </p>
+          )}
+        </div>
+        {rightHref && rightLabel && (
+          <Link
+            href={rightHref}
+            className="text-[11px] font-semibold underline hover:no-underline whitespace-nowrap"
+            style={{ color: '#2D5F4F' }}
+          >
+            {rightLabel}
+          </Link>
         )}
       </div>
-      {rightHref && rightLabel && (
-        <Link
-          href={rightHref}
-          className="text-[11px] font-semibold underline hover:no-underline"
-          style={{ color: '#2D5F4F' }}
-        >
-          {rightLabel}
-        </Link>
-      )}
     </div>
   )
 }
@@ -658,14 +700,17 @@ function BigStat({
     charcoal: '#2C2C2C',
   }
   return (
-    <div className="rounded-xl bg-white border border-stone-200 px-3 py-3">
+    <div
+      className="rounded-xl bg-white border-l-4 border-y border-r border-stone-200 px-5 py-5 hover:shadow-md transition"
+      style={{ borderLeftColor: colors[tint] }}
+    >
       <div
-        className="font-serif text-2xl leading-none"
-        style={{ color: colors[tint] }}
+        className="font-serif leading-none tabular-nums"
+        style={{ color: colors[tint], fontSize: 36 }}
       >
         {value}
       </div>
-      <div className="text-[10px] uppercase tracking-wide text-stone-500 mt-1.5 leading-tight">
+      <div className="text-[10px] uppercase tracking-[0.2em] text-stone-500 mt-2 leading-tight font-semibold">
         {label}
       </div>
     </div>
