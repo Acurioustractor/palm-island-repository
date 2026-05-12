@@ -1608,8 +1608,12 @@ export default function Constellation({
               : `${STAGE_HEIGHT}px`,
         }}
       >
-        {/* LEFT RAIL — tabbed browser */}
-        <div className="w-[220px] border-r border-stone-200 bg-white/60 flex-shrink-0 flex flex-col">
+        {/* LEFT RAIL — REMOVED. The canvas IS the navigation. Browsable
+            lists (services, projects, elders, stories, reports, futures,
+            bwgcolman) live below the fold on the supporting-archive
+            section. The ring-colour legend is now a floating corner
+            card on the canvas (see <LegendCorner/> below). */}
+        <div className="hidden">
           {/* Tab strip — underlined pills, subtler than coloured fills */}
           <div className="flex flex-wrap gap-x-3 gap-y-1 px-3 py-2 border-b border-stone-200">
             {TABS.map((t) => {
@@ -2196,6 +2200,29 @@ export default function Constellation({
             preserveAspectRatio="xMidYMid meet"
             className="relative z-[1]"
           />
+
+          {/* Floating legend — small expandable corner card. Replaces
+              the old "View" tab content. Collapsed by default so the
+              canvas stays uncluttered. */}
+          <details
+            className="absolute top-4 left-4 z-10 rounded-lg bg-white/85 backdrop-blur border border-stone-200 shadow-sm"
+            style={{ width: 200 }}
+          >
+            <summary className="cursor-pointer list-none px-3 py-1.5 text-[10px] uppercase tracking-[0.2em] font-semibold text-stone-600 hover:bg-stone-50 select-none flex items-center justify-between rounded-lg">
+              <span>Legend</span>
+              <span className="text-stone-400 text-[14px] leading-none">+</span>
+            </summary>
+            <div className="px-3 py-2 border-t border-stone-200 space-y-1.5 text-[11px] text-stone-700">
+              <LegendRow colour={ELDER_RING} label="Elder voice" />
+              <LegendRow colour={VOICE_RINGS.staff} label="Staff · service" />
+              <LegendRow colour={VOICE_RINGS.community} label="Community" />
+              <LegendRow colour={VOICE_RINGS.supporter} label="Supporter" />
+              <LegendRow colour={VOICE_RINGS.governance} label="Governance" />
+              <div className="border-t border-stone-200 my-1.5" />
+              <LegendRow colour="#C8963E" label="Services" />
+              <LegendRow colour={PROJECT_RING} label="Projects · dashed" />
+            </div>
+          </details>
 
           {/* Year glance card — floats over the canvas in Timeline mode.
               Cycles through every facet of the report (summary, numbers,

@@ -1374,7 +1374,20 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     const end = endRaw.length === 4 ? endRaw.slice(2) : endRaw
     return `${start}-${end}`
   }
-  function extractedCoverFor(rangeStr: string | null): string | null {
+  // Manual cover overrides — for pre-PDF founding years (FY 2008, 2009)
+  // where no extracted first-page exists. Falls back to archival Palm
+  // Island imagery that signals the era. Keyed by fiscal year end.
+  const COVER_OVERRIDES: Record<number, string> = {
+    // FY 2008 — Founding year (no formal annual report PDF on file)
+    2008: `${PICC_STORAGE}/storage/v1/object/public/platform-media/archive-photos/nma-protest-palm-island-2006.jpg`,
+    // FY 2009 — first year of operations
+    2009: `${PICC_STORAGE}/storage/v1/object/public/platform-media/archive-photos/palm-island-jetty.jpg`,
+  }
+  function extractedCoverFor(
+    rangeStr: string | null,
+    fyEnd: number,
+  ): string | null {
+    if (COVER_OVERRIDES[fyEnd]) return COVER_OVERRIDES[fyEnd]
     const folder = fyRangeFolder(rangeStr)
     if (!folder) return null
     return `${PICC_STORAGE}/storage/v1/object/public/platform-media/annual-report-photos/${folder}/photo-000.jpg`
@@ -1385,7 +1398,8 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
       fiscal_year: fy,
       title: r.title,
       subtitle: r.subtitle,
-      cover_photo_url: r.cover_image_url ?? extractedCoverFor(r.fiscal_year),
+      cover_photo_url:
+        r.cover_image_url ?? extractedCoverFor(r.fiscal_year, fy),
       pdf_url: r.pdf_url,
       published_date: r.published_date,
       summary: r.extracted_summary,
