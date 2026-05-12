@@ -892,9 +892,12 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
         : isDefaultCentre(s.latitude, s.longitude)
           ? null
           : s.longitude
-    // EL gallery cover override — prefer the curated cover the user
-    // set in the EL gallery over the (often older / placeholder)
-    // services.image_url column.
+    // EL admin "cover ✓" = services.image_url. That endpoint
+    // (/api/admin/picc-tagging/cover) writes the user-chosen cover
+    // directly to services.image_url. So image_url IS the canonical
+    // cover — use it first. Gallery cover is only a fallback for
+    // services whose image_url is null (shouldn't happen on the live
+    // PICC org but defensive nonetheless).
     const galleryCover = s.gallery_id
       ? galleryCoverPhotos[s.gallery_id]
       : null
@@ -903,7 +906,7 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
       name: s.name,
       slug: s.slug,
       description: s.description,
-      image_url: galleryCover ?? s.image_url,
+      image_url: s.image_url ?? galleryCover,
       category: s.service_category,
       service_type: null,
       status: s.status ?? 'active',
