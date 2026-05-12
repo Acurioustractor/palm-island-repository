@@ -118,57 +118,34 @@ export default async function LivingAtlasPage() {
           className="relative w-full overflow-hidden"
           style={{ height: '100vh' }}
         >
+          {/* Constellation = full chrome including title, modes, layers,
+              year slider, right rail. Owns its own header. */}
           <CanvasStage data={data} immersive />
 
-          {/* Top-left presentation eyebrow — always visible. */}
-          <div
-            className="absolute top-4 left-6 z-20 pointer-events-none"
-            style={{
-              textShadow: '0 1px 2px rgba(251, 246, 238, 0.8)',
-            }}
-          >
-            <div className="text-[10px] uppercase tracking-[0.4em] font-bold text-ochre">
-              Palm Island Community Company
-            </div>
-            <div className="font-serif text-charcoal text-base mt-0.5">
-              The Living Atlas
-            </div>
-          </div>
-
-          {/* Top-right floating CTA. */}
-          <div className="absolute top-3 right-4 z-20 flex items-center gap-2">
-            <SavePath />
-            <Link
-              href="/atlas/capture"
-              className="rounded-md px-4 py-2 font-semibold text-white text-sm whitespace-nowrap shadow-md"
-              style={{ backgroundColor: '#2D5F4F' }}
-            >
-              Share a thought
-            </Link>
-          </div>
-
-          {/* Intro overlay — fades after 4s. */}
+          {/* Intro overlay — fades after 4s. Sits over everything until
+              dismissed. */}
           <IntroOverlay
             eyebrow="The 20-year story · live"
             title="One Atlas. Every Voice."
             tagline="A living surface for Palm Island — people, services, projects, places, years, visions. Drag a face. Scrub a year. Click anything to enter the story."
           />
-
-          {/* Subtle scroll-hint indicator. */}
-          <div
-            className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 pointer-events-none"
-            style={{ animation: 'cstl-scrollhint 2.4s ease-in-out infinite' }}
-          >
-            <div className="text-[10px] uppercase tracking-[0.4em] text-stone-500 mb-1">
-              scroll for more
-            </div>
-            <div className="w-px h-6 bg-stone-400 mx-auto" />
-          </div>
         </section>
       )}
 
       {/* ─── SUPPORTING ARCHIVE ──────────────────────────────────────────── */}
       <main className="max-w-[1500px] mx-auto px-4 py-12">
+        {/* CTA toolbar — Save path + Share a thought */}
+        <div className="mb-8 flex items-center justify-end gap-3">
+          <SavePath />
+          <Link
+            href="/atlas/capture"
+            className="rounded-md px-4 py-2 font-semibold text-white text-sm whitespace-nowrap shadow-sm"
+            style={{ backgroundColor: '#2D5F4F' }}
+          >
+            Share a thought
+          </Link>
+        </div>
+
         {/* Numbers strip — what the platform holds today */}
         <section className="mb-12">
           <div className="text-[11px] uppercase tracking-[0.3em] text-ochre font-bold mb-4">
