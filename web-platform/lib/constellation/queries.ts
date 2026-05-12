@@ -1359,13 +1359,33 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
   // EL v2 as truth; PICC's own annual_reports table (annualReportsFullRes)
   // is only used as a tie-breaker for in-flight planning rows.
   const elRows = elAnnualReports
+  // Annual-report cover fallback — PICC platform-media bucket has every
+  // year's PDF first-page extracted to .../annual-report-photos/{fy-range}/
+  // photo-000.jpg. We use that when r.cover_image_url is null, so every
+  // report has a real cover image even when EL hasn't been backfilled.
+  const PICC_STORAGE = 'https://uaxhjzqrdotoahjnxmbj.supabase.co'
+  function fyRangeFolder(rangeStr: string | null): string | null {
+    // Input: "2012-13" or "2012-2013" → output: "2012-13".
+    if (!rangeStr) return null
+    const m = /^(\d{4})-(\d{2,4})$/.exec(rangeStr.trim())
+    if (!m) return null
+    const start = m[1]
+    const endRaw = m[2]
+    const end = endRaw.length === 4 ? endRaw.slice(2) : endRaw
+    return `${start}-${end}`
+  }
+  function extractedCoverFor(rangeStr: string | null): string | null {
+    const folder = fyRangeFolder(rangeStr)
+    if (!folder) return null
+    return `${PICC_STORAGE}/storage/v1/object/public/platform-media/annual-report-photos/${folder}/photo-000.jpg`
+  }
   const annual_reports: AnnualReportItem[] = elRows.map((r) => {
     const fy = fiscalYearEnd(r.fiscal_year) ?? 0
     return {
       fiscal_year: fy,
       title: r.title,
       subtitle: r.subtitle,
-      cover_photo_url: r.cover_image_url,
+      cover_photo_url: r.cover_image_url ?? extractedCoverFor(r.fiscal_year),
       pdf_url: r.pdf_url,
       published_date: r.published_date,
       summary: r.extracted_summary,
