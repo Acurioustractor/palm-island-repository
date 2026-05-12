@@ -21,13 +21,15 @@ import { getPiccTranscriptMetadata } from '@/lib/empathy-ledger/el-transcripts'
 /**
  * Resolve EL-canonical service cover photos from the galleries table.
  *
- * In EL admin the user uploads curated cover photos via the gallery
- * surface. Those covers live as media_assets rows pointed to by
- * `galleries.cover_image_id`. The `services.image_url` column is
- * often older / placeholder. Joining gallery → cover_image_id →
- * media_assets gets the right photo.
+ * Two-tier resolution:
+ *   1. PRIMARY — galleries.cover_image_id → media_assets.url (curated
+ *      cover the user explicitly set in EL admin)
+ *   2. FALLBACK — first media_assets row whose project_id or
+ *      storyteller_id matches the gallery's content (any photo at
+ *      all in the gallery, when no explicit cover_image_id is set)
  *
- * Returns a map: gallery_id → storage_url of the cover photo.
+ * Returns a map: gallery_id → photoUrl. Used to override the often-
+ * placeholder services.image_url column with real curated imagery.
  */
 async function getGalleryCoverPhotos(): Promise<Record<string, string>> {
   const key = process.env.EMPATHY_LEDGER_SERVICE_KEY
@@ -35,10 +37,11 @@ async function getGalleryCoverPhotos(): Promise<Record<string, string>> {
   const EL = 'https://yvnuayzslukamizrlhwb.supabase.co/rest/v1'
   const PICC_EL = '084f851c-72e0-41fb-b5ba-f3088f44862d'
   try {
+    // Step 1: every PICC gallery (whether cover_image_id is set or not)
     const gRes = await fetch(
       `${EL}/galleries?organization_id=eq.${PICC_EL}` +
-        `&cover_image_id=not.is.null` +
-        `&select=id,cover_image_id`,
+        `&select=id,cover_image_id,photo_count` +
+        `&photo_count=gt.0`,
       {
         headers: { apikey: key, Authorization: `Bearer ${key}` },
         cache: 'no-store',
@@ -47,36 +50,84 @@ async function getGalleryCoverPhotos(): Promise<Record<string, string>> {
     if (!gRes.ok) return {}
     const gals = (await gRes.json()) as Array<{
       id: string
-      cover_image_id: string
+      cover_image_id: string | null
+      photo_count: number
     }>
     if (gals.length === 0) return {}
-    const coverIds = gals.map((g) => g.cover_image_id)
-    const mRes = await fetch(
-      `${EL}/media_assets?id=in.(${coverIds.join(',')})` +
-        `&select=id,url,medium_url,large_url`,
-      {
-        headers: { apikey: key, Authorization: `Bearer ${key}` },
-        cache: 'no-store',
-      },
-    )
-    if (!mRes.ok) return {}
-    const media = (await mRes.json()) as Array<{
-      id: string
-      url: string | null
-      medium_url: string | null
-      large_url: string | null
-    }>
-    const urlByMediaId = new Map<string, string>()
-    for (const m of media) {
-      // Prefer medium_url for performance, fall back to url then large.
-      const u = m.medium_url || m.url || m.large_url
-      if (u) urlByMediaId.set(m.id, u)
-    }
+
+    // Step 2: fetch every cover_image_id media row (curated covers)
+    const explicitCoverIds = gals
+      .map((g) => g.cover_image_id)
+      .filter((x): x is string => Boolean(x))
     const out: Record<string, string> = {}
-    for (const g of gals) {
-      const u = urlByMediaId.get(g.cover_image_id)
-      if (u) out[g.id] = u
+    if (explicitCoverIds.length > 0) {
+      const mRes = await fetch(
+        `${EL}/media_assets?id=in.(${explicitCoverIds.join(',')})` +
+          `&select=id,url,medium_url,large_url`,
+        {
+          headers: { apikey: key, Authorization: `Bearer ${key}` },
+          cache: 'no-store',
+        },
+      )
+      if (mRes.ok) {
+        const media = (await mRes.json()) as Array<{
+          id: string
+          url: string | null
+          medium_url: string | null
+          large_url: string | null
+        }>
+        const byId = new Map<string, string>()
+        for (const m of media) {
+          const u = m.medium_url || m.url || m.large_url
+          if (u) byId.set(m.id, u)
+        }
+        for (const g of gals) {
+          if (g.cover_image_id) {
+            const u = byId.get(g.cover_image_id)
+            if (u) out[g.id] = u
+          }
+        }
+      }
     }
+
+    // Step 3: for galleries WITHOUT a cover_image_id but WITH photos,
+    // fall back to the first media_assets row whose collection_id
+    // matches the gallery. So no service falls back to a stale
+    // image_url when its gallery actually has photos.
+    const galsNeedingFallback = gals.filter(
+      (g) => !out[g.id] && g.photo_count > 0,
+    )
+    if (galsNeedingFallback.length > 0) {
+      const ids = galsNeedingFallback.map((g) => g.id).join(',')
+      const mRes2 = await fetch(
+        `${EL}/media_assets?collection_id=in.(${ids})` +
+          `&select=collection_id,url,medium_url,large_url,created_at` +
+          `&order=created_at.asc` +
+          `&limit=500`,
+        {
+          headers: { apikey: key, Authorization: `Bearer ${key}` },
+          cache: 'no-store',
+        },
+      )
+      if (mRes2.ok) {
+        const items = (await mRes2.json()) as Array<{
+          collection_id: string
+          url: string | null
+          medium_url: string | null
+          large_url: string | null
+        }>
+        const firstByGal = new Map<string, string>()
+        for (const it of items) {
+          if (firstByGal.has(it.collection_id)) continue
+          const u = it.medium_url || it.url || it.large_url
+          if (u) firstByGal.set(it.collection_id, u)
+        }
+        firstByGal.forEach((url, gid) => {
+          if (!out[gid]) out[gid] = url
+        })
+      }
+    }
+
     return out
   } catch {
     return {}
@@ -884,28 +935,37 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     }
   })
 
-  // ── NAMED ELDERS (PICC elder_quotes + matched to storyteller faces) ────
-  const elderBuckets = new Map<string, string[]>()
+  // ── NAMED ELDERS — sourced from the elder FACES, not elder_quotes ─────
+  // elder_quotes.speaker_name has drifted to include story titles
+  // ("Growing Up on Palm Island", "Walking Country Together", "Empowering
+  // Palm Island"). Those aren't elders. The authoritative list is the
+  // is_elder=true storytellers with photos — 10 today. Each one's
+  // quotes are joined by last-name token across both elder_quotes
+  // (PICC) AND extracted_quotes (PICC + EL), exactly matching the
+  // canvas right-rail behaviour.
+  const elderFaces = faces.filter((f) => f.is_elder && f.thumb_url)
+  // Lookup elder_quotes text by last-name token so each elder picks up
+  // their oral-record contributions where the attribution matched.
+  const elderQuotesByLastToken = new Map<string, string[]>()
   for (const row of elderQuotesRes.data ?? []) {
-    const name = (row.speaker_name as string | null)?.trim()
+    const speaker = (row.speaker_name as string | null) ?? ''
     const text = (row.text as string | null)?.trim()
-    if (!name || !text) continue
-    const list = elderBuckets.get(name) ?? []
+    if (!speaker || !text) continue
+    const tok = lastToken(speaker)
+    if (!tok) continue
+    const list = elderQuotesByLastToken.get(tok) ?? []
     list.push(text)
-    elderBuckets.set(name, list)
+    elderQuotesByLastToken.set(tok, list)
   }
-  const named_elders: NamedElder[] = Array.from(elderBuckets.entries())
-    .map(([name, quotes]) => {
-      const lname = name.toLowerCase()
-      // Match elder name → storyteller face by display_name fuzzy contains.
-      const photo_ids = faces
-        .filter((f) => (f.name ?? '').toLowerCase().includes(lname.split(' ')[0]))
-        .map((f) => f.id)
+  const named_elders: NamedElder[] = elderFaces
+    .map((f) => {
+      const tok = lastToken(f.name ?? '')
+      const eqs = tok ? (elderQuotesByLastToken.get(tok) ?? []) : []
       return {
-        name,
-        quote_count: quotes.length,
-        quotes: quotes.slice(0, 5),
-        photo_ids,
+        name: f.name ?? 'Elder',
+        quote_count: Math.max(f.quote_count, eqs.length),
+        quotes: eqs.slice(0, 8),
+        photo_ids: [f.id],
       }
     })
     .sort((a, b) => b.quote_count - a.quote_count)

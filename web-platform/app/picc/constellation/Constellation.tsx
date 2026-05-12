@@ -1625,9 +1625,9 @@ export default function Constellation({
 
             {tab === 'elders' && (
               <>
-                <RailHeading>{data.named_elders.length} named elders · click to filter</RailHeading>
+                <RailHeading>{data.named_elders.length} named Elders · click to filter</RailHeading>
                 <ul className="space-y-1">
-                  {data.named_elders.slice(0, 30).map((e) => (
+                  {data.named_elders.map((e) => (
                     <li key={e.name}>
                       <button
                         type="button"
