@@ -19,6 +19,7 @@
  */
 
 import {
+  Fragment,
   useCallback,
   useDeferredValue,
   useEffect,
@@ -2262,6 +2263,29 @@ export default function Constellation({
               </div>
             </div>
           )}
+
+          {/* INFRASTRUCTURE DOCK — sits along the bottom of the canvas.
+              Reads as "the ground under the constellation." All 26 services
+              + 5 projects as small cover circles, grouped subtly. Click to
+              focus the corresponding node in the field. */}
+          <InfrastructureDock
+            services={data.services}
+            projects={data.projects}
+            activeServiceId={activeService?.id ?? null}
+            activeProjectId={activeProject?.id ?? null}
+            onSelectService={(s) => {
+              setActiveService(s)
+              setActiveProject(null)
+              setActiveElder(null)
+              setActiveReport(null)
+            }}
+            onSelectProject={(p) => {
+              setActiveProject(p)
+              setActiveService(null)
+              setActiveElder(null)
+              setActiveReport(null)
+            }}
+          />
         </div>
 
         {/* RIGHT RAIL */}
@@ -3016,6 +3040,150 @@ function Thumb({
         />
       )}
     </span>
+  )
+}
+
+/**
+ * InfrastructureDock — bottom-anchored strip of every service + project
+ * cover photo. Reads as "the ground under the constellation." Hover for
+ * a tooltip with the service name; click to focus that node in the field.
+ *
+ * Group dividers reflect the FEATURED_SERVICE_SLUGS ordering in
+ * `lib/atlas/whitelist.ts` — change the order there and the visual
+ * grouping moves with it. Services are split into program-area chunks
+ * by counting indices, not by tagging — that keeps this dock dumb and
+ * the whitelist the only place layout grouping lives.
+ */
+const SERVICE_GROUP_BREAKS = new Set<number>([8, 15, 19, 23]) // after these indices, render a divider
+
+function InfrastructureDock({
+  services,
+  projects,
+  activeServiceId,
+  activeProjectId,
+  onSelectService,
+  onSelectProject,
+}: {
+  services: ConstellationPayload['services']
+  projects: ConstellationPayload['projects']
+  activeServiceId: string | null
+  activeProjectId: string | null
+  onSelectService: (s: ConstellationPayload['services'][number]) => void
+  onSelectProject: (p: ConstellationPayload['projects'][number]) => void
+}) {
+  return (
+    <div
+      className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10"
+      style={{ maxWidth: 'calc(100% - 24px)' }}
+    >
+      <div className="rounded-2xl bg-white/82 backdrop-blur-md border border-stone-200 shadow-[0_4px_20px_rgba(20,15,5,0.06)]">
+        <div
+          className="flex items-center gap-1 px-3 py-2 overflow-x-auto"
+          style={{ scrollbarWidth: 'thin' }}
+        >
+          {/* Services count label */}
+          <div className="flex-shrink-0 pr-2 mr-1 border-r border-stone-200 text-[10px] uppercase tracking-[0.18em] font-semibold text-stone-500 leading-tight">
+            <div>{services.length}</div>
+            <div>services</div>
+          </div>
+
+          {/* Service circles */}
+          {services.map((s, i) => {
+            const isActive = activeServiceId === s.id
+            const showDivider = SERVICE_GROUP_BREAKS.has(i)
+            return (
+              <Fragment key={s.id}>
+                {showDivider && (
+                  <div className="flex-shrink-0 h-7 w-px bg-stone-200 mx-1" />
+                )}
+                <button
+                  type="button"
+                  title={s.name}
+                  onClick={() => onSelectService(s)}
+                  className="flex-shrink-0 rounded-full overflow-hidden transition-all duration-150 hover:scale-110 focus:outline-none"
+                  style={{
+                    width: 30,
+                    height: 30,
+                    border: isActive
+                      ? '2px solid #2D5F4F'
+                      : '1.5px solid rgba(200, 150, 62, 0.4)',
+                    boxShadow: isActive
+                      ? '0 0 0 2px rgba(45, 95, 79, 0.18)'
+                      : 'none',
+                    backgroundColor: '#F4E9DC',
+                    opacity:
+                      activeServiceId || activeProjectId
+                        ? isActive
+                          ? 1
+                          : 0.55
+                        : 1,
+                  }}
+                >
+                  {s.image_url ? (
+                    <img
+                      src={s.image_url}
+                      alt={s.name}
+                      loading="lazy"
+                      width={30}
+                      height={30}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : null}
+                </button>
+              </Fragment>
+            )
+          })}
+
+          {/* Projects section */}
+          <div className="flex-shrink-0 h-7 w-px bg-stone-300 mx-2" />
+          <div className="flex-shrink-0 pr-2 mr-1 text-[10px] uppercase tracking-[0.18em] font-semibold text-stone-500 leading-tight">
+            <div>{projects.length}</div>
+            <div>projects</div>
+          </div>
+
+          {projects.map((p) => {
+            const isActive = activeProjectId === p.id
+            return (
+              <button
+                type="button"
+                key={p.id}
+                title={p.name}
+                onClick={() => onSelectProject(p)}
+                className="flex-shrink-0 rounded-full overflow-hidden transition-all duration-150 hover:scale-110 focus:outline-none"
+                style={{
+                  width: 30,
+                  height: 30,
+                  border: isActive
+                    ? '2px solid #2D5F4F'
+                    : '1.5px dashed rgba(200, 150, 62, 0.55)',
+                  boxShadow: isActive
+                    ? '0 0 0 2px rgba(45, 95, 79, 0.18)'
+                    : 'none',
+                  backgroundColor: '#EDD6BA',
+                  opacity:
+                    activeServiceId || activeProjectId
+                      ? isActive
+                        ? 1
+                        : 0.55
+                      : 1,
+                }}
+              >
+                {p.image_url ? (
+                  <img
+                    src={p.image_url}
+                    alt={p.name}
+                    loading="lazy"
+                    width={30}
+                    height={30}
+                    className="w-full h-full object-cover"
+                  />
+                ) : null}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+    </div>
   )
 }
 

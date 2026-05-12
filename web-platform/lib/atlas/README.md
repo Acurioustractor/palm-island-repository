@@ -18,6 +18,33 @@ The Living Atlas at `/living-atlas` reads from **EL v2** (storytellers, services
 2. Add to `FEATURED_SERVICE_SLUGS` in the position you want
 3. Save → push
 
+### Feature / un-feature a project — edit EL, not this file
+
+Projects are now curated from **EL**, not the whitelist. Reasons: EL is the canonical projects roster, and PICC staff can self-serve once an admin checkbox lands. The whitelist is the safety net.
+
+**To feature a project:**
+
+```sql
+-- in EL Supabase (project yvnuayzslukamizrlhwb)
+UPDATE projects
+SET external_references = COALESCE(external_references, '{}'::jsonb)
+  || jsonb_build_object('picc',
+    COALESCE(external_references->'picc', '{}'::jsonb)
+      || jsonb_build_object('themes', '["atlas-featured"]'::jsonb))
+WHERE slug = '<project-slug>';
+```
+
+**To un-feature a project:**
+
+```sql
+UPDATE projects
+SET external_references = jsonb_set(
+  external_references, '{picc,themes}', '[]'::jsonb, true)
+WHERE slug = '<project-slug>';
+```
+
+The atlas re-reads on every request — no cache to bust. `whitelist.ts` `FEATURED_PROJECT_SLUGS` is only consulted if EL returns zero `atlas-featured` projects.
+
 ### Hide a face from EL (data drift)
 
 Add the storyteller slug to `HIDDEN_STORYTELLER_SLUGS`. This is the right move when EL still has someone (e.g. Freddy Wai) but they're not a PICC storyteller.

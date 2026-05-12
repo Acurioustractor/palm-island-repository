@@ -77,18 +77,34 @@ export const FEATURED_SERVICE_SLUGS: ReadonlyArray<string> = [
 ]
 
 /* ─── PROJECTS ────────────────────────────────────────────────────── */
-/** All 10 innovation projects. */
+/**
+ * Curation is EL-driven (preferred, edit-anywhere):
+ *
+ *   In EL admin / EL Supabase, set on the project row:
+ *     external_references.picc.themes = ['atlas-featured']
+ *
+ *   EL v2's PICC API surfaces this as project.themes[]. lib/constellation/
+ *   queries.ts filters projects where themes includes 'atlas-featured'.
+ *
+ *   SQL (when EL admin doesn't expose a checkbox yet):
+ *     UPDATE projects
+ *     SET external_references = COALESCE(external_references, '{}'::jsonb)
+ *       || jsonb_build_object('picc',
+ *         COALESCE(external_references->'picc', '{}'::jsonb)
+ *           || jsonb_build_object('themes', '["atlas-featured"]'::jsonb))
+ *     WHERE slug = '<slug>';
+ *
+ * Fallback (only used if EL returns zero atlas-featured projects):
+ *
+ *   The list below is the "if EL is down or untagged, show these"
+ *   safety net. Order here drives display order in both paths.
+ */
 export const FEATURED_PROJECT_SLUGS: ReadonlyArray<string> = [
   'picc-elders',
   'picc-photo',
-  'picc-centre-precinct',
   'picc-community-voices',
   'picc-annual-report',
-  'uncle-allan',
-  'on-country-server',
-  'healthy-meals',
-  'picc-movember',
-  'goods-recycling',
+  'picc-centre-precinct',
 ]
 
 /* ─── DENIED / HIDDEN ─────────────────────────────────────────────── */

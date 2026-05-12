@@ -924,8 +924,26 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
   })
 
   // ── PROJECTS (canonical from EL v2 with cover_image_url) ───────────────
-  const projects: ProjectItem[] = (elProjects ?? [])
-    .filter((p) => FEATURED_PROJECT_SLUG_SET.has(p.slug ?? ''))
+  //
+  // Curation is EL-driven: a project shows here iff its EL overlay has
+  // the `atlas-featured` theme tag. Edit EL's projects.external_references.picc.themes
+  // to add/remove the tag (no code change needed). Status is ignored —
+  // a completed project (e.g. picc-centre-precinct, the building is built)
+  // can still feature on the atlas if it carries the tag.
+  //
+  // Fallback: if EL has zero atlas-featured projects (e.g. EL is down or
+  // tags haven't been seeded yet), fall back to FEATURED_PROJECT_SLUGS
+  // from lib/atlas/whitelist.ts so the atlas never renders empty.
+  const elFeatured = (elProjects ?? []).filter((p) =>
+    (p.themes ?? []).includes('atlas-featured'),
+  )
+  const projectsSource =
+    elFeatured.length > 0
+      ? elFeatured
+      : (elProjects ?? []).filter((p) =>
+          FEATURED_PROJECT_SLUG_SET.has(p.slug ?? ''),
+        )
+  const projects: ProjectItem[] = projectsSource
     .sort(
       (a, b) =>
         whitelistOrder(a.slug ?? '', FEATURED_PROJECT_SLUGS) -
