@@ -2098,20 +2098,40 @@ export default function Constellation({
               style={{ accentColor: '#2D5F4F' }}
               aria-label="Active fiscal year"
             />
-            {/* Report markers — small dots below the track at years with an annual report */}
-            <div className="absolute left-0 right-0 -bottom-1 pointer-events-none">
+            {/* Report markers — clickable dots below the track at years
+                with an annual report. Click opens the rich overlay. */}
+            <div className="absolute left-0 right-0 -bottom-2 h-5">
               {data.annual_reports.map((r) => {
                 const span = yearBounds.max - yearBounds.min || 1
                 const pct = ((r.fiscal_year - yearBounds.min) / span) * 100
+                const isActive = activeYear === r.fiscal_year
                 return (
-                  <span
+                  <button
                     key={r.fiscal_year}
-                    className="absolute w-1.5 h-1.5 rounded-full"
-                    style={{
-                      left: `calc(${pct}% - 3px)`,
-                      backgroundColor: '#D97757',
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      setActiveReport(r)
+                      setActiveYear(r.fiscal_year)
+                      setOverlayReport(r)
                     }}
-                    title={`FY ${r.fiscal_year} report`}
+                    title={`FY ${r.fiscal_year} · ${r.title ?? 'Open report'}`}
+                    aria-label={`Open FY ${r.fiscal_year} annual report`}
+                    className="absolute hover:scale-150 transition-transform"
+                    style={{
+                      left: `calc(${pct}% - 6px)`,
+                      top: 0,
+                      width: 12,
+                      height: 12,
+                      borderRadius: 6,
+                      backgroundColor: '#D97757',
+                      border: isActive ? '2px solid #2C2C2C' : '2px solid #FBF6EE',
+                      cursor: 'pointer',
+                      boxShadow: isActive
+                        ? '0 0 0 3px rgba(217, 119, 87, 0.3)'
+                        : '0 1px 2px rgba(0,0,0,0.15)',
+                    }}
                   />
                 )
               })}
@@ -2135,19 +2155,36 @@ export default function Constellation({
 
       {/* Full-screen annual report summary overlay */}
       {overlayReport && (
-        <ReportOverlay
-          report={overlayReport}
-          yearDetail={
-            data.years.find(
-              (y) => y.fiscal_year === overlayReport.fiscal_year,
-            ) ?? null
-          }
-          // Voices captured that year — collected from quotes_by_speaker via
-          // years.events isn't quote-aware, so we just use top-quotes from
-          // the active year's theme well summary for now.
-          themesWithQuotes={data.themes}
-          onClose={() => setOverlayReport(null)}
-        />
+        (() => {
+          // Compute prev/next based on the sorted reports list so the user
+          // can flip through years without closing/reopening the overlay.
+          const sortedReports = [...data.annual_reports].sort(
+            (a, b) => a.fiscal_year - b.fiscal_year,
+          )
+          const idx = sortedReports.findIndex(
+            (r) => r.fiscal_year === overlayReport.fiscal_year,
+          )
+          const prev = idx > 0 ? sortedReports[idx - 1] : null
+          const next = idx >= 0 && idx < sortedReports.length - 1
+            ? sortedReports[idx + 1]
+            : null
+          return (
+            <ReportOverlay
+              report={overlayReport}
+              yearDetail={
+                data.years.find(
+                  (y) => y.fiscal_year === overlayReport.fiscal_year,
+                ) ?? null
+              }
+              themesWithQuotes={data.themes}
+              onClose={() => setOverlayReport(null)}
+              onPrev={prev ? () => setOverlayReport(prev) : null}
+              onNext={next ? () => setOverlayReport(next) : null}
+              prevYear={prev?.fiscal_year ?? null}
+              nextYear={next?.fiscal_year ?? null}
+            />
+          )
+        })()
       )}
 
       <style jsx global>{`
@@ -2182,19 +2219,29 @@ function ReportOverlay({
   yearDetail,
   themesWithQuotes,
   onClose,
+  onPrev,
+  onNext,
+  prevYear,
+  nextYear,
 }: {
   report: AnnualReportItem
   yearDetail: ConstellationPayload['years'][number] | null
   themesWithQuotes: ThemeWell[]
   onClose: () => void
+  onPrev?: (() => void) | null
+  onNext?: (() => void) | null
+  prevYear?: number | null
+  nextYear?: number | null
 }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
+      else if (e.key === 'ArrowLeft' && onPrev) onPrev()
+      else if (e.key === 'ArrowRight' && onNext) onNext()
     }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
-  }, [onClose])
+  }, [onClose, onPrev, onNext])
 
   const revenue = yearDetail?.revenue
     ? `$${(yearDetail.revenue / 1_000_000).toFixed(1)}M`
@@ -2222,14 +2269,38 @@ function ReportOverlay({
               <p className="text-sm text-stone-600 mt-1">{report.subtitle}</p>
             )}
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close"
-            className="text-stone-500 hover:text-stone-800 text-2xl leading-none px-2"
-          >
-            ×
-          </button>
+          <div className="flex items-center gap-1.5">
+            {onPrev && prevYear != null && (
+              <button
+                type="button"
+                onClick={onPrev}
+                aria-label={`Previous report (FY ${prevYear})`}
+                title={`← FY ${prevYear}`}
+                className="text-[11px] font-semibold uppercase tracking-wider px-3 py-1.5 rounded border border-stone-300 hover:bg-stone-50"
+              >
+                ← FY {prevYear}
+              </button>
+            )}
+            {onNext && nextYear != null && (
+              <button
+                type="button"
+                onClick={onNext}
+                aria-label={`Next report (FY ${nextYear})`}
+                title={`FY ${nextYear} →`}
+                className="text-[11px] font-semibold uppercase tracking-wider px-3 py-1.5 rounded border border-stone-300 hover:bg-stone-50"
+              >
+                FY {nextYear} →
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close"
+              className="text-stone-500 hover:text-stone-800 text-2xl leading-none px-2 ml-1"
+            >
+              ×
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-6 p-6">
