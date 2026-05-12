@@ -226,7 +226,7 @@ export default async function LivingAtlasPage() {
               rightHref="/living-atlas/transcripts"
               rightLabel={`All ${nf(136)} transcripts →`}
             />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10">
               {voiceWall.map((q, i) => (
                 <VoiceCard key={i} q={q} />
               ))}
@@ -300,35 +300,41 @@ export default async function LivingAtlasPage() {
             label="Services on Country"
             caption={`${allServices.length} active programs — designed, staffed, and accountable to community. Each card carries the EL canonical cover and the count of storytellers whose voices are tagged to it.`}
           />
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {allServices.map((s) => {
               const linkedCount = s.photo_ids.length
               return (
                 <Link
                   key={s.slug}
                   href={`/living-atlas/services/${s.slug}`}
-                  className="rounded-xl overflow-hidden bg-white border border-stone-200 hover:shadow-lg transition group flex flex-col"
+                  className="group flex flex-col gap-3"
                 >
-                  {s.image_url ? (
-                    <img
-                      src={s.image_url}
-                      alt=""
-                      className="w-full h-32 object-cover"
-                    />
-                  ) : (
-                    <div
-                      className="w-full h-32 flex items-center justify-center"
-                      style={{ backgroundColor: '#F4E9DC' }}
-                    >
-                      <span className="text-[10px] uppercase tracking-wider text-stone-500">
-                        no photo yet
-                      </span>
-                    </div>
-                  )}
-                  <div className="p-3 flex-1 flex flex-col gap-1.5">
+                  {/* Photo — cinematic 4:3, no card border, soft shadow on hover */}
+                  <div
+                    className="relative overflow-hidden rounded-lg bg-stone-100 transition-transform group-hover:-translate-y-1 group-hover:shadow-lg"
+                    style={{ aspectRatio: '4 / 3' }}
+                  >
+                    {s.image_url ? (
+                      <img
+                        src={s.image_url}
+                        alt=""
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div
+                        className="absolute inset-0 flex items-center justify-center"
+                        style={{ backgroundColor: '#F4E9DC' }}
+                      >
+                        <span className="text-[10px] uppercase tracking-wider text-stone-500">
+                          no photo yet
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-1">
                     <div className="flex items-center justify-between gap-2">
                       {s.category && (
-                        <div className="text-[9.5px] uppercase tracking-wider font-semibold text-ochre">
+                        <div className="text-[9.5px] uppercase tracking-[0.15em] font-bold text-ochre">
                           {s.category}
                         </div>
                       )}
@@ -344,15 +350,15 @@ export default async function LivingAtlasPage() {
                         </span>
                       )}
                     </div>
-                    <div className="font-serif text-sm text-charcoal group-hover:underline leading-snug">
+                    <h3 className="font-serif text-base text-charcoal group-hover:underline leading-snug">
                       {s.name}
-                    </div>
+                    </h3>
                     {s.description && (
-                      <div className="text-[11px] text-stone-600 line-clamp-3 leading-snug">
+                      <p className="text-[12px] text-stone-600 line-clamp-2 leading-snug mt-0.5">
                         {s.description}
-                      </div>
+                      </p>
                     )}
-                    <div className="mt-auto pt-2 flex items-center gap-2 text-[10px] text-stone-500">
+                    <div className="mt-1 flex items-center gap-2 text-[10px] text-stone-500">
                       {linkedCount > 0 && (
                         <span className="inline-flex items-center gap-1">
                           <span className="font-bold text-charcoal">
@@ -394,35 +400,40 @@ export default async function LivingAtlasPage() {
             label="Projects in flight"
             caption={`${allProjects.length} live initiatives picking up where ongoing services stop. Same people, same Country, longer arc.`}
           />
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
             {allProjects.map((p) => {
               const linkedCount = p.photo_ids.length
               return (
                 <Link
                   key={p.slug}
                   href={`/living-atlas/projects/${p.slug}`}
-                  className="rounded-xl overflow-hidden bg-white border border-stone-200 hover:shadow-lg transition group flex flex-col"
+                  className="group flex flex-col gap-2.5"
                 >
-                  {p.image_url ? (
-                    <img
-                      src={p.image_url}
-                      alt=""
-                      className="w-full h-28 object-cover"
-                    />
-                  ) : (
-                    <div
-                      className="w-full h-28 flex items-center justify-center"
-                      style={{ backgroundColor: '#F4E9DC' }}
-                    >
-                      <span className="text-[10px] uppercase tracking-wider text-stone-500">
-                        no cover yet
-                      </span>
-                    </div>
-                  )}
-                  <div className="p-3 flex-1 flex flex-col gap-1.5">
-                    <div className="font-serif text-sm text-charcoal group-hover:underline leading-snug">
+                  <div
+                    className="relative overflow-hidden rounded-lg bg-stone-100 transition-transform group-hover:-translate-y-1 group-hover:shadow-lg"
+                    style={{ aspectRatio: '1 / 1' }}
+                  >
+                    {p.image_url ? (
+                      <img
+                        src={p.image_url}
+                        alt=""
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div
+                        className="absolute inset-0 flex items-center justify-center"
+                        style={{ backgroundColor: '#F4E9DC' }}
+                      >
+                        <span className="text-[10px] uppercase tracking-wider text-stone-500">
+                          no cover yet
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <h3 className="font-serif text-sm text-charcoal group-hover:underline leading-snug">
                       {p.name}
-                    </div>
+                    </h3>
                     {(p.tagline ?? p.description) && (
                       <div className="text-[10.5px] text-stone-600 line-clamp-3 leading-snug">
                         {p.tagline ?? p.description}
@@ -719,23 +730,21 @@ function BigStat({
 
 function VoiceCard({ q }: { q: import('@/lib/constellation/types').CuratedHeroQuote }) {
   const body = (
-    <article className="rounded-xl bg-white border border-stone-200 p-4 h-full flex flex-col gap-3 hover:shadow-md transition group">
-      <blockquote className="font-serif italic text-[14px] text-stone-800 leading-snug flex-1">
-        &ldquo;{q.text.length > 200 ? q.text.slice(0, 197) + '…' : q.text}&rdquo;
-      </blockquote>
-      <div className="flex items-center gap-2 mt-auto">
+    <article className="flex gap-5 group">
+      {/* Portrait — fixed-size, lifts on hover */}
+      <div className="flex-shrink-0">
         {q.speaker_photo_url ? (
           <img
             src={q.speaker_photo_url}
             alt=""
-            className="w-9 h-9 rounded-full object-cover flex-shrink-0"
+            className="w-20 h-20 rounded-full object-cover shadow-sm transition-transform group-hover:-translate-y-0.5"
             style={{
-              border: `2px solid ${q.speaker_is_elder ? '#B8860B' : '#FBF6EE'}`,
+              border: `3px solid ${q.speaker_is_elder ? '#B8860B' : '#FBF6EE'}`,
             }}
           />
         ) : (
           <div
-            className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 font-serif text-xs"
+            className="w-20 h-20 rounded-full flex items-center justify-center font-serif text-xl"
             style={{ backgroundColor: '#F4E9DC', color: '#8B6F47' }}
           >
             {q.speaker_name
@@ -745,15 +754,30 @@ function VoiceCard({ q }: { q: import('@/lib/constellation/types').CuratedHeroQu
               .join('')}
           </div>
         )}
-        <div className="flex-1 min-w-0">
-          <div className="text-xs font-semibold text-charcoal truncate group-hover:underline">
+      </div>
+      {/* Quote + attribution */}
+      <div className="flex-1 min-w-0">
+        <blockquote
+          className="font-serif italic text-stone-800 leading-[1.4]"
+          style={{ fontSize: 18 }}
+        >
+          &ldquo;{q.text.length > 240 ? q.text.slice(0, 237) + '…' : q.text}&rdquo;
+        </blockquote>
+        <div className="mt-3 flex items-baseline gap-2">
+          <span className="font-semibold text-charcoal group-hover:underline">
             {q.speaker_name}
-          </div>
-          <div className="text-[10px] text-stone-500 truncate">
-            {q.speaker_is_elder && 'Elder · '}
-            {q.theme ? q.theme.replace(/_/g, ' ') : ''}
-          </div>
+          </span>
+          {q.speaker_is_elder && (
+            <span className="text-[10px] uppercase tracking-wider font-bold text-ochre">
+              Elder
+            </span>
+          )}
         </div>
+        {q.theme && (
+          <div className="text-[11px] text-stone-500 mt-0.5 italic">
+            on {q.theme.replace(/_/g, ' ')}
+          </div>
+        )}
       </div>
     </article>
   )
