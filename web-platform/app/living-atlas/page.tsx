@@ -110,20 +110,14 @@ export default async function LivingAtlasPage() {
     <div className="min-h-screen bg-cream">
       <div className="max-w-[1500px] mx-auto px-4 py-6">
         {/* ─── 1. HERO ─────────────────────────────────────────────────── */}
-        <header className="mb-5 flex items-start justify-between gap-4 flex-wrap">
+        <header className="mb-6 flex items-end justify-between gap-4 flex-wrap">
           <div className="flex-1 min-w-[300px]">
-            <div className="text-[11px] uppercase tracking-[0.3em] text-ochre font-bold mb-1">
-              The always-on annual report · live as of {data.meta.elder_approvals_current_as_of}
+            <div className="text-[11px] uppercase tracking-[0.3em] text-ochre font-bold mb-2">
+              Palm Island Community Company
             </div>
-            <h1 className="font-serif text-4xl md:text-5xl text-charcoal leading-tight">
-              Palm Island Living Atlas
+            <h1 className="font-serif text-4xl md:text-5xl text-charcoal leading-[1.05]">
+              The Living Atlas
             </h1>
-            <p className="text-stone-700 text-sm mt-2 max-w-xl leading-relaxed">
-              Every face on this page passed an explicit consent gate. Every
-              quote was flagged by a curator or scored ≥&nbsp;8 for impact.
-              Every service is on Country. The annual report never goes stale
-              because the community keeps writing it.
-            </p>
           </div>
           <div className="flex items-end gap-3 flex-wrap">
             <SavePath />
@@ -140,7 +134,7 @@ export default async function LivingAtlasPage() {
         {/* Hero stats + featured voice card */}
         <section className="mb-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-1 grid grid-cols-2 gap-3 content-start">
-            <BigStat value={nf(facesCount)} label="faces consented" tint="green" />
+            <BigStat value={nf(facesCount)} label="people" tint="green" />
             <BigStat value={nf(totalQuotes)} label="voices on record" tint="ochre" />
             <BigStat value={nf(elderQuotesCount)} label="Elder quotes validated" tint="gold" />
             <BigStat value={nf(servicesCount)} label="services on Country" tint="green" />
@@ -203,7 +197,7 @@ export default async function LivingAtlasPage() {
           <section className="mb-8">
             <SectionHeader
               label="The constellation"
-              caption="Five layers — foundation, faces, themes, years, visions. Drag, scrub, click."
+              caption="Drag any face. Scrub a year. Click a theme."
             />
             <div className="rounded-xl border border-stone-200 bg-white shadow-md overflow-hidden">
               <CanvasStage data={data} />
@@ -215,8 +209,7 @@ export default async function LivingAtlasPage() {
         {voiceWall.length > 0 && (
           <section className="mb-8">
             <SectionHeader
-              label="What community is saying"
-              caption="Top impact-scored quotes from the EL v2 archive. Click any face to surface their full profile."
+              label="Voices"
               rightHref="/living-atlas/transcripts"
               rightLabel={`All ${nf(136)} transcripts →`}
             />
@@ -233,9 +226,9 @@ export default async function LivingAtlasPage() {
           <section className="mb-8">
             <SectionHeader
               label="Elders Council"
-              caption={`${elders.length} named Elders with consented portraits. The gold ring is the Elder ring.`}
+              caption={`${elders.length} named Elders. Gold ring marks Elder status.`}
               rightHref="/living-atlas"
-              rightLabel="See all on the canvas →"
+              rightLabel="See all →"
             />
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
               {elders.map((e) => (
@@ -274,8 +267,8 @@ export default async function LivingAtlasPage() {
             and storytellers attached. This is the staff + community thread. */}
         <section className="mb-8">
           <SectionHeader
-            label={`All ${servicesCount} services on Country`}
-            caption="Community-controlled — every service designed with community, staffed by community, accountable to community. Each card carries its EL v2 photo, its category, and the count of storytellers whose voices are tagged to it. Click any service to open its profile."
+            label="Services"
+            caption={`${allServices.length} active programs delivering on Palm Island.`}
           />
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {allServices.map((s) => {
@@ -352,45 +345,23 @@ export default async function LivingAtlasPage() {
         </section>
 
         {/* ─── 6. INNOVATION + ONGOING CONNECTION (bridge) ─────────────── */}
-        {/* This is where services (the ongoing work) become projects (the
-            innovation work). Same people, same Country, longer arc. */}
         <section
-          className="mb-8 rounded-2xl p-6 md:p-8 border"
+          className="mb-8 rounded-2xl p-5 md:p-6 border text-center"
           style={{ backgroundColor: '#FBF6EE', borderColor: '#E0CFB8' }}
         >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
-            <div className="md:col-span-1">
-              <div className="text-[11px] uppercase tracking-[0.3em] font-bold text-ochre mb-2">
-                The thread
-              </div>
-              <h2 className="font-serif text-2xl text-charcoal leading-snug">
-                From services, through staff, into innovation
-              </h2>
-            </div>
-            <div className="md:col-span-2 text-sm text-stone-700 leading-relaxed space-y-3">
-              <p>
-                Every service above started as a community conversation. A
-                gap. A loss. A vision. Staff carry it forward — Palm Island
-                staff, three-quarters of the {servicesCount}-service
-                workforce. Voices on every service card are the storytellers
-                whose lives are touched by it.
-              </p>
-              <p>
-                Then the innovation projects below pick up where ongoing
-                services stop. Elders Trips. The On-Country server. The
-                Annual Report itself as an act of community accountability.
-                Same people, same Country, longer arc. Every project ties
-                back to voices, services, and the 20-year arc.
-              </p>
-            </div>
+          <div className="text-[11px] uppercase tracking-[0.3em] font-bold text-ochre mb-1">
+            The thread
           </div>
+          <h2 className="font-serif text-xl md:text-2xl text-charcoal">
+            From services, through staff, into innovation.
+          </h2>
         </section>
 
         {/* ─── 7. PROJECTS ─────────────────────────────────────────────── */}
         <section className="mb-8">
           <SectionHeader
-            label={`All ${projectsCount} innovation projects`}
-            caption="Where staff + community + cultural sovereignty meet. Each project carries its EL v2 cover, the linked-voice count, and a description from the canonical record."
+            label="Projects"
+            caption={`${allProjects.length} live innovation projects.`}
           />
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
             {allProjects.map((p) => {
@@ -458,8 +429,8 @@ export default async function LivingAtlasPage() {
         {mapServices.length > 0 && (
           <section className="mb-8">
             <SectionHeader
-              label="Where the work happens"
-              caption={`${mapServices.length} of ${servicesCount} services pinned on Country. Tap any pin.`}
+              label="On Country"
+              caption={`${mapServices.length} services pinned. Click any.`}
               rightHref="/picc/services/map"
               rightLabel="Edit positions →"
             />
@@ -489,10 +460,8 @@ export default async function LivingAtlasPage() {
             </Link>
           </div>
           <p className="text-sm text-stone-700 leading-relaxed max-w-3xl">
-            PICC launched in 2007 with a handful of staff and a borrowed
-            office. Eighteen years later, 197 staff. The anniversary lands in
-            2027. The Atlas year ribbon scrolls every year of the journey
-            with AI-summarised reports and the voices captured that year.
+            PICC launched in 2007. 197 staff today. The anniversary lands in
+            2027.
           </p>
           <div className="mt-4 flex gap-2 flex-wrap">
             {data.commitments.slice(0, 3).map((c) => (
@@ -517,10 +486,7 @@ export default async function LivingAtlasPage() {
         {/* ─── 9. THEMES ───────────────────────────────────────────────── */}
         {themes.length > 0 && (
           <section className="mb-8">
-            <SectionHeader
-              label="Themes named by community"
-              caption="Not a taxonomy we built — patterns the voices themselves surfaced."
-            />
+            <SectionHeader label="Themes" />
             <div className="flex flex-wrap gap-2">
               {themes.map((t) => (
                 <Link

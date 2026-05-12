@@ -453,6 +453,13 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     'jeanie-sam',
     'patricia-doyle',
   ])
+  // Storytellers in EL who are NOT PICC people and shouldn't appear on
+  // the Atlas. EL data hasn't been pruned yet — handle in code so the
+  // workshop doesn't surface unfamiliar names. Remove from the EL data
+  // store and you can drop these entries.
+  const NOT_A_PICC_STORYTELLER = new Set([
+    'freddy-wai',
+  ])
   // Manual photo overrides — for storytellers whose EL v2 photo_url
   // points to a missing file but a real photo exists elsewhere in
   // storage. Source: media_assets table on EL v2. Override is applied
@@ -466,7 +473,8 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     .filter(
       (s) =>
         (Boolean(s.photo_url) || PHOTO_OVERRIDES[s.slug]) &&
-        !MISSING_PHOTO_SLUGS.has(s.slug),
+        !MISSING_PHOTO_SLUGS.has(s.slug) &&
+        !NOT_A_PICC_STORYTELLER.has(s.slug),
     )
     .map((s) => {
       const photo = PHOTO_OVERRIDES[s.slug] ?? s.photo_url!

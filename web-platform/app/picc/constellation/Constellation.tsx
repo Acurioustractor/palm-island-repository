@@ -80,9 +80,7 @@ const VOICE_RINGS: Record<string, string> = {
 }
 
 const TAGLINES = [
-  'Every face here has said yes.',
-  'Every theme here was named by community.',
-  'This is the report writing itself.',
+  'Drag a face. Scrub a year. Click a theme.',
 ] as const
 
 const MODES: ReadonlyArray<{
@@ -368,11 +366,21 @@ export default function Constellation({
       .attr('data-id', (d) => d.id)
       .attr('class', 'cstl-face')
       .style('cursor', 'grab')
+      .style('touch-action', 'none') // prevent touch scroll fighting drag
       .on('click', (event, d) => {
         event.stopPropagation()
         setActiveFace(d.face)
         setActiveTheme(null)
       })
+
+    // Invisible expanded hit area — makes the face easier to grab on
+    // touch + small viewports. Sits behind the visible ring + image.
+    facePoints
+      .append('circle')
+      .attr('class', 'cstl-face-hit')
+      .attr('r', FACE_RADIUS + 12)
+      .attr('fill', 'transparent')
+      .attr('pointer-events', 'all')
 
     facePoints
       .append('circle')
@@ -381,6 +389,7 @@ export default function Constellation({
       .attr('stroke', (d) => ringColour(d.face))
       .attr('stroke-width', (d) => (d.face.is_elder ? 3 : 2))
       .attr('opacity', 0.9)
+      .attr('pointer-events', 'none')
 
     facePoints
       .append('image')
@@ -391,6 +400,7 @@ export default function Constellation({
       .attr('height', FACE_RADIUS * 2)
       .attr('preserveAspectRatio', 'xMidYMid slice')
       .attr('clip-path', 'url(#cstl-face-clip)')
+      .attr('pointer-events', 'none')
 
     // Finite simulation: run ~120 ticks to settle, then enter ambient
     // mode — periodic low-amplitude nudges keep faces gently drifting
@@ -401,18 +411,33 @@ export default function Constellation({
     const tickHandler = () => {
       facePoints.attr('transform', (d) => `translate(${d.x}, ${d.y})`)
     }
+    // Radial layout: elders pull toward an inner ring (~180px from
+    // centre), everyone else toward an outer ring (~340px). Combined
+    // with collision = generous breathing room between every face.
+    const innerRadius = Math.min(stageSize.width, stageSize.height) * 0.22
+    const outerRadius = Math.min(stageSize.width, stageSize.height) * 0.42
     const sim = d3
       .forceSimulation<SimFace>(simFaces)
       .force(
         'collision',
-        d3.forceCollide<SimFace>().radius(FACE_RADIUS + 4).strength(0.9),
+        d3.forceCollide<SimFace>().radius(FACE_RADIUS + 10).strength(1),
       )
-      .force('charge', d3.forceManyBody().strength(-14))
-      .force('centre', d3.forceCenter(cx, cy).strength(0.05))
+      .force('charge', d3.forceManyBody().strength(-30))
+      .force(
+        'radial',
+        d3
+          .forceRadial<SimFace>(
+            (d) => (d.face.is_elder ? innerRadius : outerRadius),
+            cx,
+            cy,
+          )
+          .strength(0.12),
+      )
+      .force('centre', d3.forceCenter(cx, cy).strength(0.02))
       .alpha(1)
-      .alphaDecay(0.05)
-      .alphaMin(0.08)
-      .velocityDecay(0.55)
+      .alphaDecay(0.04)
+      .alphaMin(0.06)
+      .velocityDecay(0.6)
       .on('tick', tickHandler)
       .on('end', () => {
         // Free the tick listener — DOM is in final state until the
@@ -423,33 +448,52 @@ export default function Constellation({
     simulationRef.current = sim
 
     // Ambient float — every 6s give the field a tiny kick. Faces drift
-    // ~10-30px before re-settling. Drag overrides this completely (its
-    // alphaTarget=0.3 dominates the 0.015 ambient target).
+    // ~10-30px before re-settling. Pauses while the user is dragging so
+    // they're never fighting the simulation. Drag's alphaTarget=0.3
+    // dominates if a pulse does coincide.
     const ambientPulse = () => {
-      sim.on('tick', tickHandler) // re-arm; .on('end') above may have cleared it
+      if (dragLocked) return
+      sim.on('tick', tickHandler) // re-arm; .on('end') may have cleared it
       sim.alphaTarget(0.015).restart()
       setTimeout(() => {
-        sim.alphaTarget(0)
+        if (!dragLocked) sim.alphaTarget(0)
       }, 1500)
     }
     const ambientInterval = window.setInterval(ambientPulse, 6000)
 
-    // Per-face drag.
+    // Per-face drag — re-arms tick listener on drag start (so the face
+    // actually follows the cursor when the field has settled into
+    // tick-off state), and pauses the ambient pulse during drag so the
+    // user isn't fighting the simulation.
+    let dragLocked = false
     const drag = d3
       .drag<SVGGElement, SimFace>()
+      .filter((event) => !event.ctrlKey && !event.button)
       .on('start', (event, d) => {
-        if (!event.active) sim.alphaTarget(0.3).restart()
+        dragLocked = true
+        sim.on('tick', tickHandler) // ensure DOM updates follow the drag
+        sim.alphaTarget(0.3).restart()
         d.fx = d.x
         d.fy = d.y
+        d3.select<SVGGElement, SimFace>(
+          event.sourceEvent.target.closest('g.cstl-face') as SVGGElement,
+        ).style('cursor', 'grabbing')
       })
       .on('drag', (event, d) => {
         d.fx = event.x
         d.fy = event.y
       })
       .on('end', (event, d) => {
-        if (!event.active) sim.alphaTarget(0)
+        sim.alphaTarget(0)
         d.fx = null
         d.fy = null
+        d3.select<SVGGElement, SimFace>(
+          event.sourceEvent.target.closest('g.cstl-face') as SVGGElement,
+        ).style('cursor', 'grab')
+        // unlock ambient float after a short cooldown
+        setTimeout(() => {
+          dragLocked = false
+        }, 600)
       })
     facePoints.call(drag)
 
