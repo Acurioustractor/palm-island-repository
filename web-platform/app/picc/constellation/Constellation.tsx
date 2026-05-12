@@ -48,8 +48,32 @@ interface Props {
 
 interface SimFace extends d3.SimulationNodeDatum {
   id: string
+  kind: 'face'
   face: FaceNode
   themeIndex: number
+}
+
+interface SimService extends d3.SimulationNodeDatum {
+  id: string
+  kind: 'service'
+  service: ServiceItem
+}
+
+interface SimProject extends d3.SimulationNodeDatum {
+  id: string
+  kind: 'project'
+  project: ProjectItem
+}
+
+type SimNode = SimFace | SimService | SimProject
+
+/** Which node-type layers are visible (full opacity). Toggling one off
+ *  fades those nodes to 0.12 — they stay in the simulation so the
+ *  layout doesn't reflow, but visually recede. */
+type LayerSet = {
+  people: boolean
+  services: boolean
+  projects: boolean
 }
 
 type ViewMode = 'field' | 'voices' | 'timeline' | 'visions'
@@ -64,7 +88,22 @@ type RailTab =
   | 'bwgcolman'
 
 const FACE_RADIUS = 22
+const SERVICE_RADIUS = 18
+const PROJECT_RADIUS = 16
 const STAGE_HEIGHT = 640
+
+const SERVICE_CATEGORY_COLOURS: Record<string, string> = {
+  health: '#C8963E',
+  family: '#A67C6D',
+  community: '#0B4F6C',
+  justice: '#8B1A1A',
+  culture: '#8C7A8B',
+  education: '#0B4F6C',
+  economic: '#F5A623',
+  youth: '#0EA5E9',
+  other: '#6B6560',
+}
+const PROJECT_RING = '#D97757'
 
 const ELDER_RING = '#B8860B'
 const VOICE_RINGS: Record<string, string> = {
@@ -159,12 +198,17 @@ export default function Constellation({
   const wrapperRef = useRef<HTMLDivElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
   const svgRef = useRef<SVGSVGElement>(null)
-  const simulationRef = useRef<d3.Simulation<SimFace, undefined> | null>(null)
+  const simulationRef = useRef<d3.Simulation<SimNode, undefined> | null>(null)
   const zoomBehaviorRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null)
   const simFacesRef = useRef<SimFace[]>([])
 
   const [stageSize, setStageSize] = useState({ width: 900, height: STAGE_HEIGHT })
   const [mode, setMode] = useState<ViewMode>('field')
+  const [layers, setLayers] = useState<LayerSet>({
+    people: true,
+    services: true,
+    projects: true,
+  })
   const [activeTheme, setActiveTheme] = useState<string | null>(null)
   const [activeFace, setActiveFace] = useState<FaceNode | null>(null)
   const [activeService, setActiveService] = useState<ServiceItem | null>(null)
@@ -246,6 +290,16 @@ export default function Constellation({
       .attr('id', 'cstl-face-clip')
       .append('circle')
       .attr('r', FACE_RADIUS)
+    defs
+      .append('clipPath')
+      .attr('id', 'cstl-svc-clip')
+      .append('circle')
+      .attr('r', SERVICE_RADIUS)
+    defs
+      .append('clipPath')
+      .attr('id', 'cstl-proj-clip')
+      .append('circle')
+      .attr('r', PROJECT_RADIUS)
 
     const glow = defs
       .append('radialGradient')
@@ -347,6 +401,7 @@ export default function Constellation({
     // Faces — initial positions on a wide ring (so the entrance is visible).
     const simFaces: SimFace[] = data.faces.map((f, i) => ({
       id: f.id,
+      kind: 'face' as const,
       face: f,
       themeIndex: data.themes.length === 0 ? 0 : i % data.themes.length,
       x:
@@ -357,6 +412,37 @@ export default function Constellation({
         cy,
     }))
     simFacesRef.current = simFaces
+
+    // Services — initial positions on an outer ring, offset 0 rad.
+    const activeServices = data.services.filter((s) => s.status === 'active')
+    const simServices: SimService[] = activeServices.map((s, i) => ({
+      id: `service:${s.id}`,
+      kind: 'service' as const,
+      service: s,
+      x:
+        Math.cos((i / Math.max(1, activeServices.length)) * Math.PI * 2) * 520 +
+        cx,
+      y:
+        Math.sin((i / Math.max(1, activeServices.length)) * Math.PI * 2) * 340 +
+        cy,
+    }))
+
+    // Projects — initial positions on a slightly offset outer ring.
+    const simProjects: SimProject[] = data.projects.map((p, i) => ({
+      id: `project:${p.id}`,
+      kind: 'project' as const,
+      project: p,
+      x:
+        Math.cos(
+          (i / Math.max(1, data.projects.length)) * Math.PI * 2 + Math.PI / 6,
+        ) * 580 +
+        cx,
+      y:
+        Math.sin(
+          (i / Math.max(1, data.projects.length)) * Math.PI * 2 + Math.PI / 6,
+        ) * 380 +
+        cy,
+    }))
 
     const faceGroup = root.append('g').attr('class', 'cstl-faces')
     const facePoints = faceGroup
@@ -402,6 +488,96 @@ export default function Constellation({
       .attr('clip-path', 'url(#cstl-face-clip)')
       .attr('pointer-events', 'none')
 
+    // ── SERVICE CIRCLES (29 active services in EL canonical) ───────────
+    const serviceGroup = root.append('g').attr('class', 'cstl-services')
+    const servicePoints = serviceGroup
+      .selectAll<SVGGElement, SimService>('g')
+      .data(simServices, (d) => d.id)
+      .join('g')
+      .attr('data-id', (d) => d.id)
+      .attr('class', 'cstl-service')
+      .style('cursor', 'grab')
+      .style('touch-action', 'none')
+      .on('click', (event, d) => {
+        event.stopPropagation()
+        setActiveService(d.service)
+        setActiveTheme(null)
+      })
+
+    servicePoints
+      .append('circle')
+      .attr('class', 'cstl-svc-hit')
+      .attr('r', SERVICE_RADIUS + 10)
+      .attr('fill', 'transparent')
+      .attr('pointer-events', 'all')
+
+    servicePoints
+      .append('circle')
+      .attr('r', SERVICE_RADIUS + 2)
+      .attr('fill', '#FBF6EE')
+      .attr('stroke', (d) =>
+        SERVICE_CATEGORY_COLOURS[d.service.category ?? 'other'] ??
+        SERVICE_CATEGORY_COLOURS.other,
+      )
+      .attr('stroke-width', 2.5)
+      .attr('pointer-events', 'none')
+
+    servicePoints
+      .filter((d) => Boolean(d.service.image_url))
+      .append('image')
+      .attr('href', (d) => d.service.image_url ?? '')
+      .attr('x', -SERVICE_RADIUS)
+      .attr('y', -SERVICE_RADIUS)
+      .attr('width', SERVICE_RADIUS * 2)
+      .attr('height', SERVICE_RADIUS * 2)
+      .attr('preserveAspectRatio', 'xMidYMid slice')
+      .attr('clip-path', 'url(#cstl-svc-clip)')
+      .attr('pointer-events', 'none')
+
+    // ── PROJECT CIRCLES (10 innovation projects) ────────────────────────
+    const projectGroup = root.append('g').attr('class', 'cstl-projects')
+    const projectPoints = projectGroup
+      .selectAll<SVGGElement, SimProject>('g')
+      .data(simProjects, (d) => d.id)
+      .join('g')
+      .attr('data-id', (d) => d.id)
+      .attr('class', 'cstl-project')
+      .style('cursor', 'grab')
+      .style('touch-action', 'none')
+      .on('click', (event, d) => {
+        event.stopPropagation()
+        setActiveProject(d.project)
+        setActiveTheme(null)
+      })
+
+    projectPoints
+      .append('circle')
+      .attr('class', 'cstl-proj-hit')
+      .attr('r', PROJECT_RADIUS + 10)
+      .attr('fill', 'transparent')
+      .attr('pointer-events', 'all')
+
+    projectPoints
+      .append('circle')
+      .attr('r', PROJECT_RADIUS + 2)
+      .attr('fill', '#FBF6EE')
+      .attr('stroke', PROJECT_RING)
+      .attr('stroke-width', 2.5)
+      .attr('stroke-dasharray', '3,2') // dashed to distinguish from services
+      .attr('pointer-events', 'none')
+
+    projectPoints
+      .filter((d) => Boolean(d.project.image_url))
+      .append('image')
+      .attr('href', (d) => d.project.image_url ?? '')
+      .attr('x', -PROJECT_RADIUS)
+      .attr('y', -PROJECT_RADIUS)
+      .attr('width', PROJECT_RADIUS * 2)
+      .attr('height', PROJECT_RADIUS * 2)
+      .attr('preserveAspectRatio', 'xMidYMid slice')
+      .attr('clip-path', 'url(#cstl-proj-clip)')
+      .attr('pointer-events', 'none')
+
     // Finite simulation: run ~120 ticks to settle, then enter ambient
     // mode — periodic low-amplitude nudges keep faces gently drifting
     // (the "constellation feels alive" effect Rachel asked for).
@@ -410,30 +586,57 @@ export default function Constellation({
     // 6s, so CPU stays low and clicks remain instant.
     const tickHandler = () => {
       facePoints.attr('transform', (d) => `translate(${d.x}, ${d.y})`)
+      servicePoints.attr('transform', (d) => `translate(${d.x}, ${d.y})`)
+      projectPoints.attr('transform', (d) => `translate(${d.x}, ${d.y})`)
     }
-    // Radial layout: elders pull toward an inner ring (~180px from
-    // centre), everyone else toward an outer ring (~340px). Combined
-    // with collision = generous breathing room between every face.
-    const innerRadius = Math.min(stageSize.width, stageSize.height) * 0.22
-    const outerRadius = Math.min(stageSize.width, stageSize.height) * 0.42
+    // Radial layout: 4 concentric rings, inner to outer:
+    //   elders (inner)       → 22% of stage min-dim
+    //   non-elder faces      → 42%
+    //   services             → 58%
+    //   projects             → 70%
+    // forceRadial pulls each node toward its target radius. Collision
+    // ensures faces and circles don't overlap.
+    const dim = Math.min(stageSize.width, stageSize.height)
+    const innerRadius = dim * 0.22
+    const outerFaceRadius = dim * 0.42
+    const serviceRadiusOrbit = dim * 0.58
+    const projectRadiusOrbit = dim * 0.7
+    const allSimNodes: SimNode[] = [
+      ...simFaces,
+      ...simServices,
+      ...simProjects,
+    ]
     const sim = d3
-      .forceSimulation<SimFace>(simFaces)
+      .forceSimulation<SimNode>(allSimNodes)
       .force(
         'collision',
-        d3.forceCollide<SimFace>().radius(FACE_RADIUS + 10).strength(1),
+        d3.forceCollide<SimNode>()
+          .radius((d) =>
+            d.kind === 'face'
+              ? FACE_RADIUS + 10
+              : d.kind === 'service'
+                ? SERVICE_RADIUS + 8
+                : PROJECT_RADIUS + 8,
+          )
+          .strength(1),
       )
       .force('charge', d3.forceManyBody().strength(-30))
       .force(
         'radial',
         d3
-          .forceRadial<SimFace>(
-            (d) => (d.face.is_elder ? innerRadius : outerRadius),
+          .forceRadial<SimNode>(
+            (d) => {
+              if (d.kind === 'face')
+                return d.face.is_elder ? innerRadius : outerFaceRadius
+              if (d.kind === 'service') return serviceRadiusOrbit
+              return projectRadiusOrbit
+            },
             cx,
             cy,
           )
-          .strength(0.12),
+          .strength(0.14),
       )
-      .force('centre', d3.forceCenter(cx, cy).strength(0.02))
+      .force('centre', d3.forceCenter(cx, cy).strength(0.015))
       .alpha(1)
       .alphaDecay(0.04)
       .alphaMin(0.06)
@@ -461,41 +664,44 @@ export default function Constellation({
     }
     const ambientInterval = window.setInterval(ambientPulse, 6000)
 
-    // Per-face drag — re-arms tick listener on drag start (so the face
-    // actually follows the cursor when the field has settled into
-    // tick-off state), and pauses the ambient pulse during drag so the
-    // user isn't fighting the simulation.
+    // Generic drag — works on any face / service / project node. The
+    // drag handler is parameterised on SimNode so it can run against
+    // all three group selections without per-kind logic. Cursor swap
+    // works because every node g has cursor: 'grab' set on parent.
     let dragLocked = false
-    const drag = d3
-      .drag<SVGGElement, SimFace>()
-      .filter((event) => !event.ctrlKey && !event.button)
-      .on('start', (event, d) => {
-        dragLocked = true
-        sim.on('tick', tickHandler) // ensure DOM updates follow the drag
-        sim.alphaTarget(0.3).restart()
-        d.fx = d.x
-        d.fy = d.y
-        d3.select<SVGGElement, SimFace>(
-          event.sourceEvent.target.closest('g.cstl-face') as SVGGElement,
-        ).style('cursor', 'grabbing')
-      })
-      .on('drag', (event, d) => {
-        d.fx = event.x
-        d.fy = event.y
-      })
-      .on('end', (event, d) => {
-        sim.alphaTarget(0)
-        d.fx = null
-        d.fy = null
-        d3.select<SVGGElement, SimFace>(
-          event.sourceEvent.target.closest('g.cstl-face') as SVGGElement,
-        ).style('cursor', 'grab')
-        // unlock ambient float after a short cooldown
-        setTimeout(() => {
-          dragLocked = false
-        }, 600)
-      })
-    facePoints.call(drag)
+    function makeDrag<T extends SimNode>(selector: string) {
+      return d3
+        .drag<SVGGElement, T>()
+        .filter((event) => !event.ctrlKey && !event.button)
+        .on('start', (event, d) => {
+          dragLocked = true
+          sim.on('tick', tickHandler)
+          sim.alphaTarget(0.3).restart()
+          d.fx = d.x
+          d.fy = d.y
+          d3.select<SVGGElement, T>(
+            event.sourceEvent.target.closest(selector) as SVGGElement,
+          ).style('cursor', 'grabbing')
+        })
+        .on('drag', (event, d) => {
+          d.fx = event.x
+          d.fy = event.y
+        })
+        .on('end', (event, d) => {
+          sim.alphaTarget(0)
+          d.fx = null
+          d.fy = null
+          d3.select<SVGGElement, T>(
+            event.sourceEvent.target.closest(selector) as SVGGElement,
+          ).style('cursor', 'grab')
+          setTimeout(() => {
+            dragLocked = false
+          }, 600)
+        })
+    }
+    facePoints.call(makeDrag<SimFace>('g.cstl-face'))
+    servicePoints.call(makeDrag<SimService>('g.cstl-service'))
+    projectPoints.call(makeDrag<SimProject>('g.cstl-project'))
 
     // Zoom + pan.
     const zoom = d3
@@ -504,7 +710,9 @@ export default function Constellation({
       .filter((event) => {
         if (event.type === 'mousedown' || event.type === 'touchstart') {
           const target = event.target as Element
-          return !target.closest('.cstl-faces g, .cstl-wells g')
+          return !target.closest(
+            '.cstl-faces g, .cstl-services g, .cstl-projects g, .cstl-wells g',
+          )
         }
         return true
       })
@@ -526,6 +734,33 @@ export default function Constellation({
 
   // Lightweight update: opacity + well state only. NEVER restarts the
   // simulation — that's what made clicks feel slow.
+  // Layer toggle — fade the inactive node groups. Runs every time the
+  // `layers` state changes. Uses CSS opacity transitions on the parent
+  // groups so the simulation keeps positioning everything; only the
+  // visual presence changes.
+  useEffect(() => {
+    if (!svgRef.current) return
+    const svg = d3.select(svgRef.current)
+    svg
+      .select('.cstl-faces')
+      .transition()
+      .duration(400)
+      .style('opacity', layers.people ? 1 : 0.12)
+      .style('pointer-events', layers.people ? 'auto' : 'none')
+    svg
+      .select('.cstl-services')
+      .transition()
+      .duration(400)
+      .style('opacity', layers.services ? 1 : 0.12)
+      .style('pointer-events', layers.services ? 'auto' : 'none')
+    svg
+      .select('.cstl-projects')
+      .transition()
+      .duration(400)
+      .style('opacity', layers.projects ? 1 : 0.12)
+      .style('pointer-events', layers.projects ? 'auto' : 'none')
+  }, [layers])
+
   useEffect(() => {
     if (!svgRef.current) return
     const simFaces = simFacesRef.current
@@ -1149,6 +1384,55 @@ export default function Constellation({
                 }
               >
                 {m.label}
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Layer toggles — show/hide People · Services · Projects */}
+        <div className="inline-flex items-center gap-1.5 ml-2">
+          <span className="text-[10px] uppercase tracking-wider text-stone-500 mr-1">
+            Layers
+          </span>
+          {([
+            { key: 'people', label: 'People', count: data.faces.length, dotColor: '#2D5F4F' },
+            { key: 'services', label: 'Services', count: data.services.filter((s) => s.status === 'active').length, dotColor: '#C8963E' },
+            { key: 'projects', label: 'Projects', count: data.projects.length, dotColor: PROJECT_RING },
+          ] as const).map((l) => {
+            const on = layers[l.key]
+            return (
+              <button
+                key={l.key}
+                type="button"
+                onClick={() =>
+                  setLayers((s) => ({ ...s, [l.key]: !s[l.key] }))
+                }
+                className="text-[11px] inline-flex items-center gap-1.5 px-2 py-1 rounded border transition"
+                style={
+                  on
+                    ? {
+                        backgroundColor: '#FFFFFF',
+                        borderColor: l.dotColor,
+                        color: '#2C2C2C',
+                      }
+                    : {
+                        backgroundColor: '#F4E9DC',
+                        borderColor: '#E0CFB8',
+                        color: '#8B8B7D',
+                        opacity: 0.7,
+                      }
+                }
+                title={on ? `Hide ${l.label}` : `Show ${l.label}`}
+              >
+                <span
+                  className="inline-block w-2 h-2 rounded-full"
+                  style={{
+                    backgroundColor: on ? l.dotColor : 'transparent',
+                    border: `1.5px solid ${l.dotColor}`,
+                  }}
+                />
+                <span className="font-semibold">{l.label}</span>
+                <span className="opacity-60">{l.count}</span>
               </button>
             )
           })}
