@@ -163,56 +163,62 @@ export default async function LivingAtlasPage() {
           </div>
         </section>
 
-        {/* Featured voice — single quote moment */}
+        {/* Featured voice — single editorial pull-quote, no card chrome */}
         {featuredVoice && (
-          <section className="mb-12">
-            <article
-              className="rounded-2xl border bg-white p-8 md:p-12 shadow-sm flex flex-col gap-5 max-w-4xl mx-auto"
-              style={{ borderColor: '#E0CFB8' }}
+          <section className="mb-20 max-w-4xl mx-auto px-2 text-center">
+            <div className="text-[10px] uppercase tracking-[0.4em] font-bold text-ochre mb-6">
+              A featured voice
+              {featuredVoice.theme && (
+                <span className="ml-2 text-stone-400 font-normal">
+                  · on {featuredVoice.theme.replace(/_/g, ' ')}
+                </span>
+              )}
+            </div>
+            {/* Giant open-quote mark as decoration */}
+            <div
+              className="font-serif text-ochre/40 leading-none mb-2 select-none"
+              style={{ fontSize: 96 }}
+              aria-hidden="true"
             >
-              <div className="text-[10px] uppercase tracking-[0.3em] font-semibold text-ochre">
-                Featured voice
-                {featuredVoice.theme && (
-                  <span className="ml-2 text-stone-500">
-                    · {featuredVoice.theme.replace(/_/g, ' ')}
-                  </span>
-                )}
-              </div>
-              <blockquote className="font-serif italic text-3xl md:text-4xl text-charcoal leading-[1.2]">
-                &ldquo;{featuredVoice.text}&rdquo;
-              </blockquote>
-              <div className="flex items-center gap-3 mt-2">
-                {featuredVoice.speaker_photo_url && (
-                  <img
-                    src={featuredVoice.speaker_photo_url}
-                    alt=""
-                    className="w-14 h-14 rounded-full object-cover"
-                    style={{
-                      border: `3px solid ${featuredVoice.speaker_is_elder ? '#B8860B' : '#FBF6EE'}`,
-                    }}
-                  />
-                )}
-                <div className="flex-1 min-w-0">
-                  <div className="font-semibold text-charcoal">
-                    {featuredVoice.speaker_name}
-                  </div>
-                  {featuredVoice.speaker_is_elder && (
-                    <div className="text-[10px] uppercase tracking-wider font-bold text-ochre">
-                      Elder
-                    </div>
-                  )}
+              &ldquo;
+            </div>
+            <blockquote
+              className="font-serif italic text-charcoal mx-auto"
+              style={{ fontSize: 'clamp(22px, 3vw, 36px)', lineHeight: 1.3, maxWidth: 760 }}
+            >
+              {featuredVoice.text}
+            </blockquote>
+            <div className="mt-8 inline-flex items-center gap-3">
+              {featuredVoice.speaker_photo_url && (
+                <img
+                  src={featuredVoice.speaker_photo_url}
+                  alt=""
+                  className="w-12 h-12 rounded-full object-cover shadow-sm"
+                  style={{
+                    border: `3px solid ${featuredVoice.speaker_is_elder ? '#B8860B' : '#FBF6EE'}`,
+                  }}
+                />
+              )}
+              <div className="text-left">
+                <div className="font-semibold text-charcoal">
+                  {featuredVoice.speaker_name}
                 </div>
-                {featuredVoice.speaker_slug && (
-                  <Link
-                    href={`/living-atlas/people/${featuredVoice.speaker_slug}`}
-                    className="text-sm font-semibold inline-flex items-center gap-1 hover:underline"
-                    style={{ color: '#2D5F4F' }}
-                  >
-                    Open profile <ArrowRight className="w-4 h-4" />
-                  </Link>
+                {featuredVoice.speaker_is_elder && (
+                  <div className="text-[10px] uppercase tracking-wider font-bold text-ochre">
+                    Elder
+                  </div>
                 )}
               </div>
-            </article>
+              {featuredVoice.speaker_slug && (
+                <Link
+                  href={`/living-atlas/people/${featuredVoice.speaker_slug}`}
+                  className="ml-3 text-sm font-semibold inline-flex items-center gap-1 hover:underline"
+                  style={{ color: '#2D5F4F' }}
+                >
+                  Open profile <ArrowRight className="w-4 h-4" />
+                </Link>
+              )}
+            </div>
           </section>
         )}
 
@@ -484,44 +490,33 @@ export default async function LivingAtlasPage() {
         )}
 
         {/* ─── 8. THE 20-YEAR ARC ─────────────────────────────────────── */}
-        <section className="mb-8 rounded-2xl p-6 md:p-8 border" style={{ backgroundColor: '#FBF6EE', borderColor: '#E0CFB8' }}>
-          <div className="flex items-baseline justify-between mb-3 flex-wrap gap-2">
-            <div>
-              <div className="text-[11px] uppercase tracking-[0.3em] font-bold text-ochre">
-                The 20-year arc · 2007 → 2027
-              </div>
-              <h2 className="font-serif text-2xl text-charcoal mt-1">
-                One year to go
-              </h2>
-            </div>
-            <Link
-              href="/living-atlas/anniversary"
-              className="text-sm font-semibold inline-flex items-center gap-1 hover:underline"
-              style={{ color: '#D97757' }}
-            >
-              Open the anniversary page <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-          <p className="text-sm text-stone-700 leading-relaxed max-w-3xl">
-            PICC launched in 2007. 197 staff today. The anniversary lands in
-            2027.
-          </p>
-          <div className="mt-4 flex gap-2 flex-wrap">
+        <section className="mb-16">
+          <SectionHeader
+            eyebrow="06 · The arc"
+            label="2007 — 2027 · one year to go"
+            caption="PICC launched in 2007 with a handful of staff and a borrowed office. 197 staff today. The anniversary lands in 2027 — and the commitments below run out to 2045."
+            rightHref="/living-atlas/anniversary"
+            rightLabel="Open the anniversary page →"
+          />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {data.commitments.slice(0, 3).map((c) => (
-              <div
+              <article
                 key={c.target_year}
-                className="flex-1 min-w-[200px] rounded-lg bg-white border border-stone-200 p-3"
+                className="flex flex-col"
               >
-                <div className="text-[10px] uppercase tracking-wider font-semibold text-stone-500 mb-0.5">
+                <div
+                  className="font-serif leading-none tabular-nums mb-2"
+                  style={{ color: '#D97757', fontSize: 52 }}
+                >
                   {c.target_year}
                 </div>
-                <div className="font-serif text-sm text-charcoal mb-1">
+                <h3 className="font-serif text-xl text-charcoal leading-tight mb-2">
                   {c.title}
-                </div>
-                <div className="text-[11px] text-stone-600 leading-snug">
+                </h3>
+                <p className="text-sm text-stone-600 leading-relaxed">
                   {c.body}
-                </div>
-              </div>
+                </p>
+              </article>
             ))}
           </div>
         </section>
@@ -605,23 +600,22 @@ export default async function LivingAtlasPage() {
 
         {/* ─── 11. CALL TO ACTION ──────────────────────────────────────── */}
         <section
-          className="rounded-2xl p-6 md:p-8 border text-center"
-          style={{ backgroundColor: '#2D5F4F', borderColor: '#2D5F4F' }}
+          className="rounded-3xl px-8 py-16 md:py-20 text-center"
+          style={{ backgroundColor: '#2D5F4F' }}
         >
-          <div className="text-[11px] uppercase tracking-[0.3em] font-bold text-ochre mb-2">
-            Add to the Atlas
+          <div className="text-[11px] uppercase tracking-[0.4em] font-bold mb-5" style={{ color: '#D4A373' }}>
+            09 · Add to the Atlas
           </div>
-          <h2 className="font-serif text-2xl md:text-3xl text-white mb-2">
-            Tell us something we should hold
+          <h2 className="font-serif text-white mb-5" style={{ fontSize: 'clamp(28px, 4vw, 48px)', lineHeight: 1.1 }}>
+            Tell us something<br />we should hold.
           </h2>
-          <p className="text-sm text-white/80 max-w-2xl mx-auto leading-relaxed mb-4">
-            A memory, a vision, a service that mattered, a photo worth
-            keeping. Nothing publishes until community review. Elder voices
-            are prioritised. Youth submissions co-signed by a parent or Elder.
+          <p className="text-base text-white/75 max-w-xl mx-auto leading-relaxed mb-8">
+            A memory. A vision. A service that mattered. A photo worth
+            keeping. Nothing publishes until community review.
           </p>
           <Link
             href="/atlas/capture"
-            className="inline-block rounded-md px-5 py-2.5 font-semibold text-sm shadow-sm bg-white"
+            className="inline-block rounded-full px-8 py-3.5 font-semibold text-sm bg-white hover:bg-cream transition shadow-lg"
             style={{ color: '#2D5F4F' }}
           >
             Share a thought →
