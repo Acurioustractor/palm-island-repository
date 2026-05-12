@@ -242,30 +242,43 @@ export default function Constellation({
   const [activeYear, setActiveYear] = useState<number>(yearBounds.max)
   const [autoPlay, setAutoPlay] = useState<boolean>(false)
 
-  // Autoplay — when on, advances activeYear by 1 every 1.4s. Loops back
-  // to yearBounds.min after reaching yearBounds.max. Stops automatically
-  // if mode isn't 'timeline' (no point auto-advancing when you can't see
-  // the year change).
+  // Autoplay — advances activeYear by 1 on a timer. Years that have an
+  // annual report pause for 2× the normal beat so the viewer can read
+  // the rich data overlay before moving on. Loops min→max→min.
+  // Auto-switches to Timeline mode.
+  const reportYearSet = useMemo(
+    () => new Set(data.annual_reports.map((r) => r.fiscal_year)),
+    [data.annual_reports],
+  )
   useEffect(() => {
     if (!autoPlay) return
     if (mode !== 'timeline') {
       setMode('timeline')
     }
-    const id = window.setInterval(() => {
+    const tick = () => {
       setActiveYear((y) => {
         if (y >= yearBounds.max) return yearBounds.min
         return y + 1
       })
-    }, 1400)
-    return () => window.clearInterval(id)
+    }
+    // Slow beat (2200ms) on report years, normal (1100ms) on
+    // off-years. This is what makes the playback feel curated.
+    const beat = reportYearSet.has(activeYear) ? 2200 : 1100
+    const id = window.setTimeout(tick, beat)
+    return () => window.clearTimeout(id)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoPlay, yearBounds.max, yearBounds.min])
+  }, [autoPlay, activeYear, yearBounds.max, yearBounds.min, reportYearSet])
   // Defer the year value used in heavy effects so scrubbing stays buttery.
   const deferredYear = useDeferredValue(activeYear)
 
   const activeYearDetail = useMemo(
     () => data.years.find((y) => y.fiscal_year === deferredYear) ?? null,
     [data.years, deferredYear],
+  )
+  const activeYearReport = useMemo(
+    () =>
+      data.annual_reports.find((r) => r.fiscal_year === deferredYear) ?? null,
+    [data.annual_reports, deferredYear],
   )
   const activeThemeWell = useMemo(
     () => data.themes.find((t) => t.key === activeTheme) ?? null,
@@ -2153,6 +2166,79 @@ export default function Constellation({
             viewBox={`0 0 ${stageSize.width} ${stageSize.height}`}
             preserveAspectRatio="xMidYMid meet"
           />
+
+          {/* Year glance card — floats over the canvas in Timeline mode.
+              Shows the active year's report cover + title + key stats
+              + a CTA to open the full overlay. Lets the user FEEL the
+              time-travel without leaving the canvas. */}
+          {mode === 'timeline' && activeYearReport && (
+            <div
+              className="absolute bottom-5 left-5 z-10 rounded-xl shadow-xl border bg-white overflow-hidden"
+              style={{
+                width: 320,
+                borderColor: '#E0CFB8',
+                animation: 'cstl-glance-in 350ms ease',
+              }}
+            >
+              {activeYearReport.cover_photo_url && (
+                <img
+                  src={activeYearReport.cover_photo_url}
+                  alt=""
+                  className="w-full h-32 object-cover"
+                />
+              )}
+              <div className="p-4">
+                <div className="flex items-baseline justify-between mb-1">
+                  <div className="text-[10px] uppercase tracking-[0.3em] font-bold text-ochre">
+                    FY {activeYearReport.fiscal_year}
+                  </div>
+                  {activeYearDetail?.revenue && (
+                    <div
+                      className="text-sm font-semibold tabular-nums"
+                      style={{ color: '#2D5F4F' }}
+                    >
+                      ${(activeYearDetail.revenue / 1_000_000).toFixed(1)}M
+                    </div>
+                  )}
+                </div>
+                <div className="font-serif text-base text-charcoal leading-snug mb-2 line-clamp-2">
+                  {activeYearReport.title ?? `Annual Report FY${activeYearReport.fiscal_year}`}
+                </div>
+                {activeYearReport.summary && (
+                  <p className="text-[11.5px] text-stone-600 leading-snug line-clamp-3 mb-3">
+                    {activeYearReport.summary}
+                  </p>
+                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOverlayReport(activeYearReport)
+                    setAutoPlay(false)
+                  }}
+                  className="text-[11px] font-semibold inline-flex items-center gap-1 hover:underline"
+                  style={{ color: '#2D5F4F' }}
+                >
+                  Open full report →
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* When in timeline mode on an off-year (no report exists),
+              show a quieter hint so the user knows nothing's broken. */}
+          {mode === 'timeline' && !activeYearReport && (
+            <div
+              className="absolute bottom-5 left-5 z-10 rounded-lg bg-white/80 backdrop-blur px-3 py-2 border border-stone-200"
+              style={{ animation: 'cstl-glance-in 350ms ease' }}
+            >
+              <div className="text-[11px] text-stone-600">
+                <span className="font-semibold text-charcoal">
+                  FY {activeYear}
+                </span>{' '}
+                · no annual report on file
+              </div>
+            </div>
+          )}
         </div>
 
         {/* RIGHT RAIL */}
@@ -2352,6 +2438,16 @@ export default function Constellation({
           from {
             opacity: 0;
             transform: translateY(3px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes cstl-glance-in {
+          from {
+            opacity: 0;
+            transform: translateY(12px);
           }
           to {
             opacity: 1;
