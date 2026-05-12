@@ -1374,14 +1374,21 @@ export async function loadConstellation(): Promise<ConstellationPayload> {
     const end = endRaw.length === 4 ? endRaw.slice(2) : endRaw
     return `${start}-${end}`
   }
-  // Manual cover overrides — for pre-PDF founding years (FY 2008, 2009)
-  // where no extracted first-page exists. Falls back to archival Palm
-  // Island imagery that signals the era. Keyed by fiscal year end.
+  // Manual cover overrides — used when the default extracted first-page
+  // is either missing (pre-PDF founding years) or visually weak (a
+  // title page with heavy graphics/text rather than a real photo).
+  // Falls back to a better photo in the same folder or to archival
+  // Palm Island imagery. Keyed by fiscal year end.
   const COVER_OVERRIDES: Record<number, string> = {
     // FY 2008 — Founding year (no formal annual report PDF on file)
     2008: `${PICC_STORAGE}/storage/v1/object/public/platform-media/archive-photos/nma-protest-palm-island-2006.jpg`,
     // FY 2009 — first year of operations
     2009: `${PICC_STORAGE}/storage/v1/object/public/platform-media/archive-photos/palm-island-jetty.jpg`,
+    // FY 2010 — photo-000 is a title-page graphic with white centre /
+    // dark outline. photo-001 is the first real hero image.
+    2010: `${PICC_STORAGE}/storage/v1/object/public/platform-media/annual-report-photos/2009-10/photo-001.jpg`,
+    // FY 2022 — same issue, photo-000 is a graphic plate not a photo.
+    2022: `${PICC_STORAGE}/storage/v1/object/public/platform-media/annual-report-photos/2021-22/photo-001.jpg`,
   }
   function extractedCoverFor(
     rangeStr: string | null,
