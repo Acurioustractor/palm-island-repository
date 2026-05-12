@@ -240,6 +240,26 @@ export default function Constellation({
     return { min: Math.min(...all), max: Math.max(...all) }
   }, [data])
   const [activeYear, setActiveYear] = useState<number>(yearBounds.max)
+  const [autoPlay, setAutoPlay] = useState<boolean>(false)
+
+  // Autoplay — when on, advances activeYear by 1 every 1.4s. Loops back
+  // to yearBounds.min after reaching yearBounds.max. Stops automatically
+  // if mode isn't 'timeline' (no point auto-advancing when you can't see
+  // the year change).
+  useEffect(() => {
+    if (!autoPlay) return
+    if (mode !== 'timeline') {
+      setMode('timeline')
+    }
+    const id = window.setInterval(() => {
+      setActiveYear((y) => {
+        if (y >= yearBounds.max) return yearBounds.min
+        return y + 1
+      })
+    }, 1400)
+    return () => window.clearInterval(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoPlay, yearBounds.max, yearBounds.min])
   // Defer the year value used in heavy effects so scrubbing stays buttery.
   const deferredYear = useDeferredValue(activeYear)
 
@@ -317,6 +337,37 @@ export default function Constellation({
     glow.append('stop').attr('offset', '100%').attr('stop-color', '#2D5F4F').attr('stop-opacity', 0)
 
     const root = svg.append('g').attr('class', 'cstl-root')
+
+    // BIG year label — semi-transparent, behind everything. Visible
+    // only in Timeline mode. Updates via the mode/year effect below.
+    const yearBackdrop = root.append('g').attr('class', 'cstl-year-label')
+    yearBackdrop
+      .append('text')
+      .attr('class', 'cstl-year-num')
+      .attr('x', cx)
+      .attr('y', cy + 50)
+      .attr('text-anchor', 'middle')
+      .attr('font-family', 'Georgia, serif')
+      .attr('font-size', Math.min(stageSize.width, stageSize.height) * 0.5)
+      .attr('font-weight', 700)
+      .attr('fill', '#2D5F4F')
+      .attr('opacity', 0)
+      .attr('pointer-events', 'none')
+      .text(activeYear.toString())
+    yearBackdrop
+      .append('text')
+      .attr('class', 'cstl-year-eyebrow')
+      .attr('x', cx)
+      .attr('y', cy - Math.min(stageSize.width, stageSize.height) * 0.16)
+      .attr('text-anchor', 'middle')
+      .attr('font-family', 'Inter, system-ui, sans-serif')
+      .attr('font-size', 12)
+      .attr('font-weight', 700)
+      .attr('letter-spacing', 4)
+      .attr('fill', '#D4A373')
+      .attr('opacity', 0)
+      .attr('pointer-events', 'none')
+      .text('FISCAL YEAR')
 
     // Decorative rings.
     root
@@ -822,10 +873,51 @@ export default function Constellation({
         if (activeProject) return projectIds.has(id) ? 1 : 0.1
         if (activeElder) return elderIds.has(id) ? 1 : 0.1
         if (mode === 'timeline' && face.year !== null)
-          return face.year <= deferredYear ? 1 : 0.18
-        if (mode === 'voices') return face.is_elder ? 1 : 0.5
+          return face.year <= deferredYear ? 1 : 0.12
+        // Voices mode: non-elders dim hard so Elders dominate visually.
+        if (mode === 'voices') return face.is_elder ? 1 : 0.18
+        // Visions mode: dim everyone so future commitments stand out.
+        if (mode === 'visions') return 0.32
         return 1
       })
+
+    // Voices mode — Elder rings pulse so the gold ring becomes the
+    // visual signature. Scale Elder faces up 8% for emphasis.
+    svg
+      .selectAll<SVGGElement, unknown>('.cstl-faces > g')
+      .each(function () {
+        const id = this.getAttribute('data-id') ?? ''
+        const face = idToFace.get(id)
+        if (!face) return
+        const sel = d3.select(this)
+        // Reset transform — leave d3-force translation in place but
+        // append a scale for Voices mode.
+        sel.style(
+          'transform-box',
+          'fill-box',
+        )
+        sel.style(
+          'transition',
+          'opacity 0.4s ease',
+        )
+      })
+
+    // BIG year backdrop — visible only in Timeline mode.
+    svg
+      .selectAll<SVGTextElement, unknown>(
+        '.cstl-year-label .cstl-year-num',
+      )
+      .transition()
+      .duration(450)
+      .attr('opacity', mode === 'timeline' ? 0.08 : 0)
+      .text(deferredYear.toString())
+    svg
+      .selectAll<SVGTextElement, unknown>(
+        '.cstl-year-label .cstl-year-eyebrow',
+      )
+      .transition()
+      .duration(450)
+      .attr('opacity', mode === 'timeline' ? 0.6 : 0)
   }, [
     mode,
     activeTheme,
@@ -2104,13 +2196,45 @@ export default function Constellation({
 
       {/* ─── Bottom — year scrubber with report markers ────────────── */}
       <div className="px-6 py-4 border-t border-stone-200 bg-white/80 backdrop-blur">
-        <div className="flex items-center gap-2 mb-2 justify-between">
+        <div className="flex items-center gap-3 mb-2 justify-between">
           <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-ochre">
             Year scrubber · {data.annual_reports.length} annual reports
           </span>
-          <div className="font-serif text-charcoal flex items-baseline gap-1">
-            <span className="text-[10px] uppercase tracking-wider text-stone-500">FY</span>
-            <span className="text-xl">{activeYear}</span>
+          <div className="flex items-center gap-3">
+            {/* Auto-play — turns the timeline into a time-machine. */}
+            <button
+              type="button"
+              onClick={() => setAutoPlay((p) => !p)}
+              aria-label={autoPlay ? 'Pause auto-advance' : 'Auto-advance year by year'}
+              title={autoPlay ? 'Pause' : 'Play through the years'}
+              className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full border transition"
+              style={
+                autoPlay
+                  ? { backgroundColor: '#2D5F4F', color: '#FBF6EE', borderColor: '#2D5F4F' }
+                  : { backgroundColor: 'white', color: '#2C2C2C', borderColor: '#D4D4D4' }
+              }
+            >
+              {autoPlay ? (
+                <>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                    <rect x="6" y="5" width="4" height="14" rx="1" />
+                    <rect x="14" y="5" width="4" height="14" rx="1" />
+                  </svg>
+                  Pause
+                </>
+              ) : (
+                <>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                  Play through
+                </>
+              )}
+            </button>
+            <div className="font-serif text-charcoal flex items-baseline gap-1">
+              <span className="text-[10px] uppercase tracking-wider text-stone-500">FY</span>
+              <span className="text-xl tabular-nums">{activeYear}</span>
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-3">
