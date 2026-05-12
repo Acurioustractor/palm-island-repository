@@ -2168,60 +2168,21 @@ export default function Constellation({
           />
 
           {/* Year glance card — floats over the canvas in Timeline mode.
-              Shows the active year's report cover + title + key stats
-              + a CTA to open the full overlay. Lets the user FEEL the
-              time-travel without leaving the canvas. */}
+              Cycles through every facet of the report (summary, numbers,
+              achievements, highlights, sections) every 2s when autoplay
+              is on. Click a facet dot to jump. Open full report → full
+              overlay. */}
           {mode === 'timeline' && activeYearReport && (
-            <div
-              className="absolute bottom-5 left-5 z-10 rounded-xl shadow-xl border bg-white overflow-hidden"
-              style={{
-                width: 320,
-                borderColor: '#E0CFB8',
-                animation: 'cstl-glance-in 350ms ease',
+            <YearGlanceCard
+              key={activeYearReport.fiscal_year}
+              report={activeYearReport}
+              yearDetail={activeYearDetail}
+              autoCycle={autoPlay}
+              onOpenFull={() => {
+                setOverlayReport(activeYearReport)
+                setAutoPlay(false)
               }}
-            >
-              {activeYearReport.cover_photo_url && (
-                <img
-                  src={activeYearReport.cover_photo_url}
-                  alt=""
-                  className="w-full h-32 object-cover"
-                />
-              )}
-              <div className="p-4">
-                <div className="flex items-baseline justify-between mb-1">
-                  <div className="text-[10px] uppercase tracking-[0.3em] font-bold text-ochre">
-                    FY {activeYearReport.fiscal_year}
-                  </div>
-                  {activeYearDetail?.revenue && (
-                    <div
-                      className="text-sm font-semibold tabular-nums"
-                      style={{ color: '#2D5F4F' }}
-                    >
-                      ${(activeYearDetail.revenue / 1_000_000).toFixed(1)}M
-                    </div>
-                  )}
-                </div>
-                <div className="font-serif text-base text-charcoal leading-snug mb-2 line-clamp-2">
-                  {activeYearReport.title ?? `Annual Report FY${activeYearReport.fiscal_year}`}
-                </div>
-                {activeYearReport.summary && (
-                  <p className="text-[11.5px] text-stone-600 leading-snug line-clamp-3 mb-3">
-                    {activeYearReport.summary}
-                  </p>
-                )}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setOverlayReport(activeYearReport)
-                    setAutoPlay(false)
-                  }}
-                  className="text-[11px] font-semibold inline-flex items-center gap-1 hover:underline"
-                  style={{ color: '#2D5F4F' }}
-                >
-                  Open full report →
-                </button>
-              </div>
-            </div>
+            />
           )}
 
           {/* When in timeline mode on an off-year (no report exists),
@@ -2452,6 +2413,16 @@ export default function Constellation({
           to {
             opacity: 1;
             transform: translateY(0);
+          }
+        }
+        @keyframes cstl-facet-in {
+          from {
+            opacity: 0;
+            transform: translateX(8px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
           }
         }
         /* GPU-accelerated opacity transition for face nodes — keeps
@@ -2975,5 +2946,273 @@ function Thumb({
         />
       )}
     </span>
+  )
+}
+
+/**
+ * YearGlanceCard — cycling info-stream for the active year. Renders one
+ * facet at a time. When `autoCycle` is true (autoplay running), advances
+ * to the next facet every 2.2s. User can click a dot to jump.
+ *
+ * Facets supported (only non-empty ones are shown):
+ *   summary    — cover + title + AI summary
+ *   numbers    — revenue / staff / clients / programs grid
+ *   achievements — top 4 AI-extracted achievements
+ *   highlights — first PICC case study (cover + name + description)
+ *   sections   — first 4 section walkthrough titles
+ */
+function YearGlanceCard({
+  report,
+  yearDetail,
+  autoCycle,
+  onOpenFull,
+}: {
+  report: AnnualReportItem
+  yearDetail: ConstellationPayload['years'][number] | null
+  autoCycle: boolean
+  onOpenFull: () => void
+}) {
+  type Facet = 'summary' | 'numbers' | 'achievements' | 'highlights' | 'sections'
+  // Build the active facet list — only include ones that have content.
+  const facets = useMemo<Facet[]>(() => {
+    const out: Facet[] = []
+    if (report.summary || report.cover_photo_url) out.push('summary')
+    if (
+      report.stats?.total_revenue ||
+      yearDetail?.revenue ||
+      report.stats?.staff_count ||
+      report.stats?.clients_served ||
+      report.stats?.programs_count
+    ) out.push('numbers')
+    if (report.key_achievements.length > 0) out.push('achievements')
+    if (report.picc_highlights.length > 0) out.push('highlights')
+    if (report.sections.length > 0 || report.picc_sections.length > 0)
+      out.push('sections')
+    return out.length > 0 ? out : ['summary']
+  }, [report, yearDetail])
+
+  const [idx, setIdx] = useState(0)
+  const safeIdx = idx % facets.length
+  const facet = facets[safeIdx]
+
+  // Auto-cycle every 2.2s when autoplay is on. Resets when facets
+  // change (new year landed).
+  useEffect(() => {
+    setIdx(0)
+  }, [facets])
+  useEffect(() => {
+    if (!autoCycle) return
+    if (facets.length <= 1) return
+    const id = window.setInterval(() => {
+      setIdx((i) => (i + 1) % facets.length)
+    }, 2200)
+    return () => window.clearInterval(id)
+  }, [autoCycle, facets.length])
+
+  return (
+    <div
+      className="absolute bottom-5 left-5 z-10 rounded-xl shadow-xl border bg-white overflow-hidden"
+      style={{
+        width: 380,
+        borderColor: '#E0CFB8',
+        animation: 'cstl-glance-in 350ms ease',
+      }}
+    >
+      {/* Cover photo strip — always visible at top */}
+      {report.cover_photo_url && (
+        <div className="relative">
+          <img
+            src={report.cover_photo_url}
+            alt=""
+            className="w-full h-28 object-cover"
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                'linear-gradient(to bottom, rgba(0,0,0,0) 60%, rgba(0,0,0,0.45))',
+            }}
+          />
+          <div className="absolute bottom-2 left-3 text-white">
+            <div className="text-[10px] uppercase tracking-[0.3em] font-bold">
+              FY {report.fiscal_year}
+            </div>
+            <div className="font-serif text-base leading-tight line-clamp-1 max-w-[320px]">
+              {report.title ?? `Annual Report FY${report.fiscal_year}`}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Facet body — cycles every 2.2s */}
+      <div
+        key={`${report.fiscal_year}-${facet}`}
+        className="p-4 min-h-[130px]"
+        style={{ animation: 'cstl-facet-in 300ms ease' }}
+      >
+        <div className="text-[9px] uppercase tracking-[0.3em] font-bold text-ochre mb-2">
+          {facet === 'summary' && 'From the report'}
+          {facet === 'numbers' && 'The numbers'}
+          {facet === 'achievements' && 'Key achievements'}
+          {facet === 'highlights' && 'Case study'}
+          {facet === 'sections' && 'Inside this report'}
+        </div>
+
+        {facet === 'summary' && (
+          <p className="text-[12px] text-stone-700 leading-snug line-clamp-5 font-serif italic">
+            {report.summary}
+          </p>
+        )}
+
+        {facet === 'numbers' && (
+          <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
+            {(report.stats?.total_revenue || yearDetail?.revenue) && (
+              <div>
+                <div
+                  className="font-serif tabular-nums text-xl"
+                  style={{ color: '#2D5F4F' }}
+                >
+                  $
+                  {(
+                    (Number(report.stats?.total_revenue ?? 0) ||
+                      yearDetail?.revenue ||
+                      0) / 1_000_000
+                  ).toFixed(1)}
+                  M
+                </div>
+                <div className="text-[10px] uppercase tracking-wider text-stone-500">
+                  total revenue
+                </div>
+              </div>
+            )}
+            {report.stats?.staff_count != null && (
+              <div>
+                <div
+                  className="font-serif tabular-nums text-xl"
+                  style={{ color: '#2D5F4F' }}
+                >
+                  {report.stats.staff_count}
+                </div>
+                <div className="text-[10px] uppercase tracking-wider text-stone-500">
+                  staff
+                </div>
+              </div>
+            )}
+            {report.stats?.clients_served != null && (
+              <div>
+                <div
+                  className="font-serif tabular-nums text-xl"
+                  style={{ color: '#2D5F4F' }}
+                >
+                  {Number(report.stats.clients_served).toLocaleString()}
+                </div>
+                <div className="text-[10px] uppercase tracking-wider text-stone-500">
+                  clients
+                </div>
+              </div>
+            )}
+            {report.stats?.programs_count != null && (
+              <div>
+                <div
+                  className="font-serif tabular-nums text-xl"
+                  style={{ color: '#2D5F4F' }}
+                >
+                  {report.stats.programs_count}
+                </div>
+                <div className="text-[10px] uppercase tracking-wider text-stone-500">
+                  programs
+                </div>
+              </div>
+            )}
+            {report.stats?.ceo && (
+              <div className="col-span-2">
+                <div className="text-[10px] uppercase tracking-wider text-stone-500">
+                  CEO
+                </div>
+                <div className="text-[12px] font-semibold text-charcoal">
+                  {String(report.stats.ceo)}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {facet === 'achievements' && (
+          <ul className="space-y-1.5 text-[12px] text-stone-800">
+            {report.key_achievements.slice(0, 4).map((a, i) => (
+              <li key={i} className="flex gap-2 leading-snug">
+                <span style={{ color: '#2D5F4F' }} className="flex-shrink-0">
+                  ✓
+                </span>
+                <span className="line-clamp-2">{a}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {facet === 'highlights' && report.picc_highlights[0] && (
+          <div>
+            <div className="font-serif text-sm text-charcoal mb-1 leading-snug">
+              {report.picc_highlights[0].title}
+            </div>
+            {report.picc_highlights[0].subtitle && (
+              <div className="text-[11px] text-stone-500 italic mb-1.5">
+                {report.picc_highlights[0].subtitle}
+              </div>
+            )}
+            {report.picc_highlights[0].description && (
+              <p className="text-[11.5px] text-stone-700 leading-snug line-clamp-4">
+                {report.picc_highlights[0].description}
+              </p>
+            )}
+          </div>
+        )}
+
+        {facet === 'sections' && (
+          <ul className="space-y-1.5 text-[12px] text-stone-800">
+            {(report.picc_sections.length > 0
+              ? report.picc_sections.slice(0, 4).map((s) => s.section_title)
+              : report.sections.slice(0, 4).map((s) => s.title)
+            ).map((t, i) => (
+              <li key={i} className="flex gap-2 leading-snug">
+                <span style={{ color: '#D4A373' }} className="flex-shrink-0">
+                  ·
+                </span>
+                <span className="line-clamp-1">{t}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {/* Facet dots + open-full link */}
+      <div className="px-4 pb-3 flex items-center justify-between border-t border-stone-100 pt-2">
+        <div className="flex items-center gap-1.5">
+          {facets.map((f, i) => (
+            <button
+              key={f}
+              type="button"
+              onClick={() => setIdx(i)}
+              aria-label={`Show ${f}`}
+              className="transition"
+              style={{
+                width: i === safeIdx ? 18 : 6,
+                height: 6,
+                borderRadius: 3,
+                backgroundColor: i === safeIdx ? '#2D5F4F' : '#D4D4D4',
+              }}
+            />
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={onOpenFull}
+          className="text-[11px] font-semibold inline-flex items-center gap-1 hover:underline"
+          style={{ color: '#2D5F4F' }}
+        >
+          Open full report →
+        </button>
+      </div>
+    </div>
   )
 }
