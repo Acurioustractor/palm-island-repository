@@ -1505,44 +1505,42 @@ export default function Constellation({
       >
         {/* LEFT RAIL — tabbed browser */}
         <div className="w-[220px] border-r border-stone-200 bg-white/60 flex-shrink-0 flex flex-col">
-          {/* Tab strip */}
-          <div className="flex flex-wrap gap-1 p-2 border-b border-stone-200">
-            {TABS.map((t) => (
-              <button
-                key={t.key}
-                type="button"
-                onClick={() => setTab(t.key)}
-                className="text-[11px] px-2 py-1 rounded font-semibold"
-                style={
-                  tab === t.key
-                    ? { backgroundColor: '#2D5F4F', color: '#FBF6EE' }
-                    : { color: '#2C2C2C', backgroundColor: 'transparent' }
-                }
-              >
-                {t.label}
-              </button>
-            ))}
+          {/* Tab strip — underlined pills, subtler than coloured fills */}
+          <div className="flex flex-wrap gap-x-3 gap-y-1 px-3 py-2 border-b border-stone-200">
+            {TABS.map((t) => {
+              const active = tab === t.key
+              return (
+                <button
+                  key={t.key}
+                  type="button"
+                  onClick={() => setTab(t.key)}
+                  className="text-[11px] py-1 font-semibold relative transition"
+                  style={{
+                    color: active ? '#2D5F4F' : '#6B6560',
+                  }}
+                >
+                  {t.label}
+                  {active && (
+                    <span
+                      className="absolute left-0 right-0 -bottom-[3px] h-[2px] rounded-full"
+                      style={{ backgroundColor: '#2D5F4F' }}
+                    />
+                  )}
+                </button>
+              )
+            })}
           </div>
 
           {/* Tab body */}
           <div className="flex-1 overflow-y-auto p-3 text-sm">
             {tab === 'view' && (
               <>
-                <RailHeading>Active mode</RailHeading>
-                <div className="rounded-md border border-stone-200 bg-white p-3 mb-3">
-                  <div className="font-serif text-sm text-charcoal">
-                    {MODES.find((m) => m.key === mode)?.label}
-                  </div>
-                  <div className="text-[11px] text-stone-600 mt-0.5">
-                    {MODES.find((m) => m.key === mode)?.hint}
-                  </div>
-                  <div className="text-[10px] text-stone-500 mt-2 italic">
-                    Switch modes from the top strip.
-                  </div>
-                </div>
-
-                <RailHeading>Voice rings</RailHeading>
-                <div className="space-y-1 text-[11px] text-stone-700">
+                {/* Voice rings legend — the colour key for the canvas.
+                    Active mode + How-to-use removed: the mode toggle in
+                    the header already shows active state, and the intro
+                    overlay introduces the gestures on first paint. */}
+                <RailHeading>Ring colours</RailHeading>
+                <div className="space-y-1.5 text-[11px] text-stone-700">
                   <LegendRow colour={ELDER_RING} label="Elder voice" />
                   <LegendRow colour={VOICE_RINGS.staff} label="Staff · service" />
                   <LegendRow colour={VOICE_RINGS.community} label="Community" />
@@ -1551,13 +1549,11 @@ export default function Constellation({
                 </div>
 
                 <RailDivider />
-                <RailHeading>How to use</RailHeading>
-                <ul className="text-[11px] text-stone-700 space-y-1">
-                  <li>Drag any face to move it.</li>
-                  <li>Scroll / pinch to zoom.</li>
-                  <li>Click a theme to focus.</li>
-                  <li>Scrub a year to time-travel.</li>
-                </ul>
+                <RailHeading>Layer outlines</RailHeading>
+                <div className="space-y-1.5 text-[11px] text-stone-700">
+                  <LegendRow colour="#C8963E" label="Services · solid ring" />
+                  <LegendRow colour={PROJECT_RING} label="Projects · dashed ring" />
+                </div>
               </>
             )}
 
@@ -2068,12 +2064,19 @@ export default function Constellation({
         </div>
 
         {/* RIGHT RAIL */}
-        <div className="w-[280px] border-l border-stone-200 bg-white/60 p-3 overflow-y-auto flex-shrink-0">
-          <div className="rounded-lg border border-stone-200 bg-white p-3 mb-3">
-            <div className="text-[10px] uppercase tracking-wide text-stone-500 font-semibold mb-2">
-              Permissions
-            </div>
-            <div className="text-xs text-charcoal space-y-1">
+        <div className="w-[280px] border-l border-stone-200 bg-white/60 overflow-y-auto flex-shrink-0 flex flex-col">
+          {/* Context card grows to fill available space — the most important
+              part of the rail (active face / theme / service / project). */}
+          <div className="flex-1 p-3 overflow-y-auto">{rightCard}</div>
+
+          {/* Sovereignty footer — compact, calm, single line. Click to
+              expand the full Permissions breakdown. */}
+          <details className="border-t border-stone-200 bg-stone-50/70">
+            <summary className="cursor-pointer list-none px-3 py-2 text-[10px] uppercase tracking-[0.15em] font-semibold text-stone-500 hover:bg-stone-100 select-none flex items-center justify-between">
+              <span>Sovereignty · {data.stats.faces_consented} consented</span>
+              <span className="text-stone-400">+</span>
+            </summary>
+            <div className="px-3 py-2 text-[11px] text-charcoal space-y-1 bg-white border-t border-stone-200">
               <Stat label="faces consented" value={data.stats.faces_consented} />
               <Stat label="elder quotes validated" value={data.stats.voices_validated_elder} />
               <Stat label="voices extracted" value={data.stats.voices_extracted} />
@@ -2090,13 +2093,12 @@ export default function Constellation({
                   {data.stats.restricted_by_community.toLocaleString()}
                 </span>
               </div>
+              <div className="text-[10px] text-stone-500 pt-1.5">
+                Elder approvals current as of{' '}
+                {data.meta.elder_approvals_current_as_of}
+              </div>
             </div>
-            <div className="text-[10px] text-stone-500 mt-2">
-              Elder approvals current as of {data.meta.elder_approvals_current_as_of}
-            </div>
-          </div>
-
-          {rightCard}
+          </details>
         </div>
       </div>
 
