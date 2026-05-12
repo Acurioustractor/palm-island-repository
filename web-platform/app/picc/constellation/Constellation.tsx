@@ -1357,23 +1357,72 @@ export default function Constellation({
       className="bg-cream flex flex-col"
       style={{ height: isFullscreen || immersive ? '100vh' : 'auto' }}
     >
-      {/* Header strip — title · tagline · mode-segmented · actions */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-stone-200 bg-white/80 backdrop-blur gap-3 flex-wrap">
+      {/* ─── HEADER · Row 1 — Identity + action icons (subtle, secondary) */}
+      <div className="flex items-center justify-between px-5 py-2 border-b border-stone-200 bg-white/80 backdrop-blur gap-3">
         <div className="flex items-baseline gap-3 min-w-0">
-          <span className="text-[10px] uppercase tracking-[0.3em] text-ochre font-bold whitespace-nowrap">
+          <span className="text-[10px] uppercase tracking-[0.4em] text-ochre font-bold whitespace-nowrap">
             Bwgcolman Constellation
           </span>
           <span
             key={tagIdx}
-            className="font-serif text-charcoal text-sm italic truncate hidden md:inline"
+            className="font-serif text-stone-600 text-xs italic truncate hidden md:inline"
             style={{ animation: 'cstl-fade 0.6s ease' }}
           >
             {TAGLINES[tagIdx]}
           </span>
         </div>
+        <div className="flex items-center gap-1 flex-shrink-0">
+          <button
+            type="button"
+            onClick={clearAllFocus}
+            title="Clear all focus (Esc)"
+            aria-label="Clear focus"
+            className="text-[11px] px-2 py-1 rounded hover:bg-stone-100 text-stone-600 hover:text-charcoal"
+          >
+            Clear
+          </button>
+          <button
+            type="button"
+            onClick={resetView}
+            title="Reset zoom + pan"
+            aria-label="Reset view"
+            className="text-[11px] px-2 py-1 rounded hover:bg-stone-100 text-stone-600 hover:text-charcoal"
+          >
+            Reset
+          </button>
+          <button
+            type="button"
+            onClick={toggleFullscreen}
+            title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+            aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+            className="text-[11px] px-2 py-1 rounded hover:bg-stone-100 text-stone-600 hover:text-charcoal inline-flex items-center gap-1"
+          >
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              {isFullscreen ? (
+                <>
+                  <path d="M9 9V3M9 9H3M9 9L3 3" />
+                  <path d="M15 9V3M15 9H21M15 9L21 3" />
+                  <path d="M9 15V21M9 15H3M9 15L3 21" />
+                  <path d="M15 15V21M15 15H21M15 15L21 21" />
+                </>
+              ) : (
+                <>
+                  <path d="M3 9V3H9" />
+                  <path d="M21 9V3H15" />
+                  <path d="M3 15V21H9" />
+                  <path d="M21 15V21H15" />
+                </>
+              )}
+            </svg>
+            {isFullscreen ? 'Exit' : 'Present'}
+          </button>
+        </div>
+      </div>
 
-        {/* Top-strip mode toggle — promoted from rail */}
-        <div className="inline-flex rounded-md border border-stone-300 overflow-hidden shadow-sm">
+      {/* ─── HEADER · Row 2 — Primary controls (modes + layers, prominent) */}
+      <div className="flex items-center justify-between px-5 py-2.5 border-b border-stone-200 bg-cream gap-3 flex-wrap">
+        {/* Mode toggle */}
+        <div className="inline-flex rounded-md border border-stone-300 overflow-hidden shadow-sm bg-white">
           {MODES.map((m) => {
             const active = mode === m.key
             return (
@@ -1382,7 +1431,7 @@ export default function Constellation({
                 type="button"
                 onClick={() => setMode(m.key)}
                 title={m.hint}
-                className="text-[11px] px-3 py-1.5 font-semibold border-r border-stone-300 last:border-r-0 transition"
+                className="text-[11px] px-3.5 py-1.5 font-semibold border-r border-stone-300 last:border-r-0 transition"
                 style={
                   active
                     ? { backgroundColor: '#2D5F4F', color: '#FBF6EE' }
@@ -1396,8 +1445,8 @@ export default function Constellation({
         </div>
 
         {/* Layer toggles — show/hide People · Services · Projects */}
-        <div className="inline-flex items-center gap-1.5 ml-2">
-          <span className="text-[10px] uppercase tracking-wider text-stone-500 mr-1">
+        <div className="inline-flex items-center gap-1.5">
+          <span className="text-[9.5px] uppercase tracking-[0.2em] text-stone-500 mr-1.5 font-semibold">
             Layers
           </span>
           {([
@@ -1413,7 +1462,7 @@ export default function Constellation({
                 onClick={() =>
                   setLayers((s) => ({ ...s, [l.key]: !s[l.key] }))
                 }
-                className="text-[11px] inline-flex items-center gap-1.5 px-2 py-1 rounded border transition"
+                className="text-[11px] inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border transition"
                 style={
                   on
                     ? {
@@ -1422,10 +1471,9 @@ export default function Constellation({
                         color: '#2C2C2C',
                       }
                     : {
-                        backgroundColor: '#F4E9DC',
+                        backgroundColor: 'transparent',
                         borderColor: '#E0CFB8',
                         color: '#8B8B7D',
-                        opacity: 0.7,
                       }
                 }
                 title={on ? `Hide ${l.label}` : `Show ${l.label}`}
@@ -1438,35 +1486,10 @@ export default function Constellation({
                   }}
                 />
                 <span className="font-semibold">{l.label}</span>
-                <span className="opacity-60">{l.count}</span>
+                <span className="opacity-60 tabular-nums">{l.count}</span>
               </button>
             )
           })}
-        </div>
-
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <button
-            type="button"
-            onClick={clearAllFocus}
-            className="text-xs px-2.5 py-1 rounded border border-stone-300 hover:bg-stone-50"
-          >
-            Clear focus
-          </button>
-          <button
-            type="button"
-            onClick={resetView}
-            className="text-xs px-2.5 py-1 rounded border border-stone-300 hover:bg-stone-50"
-          >
-            Reset view
-          </button>
-          <button
-            type="button"
-            onClick={toggleFullscreen}
-            className="text-xs px-3 py-1 rounded font-semibold text-white"
-            style={{ backgroundColor: '#2D5F4F' }}
-          >
-            {isFullscreen ? 'Exit fullscreen' : 'Present full screen'}
-          </button>
         </div>
       </div>
 
@@ -1476,7 +1499,7 @@ export default function Constellation({
         style={{
           height:
             isFullscreen || immersive
-              ? 'calc(100vh - 102px)'
+              ? 'calc(100vh - 154px)'
               : `${STAGE_HEIGHT}px`,
         }}
       >
